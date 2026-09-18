@@ -21,7 +21,8 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 
 const read = (p: string): string => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 
@@ -76,4 +77,127 @@ test('у постоянных слоёв есть имена, а не номер
      верхний слой браузера, где порядок решает не число. */
   const named = [...tokens.matchAll(/^\s*(--layer-[a-z-]+)\s*:/gm)].map((m) => m[1])
   assert.ok(named.length >= 5, `имён слоёв всего ${named.length}, а постоянных слоёв пять`)
+})
+
+/* Переносимость — обещание того же рода, и ломается оно так же тихо.
+ *
+ * Правило говорит: всё, что производим, становится на разный движок. Его
+ * держит `check:port` — а проверка считает НАРУШЕНИЯ, и на проекте, куда
+ * её не довезли или где база забыла половину семей, она честно напечатает
+ * ноль. Ноль, означающий «не проверено», неотличим от нуля, означающего
+ * «чисто»: ровно тот молчаливо неполный замер, ради которого и написан
+ * этот файл. */
+test('переносимость меряется, и база знает все семьи', () => {
+  /* Список читается ТЕКСТОМ, а не импортом: `tools/*.mjs` живут без типов,
+     и `import` отсюда валит `tsc` — а вместе с ним и сборку, потому что
+     Next проверяет типы проектом целиком. Замечено большой проверкой в тот
+     же час, когда этот тест был написан. */
+  const families = [...read('tools/port-families.mjs')
+    .matchAll(/'([a-zA-Z]+)',?/g)].map((m) => m[1])
+  const base = JSON.parse(read('tools/port-baseline.json')) as Record<string, number>
+  assert.ok(families.length >= 6, 'список семей переносимости не прочитался')
+  for (const family of families) {
+    assert.ok(family in base, `в базе переносимости нет семьи ${family}`)
+  }
+  assert.equal(Object.keys(base).length, families.length,
+    'в базе переносимости есть лишняя семья — значит, список разошёлся с проверкой')
+})
+
+test('набор везёт проверку переносимости и большую проверку', () => {
+  const kit = read('tools/kit.mjs')
+  for (const file of ['tools/check-port.mjs', 'tools/port-families.mjs', 'tools/check-all.mjs']) {
+    assert.ok(kit.includes(file), `набор не везёт ${file} — правило уедет без того, чем оно меряется`)
+  }
+})
+
+/* У проверки есть человеческое имя — иначе она существует только для агента.
+ *
+ * Заказчик сказал: «я эти проверки не запомню, они должны срабатывать от
+ * моего произвольного написания». Механизм для этого — реестр
+ * `tools/checks.mjs`: имя словами и слова-приметы, по которым проверка
+ * узнаётся в обычной фразе. Но реестр, который забыли пополнить, хуже
+ * отсутствующего: хук молчит, и заказчику кажется, что проверки нет.
+ *
+ * Поэтому: каждая команда, которую этап называет в своих проверках, обязана
+ * быть в реестре. Тест падает в тот день, когда заведена новая проверка и
+ * забыто имя для неё. */
+test('каждая проверка этапа названа словами в реестре', () => {
+  const registry = read('tools/checks.mjs')
+  const named = new Set([...registry.matchAll(/cmd:\s*'([^']+)'/g)].map((m) => m[1]))
+  const staged = new Set(
+    [...read('tools/stages.mjs').matchAll(/checks:\s*\[([^\]]*)\]/g)]
+      .flatMap((m) => [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1])),
+  )
+  assert.ok(staged.size >= 5, 'списки проверок этапов не прочитались')
+  for (const cmd of staged) {
+    assert.ok(named.has(cmd), `проверка ${cmd} есть у этапа, но не названа словами в tools/checks.mjs`)
+  }
+})
+
+/* Инструмент, который никто не запускает, ломается молча.
+ *
+ * Заведено по счёту, и счёт свежий: в `tools/kit.mjs` README набора лежит
+ * шаблонной строкой, и в неё добавили слово в обратных кавычках. Кавычка
+ * закрыла строку — файл перестал разбираться вовсе. Ни одна проверка этого
+ * не заметила: сборщик набора не стоит ни в цепочке, ни в CI, и узнать о
+ * поломке можно было только запустив его руками. То есть набор, который
+ * «переживает конец проекта», не собрался бы в день, когда понадобился.
+ *
+ * Разбор — не запуск: `node --check` читает файл и ничего не выполняет,
+ * поэтому сборщик здесь не соберёт ничего лишнего. */
+test('инструменты в tools/ разбираются', () => {
+  const dir = new URL('../tools/', import.meta.url)
+  const files = readdirSync(dir).filter((f) => f.endsWith('.mjs'))
+  assert.ok(files.length > 10, 'инструменты не нашлись')
+  for (const file of files) {
+    const r = spawnSync(process.execPath, ['--check', new URL(file, dir).pathname], { encoding: 'utf8' })
+    assert.equal(r.status, 0, `tools/${file} не разбирается:\n${r.stderr}`)
+  }
+})
+
+/* Список семей у проверки и у набора — один.
+ *
+ * Заведено по счёту, и счёт третий. Сборщик набора пишет новому проекту
+ * пустую базу, и список семей в ней был вторым экземпляром: у проверки кода
+ * он разошёлся первым, у проверки вёрстки вторым, у отрисованной — третьим,
+ * и там разница была девять семей против тридцати одной. Новый проект
+ * получал файл, молчащий о двух третях того, что меряется, — и проверка на
+ * нём была зелёной именно поэтому.
+ *
+ * Тест сверяет не «файлы существуют», а РАВЕНСТВО списков: имена семей в
+ * самой проверке (её таблица человеческих имён) и в файле, который отдаётся
+ * набору. */
+test('семьи проверок названы в одном месте', () => {
+  /* Список читается ТЕКСТОМ, а не ввозом: файлы набора — обычные `.mjs` без
+     объявлений типов, и ввоз ради трёх имён потребовал бы их сочинить. */
+  const listOf = (file: string): string[] => {
+    const src = read(`tools/${file}`)
+    const m = src.match(/export const [A-Z_]+ = \[([\s\S]*?)\]/)
+    assert.ok(m, `в tools/${file} не нашёлся список семей`)
+    return [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1])
+  }
+  const pairs: Array<[string, string]> = [
+    ['check-css.mjs', 'css-families.mjs'],
+    ['check-code.mjs', 'code-families.mjs'],
+    ['check-craft.mjs', 'craft-families.mjs'],
+  ]
+  for (const [check, list] of pairs) {
+    const families = listOf(list)
+    /* Подписи семей живут В РЕЕСТРЕ (`*_LABELS`), проверка их ввозит: так
+       подпись одна и на отчёт проверки, и на таблицу в скилле, которую
+       `check:rules --tables` собирает из того же реестра. Своя таблица в
+       проверке — вторая копия, и тест её не разрешает. */
+    const reg = read(`tools/${list}`)
+    const at = reg.indexOf('_LABELS = {')
+    assert.ok(at > 0, `в tools/${list} не нашлась таблица подписей семей (*_LABELS)`)
+    const block = reg.slice(at, reg.indexOf('\n}\n', at))
+    const named = [...block.matchAll(/^ {2}([A-Za-z][\w]*):/gm)].map((m) => m[1])
+    assert.deepEqual(
+      [...named].sort(), [...families].sort(),
+      `списки семей разошлись: подписи против имён в tools/${list}`,
+    )
+    const src = read(`tools/${check}`)
+    assert.ok(!/const NAMES = \{/.test(src), `tools/${check} держит свою таблицу подписей — вторая копия реестра`)
+    assert.ok(/_LABELS as NAMES/.test(src), `tools/${check} не ввозит подписи из tools/${list}`)
+  }
 })

@@ -75,7 +75,16 @@ const exists = (url) => {
 
 const SITE = (readFileSync(join(OUT, 'sitemap.xml'), 'utf8')
   .match(/<loc>([^<]*)<\/loc>/)?.[1] ?? '').replace(/\/[^/]*$/, '')
-const local = (href) => href.startsWith(SITE) ? href.slice(SITE.length) || '/' : null
+/* Свой адрес — и записанный полностью (так пишутся карта сайта и canonical),
+   и записанный от корня (так пишутся ссылки в тексте). Чужой — не наш, и не
+   нам его проверять. Раньше принимался только первый вид, поэтому обычные
+   ссылки не проверялись вовсе: `local()` отвечал «не наш» на каждую. */
+const local = (href) => {
+  if (href.startsWith(SITE)) return href.slice(SITE.length) || '/'
+  if (href.startsWith('//') || /^[a-z]+:/i.test(href)) return null
+  if (href.startsWith('/')) return href.split(/[?#]/)[0] || '/'
+  return null
+}
 
 /* ── карта сайта ────────────────────────────────────────────────────────── */
 const map = readFileSync(join(OUT, 'sitemap.xml'), 'utf8')
@@ -93,7 +102,7 @@ for (const [url, n] of seen) {
   if (n > 1) broken.push(`карта сайта обещает ${url} ${n} раза — двойник`)
 }
 
-/* ── ссылки внутри страниц: canonical и hreflang ────────────────────────── */
+/* ── ссылки внутри страниц: canonical, hreflang И ОБЫЧНЫЕ ───────────────── */
 const silent = []
 for (const [url, path] of [...pages].sort()) {
   const html = readFileSync(path, 'utf8')
@@ -102,6 +111,23 @@ for (const [url, path] of [...pages].sort()) {
     if (to !== null && !exists(to)) {
       broken.push(`${url} → ${m[1]} ${to} — такой страницы нет`)
     }
+  }
+
+  /* Обычная ссылка в тексте страницы — та, по которой ходит покупатель.
+     Прежде проверялись только `canonical` и `hreflang`, то есть обещания
+     ПОИСКУ, а обещания человеку не проверялись вовсе. На этом и проехала
+     ссылка «За нас» в шапке: адрес есть, страницы нет, и вся цепочка была
+     зелёной.
+
+     Считается один раз на страницу и на адрес: одна и та же битая ссылка в
+     шапке ста двадцати страниц — это одна правка, а не сто находок. */
+  const hrefs = new Set()
+  for (const m of html.matchAll(/<a\s[^>]*href="([^"#?][^"]*)"/g)) hrefs.add(m[1])
+  for (const href of hrefs) {
+    const to = local(href)
+    if (to === null || exists(to)) continue
+    const line = `ссылка → ${to} — такой страницы нет`
+    if (!broken.includes(line)) broken.push(line)
   }
 
   /* Открытое обещано. Служебные листы самого фреймворка (`_not-found`,

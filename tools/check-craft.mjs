@@ -57,6 +57,8 @@
 const { chromium } = await import(
   process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
 import { readFileSync, writeFileSync } from 'node:fs'
+import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
+import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
 import sharp from 'sharp'
 import { sample, isNative } from './routes.mjs'
@@ -88,7 +90,32 @@ const BASE = process.env.SITE ?? 'http://localhost:8099'
  * Список, набранный рукой, хуже неполного: он не растёт вообще. Теперь
  * страница попадает под проверку в день, когда её завели, — см.
  * `tools/routes.mjs`. */
-const PAGES = sample()
+/* ── узкий прогон: одна страница вместо всего дерева ──────────────────────
+ * Полный прогон — шестнадцать минут: 126 адресов на четыре среды. Это цена
+ * ПРИЁМКИ, а не цена правки. Заказчик спросил прямо: «если меняю мелочь,
+ * снова двадцать минут?» — и был прав, что спросил: между «секунды хуком» и
+ * «шестнадцать минут» у этой проверки не было ничего, и мелкую правку я
+ * перепроверял разовыми замерами руками, которые никуда не ложатся.
+ *
+ *   node tools/check-craft.mjs --page /bg/catalog     только эти адреса
+ *   node tools/check-craft.mjs --only target,markInk  только эти семьи в отчёте
+ *
+ * Узкий прогон НИКОГДА не трогает базу и не выносит вердикт: считать долг по
+ * половине дерева значит записать неправду. Он печатает найденное, а судит
+ * полный. */
+const flag = (name) => {
+  const i = process.argv.indexOf(name)
+  return i === -1 ? null : process.argv[i + 1] ?? null
+}
+const ONLY_PAGE = flag('--page')
+const ONLY_FAM = (flag('--only') ?? '').split(',').map((x) => x.trim()).filter(Boolean)
+const NARROW = Boolean(ONLY_PAGE)
+
+const PAGES = sample().filter((path) => !ONLY_PAGE || path.includes(ONLY_PAGE))
+if (!PAGES.length) {
+  console.error(`Под «${ONLY_PAGE}» не подошёл ни один адрес дерева. Список: node tools/routes.mjs`)
+  process.exit(1)
+}
 /* 1200 и 900 добавлены не для полноты. Ровно в этой полосе двухколоночный
    герой держит колонку шириной с телефон при десктопном окне: заголовок в ней
    вставал четырьмя строками по четырнадцать знаков, а подпись кадра — по
@@ -122,7 +149,10 @@ const measure = (phone) => {
   const out = { placeholder: [], measure: [], target: [], contrast: [], collision: [],
                 weight: [], jump: [], name: [], heads: [], dress: [], clip: [],
                 swipe: [], stretch: [], broken: [], spill: [], focus: [], wrap: [],
-                anchor: [], outline: [], marker: [], dark: [], ladder: [], wideCtrl: [], lopsided: [] }
+                anchor: [], outline: [], marker: [], dark: [], ladder: [], wideCtrl: [], lopsided: [],
+                markInk: [],
+                covered: [],
+                lane: [], sunk: [], stolen: [], field: [], alone: [], twoAir: [] }
   const seen = new Set()
 
   const lum = (c) => {
@@ -311,22 +341,30 @@ const measure = (phone) => {
     const CAP = 400
     let capped = false
     const rows = []
+    /* Ширина каждой строки в ПИКСЕЛЯХ — ею отличается столбик обрывков от
+       текста, которому просто досталась узкая колонка. */
+    const wide = []
     {
       const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
       let node, chars = 0
       const r = document.createRange()
       let last = null, row = ''
+      let l = Infinity, rgt = -Infinity
       while ((node = walk.nextNode()) && chars < CAP) {
         for (let i = 0; i < node.length; i++, chars++) {
           r.setStart(node, i); r.setEnd(node, i + 1)
           const rect = r.getBoundingClientRect()
           if (!rect.width && !rect.height) continue
           const top = Math.round(rect.top)
-          if (last !== null && top !== last) { rows.push(row); row = '' }
+          if (last !== null && top !== last) {
+            rows.push(row); wide.push(rgt - l); row = ''; l = Infinity; rgt = -Infinity
+          }
           last = top; row += node.data[i]
+          if (rect.left < l) l = rect.left
+          if (rect.right > rgt) rgt = rect.right
         }
       }
-      rows.push(row)
+      rows.push(row); wide.push(rgt - l)
       capped = chars >= CAP
     }
     /* Обход остановился на потолке — последняя строка недописана, и в
@@ -352,6 +390,14 @@ const measure = (phone) => {
        короткая строка неверна всегда). Ровно эти два случая заказчик и
        показывал: заголовок героя в 488px и подпись кадра в 30px. */
     const roomy = box.width >= 320 || parseFloat(cs.fontSize) >= 20
+    /* И третий случай, найденный свипом уже после первых двух: строка
+       ЗАПОЛНЯЕТ колонку. Тогда перенос сделал всё, что мог, и короткой её
+       сделали не размер и не раскладка, а сами слова — болгарское
+       «концентрация,» это тринадцать знаков, и в колонку 288px их входит
+       ровно столько. Требовать большего значит требовать других слов, а
+       слова — не вёрстка. */
+    const fill = Math.max(...wide.filter(Number.isFinite)) / box.width
+    if (fill >= 0.6) continue
     if (roomy && lines >= 3 && widest < 20) {
       out.measure.push(`${name(el)} — ${lines} строки, самая длинная ${widest} знаков: столбик обрывков`)
       continue
@@ -386,14 +432,15 @@ const measure = (phone) => {
        раскладки, а не меры, и ругаться на него здесь не о чем. */
     if (box.width < 320) continue
     const chars = rows.reduce((n, x) => n + x.trim().length, 0) / lines
-    /* Нижняя граница — про бегущий текст, а не про короткую фразу. Заметка
-       под заголовком в две строки по сорок знаков не рубленая колонка, она
-       просто короткая: делить нечего, и мера тут ни при чём. Поэтому снизу
-       спрашиваем с трёх строк и больше. Сверху — всегда: длинная строка
-       теряется на возврате хоть на второй, хоть на двадцатой. */
-    if (chars > 75) {
-      out.measure.push(`${name(el)} — ${Math.round(chars)} знаков в строке, длинно (нужно ≤75)`)
-    } else if (lines >= 3 && chars < 45) {
+    /* Потолка меры НЕТ. Он стоял здесь — «длиннее 75 знаков строка теряется
+       на возврате» — и был снят заказчиком, сентябрь: «узкая колонка текста
+       — это правило проекта? хуйня это, удали это правило». Текст занимает
+       свою колонку целиком; сколько в ней знаков — решает колонка.
+
+       Осталась нижняя граница, и она про то же, что заказчик и увидел:
+       место ЕСТЬ, а текст его не берёт. Снизу спрашиваем с трёх строк и
+       больше: заметка в две строки не рубленая колонка, а просто короткая. */
+    if (lines >= 3 && chars < 45) {
       /* Коротко — не всегда дефект. На экране в 390px сорок знаков в строке
          это норма: колонка столько и есть, шире некуда. Дефект — когда место
          ЕСТЬ, а текст его не берёт: мера уже колонки. Поэтому спрашиваем
@@ -407,6 +454,54 @@ const measure = (phone) => {
       if (hostW > 0 && box.width / hostW < 0.85) {
         out.measure.push(`${name(el)} — ${Math.round(chars)} знаков в строке при ${Math.round(box.width / hostW * 100)}% колонки`)
       }
+    }
+  }
+
+  /* 1.5 · полоса, отнятая у текста под орган.
+   *
+   * Круглая стрелка стояла в углу подписи героя, вынутая из потока, и место
+   * под себя требовала полосой: `padding-right: 86px` у ВСЕЙ подписи, хотя
+   * рядом со стрелкой идёт одна строка. На телефоне это 86 из 326 — треть
+   * ширины, отнятая у заголовка ради органа, который стоит под ним. Текст
+   * рассыпался в столбик и обрывался далеко от стрелки; заказчик показал
+   * это снимком, а в диффе объявление выглядело безупречно — сумма трёх
+   * известных чисел с объяснением, откуда взялось «86».
+   *
+   * Признак измерим и не зависит от того, чем полосу отняли: боковые поля
+   * съедают больше четверти собственной ширины блока, в котором лежит
+   * текст. Настоящее поле — от --sp-7 в обе стороны — это 17% на телефоне и
+   * меньше на широком; четверть блок отдаёт только тогда, когда держит
+   * место под что-то другое.
+   *
+   * Лечится не числом, а устройством: орган ставится В ПОТОК, рядом с той
+   * строкой, возле которой он стоит, и ширину считает раскладка. */
+  for (const el of document.querySelectorAll('*')) {
+    if (!shown(el)) continue
+    /* Орган — не текстовый блок, и поле у него своё: у пилюли оно доля
+       собственной ВЫСОТЫ (правило 2), и у широкой надписи «Browse the
+       index» эта доля законно выходит за четверть ширины. Спрашивается тут
+       ритм текста, а не геометрия контрола, и путать их дороже, чем не
+       иметь ни одного правила.
+
+       `matches`, а не `closest`, и это не мелочь: подпись героя лежит ВНУТРИ
+       ссылки — слайд весь и есть ссылка, — и `closest` вычёркивал вместе с
+       органом ровно тот блок, ради которого семья заведена. Проверка молчала
+       и на починенной странице, и на дефекте. Исключается сам орган, а не
+       всё, что под ним лежит. */
+    if (el.matches('a, button, [role="button"], input, select, textarea, label, summary')) continue
+    const box = el.getBoundingClientRect()
+    if (box.width < 200) continue
+    const cs = getComputedStyle(el)
+    /* Текст СВОЙ: либо прямо в блоке, либо строкой-ребёнком. Обёртка,
+       которая только держит колонки, полем никого не обижает. */
+    const own = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 12)
+      || [...el.children].some((c) => ['H1', 'H2', 'H3', 'H4', 'P', 'SMALL'].includes(c.tagName)
+        && c.textContent.trim().length > 12)
+    if (!own) continue
+    const side = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0)
+    const share = side / box.width
+    if (share > 0.25) {
+      out.lane.push(`${name(el)} — боковые поля ${Math.round(side)} из ${Math.round(box.width)} = ${Math.round(share * 100)}% ширины`)
     }
   }
 
@@ -582,16 +677,198 @@ const measure = (phone) => {
     if (!kid || paints(kid)) return own
     return Math.max(own, parseFloat(getComputedStyle(kid)[side]) || 0)
   }
+  /* Оговорка к тому же правилу, и она про ГРАНИЦУ, а не про воздух.
+     «Своя поверхность отбивает краем» верно, пока край ВИДЕН. Два листа
+     одного цвета, лежащие вплотную, края между собой не имеют — это один
+     лист, и так главная собрана нарочно: подряд идущие светлые полосы
+     смыкаются, их углы гасятся, шва в бумаге не бывает. Внутреннее поле
+     каждого из них снова становится воздухом, потому что между содержимым
+     одного и содержимым другого нет ничего, кроме этого поля.
+
+     Без оговорки семья закричала на верное в тот день, когда пол переехал с
+     полосы во всю ширину окна на коробку страницы: сама картинка на экране
+     не изменилась ни на пиксель, изменилось лишь то, КАКОЙ узел красит. */
+  const skin = (el, side) => {
+    if (paints(el)) return getComputedStyle(el).backgroundColor
+    const kid = side === 'paddingTop' ? el.firstElementChild : el.lastElementChild
+    return kid && paints(kid) ? getComputedStyle(kid).backgroundColor : null
+  }
+  const pad = (el, side) => {
+    const own = parseFloat(getComputedStyle(el)[side]) || 0
+    const kid = side === 'paddingTop' ? el.firstElementChild : el.lastElementChild
+    return kid ? Math.max(own, parseFloat(getComputedStyle(kid)[side]) || 0) : own
+  }
   const rows = Array.from(document.querySelectorAll('main > * > *, main > *'))
     .filter(shown)
   for (let i = 1; i < rows.length; i++) {
     const prev = rows[i - 1], next = rows[i]
     const a = prev.getBoundingClientRect(), b = next.getBoundingClientRect()
     if (b.top < a.bottom) continue              // перекрываются — не соседи по потоку
-    const air = (b.top - a.bottom) + inner(next, 'paddingTop') + inner(prev, 'paddingBottom')
+    const above = skin(prev, 'paddingBottom'), below = skin(next, 'paddingTop')
+    const merged = !!above && above === below      // один лист, а не два соседа
+    const air = merged
+      ? (b.top - a.bottom) + pad(next, 'paddingTop') + pad(prev, 'paddingBottom')
+      : (b.top - a.bottom) + inner(next, 'paddingTop') + inner(prev, 'paddingBottom')
     if (air >= 0 && air < 8) {
       out.collision.push(`${name(prev)} → ${name(next)} — воздуха ${Math.round(air)}px`)
     }
+  }
+
+  /* 4b · ПОЛЕ ЛИСТА. Предмет, у которого есть свой пол, а содержимое лежит
+     на его краю.
+     
+     Дефект, купивший семью, заказчик показал тремя снимками: на телефоне
+     заголовок героя, список вопросов и лента Instagram стояли вплотную к
+     краю собственной тёмной и светлой подложки. В файлах при этом всё было
+     безупречно — ни одного числа, поле взято токеном:
+
+         .wrap{ padding-inline: calc(var(--page-gut) - var(--gut)) }
+
+     Поле было РАЗНОСТЬЮ двух линий страницы, а ниже 820 линия у страницы
+     одна (так решил заказчик: карточки обязаны стоять на линии нижней
+     панели). Разность обнулилась — и вместе с ней исчезло поле у каждого
+     листа разом. Проверка по файлам такого не увидит никогда: там написано
+     имя, а не число.
+
+     Поэтому мерится ОТРИСОВАННОЕ: у каждого предмета с полом ищется текст,
+     чей ближайший пол — этот предмет, и берётся расстояние до края. Пол не
+     меньше `FIELD`: ниже этого буква читается как выпавшая из листа.
+
+     Мелочь листом не считается — плашка, пилюля, значок: у них поле своё и
+     мельче по делу. Порог по размеру, а не по имени класса.
+
+     Пол поля — восемь пикселей, и это не круглое число: тот же порог стоит
+     в проверке вёрстки как граница оптической доводки. Меньше восьми — уже
+     не поле, а зазор, и буква на таком расстоянии читается выпавшей из
+     листа. Поле карточки товара (10–11 на узком) правилом не является
+     нарушением: у мелкого предмета поле мельче по делу, и мерится не
+     ступень, а то, оторвана ли буква от края. */
+  const FIELD = 8
+  const SHEET_W = 260, SHEET_H = 90
+  const under = (el) => {
+    let n = el.parentElement
+    while (n) { if (alpha(getComputedStyle(n).backgroundColor) > 0.02) return getComputedStyle(n).backgroundColor; n = n.parentElement }
+    return 'rgb(255, 255, 255)'
+  }
+  for (const el of document.querySelectorAll('main *, footer *')) {
+    const cs = getComputedStyle(el)
+    if (alpha(cs.backgroundColor) <= 0.02) continue
+    if (cs.backgroundColor === under(el)) continue      // тот же пол — не лист
+    const r = el.getBoundingClientRect()
+    if (r.width < SHEET_W || r.height < SHEET_H) continue
+    if (!shown(el)) continue
+    let near = Infinity, who = ''
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    let t
+    while ((t = walk.nextNode())) {
+      if (!t.nodeValue.trim()) continue
+      const host = t.parentElement
+      if (!host || !shown(host)) continue
+      const hcs = getComputedStyle(host)
+      if (hcs.position === 'absolute' || hcs.position === 'fixed') continue
+      /* Текст, лежащий на СВОЁМ полу внутри листа (карточка на листе),
+         меряется от края своей карточки, а не от края листа. */
+      let a = host, own = false
+      while (a && a !== el) {
+        if (alpha(getComputedStyle(a).backgroundColor) > 0.02) { own = true; break }
+        a = a.parentElement
+      }
+      if (own) continue
+      const rg = document.createRange(); rg.selectNodeContents(t)
+      for (const b of rg.getClientRects()) {
+        if (b.width <= 0) continue
+        const gap = Math.min(b.left - r.left, r.right - b.right)
+        if (gap < near) { near = gap; who = t.nodeValue.trim().slice(0, 24) }
+      }
+    }
+    if (near < FIELD) {
+      out.field.push(`${name(el)} — поле ${Math.round(near)}px, буква на краю пола: «${who}»`)
+    }
+  }
+
+  /* 4a2 · шов оплачен дважды.
+     ВОЗДУХ между двумя блоками страницы ставит ОДИН из них, и на этом сайте
+     это тот, кто стоит ниже: `.section` объявляет просвет над собой
+     (`padding-block-start`), и других хозяев у шва нет. Когда сверху стоящий
+     блок вдобавок платит своё нижнее поле, один и тот же просвет
+     складывается из двух чисел — и выходит вдвое больше задуманного, причём
+     ни одно из двух чисел не выглядит в файле неверным.
+
+     Заказчик увидел это на странице товара: между коробкой покупки и
+     вкладками стояло 124px против 48 у точно такого же шва между вкладками
+     и полкой «сравните с» — 80 платил ряд товара своим полем и 48 вкладки
+     своим воздухом. Слова заказчика: «тут между блоками — воздух, поле,
+     ритм же должен быть, проверь карточку всю».
+
+     Мерятся только СОСЕДИ-БЛОКИ: оба во всю ширину родителя, оба ростом с
+     полэкрана ноутбука. Поле внутри предмета и просвет внутри ряда сюда не
+     попадают — там второй хозяин и не появляется.
+
+     Просветы (`margin`) двух соседей схлопываются сами, поэтому пара
+     «просвет + просвет» дефектом не бывает: браузер берёт больший. Дефект
+     — только там, где хотя бы одна сторона платит ПОЛЕМ. */
+  const SEAM = 8
+  const num = (v) => parseFloat(v) || 0
+  for (const box of document.querySelectorAll('main, main > *, main > * > *')) {
+    const kids = [...box.children].filter((k) => shown(k))
+    for (let i = 1; i < kids.length; i++) {
+      const a = kids[i - 1], c = kids[i]
+      const ra = a.getBoundingClientRect(), rc = c.getBoundingClientRect()
+      const wide = box.clientWidth * 0.6
+      if (ra.width < wide || rc.width < wide) continue
+      if (ra.height < 120 || rc.height < 120) continue
+      const ca = getComputedStyle(a), cc = getComputedStyle(c)
+      if (ca.position === 'absolute' || ca.position === 'fixed') continue
+      if (cc.position === 'absolute' || cc.position === 'fixed') continue
+      /* Поле блока, который КРАСИТ свой пол, за шов не платит: оно лежит
+         уже внутри его поверхности, и между соседями видно край листа, а не
+         воздух. Тот же разбор, что у семьи «слипшиеся блоки» выше, и тот же
+         `paints()`. Без этой половины два белых листа в столбик — просвет
+         между ними 48 — читались как шов в 96: проверка складывала с ним
+         поле внутри карточек. */
+      const aPad = paints(a) ? 0 : num(ca.paddingBottom), aGap = num(ca.marginBottom)
+      const cPad = paints(c) ? 0 : num(cc.paddingTop), cGap = num(cc.marginTop)
+      const twice = (aPad > SEAM && cPad + cGap > SEAM) || (aGap > SEAM && cPad > SEAM)
+      if (!twice) continue
+      out.twoAir.push(
+        `${name(a)} → ${name(c)} — шов ${Math.round(aPad + aGap + Math.max(cPad, cGap))}px: `
+        + `сверху платит ${Math.round(aPad + aGap)}, снизу ${Math.round(cPad + cGap)}`,
+      )
+    }
+  }
+
+  /* 4b · одна в ряду.
+     Полка, у которой в ряду одна карточка, — уже не полка: сравнивать не с
+     чем, соседа не видно, а до пятого товара мотать вчетверо дольше. То же
+     и у полосы, в которой видно меньше двух ячеек: початая ячейка у края —
+     это сообщение «дальше есть ещё», а ячейка во весь экран — баннер.
+
+     Заказчик нашёл это на опросе и назвал запретом: «квиз показывает
+     карточку на всю ширину, да это запрещено, везде две карточки на ширину
+     может поместиться, одну не нужно — удаляй такой вариант вообще с
+     сайта». В файлах признак не виден: ни одна строка не говорит «одна
+     колонка» — её дают пол ячейки и ширина ряда, встретившиеся на узком
+     окне. Видно только на отрисованной странице.
+
+     Меряются РЯДЫ, а не полосы, и это граница, проведённая заказчиком:
+     запрет он объявил, увидев карточку во всю ширину в опросе, а когда тот
+     же счёт применили к полкам с прокруткой — вернул как было («верни
+     размеры карточек и плиток»). Разница по существу: в ряду одна ячейка —
+     тупик, соседа нет вовсе; в полосе соседняя выглядывает из-за края и
+     доезжает одним движением пальца. */
+  const byBox = new Map()
+  for (const c of document.querySelectorAll('[data-card]')) {
+    if (!shown(c) || !c.parentElement) continue
+    const kids = byBox.get(c.parentElement) ?? []
+    kids.push(c)
+    byBox.set(c.parentElement, kids)
+  }
+  for (const [box, kids] of byBox) {
+    if (kids.length < 2) continue
+    const a = kids[0].getBoundingClientRect(), b = kids[1].getBoundingClientRect()
+    /* Вторая карточка начинается НИЖЕ первой — значит, ряд держит одну. */
+    if (b.top < a.bottom - 1) continue
+    out.alone.push(`${name(box)} — карточка ${Math.round(a.width)}px в ряду ${Math.round(box.clientWidth)}px: в ряду одна`)
   }
 
   /* 5 · вес снимка. Меряется в пикселях, а не в байтах: байты зависят от
@@ -830,6 +1107,136 @@ const measure = (phone) => {
           `разъехались на ${Math.round(spread)}px — одна вертикаль превратилась в две`)
       }
     }
+  }
+
+  /* ── мёртвая зона у органа ──────────────────────────────────────────────
+   *
+   * Кнопка, которая отзывается не везде. Заказчик описал это точно: «в одном
+   * месте кнопки она реагирует на мышку, а в каких-то местах не реагирует».
+   * В файлах такого не видно ВООБЩЕ: у каждого органа всё на месте, а поверх
+   * него лежит чужое.
+   *
+   * Виновником был невидимый запас нажатия. Он растит область попадания до
+   * сорока четырёх пикселей вокруг мелкого органа — ради пальца, — но заодно
+   * ПЕРЕХВАТЫВАЕТ указатель у всего, что стоит ближе. Пилюля в 28 пикселей
+   * накрывала соседа на восемь в каждую сторону; у сердца на карточке товара
+   * выходил 21 промах из 28 замеров.
+   *
+   * Спрашивается прямо: попадает ли нажатие в сам орган. Сетка точек внутри
+   * его коробки, `elementFromPoint` в каждой — и попаданием считается сам
+   * орган или его потомок.
+   *
+   * Шапка, нижняя полоса и помощник из счёта исключены: они висят над
+   * страницей по делу, и перехватывать уехавшее под них — их работа, а не
+   * дефект. Признак — `position` `fixed` или `sticky` у перехватчика или у
+   * любого его предка.
+   */
+  for (const el of document.querySelectorAll('a[href], button, [role="button"], label, summary')) {
+    if (!shown(el)) continue
+    const cs = getComputedStyle(el)
+    if (cs.pointerEvents === 'none') continue
+    const r = el.getBoundingClientRect()
+    if (r.width < 8 || r.height < 8) continue
+    /* Орган, уехавший за край окна, меряется на другой прокрутке. */
+    if (r.top < 4 || r.bottom > window.innerHeight - 4) continue
+    let dead = 0, seenPoints = 0, thief = ''
+    for (let ix = 1; ix <= 7; ix++) {
+      for (let iy = 1; iy <= 4; iy++) {
+        const hit = document.elementFromPoint(
+          r.left + (r.width * ix) / 8, r.top + (r.height * iy) / 5)
+        if (!hit) continue
+        seenPoints++
+        if (hit === el || el.contains(hit) || hit.contains(el)) continue
+        let over = false
+        for (let n = hit; n; n = n.parentElement) {
+          const s = getComputedStyle(n)
+          if (s.position === 'fixed' || s.position === 'sticky') { over = true; break }
+        }
+        if (over) continue
+        dead++
+        if (!thief) thief = name(hit)
+      }
+    }
+    if (!dead) continue
+    const key = `stolen:${name(el)}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.stolen.push(
+      `${name(el)} — не отзывается в ${dead} точках из ${seenPoints}, перехватывает ${thief}`)
+  }
+
+  /* ── орган утонул в своём полу ──────────────────────────────────────────
+   *
+   * Кнопка бывает невидимой не потому, что мелкая, и не потому, что буквы
+   * бледные, — а потому, что её ЗАЛИВКА почти совпала с тем, на чём она
+   * стоит. Обе прежние проверки цвета при этом молчат: контраст букв к
+   * заливке в норме, ступени палитры между собой в норме. Не меряет никто
+   * ровно ту пару, которая и делает кнопку кнопкой.
+   *
+   * Дефект, купивший семью, заказчик увидел на первом же снимке: тихая
+   * кнопка красилась ступенью поверхности (`--ctrl`, #ECF0EE), и на белой
+   * карточке это читалось, а на листе страницы (#E0E6E3) давало 1.10 — то
+   * есть кнопки там не было вовсе, оставалось слово в воздухе.
+   *
+   * Причина общая и стоит правила: ЗАЛИВКА — это всегда ступень одного
+   * конкретного пола, и на другом полу она исчезает. КРОМКА — граница с
+   * чернилами, и читается на любом. Поэтому спрашивается не «есть ли
+   * заливка», а «отличим ли орган от своего пола хоть чем-нибудь»: ступенью
+   * или кромкой.
+   *
+   * Порог 1.15, и он выведен замером, а не взят из норматива — норматива на
+   * это нет вовсе. Две точки, обе с этого сайта: ступень `--ctrl` на листе
+   * страницы даёт 1.10, и кнопки там НЕ ВИДНО (нашёл заказчик); та же ступень
+   * на белой карточке даёт 1.15, и там она читается — эту заказчик не тронул.
+   * Порог стоит на второй точке: ниже неё орган пропадает.
+   *
+   * Почему для органа порог выше, чем для поверхности: карточка на листе
+   * живёт при 1.07 и прекрасно видна, потому что она БОЛЬШАЯ. Пилюля в сорок
+   * шесть пикселей той же ступенью не обходится — глаз ловит слабый край на
+   * длинной границе и не ловит на короткой.
+   */
+  for (const el of document.querySelectorAll('a, button, [role="button"], label')) {
+    if (!shown(el)) continue
+    const cs = getComputedStyle(el)
+    const a = alpha(cs.backgroundColor)
+    /* Совсем прозрачный орган — это «без фона», отдельный голос: ему заливкой
+       отличаться нечем и не надо, он отвечает краской. Порог низкий нарочно:
+       тихая кнопка красится ВУАЛЬЮ в восемь процентов чернил, и отбрасывать
+       её как «прозрачную» значило бы не мерить ровно тот случай, ради
+       которого семья и заведена. */
+    if (a < 0.02) continue
+    /* Кромка отличает орган от любого пола: обводка, рамка, тень-кольцо. */
+    const edged = (cs.boxShadow && cs.boxShadow !== 'none') ||
+                  (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) ||
+                  parseFloat(cs.borderTopWidth) > 0 || parseFloat(cs.borderLeftWidth) > 0
+    if (edged) continue
+    /* Орган, ЗАПОЛНЕННЫЙ картинкой, узнаётся по ней, а не по заливке: плитка
+       галереи товара — это снимок 96×96, её фон виден только по краям, и
+       требовать от неё ступени значит требовать рамку вокруг фотографии.
+
+       Отличие от знака внутри кнопки — в доле, а не в теге: рисунок товара
+       занимает почти весь орган, а стрелка или корзина — пятую часть его
+       площади и как раз СТОЯТ на этой заливке. Поэтому считается доля, и
+       считается по любому изображению, включая нарисованное `svg`: у товара
+       без снимка в плитке стоит именно оно. */
+    const eb = el.getBoundingClientRect()
+    let covered = 0
+    for (const kid of el.querySelectorAll('img, picture, video, canvas, svg')) {
+      const k = kid.getBoundingClientRect()
+      covered = Math.max(covered, (k.width * k.height) / (eb.width * eb.height || 1))
+    }
+    if (covered >= 0.6) continue
+    /* Пол — то, на чём орган стоит: слои начиная с родителя. */
+    const g = ground(el.parentElement)
+    if (!g.known) continue
+    const under = over(g.layers, [255, 255, 255])
+    const own = over([[rgb(cs.backgroundColor), a]], under)
+    const step = pair(own, under)
+    if (step >= 1.15) continue
+    const key = `sunk:${name(el)}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.sunk.push(`${name(el)} — ступень до своего пола ${step.toFixed(2)} (норма 1.15), и кромки нет`)
   }
 
   /* Одно действие — одна одежда.
@@ -1114,12 +1521,27 @@ const measure = (phone) => {
       /* Нарочный перенос по символу новой строки — тоже устройство, а не
          промах ширины. */
       if (cs.whiteSpace === 'pre-line' || cs.whiteSpace === 'pre-wrap') continue
+      /* Орган, у которого подпись МНОГОСТРОЧНА по замыслу, объявляет это
+         вслух (`data-lines`): карточка ответа в опросе — коробка ряда, её
+         ширину задаёт сетка, а не длина слова, и «Something else» в две
+         строки там читается ровно так, как нарисовано. Признака в стилях
+         нет: та же запись у пилюли была бы промахом ширины. Тот же приём,
+         что `--n-min:1` у сетки: исключение написано там, где принято
+         решение, а не спрятано в проверке. */
+      if (el.hasAttribute('data-lines')) continue
       const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
       for (let n = walk.nextNode(); n; n = walk.nextNode()) {
         const txt = (n.nodeValue || '').trim()
         /* Одно слово перенестись не может, а длинная строка — это уже не
            подпись органа, а заголовок карточки: ему две строки положены. */
         if (!/\s/.test(txt) || txt.length > 28) continue
+        /* ВОПРОС — тоже не подпись. У `<summary>` в списке вопросов стоит
+           целое предложение, и две строки ему положены так же, как заголовку
+           карточки. Порог в 28 знаков его не отсеивал: болгарское «Колко
+           канабидиол има в грам?» — ровно 28, впритык. Считать знаки тут и
+           не надо: у подписи органа не бывает вопросительного знака на
+           конце, а у вопроса он есть всегда. */
+        if (/[?!]$/.test(txt)) continue
         if (oneLabel(n) < 2) continue
         const key = `w:${txt}`
         if (seen.has(key)) break
@@ -1177,6 +1599,29 @@ const measure = (phone) => {
     }
   }
 
+  /* Заголовок страницы, наехавший на шапку.
+   *
+   * Верхний воздух страницы приходит от цепочки крошек — у неё поле сверху и
+   * снизу, — и это работает, пока цепочка есть. Страница без неё начинается
+   * вплотную, и заголовок уезжает под приклеенную шапку: замерено на
+   * странице набора, 116 против 126 у низа шапки. В файлах не видно ничем:
+   * у страницы всё на месте, просто у неё нет того, что даёт воздух соседям.
+   *
+   * Меряется в покое, на нулевой прокрутке: h1 обязан начинаться ниже низа
+   * шапки. Это не про «красиво», а про то, что первую строку страницы
+   * не видно. */
+  {
+    const head = document.querySelector('header')
+    const h1 = document.querySelector('h1')
+    if (head && h1 && scrollY < 2) {
+      const hb = head.getBoundingClientRect().bottom
+      const tb = h1.getBoundingClientRect().top
+      if (shown(h1) && tb < hb - 1) {
+        out.covered.push(`${name(h1)} — верх ${Math.round(tb)} при низе шапки ${Math.round(hb)}`)
+      }
+    }
+  }
+
   /* Маркеры у списка, который не список. `<ol>` крошек, `<ul>` меню, ряд
      плиток — все они списки по разметке (и правильно: скринридер считает
      пункты), но ни один не набирается «1. 2. 3.» и точками. Браузер же
@@ -1230,6 +1675,75 @@ const measure = (phone) => {
     out.outline.push(`${name(host)} — ${label}: заливка и обводка на одном пути`)
   }
 
+  /* Знак покрашен не тем, чем слово. Знак, объявленный «по краске»
+     (`stroke:currentColor`), обязан прийти В ТОМ ЖЕ цвете, что и слово рядом:
+     кнопка со знаком — один предмет, а не строка с картинкой.
+     Ломается это НЕ в контроле. Блок страницы красит свои подписи по ТЕГУ
+     (`.voice span{color:var(--sage-11)}`), правило достаёт до знака внутри
+     взятой кнопки — и у слова остаётся белое, у знака становится
+     серо-зелёное. В файлах кнопки при этом написано `currentColor`: чтением
+     дефекта не видно вовсе, видно только отрисованным.
+     Заказчик нашёл это глазом на листе набора — «иконка корзины не цвета
+     текста»: на тёмной пилюле знак читался грязным пятном.
+     Не считается тремя видами знаков, у которых свой цвет ЗАКОННЫЙ: чужая
+     марка (цвет атрибутом — Visa, Mastercard), знак со своим полом
+     (значок-плашка с заливкой) и знак, которому цвет назначен нарочно —
+     у такого отрисованный штрих не равен своей же краске. */
+  for (const ctrl of document.querySelectorAll('button, summary, a[href], [role="button"]')) {
+    if (!shown(ctrl)) continue
+    /* Только орган, который рисует СЕБЯ: пилюля с заливкой или с кромкой.
+       Там знак и слово — одна надпись на одном полу, и краска у них общая.
+       Строка, которая раскрывается (вопрос в списке вопросов), себя не
+       рисует — поверхность под ней чужая, а её галочка это МАРКЕР, ей тише
+       слова положено. Без этого условия проверка нашла восемьдесят один
+       «дефект», из которых восемьдесят были выбранной заказчиком одеждой
+       списка вопросов. */
+    const ccs = getComputedStyle(ctrl)
+    const skin = alpha(ccs.backgroundColor) > 0.05 || (ccs.boxShadow && ccs.boxShadow !== 'none')
+    if (!skin) continue
+    /* Краска слова — у того, кто слово держит: подпись может красить себя
+       сама, и сравнивать надо с ней, а не с контролом. */
+    let word = null
+    const walk = document.createTreeWalker(ctrl, NodeFilter.SHOW_TEXT)
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      if (!n.textContent.trim()) continue
+      const host = n.parentElement
+      if (!host || host.closest('svg') || !shown(host)) continue
+      word = host; break
+    }
+    if (!word) continue
+    const ink = rgb(getComputedStyle(word).color)
+    if (!ink) continue
+    for (const svg of ctrl.querySelectorAll('svg')) {
+      if (!shown(svg)) continue
+      /* Чужая марка: цвет объявлен атрибутом на самом рисунке. */
+      const own = [svg, ...svg.querySelectorAll('*')].some((e) =>
+        ['fill', 'stroke'].some((a) => {
+          const v = e.getAttribute(a)
+          return v && v !== 'none' && v !== 'currentColor'
+        }))
+      if (own) continue
+      const box = svg.parentElement
+      /* Знак-плашка: у него свой пол, и краска на нём своя по делу. */
+      if (box && alpha(getComputedStyle(box).backgroundColor) > 0.05) continue
+      if (alpha(getComputedStyle(svg).backgroundColor) > 0.05) continue
+      const scs = getComputedStyle(svg)
+      const mine = rgb(scs.color)
+      const paint = rgb(scs.stroke === 'none' ? scs.fill : scs.stroke)
+      if (!mine || !paint) continue
+      /* Цвет назначен нарочно — знак не обещал идти за краской. */
+      const off = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2])
+      if (off(paint, mine) > 8) continue
+      if (off(mine, ink) <= 8) continue
+      const label = svg.getAttribute('aria-label') || 'знак'
+      const key = `markInk:${name(ctrl)}:${label}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.markInk.push(`${name(ctrl)} — ${label} нарисован rgb(${mine.map(Math.round)}), ` +
+        `а слово «${word.textContent.trim().slice(0, 24)}» rgb(${ink.map(Math.round)})`)
+    }
+  }
+
   return out
 }
 
@@ -1255,12 +1769,65 @@ const hand = await browser.newContext({ hasTouch: true, isMobile: true, deviceSc
    написали, и пропадает в соседней. */
 const deskDark = await browser.newContext({ colorScheme: 'dark' })
 const handDark = await browser.newContext({ colorScheme: 'dark', hasTouch: true, isMobile: true, deviceScaleFactor: 1 })
-let page = await desk.newPage()
-const found = { placeholder: [], measure: [], target: [], contrast: [], collision: [],
+/* ── ПОЛОСЫ: почему проверка шла двадцать минут ────────────────────────────
+ *
+ * Заказчик сказал прямо: «пиздец как долго… два часа гонял проверку и стоит
+ * работа». Он прав, и причина не в том, что меряется много, а в том, КАК.
+ *
+ * Проверка открывает около двухсот двадцати страниц и почти всё это время
+ * ЖДЁТ: сети, шрифтов, конца анимаций. Ждала она по одной странице за раз,
+ * одной вкладкой на весь прогон. Браузер при этом простаивал.
+ *
+ * Ждать можно вчетвером. Полосы — это число страниц, открытых одновременно;
+ * измерения от этого не меняются ни на пиксель, потому что каждая страница
+ * меряется сама по себе и ни одна не смотрит на соседнюю. Меняется только то,
+ * сколько браузер простаивает.
+ *
+ * Число полос — ручка, а не догма: на слабой машине его убавляют
+ * (`CRAFT_LANES=2`), на сильной прибавляют. Четыре — то, при чём прогон
+ * упирается уже не в ожидание, а в саму отрисовку.
+ *
+ * Порядок находок от этого перестаёт быть порядком обхода, поэтому перед
+ * печатью каждая семья сортируется: два прогона одного дерева обязаны давать
+ * один отчёт, иначе его нельзя сравнить с прошлым. */
+const LANES = Math.max(1, Number(process.env.CRAFT_LANES ?? 4))
+/* Сервер умер — кричит об этом одна полоса, а не все четыре. */
+let dead = false
+
+/* Страницы не создаются и не закрываются на каждый замер: создание вкладки
+   стоит дороже самого замера. Отработавшая возвращается в стопку своей среды
+   и достаётся следующему. */
+const idle = new Map()
+const take = async (ctx) => {
+  const rest = idle.get(ctx)
+  const kept = rest && rest.pop()
+  return kept ?? await ctx.newPage()
+}
+const give = (ctx, p) => {
+  const rest = idle.get(ctx) ?? []
+  rest.push(p)
+  idle.set(ctx, rest)
+}
+
+/** Пройти список в несколько полос, сохранив порядок САМОГО списка. */
+async function lanes(items, work, n = LANES) {
+  let next = 0
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => {
+    for (;;) {
+      const i = next++
+      if (i >= items.length) return
+      await work(items[i], i)
+    }
+  }))
+}
+const found = { lane: [], placeholder: [], measure: [], target: [], contrast: [], collision: [],
                 weight: [], jump: [], name: [], heads: [], dress: [], clip: [],
                 swipe: [], stretch: [], broken: [], spill: [], focus: [], wrap: [],
                 anchor: [], outline: [], marker: [], sticky: [], theme: [], coarse: [], calm: [],
-                ladder: [], wideCtrl: [], lopsided: [] }
+                inkDip: [], markInk: [],
+                covered: [],
+                ladder: [], wideCtrl: [], lopsided: [], sunk: [], stolen: [], field: [], alone: [], twoAir: [],
+                twiceLift: [], sheetSize: [] }
 
 /** Открыть страницу на ширине и померить.
  *
@@ -1268,12 +1835,46 @@ const found = { placeholder: [], measure: [], target: [], contrast: [], collisio
  *  решает раскладку, указатель решает размер цели — это два разных вопроса,
  *  и задавать второй через первый нельзя.
  *  `dark` — вторая тема. */
+/** Остановить показ слайдов перед замером.
+ *
+ *  Заведено находкой, которая НЕ ПОВТОРИЛАСЬ: полный прогон показал контраст
+ *  3.35 у подписи героя на 700, а узкий по той же странице и той же семье —
+ *  ноль. Причина не в странице: кадры героя сами сменяются по таймеру, и
+ *  замер иногда попадал В СЕРЕДИНУ ПЕРЕХОДА, когда на экране два снимка
+ *  сразу и подпись лежит на их смеси. Все четыре снимка замерены по
+ *  отдельности и держат 5.76:1 — мерилось не то, что видит покупатель.
+ *
+ *  Правило общее, не про этот слайдер: ЗАМЕР ИДЁТ ПО НЕПОДВИЖНОЙ СТРАНИЦЕ.
+ *  Ожидание конца анимаций этого не даёт — таймер заводит следующую, и
+ *  страница не бывает неподвижной никогда. Останавливаем тем же органом,
+ *  которым останавливает человек: кнопкой паузы. Путь, который проверка
+ *  проходит, — тот самый, что у покупателя.
+ *
+ *  Кнопки нет — ничего и не делаем: страниц без слайдера большинство. */
+async function still(page) {
+  await page.evaluate(() => {
+    const b = document.querySelector('[data-ctl="run"]')
+    if (!b) return
+    const before = b.getAttribute('aria-label')
+    b.click()
+    /* Нажатие не сработало (кнопка уже на паузе) — второго не делаем: оно
+       снова запустило бы показ. */
+    if (b.getAttribute('aria-label') === before) b.click()
+  }).catch(() => {})
+}
+
 async function visit(path, w, { finger, dark = false }) {
     const phone = finger
     /* Страница берётся из той среды, которую изображаем: сменить
-       `hasTouch` или тему у живой страницы нельзя, это свойства контекста. */
+       `hasTouch` или тему у живой страницы нельзя, это свойства контекста.
+       Страница СВОЯ у каждого замера — берётся из стопки своей среды
+       (`take`): общей вкладки нет, иначе полосы дёргали бы окно друг у
+       друга. */
     const want = dark ? (finger ? handDark : deskDark) : (finger ? hand : desk)
-    if (page.context() !== want) { await page.close(); page = await want.newPage() }
+    /* Своя страница на замер, из стопки своей среды. Общей вкладки больше
+       нет: она и была тем, что заставляло прогон идти по одной странице. */
+    const page = await take(want)
+    try {
     await page.setViewportSize({ width: w, height: 900 })
     /* Сервер, УМЕРШИЙ в середине прогона, — не программная ошибка, а
        обстоятельство, и говорить о нём надо словами. Заведено по счёту:
@@ -1286,10 +1887,15 @@ async function visit(path, w, { finger, dark = false }) {
     try {
       await page.goto(BASE + path, { waitUntil: 'networkidle' })
     } catch (e) {
-      console.error(`\n✗ ${BASE}${path} не открылся: ${String(e.message).split('\n')[0]}
+      /* Говорит об этом ПЕРВАЯ полоса и только она: страниц открыто
+         несколько, и упавший сервер уронил бы их все — четыре одинаковых
+         крика вместо одного сообщения. */
+      if (!dead) {
+        dead = true
+        console.error(`\n✗ ${BASE}${path} не открылся: ${String(e.message).split('\n')[0]}
     Скорее всего сервер упал посреди прогона. Поднимите заново и повторите:
         npm run build:site && npm run serve`)
-      await browser.close()
+      }
       process.exit(1)
     }
     /* Замер делается после того, как ДОЕХАЛО.
@@ -1299,6 +1905,7 @@ async function visit(path, w, { finger, dark = false }) {
        тот же, что всегда, — находка гуляла между прогонами по страницам и
        ширинам. Ждём, пока кончатся все анимации, а не выдуманное число
        миллисекунд. */
+    await still(page)
     await page.evaluate(() => Promise.all(
       document.getAnimations().map((a) => a.finished.catch(() => {})),
     )).catch(() => {})
@@ -1394,11 +2001,41 @@ async function visit(path, w, { finger, dark = false }) {
         for (const i of document.images) i.loading = 'eager'
         await Promise.all([...document.images].map((i) => i.decode().catch(() => {})))
       })
+      /* Контраст — свойство страницы В ПОКОЕ, а не посреди перехода.
+       *
+       * Кадр героя идёт сам и меняется наплывом: полсекунды входящий снимок
+       * лежит на уходящем, и вуаль над ним тоже прозрачна наполовину. Замер,
+       * попавший в эти полсекунды, показал 2.26:1 там, где в покое 12.95 —
+       * и показывал разное от прогона к прогону, потому что кадр к моменту
+       * замера успевал разный. Проверка, гуляющая между прогонами, хуже
+       * отсутствующей: её перестают читать.
+       *
+       * Снять переход — значит доиграть его мгновенно: свойство без
+       * `transition` принимает конечное значение сразу. Страница оказывается
+       * там, где она и окажется через полсекунды. Движение при этом никуда
+       * не девается из проверки — за него отвечает своя семья на своём
+       * проходе. */
+      /* ПРОКРУТКА ТОЖЕ СНИМАЕТСЯ, и без этого всё остальное напрасно.
+       *
+       * У сайта `html{scroll-behavior:smooth}`, а замер подводит элемент к
+       * середине экрана и тут же читает его прямоугольник. При плавной
+       * прокрутке страница в этот миг ещё НЕ ДОЕХАЛА: координаты берутся
+       * старые, кадр снимается по ним уже после — и попадает мимо, на
+       * соседний кусок страницы. Белая подпись героя оказывалась «на листе
+       * страницы»: 1.26:1 там, где в покое 9.8.
+       *
+       * Признак тот же, что у всякой такой поломки: находка гуляла между
+       * прогонами и по ширинам — потому что расстояние прокрутки каждый раз
+       * своё. Снятая анимация тут не помогала: плавность прокрутки — не
+       * анимация, а отдельное свойство. */
+      await page.addStyleTag({ content:
+        '*,*::before,*::after{transition:none !important;animation:none !important}'
+        + 'html{scroll-behavior:auto !important}' })
       const dedupe = new Set()
       for (const d of r.dark) {
         const box = await page.evaluate(({ i }) => {
           const el = window.__dark[i]
-          el.scrollIntoView({ block: 'center' })
+          el.scrollIntoView({ block: 'center', behavior: 'instant' })
           /* буквы прозрачны, плавающие слои сняты: под текстом должно
              остаться ровно то, на чём он лежит */
           window.__was = el.style.color
@@ -1413,6 +2050,7 @@ async function visit(path, w, { finger, dark = false }) {
         }, { i: d.i })
 
         let got = null
+        let bare = [0, 0, 0]
         const left = Math.max(0, Math.round(box.x))
         const top = Math.max(0, Math.round(box.y))
         const width = Math.min(Math.round(box.w), box.vw - left)
@@ -1420,13 +2058,37 @@ async function visit(path, w, { finger, dark = false }) {
         if (width >= 2 && height >= 2) {
           const shot = await page.screenshot({ clip: { x: left, y: top, width, height } })
           const px = await sharp(shot).resize(1, 1, { fit: 'fill' }).removeAlpha().raw().toBuffer()
-          got = pairOf(d.fg, [px[0], px[1], px[2]])
+          bare = [px[0], px[1], px[2]]
+          got = pairOf(d.fg, bare)
         }
 
         await page.evaluate(({ i }) => {
           window.__dark[i].style.color = window.__was
           window.__hid.forEach((e, k) => { e.style.visibility = window.__hidWas[k] })
         }, { i: d.i })
+
+        /* НАХОДКА ПРОВЕРЯЕТСЯ ВТОРЫМ СНИМКОМ, и это не перестраховка.
+         *
+         * Дно снимается с буквами, покрашенными в прозрачное. Если на том же
+         * месте нарисовано что-то ЧУЖОЕ — соседний слайд карусели, вставший
+         * поверх, — снимется чужой снимок, и белая подпись на нём выйдет
+         * нечитаемой. Заголовок героя так и гулял: 10.15:1 в покое, 2.44:1 в
+         * прогоне, где карусель успела переключиться.
+         *
+         * Способ отличить одно от другого ровно один: посмотреть, ВИДНО ЛИ
+         * сами буквы. Второй снимок того же места с буквами на месте — если
+         * он не отличается от первого, текст там не нарисован, значит его
+         * чем-то накрыли, и мерили мы не его дно.
+         *
+         * Второй снимок делается ТОЛЬКО под находку: их единицы, а замеров
+         * сотни. */
+        if (got !== null && got < d.need && width >= 2 && height >= 2) {
+          const seen = await page.screenshot({ clip: { x: left, y: top, width, height } })
+          const sp = await sharp(seen).resize(1, 1, { fit: 'fill' }).removeAlpha().raw().toBuffer()
+          const moved = Math.max(Math.abs(sp[0] - bare[0]), Math.abs(sp[1] - bare[1]),
+                                 Math.abs(sp[2] - bare[2]))
+          if (moved < 2) got = null
+        }
 
         if (got !== null && got < d.need) {
           const key = `${d.label}|${Math.round(got * 100)}`
@@ -1439,18 +2101,35 @@ async function visit(path, w, { finger, dark = false }) {
     }
     delete r.dark
     return r
+    } finally { give(want, page) }
 }
+
+/** Заглушки: текст → адреса, где он встретился.
+ *
+ *  Считается ФАКТ, а не его показы. `[COMPANY]` в подвале — это один
+ *  незаполненный реквизит, и он не становится хуже оттого, что подвал стоит
+ *  на каждой странице: заведи страницу «Контакты» — счётчик вырос, хотя не
+ *  изменилось ничего. Это заметил заказчик, и он прав: число, которое
+ *  растёт от числа страниц, не измеряет долг.
+ *
+ *  Поэтому имя заглушки — ключ, а адреса — то, что про неё рассказывают.
+ *  Заполнили реквизит — счётчик упал ровно на единицу, на скольких бы
+ *  страницах он ни стоял. */
+const holders = new Map()
 
 /** Разложить находки по семьям. */
 const keep = (path, w, r) => {
   for (const k of Object.keys(r)) {
     for (const line of r[k]) {
-      /* Заглушка — про НАПОЛНЕНИЕ, а не про ширину: `[NAME]` под отзывом
-         один и тот же на всех шести ширинах, и это одно место, а не шесть
-         дефектов. Считать её на каждой ширине значит мерить не то — та же
-         ошибка, что и «одно объявление столько раз, сколько в нём чисел».
-         Остальные семьи от ширины зависят, и там повтор законен. */
-      found[k].push(k === 'placeholder' ? `${path}  ${line}` : `${path} @${w}  ${line}`)
+      if (k === 'placeholder') {
+        const where = holders.get(line) ?? new Set()
+        where.add(path)
+        holders.set(line, where)
+        continue
+      }
+      /* Остальные семьи от ширины зависят, и там повтор законен: контраст и
+         цель нажатия на 390 и на 1440 — два разных факта. */
+      found[k].push(`${path} @${w}  ${line}`)
     }
   }
 }
@@ -1458,23 +2137,23 @@ const keep = (path, w, r) => {
 const native = PAGES.filter(isNative)
 
 /* ── проход первый: как есть, все страницы и оба языка ─────────────────── */
-for (const path of PAGES) {
-  for (const w of isNative(path) ? WIDTHS : WIDTHS_ALT) {
-    keep(path, w, await visit(path, w, { finger: w < PHONE }))
-  }
-}
+const shots = PAGES.flatMap((path) =>
+  (isNative(path) ? WIDTHS : WIDTHS_ALT).map((w) => ({ path, w })))
+await lanes(shots, async ({ path, w }) => {
+  keep(path, w, await visit(path, w, { finger: w < PHONE }))
+})
 
 /* ── проход второй: тёмная тема ────────────────────────────────────────────
    Только контраст и только на одном языке: цвет от языка не зависит, а
    раскладка уже померена первым проходом. Семья своя, а не общая с дневным
    контрастом: иначе в базе не отличить «в тёмной стало хуже» от «стало хуже
    вообще», а чинятся эти два по-разному. */
-for (const path of native) {
-  for (const w of DARK_WIDTHS) {
+await lanes(
+  native.flatMap((path) => DARK_WIDTHS.map((w) => ({ path, w }))),
+  async ({ path, w }) => {
     const r = await visit(path, w, { finger: w < PHONE, dark: true })
     for (const line of r.contrast) found.theme.push(`${path} @${w} тёмная  ${line}`)
-  }
-}
+  })
 
 /* ── проход третий: палец на широком окне ──────────────────────────────────
    Планшет в альбоме отдаёт 1024 CSS-пикселя. По ширине это десктоп — и
@@ -1482,12 +2161,12 @@ for (const path of native) {
    размер. Но палец у него остался пальцем: на входе палец, в разметке
    курсор. Правило «44 пикселя» пишется в `@media (pointer: coarse)`, ровно
    как `:hover` пишется в `@media (hover: hover)`. */
-for (const path of native) {
-  for (const w of COARSE_WIDTHS) {
+await lanes(
+  native.flatMap((path) => COARSE_WIDTHS.map((w) => ({ path, w }))),
+  async ({ path, w }) => {
     const r = await visit(path, w, { finger: true })
     for (const line of r.target) found.coarse.push(`${path} @${w} палец  ${line}`)
-  }
-}
+  })
 
 /* ── проход четвёртый: «поменьше движения» ─────────────────────────────────
  *
@@ -1509,10 +2188,11 @@ for (const path of native) {
  * Одна ширина и родные страницы: движение от языка не зависит, а от ширины
  * зависит редко — и там, где зависит, это тот же самый сброс. */
 const calm = await browser.newContext({ reducedMotion: 'reduce' })
-{
-  const page = await calm.newPage()
-  await page.setViewportSize({ width: 1200, height: 900 })
-  for (const path of native) {
+await lanes(native, async (path) => {
+  {
+    const page = await take(calm)
+    try {
+    await page.setViewportSize({ width: 1200, height: 900 })
     await page.goto(BASE + path, { waitUntil: 'networkidle' })
     const lines = await page.evaluate(() => {
       const out = []
@@ -1551,16 +2231,310 @@ const calm = await browser.newContext({ reducedMotion: 'reduce' })
       return out
     })
     for (const line of new Set(lines)) found.calm.push(`${path}  ${line}`)
+    } finally { give(calm, page) }
   }
-  await page.close()
+})
+
+/* ── проход пятый: контраст ПО ХОДУ перехода ───────────────────────────────
+ *
+ * Все прочие замеры цвета берут страницу ОСТАНОВИВШЕЙСЯ: в покое и под рукой.
+ * Между этими двумя точками проверки не смотрел никто — а дефект живёт именно
+ * там.
+ *
+ * Заведено дефектом, который заказчик увидел глазом: «при наведении заливка
+ * меняется сразу, текст в ней меняет цвет через полсекунды, поэтому текст как
+ * бы мигает». Оба конца были безупречны — 16.3:1 в покое, 12.3:1 под рукой, —
+ * и обе стоящие проверки молчали. А на 85-й миллисекунде контраст
+ * проваливался до 1.08:1: слово на пару кадров становилось неотличимо от
+ * фона.
+ *
+ * Причина общая, не про одну кнопку. Если поверхность едет к тёмному, а
+ * краска на ней — к светлому, они ОБЯЗАНЫ пересечься, и в точке пересечения
+ * серое лежит на сером. Развести их по времени нельзя: замер показал, что
+ * провал только сдвигается, а на обратном ходу появляется второй. Лечится
+ * тем, что у переворота нет середины — пара переключается разом.
+ *
+ * Мерится так: указатель наводится по-настоящему (CSS `:hover` синтетическим
+ * событием не включается — на этом я соврал первым замером), и кадры снимаются
+ * через `requestAnimationFrame` по обе стороны — на вход и на обратный ход.
+ * Цвет разрешает CANVAS, а не разбор строки: браузер отдаёт `color(srgb 0..1)`
+ * и `oklab()`, а ручной разбор путает их с `rgb(0..255)` — на этом я соврал
+ * вторым замером и получил 1:1 там, где 12:1.
+ *
+ * Родов контрола, а не всех органов: дефект живёт в правиле, а не в копии.
+ * Поэтому органы группируются по подписи (`data-skin` плюс класс), и из каждой
+ * группы берётся один. Иначе проход по восьмидесяти кнопкам главной стоил бы
+ * минуту и мерил бы одно и то же.
+ *
+ * Порог 3:1 — не из таблицы доступности, а из замера: глаз ловит именно
+ * пропажу слова, и пропажа начинается там, где контраст уходит ниже трёх.
+ * Провалом считается только то, что ниже ОБОИХ концов: контрол, который под
+ * рукой честно становится тише, — это решение, а не дефект. */
+const DIP_W = 1200
+const DIP_MIN = 3
+await lanes(
+  native.flatMap((path) => [false, true].map((dark) => ({ path, dark }))),
+  async ({ path, dark }) => {
+  {
+    const ctx = dark ? deskDark : desk
+    const page = await take(ctx)
+    try {
+    await page.setViewportSize({ width: DIP_W, height: 900 })
+    try { await page.goto(BASE + path, { waitUntil: 'networkidle' }) } catch { return }
+    await still(page)
+    await page.evaluate(() => Promise.all(
+      document.getAnimations().map((a) => a.finished.catch(() => {})))).catch(() => {})
+    await page.waitForTimeout(120)
+
+    /* Один орган на род: подпись собирается из `data-skin` и первого класса. */
+    const kinds = await page.evaluate(() => {
+      /* КТО НА ЭТОЙ СТРАНИЦЕ ПОДНИМАЕТСЯ ПОД РУКОЙ — спрошено у самих таблиц
+         стилей: правило, у которого в селекторе `:hover`, а в объявлении
+         сдвиг на `--rise`. Селектор берётся без псевдокласса — получается
+         «кто это вообще такой». */
+      const lift = []
+      const walk = (rules) => {
+        for (const r of rules) {
+          if (r.cssRules) { walk(r.cssRules); continue }
+          if (!r.selectorText || !/:hover/.test(r.selectorText)) continue
+          const d = `${r.style?.transform ?? ''} ${r.style?.translate ?? ''}`
+          if (!/rise/.test(d)) continue
+          for (const one of r.selectorText.split(',')) {
+            const bare = one.replace(/:hover|:active|:focus-visible/g, '').trim()
+            if (bare) lift.push(bare)
+          }
+        }
+      }
+      for (const sheet of document.styleSheets) {
+        try { walk(sheet.cssRules) } catch { /* чужая таблица — не наша забота */ }
+      }
+      const LIFTERS = [...new Set(lift)].join(',') || ':not(*)'
+
+      const seen = new Map()
+      for (const el of document.querySelectorAll('a, button, summary, [role="button"]')) {
+        const cs = getComputedStyle(el)
+        if (cs.display === 'none' || cs.visibility === 'hidden') continue
+        const b = el.getBoundingClientRect()
+        if (b.width < 8 || b.height < 8) continue
+        if (!/transition|all/.test(cs.transitionProperty) && cs.transitionDuration === '0s') continue
+        const cls = (el.className || '').toString().split(/\s+/)[0] || ''
+        /* В подпись рода входит и ТО, НА ЧЁМ орган стоит, — но только если оно
+           САМО поднимается под рукой. Без этого «кнопка со словом» была одним
+           родом на всю страницу, из рода брался один образец, и та же кнопка
+           внутри плавающей карточки не проверялась ни разу: её подпись уже
+           была занята кнопкой из лотка фильтров.
+
+           Список плавающих собран из таблиц стилей (`LIFTERS` ниже), а не из
+           «у предка есть переход на transform»: по второму признаку в род
+           попадала обёртка снимка, которая никуда не едет, и родов
+           становилось в полтора раза больше — а это полторы цены самого
+           дорогого прохода проверки. */
+        const host = el.parentElement?.closest(LIFTERS)
+        const on = host ? ((host.className || '').toString().split(/\s+/)[0] || host.tagName) : 'none'
+        const sig = `${el.tagName.toLowerCase()}|${el.getAttribute('data-skin') ?? ''}|${cls}|${on}`
+        if (seen.has(sig)) continue
+        el.setAttribute('data-dip-probe', String(seen.size))
+        seen.set(sig, `${el.tagName.toLowerCase()}${cls ? '.' + cls.split('__').pop() : ''}${el.getAttribute('data-skin') ? `[${el.getAttribute('data-skin')}]` : ''}`)
+      }
+      return [...seen.values()]
+    })
+
+    for (let i = 0; i < kinds.length; i++) {
+      const el = page.locator(`[data-dip-probe="${i}"]`).first()
+      let box
+      try { box = await el.boundingBox({ timeout: 800 }) } catch { continue }
+      if (!box) continue
+      const grab = () => el.evaluate((node) => new Promise((done) => {
+        const cv = document.createElement('canvas'); cv.width = cv.height = 1
+        const cx = cv.getContext('2d', { willReadFrequently: true })
+        const rgba = (css) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = css
+          cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data
+          return [d[0], d[1], d[2], d[3] / 255] }
+        const lum = ([r, g, b]) => { const f = (c) => { c /= 255
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4 }
+          return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b) }
+        /* Под фон подкладывается ПОЛ, на котором орган стоит: у полупрозрачной
+           заливки контраст считается по тому, что видно, а не по её альфе. */
+        const floor = (() => { let n = node.parentElement
+          while (n) { const c = getComputedStyle(n).backgroundColor
+            const v = rgba(c); if (v[3] > 0.99) return v; n = n.parentElement }
+          return [255, 255, 255, 1] })()
+        const over = ([r, g, b, a], u) => [r * a + u[0] * (1 - a), g * a + u[1] * (1 - a), b * a + u[2] * (1 - a)]
+        const shot = () => { const cs = getComputedStyle(node)
+          const w = [...node.querySelectorAll('*')].find((k) => (k.textContent || '').trim())
+          const bg = over(rgba(cs.backgroundColor), floor)
+          const fg = over(rgba(w ? getComputedStyle(w).color : cs.color), bg)
+          const [hi, lo] = [lum(fg), lum(bg)].sort((x, y) => y - x)
+          return (hi + 0.05) / (lo + 0.05) }
+        const out = []; const t0 = performance.now()
+        const tick = () => { out.push(shot())
+          if (performance.now() - t0 < 520) requestAnimationFrame(tick); else done(out) }
+        requestAnimationFrame(tick)
+      }))
+      /* Сколько СМЕЩЁН по вертикали сам орган и каждый его предок. Числа
+         берутся из вычисленного стиля, а не из положения на экране: место на
+         экране зависит ещё и от прокрутки, а сдвиг — нет. Читаются обе
+         записи, `translate` и `transform`: кнопка двигается первой, карточка
+         второй.
+
+         Предки берутся ВСЕ до `main`, а не первый попавшийся с переходом:
+         первой попыткой я брал ближайшего, кто умеет двигаться, — и попадал
+         в обёртку снимка, которая как раз не двигается. Проверка показала
+         ноль там, где глаз видел рывок. */
+      const shift = () => el.evaluate((node) => {
+        const move = (n) => {
+          const cs = getComputedStyle(n)
+          let y = 0
+          if (cs.translate && cs.translate !== 'none') {
+            y += parseFloat(cs.translate.split(/\s+/)[1] ?? '0') || 0
+          }
+          const m = /matrix\(([^)]+)\)/.exec(cs.transform)
+          if (m) y += parseFloat(m[1].split(',')[5]) || 0
+          const m3 = /matrix3d\(([^)]+)\)/.exec(cs.transform)
+          if (m3) y += parseFloat(m3[1].split(',')[13]) || 0
+          return y
+        }
+        const ups = []
+        for (let n = node.parentElement; n && n !== document.body; n = n.parentElement) {
+          const cls = (n.className || '').toString().split(/\s+/)[0] || ''
+          ups.push({ y: move(n), name: `${n.tagName.toLowerCase()}${cls ? '.' + cls.split('__').pop() : ''}` })
+        }
+        return { self: move(node), ups }
+      })
+
+      await page.mouse.move(2, 2); await page.waitForTimeout(240)
+      const rest = await shift().catch(() => null)
+      const inP = grab(); await page.waitForTimeout(30)
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      let frIn = []; try { frIn = await inP } catch { continue }
+
+      /* ДВОЙНОЙ ПОДЪЁМ. Рука одна — предмет, который она подняла, тоже один:
+         самый внешний. Когда поднимаются оба, орган ПОЛЗЁТ по тому, на чём
+         стоит, и глаз читает это как рывок, а не как ответ.
+
+         Заказчик нашёл это на сердце «в избранное»: «она поднимается при
+         наведении, нахуя она прыгает». Замер показал карточку на 2 пикселя и
+         сердце на 4 — сердце уезжало по фотографии под ним.
+
+         В файлах признака нет вовсе: оба подъёма написаны верно и каждый в
+         своём месте: один у карточки, другой — общий у кнопки со словом.
+         Складываются они только на странице. */
+      const on = await shift().catch(() => null)
+      if (rest && on && rest.ups.length === on.ups.length) {
+        const mine = Math.abs(on.self - rest.self)
+        const k = on.ups.findIndex((u, n) => Math.abs(u.y - rest.ups[n].y) >= 1)
+        if (mine >= 1 && k >= 0) {
+          const under = Math.abs(on.ups[k].y - rest.ups[k].y)
+          found.twiceLift.push(
+            `${path}${dark ? ' тёмная' : ''}  ${kinds[i]} на ${on.ups[k].name} — `
+            + `поднялись оба: ${under.toFixed(1)}px пол и ещё ${mine.toFixed(1)}px орган`)
+        }
+      }
+      const outP = grab(); await page.waitForTimeout(30)
+      await page.mouse.move(2, 2)
+      let frOut = []; try { frOut = await outP } catch { continue }
+
+      for (const [dir, fr] of [['наведение', frIn], ['уход', frOut]]) {
+        if (fr.length < 4) continue
+        const ends = Math.min(fr[0], fr.at(-1))
+        const low = Math.min(...fr)
+        if (low < DIP_MIN && low < ends - 0.4) {
+          found.inkDip.push(`${path}${dark ? ' тёмная' : ''}  ${kinds[i]} — на ${dir} контраст проваливается до ${low.toFixed(2)}:1 (концы ${fr[0].toFixed(1)} и ${fr.at(-1).toFixed(1)})`)
+        }
+      }
+    }
+    await page.evaluate(() => document.querySelectorAll('[data-dip-probe]')
+      .forEach((el) => el.removeAttribute('data-dip-probe')))
+    } finally { give(ctx, page) }
+  }
+})
+
+/* ── ЛИСТ НАБОРА ПРОТИВ ВИТРИНЫ ────────────────────────────────────────────
+ *
+ * Лист набора существует затем, чтобы по нему принимали решения. Предмет,
+ * нарисованный на нём не в том размере, в котором он стоит в магазине, —
+ * такая же неправда, как чужой рисунок: решают по одному, покупатель видит
+ * другое. Заказчик нашёл три таких расхождения подряд, открыв лист рядом с
+ * витриной.
+ *
+ * Пары — в `tools/sheet-samples.mjs`: там же написано, что именно обязано
+ * совпасть у каждой. В файлах признака нет никакого: и лист, и витрина
+ * безупречны по отдельности, расходятся они только на странице. */
+const sheetSpot = async (ctx, win, at, pick, nth, text, tab) => {
+  const page = await take(ctx)
+  try {
+    await page.setViewportSize({ width: win, height: 1000 })
+    try { await page.goto(BASE + at, { waitUntil: 'networkidle' }) } catch { return null }
+    await still(page)
+    if (tab) {
+      /* Образцы лежат по вкладкам, и закрытая вкладка не отрисована вовсе. */
+      try { await page.getByRole('tab', { name: tab }).click({ force: true, timeout: 2000 }) } catch { return null }
+      await page.waitForTimeout(500)
+    }
+    await page.waitForTimeout(150)
+    return await page.evaluate(({ pick, nth, text }) => {
+      let list = [...document.querySelectorAll(pick)]
+      if (text) list = list.filter((el) => (el.textContent || '').trim() === text)
+      const el = list[nth ?? 0]
+      if (!el) return null
+      const b = el.getBoundingClientRect()
+      return {
+        w: Math.round(b.width), h: Math.round(b.height),
+        /* Складка предмета: рост против ширины. Ею сверяется то, у чего
+           колонка на листе и в магазине разная по делу. */
+        ar: b.width ? b.height / b.width : 0,
+        fs: getComputedStyle(el).fontSize,
+      }
+    }, { pick, nth, text })
+  } finally { give(ctx, page) }
+}
+
+/* В узком прогоне сверка идёт, только если спрошен сам лист: она открывает
+   ЧУЖИЕ адреса, и считать её по одной странице дерева нечестно. */
+const SHEET_AT = '/bg/design'
+if (!NARROW || SHEET_AT.includes(ONLY_PAGE)) {
+  const WORD = { w: 'ширина', h: 'рост', fs: 'кегль', ar: 'складка' }
+  await lanes(SHEET_SAMPLES, async (row) => {
+    const shop = await sheetSpot(desk, row.win, row.shop.at, row.shop.pick, row.shop.nth, row.shop.text, null)
+    const sheet = await sheetSpot(desk, row.win, SHEET_AT, row.sheet.pick, row.sheet.nth, row.sheet.text, row.sheet.tab)
+    if (!shop || !sheet) {
+      found.sheetSize.push(`${row.what} — не нашлось: ${shop ? 'на листе' : 'на витрине'} (окно ${row.win})`)
+      return
+    }
+    for (const key of row.same) {
+      const off = key === 'fs'
+        ? (shop.fs !== sheet.fs ? `${sheet.fs} против ${shop.fs}` : '')
+        : key === 'ar'
+          ? (Math.abs(shop.ar - sheet.ar) > SHEET_AR_SLACK
+            ? `${sheet.ar.toFixed(2)} против ${shop.ar.toFixed(2)}` : '')
+          : (Math.abs(shop[key] - sheet[key]) > SHEET_SLACK ? `${sheet[key]} против ${shop[key]}` : '')
+      if (off) found.sheetSize.push(`${row.what} @${row.win}: ${WORD[key]} на листе ${off} в магазине`)
+    }
+  }, 2)
 }
 
 await browser.close()
 
-found.placeholder = [...new Set(found.placeholder)]
+/* Одна строка на заглушку, а не на её показ. Адреса — рядом, чтобы было
+   видно, где смотреть, но на счёт они не влияют. */
+found.placeholder = [...holders].map(([text, where]) => {
+  const list = [...where]
+  return `${text}  — ${list.length === 1 ? list[0] : `на ${list.length} страницах, например ${list[0]}`}`
+})
+
+/* Порядок находок — не порядок обхода: страницы меряются в несколько полос,
+   и кто раньше отдал результат, решает сеть. Два прогона одного дерева
+   обязаны давать ОДИН отчёт, иначе его нечем сравнить с прошлым — поэтому
+   каждая семья сортируется перед печатью. На счёт это не влияет, на чтение
+   влияет прямо. */
+for (const k of Object.keys(found)) found[k].sort()
 
 const counts = Object.fromEntries(Object.entries(found).map(([k, v]) => [k, v.length]))
 
+if (process.argv.includes('--update') && NARROW) {
+  console.error('Узкий прогон базу не обновляет: долг по части дерева — неправда. Уберите --page.')
+  process.exit(1)
+}
 if (process.argv.includes('--update')) {
   writeFileSync(BASELINE, JSON.stringify(counts, null, 2) + '\n')
   console.log('База обновлена:', counts)
@@ -1575,35 +2549,7 @@ try {
   process.exit(1)
 }
 
-const NAMES = {
-  placeholder: 'заглушка на витрине ([NAME], [COMPANY], [Stand-in clip.])',
-  measure: 'мера текста уже колонки (заголовок в половину ширины)',
-  target: 'цель нажатия меньше нормы на телефоне (44×44, с data-tap — 24×24)',
-  contrast: 'контраст ниже порога',
-  collision: 'соседние блоки ближе 8px',
-  weight: 'снимок отдан вдвое крупнее места (нет srcset)',
-  jump: 'картинка без width/height — вёрстка прыгнет',
-  name: 'орган без имени (ни текста, ни aria-label, ни alt)',
-  heads: 'лестница заголовков: пропуск уровня или не один h1',
-  dress: 'одно действие в двух одеждах: выход из блока рисуется по-разному',
-  clip: 'текст, срезанный своим же блоком (nowrap, overflow:hidden)',
-  swipe: 'шторка за краем экрана не закрывается движением (правило И8)',
-  stretch: 'снимок растянут: своя пропорция не та, что на странице',
-  broken: 'снимок не доехал — пустое место там, где картинка',
-  spill: 'элемент вылез за правый край страницы (кто именно)',
-  focus: 'фокус не виден ничем — клавиатура теряет место',
-  wrap: 'подпись контрола сложилась в две строки',
-  anchor: 'ссылка внутрь страницы: цели нет или цель уедет под шапку',
-  outline: 'контур поверх силуэта: заливка и обводка на одном пути',
-  marker: 'маркеры списка у навигации или ряда — «1.» и точки на витрине',
-  sticky: 'приклеенный блок выше окна ноутбука — низ не увидеть никогда',
-  theme: 'контраст ниже порога в ТЁМНОЙ теме',
-  coarse: 'цель нажатия меньше 44 при пальце на широком окне (планшет)',
-  calm: 'движение осталось при системной настройке «поменьше движения»',
-  ladder: 'размер заголовков не по лестнице: уровень ниже крупнее верхнего, или жирное спорит с h1',
-  wideCtrl: 'орган шире меры строки (кнопка в полэкрана) — у колонки нет потолка',
-  lopsided: 'рваная правая кромка: у соседей по колонке разные правые вертикали',
-}
+/* Подписи семей — в реестре `craft-families.mjs`: их же печатает скилл. */
 
 /* `--list <семья>` печатает найденное целиком, не трогая базу: чинить проще,
    когда видно всё, а не первые двенадцать строк при провале. */
@@ -1613,6 +2559,17 @@ if (process.argv.includes('--list')) {
     if (asked && asked !== key) continue
     console.log(`\n── ${NAMES[key]} (${found[key].length})`)
     for (const line of found[key]) console.log(`   ${line}`)
+  }
+  process.exit(0)
+}
+
+if (NARROW) {
+  const keys = Object.keys(NAMES).filter((k) => !ONLY_FAM.length || ONLY_FAM.includes(k))
+  console.log(`\nУзкий прогон: ${PAGES.length} адрес(ов) под «${ONLY_PAGE}»` +
+    `${ONLY_FAM.length ? `, семьи: ${ONLY_FAM.join(', ')}` : ''}. База не тронута, вердикт за полным прогоном.\n`)
+  for (const key of keys) {
+    console.log(`${found[key].length ? '·' : '✓'} ${NAMES[key]}: ${found[key].length}`)
+    for (const line of found[key]) console.log(`    ${line}`)
   }
   process.exit(0)
 }

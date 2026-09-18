@@ -49,6 +49,14 @@ const scripts = (() => { try { return JSON.parse(readFileSync(join(ROOT, 'packag
 const runs = []
 const inDir = (d) => rel.startsWith(`${d}/`)
 if (/\.css$/.test(rel) && has('tools/check-css.mjs')) runs.push(['check:css', 'node', ['tools/check-css.mjs']])
+/* Переносимость. Ломается она не в одном месте: общий пакет и переходники
+   движков — прямо, вёрстка сайта — косвенно (валюта литералом, компонент,
+   сам сходивший за списком). Проверка читает файлы и не требует ни сборки,
+   ни браузера, поэтому висит на тех же правках, что и остальные быстрые. */
+if (has('tools/check-port.mjs') &&
+    (inDir('packages') || inDir('themes') || inDir('app') || inDir('components') || rel === 'styles/tokens.css')) {
+  runs.push(['check:port', 'node', ['tools/check-port.mjs']])
+}
 if (/\.(ts|tsx|js|jsx|mjs)$/.test(rel) && (inDir('app') || inDir('components') || inDir('lib'))) {
   if (has('tools/check-code.mjs')) runs.push(['check:code', 'node', ['tools/check-code.mjs']])
   if (has('tools/check-lint.mjs') && has('node_modules/.bin/oxlint')) runs.push(['check:lint', 'node', ['tools/check-lint.mjs']])

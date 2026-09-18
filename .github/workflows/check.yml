@@ -33,6 +33,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run check:css
       - run: npm run check:code
+      - run: npm run check:port
       - run: npm run check:lint
       - run: npm test
       - run: npm run check:stage

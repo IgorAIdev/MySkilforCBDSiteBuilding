@@ -41,6 +41,10 @@ const src = (p) => existsSync(join(ROOT, p)) ? readFileSync(join(ROOT, p), 'utf8
 
 const locale = src('lib/locale.ts')
 const catalogue = src('lib/products.ts')
+/* Марки лежат своим файлом, и разбираются они отдельно от каталога нарочно:
+   регулярка полок ищет `slug:` по всему тексту, и марка, положенная рядом с
+   товарами, молча стала бы десятой полкой. */
+const brands = src('lib/brands.ts')
 
 /** Языки. Язык — это адрес: `/bg/...` и `/en/...`, по маршруту на язык. */
 export const LOCALES = [...(locale.match(/LOCALES\s*=\s*\[([^\]]*)\]/)?.[1] ?? '')
@@ -49,10 +53,27 @@ export const LOCALES = [...(locale.match(/LOCALES\s*=\s*\[([^\]]*)\]/)?.[1] ?? '
 export const DEFAULT_LANG =
   locale.match(/DEFAULT_LANG[^=]*=\s*'([a-z-]+)'/)?.[1] ?? LOCALES[0]
 
+/** Документы — доставка, возврат, анализы, правовое. Читаются данными, а не
+ *  разбором кода: они и лежат данными (`lib/docs.json`). Регулярка тут была
+ *  бы вторым разбором JSON, и первым же документом с фигурной скобкой в
+ *  тексте он бы соврал. */
+export const DOCS = JSON.parse(
+  readFileSync(join(ROOT, 'lib/docs.json'), 'utf8'))
+
+/** Статьи наръчника — тем же способом, что документы: данные, а не разбор
+ *  кода (`lib/blog.json`). */
+export const POSTS = JSON.parse(
+  readFileSync(join(ROOT, 'lib/blog.json'), 'utf8'))
+
 /** Полки. Порядок тот же, что в данных: он по спросу, и первая полка — самая
  *  полная. */
 export const CATEGORIES = [...catalogue.matchAll(/\{\s*slug:\s*'([a-z-]+)'/g)]
   .map((m) => m[1])
+
+/** Марки. У каждой своя страница со всеми её товарами. Нужны оба поля:
+ *  адрес — чтобы построить его, имя — чтобы сосчитать товары марки. */
+export const BRANDS = [...brands.matchAll(/\{ slug: '([a-z0-9-]+)', name: '([^']+)' \}/g)]
+  .map((m) => ({ slug: m[1], name: m[2] }))
 
 /** Товары. Нужны три поля: адрес, полка и семья вариантов — по ним
  *  выбираются образцы для дорогих проверок. */
@@ -60,6 +81,7 @@ export const PRODUCTS = [...catalogue.matchAll(/^ *\{ id:'([^']+)'(.*)$/gm)]
   .map((m) => ({
     id: m[1],
     cat: m[2].match(/cat:'([a-z-]+)'/)?.[1] ?? '',
+    brand: m[2].match(/brand:'([^']+)'/)?.[1] ?? '',
     family: m[2].match(/family:'([^']+)'/)?.[1] ?? '',
   }))
 
@@ -72,7 +94,7 @@ export const PRODUCTS = [...catalogue.matchAll(/^ *\{ id:'([^']+)'(.*)$/gm)]
 export function assertData() {
   const empty = [
     ['LOCALES', locale, LOCALES], ['CATEGORIES', catalogue, CATEGORIES],
-    ['PRODUCTS', catalogue, PRODUCTS],
+    ['PRODUCTS', catalogue, PRODUCTS], ['BRANDS', brands, BRANDS],
   ].filter(([, file, v]) => file && !v.length).map(([n]) => n)
   if (empty.length) {
     console.error(`\n✗ tools/routes.mjs: разбор данных дал пусто — ${empty.join(', ')}.`)
@@ -115,6 +137,9 @@ const FILL = {
   '[lang]': () => LOCALES,
   '[cat]': () => CATEGORIES,
   '[id]': () => PRODUCTS.map((p) => p.id),
+  '[doc]': () => DOCS.map((d) => d.slug),
+  '[brand]': () => BRANDS.map((b) => b.slug),
+  '[slug]': () => POSTS.map((p) => p.slug),
 }
 
 /** Образцы для дорогих проверок: не «первое попавшееся», а два конца.
@@ -128,10 +153,35 @@ const FILL = {
  *  товаре половины страницы нет, и её отсутствие тоже вёрстка. */
 const SAMPLE = {
   '[lang]': () => LOCALES,
+  /* Марка: самая полная и самая пустая. У первой шесть полок и пятнадцать
+     карточек, у второй одна полка и три — и ломается всегда вторая: блок из
+     двух карточек в сетке на пять это другая раскладка, а не та же. */
+  '[brand]': () => {
+    const size = (b) => PRODUCTS.filter((p) => p.brand === b.name).length
+    const sorted = [...BRANDS].sort((a, b) => size(b) - size(a))
+    return [...new Set([sorted[0]?.slug, sorted[sorted.length - 1]?.slug])].filter(Boolean)
+  },
+  /* Документ: самый длинный и самый короткий. Длинный — это оглавление в
+     десять пунктов, таблица и выноски; короткий — три абзаца. Ломается
+     всегда первый, но проверять надо оба: у короткого оглавление рискует
+     оказаться длиннее самого текста. */
+  '[doc]': () => {
+    const size = (d) => JSON.stringify(d).length
+    const sorted = [...DOCS].sort((a, b) => size(b) - size(a))
+    return [...new Set([sorted[0]?.slug, sorted[sorted.length - 1]?.slug])].filter(Boolean)
+  },
   '[cat]': () => {
     const size = (c) => PRODUCTS.filter((p) => p.cat === c).length
     const sorted = [...CATEGORIES].sort((a, b) => size(b) - size(a))
     return [...new Set([sorted[0], sorted[sorted.length - 1]])].filter(Boolean)
+  },
+  /* Статья: самая длинная и самая короткая — та же логика, что у документа.
+     Длинная несёт таблицу, цитату и оглавление в шесть пунктов; короткая —
+     три раздела и ни одной таблицы. */
+  '[slug]': () => {
+    const size = (post) => JSON.stringify(post).length
+    const sorted = [...POSTS].sort((a, b) => size(b) - size(a))
+    return [...new Set([sorted[0]?.slug, sorted[sorted.length - 1]?.slug])].filter(Boolean)
   },
   '[id]': () => {
     const count = {}
@@ -165,18 +215,34 @@ const expand = (fill) => (url) => {
   return rows.length ? rows : ['/']
 }
 
+/** Полка с гранью фильтра в адресе (И22) — форма без своего `page.tsx`: та
+ *  же страница `[cat]`, только со строкой запроса. Дерево строится по
+ *  файлам `app/**\/page.tsx`, и параметр к файлу не привязан — без явной
+ *  строки здесь эта форма не открылась бы ни разу ни в одной проверке.
+ *
+ *  Один адрес хватает: он не про то, какая грань выбрана, а про то, что
+ *  адрес с параметром вообще открывается и рисует ту же полку, что и без
+ *  него. */
+function queried() {
+  const cat = CATEGORIES[0]
+  const brand = BRANDS[0]?.name
+  if (!cat || !brand) return []
+  const suffix = `/catalog/${cat}?brand=${encodeURIComponent(brand)}`
+  return LOCALES.length ? LOCALES.map((l) => `/${l}${suffix}`) : [suffix]
+}
+
 /** Каждый адрес, который публикует сайт. Для дешёвых проверок: открывается
  *  ли страница, обещана ли она картой сайта. */
 export function all() {
   assertData()
-  return [...new Set(shapes().flatMap(expand(FILL)))].sort()
+  return [...new Set([...shapes().flatMap(expand(FILL)), ...queried()])].sort()
 }
 
 /** По одному адресу на форму маршрута и язык. Для дорогих проверок —
  *  отрисованных, где каждая страница стоит шести открытий. */
 export function sample() {
   assertData()
-  return [...new Set(shapes().flatMap(expand(SAMPLE)))].sort()
+  return [...new Set([...shapes().flatMap(expand(SAMPLE)), ...queried()])].sort()
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

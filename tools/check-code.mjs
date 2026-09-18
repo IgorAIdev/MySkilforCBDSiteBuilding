@@ -31,7 +31,7 @@
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { CODE_FAMILIES } from './code-families.mjs'
+import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const DIRS = ['app', 'components', 'lib']
@@ -50,9 +50,7 @@ const DATA = [
 ]
 
 /** Длиннее этого файл перестаёт читаться целиком. */
-const LONG_FILE = 420
 /** Больше этого хуков в одной функции — она держит не одно состояние, а много. */
-const MANY_HOOKS = 14
 
 const files = []
 for (const dir of DIRS) walk(join(ROOT, dir))
@@ -93,7 +91,8 @@ const bodies = new Map()
 
 for (const path of files) {
   const rel = relative(ROOT, path)
-  const src = strip(readFileSync(path, 'utf8'))
+  const raw = readFileSync(path, 'utf8')
+  const src = strip(raw)
   const at = (i) => `${rel}:${src.slice(0, i).split('\n').length}`
 
   /* стрелка в одну строку: const mg = (v: number): string => (…) */
@@ -277,8 +276,50 @@ for (const path of files) {
    *
    * Якорь на этой же странице (`href="#lab"`, `href="#contact"`) — не дефект:
    * он ведёт туда, где что-то есть. Спрашивается только пустой. */
+  /* Цвет числом в разметке: знак не следует теме.
+   *
+   * `fill="#CBD3CE"` у рисунка-заглушки выглядит безобидно и в светлой теме
+   * верен. В тёмной он остаётся светлым: пузырёк светит белым там, где всё
+   * вокруг приглушено. Проверка вёрстки этого не видит — литерал стоит не в
+   * стилях, а в атрибуте разметки, и туда она не смотрит.
+   *
+   * Чужая марка — исключение, и оно названо словом: логотип Google обязан
+   * быть цветов Google, и токеном его красить нельзя. Помечается комментарием
+   * «чужая марка» над блоком — пометка действует на восемь строк вниз, то
+   * есть на весь знак, а не на одну заливку из пяти. */
+  /* Читается ИСХОДНИК, а не очищенный текст: пометка живёт в комментарии, а
+     очистка их снимает — на очищенном исключение не сработало бы никогда. */
+  const lines = raw.split('\n')
+  for (const m of raw.matchAll(/(fill|stroke|stopColor)\s*=\s*["']#[0-9A-Fa-f]{3,8}["']/g)) {
+    const ln = raw.slice(0, m.index).split('\n').length - 1
+    if (lines.slice(Math.max(0, ln - 8), ln + 1).some((l) => /чужая марка/.test(l))) continue
+    found.inkLiteral.push(`${at(m.index)}  ${m[0]} — цвет числом: знак не пойдёт за темой`)
+  }
+
   for (const m of src.matchAll(/href\s*=\s*(?:"#"|'#'|\{\s*['"]#['"]\s*\})/g)) {
     found.deadLink.push(`${at(m.index)}  href="#" — ссылка на верх страницы вместо адреса`)
+  }
+
+  /* ── семья: адрес канала связи набран заново, а не спрошен у lib/contacts.ts
+   *
+   * `tel:`, `mailto:`, `t.me/`, `wa.me/`, `viber://` считает ровно одна
+   * функция на весь сайт — `hrefOf` в `lib/contacts.ts`. Тот же номер,
+   * написанный ещё где-то схемой самой ссылки, — это магазин, который на
+   * один и тот же вопрос («как до вас дозвониться») отвечает в двух местах:
+   * поправят номер в данных, а копия схемы останется со старым.
+   *
+   * Заказчик спросил прямо: «данные всех контактов — один источник
+   * правды?» Ответ был «да» по чтению кода, но чтением это не измерить на
+   * следующей правке — здесь та же гарантия, посчитанная. */
+  if (!rel.endsWith('lib/contacts.ts')) {
+    /* `(?!\|)` — не хватать сами схемы там, где их ПЕРЕЧИСЛЯЮТ для проверки
+       (`components/Btn.tsx`: `/^(tel:|mailto:|https?:)/.test(...)`
+       отличает внешний адрес от маршрута сайта, а не набирает контакт
+       заново): после схемы там сразу стоит `|` — знак того же списка, а не
+       продолжение настоящего адреса. */
+    for (const m of src.matchAll(/\b(?:tel:|mailto:)(?!\|)|(?:https?:)?\/\/(?:t\.me|wa\.me)\/|viber:\/\//g)) {
+      found.contactScheme.push(`${at(m.index)}  ${m[0]} — адрес канала связи вне lib/contacts.ts`)
+    }
   }
 
   /* Сортировка, переставляющая ЧУЖОЙ массив.
@@ -334,6 +375,183 @@ for (const path of files) {
   }
 }
 
+/* ── семья: класс описан и никем не взят ───────────────────────────────────
+ *
+ * У модульного стиля имя класса перемешивается на сборке, и попасть в
+ * разметку оно может ровно тремя путями: через импорт модуля в разметке
+ * (`s.cat`), через `composes` из другого файла и через `composes` внутри
+ * своего. Ни один из трёх не нашёлся — значит класса на странице нет вовсе,
+ * а правило есть, читается и врёт: следующий, кто откроет файл, будет чинить
+ * то, чего не видно.
+ *
+ * Заведено по счёту. В `app/[lang]/home.module.css` лежали три класса
+ * витрины категорий — `.cats`, `.cat` и всё их устройство вместе со
+ * стрелкой, нарисованной прямо в стиле, — и ни один не был взят никем:
+ * блок давно переехал на общую плитку, а стили остались. Сорок строк,
+ * которые выглядят как работающая витрина. Хуже того, внутри лежала стрелка
+ * со ЗАПЕЧЁННЫМ цветом `#0C3A46`: в тёмной теме она была бы невидима — но
+ * узнать это нельзя, потому что показать её нечем.
+ *
+ * Динамический доступ (`s[name]`, `s[`tone-${x}`]`) проверку выключает для
+ * всего модуля: какое имя соберётся в строку, отсюда не видно, и лучше
+ * промолчать, чем назвать живое мёртвым. */
+{
+  /* Читаются ВСЕ модули — и блоки, и общий словарь: словарь раздаёт классы
+     через `composes`, и без него половина блоков выглядела бы мёртвой.
+     А вот СПРАШИВАЕТСЯ только с блоков (`BLOCKS`): `styles/` — это набор,
+     который вывозится в другие проекты, и примитив без сегодняшнего
+     пользователя там не мёртвый код, а незанятая полка. */
+  const BLOCKS = ['app/', 'components/']
+  const cssFiles = []
+  for (const dir of ['app', 'components', 'styles']) walkCss(join(ROOT, dir))
+  function walkCss(dir) {
+    if (!existsSync(dir)) return
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name)
+      if (statSync(path).isDirectory()) walkCss(path)
+      else if (name.endsWith('.module.css')) cssFiles.push(path)
+    }
+  }
+
+  /* Кто как назван у зовущего: `import s from './x.module.css'` — и дальше
+     в файле стоит `s.cat`. Алиас у каждого свой, поэтому имя берётся из
+     самого импорта, а не угадывается. */
+  const used = new Set()          // 'путь/файл.css|имя'
+  const dynamic = new Set()       // модули, у которых имя собирается строкой
+  const key = (file, cls) => `${file}|${cls}`
+
+  const resolve = (fromRel, spec) => {
+    const base = spec.startsWith('@/') ? spec.slice(2)
+      : join(fromRel.split('/').slice(0, -1).join('/'), spec)
+    return base.replace(/\\/g, '/')
+  }
+
+  for (const path of files) {
+    const rel = relative(ROOT, path)
+    const src = strip(readFileSync(path, 'utf8'))
+    for (const m of src.matchAll(/import\s+(\w+)\s+from\s+'([^']+\.module\.css)'/g)) {
+      const [, alias, spec] = m
+      const mod = resolve(rel, spec)
+      if (new RegExp(`\\b${alias}\\s*\\[`).test(src)) { dynamic.add(mod); continue }
+      for (const u of src.matchAll(new RegExp(`\\b${alias}\\.([A-Za-z_][\\w-]*)`, 'g'))) {
+        used.add(key(mod, u[1]))
+      }
+    }
+  }
+
+  /* `composes` — второй путь. Из чужого файла (`composes:grid from
+     './primitives.module.css'`) и из своего (`composes:btn`). */
+  for (const path of cssFiles) {
+    const rel = relative(ROOT, path)
+    const src = readFileSync(path, 'utf8')
+    for (const m of src.matchAll(/composes\s*:\s*([^;{}]+?)\s+from\s+'([^']+)'/g)) {
+      const mod = resolve(rel, m[2])
+      for (const cls of m[1].trim().split(/\s+/)) used.add(key(mod, cls))
+    }
+    for (const m of src.matchAll(/composes\s*:\s*([^;{}]+?)\s*;/g)) {
+      if (/\sfrom\s/.test(m[1])) continue
+      for (const cls of m[1].trim().split(/\s+/)) used.add(key(rel, cls))
+    }
+  }
+
+  for (const path of cssFiles) {
+    const rel = relative(ROOT, path)
+    if (dynamic.has(rel)) continue
+    if (!BLOCKS.some((d) => rel.startsWith(d))) continue
+    const src = readFileSync(path, 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+      /* Строки и адреса — не селекторы. Без этого `composes … from
+         './x.module.css'` считался классами `.module` и `.css`, а ссылка на
+         w3.org — классами `.w3` и `.org`. */
+      .replace(/'[^'\n]*'|"[^"\n]*"/g, (m) => m.replace(/[^\n]/g, ' '))
+      .replace(/url\([^)]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
+      /* `:global(.x)` — имя, которое НЕ перемешивается: его ставит не этот
+         файл, и спрашивать с него некому. */
+      .replace(/:global\([^)]*\)/g, (m) => m.replace(/[^\n]/g, ' '))
+
+    /* Имя класса ищется ТОЛЬКО в селекторе — куске перед `{`, считая от
+       конца предыдущего правила. Иначе классом становится всё, что похоже на
+       точку с буквой: доли в `calc(.643)`, `.3em`, имя файла в значении. */
+    const seen = new Set()
+    let from = 0
+    for (const m of src.matchAll(/\{/g)) {
+      const prelude = src.slice(from, m.index)
+      const cut = Math.max(prelude.lastIndexOf('}'), prelude.lastIndexOf(';'))
+      const head = prelude.slice(cut + 1)
+      from = m.index + 1
+      if (head.trim().startsWith('@')) continue
+      for (const c of head.matchAll(/\.(-?[A-Za-z_][\w-]*)/g)) {
+        const cls = c[1]
+        if (seen.has(cls)) continue
+        seen.add(cls)
+        if (used.has(key(rel, cls))) continue
+        const line = src.slice(0, from - 1 + (cut + 1) + c.index - (from - 1)).split('\n').length
+        found.deadStyle.push(`${rel}:${src.slice(0, m.index).split('\n').length}  .${cls} — класс описан, но его никто не берёт`)
+      }
+    }
+  }
+}
+
+/* ── настройка, которая ничего не меняет ───────────────────────────────────
+   У поля панели есть ПРОВОД: `wire: { to:'attr', name:'x' }` ставит
+   `data-x` на корень документа, `to:'var'` — переменную `--x`. Провод,
+   у которого на другом конце ничего нет, — это ручка, которую можно крутить
+   без всякого следствия. Она не «про запас»: её никто не открывает, а
+   значит никто и не замечает, что она мертва.
+
+   Дефект, купивший семью: «Per-drop figure» в разделе меню — выбор из двух
+   положений, не привязанный ни к одной строке CSS. Прожил месяцы; нашёлся
+   только когда раздел снимали целиком и я спросил, к чему были привязаны
+   его ручки. Заказчик к тому времени успел по нему «выбрать».
+
+   Ключ без провода тоже считается: его читает компонент через `useValue`,
+   и если имени ключа нет нигде, кроме самого описания, — поле висит в
+   воздухе. Имена, собранные в коде из кусков (`chan${Code}`), проверка
+   видит по общей части, поэтому ищется ещё и она. */
+{
+  const schemaPath = join(ROOT, 'lib/studio/schema.ts')
+  if (existsSync(schemaPath)) {
+    const schema = readFileSync(schemaPath, 'utf8')
+    /* Весь остальной код одной строкой: ищем в нём следы провода. */
+    const css = []
+    const grab = (dir) => {
+      if (!existsSync(dir)) return
+      for (const name of readdirSync(dir)) {
+        const path = join(dir, name)
+        if (statSync(path).isDirectory()) grab(path)
+        else if (name.endsWith('.css')) css.push(path)
+      }
+    }
+    for (const dir of ['app', 'components', 'styles']) grab(join(ROOT, dir))
+    const rest = [...files, ...css]
+      .filter((p) => !p.endsWith('lib/studio/schema.ts'))
+      .map((p) => readFileSync(p, 'utf8')).join('\n')
+    const re = /kind:\s*'(\w+)',\s*key:\s*'(\w+)',\s*label:\s*'([^']*)'([\s\S]{0,400}?)(?=\n\s{6}[{/]|\n\s{4}\])/g
+    let m
+    while ((m = re.exec(schema))) {
+      const [, , key, label, rest2] = m
+      const attr = /wire:\s*\{\s*to:\s*'attr',\s*name:\s*'([\w-]+)'/.exec(rest2)
+      const vr = /wire:\s*\{\s*to:\s*'var',\s*name:\s*'([\w-]+)'/.exec(rest2)
+      let what = null
+      if (attr) what = `data-${attr[1]}`
+      else if (vr) what = `--${vr[1]}`
+      else if (/wire:\s*\{\s*to:\s*'(ink|face)'/.test(rest2)) continue
+      if (what) {
+        if (!rest.includes(what)) {
+          found.deadSetting.push(`${key} «${label}» — провод ведёт в ${what}, а такого в коде нет`)
+        }
+        continue
+      }
+      /* Без провода: ключ обязан читаться кем-то по имени — целиком или
+         общей частью составного имени. */
+      const stem = key.replace(/[A-Z]\w*$/, '')
+      if (rest.includes(`'${key}'`) || rest.includes(`\`${key}\``)) continue
+      if (stem.length >= 4 && rest.includes(stem)) continue
+      found.deadSetting.push(`${key} «${label}» — провода нет, и по имени его никто не читает`)
+    }
+  }
+}
+
 for (const [, v] of bodies) {
   if (!v.also.length) continue
   const where = [v.where, ...v.also.map((a) => a.where)].join('  =  ')
@@ -343,17 +561,7 @@ for (const [, v] of bodies) {
 
 const counts = Object.fromEntries(Object.entries(found).map(([k, v]) => [k, v.length]))
 
-const NAMES = {
-  twice: 'одно и то же написано дважды: тела совпадают, файлы разные',
-  longFile: `файл длиннее ${LONG_FILE} строк — целиком уже не читается`,
-  manyHooks: `функция держит больше ${MANY_HOOKS} хуков — это не один компонент, а несколько`,
-  keep: 'localStorage мимо склада: без уведомления подписчиков и без защиты от приватного режима',
-  deadLink: 'href="#" — обещает адрес, а уводит на верх страницы',
-  translated: 'имя марки без translate="no" — автоперевод браузера его перепишет',
-  mutSort: 'sort переставляет чужой список, а не копию',
-  glued: 'переводу отдали склеенную строку — в словаре такого ключа нет, и она уедет как есть',
-  jumpBack: 'переключатель варианта без scroll={false} — нажатие уносит в начало страницы',
-}
+/* Подписи семей — в реестре `code-families.mjs`: их же печатает скилл. */
 
 if (process.argv.includes('--list')) {
   const pick = process.argv[process.argv.indexOf('--list') + 1]

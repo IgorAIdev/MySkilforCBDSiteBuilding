@@ -10,5 +10,20 @@
   "zIndex": 0,
   "focusGone": 0,
   "noPress": 0,
-  "stickyCap": 0
+  "liftOnPress": 0,
+  "stickyCap": 0,
+  "scrollBleed": 0,
+  "railY": 0,
+  "colLadder": 0,
+  "proseCols": 0,
+  "twiceDrawn": 0,
+  "deadEffect": 0,
+  "tapGrows": 0,
+  "dressLayout": 0,
+  "twoOwners": 0,
+  "barNoScroll": 0,
+  "deadDress": 0,
+  "plateGap": 0,
+  "barTwice": 0,
+  "groundGlue": 0
 }

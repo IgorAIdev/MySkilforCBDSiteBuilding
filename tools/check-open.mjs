@@ -23,9 +23,30 @@
  */
 
 import { spawn } from 'node:child_process'
+import { createServer } from 'node:net'
 import { all, sample } from './routes.mjs'
 
-const PORT = Number(process.env.PORT ?? 3197)
+/** СВОБОДНЫЙ порт, а не один и тот же навсегда.
+ *
+ *  Постоянное число (3197) держалось до первого раза, когда прошлый прогон
+ *  не успел за собой прибрать: на занятом порту `next dev` либо спрашивает
+ *  человека, брать ли соседний, либо отдаёт чужой сервер — и проверка висит
+ *  без единой строчки в отчёте. На своём ранере это стоило получаса очереди:
+ *  машина одна, и вставший прогон держит её целиком.
+ *
+ *  Порт спрашивается у системы: она отдаёт заведомо свободный. `PORT` в
+ *  окружении остаётся ручкой — им пользуются, когда порт нужно знать заранее.
+ */
+const freePort = () => new Promise((done, fail) => {
+  const probe = createServer()
+  probe.once('error', fail)
+  probe.listen(0, '127.0.0.1', () => {
+    const { port } = probe.address()
+    probe.close(() => done(port))
+  })
+})
+
+const PORT = Number(process.env.PORT ?? await freePort())
 const BASE = process.env.SITE ?? `http://127.0.0.1:${PORT}`
 const built = process.argv.includes('--built')
 const urls = all()

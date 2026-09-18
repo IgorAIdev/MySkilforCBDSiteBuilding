@@ -126,7 +126,7 @@ export const STAGES = [
     n: 0, name: 'Основание',
     builds: 'три шкалы (цвет, размер, ритм), пять примитивов раскладки, три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
     skills: ['craft', 'code', 'stages'],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'test', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('CLAUDE.md') ? null : 'нет CLAUDE.md — правила не читаются раньше кода',
@@ -139,6 +139,12 @@ export const STAGES = [
         },
         () => script('check:css') && has('tools/css-baseline.json') ? null : 'храповика по вёрстке нет (check:css + tools/css-baseline.json)',
         () => script('check:code') && has('tools/code-baseline.json') ? null : 'храповика по коду нет (check:code + tools/code-baseline.json)',
+        /* Переносимость — ворота ОСНОВАНИЯ, а не сдачи. Правило заказчика:
+           всё, что мы производим, должно становиться на разный движок и
+           бекенд. Заведённое на этапе 5 оно означало бы «перенести готовый
+           сайт», то есть переписать его; заведённое в день первый — что
+           непереносимого просто не накапливается. */
+        () => script('check:port') && has('tools/port-baseline.json') ? null : 'храповика по переносимости нет (check:port + tools/port-baseline.json)',
         () => ci() ? null : 'проверки не валят сборку сами — в .github/workflows/ нет процесса, который зовёт check:css',
       ],
       human: [
@@ -156,8 +162,8 @@ export const STAGES = [
   {
     n: 1, name: 'Каркас',
     builds: 'адреса и дерево маршрутов, язык адресом (/bg, /en), данные одной таблицей в lib/, карта сайта и robots как МЕХАНИЗМ, один факт о товаре — одно место.',
-    skills: ['code', 'craft', 'stages'],
-    checks: ['typecheck', 'check:open', 'build:site', 'check:urls', 'check:stage'],
+    skills: ['code', 'craft', 'shop', 'stages'],
+    checks: ['typecheck', 'check:tokens', 'check:port', 'check:open', 'build:site', 'check:urls', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('tools/routes.mjs') ? null : 'дерева маршрутов нет (tools/routes.mjs) — список страниц будет набираться рукой',
@@ -177,8 +183,8 @@ export const STAGES = [
   {
     n: 2, name: 'Вёрстка',
     builds: 'блоки и страницы, отзывчивость по ширинам, обе темы, вкус и движение. Компонент меряет контейнер, а не окно; число колонок вычисляется.',
-    skills: ['craft', 'code', 'taste-skill', 'emil-design-eng', 'impeccable', 'improve-animations', 'redesign-skill', 'stages'],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:stage'],
+    skills: ['craft', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'impeccable', 'improve-animations', 'redesign-skill', 'stages'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => script('check:craft') && has('tools/craft-baseline.json') ? null : 'храповика по отрисованной странице нет (check:craft + tools/craft-baseline.json)',
@@ -202,8 +208,8 @@ export const STAGES = [
   {
     n: 3, name: 'Поведение',
     builds: 'корзина, фильтры, формы, состояния (пусто, ошибка, ожидание), склады памяти браузера, панель настроек. Функция обновления состояния чиста; компонент помнит одно.',
-    skills: ['code', 'craft', 'systematic-debugging', 'test-driven-development', 'stages'],
-    checks: ['typecheck', 'check:code', 'check:lint', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:stage'],
+    skills: ['code', 'shop', 'craft', 'systematic-debugging', 'test-driven-development', 'stages'],
+    checks: ['typecheck', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => {
@@ -231,8 +237,8 @@ export const STAGES = [
   {
     n: 4, name: 'Наполнение',
     builds: 'настоящие тексты, снимки с подписями, реквизиты фирмы, каналы связи, отзывы — от заказчика. Флаги настоящести переключаются в true; заглушки уходят с витрины.',
-    skills: ['stages', 'craft'],
-    checks: ['test', 'build:site', 'check:craft', 'check:seo', 'check:stage'],
+    skills: ['stages', 'shop', 'craft'],
+    checks: ['test', 'check:tokens', 'check:port', 'build:site', 'check:craft', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => {
@@ -263,8 +269,8 @@ export const STAGES = [
   {
     n: 5, name: 'Сдача',
     builds: 'то, что включают только на настоящем: карта сайта и robots открыты поиску, разметка товара с ценой и наличием, бюджет веса, скорость, доступность, внешний аудит по проду.',
-    skills: ['stages', 'craft', 'code', 'verification-before-completion'],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:stage'],
+    skills: ['stages', 'shop', 'craft', 'code', 'verification-before-completion'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('out') ? null : 'сайт не собран — npm run build:site',
@@ -278,6 +284,18 @@ export const STAGES = [
           const bad = clean('tools/craft-baseline.json', ['contrast', 'target', 'name', 'focus', 'theme'])
           return bad === null ? 'базы check:craft не прочитать' : bad.length ? `доступность не на нуле в check:craft: ${bad.join(', ')}` : null
         },
+        /* Три семьи из шести — не долг, а поломка на чужом движке: переменная
+           без объявления выбрасывает объявление целиком, разошедшийся класс
+           ломает блок только там, протёкший движок делает общий слой
+           необщим. К сдаче они обязаны быть на нуле.
+
+           Остальные три (две правды у токена, компонент, сам сходивший за
+           списком, валюта литералом) — настоящий долг: он мешает переезду,
+           но витрину не ломает. Их держит храповик, а не эти ворота. */
+        () => {
+          const bad = clean('tools/port-baseline.json', ['varGone', 'markupDrift', 'engineInShared'])
+          return bad === null ? 'базы check:port не прочитать' : bad.length ? `переносимость сломана: ${bad.join(', ')} — на другом движке это не работает (npm run check:port -- --list)` : null
+        },
       ],
       human: [
         'PageSpeed Insights / Lighthouse по проду: LCP, CLS, INP зелёные на телефоне',
@@ -287,6 +305,10 @@ export const STAGES = [
       ],
     },
     parked: [
+      { name: 'Наборы цвета: включить выбор', url: 'lib/palettes.json',
+        take: 'решено заказчиком: сперва доводится до конца сегодняшняя палитра, к остальным возвращаемся здесь. Наборы уже лежат данными и показаны на /design — «Тёплый лист», «Аптека» и «Олива», обе половины выведены по правилам тёмной темы, и check:theme меряет каждый набор. Осталось одно: решить, нужен ли выбор вообще, и если да — писать набор в те же девять полей цвета панели (cPage, cSurface, cTile, cCtrl, cField, cMenu, cInk, cAccent, cChrome). Покупателю выбор не показывается: магазин должен выглядеть одинаково у всех. И десятое поле: краска ошибки — роль --bad завелась ради формы заказа и измерена, но её несёт только сегодняшняя палитра; набор без своей — покраснеет не тем красным.' },
+      { name: 'Перенос на другие движки: Shopify, WordPress, Medusa', url: 'packages/ui/README.md',
+        take: 'решено заказчиком: сам перенос делается здесь, а не по ходу вёрстки — иначе каждый блок пишется дважды. К этому дню долг по переносимости уже посчитан (npm run check:port -- --list): дописать пакету недостающие токены, довести паритет блоков, вынести списки из компонентов в страницы. Источник данных берётся скиллом своего движка (см. «скиллы источника данных» ниже по списку платформ).' },
       { name: 'web-quality-skills/seo (Addy Osmani)', url: 'https://github.com/addyosmani/web-quality-skills',
         take: 'references/STRUCTURED-DATA.md — сверочный лист для lib/ld.ts в день включения offers; чеклист аудита — прочитать один раз. Измеримая половина уже в check:seo.' },
       { name: 'claude-seo (AgriciDaniel)', url: 'https://github.com/AgriciDaniel/claude-seo',
@@ -302,8 +324,8 @@ export const STAGES = [
   {
     n: 6, name: 'Жизнь',
     builds: 'сайт показан людям: Search Console, замер после каждого выката, слежение за тем, что разметка и адреса не уехали, новые тексты по спросу.',
-    skills: ['stages', 'craft', 'code'],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:stage'],
+    skills: ['stages', 'shop', 'craft', 'code'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [],
       human: [
@@ -348,13 +370,13 @@ export const PLATFORM = [
     url: 'README.md — раздел «Стекът»',
     sleeps: 'пока каталог — массив в lib/products.ts',
     awake: () => /payload|vendure|@medusajs|shopify/i.test(src('package.json')),
-    take: 'lib/products.ts сохраняет форму: меняется тело, с литерала на запрос. Скилл берётся за тем, как ходить за данными, а не за тем, как их показывать.',
+    take: 'lib/products.ts сохраняет форму: меняется тело, с литерала на запрос. Эта форма и есть договор с бекендом — Medusa, Payload, Vendure, Shopify Storefront: витрина знает `Product`, а не то, откуда он приехал. Держит договор семья dataInView в check:port: компонент получает список, а не ходит за ним. Скилл берётся за тем, как ходить за данными, а не за тем, как их показывать.',
   },
 ]
 
 /** Скиллы, которые работают на любом этапе: процесс, а не предмет. */
 export const ALWAYS = [
-  'stages', 'craft (при любой правке CSS)', 'code (при любой правке TypeScript)',
+  'stages', 'craft (при любой правке CSS)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
   'Superpowers: brainstorming · writing-plans · systematic-debugging · verification-before-completion · finishing-a-development-branch',
 ]
 

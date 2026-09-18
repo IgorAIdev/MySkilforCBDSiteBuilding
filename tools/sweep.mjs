@@ -91,22 +91,41 @@ for (let w = FROM; w <= TO; w += STEP) {
       const r = document.createRange()
       const rows = []
       let node, chars = 0, last = null, row = ''
+      /* Ширина строки в ПИКСЕЛЯХ, а не только в знаках: ею отличается
+         столбик обрывков от текста, которому просто досталась узкая
+         колонка. Копится по ходу того же обхода. */
+      const wide = []
+      let l = Infinity, rgt = -Infinity
       while ((node = walk.nextNode()) && chars < 300) {
         for (let i = 0; i < node.length; i++, chars++) {
           r.setStart(node, i); r.setEnd(node, i + 1)
           const rect = r.getBoundingClientRect()
           if (!rect.width && !rect.height) continue
           const top = Math.round(rect.top)
-          if (last !== null && top !== last) { rows.push(row); row = '' }
+          if (last !== null && top !== last) {
+            rows.push(row); wide.push(rgt - l); row = ''; l = Infinity; rgt = -Infinity
+          }
           last = top; row += node.data[i]
+          if (rect.left < l) l = rect.left
+          if (rect.right > rgt) rgt = rect.right
         }
       }
-      rows.push(row)
+      rows.push(row); wide.push(rgt - l)
       const len = rows.map((x) => x.trim().length).filter(Boolean)
       if (len.length < 2) continue
       const widest = Math.max(...len)
       const roomy = box.width >= 320 || parseFloat(cs.fontSize) >= 20
       if (!roomy) continue
+      /* Строка ЗАПОЛНЯЕТ колонку — значит перенос сделал всё, что мог, и
+         короткой её сделали не размер и не раскладка, а сами слова.
+         Найдено свипом на болгарской полке: заголовок «CBD масло:
+         концентрация, спектър и обем» в колонке 288px на 320 окна лёг
+         10 / 13 / 14 знаков — по знакам столбик, по пикселям 68% колонки.
+         Короче строку здесь не сделать ничем, кроме других слов, а слова —
+         не вёрстка. Требовать от проверки того, чего язык не позволяет,
+         значит учить себя её не читать. */
+      const fill = Math.max(...wide.filter(Number.isFinite)) / box.width
+      if (fill >= 0.6) continue
       const label = `${el.tagName.toLowerCase()} «${el.textContent.trim().slice(0, 24)}»`
       if (len.length >= 3 && widest < 20) bad.push(`${label} — ${len.length} строки по ≤${widest}: столбик`)
       const tail = rows[rows.length - 1].trim()
