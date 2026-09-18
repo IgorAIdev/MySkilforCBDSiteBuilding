@@ -5,9 +5,9 @@ description: Вёрстка и адаптивность без накоплен�
 
 # Ремесло вёрстки
 
-> Набор `MySkilforSiteBuilding`. Источник — проект, в котором он лежит
+> Набор `MySkilforCBDSiteBuilding`. Источник — проект, в котором он лежит
 > (`.claude/skills/` плюс `styles/`, `tools/`, `docs/`); публикуется
-> пересборкой в https://github.com/IgorAIdev/MySkilforSiteBuilding командой
+> пересборкой в https://github.com/IgorAIdev/MySkilforCBDSiteBuilding командой
 > `node tools/kit.mjs <путь-к-клону>`. Опубликованная копия отстаёт с первой
 > правки источника.
 
