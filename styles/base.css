@@ -206,6 +206,16 @@ small,figcaption,button,summary{text-wrap:balance}
 html{-webkit-tap-highlight-color:transparent}
 html{scrollbar-color:var(--sage-6) transparent;scrollbar-width:thin}
 input,textarea,select{caret-color:var(--cyan-11)}
+/* Галочка и радио остаются браузерными нарочно (клавиатура, чтец,
+   промежуточное состояние — разбор у `.tick` в `styles/form.module.css`), и
+   красит их сайт только цветом: `accent-color` в четырёх местах
+   (`.check`/`.sortRow` в каталоге, `.radio` на кассе, `.tick` в форме) даёт
+   цвет ОТМЕЧЕННОМУ квадрату, а неотмеченный красит браузер сам — своей
+   темой, не токеном сайта. На части устройств эта рамка почти не видна:
+   заказчик прислал снимок кассы, где ряд квадратиков читался пустым рядом
+   без единого квадрата. Рамка одна, здесь, а не в каждом из четырёх мест:
+   у всех четырёх один и тот же квадрат, только своего размера. */
+input[type='checkbox'],input[type='radio']{border:1.5px solid var(--sage-8)}
 
 /* Движение по просьбе человека, а не по решению вёрстки.
    Разбор трёх уровней и вторая половина правила (`behavior:'smooth'`,

@@ -48,7 +48,7 @@ import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CSS_FAMILIES, CSS_LABELS } from './css-families.mjs'
 import { CRAFT_FAMILIES, CRAFT_LABELS } from './craft-families.mjs'
-import { CODE_FAMILIES } from './code-families.mjs'
+import { CODE_FAMILIES, CODE_LABELS } from './code-families.mjs'
 import { CHECKS } from './checks.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -60,7 +60,13 @@ const has = (p) => existsSync(join(ROOT, p))
    процесс) сюда не входят — их текст не наш и не правится. */
 const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
 const LEDGER = 'docs/rules.md'
-const TABLES = '.claude/skills/craft/references/checks.md'
+/* Где живут собранные таблицы семей: файл → ключи GEN. Вёрстка и
+   отрисованная — в справочнике craft; код — в законе code: справочников у
+   него нет, а тринадцать строк в чтение помещаются. */
+const TABLES = {
+  '.claude/skills/craft/references/checks.md': ['css', 'craft'],
+  '.claude/skills/code/SKILL.md': ['code'],
+}
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
    скилл. Число обязано быть одним — иначе новый проект получает восемь
    запретов из десяти, как уже было. */
@@ -168,9 +174,11 @@ for (const dir of SKILL_DIRS) {
 
 /* ── 6 · таблицы семей собраны из реестра, а не набраны рукой ─────────────
    Подпись семьи — один текст: его печатает проверка и его же показывает
-   скилл. Пока таблица набиралась рукой, в ней было двадцать четыре строки
-   при тридцати одной семье. `--tables` пересобирает, обычный прогон
-   сверяет. */
+   скилл. Пока таблица вёрстки набиралась рукой, в ней было двадцать четыре
+   строки при тридцати одной семье; таблица кода, набранная рукой, стояла на
+   восьми при тринадцати — и заголовок над ней так и говорил «восемь».
+   `--tables` пересобирает, обычный прогон сверяет; какой файл какие таблицы
+   держит — TABLES. */
 const table = (fams, labels, head) => [
   `| Семья | ${head} |`, '| --- | --- |',
   ...fams.map((k) => `| \`${k}\` | ${labels[k] ?? '—'} |`),
@@ -178,24 +186,26 @@ const table = (fams, labels, head) => [
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
+  code: table(CODE_FAMILIES, CODE_LABELS, 'Что ловит'),
 }
-const withTables = (text) => Object.entries(GEN).reduce((t, [key, body]) => {
+const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)
-  if (!re.test(t)) { bad.push(`${TABLES}: нет места под таблицу семей «${key}» (маркер families:${key})`); return t }
-  return t.replace(re, `<!-- families:${key} -->\n${body}\n<!-- /families:${key} -->`)
+  if (!re.test(t)) { bad.push(`${file}: нет места под таблицу семей «${key}» (маркер families:${key})`); return t }
+  return t.replace(re, `<!-- families:${key} -->\n${GEN[key]}\n<!-- /families:${key} -->`)
 }, text)
-if (has(TABLES)) {
-  const now = read(TABLES)
-  const fresh = withTables(now)
-  if (process.argv.includes('--tables')) {
-    writeFileSync(join(ROOT, TABLES), fresh)
-    console.log(`· таблицы семей пересобраны: ${relative(ROOT, join(ROOT, TABLES))}`)
-    process.exit(0)
+const rebuild = process.argv.includes('--tables')
+for (const [file, keys] of Object.entries(TABLES)) {
+  if (!has(file)) { bad.push(`нет ${file} — семьям «${keys.join(', ')}» негде быть описанными таблицей`); continue }
+  const now = read(file)
+  const fresh = withTables(file, now, keys)
+  if (rebuild) {
+    if (fresh !== now) writeFileSync(join(ROOT, file), fresh)
+    console.log(`· таблицы семей пересобраны: ${file}`)
+  } else if (fresh !== now) {
+    bad.push(`${file}: таблицы семей разошлись с реестром — npm run check:rules -- --tables`)
   }
-  if (fresh !== now) bad.push(`${TABLES}: таблицы семей разошлись с реестром — npm run check:rules -- --tables`)
-} else {
-  bad.push(`нет ${TABLES} — семьям проверок негде быть описанными таблицей`)
 }
+if (rebuild) process.exit(0)
 
 /* ── 7 · запретов столько же во всех трёх файлах ───────────────────────────
    Раздел «запретов» считается по пунктам вида «**N.» в начале строки. Набор
