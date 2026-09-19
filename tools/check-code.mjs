@@ -202,7 +202,10 @@ for (const path of files) {
        прогона, и это её собственный дефект, а не находка. Считается только
        то, что печатается в текст. */
     const printed = line.replace(/className=\{[^}]*\}/g, '')
-    if (!/\{\s*(?!s\.|p\.)[A-Za-z_$][\w$]*\.brand\s*\}/.test(printed) && !/\{\s*brand\s*\}/.test(printed)) continue
+    /* Голое `{brand}` — только как текст разметки, после `>`: в TypeScript та же
+       запись — деструктуризация (`({ brand }) =>`) и объект (`{ brand }`), и
+       три строки `lib/catalog.ts` встали находками на первом же прогоне. */
+    if (!/\{\s*(?!s\.|p\.)[A-Za-z_$][\w$]*\.brand\s*\}/.test(printed) && !/>\s*\{\s*brand\s*\}/.test(printed)) continue
     found.translated.push(`${at(m.index)}  имя марки печатается без translate="no"`)
   }
 

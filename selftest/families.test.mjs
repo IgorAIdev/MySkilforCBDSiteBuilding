@@ -113,11 +113,13 @@ test('translated: марка пропом — не находка; марка т
     'components/Page.tsx': 'export const Page = ({ product }) => <Purchase brand={product.brand} />\n',
     'components/Purchase.tsx': 'export const Purchase = ({ brand }) => <span className={s.line}>{brand}</span>\n',
     'components/Good.tsx': 'export const Good = ({ brand }) => <span translate="no">{brand}</span>\n',
+    'lib/catalog.ts': 'export const byBrand = (rows) => rows.map(({ brand }) => ({ brand }))\n',
   })
   try {
     const out = code(dir).stdout + code(dir).stderr
     assert.doesNotMatch(out, /Page\.tsx/, 'передача пропом — не печать')
     assert.match(out, /Purchase\.tsx.*без translate/, 'печать текстом без атрибута — находка')
     assert.doesNotMatch(out, /Good\.tsx/, 'с атрибутом — не находка')
+    assert.doesNotMatch(out, /catalog\.ts/, 'деструктуризация и объект — не печать')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
