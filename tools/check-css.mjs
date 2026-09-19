@@ -444,6 +444,19 @@ for (const path of files) {
       return names.some((name) => answered(name, next.text, next.file, depth - 1))
     })
   }
+  /** Свойство, взятое через `composes` (И176): класс → что взял → есть ли
+   *  свойство в блоке взятого, до трёх шагов. Сдержка прокрутки у окон
+   *  первой витрины стоит в одном общем узле, `dialogSurface`, — и девять
+   *  окон берут её, а не пишут. */
+  const composedProp = (cls, prop, text, file, depth) => {
+    if (new RegExp(`\\.${cls}(?![\\w-])[^{]*\\{[^}]*${prop}`).test(text)) return true
+    if (depth === 0) return false
+    return (composesOf(text).get(cls) ?? []).some(({ names, from }) => {
+      const next = from ? source(from, file) : { text, file }
+      return names.some((name) => composedProp(name, prop, next.text, next.file, depth - 1))
+    })
+  }
+  const takes = (sel, prop) => [...sel.matchAll(/\.([\w-]+)/g)].some((m) => composedProp(m[1], prop, css, path, 3))
   const inherits = (sel) => {
     const own = [...sel.matchAll(/\.([\w-]+)/g)].map((m) => m[1])
     return own.some((cls) => (composesOf(css).get(cls) ?? []).some(({ names, from }) => {
@@ -625,6 +638,9 @@ for (const path of files) {
                     /(?:max-)?(?:block-size|height)\s*:[^;}]*(?:dvh|svh|vh)/.test(block)
     if (!overlay) continue
     if (/overscroll-behavior/.test(block)) continue
+    /* Сдержка, взятая через composes у общего узла окна, — та же сдержка. */
+    const selector = css.slice(Math.max(css.lastIndexOf('}', open), css.lastIndexOf(';', open)) + 1, open)
+    if (takes(selector, 'overscroll-behavior')) continue
     add('scrollBleed', `${at(m.index)}  панель прокручивается сама, а остаток уезжает на страницу`)
   }
 
