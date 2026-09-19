@@ -1221,6 +1221,11 @@ function walkCode(dir) {
     const code = strip(readFileSync(path, 'utf8'))
       .replace(/\/\/[^\n]*/g, (m) => ' '.repeat(m.length))
     for (const m of code.matchAll(/data-([a-z][a-z0-9-]*)\s*=/g)) written.add(m[1])
+    /* Имя атрибута строкой — `setAttribute('data-search-open', …)`, константа
+       `OPEN_ATTRIBUTE = 'data-search-open'` — и через `dataset.searchOpen =`:
+       одежда, надетая кодом, а не разметкой, надета так же (И178). */
+    for (const m of code.matchAll(/['"`]data-([a-z][a-z0-9-]*)['"`]/g)) written.add(m[1])
+    for (const m of code.matchAll(/\.dataset\.([a-zA-Z][a-zA-Z0-9]*)\s*=/g)) written.add(m[1].replace(/[A-Z]/g, (c) => '-' + c.toLowerCase()))
     /* Панель пишет атрибут через таблицу: `wire: { to: 'attr', name: 'head' }`. */
     for (const m of code.matchAll(/to:\s*'attr',\s*name:\s*'([a-z][a-z0-9-]*)'/g)) written.add(m[1])
   }
