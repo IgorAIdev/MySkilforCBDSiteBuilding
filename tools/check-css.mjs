@@ -14,7 +14,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, relative, dirname } from 'node:path'
+import { join, relative, dirname, basename } from 'node:path'
 import { CSS_FAMILIES, CSS_LABELS as NAMES } from './css-families.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
@@ -407,15 +407,105 @@ for (const path of files) {
     const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     return new RegExp(esc + '(?::active|\\[aria-|\\[data-)').test(css)
   }
+  /* Ответ, ВЗЯТЫЙ у другого класса через `composes` (И175). Дизайн-система
+     первой витрины держит нажатие в одном месте — `pressable` в
+     `Control.module.css`, — а блок пишет себе только свой вид и, бывает,
+     своё наведение. Проверка, читающая один файл, видела `:hover` без
+     `:active` и звала это молчанием: двадцать находок, из них настоящих —
+     три. Смотрится цепочка на один шаг, как и обещает сам `composes`:
+     класс → что взял → есть ли у взятого `:active` в его файле. */
+  const chained = new Map()
+  /** Текст файла, названного в `composes … from`; путь — от файла, где написано. */
+  const source = (from, at) => {
+    const key = from.startsWith('.') ? join(dirname(at), from) : from
+    if (!chained.has(key)) chained.set(key, existsSync(key) ? strip(readFileSync(key, 'utf8')) : '')
+    return { text: chained.get(key), file: key }
+  }
+  /** Что берёт каждый класс файла: `.x { composes: a b from './y.css' }`. */
+  const composesOf = (text) => {
+    const map = new Map()
+    for (const m of text.matchAll(/\.([\w-]+)\s*\{[^}]*?composes\s*:\s*([^;}]+?)(?:\s+from\s+'([^']+)')?\s*[;}]/g)) {
+      const list = map.get(m[1]) ?? []
+      list.push({ names: m[2].trim().split(/\s+/), from: m[3] ?? null })
+      map.set(m[1], list)
+    }
+    return map
+  }
+  /* Взятое может быть взято само: `.close` берёт `sheetClose` у окна, окно
+     берёт `pressable` у контрола. Три шага — с запасом: цепочки длиннее в
+     проектах набора не встречались. */
+  const answered = (cls, text, file, depth) => {
+    if (new RegExp(`\\.${cls}(?![\\w-])[^{]*:active`).test(text)) return true
+    if (depth === 0) return false
+    return (composesOf(text).get(cls) ?? []).some(({ names, from }) => {
+      const next = from ? source(from, file) : { text, file }
+      return names.some((name) => answered(name, next.text, next.file, depth - 1))
+    })
+  }
+  const inherits = (sel) => {
+    const own = [...sel.matchAll(/\.([\w-]+)/g)].map((m) => m[1])
+    return own.some((cls) => (composesOf(css).get(cls) ?? []).some(({ names, from }) => {
+      const next = from ? source(from, path) : { text: css, file: path }
+      return names.some((name) => answered(name, next.text, next.file, 2))
+    }))
+  }
+  /* Ответ, стоящий на том же элементе (вторая половина И175). Класс из этого
+     файла надет в разметке либо на компонент, который отвечает сам
+     (`<CtaPill className={styles.submit}>` — пилюля берёт нажатие в своём
+     модуле), либо рядом с классом, который отвечает (`${styles.button}
+     ${styles.buttonPrimary}`). Читаются соседние `.tsx`, берущие этот модуль;
+     засчитывается только если ТАК надето каждое место — одно голое место без
+     ответа остаётся находкой. Класс, не надетый нигде, — не ответ, а мёртвая
+     одежда, и её считает своя семья. `Link` — компонент, рисующий голую
+     ссылку, и голой она и судится. */
+  const worn = (() => {
+    const dir = dirname(path)
+    const mod = basename(path).replace(/[.]/g, '\\.')
+    const out = []
+    for (const name of readdirSync(dir)) {
+      if (!/\.(tsx|jsx)$/.test(name)) continue
+      const code = readFileSync(join(dir, name), 'utf8')
+      const alias = code.match(new RegExp(`import\\s+(\\w+)\\s+from\\s+'\\./${mod}'`))?.[1]
+      if (alias) out.push({ alias, code })
+    }
+    return out
+  })()
+  const BARE = new Set(['Link'])
+  const wornAnswered = (sel) => {
+    const cls = sel.match(/\.([\w-]+)/)?.[1]
+    if (!cls || !worn.length) return false
+    let any = false
+    for (const { alias, code } of worn) {
+      const use = new RegExp(`${alias}\\.${cls}(?![\\w])`, 'g')
+      let m
+      while ((m = use.exec(code))) {
+        any = true
+        const before = code.slice(0, m.index)
+        const open = before.lastIndexOf('<')
+        const close = code.indexOf('>', m.index)
+        if (open < 0 || close < 0) return false
+        const tagText = code.slice(open, close)
+        const tag = tagText.match(/^<([A-Za-z][\w.]*)/)?.[1] ?? ''
+        const onComponent = /^[A-Z]/.test(tag) && !BARE.has(tag)
+        const siblings = [...tagText.matchAll(new RegExp(`${alias}\\.([\\w]+)`, 'g'))].map((x) => x[1]).filter((x) => x !== cls)
+        const siblingAnswers = siblings.some((s) => answers(`.${s}`) || inherits(`.${s}`))
+        if (!onComponent && !siblingAnswers) return false
+      }
+    }
+    return any
+  }
   for (const m of css.matchAll(/([.#][^{},@]*?):hover/g)) {
     const raw = m[1].trim()
     if (!raw || raw.startsWith('@')) continue
-    /* Спрашивается дважды. Сперва про сам селектор — так найдётся пара
+    /* Спрашивается трижды. Сперва про сам селектор — так найдётся пара
        `.wrap[data-faq='sheet'] .item:hover` / `… .item:active`. Потом про
        него же без состояний: `.sw[aria-checked='true']` — это переключатель
        во включённом положении, а отвечает на нажатие переключатель, и
-       отвечает он сменой того самого состояния. */
-    if (answers(raw) || answers(raw.replace(/\[[^\]]*\]/g, '').trim())) continue
+       отвечает он сменой того самого состояния; `:not([data-current])` —
+       такое же состояние, только с отрицанием, и `.pill:active` его
+       покрывает. Потом — про взятый ответ. */
+    const bare = raw.replace(/:not\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim()
+    if (answers(raw) || answers(bare) || inherits(raw) || wornAnswered(raw)) continue
     add('noPress', `${at(m.index)}  ${raw} — есть :hover, нет отклика на нажатие`)
   }
 
