@@ -882,7 +882,21 @@ for (const path of files) {
       sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{[^}]*?(?:max-block-size|max-height)'
     ).test(css)
 
-    if (!byHeight && !capped && !/max-block-size|max-height/.test(block)) {
+    /* Пропорция при ОГРАНИЧЕННОЙ ШИРИНЕ ограничена по высоте — это
+       арифметика, а не послабление: квадрат шириной не больше 560 не бывает
+       выше 560. Требовать сверх этого второй потолок значит требовать
+       записать одно и то же дважды и следить, чтобы копии не разошлись.
+
+       Процент не считается: `max-width:100%` не ограничивает ничего — он
+       повторяет ширину родителя, которая и была неизвестной.
+
+       Дефект, из-за которого послабление заведено: галерея товара на
+       cbdshop.bg — `max-width: min(560px, 52vh); aspect-ratio: 1/1`, где
+       потолок высоты записан прямо в ширине и вдобавок меряется окном. */
+    const byWidth = [...block.matchAll(/(?:^|[;{])\s*max-(?:width|inline-size)\s*:\s*([^;}]+)/g)]
+      .some((w) => !w[1].includes('%'))
+
+    if (!byHeight && !byWidth && !capped && !/max-block-size|max-height/.test(block)) {
       add('ratioNoCap', `${at(m.index)}  aspect-ratio без потолка`)
     }
   }
