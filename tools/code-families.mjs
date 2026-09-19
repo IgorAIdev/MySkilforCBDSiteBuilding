@@ -14,7 +14,7 @@
 export const CODE_FAMILIES = [
   'twice', 'longFile', 'manyHooks', 'keep',
   'deadLink', 'translated', 'glued', 'mutSort', 'jumpBack', 'inkLiteral',
-  'deadStyle', 'deadSetting', 'contactScheme',
+  'deadStyle', 'deadSetting', 'contactScheme', 'deadGuard',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -44,5 +44,6 @@ export const CODE_LABELS = {
   deadSetting: 'настройка, которая ничего не меняет: у поля панели есть провод, а того, к чему он ведёт, в коде нет',
   deadStyle: 'класс описан в стиле, но его никто не берёт — правило есть, а на странице его нет',
   contactScheme: 'адрес канала связи (tel/mailto/messenger) набран мимо lib/contacts.ts — второй источник правды об одном номере',
+  deadGuard: 'сторож читает исходником файл, в котором остались одни перевывозы — он больше ничего не сторожит и молчит об этом',
 }
 
