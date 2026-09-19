@@ -58,7 +58,18 @@ const ci = () => {
   let dir = ROOT.replace(/\/$/, '')
   for (let i = 0; i < 6 && dir; i++) {
     const wf = join(dir, '.github/workflows')
-    if (existsSync(wf) && readdirSync(wf).some((f) => /check:css/.test(readFileSync(join(wf, f), 'utf8')))) return true
+    if (existsSync(wf)) {
+      /* Процесс может звать храповик не по имени, а через команду корня —
+         `pnpm check:kit`, которая уже зовёт `check:css` на все приложения.
+         Смотрим на шаг вглубь: команда из процесса → её определение в
+         package.json того же этажа. Ворота, читавшие только текст процесса,
+         покраснели ровно в день, когда четыре строки свернули в одну. */
+      let scripts = {}
+      try { scripts = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).scripts ?? {} } catch { /* этаж без package.json */ }
+      const calls = (text) => [...text.matchAll(/(?:pnpm|npm run|yarn)\s+(?:run\s+)?([\w:.-]+)/g)].map((m) => m[1])
+      const runsCss = (text) => /check:css/.test(text) || calls(text).some((name) => /check:css/.test(scripts[name] ?? ''))
+      if (readdirSync(wf).some((f) => runsCss(readFileSync(join(wf, f), 'utf8')))) return true
+    }
     if (existsSync(join(dir, '.git'))) break
     const up = dirname(dir)
     if (up === dir) break
