@@ -65,6 +65,8 @@ const DEFAULTS = {
   scale: { font: 'fs', space: 'sp', layer: 'layer' },
   /** разрешённые швы раскладки */
   breakpoints: [1080, 820, 560],
+  /** чем заменить имя пакета в `composes … from '@shop/ui/control.css'`: путь от корня проекта */
+  aliases: {},
 }
 
 const FILE = join(ROOT, 'kit.config.json')
@@ -99,6 +101,7 @@ export const CONTROLS = CONFIG.controls
 export const EXEMPT = CONFIG.exempt
 export const FLOATING = CONFIG.floating
 export const BREAKPOINTS = CONFIG.breakpoints
+export const ALIASES = CONFIG.aliases ?? {}
 
 /** Полные имена шкал: `--fs-`, `--sp-`, `--layer-`. */
 export const PREFIX = {

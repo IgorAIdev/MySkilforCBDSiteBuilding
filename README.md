@@ -49,7 +49,8 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
   "base": "src/app/globals.css",
   "primitives": null,
   "scale": { "font": "text", "space": "space", "layer": "layer" },
-  "breakpoints": [860]
+  "breakpoints": [860],
+  "aliases": { "@shop/ui/control.css": "../../packages/ui/src/components/Control/Control.module.css" }
 }
 ```
 
