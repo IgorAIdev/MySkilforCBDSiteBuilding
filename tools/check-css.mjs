@@ -20,7 +20,7 @@ import { CSS_FAMILIES, CSS_LABELS as NAMES } from './css-families.mjs'
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
 import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
-  BREAKPOINTS, PREFIX, RX } from './kit-config.mjs'
+  BREAKPOINTS, PREFIX, RX, ALIASES } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/css-baseline.json')
@@ -417,7 +417,9 @@ for (const path of files) {
   const chained = new Map()
   /** Текст файла, названного в `composes … from`; путь — от файла, где написано. */
   const source = (from, at) => {
-    const key = from.startsWith('.') ? join(dirname(at), from) : from
+    /* Имя пакета (`@shop/ui/control.css`) — в файл по `aliases` из kit.config.json;
+       без записи такой источник пуст, и взятое у него не засчитывается. */
+    const key = from.startsWith('.') ? join(dirname(at), from) : ALIASES[from] ? join(ROOT, ALIASES[from]) : from
     if (!chained.has(key)) chained.set(key, existsSync(key) ? strip(readFileSync(key, 'utf8')) : '')
     return { text: chained.get(key), file: key }
   }
