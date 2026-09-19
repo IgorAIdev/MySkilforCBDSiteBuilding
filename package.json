@@ -1,0 +1,13 @@
+{
+  "name": "site-kit",
+  "private": true,
+  "type": "module",
+  "description": "Набор вёрстки: скиллы, шкалы, примитивы и проверки-храповики. Это описание самого набора, в проекты не едет.",
+  "scripts": {
+    "check:rules": "node tools/check-rules.mjs",
+    "check:css": "node tools/check-css.mjs",
+    "check:code": "node tools/check-code.mjs",
+    "check:port": "node tools/check-port.mjs",
+    "test": "node tools/check-test.mjs && node --test "selftest/**/*.test.mjs""
+  }
+}

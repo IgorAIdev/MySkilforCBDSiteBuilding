@@ -23,10 +23,24 @@
  */
 
 import { execSync } from 'node:child_process'
+import { relative } from 'node:path'
+
+const ROOT = new URL('..', import.meta.url).pathname
 
 const git = (cmd) => {
-  try { return execSync(`git ${cmd}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }) }
+  try { return execSync(`git ${cmd}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], cwd: ROOT }) }
   catch { return '' }
+}
+
+/* Пути git печатает от корня репозитория, а проект может лежать этажом
+   ниже (`apps/cbdin/` в монорепозитории). Приводим к путям от корня
+   проекта; чужие приложения того же репозитория — не наш сайт. */
+const top = git('rev-parse --show-toplevel').trim()
+const prefix = top ? relative(top, ROOT.replace(/\/$/, '')) : ''
+const own = (f) => {
+  if (!prefix) return f
+  if (f === prefix || f.startsWith(`${prefix}/`)) return f.slice(prefix.length + 1)
+  return null
 }
 
 /* Берём и незакоммиченное, и коммиты этой работы: правило записывают в конце,
@@ -35,7 +49,7 @@ const dirty = git('status --porcelain').split('\n').filter(Boolean)
   .map((l) => l.slice(3).trim())
 const baseRef = git('merge-base HEAD origin/main').trim() || git('merge-base HEAD main').trim()
 const committed = baseRef ? git(`diff --name-only ${baseRef}..HEAD`).split('\n').filter(Boolean) : []
-const touched = [...new Set([...dirty, ...committed])]
+const touched = [...new Set([...dirty, ...committed].map(own).filter((f) => f !== null && f !== ''))]
 
 if (!touched.length) process.exit(0)
 

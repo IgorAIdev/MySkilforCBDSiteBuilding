@@ -16,30 +16,32 @@
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative, dirname } from 'node:path'
 import { CSS_FAMILIES, CSS_LABELS as NAMES } from './css-families.mjs'
+/* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
+   проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
+   на чужом проекте проверка тогда молчит нулём (И168). */
+import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
+  BREAKPOINTS, PREFIX, RX } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
-const DIRS = ['app', 'components', 'styles']
 const BASELINE = join(ROOT, 'tools/css-baseline.json')
 
-/* Шкала объявляется в пикселях внутри clamp() — это её работа, а не
+/* EXEMPT: шкала объявляется в пикселях внутри clamp() — это её работа, а не
    нарушение. Панель настроек рисует саму себя и в магазин не едет. Страница
    набора — тоже: она ПОКАЗЫВАЕТ контролы и знаки, и лист значков обязан
    назначить им толщину штриха, потому что в самом знаке её нет. Витриной
-   она не является и в магазин не едет. */
-const EXEMPT = ['styles/tokens.css', 'styles/studio.module.css',
-  'app/[lang]/design/design.module.css']
+   она не является и в магазин не едет.
 
-/* Предметы, которые тёмны замыслом и лежат НАД страницей, а не на её полу:
-   нижняя панель, всплывающее сообщение, кружок помощника. Им фирменная
-   заливка положена — белеть на палубе они не должны, они её закрывают. */
-const FLOATING = [
-  'components/TabBar.module.css',
-  'components/Toast.module.css',
-  'components/Helper.module.css',
-]
+   FLOATING: предметы, которые тёмны замыслом и лежат НАД страницей, а не на
+   её полу: нижняя панель, всплывающее сообщение, кружок помощника. Им
+   фирменная заливка положена — белеть на палубе они не должны, они её
+   закрывают.
 
-/** Разрешённые точки: смена смысла раскладки, а не размера. */
-const BREAKPOINTS = [1080, 820, 560]
+   BREAKPOINTS: разрешённые точки — смена смысла раскладки, а не размера. */
+
+/* Шкала ритма и имена слоёв — в регулярных выражениях, собранных от имени
+   шкалы: `var(--sp-` у набора, `var(--space-` у проекта со своими именами. */
+const SPACE_VAR = new RegExp(`var\\(${RX.space}`)
+const LAYER_VAR = new RegExp(`var\\(${RX.layer}`)
 
 /* Меньше 8px — оптическая доводка под скруглением штриха, а не ритм: шкалой
    такое не описывается, и запрещать его смысла нет. */
@@ -242,7 +244,7 @@ for (const path of files) {
        между двумя ступенями, текущая с шириной: ровно то, чего правило и
        требует. Число внутри — наклон прямой, а не отступ. Признак: в
        значении есть и `vw`, и шкала. */
-    if (/vw/.test(m[2]) && /var\(--sp-/.test(m[2])) continue
+    if (/vw/.test(m[2]) && SPACE_VAR.test(m[2])) continue
     const bare = m[2].replace(/var\([^()]*\)/g, '')
     for (const px of bare.matchAll(/(\d+(?:\.\d+)?)px/g)) {
       if (Number(px[1]) >= SPACING_FLOOR) {
@@ -364,11 +366,11 @@ for (const path of files) {
    * отсутствующего. Имена — в `styles/tokens.css`, семья `--layer-*`. */
   for (const m of css.matchAll(/(?<![-a-z])z-index\s*:\s*([^;}]+)/g)) {
     const v = m[1].trim()
-    if (/var\(--layer-/.test(v)) continue
+    if (LAYER_VAR.test(v)) continue
     if (/^(auto|inherit|initial|unset|revert)$/.test(v)) continue
     const n = Number(v)
     if (Number.isFinite(n) && Math.abs(n) <= LOCAL_LAYER) continue
-    add('zIndex', `${at(m.index)}  z-index:${v} — имя из --layer-* или верхний слой`)
+    add('zIndex', `${at(m.index)}  z-index:${v} — имя из ${PREFIX.layer}* или верхний слой`)
   }
 
   /* Нажатие обязано отвечать — на телефоне это единственный отклик.
@@ -483,7 +485,7 @@ for (const path of files) {
     const block = css.slice(open, i)
     if (!/(?:^|[;{\s])top\s*:/.test(block)) continue
     if (/(?:^|[;{\s])top\s*:\s*0(?:px)?\s*[;}]/.test(block)) continue
-    if (/z-index\s*:\s*var\(--layer-/.test(block)) continue
+    if (new RegExp(`z-index\\s*:\\s*var\\(${RX.layer}`).test(block)) continue
     add('stickyCap', `${at(m.index)}  приклеенное рукой — есть примитив pinned с потолком от окна`)
   }
 
@@ -839,9 +841,7 @@ for (const path of files) {
    сорока одном месте семью значениями — ровно тот долг, который эта семья и
    считала. Канонический дом не может читаться как долг: иначе проверка
    требует убрать то, ради чего убирали остальное. Причина и замер записаны
-   в самом `base.css` над правилом. */
-const CONTROLS = ['styles/go.module.css', 'styles/btn.module.css',
-  'styles/form.module.css', 'styles/base.css']
+   в самом `base.css` над правилом. Список — `controls` в `kit.config.json`. */
 for (const path of files) {
   const rel = relative(ROOT, path)
   /* Канонические файлы — те самые, где контрол и должен быть описан.
@@ -1008,11 +1008,12 @@ for (const file of files) {
  *
  * Мерятся ОБА конца clamp: шкала течёт, и сойтись ступени могут на любом.
  */
-const LADDER = join(ROOT, 'styles/tokens.css')
-if (existsSync(LADDER)) {
+const LADDER = TOKENS ? join(ROOT, TOKENS) : null
+if (LADDER && existsSync(LADDER)) {
   const css = strip(readFileSync(LADDER, 'utf8'))
   const steps = []
-  for (const m of css.matchAll(/--fs-([a-z0-9]+)\s*:\s*clamp\(\s*([\d.]+)px[^,]*,[^,]*,\s*([\d.]+)px\s*\)/g)) {
+  const step = new RegExp(`${RX.font}([a-z0-9-]+)\\s*:\\s*clamp\\(\\s*([\\d.]+)px[^,]*,[^,]*,\\s*([\\d.]+)px\\s*\\)`, 'g')
+  for (const m of css.matchAll(step)) {
     steps.push({ name: m[1], min: Number(m[2]), max: Number(m[3]) })
   }
   for (let i = 1; i < steps.length; i++) {
@@ -1021,7 +1022,7 @@ if (existsSync(LADDER)) {
       const ratio = b[end] / a[end]
       if (ratio > 1 && ratio < 1.08) {
         found.nearStep.push(
-          `styles/tokens.css  --fs-${a.name} → --fs-${b.name}: ${a[end]} → ${b[end]}px ` +
+          `${TOKENS}  ${PREFIX.font}${a.name} → ${PREFIX.font}${b.name}: ${a[end]} → ${b[end]}px ` +
           `(${Math.round((ratio - 1) * 100)}%, ${end === 'min' ? 'узкий' : 'широкий'} конец)`)
       }
     }
@@ -1077,7 +1078,7 @@ function walkCode(dir) {
      до первой отрисовки. Ищи мы только в `app/` и `components/`, проверка
      ругалась бы на каждую живую одежду шапки. */
   const writers = [...CODE]
-  const libDir = join(ROOT, 'lib')
+  const libDir = join(ROOT, LIB)
   const walkLib = (dir) => {
     if (!existsSync(dir)) return
     for (const name of readdirSync(dir)) {
@@ -1430,8 +1431,8 @@ for (const path of files) {
    предмете. Точнее без разбора JSX не скажешь, а «совсем забыли» — как раз
    тот случай, который и случается. */
 {
-  const basePath = join(ROOT, 'styles/base.css')
-  if (existsSync(basePath)) {
+  const basePath = BASE ? join(ROOT, BASE) : null
+  if (basePath && existsSync(basePath)) {
     const base = strip(readFileSync(basePath, 'utf8'))
     const bodyOf = (sel) => {
       const i = base.indexOf(sel + '{')
@@ -1446,11 +1447,11 @@ for (const path of files) {
       const back = rolesOf(plate)
       for (const role of rolesOf(deck)) {
         if (!back.has(role)) {
-          found.plateGap.push(`styles/base.css  палуба переназначает ${role}, лист её не возвращает`)
+          found.plateGap.push(`${BASE}  палуба переназначает ${role}, лист её не возвращает`)
         }
       }
       if (/(^|[{;])\s*color\s*:/.test(deck) && !/(^|[{;])\s*color\s*:/.test(plate)) {
-        found.plateGap.push('styles/base.css  палуба меняет краску строки, лист её не возвращает')
+        found.plateGap.push(`${BASE}  палуба меняет краску строки, лист её не возвращает`)
       }
     }
   }

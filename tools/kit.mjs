@@ -30,6 +30,10 @@ const OUT = resolve(process.argv[2] ?? join(ROOT, 'kit'))
  *  работать на пустом проекте с первого дня. */
 const FILES = [
   'tools/kit.mjs',
+  /* Где лежит проект и как названы шкалы — одно место для всех проверок.
+     Без него каждая проверка помнила пути сама, и на чужом проекте все
+     молчали нулём разом (И168). */
+  'tools/kit-config.mjs',
   'tools/check-css.mjs',
   /* Храповик по коду. Едет обязательно и вместе со своим скиллом:
      `.claude/skills/code/` ссылается на него прямо, и набор без него
@@ -160,10 +164,14 @@ const kits = readdirSync(SKILLS, { withFileTypes: true }).filter((e) => e.isDire
 const from = (kept, own) => (existsSync(join(ROOT, kept)) ? join(ROOT, kept) : join(ROOT, own))
 const spare = !existsSync(join(ROOT, 'tools/kit/CLAUDE.md'))
 
-mkdirSync(join(OUT, '.github/workflows'), { recursive: true })
+/* Рабочий процесс проекта лежит в наборе ЗАГОТОВКОЙ — `templates/check.yml`,
+   а не в `.github/workflows/`: там его исполнял бы GitHub на самом наборе, у
+   которого нет ни `package.json`, ни сборки, и каждый PR в набор был красным
+   (И170). Ставщик кладёт заготовку проекту туда, где GitHub её найдёт. */
+mkdirSync(join(OUT, 'templates'), { recursive: true })
 copyFileSync(from('tools/kit/CLAUDE.md', 'CLAUDE.md'), join(OUT, 'CLAUDE.md'))
-copyFileSync(from('tools/kit/workflows/check.yml', '.github/workflows/check.yml'),
-  join(OUT, '.github/workflows/check.yml'))
+copyFileSync(from('tools/kit/workflows/check.yml', 'templates/check.yml'),
+  join(OUT, 'templates/check.yml'))
 
 /* Ставщик. Он и есть ответ на вопрос «как поставить набор в новый проект,
    ничего не помня»: адрес репозитория плюс `node install.mjs .`. Клон,
@@ -179,9 +187,15 @@ copyFileSync(scriptsSrc, join(OUT, 'scripts.mjs'))
 const { SCRIPTS } = await import(pathToFileURL(scriptsSrc).href)
 
 /* Базы — пустые. Ноль в каждой семье значит «новое не заводится», а это и
-   есть весь смысл храповика на чистом проекте. */
-writeFileSync(join(OUT, 'tools/css-baseline.json'),
-  JSON.stringify(emptyCssBaseline(), null, 2) + '\n')
+   есть весь смысл храповика на чистом проекте.
+
+   Кроме вёрстки: её база в наборе — не ноль, а долг собственных стилей
+   набора (И171), и пересборка из проекта его не затирает: иначе новый сайт
+   получал бы нули и был красным с первого `check:css`. */
+if (!existsSync(join(OUT, 'tools/css-baseline.json'))) {
+  writeFileSync(join(OUT, 'tools/css-baseline.json'),
+    JSON.stringify(emptyCssBaseline(), null, 2) + '\n')
+}
 writeFileSync(join(OUT, 'tools/lint-baseline.json'), JSON.stringify({}, null, 2) + '\n')
 /* Ноль, а не сегодняшние 3: у нового проекта правил ещё нет, и первое же
    расхождение — проверка, заведённая без правила, — обязано валить сборку. */
@@ -224,7 +238,10 @@ export const SHEET_SAMPLES = []
 export const SHEET_SLACK = 2
 `)
 
-writeFileSync(join(OUT, 'README.md'), `# Набор вёрстки
+/* README пишется только туда, где его нет. Источник набора с 19.09.2026 —
+   его репозиторий, и README там правится рукой; пересборка из проекта
+   не имеет права его затирать. */
+if (!existsSync(join(OUT, 'README.md'))) writeFileSync(join(OUT, 'README.md'), `# Набор вёрстки
 
 Скилл, шкалы, примитивы раскладки и двенадцать команд проверки — то, что
 переживает конец проекта и не должно собираться заново на следующем.
