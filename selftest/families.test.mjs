@@ -79,3 +79,16 @@ test('noPress: класс на компоненте, который отвеча
     assert.match(out, /\.bareLink —/, 'голая ссылка без ответа — находка')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test('scrollBleed: сдержка прокрутки, взятая через composes у общего узла окна, засчитана (И176)', () => {
+  const dir = project({
+    'components/Sheet.module.css': ':where(.dialogSurface) { margin: auto; overscroll-behavior: contain }\n',
+    'components/Ask.module.css': ".panel { composes: dialogSurface from './Sheet.module.css'; position: fixed; max-height: 80dvh; overflow-y: auto }\n",
+    'components/Loose.module.css': '.panel { position: fixed; max-height: 80dvh; overflow-y: auto }\n',
+  })
+  try {
+    const out = css(dir).stdout + css(dir).stderr
+    assert.match(out, /Loose\.module\.css.*панель прокручивается сама/, 'без сдержки — находка')
+    assert.doesNotMatch(out, /Ask\.module\.css/, 'сдержка взята у общего узла — не находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
