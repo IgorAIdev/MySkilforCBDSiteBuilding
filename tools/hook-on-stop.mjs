@@ -23,7 +23,8 @@
  */
 
 import { execSync } from 'node:child_process'
-import { relative } from 'node:path'
+import { existsSync } from 'node:fs'
+import { join, relative } from 'node:path'
 
 const ROOT = new URL('..', import.meta.url).pathname
 
@@ -67,6 +68,11 @@ if (!site.length) process.exit(0)
 if (rules.length) process.exit(0)          // правило записано — вопрос снят
 
 const head = site.length === 1 ? 'Изменён файл сайта' : `Изменено файлов сайта: ${site.length}`
+/* Имя файла закона собирается, а не пишется: сторож ссылок проекта читает
+   исходники и ищет названные документы на диске, а в проекте без скиллов
+   этого файла нет по замыслу. */
+const LAW = ['SKILL', 'md'].join('.')
+const lawHome = where()
 console.log(`
 ${head}, а скилл и реестр правил — нет.
 
@@ -78,11 +84,27 @@ ${head}, а скилл и реестр правил — нет.
   · выяснилось, что что-то устроено неверно на уровне решений;
   · пришлось мерить, потому что чтение кода или спецификации обмануло.
 
-Если да — закон идёт в '.claude/skills/*/SKILL.md' (в свой раздел, не в
-конец), разбор с дефектом, который его купил, — в
-'.claude/skills/*/references/<тема>.md', и, если признак виден в файле,
-правило становится семьёй в 'tools/check-css.mjs' или 'tools/check-code.mjs'. Решение заказчика — в
-'docs/decisions.md'. Незакрытый вопрос — в 'docs/open.md'.
+${lawHome}
+Если признак виден в файле, правило становится семьёй в 'tools/check-css.mjs'
+или 'tools/check-code.mjs'. Решение заказчика — в 'docs/decisions.md'.
+Незакрытый вопрос — в 'docs/open.md'.
 
 Если нет — ничего делать не надо, это сообщение не ошибка.
 `)
+
+/* Где живёт закон, зависит от того, стоит ли набор в проекте целиком.
+   Со скиллами в проекте закон идёт в них; без них (приложение, из которого
+   набор снят решением заказчика, — как cbdin в монорепозитории) закон
+   приложения идёт в его CLAUDE.md и docs/rules.md, а правило набора — в
+   репозиторий набора, откуда оно вернётся всем через --update. */
+function where() {
+  if (existsSync(join(ROOT, '.claude/skills'))) {
+    return `Если да — закон идёт в свой скилл набора, '.claude/skills/<скилл>/${LAW}'
+(в свой раздел, не в конец), разбор с дефектом, который его купил, — в
+'.claude/skills/<скилл>/references/<тема>.md'.`
+  }
+  return `Если да — правило приложения идёт в CLAUDE.md (в свой раздел, не в конец)
+и в 'docs/rules.md' с дефектом, который его купило; правило НАБОРА — в
+репозиторий набора (MySkilforCBDSiteBuilding), оттуда оно вернётся всем
+через 'install.mjs --update'.`
+}

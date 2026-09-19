@@ -23,6 +23,7 @@ export const CSS_FAMILIES = [
   'zIndex', 'focusGone', 'noPress', 'liftOnPress', 'stickyCap', 'scrollBleed', 'railY',
   'colLadder', 'proseCols', 'twiceDrawn', 'deadEffect', 'tapGrows', 'dressLayout',
   'twoOwners', 'barNoScroll', 'deadDress', 'plateGap', 'barTwice', 'groundGlue',
+  'important',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -64,4 +65,5 @@ export const CSS_LABELS = {
   groundGlue: 'пол склеивает соседей: при одном значении настройки два блока сливаются, при другом остаются двумя',
   barTwice: 'одежда ползунка написана дважды: общая запись отменяет рисующую, и браузер рисует свой',
   plateGap: 'лист не объявил себя полом: белая карточка на тёмной палубе, а роли внутри неё остались палубными',
+  important: '!important вне основания: каскад перебит силой, а не порядком — следующая правка перебьёт его ещё одним',
 }

@@ -25,5 +25,6 @@
   "deadDress": 1,
   "plateGap": 1,
   "barTwice": 0,
-  "groundGlue": 0
+  "groundGlue": 0,
+  "important": 0
 }

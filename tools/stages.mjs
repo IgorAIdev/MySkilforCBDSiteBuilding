@@ -170,6 +170,15 @@ export const STAGES = [
         take: 'только на НОВОМ сайте, где системы ещё нет: режим выбора стиля и палитры в день первый. В проекте с tokens.css не ставится — второй набор чисел.' },
       { name: 'minimalist · brutalist · soft (taste-skill)', url: '.claude/skills/',
         take: 'за идеей стиля, не за числами: идея переводится в свои токены.' },
+      /* Разбор — docs/skills.md, «cbdshop.bg». Обе записи — про то, как
+         устроено ОСНОВАНИЕ; берутся при закладке нового сайта или при
+         следующей правке шкал набора, не раньше. */
+      { name: 'cbdshop.bg — реестр швов раскладки (packages/ui/src/tokens/seams.ts + seams.test.ts)',
+        url: 'https://github.com/IgorAIdev/CBD_ecommerce_eu',
+        take: 'идею, не числа: каждый шов — запись с причиной, тест падает и на незарегистрированной ширине в CSS, и на записи без ширины в CSS. У набора швы — список в kit.config.json, а причина каждого живёт только в CLAUDE.md словами.' },
+      { name: 'cbdshop.bg — слой семантических токенов (packages/ui/src/tokens: primitives → semantic → base, один вход index.css)',
+        url: 'https://github.com/IgorAIdev/CBD_ecommerce_eu',
+        take: 'разделение шкал (primitives) и ролей (semantic) на два файла с одним входом. У набора всё в одном tokens.css на 177 переменных; делить — при следующей правке шкал, и тогда же переучить семью nearStep читать файл шкал, а не «tokens».' },
     ],
   },
   {
