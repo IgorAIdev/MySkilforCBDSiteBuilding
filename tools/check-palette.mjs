@@ -144,24 +144,29 @@ export function auditPalette(seed, mode) {
   return found
 }
 
-/* Образцы — наборы, доведённые до выбора 19.09.2026. Проверка обязана
-   проходить на том, что мы правда можем включить. */
-const ERROR = { light: '#B3261E', dark: '#F2B8B5' }
-const SAMPLES = {
-  'Аптека': {
-    light: { paper: '#FEFCF5', ink: '#24352B', accent: '#B79339', error: ERROR.light },
-    dark: { paper: '#0C1510', ink: '#EDECE9', accent: '#B79339', error: ERROR.dark },
+/*
+ * Самопроверка: две пары красок, на которых видно, что сама проверка работает.
+ *
+ * Это НЕ наборы какого-либо магазина и не образец для подражания — краски
+ * взяты нарочно разные (тёплая и холодная), чтобы шкала строилась в обе
+ * стороны. Настоящий набор живёт в приложении, `styles/palette.json`:
+ * переносимый набор не знает и не должен знать, какого цвета чужая марка.
+ */
+const SELFTEST = {
+  'тёплая марка': {
+    light: { paper: '#FDFCF8', ink: '#2A2622', accent: '#B07A2E', error: '#B3261E' },
+    dark: { paper: '#121110', ink: '#EDEBE8', accent: '#B07A2E', error: '#F2B8B5' },
   },
-  'Олива': {
-    light: { paper: '#FCFDF7', ink: '#22271A', accent: '#5F6B34', error: ERROR.light },
-    dark: { paper: '#11140D', ink: '#ECECEA', accent: '#5F6B34', error: ERROR.dark },
+  'холодная марка': {
+    light: { paper: '#FBFCFD', ink: '#1C2226', accent: '#2C6E8F', error: '#B3261E' },
+    dark: { paper: '#0E1114', ink: '#E9ECEE', accent: '#4E9BBE', error: '#F2B8B5' },
   },
 }
 
 function load() {
   const own = path.resolve('styles/palette.json')
   if (existsSync(own)) return { sets: JSON.parse(readFileSync(own, 'utf8')), own: true }
-  return { sets: SAMPLES, own: false }
+  return { sets: SELFTEST, own: false }
 }
 
 const { sets, own } = load()
@@ -180,7 +185,7 @@ for (const [name, byMode] of Object.entries(sets)) {
 if (json) {
   console.log(JSON.stringify({ own, report }, null, 2))
 } else {
-  if (!own) console.log('В приложении нет styles/palette.json — проверены наборы-образцы скилла.\n')
+  if (!own) console.log('В приложении нет styles/palette.json — прогнана только самопроверка.\n')
   for (const row of report) {
     const where = `${row.name} · ${row.mode === 'light' ? 'светлая' : 'тёмная'}`
     if (!row.findings.length) console.log(`  ✓ ${where}`)
