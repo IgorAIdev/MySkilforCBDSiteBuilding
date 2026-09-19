@@ -34,7 +34,7 @@ import { join, relative } from 'node:path'
 import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
 /* Где код, где стили, с каких папок спрашивают — `kit.config.json` проекта
    или соглашения набора (И168). */
-import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS } from './kit-config.mjs'
+import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS, ALIASES } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/code-baseline.json')
@@ -189,15 +189,20 @@ for (const path of files) {
    * Строка, где марка уходит в строковый шаблон (`aria-label`, текст
    * сообщения, заголовок страницы), не считается: атрибут вешать не на что,
    * и перевод туда не доберётся. */
-  for (const m of src.matchAll(/^.*\{[^}\n]*\.brand\}.*$/gm)) {
+  for (const m of src.matchAll(/^.*\{[^}\n]*(?:\.brand|\bbrand)\}.*$/gm)) {
     const line = m[0]
     if (/translate\s*=/.test(line)) continue
     if (/`|aria-label|title=|alt=/.test(line)) continue
+    /* `brand={product.brand}` — марка уходит ПРОПОМ, печатать её будет тот,
+       кому отдали; атрибут вешается там. Считается только текст в разметке:
+       `>{brand}<`, `>{product.brand}<`. */
+    if (/[\w-]+=\{[^}]*\bbrand\}/.test(line) && !/>\s*\{[^}]*\bbrand\}/.test(line)) continue
     /* `className={s.brand}` — это ИМЯ КЛАССА, а не имя марки: так называется
        блок со знаком магазина в подвале. Мерка на нём сработала с первого
        прогона, и это её собственный дефект, а не находка. Считается только
        то, что печатается в текст. */
-    if (!/\{\s*(?!s\.|p\.)[A-Za-z_$][\w$]*\.brand\s*\}/.test(line.replace(/className=\{[^}]*\}/g, ''))) continue
+    const printed = line.replace(/className=\{[^}]*\}/g, '')
+    if (!/\{\s*(?!s\.|p\.)[A-Za-z_$][\w$]*\.brand\s*\}/.test(printed) && !/\{\s*brand\s*\}/.test(printed)) continue
     found.translated.push(`${at(m.index)}  имя марки печатается без translate="no"`)
   }
 
@@ -422,8 +427,19 @@ for (const path of files) {
   const dynamic = new Set()       // модули, у которых имя собирается строкой
   const key = (file, cls) => `${file}|${cls}`
 
+  /* Имя пакета или приставка (`@/` → `src/`) — по `aliases` из kit.config.json:
+     ключ с косой чертой на конце — приставка, без неё — целое имя. Без записи
+     `@/` считается корнем проекта — так лежат проекты набора; у первой витрины
+     `@/` ведёт в `src/`, и три живых класса числились мёртвыми (И177). */
+  const unalias = (spec) => {
+    for (const [from, to] of Object.entries(ALIASES)) {
+      if (from.endsWith('/') ? spec.startsWith(from) : spec === from) return to + spec.slice(from.length)
+    }
+    return spec.startsWith('@/') ? spec.slice(2) : null
+  }
   const resolve = (fromRel, spec) => {
-    const base = spec.startsWith('@/') ? spec.slice(2)
+    const aliased = unalias(spec)
+    const base = aliased !== null ? aliased
       : join(fromRel.split('/').slice(0, -1).join('/'), spec)
     return base.replace(/\\/g, '/')
   }

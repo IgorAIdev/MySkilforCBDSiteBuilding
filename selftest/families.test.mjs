@@ -92,3 +92,32 @@ test('scrollBleed: сдержка прокрутки, взятая через co
     assert.doesNotMatch(out, /Ask\.module\.css/, 'сдержка взята у общего узла — не находка')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+const code = (dir) => spawnSync(process.execPath, [join(dir, 'tools/check-code.mjs')], { cwd: dir, encoding: 'utf8' })
+
+test('deadStyle: класс, взятый через приставку @/ по aliases, живой (И177)', () => {
+  const dir = project({
+    'kit.config.json': JSON.stringify({ code: ['src/app', 'src/components'], styles: ['src'], lib: 'src/lib', pages: 'src/app', aliases: { '@/': 'src/' } }),
+    'src/app/page.module.css': '.shell { position: relative }\n.gone { color: red }\n',
+    'src/components/Home.tsx': "import styles from '@/app/page.module.css'\nexport const Home = () => <div className={styles.shell} />\n",
+  })
+  try {
+    const out = code(dir).stdout + code(dir).stderr
+    assert.doesNotMatch(out, /\.shell —/, 'взят через @/ — живой')
+    assert.match(out, /\.gone —/, 'никем не взят — мёртвый')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+test('translated: марка пропом — не находка; марка текстом без translate — находка (И177)', () => {
+  const dir = project({
+    'components/Page.tsx': 'export const Page = ({ product }) => <Purchase brand={product.brand} />\n',
+    'components/Purchase.tsx': 'export const Purchase = ({ brand }) => <span className={s.line}>{brand}</span>\n',
+    'components/Good.tsx': 'export const Good = ({ brand }) => <span translate="no">{brand}</span>\n',
+  })
+  try {
+    const out = code(dir).stdout + code(dir).stderr
+    assert.doesNotMatch(out, /Page\.tsx/, 'передача пропом — не печать')
+    assert.match(out, /Purchase\.tsx.*без translate/, 'печать текстом без атрибута — находка')
+    assert.doesNotMatch(out, /Good\.tsx/, 'с атрибутом — не находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

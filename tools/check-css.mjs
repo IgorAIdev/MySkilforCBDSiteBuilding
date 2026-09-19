@@ -419,7 +419,8 @@ for (const path of files) {
   const source = (from, at) => {
     /* Имя пакета (`@shop/ui/control.css`) — в файл по `aliases` из kit.config.json;
        без записи такой источник пуст, и взятое у него не засчитывается. */
-    const key = from.startsWith('.') ? join(dirname(at), from) : ALIASES[from] ? join(ROOT, ALIASES[from]) : from
+    const alias = Object.entries(ALIASES).find(([k]) => (k.endsWith('/') ? from.startsWith(k) : from === k))
+    const key = from.startsWith('.') ? join(dirname(at), from) : alias ? join(ROOT, alias[1] + from.slice(alias[0].length)) : from
     if (!chained.has(key)) chained.set(key, existsSync(key) ? strip(readFileSync(key, 'utf8')) : '')
     return { text: chained.get(key), file: key }
   }
