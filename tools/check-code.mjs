@@ -34,7 +34,7 @@ import { join, relative } from 'node:path'
 import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
 /* Где код, где стили, с каких папок спрашивают — `kit.config.json` проекта
    или соглашения набора (И168). */
-import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS, ALIASES } from './kit-config.mjs'
+import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS, ALIASES, STORES } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/code-baseline.json')
@@ -375,9 +375,11 @@ for (const path of files) {
      от приватного режима и тем же уведомлением подписчиков. Загрузочный
      скрипт — тот же склад, только записанный строкой: он выполняется до
      первой отрисовки, в `<script>`, где ничего не импортировано, и читает
-     те же ключи сам. */
-  const STORES = ['lib/shop.ts', 'lib/studio/store.ts', 'lib/studio/presets.ts',
-    'lib/studio/boot.ts', 'app/[lang]/layout.tsx']
+     те же ключи сам.
+
+     Список — `stores` в `kit.config.json`: склад у каждого проекта свой, и
+     зашитый список объявлял чужой витрине складом файлы, которых у неё нет,
+     а её собственный — долгом. */
   if (!STORES.includes(rel)) {
     for (const m of src.matchAll(/\b(?:local|session)Storage\s*\.\s*(?:get|set|remove)Item/g)) {
       found.keep.push(`${at(m.index)}  память браузера мимо склада`)

@@ -65,6 +65,9 @@ const DEFAULTS = {
   scale: { font: 'fs', space: 'sp', layer: 'layer' },
   /** разрешённые швы раскладки */
   breakpoints: [1080, 820, 560],
+  /** склады: единственные места, которым разрешена память браузера */
+  stores: ['lib/shop.ts', 'lib/studio/store.ts', 'lib/studio/presets.ts',
+    'lib/studio/boot.ts', 'app/[lang]/layout.tsx'],
   /** чем заменить имя пакета в `composes … from '@shop/ui/control.css'`: путь от корня проекта */
   aliases: {},
 }
@@ -101,6 +104,7 @@ export const CONTROLS = CONFIG.controls
 export const EXEMPT = CONFIG.exempt
 export const FLOATING = CONFIG.floating
 export const BREAKPOINTS = CONFIG.breakpoints
+export const STORES = CONFIG.stores ?? []
 export const ALIASES = CONFIG.aliases ?? {}
 
 /** Полные имена шкал: `--fs-`, `--sp-`, `--layer-`. */
