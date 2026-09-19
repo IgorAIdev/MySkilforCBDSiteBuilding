@@ -8,6 +8,6 @@
     "check:css": "node tools/check-css.mjs",
     "check:code": "node tools/check-code.mjs",
     "check:port": "node tools/check-port.mjs",
-    "test": "node tools/check-test.mjs && node --test "selftest/**/*.test.mjs""
+    "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs"
   }
 }
