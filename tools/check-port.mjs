@@ -42,6 +42,7 @@
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { PORT_FAMILIES, emptyPortBaseline } from './port-families.mjs'
+import { CODE_DIRS, BLOCK_DIRS, COMPONENT_DIRS, STYLE_DIRS, LIB, TOKENS } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/port-baseline.json')
@@ -58,7 +59,8 @@ const BASELINE = join(ROOT, 'tools/port-baseline.json')
  */
 const SHARED = ['packages']
 const ENGINES = ['themes']
-const SITE = ['app', 'components', 'styles', 'lib']
+/* Папки сайта — из `kit.config.json` проекта или соглашения набора (И168). */
+const SITE = [...new Set([...CODE_DIRS, ...STYLE_DIRS])]
 
 const found = Object.fromEntries(PORT_FAMILIES.map((k) => [k, []]))
 
@@ -187,7 +189,7 @@ const kitCss = walk(SHARED[0], (n) => n.endsWith('.css'))
     }
     return map
   }
-  const site = existsSync(join(ROOT, 'styles/tokens.css')) ? values(read('styles/tokens.css')) : new Map()
+  const site = TOKENS && existsSync(join(ROOT, TOKENS)) ? values(read(TOKENS)) : new Map()
   for (const rel of kitCss) {
     for (const [name, set] of values(read(rel))) {
       const mine = site.get(name)
@@ -241,7 +243,7 @@ const kitCss = walk(SHARED[0], (n) => n.endsWith('.css'))
 
   /* Строка паритета: сколько блоков вёрстки уже существует в переносимом
      виде. Не семья и не долг — мера того, сколько работы в дне переноса. */
-  const modules = walk('components', (n) => n.endsWith('.module.css')).length
+  const modules = COMPONENT_DIRS.flatMap((d) => walk(d, (n) => n.endsWith('.module.css'))).length
   const ported = new Set([...(engines.get('стиль (packages/ui)') ?? [])].map(blockOf)).size
   found.parity = `блоков в вёрстке ${modules}, в переносимом виде ${ported}`
 }
@@ -266,12 +268,13 @@ const kitCss = walk(SHARED[0], (n) => n.endsWith('.css'))
      `export const ИМЯ = [`. Числа и строки (`VAT_RATE`, `FREE_SHIPPING`) —
      не список: они переедут вместе с данными, а не вместо них. */
   const lists = new Set()
-  for (const rel of walk('lib', (n) => /\.tsx?$/.test(n))) {
+  for (const rel of walk(LIB, (n) => /\.tsx?$/.test(n))) {
     for (const m of read(rel).matchAll(/export const ([A-Z][A-Z0-9_]+)(?:\s*:[^=]+)?=\s*\[/g)) {
       lists.add(m[1])
     }
   }
-  for (const rel of walk('components', (n) => /\.tsx?$/.test(n))) {
+  /* Только блоки: странице (`pages` в конфиге) за списком ходить положено. */
+  for (const rel of COMPONENT_DIRS.flatMap((d) => walk(d, (n) => /\.tsx?$/.test(n)))) {
     /* Панель настроек рисует саму себя и в магазин не едет — её из обхода
        исключают все проверки проекта, и эта не исключение. */
     if (rel.includes('studio')) continue
@@ -307,7 +310,7 @@ const kitCss = walk(SHARED[0], (n) => n.endsWith('.css'))
  * начинают обходить. Рынок сайта — евро; доллар вернётся в признак в тот
  * день, когда появится витрина, которая им торгует.
  */
-for (const dir of ['app', 'components']) {
+for (const dir of BLOCK_DIRS) {
   for (const rel of walk(dir, (n) => /\.tsx?$/.test(n))) {
     if (rel.includes('studio')) continue
     const code = strip(read(rel))

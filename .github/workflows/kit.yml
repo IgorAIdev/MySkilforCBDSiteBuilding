@@ -1,0 +1,38 @@
+# Проверки самого набора. Не путать с `templates/check.yml` — тот едет в
+# проекты и гоняет их сборку; этот гоняет набор: сходимость правил и
+# проверок, инструменты на пустом проекте, ставщик в трёх режимах.
+#
+# Заведено по дефекту (docs/rules.md, И170): заготовка проекта лежала в
+# `.github/workflows/` самого набора, GitHub исполнял её на каждом PR в
+# набор и падал на `npm ci` — у набора нет ни package-lock, ни сборки.
+#
+# Репозиторий открытый — минуты GitHub на нём не считаются.
+name: kit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: kit-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  self:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      # Замок: проверка не живёт без правила, правило — без дефекта.
+      - run: node tools/check-rules.mjs
+      # Инструменты на самом наборе: у него есть только `styles/`, и всё
+      # обязано молчать нулём — иначе новый проект начинается красным.
+      - run: node tools/check-css.mjs
+      - run: node tools/check-code.mjs
+      - run: node tools/check-port.mjs
+      - run: node tools/check-test.mjs
+      # Ставщик: новый сайт, обновление, аудит чужого — и что он НЕ трогает.
+      - run: node --test "selftest/**/*.test.mjs"

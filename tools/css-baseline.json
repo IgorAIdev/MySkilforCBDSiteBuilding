@@ -16,14 +16,14 @@
   "railY": 0,
   "colLadder": 0,
   "proseCols": 0,
-  "twiceDrawn": 0,
+  "twiceDrawn": 2,
   "deadEffect": 0,
-  "tapGrows": 0,
+  "tapGrows": 1,
   "dressLayout": 0,
   "twoOwners": 0,
   "barNoScroll": 0,
-  "deadDress": 0,
-  "plateGap": 0,
+  "deadDress": 1,
+  "plateGap": 1,
   "barTwice": 0,
   "groundGlue": 0
 }

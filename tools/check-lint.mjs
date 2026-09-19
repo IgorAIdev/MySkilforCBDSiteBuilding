@@ -39,10 +39,10 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { relative } from 'node:path'
+import { CODE_DIRS as DIRS } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = new URL('./lint-baseline.json', import.meta.url).pathname
-const DIRS = ['app', 'components', 'lib']
 
 /* В проекте, куда набор только что лёг, кода ещё нет ни строки. Проверка,
    красная с первого дня, живёт ровно до первого «давай пока отключим» —

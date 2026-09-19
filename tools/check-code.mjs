@@ -32,9 +32,11 @@
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
+/* Где код, где стили, с каких папок спрашивают — `kit.config.json` проекта
+   или соглашения набора (И168). */
+import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
-const DIRS = ['app', 'components', 'lib']
 const BASELINE = join(ROOT, 'tools/code-baseline.json')
 
 /* Файлы ДАННЫХ, а не кода. Длина у них — не сложность: словарь на 644 строки
@@ -401,9 +403,9 @@ for (const path of files) {
      А вот СПРАШИВАЕТСЯ только с блоков (`BLOCKS`): `styles/` — это набор,
      который вывозится в другие проекты, и примитив без сегодняшнего
      пользователя там не мёртвый код, а незанятая полка. */
-  const BLOCKS = ['app/', 'components/']
+  const BLOCKS = BLOCK_DIRS.map((d) => `${d}/`)
   const cssFiles = []
-  for (const dir of ['app', 'components', 'styles']) walkCss(join(ROOT, dir))
+  for (const dir of STYLE_DIRS) walkCss(join(ROOT, dir))
   function walkCss(dir) {
     if (!existsSync(dir)) return
     for (const name of readdirSync(dir)) {
@@ -522,7 +524,7 @@ for (const path of files) {
         else if (name.endsWith('.css')) css.push(path)
       }
     }
-    for (const dir of ['app', 'components', 'styles']) grab(join(ROOT, dir))
+    for (const dir of STYLE_DIRS) grab(join(ROOT, dir))
     const rest = [...files, ...css]
       .filter((p) => !p.endsWith('lib/studio/schema.ts'))
       .map((p) => readFileSync(p, 'utf8')).join('\n')

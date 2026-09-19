@@ -35,7 +35,8 @@
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS } from './kit-config.mjs'
 
 export const ROOT = new URL('..', import.meta.url).pathname
 
@@ -48,11 +49,22 @@ const pkg = () => json('package.json') ?? { scripts: {} }
 const script = (name) => Boolean(pkg().scripts?.[name])
 
 /** Есть ли процесс CI, который зовёт хотя бы храповик по вёрстке. Имя файла
- *  не важно: `check.yml`, `ci.yml` — важно, что сборка падает сама. */
+ *  не важно: `check.yml`, `ci.yml` — важно, что сборка падает сама.
+ *
+ *  Ищется от корня проекта вверх до корня репозитория: в монорепозитории
+ *  процессы лежат этажом выше приложения, и ворота, смотревшие только в
+ *  `ROOT/.github`, говорили «CI нет» у проекта, чей CI гонял все проверки. */
 const ci = () => {
-  const dir = join(ROOT, '.github/workflows')
-  if (!existsSync(dir)) return false
-  return readdirSync(dir).some((f) => /check:css/.test(readFileSync(join(dir, f), 'utf8')))
+  let dir = ROOT.replace(/\/$/, '')
+  for (let i = 0; i < 6 && dir; i++) {
+    const wf = join(dir, '.github/workflows')
+    if (existsSync(wf) && readdirSync(wf).some((f) => /check:css/.test(readFileSync(join(wf, f), 'utf8')))) return true
+    if (existsSync(join(dir, '.git'))) break
+    const up = dirname(dir)
+    if (up === dir) break
+    dir = up
+  }
+  return false
 }
 
 /** Все файлы `lib/` — там живут данные и их флаги. */
@@ -66,7 +78,7 @@ function libFiles() {
       else if (/\.(ts|tsx|js|mjs)$/.test(name)) out.push(path)
     }
   }
-  walk(join(ROOT, 'lib'))
+  walk(join(ROOT, LIB))
   return out
 }
 
@@ -130,12 +142,13 @@ export const STAGES = [
     gate: {
       machine: [
         () => has('CLAUDE.md') ? null : 'нет CLAUDE.md — правила не читаются раньше кода',
-        () => /--fs-/.test(src('styles/tokens.css')) ? null : 'шкалы размера --fs-* нет в styles/tokens.css — правило 1 ссылается в пустоту',
-        () => /--sp-/.test(src('styles/tokens.css')) ? null : 'шкалы ритма --sp-* нет в styles/tokens.css — правило 2 ссылается в пустоту',
+        () => TOKENS && src(TOKENS).includes(PREFIX.font) ? null : `шкалы размера ${PREFIX.font}* нет в ${TOKENS ?? 'проекте (tokens не назван в kit.config.json)'} — правило 1 ссылается в пустоту`,
+        () => TOKENS && src(TOKENS).includes(PREFIX.space) ? null : `шкалы ритма ${PREFIX.space}* нет в ${TOKENS ?? 'проекте (tokens не назван в kit.config.json)'} — правило 2 ссылается в пустоту`,
         () => {
-          const p = src('styles/primitives.module.css')
+          if (!PRIMITIVES) return 'примитивов раскладки нет: файл не назван в kit.config.json (primitives) — раскладку пишут заново каждый раз'
+          const p = src(PRIMITIVES)
           const missing = ['stack', 'cluster', 'switcher', 'rail', 'prose'].filter((c) => !new RegExp(`\\.${c}\\b`).test(p))
-          return missing.length ? `примитивов раскладки нет: ${missing.join(', ')} (styles/primitives.module.css)` : null
+          return missing.length ? `примитивов раскладки нет: ${missing.join(', ')} (${PRIMITIVES})` : null
         },
         () => script('check:css') && has('tools/css-baseline.json') ? null : 'храповика по вёрстке нет (check:css + tools/css-baseline.json)',
         () => script('check:code') && has('tools/code-baseline.json') ? null : 'храповика по коду нет (check:code + tools/code-baseline.json)',
@@ -148,7 +161,7 @@ export const STAGES = [
         () => ci() ? null : 'проверки не валят сборку сами — в .github/workflows/ нет процесса, который зовёт check:css',
       ],
       human: [
-        'брейкпоинтов ровно три — 1080, 820, 560 — и каждый назван в CLAUDE.md',
+        `швов раскладки ровно ${BREAKPOINTS.length} — ${BREAKPOINTS.join(', ')} — и каждый назван в CLAUDE.md`,
         'роли цвета названы по работе (--page, --ink, --accent), а не по оттенку',
       ],
     },
