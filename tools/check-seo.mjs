@@ -39,18 +39,17 @@
  *   node tools/check-seo.mjs --list [семья] показать сами находки
  */
 
-import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs'
+import { readFileSync, existsSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { LOCALES, DEFAULT_LANG } from './routes.mjs'
+import { LOCALES, DEFAULT_LANG, all } from './routes.mjs'
+/* Страницы — из `out/` или с живого сервера (`SITE=`): один источник на
+   обе проверки поиска, разбор в `tools/pages.mjs` (И174). */
+import { loadSite } from './pages.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
-const OUT = join(ROOT, 'out')
 const BASELINE = join(ROOT, 'tools/seo-baseline.json')
 
-if (!existsSync(OUT)) {
-  console.error('\n✗ Нет out/. Сначала: npm run build:site')
-  process.exit(1)
-}
+const site = await loadSite({ routes: all() })
 
 /* Словарь языка рынка — чтобы увидеть в разметке английский источник там,
    где должен стоять перевод. Читается текстом, как `routes.mjs` читает
@@ -80,23 +79,9 @@ const DICT = (() => {
   return out
 })()
 
-/* ── страницы: `out/bg/cart.html` → `/bg/cart` ──────────────────────────── */
-const pages = new Map()
-walk(OUT, '')
-function walk(dir, url) {
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name)
-    if (statSync(path).isDirectory()) {
-      if (name.startsWith('_')) continue
-      walk(path, `${url}/${name}`)
-    } else if (name.endsWith('.html')) {
-      const bare = name === 'index.html' ? (url || '/') : `${url}/${name.slice(0, -5)}`
-      /* Служебные листы фреймворка адресами не являются. */
-      if (/^\/(404|_not-found)$/.test(bare)) continue
-      pages.set(bare, path)
-    }
-  }
-}
+/* ── страницы: адрес → разметка; служебные листы фреймворка адресами не
+   являются ───────────────────────────────────────────────────────────── */
+const pages = new Map([...site.pages].filter(([url]) => !/^\/(404|_not-found)$/.test(url)))
 
 /* ── разбор тегов: регулярка, а не DOM — имена атрибутов React пишет как
    `hrefLang`, поэтому ключи приводятся к нижнему регистру ───────────────── */
@@ -117,8 +102,7 @@ const langOf = (url) => {
 }
 
 /* Свой адрес сайта — из карты сайта, иначе из первого canonical. */
-const sitemapPath = join(OUT, 'sitemap.xml')
-const sitemap = existsSync(sitemapPath) ? readFileSync(sitemapPath, 'utf8') : ''
+const sitemap = site.sitemap
 let SITE = (sitemap.match(/<loc>([^<]*)<\/loc>/)?.[1] ?? '').replace(/^(https?:\/\/[^/]+).*$/, '$1')
 const norm = (u) => (u.replace(/\/+$/, '') || '/')
 const local = (href) => {
@@ -173,16 +157,14 @@ const ldStrings = (node, out = []) => {
 }
 
 /* ── сайт целиком ──────────────────────────────────────────────────────── */
-const robotsPath = join(OUT, 'robots.txt')
-if (!existsSync(robotsPath)) found.robots.push('robots.txt не собран')
-else if (!/^\s*Sitemap:/mi.test(readFileSync(robotsPath, 'utf8'))) found.robots.push('robots.txt не называет карту сайта (строка Sitemap:)')
+if (!site.robots) found.robots.push('robots.txt не собран')
+else if (!/^\s*Sitemap:/mi.test(site.robots)) found.robots.push('robots.txt не называет карту сайта (строка Sitemap:)')
 if (!sitemap) found.robots.push('sitemap.xml не собран')
 else if (!/<loc>/.test(sitemap)) found.robots.push('sitemap.xml пуст')
 
 /* ── первый проход: что говорит каждая страница ────────────────────────── */
 const info = new Map()
-for (const [url, path] of [...pages].sort()) {
-  const html = readFileSync(path, 'utf8')
+for (const [url, html] of [...pages].sort()) {
   if (!SITE) SITE = (html.match(/<link[^>]*rel="canonical"[^>]*href="(https?:\/\/[^/"]+)/i)?.[1] ?? '')
   const metas = tags(html, 'meta')
   const links = tags(html, 'link')

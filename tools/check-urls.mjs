@@ -29,52 +29,17 @@
  *   npm run build:site && node tools/check-urls.mjs
  */
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, relative } from 'node:path'
 import { all } from './routes.mjs'
+/* Страницы — из `out/` или с живого сервера (`SITE=`): один источник на
+   обе проверки поиска, разбор в `tools/pages.mjs` (И174). Что значит
+   «страница есть» — файл на диске или ответ 200 — решает он же. */
+import { loadSite } from './pages.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
-const OUT = join(ROOT, 'out')
+const site = await loadSite({ routes: all() })
+const pages = site.pages
+const exists = site.exists
 
-if (!existsSync(OUT)) {
-  console.error('\n✗ Нет out/. Сначала: npm run build:site')
-  process.exit(1)
-}
-
-/** Собранные страницы: `out/bg/cart.html` → `/bg/cart`. */
-const pages = new Map()
-walk(OUT, '')
-function walk(dir, url) {
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name)
-    if (statSync(path).isDirectory()) {
-      if (name.startsWith('_')) continue
-      walk(path, `${url}/${name}`)
-    } else if (name.endsWith('.html')) {
-      const bare = name === 'index.html' ? (url || '/') : `${url}/${name.slice(0, -5)}`
-      pages.set(bare, path)
-    }
-  }
-}
-
-/** Есть ли по адресу что ОТДАТЬ.
- *
- *  Папка не считается, и это поймал обратный ход: убрал
- *  `out/bg/catalog/oils.html` — проверка осталась зелёной. Рядом с каждой
- *  страницей статический экспорт кладёт одноимённую ПАПКУ со служебными
- *  файлами (`__next…txt`), и `existsSync` находил её. Нгинкс по такому
- *  адресу отдаст не страницу: `index.html` внутри нет.
- *
- *  Сторож, не проверенный обратным ходом, не отличается от комментария. */
-const exists = (url) => {
-  const bare = url.replace(/\/+$/, '') || '/'
-  if (pages.has(bare) || pages.has(`${bare}/index`)) return true
-  const file = join(OUT, bare.slice(1))
-  return existsSync(file) && statSync(file).isFile()
-}
-
-const SITE = (readFileSync(join(OUT, 'sitemap.xml'), 'utf8')
-  .match(/<loc>([^<]*)<\/loc>/)?.[1] ?? '').replace(/\/[^/]*$/, '')
+const SITE = (site.sitemap.match(/<loc>([^<]*)<\/loc>/)?.[1] ?? '').replace(/\/[^/]*$/, '')
 /* Свой адрес — и записанный полностью (так пишутся карта сайта и canonical),
    и записанный от корня (так пишутся ссылки в тексте). Чужой — не наш, и не
    нам его проверять. Раньше принимался только первый вид, поэтому обычные
@@ -87,15 +52,14 @@ const local = (href) => {
 }
 
 /* ── карта сайта ────────────────────────────────────────────────────────── */
-const map = readFileSync(join(OUT, 'sitemap.xml'), 'utf8')
-const promised = [...map.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
+const promised = [...site.sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
 
 const broken = []
 const seen = new Map()
 for (const href of promised) {
   const url = local(href)
   if (url === null) continue
-  if (!exists(url)) broken.push(`карта сайта → ${url} — такой страницы нет`)
+  if (!(await exists(url))) broken.push(`карта сайта → ${url} — такой страницы нет`)
   seen.set(url, (seen.get(url) ?? 0) + 1)
 }
 for (const [url, n] of seen) {
@@ -104,11 +68,10 @@ for (const [url, n] of seen) {
 
 /* ── ссылки внутри страниц: canonical, hreflang И ОБЫЧНЫЕ ───────────────── */
 const silent = []
-for (const [url, path] of [...pages].sort()) {
-  const html = readFileSync(path, 'utf8')
+for (const [url, html] of [...pages].sort()) {
   for (const m of html.matchAll(/<link rel="(canonical|alternate)"[^>]*href="([^"]+)"/g)) {
     const to = local(m[2])
-    if (to !== null && !exists(to)) {
+    if (to !== null && !(await exists(to))) {
       broken.push(`${url} → ${m[1]} ${to} — такой страницы нет`)
     }
   }
@@ -125,7 +88,7 @@ for (const [url, path] of [...pages].sort()) {
   for (const m of html.matchAll(/<a\s[^>]*href="([^"#?][^"]*)"/g)) hrefs.add(m[1])
   for (const href of hrefs) {
     const to = local(href)
-    if (to === null || exists(to)) continue
+    if (to === null || (await exists(to))) continue
     const line = `ссылка → ${to} — такой страницы нет`
     if (!broken.includes(line)) broken.push(line)
   }
