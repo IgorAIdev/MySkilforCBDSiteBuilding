@@ -57,13 +57,12 @@ export const DEFAULT_LANG =
  *  разбором кода: они и лежат данными (`lib/docs.json`). Регулярка тут была
  *  бы вторым разбором JSON, и первым же документом с фигурной скобкой в
  *  тексте он бы соврал. */
-export const DOCS = JSON.parse(
-  readFileSync(join(ROOT, 'lib/docs.json'), 'utf8'))
+/* Файла может не быть — на новом сайте документов ещё нет, и это «нет данных», а не поломка (тот же договор, что у `src`). */
+export const DOCS = JSON.parse(src('lib/docs.json') || '[]')
 
 /** Статьи наръчника — тем же способом, что документы: данные, а не разбор
  *  кода (`lib/blog.json`). */
-export const POSTS = JSON.parse(
-  readFileSync(join(ROOT, 'lib/blog.json'), 'utf8'))
+export const POSTS = JSON.parse(src('lib/blog.json') || '[]')
 
 /** Полки. Порядок тот же, что в данных: он по спросу, и первая полка — самая
  *  полная. */

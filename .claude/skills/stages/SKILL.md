@@ -222,7 +222,7 @@ AgriciDaniel, разбор в `docs/skills.md`) дали: одиннадцать
 | `tools/stages.mjs` | реестр: семь этапов, предикаты ворот, очередь `parked`, список `PLATFORM` |
 | `tools/stage.mjs` | `npm run stage`, `npm run check:stage`, `--all` |
 | `tools/kit-config.mjs` + `kit.config.json` | где лежит проект и как названы шкалы — одно место для всех проверок и предикатов |
-| `tools/check-seo.mjs` | одиннадцать семей разметки для поиска по `out/`, храповик |
+| `tools/check-seo.mjs` + `tools/pages.mjs` | двенадцать семей разметки для поиска — по `out/` или по живому серверу (`SITE=`), храповик |
 | `.claude/skills/stages/SKILL.md` | этот файл |
 | строка `Этап производства:` в `CLAUDE.md` | где проект находится |
 
