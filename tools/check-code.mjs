@@ -30,7 +30,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { basename, join, relative } from 'node:path'
 import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
 /* Где код, где стили, с каких папок спрашивают — `kit.config.json` проекта
    или соглашения набора (И168). */
@@ -68,6 +68,19 @@ function walk(dir) {
 /* Список семей — общий со сборщиком набора: он пишет новому проекту пустую
    базу, и та обязана знать обо всех семьях, а не о тех, что были при её
    написании. */
+/** Общий корень папок кода: `src/app`, `src/components`, `src/lib` → `src`. */
+function commonRoot(dirs) {
+  const parts = dirs.map((d) => d.split('/'))
+  const first = parts[0] ?? []
+  const out = []
+  for (let i = 0; i < first.length; i++) {
+    const piece = first[i]
+    if (!parts.every((p) => p[i] === piece)) break
+    out.push(piece)
+  }
+  return out.join('/') || '.'
+}
+
 const found = Object.fromEntries(CODE_FAMILIES.map((k) => [k, []]))
 
 /* Комментарий — не код: длину сохраняем, чтобы номера строк не уехали.
@@ -571,6 +584,80 @@ for (const path of files) {
       if (rest.includes(`'${key}'`) || rest.includes(`\`${key}\``)) continue
       if (stem.length >= 4 && rest.includes(stem)) continue
       found.deadSetting.push(`${key} «${label}» — провода нет, и по имени его никто не читает`)
+    }
+  }
+}
+
+/* ── семья: сторож, оставленный на входном файле ───────────────────────────
+ *
+ * Длинный файл разнимают на части, а на его месте оставляют ВХОД — файл из
+ * одних перевывозов (`export … from './часть'`). Ввозящие ничего не замечают:
+ * путь тот же. Замечать нечего и сторожу — но только до тех пор, пока он
+ * ВВОЗИТ. Сторож, который читает файл ИСХОДНИКОМ (`readFileSync`) и ищет в
+ * тексте образец, после разъёма находит пустоту: он не падает, он молчит.
+ * Проверка, которая больше ничего не проверяет и при этом зелёная, хуже
+ * отсутствующей — на неё ссылаются как на доказательство.
+ *
+ * Дефект: 19.09.2026 на cbdshop.bg разняли семь длинных файлов, и восемь
+ * сторожей читали их исходником — подпись мастерской в подвале, ключ марки,
+ * отбор по ключу, сборщики блоков главной, подзаголовок плитки эффекта.
+ * Три из восьми стали бы вечнозелёными молча; поймано перечитыванием
+ * каждого, а не прогоном.
+ *
+ * Признак дешёвый и точный: файл — вход (в нём, кроме комментариев, одни
+ * `export … from`), и его имя стоит строкой в файле, где есть `readFileSync`.
+ */
+{
+  const barrels = new Map()
+  for (const path of files) {
+    const rel = relative(ROOT, path)
+    if (/\.test\.tsx?$/.test(rel)) continue
+    const body = strip(readFileSync(path, 'utf8'))
+      .split('\n').map((l) => l.trim()).filter(Boolean)
+    if (body.length === 0) continue
+    /* Вход — это перевывозы и ничего больше. Одна своя строка кода, и файл
+       уже не вход: сторожу есть что в нём читать. */
+    const onlyReExports = body.every((line) =>
+      /^export\s/.test(line) && /\sfrom\s/.test(line) ||
+      /^(export\s*\{|\}\s*from\s|[A-Za-z_$][\w$]*,?$|\}\s*$|type\s)/.test(line))
+    const hasFrom = body.some((line) => /^export[\s\S]*\sfrom\s/.test(line) || /^\}\s*from\s/.test(line))
+    if (onlyReExports && hasFrom) barrels.set(rel, basename(rel))
+  }
+
+  /* Сторожа лежат не только в папках кода: у первой витрины половина их —
+     в корне `src`, рядом с деревом страниц, а не внутри него. Обход идёт по
+     общему корню папок кода, иначе ровно те сторожа, что читают исходники,
+     в счёт и не попадают. */
+  const root = commonRoot(DIRS)
+  const tests = []
+  walkTests(join(ROOT, root))
+  function walkTests(dir) {
+    if (!existsSync(dir)) return
+    for (const name of readdirSync(dir)) {
+      if (name === 'node_modules' || name.startsWith('.')) continue
+      const path = join(dir, name)
+      if (statSync(path).isDirectory()) walkTests(path)
+      else if (/\.test\.tsx?$/.test(name)) tests.push(path)
+    }
+  }
+
+  for (const path of tests) {
+    const rel = relative(ROOT, path)
+    const code = readFileSync(path, 'utf8')
+    if (!/readFileSync/.test(code)) continue
+    /* Ввоз — не чтение. `import { x } from './catalog.ts'` переживает разъём
+       без единой правки: вход на то и вход. Считается только имя, набранное
+       как ПУТЬ К ФАЙЛУ, — поэтому спецификаторы ввоза снимаются до счёта. */
+    const text = code
+      .replace(/\bfrom\s*['"][^'"\n]+['"]/g, ' ')
+      .replace(/\bimport\s*\(\s*['"][^'"\n]+['"]\s*\)/g, ' ')
+    const literals = [...text.matchAll(/'([^'\n]+)'|"([^"\n]+)"/g)].map((m) => (m[1] ?? m[2]).split('\\').join('/'))
+    for (const [barrel, name] of barrels) {
+      /* Назван ИМЕНЕМ, а не подстрокой: сторож, обходящий все файлы подряд,
+         ничего не называет — он и не перестаёт работать от разъёма. */
+      const named = literals.some((lit) => lit === name || lit.endsWith('/' + name))
+      if (!named) continue
+      found.deadGuard.push(`${rel} читает исходником ${barrel} — там одни перевывозы`)
     }
   }
 }
