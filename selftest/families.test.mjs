@@ -123,3 +123,18 @@ test('translated: марка пропом — не находка; марка т
     assert.doesNotMatch(out, /catalog\.ts/, 'деструктуризация и объект — не печать')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test('deadDress: атрибут, поставленный кодом строкой или через dataset — и кодом дизайн-системы из styles, — надет (И178)', () => {
+  const dir = project({
+    'kit.config.json': JSON.stringify({ code: ['app'], styles: ['app', 'ui'] }),
+    /* База набора несёт долг deadDress собственных стилей (И171); образцу — ноль, иначе находка не печатается. */
+    'tools/css-baseline.json': '{}',
+    'app/page.module.css': ':global(html[data-search-open]) .panel { display: block }\n:global(html[data-nobody]) .x { color: red }\n',
+    'ui/Search.tsx': "const OPEN = 'data-search-open'\nexport const open = () => document.documentElement.setAttribute(OPEN, '')\n",
+  })
+  try {
+    const out = css(dir).stdout + css(dir).stderr
+    assert.doesNotMatch(out, /data-search-open —/, 'поставлен строкой в коде дизайн-системы — надет')
+    assert.match(out, /data-nobody —/, 'никем не поставлен — находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
