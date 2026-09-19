@@ -1,0 +1,18 @@
+{
+  "Аптека": {
+    "light": { "paper": "#FEFCF5", "ink": "#24352B", "accent": "#B79339", "error": "#B3261E" },
+    "dark":  { "paper": "#0C1510", "ink": "#EDECE9", "accent": "#B79339", "error": "#F2B8B5" }
+  },
+  "Олива": {
+    "light": { "paper": "#FCFDF7", "ink": "#22271A", "accent": "#5F6B34", "error": "#B3261E" },
+    "dark":  { "paper": "#11140D", "ink": "#ECECEA", "accent": "#5F6B34", "error": "#F2B8B5" }
+  },
+  "Мек остров": {
+    "light": { "paper": "#FFFFFF", "ink": "#231F18", "accent": "#0C3A46", "error": "#B3261E" },
+    "dark":  { "paper": "#141310", "ink": "#EFECE7", "accent": "#2E7C8F", "error": "#F2B8B5" }
+  },
+  "Тёплый лист": {
+    "light": { "paper": "#FFFCF6", "ink": "#241E17", "accent": "#A34627", "error": "#B3261E" },
+    "dark":  { "paper": "#15120E", "ink": "#EDECEA", "accent": "#A34627", "error": "#F2B8B5" }
+  }
+}
