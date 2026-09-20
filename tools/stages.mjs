@@ -224,7 +224,7 @@ export const STAGES = [
         },
         'характер витрины назван заказчиком словами и записан в docs/decisions.md',
         { reviewed: '20.09.2026', rule: 'И221: пороги в одном файле с источником у каждого' }),
-      step(1, 'Имена и ярусы', 'сырьё → ступень → роль → узел; шкалы --fs/--sp, роли --air/--pad/--gap, ступени цвета', 'craft',
+      step(1, 'Имена и ярусы', 'сырьё → роль → узел по реестру tools/names.mjs; имя по форме и по назначению; ручка примитива не на корне', 'craft',
         () => {
           const l = ladder()
           const miss = []
@@ -232,8 +232,10 @@ export const STAGES = [
           if (!l.includes(PREFIX.space)) miss.push('ритм')
           if (!/--(air|pad|gap)-/.test(l)) miss.push('роли ритма --air/--pad/--gap')
           if (!/--n-1\b/.test(src('styles/palette.css'))) miss.push('ступени цвета (styles/palette.css)')
+          if (!has('tools/names.mjs')) miss.push('реестра имён (tools/names.mjs)')
           return miss.length ? `имён нет: ${miss.join(', ')}` : null
-        }),
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И224: три яруса по реестру, узел читает роль, имя по форме, имя по просителю' }),
       step(2, 'Оси', 'тема свет/тьма, указатель палец/курсор, язык рынка — и для каждой шкалы записано, по каким осям она меняется', 'craft',
         () => {
           const all = styleFiles().map(src).join('\n')

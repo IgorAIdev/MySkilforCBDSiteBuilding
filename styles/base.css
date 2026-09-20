@@ -131,6 +131,7 @@ body{
   /* Роль «body» целиком: и размер, и межстрочье — из неё. Запасные числа
      здесь означали бы второй источник: правишь роль, а земля держит своё. */
   font-size:var(--body-size); line-height:var(--body-lead);
+  font-weight:var(--body-weight); letter-spacing:var(--body-track);
   /* which face is set is an attribute on <html>, so the whole page swaps at
      once and nothing has to know which component it is in */
   font-family:var(--face);
@@ -193,7 +194,7 @@ small,figcaption,button,summary{text-wrap:balance}
 /* The browser's own surfaces — selection, caret, focus ring, scrollbar,
    underline offset. By default they belong to no design system at all; here
    they are painted from the palette. */
-::selection{background:var(--live-4);color:var(--live-12)}
+::selection{background:var(--select);color:var(--on-select)}
 /* Кольцо фокуса — ЗАМЕР, а не ступень по номеру: у эталона седьмая
    («UI element border and focus rings») даёт 1.49 на карточке при
    требуемых WCAG трёх. `--ring` — первая ступень фирменного ряда, которая
@@ -212,7 +213,7 @@ small,figcaption,button,summary{text-wrap:balance}
    сторожит семья `noPress` в `check:css`. */
 html{-webkit-tap-highlight-color:transparent}
 html{scrollbar-color:var(--thumb) transparent;scrollbar-width:thin}
-input,textarea,select{caret-color:var(--live-11)}
+input,textarea,select{caret-color:var(--pop-ink)}
 /* Галочка и радио остаются браузерными нарочно (клавиатура, чтец,
    промежуточное состояние — разбор у `.tick` в `styles/form.module.css`), и
    красит их сайт только цветом: `accent-color` в четырёх местах
@@ -282,8 +283,8 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
  *  ровно поэтому список длиннее, чем кажется нужным. */
 [data-ground='deck']{
   color:var(--chrome-fg);
-  --sage-12:var(--chrome-fg);
-  --sage-11:var(--chrome-fg-2);
+  --ink:var(--chrome-fg);
+  --ink-soft:var(--chrome-fg-2);
   --ctrl:var(--chrome-hover);
   /* Плашка на палубе — тоже палуба, только светлее.
 
@@ -293,7 +294,6 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
      смени и то, на чём знак стоит, иначе половина пары осталась от другого
      фона. Заказчик нашёл это глазом на витрине. */
   --surface:var(--chrome-hover);
-  --tile:var(--chrome-hover);
   --hover-ctrl:color-mix(in srgb, var(--chrome-fg) 18%, transparent);
 
   /* И ещё четыре роли, которые СОСТАВЛЕНЫ из чернил на корне и потому сами
@@ -379,12 +379,6 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
      переменная объявлена, — на корне, — и вниз наследуется уже готовая
      краска. Ровно эта ловушка однажды оставила на палубе волосок и вуаль,
      посчитанные от светлых чернил. */
-  --cyan-12:oklch(from var(--accent-solid) 0.90 0.06 h);
-  --cyan-11:oklch(from var(--accent-solid) 0.80 0.11 h);
-  --cyan-4:oklch(from var(--accent-solid) 0.32 0.045 h);
-  --cyan-3:oklch(from var(--accent-solid) 0.27 0.04 h);
-  --hover-ink:var(--live-11);
-  --hover-ink-2:var(--live-12);
 }
 
 /* ── ЛИСТ — ЭТО ТОЖЕ ПОЛ ──────────────────────────────────────────────────
@@ -413,7 +407,7 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
  *  щель, и щель эта видна только глазом на витрине. Сторожит семья
  *  `plateGap` в check:css: она сверяет два списка и валится на первой
  *  невозвращённой роли. Значения при этом не повторяются — берутся имена
- *  вещи (`--on-plate`, `--plate-2`, `--live-11`), а не числа.
+ *  вещи (`--on-plate`, `--plate-2`, `--pop-ink`), а не числа.
  *
  *  Вне палубы правило ничего не меняет: там роли и так стоят на этих
  *  значениях, и объявление повторяет само себя. Поэтому атрибут ставится
@@ -421,10 +415,9 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
  *  приходится ни одному предмету. */
 [data-plate]{
   color:var(--on-plate);
-  --sage-12:var(--on-plate);
-  --sage-11:var(--on-plate-2);
+  --ink:var(--on-plate);
+  --ink-soft:var(--on-plate-2);
   --surface:var(--plate);
-  --tile:var(--plate-2);
   --ctrl:var(--plate-3);
 
   /* Составленные из чернил — заново, и по той же причине, по какой их
@@ -446,12 +439,6 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
   --pop-hover:var(--hover-solid);
 
   /* Живая лестница — к своим значениям (см. `--live-*` в tokens.css). */
-  --cyan-12:var(--live-12);
-  --cyan-11:var(--live-11);
-  --cyan-4:var(--live-4);
-  --cyan-3:var(--live-3);
-  --hover-ink:var(--live-11);
-  --hover-ink-2:var(--live-12);
 
   /* Тень — к своим значениям (И100): формула та же, что у `--sh-ring` /
      `--sh-near` / `--sh-far-*` в styles/tokens.css, набранная заново, потому

@@ -175,7 +175,14 @@ export const resolve = (set) => {
     if (!pa || !pb) throw new Error(`воздух «${name}» просит ступень ритма ${!pa ? a : b}, которой в наборе нет`)
     out.воздух[name] = { step: a, steps: [a, b], pair: [pa[0], pb[1]] }
   }
-  for (const [name, pair] of Object.entries(set.зазор ?? {})) out.зазор[name] = pair
+  /* Зазор — пара [под курсором, под пальцем] в px, либо имя ступени ритма:
+     тогда это зазор в сетке или ряду, и он течёт со ступенью. */
+  for (const [name, v] of Object.entries(set.зазор ?? {})) {
+    if (isPair(v)) { out.зазор[name] = v; continue }
+    const pair = out.ритм[String(v)]
+    if (!pair) throw new Error(`зазор «${name}» просит ступень ритма ${v}, которой в наборе нет`)
+    out.зазор[name] = Object.assign([pair[0], pair[1]], { step: String(v) })
+  }
   return out
 }
 
@@ -210,7 +217,14 @@ const block = (sets, name, indent = '  ') => {
     put(`--air-${name}`, value, steps[0] === steps[1] ? why : `${why ? `${why} — ` : ''}ступени ${steps[0]} → ${steps[1]}`)
   }
   for (const [gap, pair] of Object.entries(r.зазор)) {
-    put(`--gap-${gap}`, `${num(pair[0])}px`, set.подписи?.зазор?.[gap])
+    put(`--gap-${gap}`, pair.step ? ramp([pair[0], pair[1]], w) : `${num(pair[0])}px`, set.подписи?.зазор?.[gap])
+  }
+  /* Лестница управления: надпись органа не течёт с окном — пункт меню это
+     мишень, а не абзац (scales.md, «Надпись контрола живёт в шкале
+     управления»). Верхний конец каждой ступени размера, в px, — роль
+     --ctrl-fs-*, а не число рукой в tokens.css (И224). */
+  for (const [name, pair] of Object.entries(r.размер)) {
+    put(`--ctrl-fs-${name}`, `${num(pair[1])}px`, 'надпись органа — не течёт')
   }
   const roles = roleBlock(sets, name, indent)
   return roles ? `${lines.join('\n')}
@@ -222,7 +236,7 @@ ${roles}` : lines.join('\n')
  *  переменная: Primer держит `controlStack.gap` 8 под курсором и 16 под
  *  пальцем одним именем, и всё про палец у набора живёт в этом запросе. */
 const coarse = (set, sel) => {
-  const pairs = Object.entries(set.зазор ?? {}).filter(([, p]) => p[1] !== p[0])
+  const pairs = Object.entries(set.зазор ?? {}).filter(([, p]) => isPair(p) && p[1] !== p[0])
   if (!pairs.length) return ''
   const body = pairs.map(([name, p]) => `--gap-${name}:${num(p[1])}px`).join('; ')
   return `\n@media (pointer:coarse){ ${sel}{ ${body} } }\n`
@@ -437,6 +451,8 @@ export const auditScale = (set) => {
   }
 
   for (const [name, [fine, tap]] of Object.entries(r.зазор)) {
+    /* Зазор ступенью — не пара под указатель: с него спрашивается клетка, не палец. */
+    if (r.зазор[name].step) continue
     if (tap < TAP_GAP) {
       findings.push({ rule: 'зазор под пальцем', got: `${name}: ${tap}px`, need: `не меньше ${TAP_GAP}px` })
     }
@@ -466,6 +482,7 @@ export const builtNames = (sets) => {
     for (const name of Object.keys(r.поле)) names.add(`--pad-${name}`)
     for (const name of Object.keys(r.воздух)) names.add(`--air-${name}`)
     for (const name of Object.keys(r.зазор)) names.add(`--gap-${name}`)
+    for (const name of Object.keys(r.размер)) names.add(`--ctrl-fs-${name}`)
   }
   for (const setName of Object.keys(sets)) {
     for (const [role, r] of Object.entries(rolesOf(sets, setName))) {
@@ -567,6 +584,7 @@ export const auditReaders = (sheets, sets) => {
     const rs = resolve(sets[name])
     for (const p of Object.values(rs.поле)) if (p.step) asked.add(`${PREFIX.space}${p.step}`)
     for (const a of Object.values(rs.воздух)) for (const st of a.steps) asked.add(`${PREFIX.space}${st}`)
+    for (const g of Object.values(rs.зазор)) if (g.step) asked.add(`${PREFIX.space}${g.step}`)
     for (const role of Object.values(rolesOf(sets, name))) {
       if (typeof role.размер === 'string') asked.add(role.размер)
     }
@@ -578,6 +596,9 @@ export const auditReaders = (sheets, sets) => {
   for (const name of names) {
     if (asked.has(name)) continue
     if (new RegExp(`var\\(${name}[,)]`).test(css)) continue
+    /* Лестница управления берёт верх ступени размера числом: орган, читающий
+       --ctrl-fs-sm, просит и ступень --fs-sm. */
+    if (name.startsWith(PREFIX.font) && new RegExp(`var\\(--ctrl-fs-${name.slice(PREFIX.font.length)}[,)]`).test(css)) continue
     findings.push({ rule: 'ступень без просителя', got: name, need: 'ступень заводится там, где её просит роль или файл стилей — уберите из styles/scale.json или назовите просителя' })
   }
   return findings

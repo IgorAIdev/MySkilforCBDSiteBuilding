@@ -32,5 +32,9 @@
   "padPx": 0,
   "airRatio": 0,
   "typeGuess": 0,
-  "hueDirect": 0
+  "hueDirect": 0,
+  "nameGrammar": 0,
+  "stepDirect": 0,
+  "deadName": 0,
+  "tierUp": 0
 }

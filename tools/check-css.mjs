@@ -17,6 +17,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from '
 import { RHYTHM } from './thresholds.mjs'
 import { join, relative, dirname, basename } from 'node:path'
 import { CSS_FAMILIES, CSS_LABELS as NAMES, hueRx } from './css-families.mjs'
+import { parse as parseName, REQUIRED, optics, declarations, reads } from './names.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
@@ -47,6 +48,26 @@ const LAYER_VAR = new RegExp(`var\\(${RX.layer}`)
 /* Меньше 8px — оптическая доводка под скруглением штриха, а не ритм: шкалой
    такое не описывается, и запрещать его смысла нет. */
 const SPACING_FLOOR = RHYTHM.floor
+
+
+/** Текст всего, что может читать имя вне стилей: код проекта, инструменты,
+ *  тесты, шаблоны. Считается один раз. */
+let codeCache = null
+function codeText() {
+  if (codeCache !== null) return codeCache
+  const out = []
+  const walkCode = (dir) => {
+    if (!existsSync(dir)) return
+    for (const name of readdirSync(dir)) {
+      const path = join(dir, name)
+      if (statSync(path).isDirectory()) { if (name !== 'node_modules') walkCode(path); continue }
+      if (/\.(tsx?|jsx?|mjs|html|json)$/.test(name)) out.push(readFileSync(path, 'utf8'))
+    }
+  }
+  for (const dir of ['app', 'components', 'lib', 'tools', 'tests', 'templates', 'selftest']) walkCode(join(ROOT, dir))
+  codeCache = out.join('\n')
+  return codeCache
+}
 
 const files = []
 for (const dir of DIRS) walk(join(ROOT, dir))
@@ -1147,6 +1168,53 @@ for (const path of files) {
       if (EXEMPT.includes(rel) || rel === LADDER) continue
       for (const m of css.matchAll(hue)) {
         add("hueDirect", `${at(m.index)}  ${m[0].replace("var(", "").trim()}… — возьмите роль`)
+      }
+    }
+  }
+
+  /* Имена и ярусы — слой 1 (И224).
+   *
+   * Четыре семьи, все по одному реестру `tools/names.mjs`:
+   *   nameGrammar — объявленное имя не разбирается: понятие не из списка
+   *                 (sage, cyan, live — по виду; btnBgHov — не по форме);
+   *   stepDirect  — файл узла читает ступень напрямую: сырьё только для
+   *                 ссылок из роли. Оптика не выше пола (--sp-1, --sp-2) —
+   *                 законна, геометрия органа не течёт;
+   *   deadName    — объявлено в стилях, а читателя нет ни в стилях, ни в коде,
+   *                 ни в инструментах, и роль не из списка обязательных;
+   *   tierUp      — сырьё читает роль, роль читает ручку узла, ручка узла
+   *                 объявлена на корне (так --stack стал шрифтовым стеком, и
+   *                 отступ примитива stack был нулём).
+   * Замер 20.09.2026: 50 имён без читателя, узлы читали --live-3 / --live-11
+   * и --sp-N в двадцати пяти местах, --n сетки совпадал с семьёй --n-N. */
+  {
+    const valueFiles = new Set([LADDER, TOKENS, 'styles/palette.css'].filter(Boolean))
+    let sets = {}
+    try { sets = JSON.parse(readFileSync(join(ROOT, 'styles/scale.json'), 'utf8')) } catch { /* набора шкал нет — оптика пуста */ }
+    const allowed = optics(sets, SPACING_FLOOR)
+    const declaredWhere = new Map()
+    for (const { rel, css } of sheets) for (const [name, d] of declarations(css)) if (!declaredWhere.has(name)) declaredWhere.set(name, { rel, ...d })
+    const everything = sheets.map((s) => s.css).join('\n') + codeText()
+    for (const { rel, css, at } of sheets) {
+      const decls = declarations(css)
+      for (const [name, d] of decls) {
+        const p = parseName(name)
+        if (!p) { add('nameGrammar', `${at(d.index)}  ${name}`); continue }
+        if (p.tier === 'node' && rel === TOKENS) add('tierUp', `${at(d.index)}  ${name} — ручка примитива объявлена на корне`)
+        for (const r of reads(d.value)) {
+          const q = parseName(r)
+          if (!q) continue
+          if (p.tier === 'value' && q.tier !== 'value') add('tierUp', `${at(d.index)}  ${name} читает ${r} (${q.tier})`)
+          if (p.tier === 'role' && q.tier === 'node') add('tierUp', `${at(d.index)}  ${name} читает ручку узла ${r}`)
+        }
+        if (p.tier !== 'value' && !REQUIRED[name] && !new RegExp(`var\\(\\s*${name}(?![\\w-])`).test(everything) && !new RegExp(`${name}(?![\\w-])`).test(codeText())) {
+          add('deadName', `${at(d.index)}  ${name}`)
+        }
+      }
+      if (valueFiles.has(rel) || EXEMPT.includes(rel)) continue
+      for (const m of css.matchAll(/var\(\s*(--[a-z][a-z0-9-]*)/g)) {
+        const q = parseName(m[1])
+        if (q?.tier === 'value' && !allowed.has(m[1])) add('stepDirect', `${at(m.index)}  ${m[1]} — возьмите роль`)
       }
     }
   }
