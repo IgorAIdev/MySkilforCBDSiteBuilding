@@ -32,6 +32,10 @@ jobs:
       # обязано молчать нулём — иначе новый проект начинается красным.
       - run: node tools/check-css.mjs
       - run: node tools/check-scale.mjs && node tools/scale-css.mjs --check
+      # Цвет — тем же замком, что и ритм: краски мерятся, выпущенное с ними
+      # сходится. Без этой строки расхождение palette.json и palette.css
+      # доезжало до проекта незамеченным — тот же шов, что в И213.
+      - run: node tools/check-palette.mjs && node tools/palette-css.mjs --check
       - run: node tools/check-code.mjs
       - run: node tools/check-port.mjs
       - run: node tools/check-test.mjs
