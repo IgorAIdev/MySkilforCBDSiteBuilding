@@ -314,9 +314,9 @@
      склеенным термином оставляет одинокое слово посреди заголовка. */
   text-wrap:pretty
 }
-.ledeText h1 em{font-style:normal;color:var(--cyan-11)}
+.ledeText h1 em{font-style:normal;color:var(--live-11)}
 .ledeText p{
-  font-size:var(--fs-lead);color:var(--sage-11);
+  font-size:var(--fs-lead);color:var(--ink-soft);
   max-inline-size:var(--measure-lede);text-wrap:pretty
 }
 
@@ -539,10 +539,10 @@
   }
 }
 
-.muted{color:var(--sage-11)}
+.muted{color:var(--ink-soft)}
 
 /* A group label — sentence case, not capitals with tracking. */
-.eyebrow{font-size:var(--fs-eyebrow, var(--fs-xs));font-weight:600;color:var(--sage-11);letter-spacing:.01em}
+.eyebrow{font-size:var(--fs-eyebrow, var(--fs-xs));font-weight:600;color:var(--ink-soft);letter-spacing:.01em}
 
 /* Keyboard users get a way past the header before the page content. */
 /* Приезжает `transform`, а не `top`. Разница не косметическая: `top` — это
@@ -643,16 +643,16 @@
   /* Чем отвечает под рукой выключенная половина — вуаль в 12% чернил.
      Выбор заказчика на живой странице из трёх ответов: молчит, вуаль,
      чернила. Переключатель, которым он выбирал, вместе с выбором и ушёл. */
-  --tray-off-bg:color-mix(in oklab, var(--ctrl), var(--sage-12) 12%);
-  --tray-off-fg:var(--sage-12);
-  --tray-act-bg:color-mix(in oklab, var(--quiet-on), var(--sage-12) 12%);
-  --tray-act-fg:var(--sage-12)
+  --tray-off-bg:color-mix(in oklab, var(--ctrl), var(--ink) 12%);
+  --tray-off-fg:var(--ink);
+  --tray-act-bg:color-mix(in oklab, var(--quiet-on), var(--ink) 12%);
+  --tray-act-fg:var(--ink)
 }
 .tray > *{
   display:inline-flex;align-items:center;gap:8px;min-width:0;
   block-size:var(--tray-cell);padding-inline:calc(var(--tray-cell) * .43);
   border-radius:var(--r-pill);white-space:nowrap;
-  font-size:var(--fs-sm);color:var(--sage-11)
+  font-size:var(--fs-sm);color:var(--ink-soft)
 }
 /* В лотке живут органы ТРЁХ родов, и одеваются они по роду, а не по месту.
    Заказчик увидел это на витрине тремя скринами за один вечер: «Reset»
@@ -673,7 +673,7 @@
 /* Лист получает только ПОЛОВИНКА — выбор из двух: включённая стоит на листе
    поверх жёлоба, вторая остаётся словом. */
 .tray > [aria-pressed='true']{
-  background:var(--surface);color:var(--sage-12);font-weight:600;box-shadow:var(--sh-1)
+  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-1)
 }
 /* СТВОРКА В ПОКОЕ — ТОЖЕ ОРГАН. Была пустым местом: прозрачный фон, обычный
    вес — на жёлобе от неё оставались слово и шеврон, и рядом с «Изчисти»,
@@ -693,7 +693,7 @@
    слово при открытии становилось шире, двигая соседей по лотку: состояние
    говорит КРАСКОЙ, а не шириной набора. */
 .tray > [aria-expanded]{
-  background:var(--surface);color:var(--sage-12);font-weight:600;box-shadow:var(--sh-1)
+  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-1)
 }
 /* Отжатая створка отвечает тем же, чем всякий лист: поднимается тенью, а не
    темнеет. Темнеет она только уйдя ВГЛУБЬ — то есть открывшись. */
@@ -718,17 +718,17 @@
   /* Глубина названа один раз: покой и ответ руки — две ступени одной шкалы,
      и расходиться им не на чем. */
   --leaf-in:14%; --leaf-in-hand:20%;
-  background:color-mix(in oklab, var(--ctrl), var(--sage-12) var(--leaf-in));
-  color:var(--sage-12);font-weight:600;
-  box-shadow:inset 0 1px 2px color-mix(in oklab, var(--sage-12) 18%, transparent)
+  background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in));
+  color:var(--ink);font-weight:600;
+  box-shadow:inset 0 1px 2px color-mix(in oklab, var(--ink) 18%, transparent)
 }
 /* Нажатие отвечает тем же, чем наведение: открытая створка идёт глубже. У
    пальца «до» нет — он ставит оба состояния разом, — и без этой строки
    створка на телефоне молчала бы под рукой (семья `noPress`). */
 .tray > [aria-expanded='true']:not(:disabled):active{
-  background:color-mix(in oklab, var(--ctrl), var(--sage-12) var(--leaf-in-hand))
+  background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in-hand))
 }
-.tray > [data-act]:not(:disabled){background:var(--quiet);color:var(--sage-12);font-weight:600}
+.tray > [data-act]:not(:disabled){background:var(--quiet);color:var(--ink);font-weight:600}
 .tray > [data-act]:not(:disabled):active{background:var(--quiet-on)}
 .tray > :where(button, a){
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
@@ -768,10 +768,10 @@
      ОСВЕТЛИЛ — вуаль в 12% мельче её собственных 14, — и наведение читалось
      бы как «закрывается». */
   .tray > [aria-expanded='true']:not(:disabled):hover{
-    background:color-mix(in oklab, var(--ctrl), var(--sage-12) var(--leaf-in-hand))
+    background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in-hand))
   }
   .tray > [data-act]:not(:disabled):hover{
-    background:var(--tray-act-bg, var(--quiet-on));color:var(--tray-act-fg, var(--sage-12))
+    background:var(--tray-act-bg, var(--quiet-on));color:var(--tray-act-fg, var(--ink))
   }
 }
 .tray > :where(button, a):not(:disabled):active{transform:scale(.97)}
@@ -841,10 +841,10 @@
 .chip{
   display:inline-flex;align-items:center;gap:6px;
   height:28px;padding:0 11px;border-radius:var(--r-pill);
-  background:var(--sage-3);
-  font-size:var(--fs-sm);font-weight:500;color:var(--sage-11)
+  background:var(--plate-quiet);
+  font-size:var(--fs-sm);font-weight:500;color:var(--ink-soft)
 }
-.chipLab{background:var(--cyan-3);color:var(--cyan-11);font-weight:600;font-size:var(--fs-xs);height:26px;padding:0 10px}
+.chipLab{background:var(--live-3);color:var(--live-11);font-weight:600;font-size:var(--fs-xs);height:26px;padding:0 10px}
 .chipLab svg{width:13px;height:13px;fill:none;stroke:currentColor}
 
 /* ── fields ───────────────────────────────────────────────────────────── */
@@ -888,11 +888,11 @@
 }
 .qty button{
   height:100%;aspect-ratio:1;width:auto;border-radius:50%;
-  display:grid;place-items:center;color:var(--sage-11);
+  display:grid;place-items:center;color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),box-shadow var(--hover-t) var(--ease),transform var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .qty button:hover{color:var(--sage-12);background:var(--surface);box-shadow:var(--sh-1)} }
-.qty button:active{color:var(--sage-12);background:var(--surface);box-shadow:var(--sh-1)}
+@media (hover:hover){ .qty button:hover{color:var(--ink);background:var(--surface);box-shadow:var(--sh-1)} }
+.qty button:active{color:var(--ink);background:var(--surface);box-shadow:var(--sh-1)}
 .qty button:active{transform:scale(.92)}
 .qty button svg{
   width:calc(var(--qty-h,54px) * .33);height:calc(var(--qty-h,54px) * .33);
@@ -900,7 +900,7 @@
 }
 .qty input,.qty b{
   height:100%;text-align:center;border:0;background:none;outline:0;
-  font-size:var(--qty-fs,var(--fs-ui-base));font-weight:600;font-variant-numeric:tabular-nums;color:var(--sage-12)
+  font-size:var(--qty-fs,var(--fs-ui-base));font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)
 }
 .qty input{width:calc(var(--qty-h,54px) * .74)}
 /* Своё кольцо фокуса. Браузерное снято строкой выше (`outline:0`) — вместе с
@@ -968,12 +968,12 @@
 /* ── a segmented control ──────────────────────────────────────────────── */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .seg button{
-  height:30px;padding:0 11px;border-radius:var(--r-pill);background:var(--sage-3);
-  font-size:var(--fs-sm);color:var(--sage-11);
+  height:30px;padding:0 11px;border-radius:var(--r-pill);background:var(--plate-quiet);
+  font-size:var(--fs-sm);color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .seg button:hover{background:var(--hover-ctrl);color:var(--sage-12)} }
-.seg button:active{background:var(--hover-ctrl);color:var(--sage-12)}
+@media (hover:hover){ .seg button:hover{background:var(--hover-ctrl);color:var(--ink)} }
+.seg button:active{background:var(--hover-ctrl);color:var(--ink)}
 .seg button[aria-pressed="true"]{background:var(--pop);color:var(--on-pop);font-weight:600}
 
 /* ── sections ─────────────────────────────────────────────────────────── */
@@ -1020,7 +1020,7 @@
   flex:none
 }
 .sectionHead p{
-  color:var(--sage-11);max-width:var(--measure-lede);
+  color:var(--ink-soft);max-width:var(--measure-lede);
   font-size:var(--lede-size, var(--fs-base));line-height:var(--lede-lead,1.5);
   min-inline-size:0
 }
@@ -1034,12 +1034,12 @@
   display:inline-flex;align-items:center;gap:var(--sp-3);flex:none;
   padding:5px 5px 5px var(--sp-4);border-radius:var(--r-pill);
   background:var(--surface);
-  font-size:var(--more-fs,var(--fs-ui-sm));font-weight:600;color:var(--cyan-12);
+  font-size:var(--more-fs,var(--fs-ui-sm));font-weight:600;color:var(--live-12);
   transition:background var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .more:hover{background:color-mix(in oklab, var(--surface), var(--sage-12) 16%)} }
-.more:active{background:color-mix(in oklab, var(--surface), var(--sage-12) 16%)}
-.more svg{width:28px;height:28px;padding:7px;border-radius:50%;background:var(--cyan-3);fill:none;stroke:var(--cyan-11);transition:transform var(--hover-t) var(--ease)}
+@media (hover:hover){ .more:hover{background:color-mix(in oklab, var(--surface), var(--ink) 16%)} }
+.more:active{background:color-mix(in oklab, var(--surface), var(--ink) 16%)}
+.more svg{width:28px;height:28px;padding:7px;border-radius:50%;background:var(--live-3);fill:none;stroke:var(--live-11);transition:transform var(--hover-t) var(--ease)}
 @media (hover:hover){ .more:hover svg{transform:translateX(var(--nudge))} }
 .more:active svg{transform:translateX(var(--nudge))}
 
@@ -1067,7 +1067,7 @@
    документов, и кегль у неё тот же: `--fs-lead`. Стоял основной текст, то
    есть роль была набрана размером соседней роли. */
 .pagehead p{
-  color:var(--sage-11);margin-top:var(--sp-2);
+  color:var(--ink-soft);margin-top:var(--sp-2);
   font-size:var(--fs-lead);max-width:var(--measure)
 }
 
@@ -1112,12 +1112,12 @@
   display:inline-flex;align-items:center;gap:calc(var(--chip-h) * .21);
   block-size:var(--chip-h);padding-inline:calc(var(--chip-h) * .38);
   border-radius:var(--r-pill);white-space:nowrap;
-  background:var(--ctrl);color:var(--sage-12);
+  background:var(--ctrl);color:var(--ink);
   /* Кромка, а не только заливка. Пилюля стоит на ПОЛУ СТРАНИЦЫ, а ступень
      `--ctrl` над ним — 1.10 при норме 1.15: заливка одна не отделяет орган
      от того, на чём он лежит (семья `sunk` в отрисованной проверке). Та же
      причина, по которой кромку носят плитки галереи товара. */
-  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--sage-12) 10%, transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
   font-size:var(--fs-ui-sm);font-weight:500;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
              transform calc(var(--hover-t) * .6) var(--ease)
@@ -1128,20 +1128,20 @@
 .chip svg{
   inline-size:calc(var(--chip-h) * .34);block-size:calc(var(--chip-h) * .34);
   flex:none;fill:none;stroke:currentColor;
-  color:var(--sage-11);transition:color var(--hover-t) var(--ease)
+  color:var(--ink-soft);transition:color var(--hover-t) var(--ease)
 }
 /* Под рукой пилюля говорит, что сделает нажатие: снимет. Поэтому краснеет не
    цвет фирмы, а сам крестик — он и есть действие. */
 @media (hover:hover){ .chip:hover{background:var(--hover-ctrl)} }
-@media (hover:hover){ .chip:hover svg{color:var(--sage-12)} }
+@media (hover:hover){ .chip:hover svg{color:var(--ink)} }
 .chip:active{background:var(--hover-ctrl);transform:scale(.97)}
-.chip:active svg{color:var(--sage-12)}
+.chip:active svg{color:var(--ink)}
 
 .cut{
   position:absolute;top:10px;left:10px;z-index:2;
   height:26px;padding:0 10px;border-radius:var(--r-pill);
   display:inline-flex;align-items:center;
-  background:var(--amber-9);color:var(--amber-12);
+  background:var(--sale-9);color:var(--on-sale-9);
   font-size:var(--fs-xs);font-weight:800;font-variant-numeric:tabular-nums
 }
 
@@ -1180,13 +1180,13 @@
   gap:0
 }
 .qty button{box-shadow:none}
-.qty button[data-up]{background:none;color:var(--sage-11)}
+.qty button[data-up]{background:none;color:var(--ink-soft)}
 @media (hover:hover){
   .qty button:hover,
-  .qty button[data-up]:hover{background:var(--surface);color:var(--sage-12);box-shadow:var(--sh-1)}
+  .qty button[data-up]:hover{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
 }
 .qty button:active,
-.qty button[data-up]:active{background:var(--surface);color:var(--sage-12);box-shadow:var(--sh-1)}
+.qty button[data-up]:active{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
 /* Два знака на одной кнопке: штрих и уголок. Показан один — какой, решает
    вид счётчика. Классы названы здесь, потому что их ставит разметка. */
 
@@ -1226,7 +1226,7 @@
    же меню и рано или поздно попросит того же жеста — тогда правило уже
    готово, а не забыто второй раз (разбор — docs/rules.md, И147). */
 .menu{
-  background:var(--menu-bg, var(--surface));color:var(--sage-12);
+  background:var(--menu-bg, var(--surface));color:var(--ink);
   border-radius:var(--r-card);box-shadow:var(--sh-3);touch-action:pan-y
 }
 /* Ширина списка каналов — одно число на оба места. Стояло два: 268 в шапке и
@@ -1262,7 +1262,7 @@
 .chan b{display:block;font-size:var(--fs-ui-base);font-weight:600}
 .chan small{
   display:block;margin-block-start:1px;
-  font-size:var(--fs-ui-xs);color:var(--sage-11);font-variant-numeric:tabular-nums
+  font-size:var(--fs-ui-xs);color:var(--ink-soft);font-variant-numeric:tabular-nums
 }
 /* Марка ростом с иконку строки, а не с подпись: мессенджер узнают по цвету
    раньше, чем по форме, и на 17px он не узнаётся вовсе. Кружка под маркой
@@ -1275,4 +1275,4 @@
 .chanMark svg{inline-size:22px;block-size:22px}
 /* Телефон и почта рисуются линией в чернилах строки; марки мессенджеров —
    своими цветами, и обводка им не нужна. */
-.chanMark:not([data-brand]) svg{fill:none;stroke:var(--sage-12)}
+.chanMark:not([data-brand]) svg{fill:none;stroke:var(--ink)}
