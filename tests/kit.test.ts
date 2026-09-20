@@ -21,7 +21,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -766,4 +766,13 @@ test('строитель палитры показывает работу тем
   const нет = Object.keys(наборы).filter((имя) => !html.includes(JSON.stringify(имя)))
   assert.deepEqual(нет, [], `на странице нет наборов: ${нет.join(', ')}`)
   rmSync(dir, { recursive: true, force: true })
+
+  /* Выпущенный образец в наборе — чтобы открыть без запуска — обязан
+     совпадать со строителем байт в байт: иначе это копия, которая врёт. */
+  const образец = join(корень, 'templates/palette-builder.html')
+  if (existsSync(образец)) {
+    const c = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), '--check', образец],
+      { encoding: 'utf8', cwd: корень })
+    assert.equal(c.status, 0, c.stderr || c.stdout)
+  }
 })

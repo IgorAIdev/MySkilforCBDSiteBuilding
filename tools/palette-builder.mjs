@@ -18,6 +18,13 @@
  *
  *   node tools/palette-builder.mjs [куда.html]     самостоятельная страница
  *   node tools/palette-builder.mjs --bare куда.html без обёртки <html> — для артефакта
+ *   node tools/palette-builder.mjs --check куда.html только сверить: отстал ли выпущенный файл
+ *
+ * Выпущенный образец лежит в наборе — `templates/palette-builder.html`, —
+ * чтобы страницу можно было открыть, ничего не запуская. Заказчик
+ * 20.09.2026: «обязательно сохрани и артефакт». Образец сторожится тестом
+ * через `--check`: разошёлся со строителем — сборка красная, а не тихо
+ * устаревшая копия.
  *
  * Наборы берутся из `styles/palette.json` (то, чем сайт покрашен сейчас) и
  * `templates/palette.json` (образцы набора, если лежат рядом).
@@ -29,6 +36,7 @@ import path from 'node:path'
 const HERE = path.dirname(new URL(import.meta.url).pathname)
 const args = process.argv.slice(2)
 const BARE = args.includes('--bare')
+const CHECK = args.includes('--check')
 const OUT = args.find((a) => a.endsWith('.html')) || 'строитель-палитры.html'
 
 const load = (p) => (existsSync(path.resolve(p)) ? JSON.parse(readFileSync(path.resolve(p), 'utf8')) : {})
@@ -73,5 +81,15 @@ ${html.slice(cut)}
 </body></html>
 `
 }
-writeFileSync(path.resolve(OUT), html)
-console.log(`✓ строитель палитры: ${OUT} — ${Object.keys(sets).length} набор(ов), ${Buffer.byteLength(html)} байт`)
+if (CHECK) {
+  const was = existsSync(path.resolve(OUT)) ? readFileSync(path.resolve(OUT), 'utf8') : null
+  if (was === html) {
+    console.log(`✓ выпущенная страница строителя не отстала: ${OUT}`)
+  } else {
+    console.error(`✗ выпущенная страница строителя отстала: ${OUT} — node tools/palette-builder.mjs ${OUT}`)
+    process.exit(1)
+  }
+} else {
+  writeFileSync(path.resolve(OUT), html)
+  console.log(`✓ строитель палитры: ${OUT} — ${Object.keys(sets).length} набор(ов), ${Buffer.byteLength(html)} байт`)
+}
