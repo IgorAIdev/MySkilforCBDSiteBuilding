@@ -245,6 +245,54 @@ for (const dir of SKILL_DIRS) {
   else if (!/примен|use when|когда/i.test(desc)) bad.push(`${f}: описание не говорит, КОГДА применять — по нему не выбрать`)
 }
 
+/* ── 9 · порядок работы — разделом, у каждого закона и у README ──────────
+   Заказчик (И217): «в описании всегда делай последовательность, шаги, по
+   которым делаем сайт, что за чем идёт». Закон без раздела о порядке
+   читается как список запретов; README без «что за чем» — как склад. */
+for (const dir of SKILL_DIRS) {
+  const f = `${dir}/SKILL.md`
+  if (!has(f)) continue
+  const heads = [...read(f).matchAll(/^## (.+)$/gm)].map((m) => m[1])
+  if (!heads.some((h) => /порядок|шаг/i.test(h))) bad.push(`${f}: нет раздела о порядке работы — что за чем идёт`)
+}
+if (has('README.md') && !/^## .*что за чем/im.test(read('README.md'))) {
+  bad.push('README.md: нет раздела «что за чем» — набор читается как склад, а не как порядок')
+}
+
+/* ── 10 · файл формул привязан к строке кода своей темы ────────────────────
+   Заказчик (И218): «будет ещё куча информации помимо палитры, и будут ещё
+   писаться формулы в этот же файл или другой — не возникнет ли путаницы?»
+   Возникнет, если файл с именем «формулы» примет любую формулу. Поэтому у
+   каждого файла формул есть свой код, и каждый раздел обязан назвать
+   функцию или переменную, которая там существует: формула ритма сюда не
+   впишется — у строителя палитры нет для неё строки. Разделы обозначений и
+   чужих формул для сверки — исключение, названное в заголовке. */
+const FORMULA_CODE = {
+  '.claude/skills/palette': ['tools/palette.mjs', 'styles/tokens.css'],
+}
+for (const dir of SKILL_DIRS) {
+  const f = `${dir}/references/formulas.md`
+  if (!has(f)) continue
+  const code = FORMULA_CODE[dir]
+  if (!code) { bad.push(`${f}: файл формул без своего кода — формула без строки в коде совет`); continue }
+  const names = new Set()
+  for (const src of code) {
+    if (!has(src)) continue
+    const text = read(src)
+    for (const m of text.matchAll(/^\s*(?:export\s+)?(?:const|function|let)\s+([A-Za-z_$][\w$]*)/gm)) names.add(m[1])
+    for (const m of text.matchAll(/^\s*(--[a-z][\w-]*)\s*:/gm)) names.add(m[1])
+  }
+  const parts = read(f).split(/^## /gm).slice(1)
+  for (const part of parts) {
+    const title = part.split('\n')[0].trim()
+    if (/обознач|чуж/i.test(title)) continue
+    const cited = [...part.matchAll(/`([A-Za-z_$][\w$]*|--[a-z][\w-]*)`/g)].map((m) => m[1])
+    if (!cited.some((n) => names.has(n))) {
+      bad.push(`${f}, раздел «${title}»: не называет ни функции ${code[0]}, ни переменной ${code[1] ?? ''} — формула не этой темы или без строки в коде`)
+    }
+  }
+}
+
 /* ── вердикт, храповиком ───────────────────────────────────────────────────
    Проверка заведена на живом проекте, у которого правила писались до неё, —
    значит она рождается красной. Валить сборку задним числом нельзя: тогда её
