@@ -1,0 +1,463 @@
+<title>Строитель палитры</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F2F3F5; --sf:#FFFFFF; --ink:#15181C; --mut:#5D6673; --ln:#D9DEE4; --ui:#2456D9; --ui-ink:#FFFFFF;
+  --good:#1E8E5A; --good-bg:#E6F4EC; --bad:#C63B2C; --bad-bg:#FBE9E6; --warn:#9A5B00; --warn-bg:#FBF1DF;
+  --chip:#E9ECF0; --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0E1013; --sf:#171A1F; --ink:#E9ECF0; --mut:#98A2AE; --ln:#2B313A; --ui:#6B93FF; --ui-ink:#0B1020;
+  --good:#5DD397; --good-bg:#12291D; --bad:#F08A7B; --bad-bg:#33191A; --warn:#F0B95A; --warn-bg:#302410; --chip:#222730; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1013; --sf:#171A1F; --ink:#E9ECF0; --mut:#98A2AE; --ln:#2B313A; --ui:#6B93FF; --ui-ink:#0B1020;
+  --good:#5DD397; --good-bg:#12291D; --bad:#F08A7B; --bad-bg:#33191A; --warn:#F0B95A; --warn-bg:#302410; --chip:#222730; color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);padding-block:0 72px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin-inline:auto;padding-inline:16px;display:flex;flex-direction:column;gap:40px}
+h1{font-size:clamp(28px,2.2vw + 18px,40px);line-height:1.08;font-weight:800;letter-spacing:-0.02em;text-wrap:balance}
+h2{font-size:clamp(20px,1.2vw + 14px,26px);line-height:1.2;font-weight:700;letter-spacing:-0.01em;text-wrap:balance}
+h3{font-size:15px;font-weight:700}
+p{max-width:70ch}
+.lede{color:var(--mut);font-size:16.5px;max-width:64ch}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ui);font-weight:500}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--mut)}
+a{color:var(--ui)}
+code{font-family:var(--mono);font-size:0.92em;background:var(--chip);padding:1px 5px;border-radius:5px}
+
+/* верхняя полоса: выбор набора и красок */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--ln);padding-block:12px}
+.top .wrap{gap:12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.bar label{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+select,button,input[type=text]{font:inherit;color:inherit}
+select{min-height:40px;padding:0 12px;border:1px solid var(--ln);border-radius:10px;background:var(--sf)}
+.seg{display:inline-flex;border:1px solid var(--ln);border-radius:10px;overflow:hidden;background:var(--sf)}
+.seg button{min-height:40px;padding:0 14px;border:0;background:transparent;cursor:pointer;font-weight:600;color:var(--mut)}
+.seg button[aria-pressed="true"]{background:var(--ui);color:var(--ui-ink)}
+.paints{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:10px 24px}
+.paint-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.paint-row .t{font-weight:700;min-width:64px}
+.paint{display:inline-flex;align-items:center;gap:6px}
+.paint input[type=color]{inline-size:34px;block-size:34px;border:1px solid var(--ln);border-radius:8px;padding:2px;background:var(--sf);cursor:pointer}
+.paint input[type=text]{inline-size:6.4em;min-height:34px;padding:0 8px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);font-family:var(--mono);font-size:13px}
+.paint small{color:var(--mut);font-size:12.5px}
+button.ghost{min-height:40px;padding:0 14px;border:1px solid var(--ln);border-radius:10px;background:var(--sf);cursor:pointer;font-weight:600}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ui);outline-offset:2px}
+
+section{display:flex;flex-direction:column;gap:16px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:16px}
+.pair.only-light [data-mode="dark"],.pair.only-dark [data-mode="light"]{display:none}
+.panel{background:var(--sf);border:1px solid var(--ln);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel > h3{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel > h3 small{color:var(--mut);font-weight:500;font-size:13px}
+
+/* краски и проверка */
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sw{border-radius:12px;padding:10px;min-height:88px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
+.sw b{font-size:13px}
+.sw span{font-family:var(--mono);font-size:12px;opacity:.85}
+.checks{display:flex;flex-direction:column;gap:8px}
+.check{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;padding:8px 0;border-top:1px solid var(--ln);font-size:14px}
+.check .k{font-weight:600}
+.check .d{color:var(--mut);font-size:13px;grid-column:1/-1}
+.v{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.v.ok{background:var(--good-bg);color:var(--good)} .v.no{background:var(--bad-bg);color:var(--bad)} .v.warn{background:var(--warn-bg);color:var(--warn)}
+
+/* лестницы */
+.ladder{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
+.step{aspect-ratio:1/1.15;max-block-size:74px;border-radius:7px;display:flex;flex-direction:column;justify-content:flex-end;padding:4px;font-family:var(--mono);font-size:10.5px;line-height:1.15;border:1px solid color-mix(in srgb,var(--ink) 10%,transparent)}
+.step b{font-size:12px}
+.step.fixed{outline:2px solid var(--ui);outline-offset:-2px}
+.jobs{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;font-size:10px;color:var(--mut);text-align:center;line-height:1.15;overflow-wrap:anywhere;hyphens:manual}
+@media (max-width:640px){ .jobs{display:none} .step{font-size:9.5px} .step span{display:none} }
+.extra{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;font-size:13px}
+.ex{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.dot{inline-size:26px;block-size:26px;border-radius:7px;border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);display:inline-grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:600}
+.note{font-size:13px;color:var(--mut)}
+
+/* сигналы */
+.sig{display:grid;grid-template-columns:8.5em repeat(4,minmax(0,1fr)) auto;gap:6px;align-items:center;font-size:13px}
+@media (max-width:560px){ .sig{grid-template-columns:6.5em repeat(4,minmax(0,1fr))} .sig .de{grid-column:1/-1;text-align:right} }
+.sig .nm{font-weight:600;line-height:1.2}
+.sig .nm small{display:block;color:var(--mut);font-weight:500;font-size:11.5px}
+.cell{min-height:36px;border-radius:8px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;border:1px solid color-mix(in srgb,var(--ink) 10%,transparent)}
+.sig .de{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.sighead{display:grid;grid-template-columns:8.5em repeat(4,minmax(0,1fr)) auto;gap:6px;font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+@media (max-width:560px){ .sighead{grid-template-columns:6.5em repeat(4,minmax(0,1fr))} .sighead .de{display:none} }
+
+/* витрина на выпущенных ролях */
+.shop{background:var(--n-1);color:var(--n-12);border-radius:14px;overflow:hidden;border:1px solid var(--n-6);font-family:var(--sans)}
+.shop-bar{display:flex;align-items:center;gap:14px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.shop-brand{font-weight:800;letter-spacing:.14em;font-size:13px}
+.shop-bar nav{display:flex;gap:12px;font-size:13.5px;color:var(--n-11)}
+.shop-bar nav .active{color:var(--n-12);font-weight:700;box-shadow:inset 0 -2px 0 var(--a-9)}
+.shop-cart{margin-left:auto;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.badge{display:inline-grid;place-items:center;min-inline-size:20px;block-size:20px;padding-inline:5px;border-radius:999px;background:var(--a-9);color:var(--on-a-9);font-size:11.5px;font-weight:700;box-shadow:0 0 0 2px var(--n-1)}
+.shop-body{padding:14px;display:grid;gap:14px}
+.pcard{background:var(--n-2);border:1px solid var(--n-6);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pmedia{aspect-ratio:16/9;max-block-size:120px;border-radius:9px;background:var(--a-3);position:relative}
+.cut{position:absolute;inset:8px auto auto 8px;padding:2px 8px;border-radius:999px;background:var(--sale-9);color:var(--on-sale-9);font-size:12px;font-weight:700}
+.pbrand{color:var(--a-11);font-size:12.5px;font-weight:600}
+.ptitle{font-size:16px;font-weight:700}
+.psub{color:var(--n-11);font-size:12.5px}
+.prow{display:flex;align-items:baseline;gap:8px}
+.now{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+.was{color:var(--n-11);text-decoration:line-through;font-size:12.5px;font-variant-numeric:tabular-nums}
+.stock{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;font-weight:600}
+.stock span{padding:2px 8px;border-radius:999px}
+.stock .ok{background:var(--ok-2);color:var(--ok-11)} .stock .warn{background:var(--warn-2);color:var(--warn-11)} .stock .err{background:var(--e-9);color:var(--on-e-9)}
+.states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.state{display:flex;flex-direction:column;gap:4px;align-items:stretch}
+.state small{color:var(--n-11);font-size:11.5px;text-align:center}
+.buy{min-height:38px;border:0;border-radius:9px;background:var(--a-9);color:var(--on-a-9);font:600 13px var(--sans);cursor:default}
+.buy.hover{background:var(--a-10)} .buy.press{background:var(--a-press)}
+.buy.focus{outline:2px solid var(--ring);outline-offset:2px}
+.buy.off{background:var(--n-3);color:var(--n-9);border:1px solid var(--n-6)}
+.quiet{min-height:38px;border:0;border-radius:9px;background:var(--n-3);color:var(--n-12);font:600 13px var(--sans)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chipw{display:flex;flex-direction:column;gap:3px;align-items:center}
+.chipw small{color:var(--n-11);font-size:11px}
+.chip{padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--n-3);color:var(--n-11)}
+.chip.hv{background:var(--n-4);color:var(--n-12)} .chip.pr{background:var(--n-5);color:var(--n-12)}
+.chip.tonal{background:var(--a-5);color:var(--a-11)} .chip.solid{background:var(--a-9);color:var(--on-a-9)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field .in{min-height:38px;border:1px solid var(--border);border-radius:9px;background:var(--n-1);color:var(--n-11);padding:0 10px;display:flex;align-items:center;font-size:13px}
+.field .in.filled{color:var(--n-12)}
+.field .in.focus{outline:2px solid var(--ring);outline-offset:2px}
+.field .in.bad{border-color:var(--e-9)}
+.field small{font-size:11.5px;color:var(--n-11)} .field small.bad{color:var(--e-11)}
+.banners{display:grid;gap:6px}
+.bn{padding:8px 10px;border-radius:9px;font-size:12.5px;border-left:3px solid}
+.bn.info{background:var(--info-2);color:var(--info-11);border-color:var(--info-9)}
+.bn.ok{background:var(--ok-2);color:var(--ok-11);border-color:var(--ok-9)}
+.bn.warn{background:var(--warn-2);color:var(--warn-11);border-color:var(--warn-9)}
+.deck{background:var(--n-12);color:var(--n-1);padding:12px 14px;font-size:12.5px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.deck .hair{opacity:.64}
+.hr{height:1px;background:var(--line);margin-block:2px}
+
+/* замер */
+table{border-collapse:collapse;inline-size:100%;font-size:13px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;padding:6px 6px;border-bottom:1px solid var(--ln)}
+td{padding:7px 6px;border-bottom:1px solid var(--ln);vertical-align:top}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.tbl{overflow-x:auto}
+.finds{display:flex;flex-direction:column;gap:6px}
+.find{padding:8px 10px;border-radius:9px;background:var(--bad-bg);color:var(--bad);font-size:13px}
+.find.none{background:var(--good-bg);color:var(--good)}
+
+details{border:1px solid var(--ln);border-radius:12px;background:var(--sf)}
+summary{cursor:pointer;padding:12px 16px;font-weight:700}
+pre{margin:0;padding:0 16px 16px;overflow-x:auto;font-family:var(--mono);font-size:12px;line-height:1.45;color:var(--mut)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:10px}
+.stepc{border:1px solid var(--ln);border-radius:12px;padding:12px 14px;background:var(--sf);display:flex;flex-direction:column;gap:4px;font-size:14px}
+.stepc b{font-family:var(--mono);color:var(--ui);font-size:12px}
+footer{color:var(--mut);font-size:13px;border-top:1px solid var(--ln);padding-top:16px}
+</style>
+
+<div class="top">
+  <div class="wrap">
+    <div class="bar">
+      <label for="set">Набор <select id="set"></select></label>
+      <button class="ghost" id="reset" type="button">Вернуть краски набора</button>
+      <div class="seg" role="group" aria-label="Какие темы показывать">
+        <button type="button" data-show="both" aria-pressed="true">Обе темы</button>
+        <button type="button" data-show="light" aria-pressed="false">Светлая</button>
+        <button type="button" data-show="dark" aria-pressed="false">Тёмная</button>
+      </div>
+    </div>
+    <div class="paints" id="paints"></div>
+  </div>
+</div>
+
+<div class="wrap" style="padding-top:28px">
+  <header style="display:flex;flex-direction:column;gap:12px">
+    <p class="eyebrow">Скилл palette · тот же код, что красит сайт</p>
+    <h1>Строитель палитры</h1>
+    <p class="lede">Заказчик называет три краски на тему — фон, текст, фирменный. Всё остальное, сорок с лишним красок магазина, считается и меряется. Ниже — как именно, шаг за шагом, на живом строителе: меняйте краски вверху, и вся страница пересчитается.</p>
+    <div class="steps">
+      <div class="stepc"><b>Шаги 1–4</b>три краски и проверка до построения</div>
+      <div class="stepc"><b>Шаг 5</b>лестницы: двенадцать ступеней на нейтраль и марку</div>
+      <div class="stepc"><b>Шаг 5</b>пять сигналов: ошибка, скидка, внимание, успех, сведение</div>
+      <div class="stepc"><b>Шаг 7</b>роли на элементах магазина</div>
+      <div class="stepc"><b>Шаг 6</b>замер: WCAG, APCA, расстояния, лестница</div>
+      <div class="stepc"><b>Шаги 9–10</b>что уезжает в проект</div>
+    </div>
+  </header>
+
+  <section id="s1">
+    <p class="eyebrow">Шаги 1–4</p>
+    <h2>Три краски — и проверка до построения</h2>
+    <p class="muted">Марка должна стоять в коридоре светлоты, где на ней читается знак; бумага — почти-белая с едва заметным тоном; чернила — не чёрные и не белые. Красный, оранжевый и зелёный не зависят от набора, скидка выводится из марки поворотом тона, сведение — синее эталона. Все семь красок обязаны быть различимы попарно: ΔE не меньше 25.</p>
+    <div class="pair" id="p1"></div>
+  </section>
+
+  <section id="s2">
+    <p class="eyebrow">Шаг 5 · лестницы</p>
+    <h2>Двенадцать ступеней, у каждой одна работа</h2>
+    <p class="muted">Концы лестницы — краски заказчика как есть (обведены): первая ступень — бумага, девятая цветного ряда — марка, двенадцатая — чернила. Светлота остальных — из профиля эталона Radix, тон держится у марки, насыщенность идёт дугой ближайшей породы. Тёмная тема — своя лестница, не инверсия: ступени идут от тёмной бумаги вверх.</p>
+    <div class="pair" id="p2"></div>
+  </section>
+
+  <section id="s3">
+    <p class="eyebrow">Шаг 5 · сигналы</p>
+    <h2>Пять сигналов — по три ступени и знак</h2>
+    <p class="muted">У плашки три работы: тихий фон, заливка и текст на бумаге, плюс знак на заливке, который выбирается замером. Двенадцать ступеней сигналу не нужны — у него нет органов управления.</p>
+    <div class="pair" id="p3"></div>
+  </section>
+
+  <section id="s4">
+    <p class="eyebrow">Шаг 7 · роли</p>
+    <h2>Те же краски на элементах магазина</h2>
+    <p class="muted">Лист, карточка, кнопка покупки в трёх состояниях, фокус, недоступное, фишки в покое и выбранные — тональное против сплошного, — поля с границей и кольцом, ошибка у поля, плашки наличия и скидки, сведение, подвал обратной парой. Ни одного числа мимо палитры: всё, что вы видите, читает переменные из выпущенного CSS.</p>
+    <div class="pair" id="p4"></div>
+  </section>
+
+  <section id="s5">
+    <p class="eyebrow">Шаг 6 · замер</p>
+    <h2>Числа, а не мнение</h2>
+    <p class="muted">WCAG — ворота (4.5 на текст, 3 на органы управления), APCA — обещание эталона (Lc 60 приглушённому, Lc 90 основному), ΔE 25 между красками, шаг лестницы не меньше 0.6 L*. Находка чинится краской или правилом строителя, никогда порогом.</p>
+    <div class="pair" id="p5"></div>
+  </section>
+
+  <section id="s6">
+    <p class="eyebrow">Шаги 9–10</p>
+    <h2>Что уезжает в проект</h2>
+    <p class="muted">Три краски на тему лежат в <code>styles/palette.json</code>; <code>npm run palette</code> выпускает <code>styles/palette.css</code> — ровно этот текст. Роли в <code>tokens.css</code> читают ступени, узлы читают роли. В новый проект набор приезжает одним ключом: <code>node install.mjs --palette "Имя" ../сайт</code>.</p>
+    <details><summary>Выпущенный CSS текущего набора</summary><pre id="css"></pre></details>
+  </section>
+
+  <footer>Строитель — <code>tools/palette.mjs</code> набора MySkilforCBDSiteBuilding, вшит сюда без изменений; профиль ступеней снят с шкалы <code>sand</code> пакета @radix-ui/colors 3.0.0; пороги — WCAG 2.2 и APCA 0.0.98G. Наборы-образцы — <code>templates/palette.json</code>.</footer>
+</div>
+
+<script>
+const PROFILE_JSON = __PROFILE__;
+__BUILDER__
+</script>
+<script>
+const SETS = __SETS__;
+const ORIGINAL = JSON.parse(JSON.stringify(SETS));
+const state = { name: Object.keys(SETS)[0], show: 'both' };
+const cur = () => SETS[state.name];
+const MODES = ['light', 'dark'];
+const MODE_NAME = { light: 'Светлая тема', dark: 'Тёмная тема' };
+const JOBS = ['лист','карточка','орган','курсор','нажатие','раздели-тель','граница','граница под курсором','заливка','заливка под курсором','приглу-шённый','основной'];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f1 = (x) => Number(x).toFixed(1);
+const f2 = (x) => Number(x).toFixed(2);
+const chip = (kind, text) => `<span class="v ${kind}">${esc(text)}</span>`;
+const okno = (ok) => ok ? 'ok' : 'no';
+
+function data(mode) {
+  const set = cur()[mode];
+  const full = withSale(set, mode);
+  const r = roles(set, mode);
+  const n = Array.from({ length: 12 }, (_, i) => r[`--n-${i + 1}`]);
+  const a = Array.from({ length: 12 }, (_, i) => r[`--a-${i + 1}`]);
+  return { set, full, r, n, a, findings: auditPalette(set, mode) };
+}
+const vars = (r) => Object.entries(r).map(([k, v]) => `${k}:${v}`).join(';');
+const panel = (mode, title, body) => `<div class="panel" data-mode="${mode}"><h3>${MODE_NAME[mode]}<small>${esc(title)}</small></h3>${body}</div>`;
+
+/* ── шаги 1–4 ── */
+function renderChecks(mode) {
+  const { set, full } = data(mode);
+  const sw = (hex, name, extra) => `<div class="sw" style="background:${hex};color:${inkOn(hex)}"><b>${name}</b><span>${hex} · L* ${f1(lightness(hex))}${extra ? ' · ' + extra : ''}</span></div>`;
+  const acc = full.accent, L = lightness(acc);
+  const ink = inkOn(acc);
+  const inkK = ratio(ink, acc);
+  let corridor;
+  if (L >= 45 && L <= 62) corridor = ['ok', `L* ${f1(L)}: коридор 45–62`];
+  else if (L >= 83 && L <= 91) corridor = ['ok', `L* ${f1(L)}: коридор 83–91`];
+  else if (L > 62 && L < 83) corridor = inkK >= 4.5 ? ['warn', `L* ${f1(L)}: вне коридора, знак держит ${f2(inkK)}`] : ['no', `L* ${f1(L)}: мёртвая зона 63–82`];
+  else corridor = ['warn', `L* ${f1(L)}: ниже 45, лестница тесная`];
+  const [, Cp] = oklch(full.paper);
+  const Lp = lightness(full.paper), Li = lightness(full.ink);
+  const paperOk = mode === 'light' ? (full.paper.toUpperCase() !== '#FFFFFF' && Lp >= 95) : (Lp >= 4 && Lp <= 9);
+  const inkOk = mode === 'light' ? (Li <= 25 && full.ink.toUpperCase() !== '#000000') : (Li >= 85 && Li <= 96);
+  const rows = [
+    ['Марка в коридоре светлоты', corridor[0], corridor[1], 'Radix: девятая цветных — L* 45–62 под белый знак или 83–91 под тёмный; между ними ни один знак не даёт Lc 60'],
+    ['Знак на марке выбран замером', okno(ratio(ink, acc) >= 4.5), `${ink === '#FFFFFF' ? 'белый' : 'чёрный'} · ${f2(inkK)} : 1`, 'знак не хранится в наборе: у трёх чужих наборов из трёх хранёный знак не читался'],
+    ['Бумага почти-белая, с тоном', okno(paperOk && Cp <= 0.02), `L* ${f1(Lp)} · C ${Cp.toFixed(3)}`, mode === 'light' ? 'чистый белый на большой площади бликует; хрома нейтрали ≤ 0.02' : 'тёмная бумага L* 5–8, не чёрная: на чёрном перестают существовать тени и ступени'],
+    ['Чернила не чёрные и не белые', okno(inkOk), `L* ${f1(Li)}`, mode === 'light' ? 'Material: on-surface тон 10' : 'текст не выше L* 96: от чистого белого на чёрном «звенит»'],
+  ];
+  for (const job of STATUS) {
+    const d = difference(full.accent, full[job]);
+    const src = set[job] ? 'названа заказчиком' : job === 'sale' ? 'выведена из марки: тон + 60°' : job === 'info' ? 'синий эталона' : 'постоянная строителя';
+    rows.push([`${SIGNAL_NAMES[job]} отличим от марки`, okno(d >= NEED.brandApart), `ΔE ${f1(d)} при норме 25`, `${full[job]} · ${src}`]);
+  }
+  const body = `<div class="trio">${sw(full.paper, 'фон', 'ступень 1')}${sw(full.ink, 'текст', 'ступень 12')}${sw(full.accent, 'фирменный', 'ступень 9')}</div>
+  <div class="checks">${rows.map(([k, kind, v, d]) => `<div class="check"><span class="k">${esc(k)}</span>${chip(kind, v)}<span class="d">${esc(d)}</span></div>`).join('')}</div>`;
+  return panel(mode, 'что проверяется до того, как что-то строится', body);
+}
+
+/* ── лестницы ── */
+function renderLadders(mode) {
+  const { r, n, a } = data(mode);
+  const row = (arr, fixedIdx, label) => `
+    <p class="note"><b style="color:var(--ink)">${label}</b></p>
+    <div class="ladder">${arr.map((hex, i) => `<div class="step ${fixedIdx.includes(i) ? 'fixed' : ''}" style="background:${hex};color:${inkOn(hex)}" title="${hex}"><b>${i + 1}</b><span>${f1(lightness(hex))}</span></div>`).join('')}</div>
+    <div class="jobs">${JOBS.map((j) => `<span>${j.replace('-', '&shy;')}</span>`).join('')}</div>`;
+  const dir = mode === 'light' ? 'темнее' : 'светлее';
+  const item = (dotStyle, label, hex, what) => `<span class="ex"><span class="dot" style="${dotStyle}">${what || ''}</span><span>${label}</span><span class="mono muted">${hex}</span></span>`;
+  const extra = `<div class="extra">
+    ${item(`background:${r['--a-press']};color:${inkOn(r['--a-press'])}`, 'нажатие', r['--a-press'], 'Aa')}
+    ${item(`background:${a[8]};color:${r['--on-a-9']}`, 'знак на марке', r['--on-a-9'], 'Aa')}
+    ${item(`background:${r['--line']}`, 'разделитель', r['--line'])}
+    ${item(`border:2px solid ${r['--border']}`, 'граница органа', r['--border'])}
+    ${item(`outline:2px solid ${r['--ring']};outline-offset:-2px`, 'кольцо фокуса', r['--ring'])}
+  </div>
+  <p class="note">Нажатие — ступень, которой в шкале эталона нет: вдвое дальше наведения, ${dir} марки на ${f1(Math.abs(lightness(r['--a-press']) - lightness(a[8])))} L*. На телефоне курсора нет, и это единственный ответ кнопки.</p>
+  <p class="note">Граница и кольцо — не ступень по номеру, а первая ступень, которая даёт 3 : 1 (WCAG 1.4.11): седьмая у самого эталона даёт 1.49. Одиннадцатая уводится от бумаги, пока не выполнит Lc 60.</p>`;
+  return panel(mode, 'нейтраль и марка', row(n, [0, 11], 'Нейтраль n1…n12 — лист, карточка, органы, линии, текст') + row(a, [8], 'Марка a1…a12 — тональные поверхности, заливка кнопки, фирменный текст') + extra);
+}
+
+/* ── сигналы ── */
+function renderSignals(mode) {
+  const { set, full, r, n } = data(mode);
+  const names = { error: ['Ошибка', 'нет в наличии, поле не принято'], sale: ['Скидка', 'плашка «−20 %», прежняя цена'], warn: ['Внимание', 'осталось двое, срок годности'], ok: ['Успех', 'в наличии, добавлено, заказ принят'], info: ['Сведение', 'доставка 3–5 дней, закон ЕС'] };
+  const short = { error: 'e', sale: 'sale', warn: 'warn', ok: 'ok', info: 'info' };
+  const rows = STATUS.map((job) => {
+    const s = short[job];
+    const tint = r[`--${s}-2`], fill = r[`--${s}-9`], text = r[`--${s}-11`], on = r[`--on-${s}-9`];
+    const src = set[job] ? 'своя' : job === 'sale' ? 'из марки' : job === 'info' ? 'эталон' : 'постоянная';
+    return `<div class="sig">
+      <div class="nm">${names[job][0]}<small>${names[job][1]} · ${src}</small></div>
+      <div class="cell" style="background:${tint};color:${text}" title="${tint}">${s}-2</div>
+      <div class="cell" style="background:${fill};color:${on}" title="${fill}">${s}-9 Aa</div>
+      <div class="cell" style="background:${n[1]};color:${text}" title="${text}">${s}-11</div>
+      <div class="cell" style="background:${fill};color:${on}" title="${on}">${on === '#FFFFFF' ? 'белый' : 'чёрный'}</div>
+      <div class="de">ΔE ${f1(difference(full.accent, full[job]))}</div>
+    </div>`;
+  }).join('');
+  const head = `<div class="sighead"><span>сигнал</span><span>тихий фон</span><span>заливка</span><span>текст</span><span>знак</span><span class="de">до марки</span></div>`;
+  return panel(mode, 'три ступени и знак на каждый', head + rows + `<p class="note">Скидка — соседка марки: тон + 60° (так Material берёт третью краску схемы), и поворот продолжается шагом 30°, пока все краски не разойдутся на ΔE 25. Красный, оранжевый, зелёный узнают по цвету вообще, поэтому они не зависят от набора.</p>`);
+}
+
+/* ── витрина ── */
+function renderShop(mode) {
+  const { r } = data(mode);
+  return panel(mode, 'ни одного числа мимо палитры', `<div class="shop" style="${vars(r)}">
+    <div class="shop-bar"><span class="shop-brand">CBDSHOP</span><nav><span>Масла</span><span class="active">Капсулы</span><span>Косметика</span></nav><span class="shop-cart">Корзина <b class="badge">2</b></span></div>
+    <div class="shop-body">
+      <article class="pcard">
+        <div class="pmedia"><span class="cut">−20 %</span></div>
+        <p class="pbrand">Hemp scale</p>
+        <h4 class="ptitle">CBD масло 10 %</h4>
+        <p class="psub">10 ml · 1000 mg · 8,90 €/ml</p>
+        <p class="prow"><span class="now">89,00 €</span><span class="was">112,00 €</span></p>
+        <div class="stock"><span class="ok">в наличии</span><span class="warn">осталось 2</span><span class="err">нет в наличии</span></div>
+        <div class="hr"></div>
+        <div class="states">
+          <div class="state"><button class="buy" type="button" tabindex="-1">В корзину</button><small>покой a9</small></div>
+          <div class="state"><button class="buy hover" type="button" tabindex="-1">В корзину</button><small>курсор a10</small></div>
+          <div class="state"><button class="buy press" type="button" tabindex="-1">В корзину</button><small>палец a-press</small></div>
+        </div>
+        <div class="states">
+          <div class="state"><button class="buy focus" type="button" tabindex="-1">В корзину</button><small>фокус: кольцо</small></div>
+          <div class="state"><button class="buy off" type="button" tabindex="-1">В корзину</button><small>недоступно n3 · n9</small></div>
+          <div class="state"><button class="quiet" type="button" tabindex="-1">Ещё</button><small>тихая n3 · n12</small></div>
+        </div>
+      </article>
+      <div class="chips">
+        <div class="chipw"><span class="chip">10 %</span><small>покой</small></div>
+        <div class="chipw"><span class="chip hv">15 %</span><small>курсор</small></div>
+        <div class="chipw"><span class="chip pr">20 %</span><small>нажатие</small></div>
+        <div class="chipw"><span class="chip tonal">30 %</span><small>выбрано тональное</small></div>
+        <div class="chipw"><span class="chip solid">30 %</span><small>выбрано сплошное</small></div>
+      </div>
+      <div class="fields">
+        <div class="field"><div class="in">Почта</div><small>поле: граница замером</small></div>
+        <div class="field"><div class="in filled focus">ihor@…</div><small>фокус: кольцо</small></div>
+        <div class="field"><div class="in filled bad">+359 8</div><small class="bad">неполный номер</small></div>
+      </div>
+      <div class="banners">
+        <div class="bn info">Доставка 3–5 дней · до 0,2 % ТГК по закону ЕС</div>
+        <div class="bn ok">Добавлено в корзину</div>
+        <div class="bn warn">Срок годности до 12.2026</div>
+      </div>
+    </div>
+    <div class="deck"><span>© CBDSHOP · обратная пара: n12 под n1</span><span class="hair">Доставка · Возврат · Контакты</span></div>
+  </div>`);
+}
+
+/* ── замер ── */
+function renderAudit(mode) {
+  const { set, full, r, n, a, findings } = data(mode);
+  const pressed = r['--a-press'];
+  const hover = Math.abs(lightness(a[9]) - lightness(a[8]));
+  const pushed = Math.abs(lightness(pressed) - lightness(a[8]));
+  const rows = [
+    ['основной текст на карточке', ratio(n[11], n[1]), '≥ 4.5', ratio(n[11], n[1]) >= 4.5],
+    ['приглушённый текст на карточке', ratio(n[10], n[1]), '≥ 4.5', ratio(n[10], n[1]) >= 4.5],
+    ['цена фирменным на карточке', ratio(a[10], n[1]), '≥ 4.5', ratio(a[10], n[1]) >= 4.5],
+    ['знак на кнопке покупки', ratio(r['--on-a-9'], a[8]), '≥ 4.5', ratio(r['--on-a-9'], a[8]) >= 4.5],
+    ['кольцо фокуса на листе', ratio(r['--ring'], n[0]), '≥ 3', ratio(r['--ring'], n[0]) >= 3],
+    ['граница органа управления', ratio(r['--border'], n[1]), '≥ 3', ratio(r['--border'], n[1]) >= 3],
+    ['приглушённый текст, APCA', apca(n[10], n[1]), 'Lc ≥ 60', apca(n[10], n[1]) >= 60],
+    ['основной текст, APCA', apca(n[11], n[1]), 'Lc ≥ 90', apca(n[11], n[1]) >= 90],
+    ['наведение кнопки, сдвиг L*', hover, '2 … 8', hover >= 2 && hover <= 8],
+    ['нажатие кнопки, сдвиг L*', pushed, '4 … 16', pushed >= 4 && pushed <= 16],
+    ['нейтральная лестница, наименьший шаг L*', tightest(n, mode), '≥ 0.6', tightest(n, mode) >= STEP_MIN],
+    ['фирменная лестница, наименьший шаг L*', tightest(a, mode), '≥ 0.6', tightest(a, mode) >= STEP_MIN],
+  ];
+  for (const job of STATUS) {
+    const row = scale(set.paper, set.ink, full[job], mode, n[1]);
+    rows.push([`текст «${SIGNAL_NAMES[job].replace(/^[а-я]+ /, '')}» на карточке`, ratio(row[10], n[1]), '≥ 4.5', ratio(row[10], n[1]) >= 4.5]);
+    rows.push([`знак на заливке «${SIGNAL_NAMES[job].replace(/^[а-я]+ /, '')}»`, ratio(inkOn(row[8]), row[8]), '≥ 4.5', ratio(inkOn(row[8]), row[8]) >= 4.5]);
+  }
+  let minPair = null;
+  for (let i = 0; i < SIGNALS.length; i += 1) for (let j = i + 1; j < SIGNALS.length; j += 1) {
+    const d = difference(full[SIGNALS[i]], full[SIGNALS[j]]);
+    if (!minPair || d < minPair.d) minPair = { d, x: SIGNAL_NAMES[SIGNALS[i]], y: SIGNAL_NAMES[SIGNALS[j]] };
+  }
+  rows.push([`самая близкая пара красок: ${minPair.x} и ${minPair.y}`, minPair.d, 'ΔE ≥ 25', minPair.d >= 25]);
+  const table = `<div class="tbl"><table><thead><tr><th>Проверка</th><th style="text-align:right">Число</th><th>Норма</th><th></th></tr></thead><tbody>${rows.map(([k, v, need, ok]) => `<tr><td>${esc(k)}</td><td class="n">${f2(v)}</td><td class="n">${esc(need)}</td><td>${chip(okno(ok), ok ? 'держится' : 'находка')}</td></tr>`).join('')}</tbody></table></div>`;
+  const finds = findings.length
+    ? findings.map((x) => `<div class="find">${esc(x.rule)}: ${f2(x.got)} при норме ${x.need}</div>`).join('')
+    : `<div class="find none">check:palette — находок нет, набор проходит</div>`;
+  return panel(mode, `то же, что печатает npm run check:palette`, `<div class="finds">${finds}</div>${table}`);
+}
+
+/* ── сборка страницы ── */
+function renderAll() {
+  const put = (id, fn) => { document.getElementById(id).innerHTML = MODES.map(fn).join(''); };
+  put('p1', renderChecks); put('p2', renderLadders); put('p3', renderSignals); put('p4', renderShop); put('p5', renderAudit);
+  document.getElementById('css').textContent = toCss({ [state.name]: cur() }, { generator: 'tools/palette-css.mjs' });
+  for (const el of document.querySelectorAll('.pair')) el.className = 'pair' + (state.show === 'both' ? '' : ` only-${state.show}`);
+}
+function renderPaints() {
+  const host = document.getElementById('paints');
+  host.innerHTML = MODES.map((mode) => `<div class="paint-row" data-mode="${mode}"><span class="t">${mode === 'light' ? 'Светлая' : 'Тёмная'}</span>${['paper', 'ink', 'accent'].map((key) => {
+    const v = cur()[mode][key];
+    const id = `${mode}-${key}`;
+    return `<span class="paint"><input type="color" id="${id}-c" value="${v}" aria-label="${key}"><input type="text" id="${id}-t" value="${v}" maxlength="7" spellcheck="false" aria-label="${key} hex"><small>${{ paper: 'фон', ink: 'текст', accent: 'фирменный' }[key]}</small></span>`;
+  }).join('')}</div>`).join('');
+  host.querySelectorAll('input').forEach((inp) => inp.addEventListener('input', onPaint));
+}
+function onPaint(e) {
+  const [mode, key, kind] = e.target.id.split('-');
+  let v = e.target.value.trim().toUpperCase();
+  if (!/^#[0-9A-F]{6}$/.test(v)) return;
+  cur()[mode][key] = v;
+  const other = document.getElementById(`${mode}-${key}-${kind === 'c' ? 't' : 'c'}`);
+  if (other) other.value = v;
+  renderAll();
+}
+const sel = document.getElementById('set');
+sel.innerHTML = Object.keys(SETS).map((nm, i) => `<option value="${esc(nm)}"${i === 0 ? ' selected' : ''}>${esc(nm)}${i === 0 ? ' · на сайте сейчас' : ''}</option>`).join('');
+sel.addEventListener('change', () => { state.name = sel.value; renderPaints(); renderAll(); });
+document.getElementById('reset').addEventListener('click', () => { SETS[state.name] = JSON.parse(JSON.stringify(ORIGINAL[state.name])); renderPaints(); renderAll(); });
+for (const b of document.querySelectorAll('.seg button')) b.addEventListener('click', () => {
+  state.show = b.dataset.show;
+  for (const x of document.querySelectorAll('.seg button')) x.setAttribute('aria-pressed', String(x === b));
+  renderAll();
+});
+renderPaints(); renderAll();
+</script>

@@ -16,6 +16,7 @@
     "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs",
     "palette:stand": "node tools/palette-stand.mjs",
     "palette:sheet": "node tools/palette-sheet.mjs",
+    "palette:builder": "node tools/palette-builder.mjs",
     "pro:check": "node tools/pro-check.mjs"
   }
 }

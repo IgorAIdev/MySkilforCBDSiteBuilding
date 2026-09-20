@@ -738,3 +738,32 @@ test('образцы называют рукой три краски, а пос�
   }
   assert.deepEqual(лишние, [], `постоянная краска снова записана в наборе: ${лишние.join(', ')}`)
 })
+
+/* Строитель палитры глазами (заказчик 20.09.2026: «покажи мне работу твою,
+   как формируется палитра цвета»). Демонстрация честна, только пока в ней
+   тот же строитель, что красит сайт: тест ищет в выпущенной странице
+   функции `palette.mjs`, слепок пород и каждый набор — и не находит
+   ввоза из node, который в браузере не запустится. */
+test('строитель палитры показывает работу тем же кодом, что красит сайт', () => {
+  const корень = new URL('..', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'builder-'))
+  const out = join(dir, 'строитель.html')
+  const r = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), out],
+    { encoding: 'utf8', cwd: корень })
+  assert.equal(r.status, 0, r.stderr)
+
+  const html = readFileSync(out, 'utf8')
+  assert.match(html, /<title>Строитель палитры<\/title>/, 'у страницы нет имени')
+  for (const fn of ['function scale(', 'function roles(', 'function auditPalette(', 'function saleFrom(', 'const apca =', 'const PROFILE_JSON =']) {
+    assert.ok(html.includes(fn), `в странице нет строителя: ${fn}`)
+  }
+  assert.ok(!/\bfrom 'node:/.test(html), 'в страницу уехал ввоз из node — в браузере не запустится')
+
+  const наборы = {
+    ...JSON.parse(readFileSync(join(корень, 'styles/palette.json'), 'utf8')),
+    ...JSON.parse(readFileSync(join(корень, 'templates/palette.json'), 'utf8')),
+  }
+  const нет = Object.keys(наборы).filter((имя) => !html.includes(JSON.stringify(имя)))
+  assert.deepEqual(нет, [], `на странице нет наборов: ${нет.join(', ')}`)
+  rmSync(dir, { recursive: true, force: true })
+})
