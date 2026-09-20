@@ -57,6 +57,7 @@
 const { chromium } = await import(
   process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
 import { readFileSync, writeFileSync } from 'node:fs'
+import { CONTRAST, TARGET } from './thresholds.mjs'
 import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
@@ -571,7 +572,7 @@ const measure = (phone) => {
          исключений в проверке: рядом с органом видно, чем он заменяется,
          а в списке — нет. Ниже 24 не опускается никто. */
       const claim = el.getAttribute('data-tap')
-      const floor = claim ? Math.max(24, Number(claim) || 0) : 44
+      const floor = claim ? Math.max(TARGET.floor, Number(claim) || 0) : TARGET.coarse
       if (w < floor || h < floor) {
         out.target.push(`${name(el)} — ${Math.round(w)}×${Math.round(h)} (норма ${floor})`)
       }
@@ -616,8 +617,8 @@ const measure = (phone) => {
     const fg = rgb(cs.color)
     if (!fg || alpha(cs.color) < 0.95) continue
     const size = parseFloat(cs.fontSize)
-    const big = size >= 24 || (size >= 18.66 && Number(cs.fontWeight) >= 700)
-    const need = big ? 3 : 4.5
+    const big = size >= CONTRAST.largePx || (size >= CONTRAST.largeBoldPx && Number(cs.fontWeight) >= 700)
+    const need = big ? CONTRAST.control : CONTRAST.text
     const g = ground(el)
     const got = ratio(fg, g)
     if (got === null) {

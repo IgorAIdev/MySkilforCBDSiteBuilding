@@ -12,14 +12,14 @@
  * `styles/scale.css`. Здесь только запуск и отчёт: проверка и строитель
  * обязаны считать ОДНИМ кодом.
  *
- * Разбор, числа и источники — `.claude/skills/craft/references/scale.md`.
+ * Разбор, числа и источники — скилл `scale` (`.claude/skills/scale/SKILL.md`).
  *
  * Запуск: node tools/check-scale.mjs [--json]
  */
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { auditScale, auditSheets, auditRoles } from './scale.mjs'
+import { auditScale, auditSheets, auditRoles, auditReaders } from './scale.mjs'
 import { STYLE_DIRS, LADDER } from './kit-config.mjs'
 
 /*
@@ -31,18 +31,20 @@ import { STYLE_DIRS, LADDER } from './kit-config.mjs'
 const SELFTEST = {
   'тесная разметка': {
     ширины: [560, 1080],
-    размер: { xs: [13, 14], sm: [14.5, 15.5], base: [16, 17], xl: [18, 20] },
-    ритм: { 1: [4, 4], 2: [8, 8], 3: [10, 11], 4: [12, 14], 5: [16, 18], 10: [44, 60] },
-    поле: { card: [14, 16] },
-    воздух: { page: 10, row: 4 },
+    тело: [16, 17], отношение: [1.125, 1.2],
+    размер: { xs: -2, sm: -1, base: 0, xl: 1, h2: 4 },
+    ритм: { 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.5, 6: 2, 7: 2.5, 8: 3, 9: 4 },
+    поле: { card: '4' },
+    воздух: { page: ['8', '9'], row: '4' },
     зазор: { targets: [8, 16] },
   },
   'просторная разметка': {
     ширины: [560, 1080],
-    размер: { xs: [13.5, 15.5], sm: [15, 17], base: [17, 19.5], xl: [20, 23] },
-    ритм: { 1: [4, 4], 2: [8, 8], 3: [10, 12], 4: [14, 17], 5: [20, 25], 10: [64, 92] },
-    поле: { card: [20, 26] },
-    воздух: { page: 10, row: 4 },
+    тело: [17, 20], отношение: [1.2, 1.25],
+    размер: { xs: -2, sm: -1, base: 0, xl: 1, h2: 4 },
+    ритм: { 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.5, 6: 2, 7: 2.5, 8: 3, 9: 4, 10: 5 },
+    поле: { card: '4' },
+    воздух: { page: ['9', '10'], row: '4' },
     зазор: { targets: [8, 16] },
   },
 }
@@ -66,7 +68,7 @@ if (!sets) {
   if (json) console.log(JSON.stringify({ own, missing: true, report: [] }, null, 2))
   else {
     console.error(`✗ ${say}`)
-    console.error('    Заведите числа: на каждую ступень два — сколько на телефоне и сколько на макете.')
+    console.error('    Заведите набор формулой: тело, отношение, множители, поле, воздух — образец в styles/scale.json набора.')
     console.error('    Потом выпустите стили: npm run scale')
   }
   process.exit(1)
@@ -93,7 +95,7 @@ if (own) {
   }
   for (const dir of STYLE_DIRS) walk(path.resolve(dir))
 }
-const stray = sheets.length ? auditSheets(sheets, sets) : []
+const stray = sheets.length ? [...auditSheets(sheets, sets), ...auditReaders(sheets, sets)] : []
 if (stray.length) bad += 1
 
 for (const [name, set] of Object.entries(sets)) {
@@ -116,7 +118,7 @@ if (json) {
     }
   }
   if (stray.length) {
-    console.log('  ✗ шкала объявлена мимо строителя')
+    console.log('  ✗ шкала мимо строителя или ступень без просителя')
     for (const f of stray) console.log(`      ${f.rule}: ${f.got} — ${f.need}`)
   }
   console.log(bad ? `\nНаборов с находками: ${bad}` : '\nШкалы в норме.')

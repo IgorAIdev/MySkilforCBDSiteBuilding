@@ -51,6 +51,8 @@ import { CRAFT_FAMILIES, CRAFT_LABELS } from './craft-families.mjs'
 import { CODE_FAMILIES, CODE_LABELS } from './code-families.mjs'
 import { CHECKS } from './checks.mjs'
 import { roles, STATUS, SIGNAL_NAMES } from './palette.mjs'
+import { resolve as resolveScale } from './scale.mjs'
+import * as THR from './thresholds.mjs'
 import { SCRIPTS } from '../scripts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -60,7 +62,7 @@ const has = (p) => existsSync(join(ROOT, p))
 /* Скиллы набора: у каждого закон в SKILL.md и, где есть, разбор в references/.
    Пять: вёрстка, палитра, код, магазин, этапы. Чужие скиллы (вкус, движение,
    процесс) сюда не входят — их текст не наш и не правится. */
-const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/palette', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
+const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/palette', '.claude/skills/scale', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
 const LEDGER = 'docs/rules.md'
 /* Где живут собранные таблицы семей: файл → ключи GEN. Вёрстка и
    отрисованная — в справочнике craft; код — в законе code: справочников у
@@ -73,7 +75,8 @@ const TABLES = {
      закон palette и в README набора (И219). README у проекта нет — там
      таблица только в законе. */
   '.claude/skills/palette/SKILL.md': ['palette'],
-  ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette'] } : {}),
+  '.claude/skills/scale/SKILL.md': ['scale'],
+  ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
    скилл. Число обязано быть одним — иначе новый проект получает восемь
@@ -225,11 +228,33 @@ const paletteFacts = () => {
     `| команды | ${cmds.map((c) => `\`${c}\``).join(' · ')} | \`scripts.mjs\` |`,
   ].join('\n')
 }
+/* Факты о шкалах — из кода, как и о палитре (И219): наборы, тело и
+   отношение каждого, ступени, роли, пороги, команды. */
+const scaleFacts = () => {
+  const f = has('styles/scale.json') ? 'styles/scale.json' : null
+  if (!f) return '| Факт | Значение |\n| --- | --- |\n| наборов нет | styles/scale.json |'
+  const sets = JSON.parse(read(f))
+  const names = Object.keys(sets)
+  const first = resolveScale(sets[names[0]])
+  const roles = (k) => Object.keys(first[k]).map((n) => `\`--${k === 'поле' ? 'pad' : k === 'воздух' ? 'air' : 'gap'}-${n}\``).join(', ')
+  const cmds = Object.keys(SCRIPTS).filter((k) => /scale/.test(k))
+  return [
+    '| Факт | Значение | Откуда |', '| --- | --- | --- |',
+    `| наборов | ${names.length}: ${names.map((n) => `${n} (тело ${(sets[n].тело ?? []).join(' → ')}, отношение ${(sets[n].отношение ?? []).join(' / ')})`).join(' · ')} | \`${f}\` |`,
+    `| ступеней размера | ${Object.keys(first.размер).length}: ${Object.keys(first.размер).join(', ')} | \`resolve()\` в \`tools/scale.mjs\` |`,
+    `| ступеней ритма | ${Object.keys(first.ритм).length}, множители ${Object.values(sets[names[0]].ритм ?? {}).join(', ')} | там же |`,
+    `| роли | поле ${roles('поле')}; воздух ${roles('воздух')}; зазор ${roles('зазор')} | там же |`,
+    `| ролей текста | ${Object.keys(sets[names[0]].текст ?? {}).length}: ${Object.keys(sets[names[0]].текст ?? {}).join(', ')} | \`rolesOf()\` |`,
+    `| пороги | тело от ${THR.TYPE.floor.base}, отношение ${THR.TYPE.ratio.join('…')}, клетка 2 / 4 / 8, пол ${THR.RHYTHM.floor}, воздух к полю ≥ ${THR.AIR.toPad}, рост разделов ×${THR.AIR.growth.page.join('…')}, зазор под пальцем ${THR.TARGET.gap.coarse} | \`tools/thresholds.mjs\` |`,
+    `| команды | ${cmds.map((c) => `\`${c}\``).join(' · ')} | \`scripts.mjs\` |`,
+  ].join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
   code: table(CODE_FAMILIES, CODE_LABELS, 'Что ловит'),
   palette: paletteFacts(),
+  scale: scaleFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)
@@ -312,6 +337,7 @@ if (has('README.md') && !/^## .*что за чем/im.test(read('README.md'))) {
    чужих формул для сверки — исключение, названное в заголовке. */
 const FORMULA_CODE = {
   '.claude/skills/palette': ['tools/palette.mjs', 'styles/tokens.css'],
+  '.claude/skills/scale': ['tools/scale.mjs', 'styles/scale.css', 'tools/thresholds.mjs'],
 }
 for (const dir of SKILL_DIRS) {
   const f = `${dir}/references/formulas.md`

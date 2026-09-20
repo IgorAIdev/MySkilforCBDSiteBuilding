@@ -17,6 +17,7 @@
  */
 
 import { readFileSync } from 'node:fs'
+import { CONTRAST, COLOUR } from './thresholds.mjs'
 
 /* Профиль светлоты ступеней — L* эталонной шкалы `sand` пакета
    @radix-ui/colors 3.0.0. Числа снятые, а не назначенные. */
@@ -33,7 +34,7 @@ export const SOLID_GAP = { light: 4.2, dark: 5.5 }
 /* Четвёртый и пятый — обещание САМОГО эталона, снятое с его файлов: 11-я
    ступень даёт Lc 60 на 2-й той же шкалы, 12-я — Lc 90. Это единственная
    метрика, в которой эталон вообще что-то обещает (И191). */
-export const NEED = { text: 4.5, control: 3, brandApart: 25, mutedLc: 60, mainLc: 90 }
+export const NEED = { text: CONTRAST.text, control: CONTRAST.control, brandApart: COLOUR.brandApart, mutedLc: COLOUR.mutedLc, mainLc: COLOUR.mainLc }
 
 /* ── Краски: перевод и замер ─────────────────────────────────────────── */
 
