@@ -391,6 +391,38 @@ export function firstReaching(row, against, need, from) {
 export const STATUS = ['error', 'sale', 'warn', 'ok']
 const STATUS_STEPS = [1, 8, 10] /* тихая плашка, заливка, текст */
 
+/**
+ * Плашка скидки, выведенная из марки: тон марки + 60°.
+ *
+ * Правило не наше. Material берёт третью краску схемы ровно так —
+ * `TonalPalette.fromHueAndChroma(sanitizeDegreesDouble(sourceColorHct.hue
+ * + 60.0), 24.0)` (снимок: material-color/dynamic_scheme.ts, схема
+ * TONAL_SPOT, она же у Material по умолчанию). Скидка — не статус вроде
+ * красного «нет в наличии», а СОСЕДКА марки: обязана быть явно другой, но
+ * из того же мира.
+ *
+ * Дефект, которым это куплено: 21.09.2026 заказчик открыл стенд и увидел,
+ * что во всех семи наборах плашка скидки одного цвета — фиалковая. Так и
+ * было: его выбор для ОДНОГО набора скопировали во все семь как
+ * постоянную. У синей марки фиалка оказалась в 35 ΔE — вдвое ближе, чем у
+ * остальных, и «другой краской» уже не читалась.
+ *
+ * Если тон + 60° встаёт слишком близко к красному, оранжевому или
+ * зелёному — поворот продолжается с шагом 30°, пока все пять красок не
+ * разойдутся на 25 ΔE (И196).
+ */
+export function saleFrom(accent, others = []) {
+  const [L, C, h] = oklch(accent)
+  /* Насыщенность не ниже марки и не ниже 0.09: плашка скидки, вышедшая
+     серой, перестаёт быть плашкой. */
+  const paint = (turn) => toHex(clampChroma([L, Math.max(C, 0.09), (h + turn) % 360]).map((v) => v * 255))
+  for (let turn = 60; turn <= 300; turn += 30) {
+    const hex = paint(turn)
+    if (others.every((other) => difference(hex, other) >= NEED.brandApart)) return hex
+  }
+  return paint(60)
+}
+
 /** Краски, которые обязаны быть различимы между собой. */
 export const SIGNALS = ['accent', ...STATUS]
 
@@ -411,7 +443,8 @@ const short = { accent: 'a', error: 'e', sale: 'sale', warn: 'warn', ok: 'ok' }
  *  Считается ВСЁ, кроме пяти красок, которые назвал заказчик. Знак на
  *  заливке, наведение, нажатие, граница и кольцо фокуса не хранятся: каждое
  *  из них однажды было записано рукой и однажды разошлось с правдой. */
-export function roles(set, mode) {
+export function roles(rawSet, mode) {
+  const set = withSale(rawSet)
   const n = scale(set.paper, set.ink, null, mode)
   const out = {}
   n.forEach((hex, i) => { out[`--n-${i + 1}`] = hex })
@@ -447,6 +480,11 @@ export function roles(set, mode) {
  *  Цена — четыре десятка строк на набор, и она платится один раз при выпуске;
  *  цена обратного — переключатель, который работает во все стороны, кроме
  *  одной. */
+/** Набор, у которого скидка названа заказчиком, остаётся как есть; набор
+ *  без скидки получает её выведенной из марки. */
+export const withSale = (set) =>
+  set.sale ? set : { ...set, sale: saleFrom(set.accent, [set.error, set.warn, set.ok, set.accent].filter(Boolean)) }
+
 export function toCss(sets, { generator = 'tools/palette-css.mjs' } = {}) {
   const names = Object.keys(sets)
   const body = (set) => {

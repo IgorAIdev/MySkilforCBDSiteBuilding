@@ -21,7 +21,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -655,4 +655,45 @@ test('подтверждённый пункт ворот читается из �
      другого ответа. */
   assert.ok(!confirmed(said + ' дважды'), 'подтверждение засчитано не тому пункту')
   assert.ok(!confirmed('пункт, которого никто не подтверждал'), 'засчитано неподтверждённое')
+})
+
+/* И211: плашка скидки стояла одним цветом во всех семи наборах — фиалка,
+   выбранная для одного, скопирована во все как постоянная. */
+
+test('скидка выводится из марки, а названную заказчиком не трогает', async () => {
+  const { saleFrom, withSale, difference, NEED } = await import('../tools/palette.mjs')
+  const марка = '#3A6EA5'
+  const статусы = ['#B3261E', '#F76B15', '#30A46C']
+  const выведена = saleFrom(марка, [...статусы, марка])
+  /* Тон марки + 60°, как третья краска схемы у Material (TONAL_SPOT). */
+  for (const другая of [марка, ...статусы]) {
+    assert.ok(difference(выведена, другая) >= NEED.brandApart,
+      `выведенная скидка ${выведена} ближе ${NEED.brandApart} ΔE к ${другая}`)
+  }
+  /* Названная заказчиком остаётся: его выбор старше правила. */
+  const свой = { paper: '#FFF', ink: '#111', accent: марка, sale: '#6A4CA8' }
+  assert.equal(withSale(свой).sale, '#6A4CA8', 'выбор заказчика перебит правилом')
+  const без = { paper: '#FFF', ink: '#111', accent: марка }
+  assert.equal(withSale(без).sale, выведена, 'набор без скидки не получил выведенную')
+})
+
+/* И212: кнопки «Светлая» и «Тёмная» на стенде не делали ничего —
+   light-dark() слушает color-scheme, а не признак на документе. */
+
+test('стенд цвета переключает тему свойством, а не признаком', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'stand-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
+    проба: {
+      light: { paper: '#FFFFFF', ink: '#231F18', accent: '#0C3A46', error: '#B3261E', warn: '#F76B15', ok: '#30A46C' },
+      dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D', warn: '#F76B15', ok: '#30A46C' },
+    },
+  }))
+  const tool = new URL('../tools/palette-stand.mjs', import.meta.url).pathname
+  const made = spawnSync(process.execPath, [tool, join(dir, 'стенд.html')], { cwd: dir, encoding: 'utf8' })
+  assert.equal(made.status, 0, made.stderr)
+  const html = readFileSync(join(dir, 'стенд.html'), 'utf8')
+  assert.match(html, /\[data-theme="light"\]\{\s*color-scheme:\s*light\s*\}/, 'светлая тема не переключается')
+  assert.match(html, /\[data-theme="dark"\]\{\s*color-scheme:\s*dark\s*\}/, 'тёмная тема не переключается')
+  rmSync(dir, { recursive: true, force: true })
 })
