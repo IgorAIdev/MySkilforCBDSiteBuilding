@@ -267,11 +267,11 @@ export function auditPalette(seed, mode) {
 const SELFTEST = {
   'тёплая марка': {
     light: { paper: '#FDFCF8', ink: '#2A2622', accent: '#B07A2E', error: '#B3261E' },
-    dark: { paper: '#121110', ink: '#EDEBE8', accent: '#B07A2E', error: '#F2B8B5' },
+    dark: { paper: '#121110', ink: '#EDEBE8', accent: '#B07A2E', error: '#E5484D' },
   },
   'холодная марка': {
     light: { paper: '#FBFCFD', ink: '#1C2226', accent: '#2C6E8F', error: '#B3261E' },
-    dark: { paper: '#0E1114', ink: '#E9ECEE', accent: '#4E9BBE', error: '#F2B8B5' },
+    dark: { paper: '#0E1114', ink: '#E9ECEE', accent: '#4E9BBE', error: '#E5484D' },
   },
 }
 

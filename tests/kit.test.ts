@@ -277,7 +277,7 @@ test('палитра: APCA ловит то, о чём WCAG молчит', () => 
   writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
     'чернила без запаса': {
       light: { paper: '#FFFFFF', ink: '#6E6E6E', accent: '#5F6B34', error: '#B3261E' },
-      dark: { paper: '#111111', ink: '#EEEEEE', accent: '#5F6B34', error: '#F2B8B5' },
+      dark: { paper: '#111111', ink: '#EEEEEE', accent: '#5F6B34', error: '#E5484D' },
     },
   }))
   const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
