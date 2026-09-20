@@ -202,6 +202,7 @@ Colors, пороги — WCAG 2.2; числа и разбор — `references/pa
 | `npm run check:theme` | цвет обеих тем на отрисованной странице (скилл `craft`) |
 | `npm run test` | строитель: обратный ход каждого правила, APCA против чисел эталона, Oklab туда и обратно, лист показывает всё выпущенное |
 | `npm run palette:stand` · `palette:sheet` | выбор и состав — глазами заказчика |
+| `npm run palette:builder` | ход построения — глазами: три краски → проверка → лестницы → сигналы → роли на карточке → замер, обе темы, краски правятся на месте |
 
 Каждое правило закона выше названо номером в `docs/rules.md` вместе с
 дефектом, которым куплено; правило без дефекта — чужое мнение.
@@ -254,6 +255,15 @@ Colors, пороги — WCAG 2.2; числа и разбор — `references/pa
 Заказчик называет набор словом — слово с датой записывается в
 `docs/gate.md` (И198, И214).
 
+Как это строится — `npm run palette:builder`: страница, на которой три
+краски превращаются во всё остальное тем же кодом, что красит сайт, и
+каждый шаг виден с числами (заказчик 20.09.2026: «покажи мне работу твою,
+как формируется палитра цвета»). Опубликована артефактом:
+https://claude.ai/artifact/YFkJRbiGNH8gvm3KxvgoNH — пересобирается из
+набора той же командой с ключом `--bare`. Выпущенный образец лежит в
+`templates/palette-builder.html`, открывается без запуска; тест набора
+сверяет его со строителем (`--check`), отставшая копия — красная сборка.
+
 ## Шаг 10 · Записать и увезти
 
 Выбранный набор едет в проект ключом, а не памятью (И213):
@@ -261,5 +271,6 @@ Colors, пороги — WCAG 2.2; числа и разбор — `references/pa
 `styles/palette.json` (три краски на тему, образцы — `templates/palette.json`),
 `styles/palette.css` (выпущенное), `tools/palette.mjs`, `tools/palette-css.mjs`,
 `tools/check-palette.mjs`, `tools/palette-profile.json`, `tools/palette-sheet.mjs`,
-`tools/palette-stand.mjs`, этот скилл целиком. Ставит `install.mjs --palette "Имя"`.
+`tools/palette-stand.mjs`, `tools/palette-builder.mjs` с `palette-builder.html`, этот
+скилл целиком. Ставит `install.mjs --palette "Имя"`.
 
