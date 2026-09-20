@@ -56,9 +56,9 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf8')
 const has = (p) => existsSync(join(ROOT, p))
 
 /* Скиллы набора: у каждого закон в SKILL.md и, где есть, разбор в references/.
-   Четыре: вёрстка, код, магазин, этапы. Чужие скиллы (вкус, движение,
+   Пять: вёрстка, палитра, код, магазин, этапы. Чужие скиллы (вкус, движение,
    процесс) сюда не входят — их текст не наш и не правится. */
-const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
+const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/palette', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
 const LEDGER = 'docs/rules.md'
 /* Где живут собранные таблицы семей: файл → ключи GEN. Вёрстка и
    отрисованная — в справочнике craft; код — в законе code: справочников у

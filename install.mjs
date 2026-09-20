@@ -84,7 +84,7 @@ const PROJECT_OWNED = ['CLAUDE.md', 'docs', 'styles', 'tests', '.oxlintrc.json',
 /** Свои четыре скилла — то, ради чего набор существует. Остальные в
  *  `.claude/skills/` — чужие, о вкусе и процессе; на чужой сайт для аудита
  *  они не едут: там могут стоять свои. */
-const OWN_SKILLS = ['craft', 'code', 'shop', 'stages']
+const OWN_SKILLS = ['craft', 'palette', 'code', 'shop', 'stages']
 
 /** Команды, которые нужны аудиту: проверки и этапы. `lint`, `test`,
  *  `typecheck`, `images` у чужого проекта свои — их не трогаем. */

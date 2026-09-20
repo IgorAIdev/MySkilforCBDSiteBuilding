@@ -11,7 +11,7 @@
   сигнала, включая плашку скидки, — остальные сорок считаются и выпускаются
   в CSS одной командой. Наведение и нажатие — соседние ступени, а не проценты
   от цвета кнопки.
-  → [`craft/references/palette.md`](.claude/skills/craft/references/palette.md),
+  → [`palette/references/palette.md`](.claude/skills/palette/references/palette.md),
   проверка `check:palette`
 - **Размер, ритм, мера строки** — три шкалы, числа из них, а не из головы.
   → `craft/references/scales.md`
@@ -153,12 +153,14 @@ npm run check:palette
 
 | Вопрос | Файл |
 |---|---|
-| Что какой ступенью красить | [`палитра`](.claude/skills/craft/references/palette.md), раздел «Как этим покрасить сайт» |
-| Почему именно так, и чем куплено каждое правило | [`палитра`](.claude/skills/craft/references/palette.md) целиком |
-| Коротко, как закон | [`craft/SKILL.md`](.claude/skills/craft/SKILL.md), «Палитра — это шкала из двенадцати ступеней» |
+| Что какой ступенью красить | [`палитра`](.claude/skills/palette/references/palette.md), раздел «Как этим покрасить сайт» |
+| Почему именно так, и чем куплено каждое правило | [`палитра`](.claude/skills/palette/references/palette.md) целиком |
+| Коротко, как закон | [`palette/SKILL.md`](.claude/skills/palette/SKILL.md) — отдельный скилл палитры |
 | Семь готовых наборов | [`templates/palette.json`](templates/palette.json) |
 | Роли цвета, тёмная тема, разделители | [`color.md`](.claude/skills/craft/references/color.md) |
-| Сколько красок нужно витрине и на что, список ролей по элементам | [`roles.md`](.claude/skills/craft/references/roles.md) |
+| Сколько красок нужно витрине и на что, список ролей по элементам | [`roles.md`](.claude/skills/palette/references/roles.md) |
+| Как построить новую палитру: порядок и принципы | [`build.md`](.claude/skills/palette/references/build.md) |
+| Формулы: светлота, контраст, Oklab, ступень, знак, скидка | [`formulas.md`](.claude/skills/palette/references/formulas.md) |
 
 ## Откуда родом правила
 

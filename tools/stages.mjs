@@ -196,7 +196,7 @@ export const STAGES = [
   {
     n: 0, name: 'Основание',
     builds: 'три шкалы (цвет, размер, ритм), одиннадцать примитивов раскладки (ворота спрашивают пять), три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
-    skills: ['craft', 'code', 'stages'],
+    skills: ['palette', 'craft', 'code', 'stages'],
     checks: ['typecheck', 'check:css', 'check:scale', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -429,7 +429,7 @@ export const STAGES = [
   {
     n: 5, name: 'Сдача',
     builds: 'то, что включают только на настоящем: карта сайта и robots открыты поиску, разметка товара с ценой и наличием, бюджет веса, скорость, доступность, внешний аудит по проду.',
-    skills: ['stages', 'shop', 'craft', 'code', 'verification-before-completion'],
+    skills: ['stages', 'shop', 'craft', 'palette', 'code', 'verification-before-completion'],
     checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -561,7 +561,7 @@ export const PLATFORM = [
 
 /** Скиллы, которые работают на любом этапе: процесс, а не предмет. */
 export const ALWAYS = [
-  'stages', 'craft (при любой правке CSS)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
+  'stages', 'craft (при любой правке CSS)', 'palette (при любой правке красок, ролей цвета и строителя палитры)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
   'Superpowers: brainstorming · writing-plans · systematic-debugging · verification-before-completion · finishing-a-development-branch',
 ]
 

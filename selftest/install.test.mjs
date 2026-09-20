@@ -112,7 +112,7 @@ test('--audit: инструменты и четыре скилла, kit.config.j
   assert.ok(!existsSync(join(dir, '.oxlintrc.json')))
   assert.ok(existsSync(join(dir, 'tools/check-css.mjs')))
   assert.ok(existsSync(join(dir, 'kit.config.json')))
-  for (const s of ['craft', 'code', 'shop', 'stages']) assert.ok(existsSync(join(dir, '.claude/skills', s, 'SKILL.md')), s)
+  for (const s of ['craft', 'palette', 'code', 'shop', 'stages']) assert.ok(existsSync(join(dir, '.claude/skills', s, 'SKILL.md')), s)
   assert.ok(!existsSync(join(dir, '.claude/skills/taste-skill')), 'чужие скиллы аудиту не нужны')
   const s = scriptsOf(dir)
   assert.equal(s['check:css'], 'node tools/check-css.mjs')
