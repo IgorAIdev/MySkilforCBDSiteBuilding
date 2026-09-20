@@ -31,7 +31,7 @@
  */
 
 import { PREFIX, BREAKPOINTS } from './kit-config.mjs'
-import { RHYTHM, AIR, TARGET, TEXT, TYPE, CONTROL, LAYOUT } from './thresholds.mjs'
+import { RHYTHM, AIR, TARGET, TEXT, TYPE, CONTROL, LAYOUT, SHAPE } from './thresholds.mjs'
 
 /** Корень браузера. Поле пишется в rem (правило «поле растёт с буквами»),
  *  а считается в тех же пикселях, что и всё остальное: делить на 16
@@ -101,7 +101,10 @@ export const at = ([min, max], [wMin, wMax], width) => {
  *                от края окна до страницы: отдельная роль от зазора сетки
  *                (Carbon: «margins … fixed … even when columns are fluid»),
  *                растёт не больше LAYOUT.edgeGrowth (люкс ×1…1.75,
- *                Atlassian ×2, Utopia ×2.2).
+ *                Atlassian ×2, Utopia ×2.2);
+ *   радиус     — роль → px из лестницы SHAPE.radii (M3 ∪ Carbon): xs, ctrl,
+ *                card, sheet; полный круг (`--r-pop`) — только главное
+ *                действие, его не выбирают (слой 9, И228).
  * Пара чисел [низ, верх] на любом из этих мест тоже читается — так набор
  * писался до И221, и так удобно ПРОБОВАТЬ число, — но клетка и коридоры
  * спрашиваются с неё так же.
@@ -203,6 +206,17 @@ export const resolve = (set) => {
     if (!pa || !pb) throw new Error(`край просит ступень ритма ${!pa ? a : b}, которой в наборе нет`)
     out.край = { steps: [a, b], pair: [pa[0], pb[1]] }
   }
+  /* Радиусы — роли по узлу, числом из лестницы (слой 9, И228): Spectrum —
+     угол растёт с масштабом, Radix — px × множитель; у нас — своё число в
+     каждом наборе, и набор «Тихий» острее прочих. */
+  if (set.радиус !== undefined) {
+    if (!set.радиус || typeof set.радиус !== 'object') throw new Error('радиус — роли числом: { xs, ctrl, card, sheet }')
+    out.радиус = {}
+    for (const [name, v] of Object.entries(set.радиус)) {
+      if (typeof v !== 'number') throw new Error(`радиус «${name}»: число в px из лестницы ${SHAPE.radii.join(', ')}`)
+      out.радиус[name] = v
+    }
+  }
   return out
 }
 
@@ -263,6 +277,15 @@ const block = (sets, name, indent = '  ') => {
   put('--ctrl-h-lg', `${num(lg)}px`, 'орган крупный: кнопка покупки, счётчик, строка меню')
   put('--ctrl-target', `${num(CONTROL.target.fine)}px`, 'цель у знака мельче органа (WCAG 2.5.8)')
   put('--ctrl-fs', `var(--ctrl-fs-${CONTROL.text[1]})`, 'надпись текущего размера')
+  /* Форма (слой 9, И228): радиусы — роли по узлу из набора; полный круг —
+     только главное действие; линия и кольцо — из порогов и не текут. */
+  if (r.радиус) {
+    for (const [role, px] of Object.entries(r.радиус)) put(`--r-${role}`, `${num(px)}px`, set.подписи?.радиус?.[role] ?? `радиус: ${role}`)
+    put('--r-pop', '999px', 'главное действие — единственный полный круг')
+  }
+  put('--line-w', `${num(SHAPE.line.hair)}px`, 'линия: поле, разделитель, тег — не течёт')
+  put('--ring-w', `${num(SHAPE.ring.width)}px`, 'кольцо фокуса (WCAG 2.4.13)')
+  put('--ring-off', `${num(SHAPE.ring.offset)}px`, 'отступ кольца от органа')
   const roles = roleBlock(sets, name, indent)
   return roles ? `${lines.join('\n')}
 
@@ -508,6 +531,22 @@ export const auditScale = (set) => {
   if (r.холст !== undefined && r.холст < w[1]) {
     findings.push({ rule: 'холст не уже верхнего шва', got: `${r.холст}px`, need: `не меньше ${w[1]}px` })
   }
+  /* Форма (слой 9): каждый радиус — ступень лестницы M3 ∪ Carbon, лист
+     скруглён не меньше карточки, карточка — не меньше органа (концентрика:
+     внешний угол не острее внутреннего). */
+  if (r.радиус) {
+    for (const [role, px] of Object.entries(r.радиус)) {
+      if (!SHAPE.radii.includes(px)) {
+        findings.push({ rule: 'радиус из лестницы', got: `${role}: ${px}px`, need: `одна из ступеней ${SHAPE.radii.join(', ')} (M3, Carbon)` })
+      }
+    }
+    const order = ['ctrl', 'card', 'sheet'].filter((k) => k in r.радиус).map((k) => [k, r.радиус[k]])
+    for (let i = 1; i < order.length; i++) {
+      if (order[i][1] < order[i - 1][1]) {
+        findings.push({ rule: 'радиусы вложены', got: `${order[i][0]} ${order[i][1]}px < ${order[i - 1][0]} ${order[i - 1][1]}px`, need: 'внешний предмет не острее вложенного: орган ≤ карточка ≤ лист' })
+      }
+    }
+  }
   if (r.край) {
     const { steps, pair } = r.край
     const growth = pair[1] / pair[0]
@@ -546,6 +585,8 @@ export const builtNames = (sets) => {
     for (const name of ['--ctrl-h-sm', '--ctrl-h', '--ctrl-h-lg', '--ctrl-target', '--ctrl-fs']) names.add(name)
     if (r.холст !== undefined) names.add('--wrap')
     if (r.край) names.add('--gut')
+    if (r.радиус) { for (const role of Object.keys(r.радиус)) names.add(`--r-${role}`); names.add('--r-pop') }
+    for (const name of ['--line-w', '--ring-w', '--ring-off']) names.add(name)
   }
   for (const setName of Object.keys(sets)) {
     for (const [role, r] of Object.entries(rolesOf(sets, setName))) {

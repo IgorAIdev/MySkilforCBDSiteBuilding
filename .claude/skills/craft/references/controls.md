@@ -311,14 +311,14 @@ Table».
   --tray-cell:calc(var(--tray-h) - var(--tray-pad) * 2);
   display:inline-flex; align-items:center; gap:2px;
   block-size:var(--tray-h); padding:var(--tray-pad);
-  background:var(--ctrl); border-radius:var(--r-pill);
+  background:var(--ctrl); border-radius:var(--r-ctrl);
 }
 .tray > *{
   block-size:var(--tray-cell);
   padding-inline:calc(var(--tray-cell) * .43);
 }
 .tray > :where([aria-pressed='true'], [aria-expanded='true']){
-  background:var(--surface); box-shadow:var(--sh-1);
+  background:var(--surface); box-shadow:var(--sh-raised);
 }
 .tray > [data-act]:not(:disabled){ background:var(--quiet); }
 @media (pointer:coarse){ .tray{--tray-h:calc(44px + var(--tray-pad) * 2)} }

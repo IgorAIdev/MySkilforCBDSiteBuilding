@@ -307,8 +307,20 @@ export const STAGES = [
           return null
         }, undefined,
         { reviewed: '20.09.2026', rule: 'И227: шов — решение с именем и причиной, читаемое в обе стороны; край и холст из строителя; кадр с потолком; узел меряет контейнер', show: 'https://claude.ai/artifact/JK79gLPyohX2YdhXhzovPV — стенд раскладки: швы на линейке, коробка страницы, двенадцать примитивов, кадр' }),
-      step(9, 'Форма', 'радиусы одной ручкой, лестница теней по высоте, толщина линии — у ступени смысл', 'craft',
-        () => /--r-pill/.test(tokensSrc()) && /--sh-1/.test(tokensSrc()) ? null : 'радиусов (--r-*) или лестницы теней (--sh-*) нет'),
+      step(9, 'Форма', 'радиусы — роли по узлу из лестницы набора, полный круг только у главного действия; тени — три роли по работе; линия и кольцо из порогов, не текут', 'craft',
+        () => {
+          const l = ladder()
+          for (const name of ['--r-ctrl', '--r-card', '--r-sheet', '--r-pop', '--line-w', '--ring-w']) {
+            if (!new RegExp(`${name}\\s*:`).test(l)) return `строитель не выпускает ${name} (styles/scale.css)`
+          }
+          for (const name of ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']) {
+            if (!new RegExp(`${name}\\s*:`).test(tokensSrc())) return `тени без роли по работе: нет ${name} (styles/tokens.css)`
+          }
+          const bare = (tokensSrc() + primitivesSrc()).replace(/\/\*[\s\S]*?\*\//g, '')
+          if (/--r-pill|--round\b|--sh-[123]\b/.test(bare)) return 'старые имена формы (--r-pill, --round, --sh-1…3) ещё читаются'
+          return null
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И228: радиус, линия и тень — роли со смыслом; полный круг — только главное действие; линия не течёт; глубина в тёмной — светлотой' }),
       step(10, 'Состояния и движение', 'один ответ на наведение, нажатие, фокус, недоступное; движение токеном; reduced-motion', 'craft',
         () => /--hover-t/.test(tokensSrc()) && /--a-press/.test(src('styles/palette.css')) ? null : 'ответа на указатель (--hover-t) или ступени нажатия (--a-press) нет'),
       step(11, 'Знаки и картинки', 'один лист знаков, одна толщина штриха в пикселях экрана, имя у безмолвного; снимки — механизм нарезки, сами снимки от заказчика', 'craft',

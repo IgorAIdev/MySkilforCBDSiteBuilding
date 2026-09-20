@@ -46,5 +46,9 @@
   "nodeWindow": 0,
   "seamStep": 0,
   "fullVw": 0,
-  "sizeContain": 0
+  "sizeContain": 0,
+  "radiusPx": 0,
+  "shadowPx": 0,
+  "linePx": 0,
+  "popRadius": 0
 }

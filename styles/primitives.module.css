@@ -579,7 +579,7 @@
 .skip{
   position:absolute;left:50%;top:var(--air-row);z-index:var(--layer-skip);
   transform:translate(-50%, -200%);
-  background:var(--pop);color:var(--on-pop);padding:var(--pad-inner) var(--pad-card);border-radius:var(--r-pill);
+  background:var(--pop);color:var(--on-pop);padding:var(--pad-inner) var(--pad-card);border-radius:var(--r-ctrl);
   font-size:var(--ctrl-fs-sm);font-weight:600;transition:transform var(--hover-t) var(--ease)
 }
 .skip:focus-visible{transform:translate(-50%, 0)}
@@ -665,7 +665,7 @@
      следующем языке она кончилась бы тем же дефектом. */
   display:inline-flex;align-items:center;gap:2px;min-width:0;flex-wrap:wrap;
   min-block-size:var(--tray-h);padding:var(--tray-pad);
-  background:var(--ctrl);border-radius:var(--r-pill);
+  background:var(--ctrl);border-radius:var(--r-ctrl);
   /* Чем отвечает под рукой выключенная половина — вуаль в 12% чернил.
      Выбор заказчика на живой странице из трёх ответов: молчит, вуаль,
      чернила. Переключатель, которым он выбирал, вместе с выбором и ушёл. */
@@ -677,7 +677,7 @@
 .tray > *{
   display:inline-flex;align-items:center;gap:8px;min-width:0;
   block-size:var(--tray-cell);padding-inline:calc(var(--tray-cell) * .43);
-  border-radius:var(--r-pill);white-space:nowrap;
+  border-radius:var(--r-ctrl);white-space:nowrap;
   font-size:var(--ctrl-fs-sm);color:var(--ink-soft)
 }
 /* В лотке живут органы ТРЁХ родов, и одеваются они по роду, а не по месту.
@@ -699,7 +699,7 @@
 /* Лист получает только ПОЛОВИНКА — выбор из двух: включённая стоит на листе
    поверх жёлоба, вторая остаётся словом. */
 .tray > [aria-pressed='true']{
-  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-1)
+  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-raised)
 }
 /* СТВОРКА В ПОКОЕ — ТОЖЕ ОРГАН. Была пустым местом: прозрачный фон, обычный
    вес — на жёлобе от неё оставались слово и шеврон, и рядом с «Изчисти»,
@@ -719,11 +719,11 @@
    слово при открытии становилось шире, двигая соседей по лотку: состояние
    говорит КРАСКОЙ, а не шириной набора. */
 .tray > [aria-expanded]{
-  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-1)
+  background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-raised)
 }
 /* Отжатая створка отвечает тем же, чем всякий лист: поднимается тенью, а не
    темнеет. Темнеет она только уйдя ВГЛУБЬ — то есть открывшись. */
-.tray > [aria-expanded='false']:not(:disabled):active{box-shadow:var(--sh-2)}
+.tray > [aria-expanded='false']:not(:disabled):active{box-shadow:var(--sh-lift)}
 
 /* СТВОРКА, пока открыта, уходит ВГЛУБЬ жёлоба: чуть темнее и с тенью внутрь.
 
@@ -746,7 +746,7 @@
   --leaf-in:14%; --leaf-in-hand:20%;
   background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in));
   color:var(--ink);font-weight:600;
-  box-shadow:inset 0 1px 2px color-mix(in oklab, var(--ink) 18%, transparent)
+  box-shadow:var(--sh-in)
 }
 /* Нажатие отвечает тем же, чем наведение: открытая створка идёт глубже. У
    пальца «до» нет — он ставит оба состояния разом, — и без этой строки
@@ -789,7 +789,7 @@
     background:var(--tray-off-bg);color:var(--tray-off-fg)
   }
   /* Закрытая створка под рукой — как всякий лист: тень выше, краска та же. */
-  .tray > [aria-expanded='false']:not(:disabled):hover{box-shadow:var(--sh-2)}
+  .tray > [aria-expanded='false']:not(:disabled):hover{box-shadow:var(--sh-lift)}
   /* Открытая створка под рукой идёт ещё глубже. Общий ответ покоя её бы
      ОСВЕТЛИЛ — вуаль в 12% мельче её собственных 14, — и наведение читалось
      бы как «закрывается». */
@@ -833,19 +833,19 @@
 .tray[data-tray='plate'] > *{
   background:var(--plate);color:var(--on-plate);
   padding-inline:calc(var(--tray-cell) * .36);
-  box-shadow:var(--sh-1);font-weight:600
+  box-shadow:var(--sh-raised);font-weight:600
 }
 @media (hover:hover){
   .tray[data-tray='plate'] > :where(button, a):not(:disabled):hover{
-    background:var(--plate);box-shadow:var(--sh-2)
+    background:var(--plate);box-shadow:var(--sh-lift)
   }
 }
-.tray[data-tray='plate'] > :where(button, a):not(:disabled):active{box-shadow:var(--sh-2)}
+.tray[data-tray='plate'] > :where(button, a):not(:disabled):active{box-shadow:var(--sh-lift)}
 /* Раскрытая створка — та же пилюля, чуть притопленная: лист лежит под ней, и
    поднимать её нечем. Тень внутрь, а не смена краски: краска у листа своя. */
 .tray[data-tray='plate'] > [aria-expanded='true']{
   background:var(--plate);
-  box-shadow:inset 0 1px 2px color-mix(in oklab, var(--on-plate) 14%, transparent)
+  box-shadow:var(--sh-in)
 }
 
 
@@ -865,7 +865,7 @@
 /* ── chips ────────────────────────────────────────────────────────────── */
 .chip{
   display:inline-flex;align-items:center;gap:6px;
-  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-pill);
+  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);
   background:var(--plate-quiet);
   font-size:var(--ctrl-fs-sm);font-weight:500;color:var(--ink-soft)
 }
@@ -909,15 +909,15 @@
      место, — и ручка перестаёт быть ручкой. Проверено замером: с объявлением
      `--qty-pad:0` из корзины не доезжало вовсе. */
   padding:var(--qty-pad, calc(var(--qty-h, var(--ctrl-h-lg)) * .074));
-  background:var(--qty-bg,var(--ctrl));border-radius:var(--r-pill)
+  background:var(--qty-bg,var(--ctrl));border-radius:var(--r-ctrl)
 }
 .qty button{
   height:100%;aspect-ratio:1;width:auto;border-radius:50%;
   display:grid;place-items:center;color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),box-shadow var(--hover-t) var(--ease),transform var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .qty button:hover{color:var(--ink);background:var(--surface);box-shadow:var(--sh-1)} }
-.qty button:active{color:var(--ink);background:var(--surface);box-shadow:var(--sh-1)}
+@media (hover:hover){ .qty button:hover{color:var(--ink);background:var(--surface);box-shadow:var(--sh-raised)} }
+.qty button:active{color:var(--ink);background:var(--surface);box-shadow:var(--sh-raised)}
 .qty button:active{transform:scale(.92)}
 .qty button svg{
   width:calc(var(--qty-h, var(--ctrl-h-lg)) * .33);height:calc(var(--qty-h, var(--ctrl-h-lg)) * .33);
@@ -937,7 +937,7 @@
    своим `:focus`, проверка считала замену найденной. Поле уехало в свой
    модуль — и стало видно, что у счётчика её не было никогда. */
 .qty input:focus-visible{
-  box-shadow:inset 0 0 0 2px var(--pop);border-radius:var(--r-pill)
+  box-shadow:inset 0 0 0 var(--ring-w) var(--pop);border-radius:var(--r-ctrl)
 }
 /* Пальцем поле набирают так же, как жмут кнопку: 44 по узкой стороне. На
    узком экране счётчик мельче, и доля от его высоты давала 40 — меньше
@@ -992,7 +992,7 @@
 /* ── a segmented control ──────────────────────────────────────────────── */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .seg button{
-  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-pill);background:var(--plate-quiet);
+  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
   font-size:var(--ctrl-fs-sm);color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
@@ -1056,7 +1056,7 @@
    видимости на обеих темах. */
 .more{
   display:inline-flex;align-items:center;gap:calc(var(--ctrl-h) * .25);flex:none;
-  block-size:var(--ctrl-h);padding:0 calc(var(--ctrl-h) * .125) 0 calc(var(--ctrl-h) * .4);border-radius:var(--r-pill);
+  block-size:var(--ctrl-h);padding:0 calc(var(--ctrl-h) * .125) 0 calc(var(--ctrl-h) * .4);border-radius:var(--r-ctrl);
   background:var(--surface);
   font-size:var(--more-fs,var(--ctrl-fs-sm));font-weight:600;color:var(--pop-ink-hover);
   transition:background var(--hover-t) var(--ease)
@@ -1134,13 +1134,13 @@
   --chip-h:34px;
   display:inline-flex;align-items:center;gap:calc(var(--chip-h) * .21);
   block-size:var(--chip-h);padding-inline:calc(var(--chip-h) * .38);
-  border-radius:var(--r-pill);white-space:nowrap;
+  border-radius:var(--r-ctrl);white-space:nowrap;
   background:var(--ctrl);color:var(--ink);
   /* Кромка, а не только заливка. Пилюля стоит на ПОЛУ СТРАНИЦЫ, а ступень
      `--ctrl` над ним — 1.10 при норме 1.15: заливка одна не отделяет орган
      от того, на чём он лежит (семья `sunk` в отрисованной проверке). Та же
      причина, по которой кромку носят плитки галереи товара. */
-  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
+  box-shadow:inset 0 0 0 var(--line-w) color-mix(in srgb, var(--ink) 10%, transparent);
   font-size:var(--ctrl-fs-sm);font-weight:500;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
              transform calc(var(--hover-t) * .6) var(--ease)
@@ -1162,7 +1162,7 @@
 
 .cut{
   position:absolute;top:10px;left:10px;z-index:2;
-  block-size:calc(var(--ctrl-h-sm) * .8);padding:0 10px;border-radius:var(--r-pill);
+  block-size:calc(var(--ctrl-h-sm) * .8);padding:0 10px;border-radius:var(--r-ctrl);
   display:inline-flex;align-items:center;
   background:var(--sale-fill);color:var(--on-sale);
   font-size:var(--ctrl-fs-xs);font-weight:800;font-variant-numeric:tabular-nums
@@ -1206,10 +1206,10 @@
 .qty button[data-up]{background:none;color:var(--ink-soft)}
 @media (hover:hover){
   .qty button:hover,
-  .qty button[data-up]:hover{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
+  .qty button[data-up]:hover{background:var(--surface);color:var(--ink);box-shadow:var(--sh-raised)}
 }
 .qty button:active,
-.qty button[data-up]:active{background:var(--surface);color:var(--ink);box-shadow:var(--sh-1)}
+.qty button[data-up]:active{background:var(--surface);color:var(--ink);box-shadow:var(--sh-raised)}
 /* Два знака на одной кнопке: штрих и уголок. Показан один — какой, решает
    вид счётчика. Классы названы здесь, потому что их ставит разметка. */
 
@@ -1250,7 +1250,7 @@
    готово, а не забыто второй раз (разбор — docs/rules.md, И147). */
 .menu{
   background:var(--menu-bg, var(--surface));color:var(--ink);
-  border-radius:var(--r-card);box-shadow:var(--sh-3);touch-action:pan-y
+  border-radius:var(--r-card);box-shadow:var(--sh-overlay);touch-action:pan-y
 }
 /* Ширина списка каналов — одно число на оба места. Стояло два: 268 в шапке и
    266 у помощника, и разницу в два пикселя не объяснял никто. */

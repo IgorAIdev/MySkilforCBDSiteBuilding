@@ -141,3 +141,22 @@ export const LAYOUT = {
   edgeGrowth: [1, 2.5],
   frameCap: 60,
 }
+/** Форма (слой 9). Радиусы — из лестницы: M3 «size-based scale with ten
+ *  styles» 0 / 4 / 8 / 12 / 16 / 20 / 28 / 32 / 48 / full, Carbon 2 / 4 / 8 /
+ *  16 / 24; витрина берёт себе три-четыре ступени и записывает, какой узел
+ *  какую (M3, «готов, когда»). Полный круг — только главное действие
+ *  (Spectrum: «Full rounding … meant to draw attention to calls to action»).
+ *  Линия не масштабируется (Spectrum: «border width remains the same for
+ *  desktop scale and mobile scale»): 1 — поле, разделитель, тег; 2 — главная
+ *  кнопка, фокус (WCAG 2.4.13: кольцо не тоньше 2px). Теней — три роли по
+ *  работе (Atlassian raised / overlay; Refactoring UI: небольшой набор, один
+ *  источник света), и тень — только у всплывающего и у того, что зовут
+ *  нажать (Spectrum: «Shadows are reserved for transient components that
+ *  appear elevated and are dismissible»; M3: «protect element, call to
+ *  action»). Глубина в тёмной теме — светлотой, не тенью (Carbon, Atlassian). */
+export const SHAPE = {
+  radii: [0, 2, 4, 8, 12, 16, 20, 24, 28, 32, 48],
+  line: { hair: 1, strong: 2 },
+  ring: { width: STATE.ring, offset: 3 },
+  shadows: ['raised', 'lift', 'overlay', 'in'],
+}

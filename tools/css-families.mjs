@@ -27,6 +27,7 @@ export const CSS_FAMILIES = [
   'nameGrammar', 'stepDirect', 'deadName', 'tierUp',
   'axisUnknown', 'axisTheme', 'axisScope', 'axisHover', 'ctrlSize',
   'deadSeam', 'nodeWindow', 'seamStep', 'fullVw', 'sizeContain',
+  'radiusPx', 'shadowPx', 'linePx', 'popRadius',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -94,4 +95,8 @@ export const CSS_LABELS = {
   seamStep: 'ступенька размера на шве: в медиазапросе меняется только величина (кегль, поле, зазор), а не смысл раскладки — это шкала, не шов (правило 3)',
   fullVw: '100vw шире страницы на полосу прокрутки, 100vh на телефоне выше видимого: ширина «во всю страницу» — 100 %, высота шторки — dvh, потолок кадра — svh',
   sizeContain: 'container-type: size — контейнер не умеет брать высоту у содержимого и схлопывается в ноль; узлу нужен inline-size',
+  radiusPx: 'радиус числом в узле — радиус берётся ролью (--r-xs / --r-ctrl / --r-card / --r-sheet / --r-pop) из лестницы набора',
+  shadowPx: 'тень числом в узле — тень подобрана на глаз под блок; роли по работе: --sh-raised / --sh-lift / --sh-overlay / --sh-in',
+  linePx: 'толщина линии или кольца числом — линия не масштабируется и не выбирается по месту: --line-w, --ring-w, --ring-off',
+  popRadius: 'полный круг (--r-pop) вне дома контролов — главное действие одно, его выделение размывается',
 }

@@ -250,8 +250,10 @@ for (const path of files) {
      ДАЁТ подкладка вместе со строкой текста. Признак собственного размера
      её не ловил, и `padding:9px 13px` у ссылки в меню считался ритмом —
      а это её устройство, то самое, где доля растёт вместе с высотой.
-     Скруглением в половину высоты ничто, кроме контрола, не бывает. */
-  const IS_PILL = /border-radius\s*:\s*var\(--r-pill\)/
+     Скруглением в половину высоты ничто, кроме контрола, не бывает; с И228
+     орган берёт свой радиус ролью `--r-ctrl`, главное действие — `--r-pop`,
+     и признак тот же: радиус органа читает только орган. */
+  const IS_PILL = /border-radius\s*:\s*var\(--r-(?:pop|ctrl)\)/
   for (const m of css.matchAll(/(?<![-a-z])(padding|margin|gap|inset)[a-z-]*:\s*([^;}]+)/g)) {
     /* блок, внутри которого стоит объявление */
     const open = css.lastIndexOf('{', m.index)
@@ -1322,6 +1324,37 @@ for (const path of files) {
   for (const { rel, css, at } of sheets) {
     for (const m of css.matchAll(/\b100(vw|vh|lvw|lvh)\b/g)) add('fullVw', `${at(m.index)}  100${m[1]}`)
     for (const m of css.matchAll(/container-type\s*:\s*size\b/g)) add('sizeContain', `${at(m.index)}  container-type: size`)
+  }
+
+  /* Форма (слой 9, И228): радиус, линия и тень — роли, не числа.
+   *
+   * Радиус числом в узле — та же «маленькая кнопка и маленькое поле разного
+   * маленького»: cbdshop держал 12 имён радиусов и ещё сырые 40 / 36 по
+   * узлам. Тень числом — тень, «подобранная на глаз под конкретный блок»
+   * (Refactoring UI); в forced-colors она стирается, и предмет без обводки
+   * исчезает вместе с ней. Толщина линии не масштабируется и не выбирается
+   * по месту (Spectrum: 1 / 2 / 4 со смыслом). Полный круг — только главное
+   * действие (Spectrum): `--r-pop` вне домов контролов — размытое выделение.
+   * `0`, `50%` и `inherit` у радиуса — не число из головы: круг и «как у
+   * родителя» смысла не выбирают. */
+  for (const { rel, css, at } of sheets) {
+    if (EXEMPT.includes(rel) || rel === LADDER || rel === TOKENS) continue
+    for (const m of css.matchAll(/(?:^|[;{])\s*border-radius\s*:\s*([^;}]+)/g)) {
+      const v = m[1].replace(/var\([^)]*\)/g, '').trim()
+      if (/\d*\.?\d+(?:px|rem|em)\b/.test(v)) add('radiusPx', `${at(m.index)}  border-radius:${m[1].trim().slice(0, 40)} — возьмите --r-*`)
+    }
+    for (const m of css.matchAll(/(?:^|[;{])\s*box-shadow\s*:\s*([^;}]+)/g)) {
+      const v = m[1].replace(/var\([^)]*\)/g, '').replace(/color-mix\([^)]*\)/g, '')
+      if (/(?:^|[\s,])(?!0(?:px)?\b)\d*\.?\d+px\b/.test(v)) add('shadowPx', `${at(m.index)}  box-shadow:${m[1].trim().slice(0, 40)} — возьмите --sh-*`)
+    }
+    for (const m of css.matchAll(/(?:^|[;{])\s*(border(?:-(?:top|right|bottom|left|inline|block)(?:-start|-end)?)?(?:-width)?|outline(?:-width)?)\s*:\s*([^;}]+)/g)) {
+      const v = m[2].replace(/var\([^)]*\)/g, '')
+      const w = v.match(/(?:^|\s)(\d*\.?\d+)px\b/)
+      if (w && Number(w[1]) > 0) add('linePx', `${at(m.index)}  ${m[1]}:${m[2].trim().slice(0, 32)} — возьмите --line-w / --ring-w`)
+    }
+    if (!CONTROLS.includes(rel)) {
+      for (const m of css.matchAll(/var\(--r-pop[,)]/g)) add('popRadius', `${at(m.index)}  полный круг вне дома контролов`)
+    }
   }
 
   /* Размер органа — роль, не число (слой 7, И226). Высота в px на узле —

@@ -83,6 +83,7 @@ const TABLES = {
   '.claude/skills/craft/references/names.md': ['names'],
   '.claude/skills/craft/references/axes.md': ['axes'],
   '.claude/skills/craft/references/layout.md': ['layout'],
+  '.claude/skills/craft/references/shape.md': ['shape'],
   ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
@@ -319,6 +320,26 @@ const layoutFacts = () => {
   rows.push(`| пороги слоя | переток ${THR.LAYOUT.reflow}, низкое окно ${THR.LAYOUT.shortWindow}, ступенька размера от ${THR.LAYOUT.jump}px, кадр держит ≥ ${Math.round(THR.LAYOUT.crop * 100)} % снимка, потолок кадра ${THR.LAYOUT.frameCap}svh | \`LAYOUT\` в \`tools/thresholds.mjs\` |`)
   return rows.join('\n')
 }
+/* Форма — из кода (И228): радиусы каждого набора, лестница, линия и кольцо,
+   роли тени из tokens.css, кто читает полный круг. */
+const shapeFacts = () => {
+  const rows = ['| Факт | Значение | Откуда |', '| --- | --- | --- |']
+  if (has('styles/scale.json')) {
+    const sets = JSON.parse(read('styles/scale.json'))
+    const per = Object.entries(sets).map(([n, s]) => `${n}: ${Object.entries(s.радиус ?? {}).map(([k, v]) => `${k} ${v}`).join(' / ') || '—'}`)
+    rows.push(`| радиусы по наборам (px) | ${per.join(' · ')}; полный круг \`--r-pop\` — везде | \`styles/scale.json\`, ключ \`радиус\` |`)
+  }
+  rows.push(`| лестница радиусов | ${THR.SHAPE.radii.join(', ')} (M3 ∪ Carbon) | \`SHAPE.radii\` в \`tools/thresholds.mjs\` |`)
+  rows.push(`| линия и кольцо | линия ${THR.SHAPE.line.hair}px, сильная ${THR.SHAPE.line.strong}px; кольцо ${THR.SHAPE.ring.width}px с отступом ${THR.SHAPE.ring.offset}px — не текут | \`SHAPE.line\`, \`SHAPE.ring\`; \`--line-w\`, \`--ring-w\`, \`--ring-off\` в \`styles/scale.css\` |`)
+  const tokens = has('styles/tokens.css') ? read('styles/tokens.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
+  const shadows = [...new Set([...tokens.matchAll(/(?:^|[;{])\s*(--sh-[a-z]+)\s*:/g)].map((m) => m[1]))].filter((n) => !/^--sh-(ring|near|far)$/.test(n))
+  rows.push(`| роли тени | ${shadows.map((n) => `\`${n}\``).join(', ')} — по работе; ингредиенты \`--sh-ring\`, \`--sh-near\`, \`--sh-far-N\` несут light-dark() | \`styles/tokens.css\` |`)
+  const files = ['styles/base.css', 'styles/primitives.module.css'].filter(has)
+  const readers = (name) => files.flatMap((f) => (read(f).match(new RegExp(`var\\(${name}[,)]`, 'g')) ?? []).map(() => f))
+  const pop = readers('--r-pop'), ctrl = readers('--r-ctrl')
+  rows.push(`| кто читает радиусы | \`--r-ctrl\` — ${ctrl.length} мест; \`--r-pop\` — ${pop.length ? pop.length + ' мест' : 'никто в наборе: главное действие придёт с магазином (REQUIRED)'} | \`styles/base.css\`, \`styles/primitives.module.css\` |`)
+  return rows.join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
@@ -328,6 +349,7 @@ const GEN = {
   names: namesFacts(),
   axes: axesFacts(),
   layout: layoutFacts(),
+  shape: shapeFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)

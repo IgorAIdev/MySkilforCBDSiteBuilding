@@ -346,7 +346,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:var(--fs-
 .s-now b{color:var(--ink);font-weight:600}
 input[type=range]{flex:1;min-inline-size:200px;accent-color:var(--pop);block-size:var(--ctrl-h)}
 .s-btn{block-size:var(--ctrl-h-sm);padding-inline:calc(var(--ctrl-h-sm) * .4);
-  border:1px solid var(--rule);border-radius:var(--r-pill);background:transparent;color:inherit;
+  border:1px solid var(--rule);border-radius:var(--r-ctrl);background:transparent;color:inherit;
   font:inherit;font-size:var(--ctrl-fs-xs);cursor:pointer}
 .s-btn[aria-pressed="true"]{background:var(--pop);border-color:var(--pop);color:var(--on-pop);font-weight:600}
 :focus-visible{outline:2px solid var(--pop);outline-offset:2px}
@@ -367,7 +367,7 @@ input[type=range]{flex:1;min-inline-size:200px;accent-color:var(--pop);block-siz
 .s-seamCard{flex:1 1 240px;background:var(--plate);border:1px solid var(--rule);border-radius:var(--r-card);
   padding:var(--pad-inner);display:flex;flex-direction:column;gap:var(--sp-2)}
 .s-seamCard[data-on="true"]{border-color:var(--pop);background:var(--pop-tint)}
-.s-dot{inline-size:var(--sp-2);block-size:var(--sp-2);border-radius:var(--r-pill);background:var(--rule);flex:none}
+.s-dot{inline-size:var(--sp-2);block-size:var(--sp-2);border-radius:var(--r-ctrl);background:var(--rule);flex:none}
 .s-seamCard[data-on="true"] .s-dot{background:var(--pop)}
 
 /* ── макет страницы на ползунке ───────────────────────────────────────── */
@@ -391,7 +391,7 @@ input[type=range]{flex:1;min-inline-size:200px;accent-color:var(--pop);block-siz
 .s-mockLine{position:absolute;inset-block:0;inline-size:0;pointer-events:none}
 .s-mockLine[data-side="a"]{inset-inline-start:var(--page-gut);border-inline-start:1px dashed var(--pop)}
 .s-mockLine[data-side="b"]{inset-inline-end:var(--page-gut);border-inline-end:1px dashed var(--pop)}
-.s-head{padding-inline:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-1)}
+.s-head{padding-inline:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-raised)}
 .s-headRow{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);
   min-block-size:var(--ctrl-h);padding-inline:var(--head-pad);border-radius:var(--r-card);
   background:var(--chrome-bg);color:var(--chrome-fg);font-size:var(--ctrl-fs-xs)}
