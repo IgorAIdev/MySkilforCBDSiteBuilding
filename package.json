@@ -9,6 +9,9 @@
     "check:code": "node tools/check-code.mjs",
     "check:port": "node tools/check-port.mjs",
     "palette": "node tools/palette-css.mjs",
+    "scale": "node tools/scale-css.mjs",
+    "check:scale": "node tools/check-scale.mjs && node tools/scale-css.mjs --check",
+    "scale:stand": "node tools/scale-stand.mjs",
     "check:palette": "node tools/check-palette.mjs && node tools/palette-css.mjs --check",
     "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs"
   }

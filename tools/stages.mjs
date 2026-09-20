@@ -36,7 +36,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS } from './kit-config.mjs'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, LADDER } from './kit-config.mjs'
 
 export const ROOT = new URL('..', import.meta.url).pathname
 
@@ -149,17 +149,24 @@ const clean = (baseline, families) => {
  *             Записаны адресом и тем, ЧТО из них брать: не «поставить
  *             скилл», а «взять справочник X как сверочный лист для Y».
  */
+/** Где лежит лестница: выпущенное строителем плюс файл шкал, склеенные. */
+const ladder = () => [LADDER, TOKENS].filter(Boolean).map((p) => src(p)).join('\n')
+
 export const STAGES = [
   {
     n: 0, name: 'Основание',
     builds: 'три шкалы (цвет, размер, ритм), пять примитивов раскладки, три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
     skills: ['craft', 'code', 'stages'],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:scale', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('CLAUDE.md') ? null : 'нет CLAUDE.md — правила не читаются раньше кода',
-        () => TOKENS && src(TOKENS).includes(PREFIX.font) ? null : `шкалы размера ${PREFIX.font}* нет в ${TOKENS ?? 'проекте (tokens не назван в kit.config.json)'} — правило 1 ссылается в пустоту`,
-        () => TOKENS && src(TOKENS).includes(PREFIX.space) ? null : `шкалы ритма ${PREFIX.space}* нет в ${TOKENS ?? 'проекте (tokens не назван в kit.config.json)'} — правило 2 ссылается в пустоту`,
+        /* Лестница может лежать в двух местах: выпущенной строителем
+           (`styles/scale.css`) или набранной в файле шкал. Ворота
+           спрашивают ОБА — иначе переезд, который сам набор и сделал,
+           закрывает пройденные ворота (И202). */
+        () => ladder().includes(PREFIX.font) ? null : `шкалы размера ${PREFIX.font}* нет ни в ${LADDER}, ни в ${TOKENS ?? 'файле шкал (не назван в kit.config.json)'} — правило 1 ссылается в пустоту`,
+        () => ladder().includes(PREFIX.space) ? null : `шкалы ритма ${PREFIX.space}* нет ни в ${LADDER}, ни в ${TOKENS ?? 'файле шкал (не назван в kit.config.json)'} — правило 2 ссылается в пустоту`,
         () => {
           if (!PRIMITIVES) return 'примитивов раскладки нет: файл не назван в kit.config.json (primitives) — раскладку пишут заново каждый раз'
           const p = src(PRIMITIVES)

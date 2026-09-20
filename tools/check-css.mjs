@@ -20,7 +20,7 @@ import { CSS_FAMILIES, CSS_LABELS as NAMES } from './css-families.mjs'
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
 import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
-  BREAKPOINTS, PREFIX, RX, ALIASES } from './kit-config.mjs'
+  BREAKPOINTS, PREFIX, RX, ALIASES, LADDER } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/css-baseline.json')
@@ -1064,9 +1064,12 @@ for (const path of files) {
     }
   }
 
-  const tokens = sheets.find((one) => one.rel === TOKENS)
-  if (tokens) {
-    const { css, at } = tokens
+  /* Две семьи ниже спрашивают РОЛИ — поле и воздух. С 21.09.2026 роли
+     выпускает строитель в `styles/scale.css`, а `tokens.css` остался файлом
+     всего остального; читаются оба. Семья, оставшаяся на одном файле,
+     не покраснела бы после переезда — она бы замолчала нулём (И202). */
+  for (const sheet of sheets.filter((s) => s.rel === LADDER || s.rel === TOKENS)) {
+    const { css, at } = sheet
 
     /* Поле рядом с текстом — в rem.
 
@@ -1313,9 +1316,17 @@ for (const file of files) {
  *
  * Мерятся ОБА конца clamp: шкала течёт, и сойтись ступени могут на любом.
  */
-const LADDER = TOKENS ? join(ROOT, TOKENS) : null
-if (LADDER && existsSync(LADDER)) {
-  const css = strip(readFileSync(LADDER, 'utf8'))
+/* Где искать лестницу. С 21.09.2026 её выпускает строитель
+   (`styles/scale.css`), и смотреть надо туда: файл шкал остался на месте,
+   а ступеней в нём больше нет. Семья, продолжавшая читать только
+   `tokens.css`, не покраснела бы — она бы замолчала нулём, а молчаливый
+   ноль читается как «в проекте чисто» (И202). */
+const WHERE = [LADDER, TOKENS].filter(Boolean).map((p) => join(ROOT, p)).find(existsSync)
+if (WHERE) {
+  /* Только набор, стоящий на корне: в выпущенном файле те же ступени
+     повторены под именем каждого набора, и одна сошедшаяся пара считалась
+     бы столько раз, сколько наборов завёл владелец. */
+  const css = strip(readFileSync(WHERE, 'utf8')).split('[data-scale')[0]
   const steps = []
   const step = new RegExp(`${RX.font}([a-z0-9-]+)\\s*:\\s*clamp\\(\\s*([\\d.]+)px[^,]*,[^,]*,\\s*([\\d.]+)px\\s*\\)`, 'g')
   for (const m of css.matchAll(step)) {
@@ -1327,7 +1338,7 @@ if (LADDER && existsSync(LADDER)) {
       const ratio = b[end] / a[end]
       if (ratio > 1 && ratio < 1.08) {
         found.nearStep.push(
-          `${TOKENS}  ${PREFIX.font}${a.name} → ${PREFIX.font}${b.name}: ${a[end]} → ${b[end]}px ` +
+          `${relative(ROOT, WHERE)}  ${PREFIX.font}${a.name} → ${PREFIX.font}${b.name}: ${a[end]} → ${b[end]}px ` +
           `(${Math.round((ratio - 1) * 100)}%, ${end === 'min' ? 'узкий' : 'широкий'} конец)`)
       }
     }

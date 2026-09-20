@@ -51,6 +51,8 @@ const DEFAULTS = {
   lib: 'lib',
   /** три шкалы и роли цвета */
   tokens: 'styles/tokens.css',
+  /** выпущенные шкалы размера и ритма: их пишет строитель из styles/scale.json */
+  ladder: 'styles/scale.css',
   /** сброс, земля, режимы переноса, кольцо фокуса */
   base: 'styles/base.css',
   /** примитивы раскладки */
@@ -58,7 +60,7 @@ const DEFAULTS = {
   /** канонические дома контролов — где контрол и должен быть описан */
   controls: ['styles/go.module.css', 'styles/btn.module.css', 'styles/form.module.css', 'styles/base.css'],
   /** файлы, которым шкала не предписана: сама шкала, панель настроек, лист набора */
-  exempt: ['styles/tokens.css', 'styles/studio.module.css', 'app/[lang]/design/design.module.css'],
+  exempt: ['styles/tokens.css', 'styles/scale.css', 'styles/studio.module.css', 'app/[lang]/design/design.module.css'],
   /** предметы над страницей, которым положена фирменная заливка */
   floating: ['components/TabBar.module.css', 'components/Toast.module.css', 'components/Helper.module.css'],
   /** имена шкал: `--fs-*`, `--sp-*`, `--layer-*` */
@@ -98,6 +100,7 @@ export const PAGES = CONFIG.pages
 export const STYLE_DIRS = CONFIG.styles
 export const LIB = CONFIG.lib
 export const TOKENS = CONFIG.tokens
+export const LADDER = CONFIG.ladder
 export const BASE = CONFIG.base
 export const PRIMITIVES = CONFIG.primitives
 export const CONTROLS = CONFIG.controls

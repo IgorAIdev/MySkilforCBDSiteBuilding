@@ -23,6 +23,7 @@ import { emptyCssBaseline } from './css-families.mjs'
 import { emptyPortBaseline } from './port-families.mjs'
 import { emptyCraftBaseline } from './craft-families.mjs'
 import { toCss } from './palette.mjs'
+import { toCss as scaleCss } from './scale.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const OUT = resolve(process.argv[2] ?? join(ROOT, 'kit'))
@@ -130,6 +131,13 @@ const FILES = [
   'tools/palette-profile.json',
   'tools/palette-css.mjs',
   'tools/check-palette.mjs',
+  /* Шкалы: строитель, выпуск, замер и стенд. Без них новый сайт получает
+     правило «размер из шкалы» и рукописные clamp-ы рядом с ним — ровно то,
+     чем был куплен строитель (И202). */
+  'tools/scale.mjs',
+  'tools/scale-css.mjs',
+  'tools/check-scale.mjs',
+  'tools/scale-stand.mjs',
   'docs/rules.md',
   'docs/start.md',
 ]
@@ -235,6 +243,15 @@ put('templates/palette.json')
 writeFileSync(
   join(OUT, 'styles/palette.css'),
   toCss(JSON.parse(readFileSync(join(OUT, 'styles/palette.json'), 'utf8'))),
+)
+
+/* Шкалы — тоже данные проекта: три набора ритма кладутся один раз, дальше
+   их правит владелец. Выпущенный `styles/scale.css` собирается заново
+   всегда: он машинный, и своего в нём нет. */
+if (!existsSync(join(OUT, 'styles/scale.json'))) put('styles/scale.json')
+writeFileSync(
+  join(OUT, 'styles/scale.css'),
+  scaleCss(JSON.parse(readFileSync(join(OUT, 'styles/scale.json'), 'utf8'))),
 )
 
 /* Пары «образец на листе набора — тот же предмет в магазине» — данные ПРОЕКТА,

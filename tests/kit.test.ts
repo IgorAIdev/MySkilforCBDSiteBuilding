@@ -29,6 +29,11 @@ import { spawnSync } from 'node:child_process'
 const read = (p: string): string => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 
 const tokens = read('styles/tokens.css')
+/* Лестница размера и ритма с 21.09.2026 не набирается рукой, а выпускается
+   строителем из `styles/scale.json` (И202). Тесты, оставшиеся на одном
+   `tokens.css`, после переезда не покраснели бы — они бы перестали что-либо
+   сторожить, а это хуже: ступень можно вынуть, и никто не заметит. */
+const ladderCss = read('styles/scale.css')
 const primitives = read('styles/primitives.module.css')
 
 /* Ищется ОБЪЯВЛЕНИЕ, а не подстрока. Первая редакция этого файла спрашивала
@@ -36,7 +41,7 @@ const primitives = read('styles/primitives.module.css')
    она проходила молча: подстрока-то на месте. Тест, который нельзя
    уронить, ничего и не сторожит; проверено нарочной поломкой. */
 const declared = (name: string): boolean =>
-  new RegExp(`^\\s*${name}\\s*:`, 'm').test(tokens)
+  new RegExp(`^\\s*${name}\\s*:`, 'm').test(tokens + '\n' + ladderCss)
 
 test('шкала размера объявлена и течёт', () => {
   for (const name of ['--fs-xs', '--fs-sm', '--fs-base', '--fs-lead', '--fs-h3', '--fs-h2', '--fs-h1']) {
@@ -45,7 +50,7 @@ test('шкала размера объявлена и течёт', () => {
   /* Течёт — значит clamp(): размер меняется вместе с шириной окна, а не
      переключается ступенями на медиазапросах. Без этого шкала есть, а
      запрет «font-size в пикселях» лечить нечем. */
-  const scale = tokens.slice(tokens.indexOf('--fs-xs'), tokens.indexOf('--fs-h1'))
+  const scale = ladderCss.slice(ladderCss.indexOf('--fs-2xs'), ladderCss.indexOf('--sp-1'))
   assert.ok(scale.includes('clamp('), 'шкала размера объявлена без clamp() — она не течёт')
 })
 
@@ -71,14 +76,14 @@ test('поле — в rem, зазор между целями — свой то�
   /* И186: поле лежит вокруг букв и растёт вместе со шрифтом, который
      покупатель поднял в телефоне; px этого не умеет. */
   for (const name of ['--pad-sheet', '--pad-card', '--pad-inner']) {
-    const m = tokens.match(new RegExp(`^\\s*${name}\\s*:\\s*([^;]+);`, 'm'))
+    const m = ladderCss.match(new RegExp(`^\\s*${name}\\s*:\\s*([^;]+);`, 'm'))
     assert.ok(m, `в шкале нет поля ${name}`)
     assert.ok(/rem\b/.test(m![1]!) && !/\dpx\b/.test(m![1]!.replace(/var\([^)]*\)/g, '')),
       `${name} объявлено не в rem: ${m![1]!.trim()}`)
   }
   /* И188: цель под палец — ещё не ряд целей; зазор — свой токен. */
   assert.ok(declared('--gap-targets'), 'нет токена --gap-targets')
-  const coarse = tokens.match(/@media\s*\(pointer\s*:\s*coarse\)\s*\{\s*:root\s*\{([^}]*)\}/)
+  const coarse = ladderCss.match(/@media\s*\(pointer\s*:\s*coarse\)\s*\{\s*:root\s*\{([^}]*)\}/)
   assert.ok(coarse && /--gap-targets\s*:/.test(coarse[1]!), 'под пальцем у --gap-targets нет своего значения')
 })
 
@@ -457,4 +462,107 @@ test('шкалы читают палитру, и палитра даёт всё,
 
   const lost = [...asked].filter((name) => !palette.has(name)).sort()
   assert.deepEqual(lost, [], 'шкалы просят у палитры краску, которой она не выпускает')
+})
+
+/* И202: шкалы размера и ритма стояли в `styles/tokens.css` набранными
+   рукой, а формула к ним — словами в комментарии рядом. Формула, живущая
+   словами, исполняется головой: у `--sp-11` свободный член оказался списан
+   у `--sp-9`, и ступень, обещавшая 100 пикселей на макете, доходила там до
+   93. Ниже — сторожа на каждое место, где это может повториться. */
+
+test('строитель считает ту же рампу, что стояла руками', async () => {
+  const { ramp } = await import('../tools/scale.mjs')
+  /* Двадцать семь рамп из двадцати восьми строитель повторил знак в знак —
+     это и есть доказательство, что он не завёл вторую шкалу чисел, а взял
+     ту же формулу. Четыре характерных здесь: константа, обе единицы и
+     целый наклон. */
+  assert.equal(ramp([4, 4], [560, 1080]), '4px')
+  assert.equal(ramp([10, 12], [560, 1080]), 'clamp(10px, 7.85px + .38vw, 12px)')
+  assert.equal(ramp([16.5, 18], [560, 1080]), 'clamp(16.5px, 14.88px + .29vw, 18px)')
+  assert.equal(ramp([22, 48], [560, 1080], 'rem'), 'clamp(1.375rem, -.375rem + 5vw, 3rem)')
+})
+
+test('рампа, не доходящая до своих концов, — находка', async () => {
+  const { missesEnds } = await import('../tools/scale.mjs')
+  /* Ровно то, что стояло в файле до строителя. Глазом не видно: числа
+     правдоподобные, — подстановкой видно сразу. */
+  assert.match(String(missesEnds('clamp(64px, 30.77px + 5.77vw, 100px)', [560, 1080])),
+    /1080px даёт 93/, 'списанный свободный член прошёл незамеченным')
+  assert.equal(missesEnds('clamp(64px, 25.23px + 6.92vw, 100px)', [560, 1080]), null,
+    'посчитанная рампа объявлена дефектной')
+})
+
+test('лестница, сошедшаяся в одну точку, — находка', async () => {
+  const { auditScale } = await import('../tools/scale.mjs')
+  const set = {
+    ширины: [560, 1080],
+    размер: { sm: [15.5, 16], base: [16.5, 18] },
+    ритм: { 1: [4, 4], 10: [56, 80] },
+    поле: { card: [18, 22] },
+    воздух: { page: 10 },
+    зазор: { targets: [8, 16] },
+  }
+  const names = auditScale(set).map((f: { rule: string }) => f.rule)
+  assert.ok(names.includes('ступени размера различимы'), `ступени в 6% приняты за две роли: ${names.join(', ')}`)
+  /* Обратным ходом: развели — молчит. */
+  set.размер.sm = [15, 16]
+  assert.deepEqual(auditScale(set), [], 'разведённая лестница объявлена дефектной')
+})
+
+test('шкалы выпускаются в CSS, и выпущенное сходится с числами', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'scale-css-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'scale.json'), JSON.stringify({
+    'проба': {
+      'ширины': [560, 1080],
+      'размер': { base: [16, 18] },
+      'ритм': { 1: [4, 4], 10: [56, 80] },
+      'поле': { card: [18, 22] },
+      'воздух': { page: 10 },
+      'зазор': { targets: [8, 16] },
+    },
+  }))
+  const tool = new URL('../tools/scale-css.mjs', import.meta.url).pathname
+  const made = spawnSync(process.execPath, [tool], { cwd: dir, encoding: 'utf8' })
+  assert.equal(made.status, 0, made.stderr)
+
+  const css = readFileSync(join(dir, 'styles', 'scale.css'), 'utf8')
+  assert.match(css, /--sp-10: clamp\(56px, 30\.15px \+ 4\.62vw, 80px\);/, 'ступень ритма посчитана не по формуле')
+  assert.match(css, /--pad-card: clamp\(1\.125rem, /, 'поле выпущено не в rem')
+  assert.match(css, /--air-page: var\(--sp-10\);/, 'воздух завёл своё число вместо ссылки на ступень')
+  assert.match(css, /@media \(pointer:coarse\)\{ :root\{ --gap-targets:16px \} \}/, 'под пальцем у зазора нет своего значения')
+  /* Каждый набор стоит под своим именем — первый в том числе (И198). */
+  assert.match(css, /\[data-scale="проба"\]\{/, 'первый набор стоит только на корне')
+
+  /* Отставший файл — находка: иначе числа правят, а сайт размечен старым. */
+  assert.equal(spawnSync(process.execPath, [tool, '--check'], { cwd: dir }).status, 0)
+  writeFileSync(join(dir, 'styles', 'scale.css'), '/* правка руками */\n')
+  assert.equal(spawnSync(process.execPath, [tool, '--check'], { cwd: dir }).status, 1,
+    'выпущенный файл разошёлся с числами, а проверка молчит')
+})
+
+test('число на имени строителя — находка, а роль вместо роли — нет', async () => {
+  const { auditSheets } = await import('../tools/scale.mjs')
+  const sets = { 'проба': { 'ширины': [560, 1080], 'размер': { base: [16, 18] },
+    'ритм': { 1: [4, 4] }, 'поле': { card: [18, 22] }, 'воздух': {}, 'зазор': {} } }
+  const found = (css: string): string[] =>
+    auditSheets([{ rel: 'проба.css', css }], sets).map((f: { rule: string }) => f.rule)
+  assert.deepEqual(found('.a{--pad-card:var(--pad-inner)}'), [],
+    'подмена роли ролью объявлена дефектом — витрине нечем переобъявлять роли')
+  assert.deepEqual(found('.a{--pad-card:18px}'), ['число на имени строителя'],
+    'второй источник числа прошёл молча')
+})
+
+test('шкалы набора без чисел — находка, а не зелёная самопроверка', () => {
+  const tool = new URL('../tools/check-scale.mjs', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'scale-none-'))
+  mkdirSync(join(dir, 'styles'))
+  /* Чужой сайт со своими стилями: наших шкал нет — спрашивать с него наш
+     файл чисел нечестно, проверка остаётся самопроверкой. */
+  assert.equal(spawnSync(process.execPath, [tool], { cwd: dir }).status, 0)
+  /* Шкалы набора стоят, чисел нет — менять ритм нечем, и это надо сказать. */
+  writeFileSync(join(dir, 'styles', 'tokens.css'), ':root{--fs-1:1rem}\n')
+  const bare = spawnSync(process.execPath, [tool], { cwd: dir, encoding: 'utf8' })
+  assert.equal(bare.status, 1, 'набор стоит, чисел нет, а проверка зелёная')
+  assert.match(bare.stderr, /scale\.json/, 'проверка не назвала, чего не хватает')
 })
