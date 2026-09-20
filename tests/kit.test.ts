@@ -697,3 +697,27 @@ test('стенд цвета переключает тему свойством, 
   assert.match(html, /\[data-theme="dark"\]\{\s*color-scheme:\s*dark\s*\}/, 'тёмная тема не переключается')
   rmSync(dir, { recursive: true, force: true })
 })
+
+/* И214: заказчик спросил, сколько цветов ему вообще показывали, — и ответ
+   оказался «четырнадцать из сорока пяти». Стенд выбора показывает карточку
+   товара, то есть ту часть палитры, которая на карточке видна; остальное
+   выводилось и уезжало в сайт непоказанным. Лист палитры показывает ВСЁ
+   выпущенное, и это сторожится счётом, а не обещанием: добавится краска —
+   тест упадёт, пока она не встанет на лист. */
+test('лист палитры показывает каждую выпущенную краску, а не часть', () => {
+  const корень = new URL('..', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'sheet-'))
+  const out = join(dir, 'лист.html')
+  const r = spawnSync(process.execPath, [join(корень, 'tools/palette-sheet.mjs'), out],
+    { encoding: 'utf8', cwd: корень })
+  assert.equal(r.status, 0, r.stderr)
+
+  const html = readFileSync(out, 'utf8')
+  const выпущено = [...new Set(
+    readFileSync(join(корень, 'styles/palette.css'), 'utf8').match(/--[a-z0-9-]+(?=\s*:)/g) || [])]
+  assert.ok(выпущено.length >= 40, `выпущено подозрительно мало красок: ${выпущено.length}`)
+
+  const нет = выпущено.filter((имя) => !html.includes(имя))
+  assert.deepEqual(нет, [], `на листе нет красок: ${нет.join(', ')}`)
+  rmSync(dir, { recursive: true, force: true })
+})
