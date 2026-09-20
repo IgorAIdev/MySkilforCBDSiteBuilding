@@ -41,7 +41,8 @@ function brief(stage, { full = false } = {}) {
   console.log(`\n  Ворота${next ? ` (чтобы перейти к ${title(next)})` : ''}:`)
   for (const p of problems) line('✗', p)
   if (!problems.length && stage.gate.machine.length) line('✓', 'всё, что меряется, держится')
-  for (const h of stage.gate.human) line('□', `${h}   (глазом)`)
+  for (const h of stage.gate.human.mine) line('□', `${h}   (смотрю я)`)
+  for (const h of stage.gate.human.owner) line('□', `${h}   (РЕШАЕТ ЗАКАЗЧИК)`)
 
   if (stage.parked.length) {
     console.log('\n  Просыпается на этом этапе:')
@@ -92,7 +93,7 @@ if (arg('--gate')) {
     }
   }
   const now = gateProblems(stage)
-  console.log(`· ${title(stage)} — текущий; до перехода: ${now.length ? now.length + ' пункт(а) машиной' : 'машиной всё'}${stage.gate.human.length ? ` + ${stage.gate.human.length} глазом` : ''}`)
+  console.log(`· ${title(stage)} — текущий; до перехода: ${now.length ? now.length + ' пункт(а) машиной' : 'машиной всё'}${stage.gate.human.mine.length ? ` + ${stage.gate.human.mine.length} смотрю я` : ''}${stage.gate.human.owner.length ? ` + ${stage.gate.human.owner.length} решает заказчик` : ''}`)
   for (const p of PLATFORM) if (p.awake()) {
     console.log(`⚠ проснулся скилл платформы: ${p.name}\n    ${p.take}`)
   }

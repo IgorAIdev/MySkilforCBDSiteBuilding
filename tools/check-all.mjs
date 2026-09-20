@@ -126,7 +126,8 @@ if (FAST) {
 }
 
 console.log('\n━━ Машиной не проверяется — смотреть глазом:\n')
-for (const h of stage.gate.human) console.log(`   □ ${h}`)
+for (const h of stage.gate.human.mine) console.log(`   □ ${h}   (смотрю я)`)
+for (const h of stage.gate.human.owner) console.log(`   □ ${h}   (РЕШАЕТ ЗАКАЗЧИК)`)
 
 if (bad.length) {
   console.error(`\n✗ Не проходит: ${bad.map((r) => r.check).join(', ')}`)
