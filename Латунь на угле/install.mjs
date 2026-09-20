@@ -38,10 +38,7 @@ import { toCss } from './tools/palette.mjs'
 const SRC = resolve(new URL('.', import.meta.url).pathname)
 const args = process.argv.slice(2)
 const flags = new Set(args.filter((a) => a.startsWith('--')))
-/* Папка проекта — первый свободный довод, НЕ считая значения ключа
-   `--palette "Имя"`: имя набора выглядит как путь, и ставщик однажды принял
-   «Латунь на угле» за папку назначения (И213). */
-const target = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--palette')
+const target = args.find((a) => !a.startsWith('--'))
 const OUT = resolve(target ?? process.cwd())
 const MODE = flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')

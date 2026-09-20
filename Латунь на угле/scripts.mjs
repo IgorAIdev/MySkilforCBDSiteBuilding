@@ -1,0 +1,53 @@
+/**
+ * Команды набора — один список на всех.
+ *
+ * Заведено по счёту: список жил в двух местах — в сборщике (`tools/kit.mjs`)
+ * и в ставщике (`tools/kit/install.mjs`), — и они разошлись ровно так, как
+ * расходятся две копии. Одна сессия дописала в набор линтер и тесты, другая
+ * — проверку разметки и этапы; каждая правила свою копию. После слияния
+ * ставщик раскладывал в новый проект файлы линтера, но команды `check:lint`
+ * не заводил: проверка приезжала и не запускалась никем.
+ *
+ * Это тот самый признак заплатки из правил проекта: на вопрос «где это
+ * решается?» ответов стало два. Теперь один.
+ *
+ * В опубликованном наборе он лежит рядом с `install.mjs` и переезжает в
+ * проект вместе с ним: `npm run kit` из проекта, где заготовок `tools/kit/`
+ * нет, собирает набор заново — и берёт список отсюда.
+ */
+
+export const SCRIPTS = {
+  images: 'node tools/shrink.mjs',
+  typecheck: 'tsc --noEmit',
+  'check:css': 'node tools/check-css.mjs',
+  'check:code': 'node tools/check-code.mjs',
+  'check:port': 'node tools/check-port.mjs',
+  /* Палитра: выпуск и замер. Команда замера стояла в реестре `checks.mjs`,
+     а в проекте её не было ни в скриптах, ни файлом — то есть каждый новый
+     сайт получал её в подсказках и не мог запустить (И192). */
+  palette: 'node tools/palette-css.mjs',
+  'check:palette': 'node tools/check-palette.mjs && node tools/palette-css.mjs --check',
+  /* Шкалы: выпуск, замер и стенд. То же устройство, что у палитры, и по той
+     же причине (И202): числа шкал стояли в tokens.css набранными рукой, а
+     формула к ним — словами в комментарии рядом. */
+  scale: 'node tools/scale-css.mjs',
+  'check:scale': 'node tools/check-scale.mjs && node tools/scale-css.mjs --check',
+  'scale:stand': 'node tools/scale-stand.mjs',
+  'palette:stand': 'node tools/palette-stand.mjs',
+  'pro:check': 'node tools/pro-check.mjs',
+  'check:all': 'node tools/check-all.mjs',
+  checks: 'node tools/checks.mjs',
+  'check:lint': 'node tools/check-lint.mjs',
+  lint: 'oxlint app components lib',
+  test: 'node tools/check-test.mjs',
+  'check:craft': 'node tools/check-craft.mjs',
+  'check:open': 'node tools/check-open.mjs',
+  'check:urls': 'node tools/check-urls.mjs',
+  'check:seo': 'node tools/check-seo.mjs',
+  'check:stage': 'node tools/stage.mjs --gate',
+  stage: 'node tools/stage.mjs',
+  serve: 'node tools/serve.mjs',
+  sweep: 'node tools/sweep.mjs',
+  shade: 'node tools/shade.mjs',
+  kit: 'node tools/kit.mjs',
+}
