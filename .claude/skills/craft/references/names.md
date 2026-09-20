@@ -90,7 +90,7 @@ is»; Curtis (Purposeful vs Aesthetic) — перекраска марки пе�
 | ручки примитивов | `--stack-*`, `--cluster-*`, `--switch-*`, `--rail-*`, `--section-*`, `--sheet-*`, `--lede-*`, `--hero-*`, `--grid-*`, `--cols-*`, `--cell-*`, `--pin-*`, `--tray-*`, `--leaf-*`, `--chip-*`, `--qty-*`, `--more-*`, `--chan-*`, `--side-*`, `--prose-*`, `--pinned-*`, `--sidebar-*` | узел |
 | сырьё | `--n-N`, `--a-N`, `--e-N`, `--sale-N`, `--warn-N`, `--ok-N`, `--info-N`, `--on-*-N`, `--sp-N`, `--fs-*` | сырьё |
 | обязательные роли | `--bad`, `--bad-fill`, `--on-bad`, `--bad-tint`, `--bad-line`, `--ok`, `--ok-fill`, `--on-ok`, `--ok-tint`, `--warn`, `--warn-fill`, `--on-warn`, `--warn-tint`, `--sale`, `--sale-fill`, `--on-sale`, `--sale-tint`, `--pop-press`, `--plate-2`, `--rule`, `--field`, `--scrim`, `--layer-helper`, `--layer-toast` | роль |
-| объявлений в стилях набора | 639, по форме 639 | `tools/names.mjs`, `parse()` |
+| объявлений в стилях набора | 686, по форме 686 | `tools/names.mjs`, `parse()` |
 <!-- /families:names -->
 
 ## Роли, обязанные существовать

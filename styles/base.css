@@ -104,10 +104,12 @@ a,button,summary,label,input,select,textarea,[role="button"],[role="tab"]{touch-
    том же экране). Поле числа в счётчике корзины — ровно этот случай:
    количество меняют «−» и «+», и у них запас полный. Без этой оговорки поле
    торчало бы из своей пилюли на семь пикселей вверх и вниз. */
-@media (pointer:coarse){
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([data-tap]),
-  select,textarea{min-block-size:44px}
-}
+  select,textarea{min-block-size:var(--ctrl-h)}
+/* Один индекс размера тянет ряд (Radix): атрибут переобъявляет две роли, и
+   орган ничего не знает о трёх числах (И226). */
+[data-size='sm']{--ctrl-h:var(--ctrl-h-sm);--ctrl-fs:var(--ctrl-fs-xs)}
+[data-size='lg']{--ctrl-h:var(--ctrl-h-lg);--ctrl-fs:var(--ctrl-fs-base)}
 
 /* Цифры равной ширины — в интерфейсе, обычные — в тексте.
  *

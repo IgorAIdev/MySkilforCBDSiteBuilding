@@ -210,6 +210,7 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
 | ступеней ритма | 11, множители 0.25, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 4, 5, 6 | там же |
 | роли | поле `--pad-sheet`, `--pad-card`, `--pad-inner`; воздух `--air-page`, `--air-band`, `--air-block`, `--air-head`, `--air-group`, `--air-row`; зазор `--gap-targets`, `--gap-row`, `--gap-grid` | там же |
 | ролей текста | 9: hero, pagehead, h2, h3, intro, lede, body, note, eyebrow | `rolesOf()` |
+| размеры органов | под курсором 32 / 40 / 48, под пальцем 44 / 48 / 56; цель у знака 24 / 44 | `CONTROL` в `tools/thresholds.mjs`, `--ctrl-h-*` в `styles/scale.css` |
 | пороги | тело от 16, отношение 1.067…1.5, клетка 2 / 4 / 8, пол 8, воздух к полю ≥ 3, рост разделов ×1.33…1.5, зазор под пальцем 16 | `tools/thresholds.mjs` |
 | команды | `scale` · `check:scale` · `scale:stand` | `scripts.mjs` |
 <!-- /families:scale -->

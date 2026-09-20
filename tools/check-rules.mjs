@@ -249,6 +249,7 @@ const scaleFacts = () => {
     `| ступеней ритма | ${Object.keys(first.ритм).length}, множители ${Object.values(sets[names[0]].ритм ?? {}).join(', ')} | там же |`,
     `| роли | поле ${roles('поле')}; воздух ${roles('воздух')}; зазор ${roles('зазор')} | там же |`,
     `| ролей текста | ${Object.keys(sets[names[0]].текст ?? {}).length}: ${Object.keys(sets[names[0]].текст ?? {}).join(', ')} | \`rolesOf()\` |`,
+    `| размеры органов | под курсором ${THR.CONTROL.heights.fine.join(' / ')}, под пальцем ${THR.CONTROL.heights.coarse.join(' / ')}; цель у знака ${THR.CONTROL.target.fine} / ${THR.CONTROL.target.coarse} | \`CONTROL\` в \`tools/thresholds.mjs\`, \`--ctrl-h-*\` в \`styles/scale.css\` |`,
     `| пороги | тело от ${THR.TYPE.floor.base}, отношение ${THR.TYPE.ratio.join('…')}, клетка 2 / 4 / 8, пол ${THR.RHYTHM.floor}, воздух к полю ≥ ${THR.AIR.toPad}, рост разделов ×${THR.AIR.growth.page.join('…')}, зазор под пальцем ${THR.TARGET.gap.coarse} | \`tools/thresholds.mjs\` |`,
     `| команды | ${cmds.map((c) => `\`${c}\``).join(' · ')} | \`scripts.mjs\` |`,
   ].join('\n')

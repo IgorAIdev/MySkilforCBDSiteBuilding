@@ -25,7 +25,7 @@ export const CSS_FAMILIES = [
   'twoOwners', 'barNoScroll', 'deadDress', 'plateGap', 'barTwice', 'groundGlue',
   'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio', 'typeGuess', 'hueDirect',
   'nameGrammar', 'stepDirect', 'deadName', 'tierUp',
-  'axisUnknown', 'axisTheme', 'axisScope', 'axisHover',
+  'axisUnknown', 'axisTheme', 'axisScope', 'axisHover', 'ctrlSize',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -87,4 +87,5 @@ export const CSS_LABELS = {
   axisTheme: 'переменная объявлена под [data-theme] или prefers-color-scheme — тема ставит только color-scheme, цвет живёт в light-dark()',
   axisScope: 'по указателю или наведению меняется раскладка или видимость — это эвристика об устройстве, ей меняют цель и отклик, не содержимое',
   axisHover: ':hover вне @media (hover: hover) — на телефоне залипает после касания',
+  ctrlSize: 'высота органа числом в узле — размеров три, и все три роли (--ctrl-h-sm / --ctrl-h / --ctrl-h-lg); «small input и small button — один small»',
 }

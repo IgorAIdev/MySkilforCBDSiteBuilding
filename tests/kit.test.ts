@@ -593,6 +593,32 @@ test('реестр осей: признак → ось; язык и контра
   }
 })
 
+/* И226: размеров органа три, и все три — роли из порогов; под пальцем
+   ступень выше одной переменной. Высоты рукой (28, 30, 42, 54, 44 под
+   пальцем пятью правилами) сняты. */
+test('размеры органа: три роли из порогов, под пальцем не ниже 44, узлы без высоты числом', async () => {
+  const { CONTROL } = await import('../tools/thresholds.mjs')
+  for (const name of ['--ctrl-h-sm', '--ctrl-h', '--ctrl-h-lg', '--ctrl-target', '--ctrl-fs']) {
+    assert.ok(declared(name), `в шкале нет роли размера ${name}`)
+  }
+  assert.match(ladderCss, new RegExp(`--ctrl-h: ${CONTROL.heights.fine[1]}px;`), 'средний размер не из порогов')
+  const coarse = ladderCss.match(/@media \(pointer:coarse\)\{ :root\{([^}]*)\}/)
+  assert.ok(coarse, 'под пальцем нет блока')
+  for (const [i, name] of ['--ctrl-h-sm', '--ctrl-h', '--ctrl-h-lg'].entries()) {
+    const m = coarse![1]!.match(new RegExp(`${name}:(\\d+)px`))
+    assert.ok(m && Number(m[1]) >= 44 && Number(m[1]) === CONTROL.heights.coarse[i], `${name} под пальцем не из порогов или ниже 44`)
+  }
+  assert.ok(CONTROL.heights.coarse.every((h) => h >= 44), 'под пальцем размер ниже 44')
+  assert.ok(!/^\s*--ctrl-h\s*:\s*\d/m.test(tokens), 'высота органа числом в tokens.css — её выпускает строитель')
+  /* Ни один орган в примитивах не задаёт высоту числом. */
+  const prim = readFileSync(new URL('../styles/primitives.module.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+  for (const m of prim.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+    if (/svg|::after|::before|img/.test(m[1])) continue
+    const bad = m[2].match(/(?:^|;)\s*(height|min-height|block-size|min-block-size)\s*:\s*(\d+(?:\.\d+)?)px/)
+    assert.ok(!bad || Number(bad[2]) <= 1, `орган с высотой числом: ${m[1].trim().slice(0, 40)} ${bad?.[0]}`)
+  }
+})
+
 test('ступень без просителя — находка', async () => {
   const { auditReaders } = await import('../tools/scale.mjs')
   const sets = { проба: {
@@ -626,7 +652,7 @@ test('шкалы выпускаются в CSS, и выпущенное сход
   assert.match(css, /--sp-10: clamp\(56px, 30\.15px \+ 4\.62vw, 80px\);/, 'ступень ритма посчитана не по формуле')
   assert.match(css, /--pad-card: clamp\(1\.125rem, /, 'поле выпущено не в rem')
   assert.match(css, /--air-page: var\(--sp-10\);/, 'воздух завёл своё число вместо ссылки на ступень')
-  assert.match(css, /@media \(pointer:coarse\)\{ :root\{ --gap-targets:16px \} \}/, 'под пальцем у зазора нет своего значения')
+  assert.match(css, /@media \(pointer:coarse\)\{ :root\{ --gap-targets:16px/, 'под пальцем у зазора нет своего значения')
   /* Каждый набор стоит под своим именем — первый в том числе (И198). */
   assert.match(css, /\[data-scale="проба"\]\{/, 'первый набор стоит только на корне')
 
