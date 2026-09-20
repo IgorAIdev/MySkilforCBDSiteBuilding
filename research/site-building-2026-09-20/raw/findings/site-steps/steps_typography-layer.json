@@ -1,0 +1,301 @@
+{
+ "source": "Типографика как слой: шкала кеглей, интерлиньяж, мера строки — и её связь с пространством (Utopia, A List Apart / Tim Brown, Material Design 3, IBM Carbon Design System, Every Layout, Practical Typography)",
+ "sourcesRead": [
+  "https://utopia.fyi/blog/designing-with-fluid-type-scales/",
+  "https://utopia.fyi/type/calculator/",
+  "https://utopia.fyi/space/calculator/",
+  "https://alistapart.com/article/more-meaningful-typography/",
+  "https://carbondesignsystem.com/elements/typography/overview/",
+  "https://carbondesignsystem.com/elements/typography/style-strategies/",
+  "https://carbondesignsystem.com/elements/typography/type-sets/",
+  "https://every-layout.dev/rudiments/axioms/",
+  "https://every-layout.dev/rudiments/units/",
+  "https://practicaltypography.com/line-spacing.html",
+  "https://practicaltypography.com/line-length.html",
+  "https://practicaltypography.com/point-size.html",
+  "https://raw.githubusercontent.com/material-components/material-web/main/docs/theming/typography.md",
+  "https://raw.githubusercontent.com/material-components/material-web/main/tokens/_md-sys-typescale.scss"
+ ],
+ "sourcesFailed": [
+  "https://m3.material.io/styles/typography/type-scale-tokens (сайт — SPA без содержимого без JS, отдана только строка This website requires JavaScript, включая снимок web.archive.org)",
+  "https://m2.material.io/design/typography/the-type-system.html (тоже SPA без статического содержимого; заменено официальным репозиторием material-components/material-web той же команды Google)"
+ ],
+ "layers": [
+  {
+   "order": 1,
+   "name": "Гарнитура — уже есть в проекте (Typeface, Tim Brown / Material ref typeface)",
+   "plain": "Какими буквами вообще набран текст — это не число, а файл шрифта. У сайта эта часть уже сделана в разделе «Шрифт выбирает рынок» (Inter/Lora, языки рынка). Кегли настраивают поверх готовой гарнитуры, а не раньше неё — иначе цифры калибруются под шрифт, которого ещё нет.",
+   "contains": [
+    "гарнитура дизайн-системы (Inter/Lora)",
+    "начертания рынка (латиница/кириллица/latin-ext)",
+    "выбор владельца из админки Sites → Дизайн-система → Шрифты",
+    "три начертания на гарнитуру: normal/medium/bold (Material ref typeface: 400/500/700)"
+   ],
+   "dependsOn": [],
+   "doneWhen": "шрифт грузится и показывает нужные буквы рынка — уже закрыто font-registry.test.ts и font-bulgarian.test.ts",
+   "artifacts": [
+    "shopFonts в @cbdshop/contracts",
+    "--md-ref-typeface-* по аналогии из Material"
+   ]
+  },
+  {
+   "order": 2,
+   "name": "Шкала кеглей — примитивы (Utopia type scale, Carbon scale formula, Tim Brown modular scale)",
+   "plain": "Лесенка размеров текста: подпись мельче обычного текста, тот мельче подзаголовка, тот мельче заголовка — и расстояние между ступеньками одно и то же число раз, как ноты в гамме, а не подобрано на глаз для каждого места заново.",
+   "contains": [
+    "базовый кегль тела текста на узком экране и на широком (Utopia calculator: min viewport+font+ratio, max viewport+font+ratio)",
+    "число-множитель шага (ratio) — 1.2 узкий / 1.25 широкий у Utopia по умолчанию, золотое сечение 1.618 у Tim Brown, единая формула у Carbon: Xn = Xn-1 + (INT[(n-2)/4]+1)*2 от базовой единицы 12px",
+    "набор ступеней вверх и вниз от тела текста",
+    "текучая формула (clamp/интерполяция) между узким и широким значением без скачка на шве — не подбор чисел на каждый брейкпоинт"
+   ],
+   "dependsOn": [
+    "Гарнитура (1) — калибруется под реальный шрифт, размер тела текста берётся тот, при котором именно этот шрифт выглядит чётче всего"
+   ],
+   "doneWhen": "на любой ширине от 375 до 1440 каждая ступень шкалы существует и плавно растёт между записанным минимумом и максимумом — без рывка на шве, тем же способом, каким уже проверяется раскладка (test:wide), только для кегля",
+   "artifacts": [
+    "токены --text-step-N / --text-h1-size и т.п. как clamp()",
+    "таблица ступеней в rem/px, как у Carbon (0.75rem…5.75rem)"
+   ]
+  },
+  {
+   "order": 3,
+   "name": "Интерлиньяж — своя пара на каждую ступень (Butterick, Carbon pairing)",
+   "plain": "Воздух между строк одного абзаца — не одно число на весь сайт, а своя пара для каждого размера буквы: крупному заголовку воздуха нужно меньше по отношению к своему размеру, мелкому тексту — больше.",
+   "contains": [
+    "интерлиньяж как доля кегля — 120–145% от кегля (Butterick)",
+    "своя пара размер+интерлиньяж на каждую ступень, а не общий line-height на документ (Carbon: пары body-01/heading-01 подобраны, чтобы интерлиньяж совпадал)",
+    "поправка при смене кегля — уменьшили кегль, уменьшают и интерлиньяж, и меру (Butterick)"
+   ],
+   "dependsOn": [
+    "Шкала кеглей (2)"
+   ],
+   "doneWhen": "у каждой ступени шкалы записан свой line-height, а не общий на весь документ; смена ступени не требует ручной правки соседнего line-height",
+   "artifacts": [
+    "--text-h2-line, --text-body-line и т.п. — по токену на ступень, как в Material md-sys-typescale-*-line-height"
+   ]
+  },
+  {
+   "order": 4,
+   "name": "Мера строки — предел ширины колонки текста (Every Layout axiom, Butterick, Tim Brown)",
+   "plain": "Сколько знаков помещается в одну строку абзаца. Слишком длинная строка — глаз теряет место при переходе на следующую; слишком короткая — мысль рвётся на середине. Этот предел живёт отдельно от того, насколько широка сама карточка или колонка на экране.",
+   "contains": [
+    "диапазон 45–75(–90) символов в строке (Every Layout: измерение не должно превышать 60ch; Butterick: 45–90 символов; Tim Brown откалибровал 497px меры под 18px тело и 1.54 интерлиньяжа)",
+    "единица ch, которая растёт вместе с кеглем, а не фиксированный пиксель",
+    "предел ставится на текстовый блок, не на страницу целиком"
+   ],
+   "dependsOn": [
+    "Шкала кеглей (2) — ch зависит от текущего font-size элемента, значит без шага 0 меру не задать"
+   ],
+   "doneWhen": "ни один абзац, описание товара или статья не шире примерно 60–75ch ни на одной ширине экрана — даже когда колонка широкой раскладки объективно шире",
+   "artifacts": [
+    "max-inline-size: NNch на текстовых блоках"
+   ]
+  },
+  {
+   "order": 5,
+   "name": "Роли — типографика читает не число, а имя (Material typescale roles, Carbon type sets)",
+   "plain": "Не «шрифт 24px полужирный», а «заголовок раздела» — имя по смыслу. Гарнитура, кегль, интерлиньяж и начертание связываются в один именованный набор, и компонент берёт набор по имени. Это тот же приём, что уже сделан для цвета на этом проекте: примитив → роль → тема → компонент читает роль.",
+   "contains": [
+    "роль = семейство + размер + интерлиньяж + начертание одним токеном (Material: typescale — это набор font-family, font-size, line-height и font-weight)",
+    "роли по смыслу текста, не по компоненту — 5 ролей × 3 размера у Material (display/headline/title/body/label = 15 стилей); пары body/heading у Carbon",
+    "какую роль применить решает смысл текста, а не то, какой компонент его показывает — это описывают отдельные правила применения роли (Material applying-type guidelines)"
+   ],
+   "dependsOn": [
+    "Шкала кеглей (2)",
+    "Интерлиньяж (3)",
+    "Гарнитура (1)"
+   ],
+   "doneWhen": "в коде компонентов нет сырых px/rem для текста — только имя роли; замена гарнитуры или ступени в одном месте меняет все места разом",
+   "artifacts": [
+    "--text-role-h1 и т.п. по образцу --md-sys-typescale-*",
+    "типографический сторож по образцу control-states.test.ts, ловящий сырой font-size мимо роли"
+   ]
+  },
+  {
+   "order": 6,
+   "name": "Плотность — два набора одной роли на разный контекст (Carbon productive/expressive)",
+   "plain": "Не всякий текст должен быть одинаково просторным. На витрине, где покупатель разглядывает товар, буквы могут быть крупнее и воздушнее; в тесных местах — корзина, форма, список — тот же смысл роли должен помещаться компактнее.",
+   "contains": [
+    "два параллельных набора одной роли — компактный/просторный (Carbon productive -01 / expressive -02)",
+    "выбор набора по контексту экрана или блока, а не по странице целиком (Carbon: 'blending type sets... moments')",
+    "фиксированные заголовки в тесных местах, текучие — в просторных (Carbon: 'expressive headings are responsive and change size at different breakpoints')"
+   ],
+   "dependsOn": [
+    "Роли (5)"
+   ],
+   "doneWhen": "у ключевых ролей (заголовок, тело) есть компактный вариант для тесных мест (чекаут, строка корзины) и просторный для героя/статьи блога, оба берут одну и ту же шкалу",
+   "artifacts": [
+    "суффикс роли -compact/-expressive по образцу Carbon -01/-02"
+   ]
+  },
+  {
+   "order": 7,
+   "name": "Пространство читает базовую единицу типографики (Utopia space scale)",
+   "plain": "Отступы и расстояния между блоками — не свои случайные числа, а кратны тому же базовому размеру, что и текст тела. Тогда весь сайт держит один ритм, а не два независимых набора чисел, которые рано или поздно разъедутся.",
+   "contains": [
+    "базовое число пространства = кегль тела текста на нулевой ступени шкалы (Utopia: 'используя те же базовые значения из калькулятора текучего типа... связанную текучую систему пространства')",
+    "шаги пространства как множители того же базового числа, тоже текучие между теми же узкой и широкой ширинами",
+    "пары «на шаг» и «через несколько шагов» для разного масштаба воздуха (t-shirt размеры Utopia: 3xs…3xl)"
+   ],
+   "dependsOn": [
+    "Шкала кеглей (2), конкретно её нулевой шаг — кегль тела текста"
+   ],
+   "doneWhen": "токены отступов проекта (--layout-band-gap и т.п.) выражены как кратные базовому кеглю текста, а не отдельным независимым числом рядом",
+   "artifacts": [
+    "--space-step-N = f(--text-step-0)"
+   ]
+  }
+ ],
+ "orderRationale": "Порядок выведен из самих источников, не назначен: Tim Brown прямо говорит выбирать гарнитуру и кегль тела текста ДО раскладки; Utopia строит сначала шкалу кеглей (её калькулятор type/calculator), и только потом её собственный калькулятор пространства (space/calculator) явно берёт «те же базовые значения» шкалы кеглей как вход; Material и Carbon документируют gerarchy Typeface → Typescale (family+size+line-height+weight) → применение по ролям, без обратной связи от типографики к раскладке в этих же документах. Главный вопрос задачи — что первично, типографика или пространство — источники отвечают по-разному, и вот доводы за каждый порядок. (1) Типографика первична (Utopia, Every Layout): Utopia буквально вычисляет шаги пространства из шага 0 шкалы кеглей — общий калькулятор, общие базовые значения; Every Layout строит вообще все размеры (в т.ч. отступы через em/rem/ch) от «внутренних размеров текста» — цитата 'Learn to extrapolate your layouts from your text's intrinsic dimensions'; довод: то, что реально измеряет глаз при чтении (мера, интерлиньяж), должно быть источником пропорции, а не наоборот, иначе отступ и буква расходятся при масштабировании страницы браузером. (2) Пространство независимо (Material, Carbon по умолчанию): ни в typography.md Material, ни в трёх прочитанных страницах Carbon typescale не упомянута зависимость от отдельной системы spacing — у Carbon интервалы построены на своей 2x-сетке отдельным документом; довод: крупная система, обслуживающая много продуктов и команд (как у Carbon/Material), не может требовать пересчёта сетки отступов при каждой правке шкалы кеглей — связка делает систему хрупкой там, где текст меняется чаще раскладки. (3) Ни то ни другое строго — взаимная калибровка на глаз (Tim Brown, Butterick): Brown вручную подобрал 497px меры под 18px тело и 1.54 интерлиньяжа, а не вычислил её из формулы; Butterick — 'As you reduce point size, also reduce line spacing and line length' — три числа двигаются вместе, ни одно не является чистым входом для двух других; довод: математика формулы (модульная шкала, clamp) — инструмент, а не замена глазу: 'math is no substitute for an experienced designer's eye'. Для третьей витрины (storefront3) вывод практичен, а не идеологичен: проект уже выбрал текучий clamp() как способ задавать все размеры, зависящие от ширины экрана (правило 1 раздела «Широкая раскладка сжимается» — числа из Figma как clamp, а не медиазапрос), и уже держит реестр швов в seams.ts. Продолжать эту же логику для отступов, взяв за основу нулевой шаг типографической шкалы (путь Utopia), не создаёт второй независимый механизм — но финальный line-height и меру каждой роли всё равно проверяют глазом на реальном шрифте и языке (путь Brown/Butterick), а не одной формулой вслепую.",
+ "vocabulary": [
+  {
+   "term": "шкала кеглей (type scale)",
+   "plain": "лесенка размеров текста: подпись мельче обычного текста, тот мельче подзаголовка, тот мельче заголовка — и шаг между ступеньками всегда один и тот же во сколько-то раз, как ноты в гамме, а не подобран на глаз для каждого места заново",
+   "example": "12, 14, 16 (обычный текст), 20, 28, 40 px — на телефоне все ступеньки чуть мельче, на широком экране чуть крупнее, но лесенка та же"
+  },
+  {
+   "term": "пропорция шага / ratio",
+   "plain": "во сколько раз каждая следующая ступенька крупнее предыдущей — одно число на весь сайт, чтобы буквы не подбирались на глаз каждый раз заново",
+   "example": "если шаг 1.25, то 16 → 20 → 25 → 31 px"
+  },
+  {
+   "term": "мера строки (measure)",
+   "plain": "сколько букв помещается в одну строку текста — слишком длинная строка утомляет глаз, слишком короткая рвёт мысль на середине",
+   "example": "абзац описания товара не шире примерно 60 символов в строке, даже если карточка широкая"
+  },
+  {
+   "term": "интерлиньяж (line-height)",
+   "plain": "воздух между строками текста, не между буквами — от него зависит, легко ли глазу соскользнуть со строки на следующую, не потеряв место",
+   "example": "у крупного заголовка воздуха между строк меньше по отношению к размеру буквы, у мелкого текста — больше"
+  },
+  {
+   "term": "роль текста (type role)",
+   "plain": "не «шрифт 24px», а «заголовок раздела» — имя по смыслу, а не по числу; поменяли имя один раз — поменялись все заголовки сайта разом",
+   "example": "«цена», «название товара», «подпись под фото» — три роли, у каждой свой размер и вес"
+  },
+  {
+   "term": "токен",
+   "plain": "готовое поименованное значение, которое компонент берёт по имени, а не набирает руками заново",
+   "example": "кнопка «В корзину» не пишет «14px, полужирный», она берёт роль «label»"
+  },
+  {
+   "term": "текучий (fluid)",
+   "plain": "размер не прыгает скачком на определённой ширине экрана, а плавно растёт вместе с шириной окна, как вода наливается в сосуд разной формы",
+   "example": "заголовок 28px на телефоне плавно становится 40px на широком экране без рывка посередине"
+  },
+  {
+   "term": "ритм (rhythm)",
+   "plain": "одно и то же расстояние или его кратное повторяется между строками текста и между блоками страницы, чтобы страница выглядела собранной, а не набранной наугад",
+   "example": "отступ между абзацами кратен высоте строки текста, а не выбран на глаз отдельно"
+  },
+  {
+   "term": "трекинг / межбуквенный интервал",
+   "plain": "расстояние между отдельными буквами внутри слова — не путать с интерлиньяжем, тот про строки",
+   "example": "мелкая подпись заглавными буквами часто получает чуть больше расстояния между буквами, чтобы не слипалась"
+  }
+ ],
+ "principles": [
+  {
+   "principle": "Текучая шкала строится как две статичные шкалы (узкий и широкий экран) плюс интерполяция между ними — а не подбор числа под каждый брейкпоинт",
+   "evidence": "Utopia: 'Breakpoint-based type sizing has always felt a bit arbitrary to me' — калькулятор берёт min viewport+font+ratio и max viewport+font+ratio и интерполирует середину (utopia.fyi/blog/designing-with-fluid-type-scales)",
+   "forStorefront3": "кегли задаются как clamp() по тому же принципу, что проект уже применяет к отступам и раскладке (правило 1 «Широкая раскладка сжимается»), а не отдельным набором чисел на 860/1024/1440"
+  },
+  {
+   "principle": "Пространство берёт за основу нулевой шаг шкалы кеглей — базовый кегль тела текста, а не собственное независимое число",
+   "evidence": "Utopia space/calculator буквально переиспользует «те же базовые значения из калькулятора текучего типа», давая «связанную текучую систему пространства» (utopia.fyi/space/calculator)",
+   "forStorefront3": "существующие токены --layout-band-gap, --layout-band-pad и т.п. выражаются как кратные --text-step-0, а не отдельным независимым набором чисел рядом с типографикой"
+  },
+  {
+   "principle": "Каждый текстовый стиль — это один именованный набор из гарнитуры, размера, интерлиньяжа и начертания, а не четыре отдельных свойства, расставленных компонентом",
+   "evidence": "Material Web docs: 'A typescale is a collection of font styles: font-family, font-size, line-height, and font-weight' — и организованы в роли по назначению (raw.githubusercontent.com/material-components/material-web/main/docs/theming/typography.md)",
+   "forStorefront3": "роль текста строится по той же схеме, что уже построена для цвета — примитив → роль → тема → компонент читает роль, а не как новый параллельный механизм"
+  },
+  {
+   "principle": "Роль назначается по смыслу текста (что это — заголовок, подпись, тело), а не по тому, какой компонент его сейчас показывает",
+   "evidence": "Material разделяет применение ролей отдельным документом ('applying type guidelines explains when to use each typescale role'), не привязывая роль к конкретному UI-элементу (typography.md)",
+   "forStorefront3": "SectionHead, карточка товара и статья блога делят одни и те же роли «заголовок раздела»/«тело», как уже сделано с общим SectionHead.module.css для шапки блока"
+  },
+  {
+   "principle": "Интерлиньяж — не одно число на документ, а своя пара на каждую ступень шкалы, подобранная так, чтобы соседние роли совпадали по ритму строки",
+   "evidence": "Carbon явно подбирает пары body-compact-01/heading-compact-01 «to ensure consistent line heights» (carbondesignsystem.com/elements/typography/style-strategies); Butterick: оптимальный интерлиньяж 120–145% от кегля, и меняется вместе с кеглем (practicaltypography.com/line-spacing.html)",
+   "forStorefront3": "у каждого токена роли (--text-h2 и т.п.) свой line-height внутри токена, а не общий global line-height на body, который переопределяют местами"
+  },
+  {
+   "principle": "Мера строки ограничивается в ch (45–75, максимум ~90 символов) независимо от ширины колонки блока",
+   "evidence": "Every Layout: 'the measure should never exceed 60ch' (every-layout.dev/rudiments/axioms); Butterick: 'Aim for an average line length of 45-90 characters, including spaces' (practicaltypography.com/line-length.html)",
+   "forStorefront3": "описание товара, статья блога, длинный текст на widescreen-раскладке storefront3 не растягиваются на всю широкую колонку — виден предел в ch, а не пиксельная ширина"
+  },
+  {
+   "principle": "Гарнитура выбирается и калибруется до шкалы кеглей: базовый размер — это тот, при котором именно выбранный шрифт выглядит чётче всего, а не абстрактное число",
+   "evidence": "Tim Brown, A List Apart: 'By choosing a text face at the beginning of a project — before making decisions about layout or typesetting — we can use the size at which body text looks most crisp as the basis for a project's modular scale' (alistapart.com/article/more-meaningful-typography)",
+   "forStorefront3": "проект уже выбрал гарнитуру (Шрифт выбирает рынок) — значит шкалу кеглей нужно калибровать под реальные файлы шрифта и реальные языковые начертания (кириллица/latin-ext), а не только по формуле"
+  },
+  {
+   "principle": "У одной роли может быть два плотностных варианта — компактный для тесных функциональных мест и просторный для витринных/редакционных — берущих одну и ту же шкалу",
+   "evidence": "Carbon: productive (-01, компакт, для продукта/форм) и expressive (-02, просторный, для веб-страниц) типсеты, с явным правилом смешивания по контексту 'moments' (carbondesignsystem.com/elements/typography/style-strategies)",
+   "forStorefront3": "для магазина класса «минимализм-лакшери» это прямо переносимо: просторные роли для героя и карточек товара на витрине, компактные — для чекаута и строк корзины, без двух разных систем"
+  },
+  {
+   "principle": "Типографике от палитры нужен контраст текст/фон; пространству от типографики — базовая единица и line-height как шаг ритма",
+   "evidence": "Carbon: «Type color should be carefully considered, with legibility and accessibility as paramount concerns» (carbondesignsystem.com/elements/typography/overview) — контраст со стороны цвета; Utopia space/calculator — базовая единица со стороны типографики; Carbon pairing body/heading по line-height — line-height как шаг ритма",
+   "forStorefront3": "проект уже проверяет контраст текст/фон между темами (test:theme, раздел «Цвет текста берётся оттуда же») — это и есть тот самый вход от палитры; следующий слой (типографика) обязан быть построен так, чтобы пространство после него могло взять его базовую единицу, а не изобретать свою"
+  }
+ ],
+ "ecommerceSpecific": [
+  "Роль label существует отдельно от body именно для полей форм, кнопок, подписей — Material выделяет её одной из 5 ролей (display/headline/title/body/label), Carbon даёт label-01/label-02 для «field labels, error messages, captions»: прямое попадание в чекаут, промокод, подпись к количеству товара.",
+  "Отдельная роль под юридический мелкий текст — legal-01/legal-02 у Carbon («This is for legal copy appearing in product/web pages»), с зафиксированным кеглем — совпадает с уже принятым в проекте запретом на кегль ниже 12px в админке; тот же принцип применим к условиям, сертификатам, тексту согласий на витрине.",
+  "Carbon явно подбирает пары «заголовок + тело» по совпадающему line-height (body-compact-01 + heading-compact-01) — на карточке товара это значит, что название товара и цена/бейдж под ним должны держать общий ритм строки, а не произвольные числа.",
+  "Butterick: при уменьшении кегля уменьшают и меру, и интерлиньяж вместе — на карточке товара в узкой колонке планшета (768, две колонки в ленте) кегль цены и её подпись не могут остаться тем же числом, что на широкой раскладке 1440, иначе нарушится именно эта связка, а не просто «стало мельче»."
+ ],
+ "quotes": [
+  {
+   "text": "Breakpoint-based type sizing has always felt a bit arbitrary to me.",
+   "source": "https://utopia.fyi/blog/designing-with-fluid-type-scales/"
+  },
+  {
+   "text": "Using the same base values from the fluid type calculator, this tool helps you create a related fluid space system.",
+   "source": "https://utopia.fyi/space/calculator/"
+  },
+  {
+   "text": "the measure should never exceed 60ch",
+   "source": "https://every-layout.dev/rudiments/axioms/"
+  },
+  {
+   "text": "Learn to extrapolate your layouts from your text's intrinsic dimensions and your designs will be beautiful.",
+   "source": "https://every-layout.dev/rudiments/units/"
+  },
+  {
+   "text": "By choosing a text face at the beginning of a project, before layout or typesetting, we find where body text looks most crisp.",
+   "source": "https://alistapart.com/article/more-meaningful-typography/"
+  },
+  {
+   "text": "As you reduce point size, also reduce line spacing and line length.",
+   "source": "https://practicaltypography.com/point-size.html"
+  },
+  {
+   "text": "The optimal line spacing is between 120% and 145% of the point size.",
+   "source": "https://practicaltypography.com/line-spacing.html"
+  },
+  {
+   "text": "Aim for an average line length of 45-90 characters, including spaces.",
+   "source": "https://practicaltypography.com/line-length.html"
+  },
+  {
+   "text": "The IBM type scale is built on a single equation.",
+   "source": "https://carbondesignsystem.com/elements/typography/overview/"
+  },
+  {
+   "text": "Type color should be carefully considered, with legibility and accessibility as paramount concerns.",
+   "source": "https://carbondesignsystem.com/elements/typography/overview/"
+  },
+  {
+   "text": "A typescale is a collection of font styles: font-family, font-size, line-height, and font-weight.",
+   "source": "https://raw.githubusercontent.com/material-components/material-web/main/docs/theming/typography.md"
+  },
+  {
+   "text": "\"face\" refers to font-family and font-weight.",
+   "source": "https://raw.githubusercontent.com/material-components/material-web/main/docs/theming/typography.md"
+  }
+ ],
+ "confidence": "Средне-высокая, неравномерная по источникам. Высокая — там, где текст прочитан напрямую из сырого HTML/Markdown без пересказа: Carbon (три страницы, включая формулу шкалы Xn=Xn-1+(INT[(n-2)/4]+1)*2 и таблицу кеглей) и Material (typography.md и _md-sys-typescale.scss из официального репозитория material-components/material-web) — эти цитаты и числа проверены глазами на исходном тексте. Средняя — там, где содержимое прошло через сокращающий инструмент WebFetch (Utopia, A List Apart/Tim Brown, Every Layout, Practical Typography): смысл и порядок шагов достоверны и перепроверены по нескольким страницам одного источника, но точные формулировки цитат стоит сверить с оригиналом перед тем, как печатать их в документе владельца. Не удалось прочитать: официальный сайт Material Design 3 (m3.material.io) — это SPA без серверного рендера, отдаёт только «This website requires JavaScript» и через прямой запрос, и через снимок web.archive.org; заменено чтением официального репозитория той же команды на GitHub, что по правилу (1) задания допустимо (raw.githubusercontent.com). Главный вопрос задания — что первично, типографика или пространство — имеет доказательства у источников только для двух позиций из трёх прямо (Utopia: пространство из типографики; Material/Carbon: раздельно, по отсутствию связи в документах), третья позиция (Every Layout — от line-height) в прочитанных двух страницах (axioms, units) не подтвердилась буквально: там речь о единицах, зависимых от font-size в целом (em/rem/ch), а не конкретно о line-height как шаге ритма — это скорректировано в тексте, а не оставлено как непроверенное утверждение."
+}

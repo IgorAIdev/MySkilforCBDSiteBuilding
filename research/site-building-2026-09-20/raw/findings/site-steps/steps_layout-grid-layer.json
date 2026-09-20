@@ -1,0 +1,279 @@
+{
+ "source": "Раскладка как слой: холст, примитивы, контейнерные запросы, сетка, поля, именованные швы — по Every Layout, MDN Container Queries, web.dev «The new responsive» (Уна Кравец), Tailwind CSS (container / @container), Carbon Design System (2x Grid), Material Design 3 (breakpoints / panes)",
+ "sourcesRead": [
+  "https://every-layout.dev/",
+  "https://every-layout.dev/layouts/",
+  "https://every-layout.dev/layouts/stack/",
+  "https://every-layout.dev/layouts/sidebar/",
+  "https://every-layout.dev/layouts/switcher/",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries",
+  "https://web.dev/articles/new-responsive",
+  "https://tailwindcss.com/docs/container",
+  "https://tailwindcss.com/docs/responsive-design",
+  "https://carbondesignsystem.com/elements/2x-grid/overview/ (получено через curl, разметка регулярным разбором)"
+ ],
+ "sourcesFailed": [
+  "https://every-layout.dev/layouts/grid/ — платная часть, показана только заглушка",
+  "https://every-layout.dev/layouts/container/ — платная часть, показана только заглушка",
+  "https://m3.material.io/foundations/layout/applying-layout/window-size-classes — SPA без серверного рендера, отдаёт пустой каркас (67–51 непробельных символов в HTML)",
+  "https://m3.material.io/foundations/layout/breakpoints — та же причина; текст ниже взят из результатов веб-поиска (вторичный пересказ), а не из первоисточника",
+  "https://m3.material.io/foundations/layout/layout-overview/overview — SPA без серверного рендера, не открылось",
+  "https://m3.material.io/foundations/layout/canonical-examples/overview — SPA без серверного рендера, не открылось"
+ ],
+ "layers": [
+  {
+   "order": 1,
+   "name": "Container / The Container, containment context (Every Layout, MDN) — «Холст: объявленная ширина»",
+   "plain": "Прежде чем что-то раскладывать, нужно объявить коробку, у которой ЕСТЬ измеримая ширина — это и holst. Без этого шага браузер не знает, отталкиваться от чего: от окна целиком или от места, которое реально досталось блоку.",
+   "contains": [
+    "предельная ширина страницы/блока (max-width, clamp)",
+    "объявление контейнмента: container-type: inline-size на обёртке",
+    "необязательное имя контейнера: container-name / шорткод container"
+   ],
+   "dependsOn": [],
+   "doneWhen": "у обёртки явно объявлена ширина или контейнмент, и любой дочерний узел может спросить «сколько мне досталось» — не «какой сейчас экран»",
+   "artifacts": [
+    "CSS custom property на ширину контента",
+    "container-type/container-name на ключевых обёртках"
+   ]
+  },
+  {
+   "order": 2,
+   "name": "Layout primitives — Stack, Box, Center, Cluster, Sidebar, Switcher, Cover, Reel (Every Layout) — «Примитивы раскладки»",
+   "plain": "Это готовые, один раз решённые задачи расстановки — «расставь по вертикали с воздухом между», «раздели на узкую и широкую часть», «переключись со строки на столбик». Они не знают, что внутри них лежит и какой ширины их коробка — поэтому один и тот же примитив работает и в шапке, и в карточке, и в подвале.",
+   "contains": [
+    "Stack — вертикальный ритм через margin-block-start у смежных элементов",
+    "Sidebar — узкая+широкая часть на flex-basis/flex-grow, без media query",
+    "Switcher — прямое переключение строка↔столбик по calc()-порогу",
+    "Cluster/Cover/Reel и др. — те же условия «не знаю контента, знаю только правило»"
+   ],
+   "dependsOn": [
+    "Container / The Container, containment context (Every Layout, MDN) — «Холст: объявленная ширина»"
+   ],
+   "doneWhen": "правило расстановки написано один раз общим классом/компонентом и подключается через composition (у проекта — аналог composes), а не переписывается на каждом блоке заново",
+   "artifacts": [
+    "общий файл примитивов (например .stack, .sidebar, .switcher классы)",
+    "нулевые захардкоженные ширины внутри примитива"
+   ]
+  },
+  {
+   "order": 3,
+   "name": "@container queries, container query units (MDN, web.dev, Tailwind @container) — «Компонент отвечает на себя»",
+   "plain": "Это способ спросить у самой коробки компонента «ты сейчас узкая или широкая», а не спрашивать у экрана телефона. Карточка товара тогда выглядит правильно и в узкой колонке, и в широкой галерее — она подстраивается под место, куда её поставили, а не под устройство покупателя.",
+   "contains": [
+    "@container (width > …) { … } правила на потомках",
+    "единицы cqw/cqi/cqb/cqmin/cqmax",
+    "именованные контейнеры для запроса «через уровень»"
+   ],
+   "dependsOn": [
+    "Container / The Container, containment context (Every Layout, MDN) — «Холст: объявленная ширина»",
+    "Layout primitives — Stack, Box, Center, Cluster, Sidebar, Switcher, Cover, Reel (Every Layout) — «Примитивы раскладки»"
+   ],
+   "doneWhen": "один и тот же компонент, поставленный в узкий и в широкий родитель, меняет вид сам — без второго класса, без пропа «tone/variant», без media query в его собственном файле",
+   "artifacts": [
+    "@container-правила у переиспользуемых карточек/плиток",
+    "container-name у рельс/сеток, куда кладут переиспользуемые компоненты"
+   ]
+  },
+  {
+   "order": 4,
+   "name": "Grid: columns + gutters, 2x Grid, repeat(auto-fit, minmax()) (Carbon, Every Layout Grid) — «Сетка: колонки и промежуток»",
+   "plain": "Это правило «сколько карточек влезает в строку». Хороший ответ считает это от ширины самой полосы (сколько плиток по стольку-то пикселей туда помещается), а не назначает число руками на угаданной ширине экрана.",
+   "contains": [
+    "repeat(auto-fit, minmax(плитка, 1fr))",
+    "фиксированное число колонок на шов, если решение владельца/макета (Carbon: колонки и margin заданы таблицей на каждый breakpoint)",
+    "промежуток между колонками (gutter) — отдельное число от поля у края"
+   ],
+   "dependsOn": [
+    "@container queries, container query units (MDN, web.dev, Tailwind @container) — «Компонент отвечает на себя»"
+   ],
+   "doneWhen": "сетка не теряет колонку, получив больше места — проверено сравнением числа колонок с шириной самого блока, а не окна",
+   "artifacts": [
+    "CSS-грид с auto-fit/minmax или таблица «шов → колонки/margin» из макета",
+    "токен минимальной ширины плитки"
+   ]
+  },
+  {
+   "order": 5,
+   "name": "Margins (Carbon, M3) — «Поле от края, отдельное число от промежутка»",
+   "plain": "Это отступ от самого края экрана или блока до контента — не путать с промежутком между карточками. У Carbon это два разных числа даже в одной таблице: поле у края фиксировано на весь шов, промежуток между колонками может вообще отсутствовать.",
+   "contains": [
+    "отступ страницы от края viewport/контейнера",
+    "правило: поле у края фиксировано внутри шва, даже если колонки текучие"
+   ],
+   "dependsOn": [
+    "Grid: columns + gutters, 2x Grid, repeat(auto-fit, minmax()) (Carbon, Every Layout Grid) — «Сетка: колонки и промежуток»"
+   ],
+   "doneWhen": "поле от края и промежуток между колонками — два разных токена, и смена одного не трогает другой",
+   "artifacts": [
+    "--edge-pad / аналогичный токен, отдельный от --column-gap"
+   ]
+  },
+  {
+   "order": 6,
+   "name": "Breakpoints, named seams, window size classes (Carbon breakpoint table, M3 compact/medium/expanded/large/x-large, Every Layout «doing away with @media») — «Именованные швы, и их мало»",
+   "plain": "Это редкий список мест, где меняется раскладка ЦЕЛОЙ страницы (не одной карточки) — колонка становится строкой, одна панель становится двумя. Таких мест должно быть мало, у каждого — имя и причина, и они лежат в одном списке, а не разбросаны числами по файлам.",
+   "contains": [
+    "реестр швов (имя + ширина + источник: замер/макет/решение)",
+    "медиазапрос только там, где нужно решение уровня страницы, а не компонента"
+   ],
+   "dependsOn": [
+    "Margins (Carbon, M3) — «Поле от края, отдельное число от промежутка»"
+   ],
+   "doneWhen": "в CSS нет числа ширины, которого нет в реестре, и в реестре нет записи, которой нет в CSS (двусторонняя проверка)",
+   "artifacts": [
+    "файл-реестр швов",
+    "сторож, падающий в обе стороны"
+   ]
+  },
+  {
+   "order": 7,
+   "name": "Canonical layouts / panes (M3: feed, list-detail, supporting pane) — «Готовая страница: сколько панелей и что с ними при смене шва»",
+   "plain": "Это финальная сборка: реальная страница, построенная из примитивов, сетки, полей и швов, с явным ответом «что происходит с каждым блоком на каждом шве» — показать, разделить, изменить размер, переставить, заменить.",
+   "contains": [
+    "число панелей на странице по шву (1→2→3)",
+    "явное решение для каждого элемента при переходе шва: reveal/divide/resize/reposition/swap"
+   ],
+   "dependsOn": [
+    "Breakpoints, named seams, window size classes (Carbon breakpoint table, M3 compact/medium/expanded/large/x-large, Every Layout «doing away with @media») — «Именованные швы, и их мало»"
+   ],
+   "doneWhen": "первая настоящая страница открывается на контрольных ширинах (узкой, каждом шве, широкой из макета) без потери колонки, без горизонтального скролла, без прыжка раскладки",
+   "artifacts": [
+    "первая собранная страница витрины, использующая весь слой раскладки целиком"
+   ]
+  }
+ ],
+ "orderRationale": "Порядок выведен не из одного источника, а из того, где каждый источник сам ставит свой материал в цепочку зависимостей, и совмещён в одну логику: (1) MDN прямо говорит, что containment — обязательный первый шаг («you need to declare a containment context... before you query the dimensions»), поэтому «холст» стоит первым везде. (2) Every Layout строит книгу от простого к сложному и называет Stack «примитивом, который вообще везде» («Anywhere elements are stacked… it is likely a Stack should be in effect»), а Grid/Container — платными, более поздними главами, то есть по структуре самого источника примитивы предшествуют сетке. (3) web.dev явно описывает раскладку как ДВА слоя разом, а не последовательность: «macro layout using page-based media queries... at the same time... micro layout with container queries on the components» — отсюда решение держать контейнерные запросы РЯДОМ с примитивами (слой 3), а именованные швы — отдельно и позже (слой 6), а не сливать их в одно. (4) Carbon и M3 оба документируют margin и колонки как значения, привязанные к breakpoint (в таблице Carbon margin и columns стоят в одной строке с шириной шва), поэтому поля/колонки логически зависят от того, что швы уже названы — но при этом Carbon текстово разводит margin и gutter как разные числа («The margins at the outer edge of the grid are always a fixed size... even when columns are fluid»), откуда — отдельный слой 5. (5) M3 говорит о canonical layouts (feed/list-detail/supporting pane) как о верхнем, собранном уровне, который меняется по шву целиком — это последний слой, потому что он единственный проверяется не сам по себе, а тем, что все шесть предыдущих уже стоят на месте. Если порядок нарушить — например, завести именованные швы раньше примитивов — получится ровно то, от чего предостерегает Every Layout: раскладка, «решённая за браузер» числами вместо правил, то есть медиазапрос на каждый блок вместо одного примитива на все блоки.\n\nГраница «пространство vs раскладка»: шкала отступов (шаг 4px/8px, ритм между блоками) — это НЕ слой раскладки, это его сосед и вход. Раскладка отвечает не «сколько воздуха», а «куда деть то место, которое уже есть» — Carbon пишет это прямо: «Multiples of mini units compose the dimensions of columns, rows, boxes, along with their margins and padding» — мини-юнит (пространство) один, а колонки/поля/промежутки (раскладка) — это то, что из него СЧИТАЕТСЯ. Для третьей витрины это значит: шкала отступов — отдельный, более ранний слой (родственный уже сделанной палитре — шкала чисел, не решение о структуре), а раскладка — это слой, который эту шкалу тратит на конкретные роли (поле, промежуток, шов).\n\nКонтейнерные запросы vs медиазапросы — кто когда: контейнерный запрос — для любого узла, который переиспользуется в разных местах и должен отвечать за себя (карточка, плитка, рельса) — «the card can be reused in multiple areas of a page without needing to know specifically where it will be placed» (MDN). Медиазапрос остаётся ровно там, где решение принимает не компонент, а СТРАНИЦА целиком: сменить число панелей, превратить меню в шапку, переставить порядок блоков — то, что в CLAUDE.md проекта уже названо «швом раскладки» и держится в реестре, потому что @container не умеет прочитать ширину окна, только ширину своего родителя.\n\n«Сначала 375» для слоя раскладки означает конкретно это: примитивы Every Layout (Stack, Sidebar, Switcher) на узкой ширине не требуют ВТОРОГО правила — они самим механизмом (flex-wrap, flex-basis calc) схлопываются в столбик без единого media query, то есть узкая раскладка — это не «дополнительная работа для 375», а естественный исход того же самого правила при малом количестве места. Значит слой раскладки для третьей витрины проверяется в первую очередь на 375 не потому что так предписано отдельно, а потому что именно там видно, действительно ли примитив работает БЕЗ костыля, а не притворяется работающим на 1440.\n\nЧто должно быть готово до первой страницы: слои 1–6 (холст → примитивы → контейнерные запросы → сетка → поля → именованные швы), потому что слой 7 (собранная страница) — это не новая работа, а проверка того, что предыдущие шесть уже совместимы друг с другом. Собирать страницу раньше реестра швов означает то же самое, что уже один раз случилось на существующих витринах проекта («на 1024 пятая часть карточки была пустым фоном») — числа из макета, вписанные до того, как для них есть правило, а не после.",
+ "vocabulary": [
+  {
+   "term": "Контейнер / containment (container-type)",
+   "plain": "Табличка на коробке: «я слежу за своей шириной, можешь у меня её спросить». Без неё браузер не разрешает спрашивать «сколько тут места» у детей этой коробки.",
+   "example": "Обёртка карточки товара получает container-type: inline-size — теперь сама карточка внутри может спросить «я в узкой колонке или в широкой?»"
+  },
+  {
+   "term": "Контейнерный запрос (@container)",
+   "plain": "Правило вида «если у моей коробки-родителя стало вот столько места — сделай вот так». В отличие от медиазапроса это не про размер экрана покупателя, а про размер места, которое реально досталось этому куску страницы.",
+   "example": "Плитка эффекта в узкой рельсе показывает только иконку, в широкой — иконку и подпись, хотя экран один и тот же на обеих ширинах рельсы."
+  },
+  {
+   "term": "Примитив раскладки (layout primitive, Every Layout)",
+   "plain": "Готовое правило расстановки, которое не знает, что внутри него лежит — как форма для печенья: одна и та же форма штампует любое тесто.",
+   "example": "Sidebar-примитив: слева фиксированная узкая колонка, справа — тянущаяся широкая; работает одинаково что для фильтра+товаров, что для иконки+текста в шапке."
+  },
+  {
+   "term": "Шов ширины (named seam, breakpoint)",
+   "plain": "Отметка на линейке экранов: «вот тут раскладка ЦЕЛОЙ страницы меняется». Их должно быть мало и каждая — с именем и причиной, а не придумана на глаз в моменте.",
+   "example": "Шов 860: до него меню сложено в кнопку и панель под товарами — колонка; после него — меню строкой и панель сбоку."
+  },
+  {
+   "term": "Поле от края (margin) vs промежуток (gutter)",
+   "plain": "Поле — это отступ от края экрана до контента. Промежуток — это зазор между соседними карточками внутри контента. Разные числа, разные причины менять.",
+   "example": "На телефоне поле от края держат постоянным (16px), а промежуток между карточками может стать 0, если решили сделать их плотнее."
+  },
+  {
+   "term": "auto-fit / minmax()",
+   "plain": "Правило для сетки: «поставь столько колонок, сколько влезет плиток минимум такой ширины, а остаток раздели поровну» — само считает число колонок, число не пишут руками.",
+   "example": "repeat(auto-fit, minmax(160px, 1fr)) — на 375 это одна колонка, на 1024 — четыре-пять, без единого медиазапроса, отвечающего за число."
+  },
+  {
+   "term": "Канонический макет / панели (canonical layout, panes)",
+   "plain": "Готовый шаблон страницы, который сама система адаптивности уже продумала на все ширины: сколько блоков-«панелей» видно сразу и что происходит с ними, когда места становится больше или меньше.",
+   "example": "Каталог: на узкой — одна панель (список товаров), на широкой — две (фильтры слева, товары справа), фильтры не пропадают, а появляются рядом."
+  }
+ ],
+ "principles": [
+  {
+   "principle": "Компонент отвечает за свою собственную ширину, а не за ширину экрана покупателя",
+   "evidence": "MDN: «the card can be reused in multiple areas of a page without needing to know specifically where it will be placed each time»; Every Layout/Sidebar: «your component handles its own layout, intrinsically, and without the need for manual intervention»",
+   "forStorefront3": "Карточка товара и плитка эффекта в storefront3 получают container-type на своей обёртке и @container-правила внутри — тогда один и тот же файл карточки работает и в узкой рельсе, и в широкой сетке каталога, без второго варианта карточки и без медиазапроса внутри её файла."
+  },
+  {
+   "principle": "Примитивов раскладки — конечный список, и они пишутся один раз, а не изобретаются на каждом блоке",
+   "evidence": "Every Layout: «Anywhere elements are stacked one atop another, it is likely a Stack should be in effect»; сама книга построена как каталог из ~12 многоразовых решений (Stack, Sidebar, Switcher, Cluster…)",
+   "forStorefront3": "До первой страницы storefront3 заводит свой мини-набор примитивов (стек с вертикальным ритмом, разделение узкая/широкая часть, переключение строка↔столбик) как общие CSS-классы, и каждый новый блок компонует их, а не пишет свой flex заново — иначе повторится история двух старых витрин, где раскладка расходилась по копиям."
+  },
+  {
+   "principle": "Именованных швов мало, и они лежат в одном месте с причиной каждого",
+   "evidence": "Carbon держит breakpoint как таблицу с одним столбцом на каждый шов (ширина → колонки → margin); M3 — ровно пять классов (compact/medium/expanded/large/extra-large), не больше; Every Layout прямо формулирует цель как «doing away with @media breakpoints, magic numbers, and other hacks»",
+   "forStorefront3": "storefront3 заводит собственный реестр швов по образцу уже существующего packages/ui/src/tokens/seams.ts (эта витрина не наследует чужие токены оформления по STACK.md, значит реестр — новый, но дисциплина та же): число шва не пишется в CSS, если его нет в реестре, и наоборот."
+  },
+  {
+   "principle": "Сетка считает число колонок от места, а не от окна",
+   "evidence": "Carbon: «In a fluid grid, we divide available width in half to create columns, repeating as necessary»; Every Layout Grid построен на repeat(auto-fit, minmax())",
+   "forStorefront3": "Ровно то правило, что уже записано в CLAUDE.md для двух старых витрин («Число колонок — ответ контейнера, а не медиазапроса»), storefront3 обязан взять с первого дня, а не как правку после отката — тест «сетка не теряет колонку, получив место» заводится вместе с первой сеткой, а не после."
+  },
+  {
+   "principle": "Поле от края и промежуток между колонками — два разных числа, не одно",
+   "evidence": "Carbon: «The margins at the outer edge of the grid are always a fixed size within a breakpoint, even when columns are fluid»; «Grid gutters can be absent... consider a gutterless grid»",
+   "forStorefront3": "Токены --edge-pad и --column-gap заводятся раздельно с самого начала, чтобы решение «сделать карточки плотнее» (промежуток к нулю) не трогало отступ страницы от края экрана — типичная ошибка, когда одно число используют на оба смысла."
+  },
+  {
+   "principle": "Медиазапрос и контейнерный запрос решают разные вопросы, и подменять один другим — ошибка в обе стороны",
+   "evidence": "web.dev: «macro layout using page-based media queries... at the same time... micro layout with container queries on the components»",
+   "forStorefront3": "Решение уровня страницы (меню в шапку/бургер, число панелей каталога) — через реестр швов и media query; решение уровня одного компонента (карточка/плитка/рельса) — через @container. Смешение — то же самое, что уже случилось в проекте с «@media (max-width: 1024px) { …: 1fr }» вместо настоящего шва."
+  }
+ ],
+ "ecommerceSpecific": [
+  "Сетка каталога/рельсы товаров — репeat(auto-fit, minmax(ширина_плитки, 1fr)): число карточек в строке отвечает ширине самой полосы, а не устройства, включая альбомный телефон и планшет в портрете.",
+  "Карточка товара — контейнерный запрос: в узкой колонке (мобильный список) показывает укороченную раскладку (картинка+цена), в широкой (десктопная сетка) — полную (бейджи, кнопка, рейтинг), сама по факту доступного места, без второго файла карточки.",
+  "Разделение «фильтры + список товаров» на странице категории — примитив Sidebar: фильтры фиксированной узкой ширины, список — тянущийся; на узком экране схлопывается в столбик без отдельного мобильного варианта фильтров.",
+  "Корзина/строки заказа — примитив Stack: вертикальный ритм между строками задан одним правилом (margin-block-start у смежных), а не отступом у каждой строки, что убирает лишний отступ у последней и первой строки в панели оформления.",
+  "Панель товара + галерея на карточке товара (PDP) — канонический макет «list-detail»-подобный: одна панель на узкой ширине (сначала фото, потом описание), две панели рядом на широкой — с явным решением, что происходит с ценой/кнопкой «в корзину» при каждом шве.",
+  "Первая полка каталога проверяется на 375 в первую очередь именно потому, что если Sidebar/Switcher-механика верна, узкая раскладка получается бесплатно — это самый дешёвый и самый показательный тест слоя раскладки до того, как строить остальные страницы."
+ ],
+ "quotes": [
+  {
+   "text": "doing away with @media breakpoints, 'magic numbers', and other hacks, to create context-independent layout components.",
+   "source": "https://every-layout.dev/"
+  },
+  {
+   "text": "Anywhere elements are stacked one atop another, it is likely a Stack should be in effect",
+   "source": "https://every-layout.dev/layouts/stack/"
+  },
+  {
+   "text": "your component handles its own layout, intrinsically, and without the need for manual intervention.",
+   "source": "https://every-layout.dev/layouts/sidebar/"
+  },
+  {
+   "text": "switches a Flexbox context between a horizontal and a vertical layout at a given, container-based breakpoint",
+   "source": "https://every-layout.dev/layouts/switcher/"
+  },
+  {
+   "text": "To use container size queries, you need to declare a containment context on an element",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries"
+  },
+  {
+   "text": "Container queries enable you to apply styles to an element based on certain attributes of its container.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries"
+  },
+  {
+   "text": "Viewport-based media queries give you some powerful tools, but lack a lot of finesse.",
+   "source": "https://web.dev/articles/new-responsive"
+  },
+  {
+   "text": "It's combining macro layout with micro layout",
+   "source": "https://web.dev/articles/new-responsive"
+  },
+  {
+   "text": "Container queries are a modern CSS feature that let you style something based on the size of a parent element",
+   "source": "https://tailwindcss.com/docs/responsive-design"
+  },
+  {
+   "text": "container queries are mobile-first in Tailwind CSS and apply at the target container size and up",
+   "source": "https://tailwindcss.com/docs/responsive-design"
+  },
+  {
+   "text": "The margins at the outer edge of the grid are always a fixed size within a breakpoint, even when columns are fluid.",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "In a fluid grid, we divide available width in half to create columns, repeating as necessary.",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "Breakpoints are opinionated window sizes where a layout changes to match available space, device conventions, and ergonomics.",
+   "source": "https://m3.material.io/foundations/layout/breakpoints (пересказ поисковой выдачи, не первоисточник — см. sourcesFailed)"
+  }
+ ],
+ "confidence": "Высокая уверенность (первоисточник прочитан целиком): Every Layout — homepage/структура, The Stack, The Sidebar, The Switcher (все три бесплатные главы открылись полностью); MDN Container Queries — открылась полностью, включая таблицу единиц; web.dev «The new responsive» — открылась полностью; Tailwind CSS docs (container, @container) — открылись полностью. Средняя уверенность: Carbon 2x Grid — страница получена через curl (обычным WebFetch не читалась целиком с первой попытки), текст вытащен регулярным разбором HTML и потерял табличную вёрстку (числа margin/columns по конкретным breakpoint видны фрагментами, а не чистой таблицей) — качественные утверждения (margin≠gutter, «2x»-деление, breakpoint-таблица существует) подтверждены текстом, но точные пиксельные значения из их таблицы я не привожу как проверенные. Низкая уверенность, помечено отдельно: material Design 3 (breakpoints, window-size-classes, layout-overview, canonical-examples) — сайт m3.material.io является чистым SPA без серверного рендера (HTML-заготовка отдаёт 50–70 символов текста), четыре WebFetch-попытки вернули пустой каркас; данные о breakpoint-диапазонах (compact 0–599dp и т.д.) и о структуре panes/margins/columns взяты из синтеза поисковой выдачи (WebSearch), то есть это вторичный пересказ первоисточника поисковой системой, а не прочитанный мной текст страницы — числа внутренне непротиворечивы между двумя независимыми поисковыми запросами, но не проверены глазами на самой странице. Every Layout Grid и Container (платные главы) не открылись вовсе — использована только их страница-заглушка."
+}

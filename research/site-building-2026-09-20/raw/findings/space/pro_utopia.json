@@ -1,0 +1,347 @@
+{
+ "system": "Utopia (utopia.fyi) — Trys Mudford и James Gilyead: текучие шкалы типа и пространства. Код: utopia-core 1.6.0 (npm, TS), utopia-core-scss, postcss-utopia, плагин Figma. Это не библиотека компонентов, а генератор примитивов: из одной конфигурации (две ширины, два базовых кегля, две пропорции, список множителей) выходят CSS-переменные `--step-N` и `--space-<размер>` в виде готовых `clamp()`.",
+ "sourcesRead": [
+  "https://utopia.fyi/ (описание метода)",
+  "https://utopia.fyi/type/calculator (умолчания 360→1240, 18→20, 1.2→1.25; примеры clamp; в сыром HTML — подписи опций генератора: Method Clamp/CSS locks, Relative to Viewport/Container, Prefix)",
+  "https://utopia.fyi/space/calculator (таблица 3xs…3xl с множителями, one-up/custom pairs, единица REM/PX, пояснительный текст)",
+  "https://utopia.fyi/grid/calculator (сгенерированный CSS: --grid-max-width, --grid-gutter, --grid-columns, .u-container, .u-grid)",
+  "https://utopia.fyi/blog/ (указатель постов)",
+  "https://utopia.fyi/blog/clamp (формулы slope/yIntersection, вариант с calc, предупреждение о zoom)",
+  "https://utopia.fyi/blog/designing-with-fluid-type-scales",
+  "https://utopia.fyi/blog/css-modular-scales",
+  "https://utopia.fyi/blog/designing-with-a-fluid-space-palette",
+  "https://utopia.fyi/blog/painting-with-a-fluid-space-palette",
+  "https://utopia.fyi/blog/dealing-with-negativity-in-fluid-type-scales",
+  "https://utopia.fyi/blog/fluid-custom-properties",
+  "https://utopia.fyi/blog/generate-all-pairs",
+  "https://utopia.fyi/blog/designing-a-utopian-layout-grid",
+  "https://utopia.fyi/blog/postcss-utopia",
+  "https://utopia.fyi/blog/figma-variables",
+  "https://utopia.fyi/blog/a-second-generator (сырой HTML; из него прочитан собственный CSS сайта — calc-версия шкалы с --fluid-bp и замком на 1140)",
+  "https://raw.githubusercontent.com/trys/utopia-core/main/README.md",
+  "https://registry.npmjs.org/utopia-core/-/utopia-core-1.6.0.tgz → src/index.ts и src/index.test.ts (формулы calculateClamp, checkWCAG, calculateTypeScale, calculateSpaceScale, one-up/custom pairs, ожидаемые строки clamp); код прогнан локально на 320→1440 и 360→1240",
+  "https://raw.githubusercontent.com/trys/utopia-core-scss/main/README.md (мixins generateTypeScale/generateSpaceScale, usePx, allPairs, prefix, relativeTo)",
+  "https://www.trysmudford.com/blog/utopia-wcag-warnings/ (почему vw не растёт при zoom; чем чинить)",
+  "https://www.smashingmagazine.com/2023/11/addressing-accessibility-concerns-fluid-type/ (вторичный: правило 2.5×, пример 1050–2100px; сверено с checkWCAG в коде)",
+  "Проект: packages/ui/src/tokens/{primitives,semantic,base}.css, seams.ts, scale.test.ts; apps/storefront/src/token-layer.test.ts; apps/storefront/tools/css-families.mjs (семейства fontPx/spacingPx/nearStep); apps/storefront3/app/globals.css и CLAUDE.md; packages/contracts/src/index.ts (brandTokenFields: слоты colour/font/font-size/radius/rhythm); DECISIONS.md — «Ступень на неназванной ширине — это ramp, который не дописали», «Дизайн-система правится из админки, а числа собраны в шкалу», «Числа из макета описывают пропорцию»; STACK.md §5"
+ ],
+ "sourcesFailed": [
+  "https://api.github.com/repos/trys/utopia-core/contents/src — доступ к GitHub API в этой сессии закрыт; исходники взяты из npm-тарбола 1.6.0 (package.json указывает на тот же репозиторий), README — с raw.githubusercontent.com",
+  "https://utopia.fyi/blog/utopian-typography-is-easy — на странице только анонс видео и CodePen; метода выбора ширин/кеглей там нет",
+  "https://utopia.fyi/blog/utopia-in-figma — анонс файла Figma Community и видео; размеры фреймов и порядок работы в самом видео, не прочитаны",
+  "https://utopia.fyi/blog/clamp-calculator — только описание инструмента; опции px/rem/vi/cqi прочитаны из кода utopia-core, а не со страницы",
+  "Пояснительная проза калькуляторов рисуется JS (Nuxt): в сыром HTML читаются только подписи опций; текст «почему две шкалы» взят из блога, а не с калькулятора",
+  "Плагин Figma и вводное видео — не читаемы; про плагин известно только из поста figma-variables",
+  "Полный src/index.test.ts прочитан до ~400 строки (ожидания для type scale не дочитаны; вместо этого код исполнён локально)"
+ ],
+ "unit": "По умолчанию rem — и для типа, и для пространства: в `calculateClamp` `divider = usePx ? 1 : 16`, `unit = usePx ? 'px' : 'rem'`; предпочитаемое значение — смесь `<пересечение>rem + <наклон×100>vw` (в SCSS по умолчанию `vi`, для контейнера `cqi`; в utopia-core 1.6.0 умолчание `relativeTo = 'viewport-width'` → vw). Причина rem: при браузерном zoom растёт только rem-часть, vw-часть нет («Where rem values increase when you zoom in, viewport units are not affected»), и без rem в формуле кегль не дотягивает до 200% по WCAG 1.4.4. Для пространства единица — выбор: SCSS даёт `usePx: true`, «to separate space from browser text zoom preferences» — т.е. px-отступы не растут вместе с текстом и оставляют ему место. Округление — 4 знака (`roundValue`), размеры пространства — до целого px до пересчёта в rem (`Math.round(minSize × multiplier)`). У нас: в трёх файлах токенов 0 объявлений в rem, всё px, корневой кегль не тронут (rem = 16px). Для третьей витрины это значит один выбор, записанный в DECISIONS: кегли — rem-форма из генератора (иначе zoom-проверка бессмысленна), отступы — либо `usePx` (как сейчас во всём проекте), либо rem; смешивать по файлам нельзя.",
+ "scale": {
+  "base": "Базовый кегль — это ПАРА чисел, а не одно: body при минимальной ширине и body при максимальной. Умолчания калькулятора: 18px @ 360px → 20px @ 1240px; в README utopia-core и в тестах — 320→1240, 18→20; в блоге — 320→1500 и 320→1440. Пространство считается от той же пары: `--space-s` = базовый кегль («Using the same base values from the fluid type calculator, this tool helps you to create a related fluid space system»).",
+  "generator": "Два генератора от одной пары точек. Тип — две модульные шкалы, линейно интерполируемые по ширине: size(v) = lerp(minFont, maxFont, t) × lerp(minRatio, maxRatio, t)^step, t = (v − minW)/(maxW − minW); шаг вычисляется в v = minW и v = maxW, и между двумя точками ставится прямая `clamp(min, intersection + slope·100vw, max)`, где slope = (maxSize − minSize)/(maxWidth − minWidth), intersection = −minWidth·slope + minSize (всё в rem, /16). Пространство — список множителей от базы: отрицательные 0.25/0.5/0.75, положительные 1.5/2/3/4/6, имена 3xs…3xl; каждый размер округляется до целого px и получает свой clamp. Пары: one-up (соседние: min младшего → max старшего) генерируются всегда; custom — по именам в `customSizes: ['s-l', '2xl-4xl']`; обратный наклон разрешён (`[40, 28]` → `clamp(1.75rem, 2.8158rem + -1.5789vw, 2.5rem)`). Медиазапросов в слое токенов нет ни одного.",
+  "steps": [
+   {
+    "name": "--step--2 (тип, 360→1240, 18→20, 1.2→1.25)",
+    "value": "clamp(0.7813rem, 0.7736rem + 0.0341vw, 0.8rem) — 12.5px → 12.8px"
+   },
+   {
+    "name": "--step--1",
+    "value": "clamp(0.9375rem, 0.9119rem + 0.1136vw, 1rem) — 15px → 16px"
+   },
+   {
+    "name": "--step-0",
+    "value": "clamp(1.125rem, 1.0739rem + 0.2273vw, 1.25rem) — 18px → 20px"
+   },
+   {
+    "name": "--step-1",
+    "value": "clamp(1.35rem, 1.2631rem + 0.3864vw, 1.5625rem) — 21.6px → 25px"
+   },
+   {
+    "name": "--step-2",
+    "value": "clamp(1.62rem, 1.4837rem + 0.6057vw, 1.9531rem) — 25.92px → 31.25px"
+   },
+   {
+    "name": "--step-3",
+    "value": "clamp(1.944rem, 1.7405rem + 0.9044vw, 2.4414rem) — 31.104px → 39.0625px"
+   },
+   {
+    "name": "--step-4",
+    "value": "clamp(2.3328rem, 2.0387rem + 1.3072vw, 3.0518rem) — 37.32px → 48.83px"
+   },
+   {
+    "name": "--step-5",
+    "value": "clamp(2.7994rem, 2.384rem + 1.8461vw, 3.8147rem) — 44.79px → 61.04px"
+   },
+   {
+    "name": "--space-3xs (×0.25; пространство 320→1240, 18→20, из index.test.ts)",
+    "value": "clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem) — 5px → 5px"
+   },
+   {
+    "name": "--space-2xs (×0.5)",
+    "value": "clamp(0.5625rem, 0.5408rem + 0.1087vw, 0.625rem) — 9px → 10px"
+   },
+   {
+    "name": "--space-xs (×0.75)",
+    "value": "clamp(0.875rem, 0.8533rem + 0.1087vw, 0.9375rem) — 14px → 15px"
+   },
+   {
+    "name": "--space-s (×1 = body)",
+    "value": "clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem) — 18px → 20px"
+   },
+   {
+    "name": "--space-m (×1.5)",
+    "value": "clamp(1.6875rem, 1.6223rem + 0.3261vw, 1.875rem) — 27px → 30px"
+   },
+   {
+    "name": "--space-l (×2)",
+    "value": "clamp(2.25rem, 2.163rem + 0.4348vw, 2.5rem) — 36px → 40px"
+   },
+   {
+    "name": "--space-xl (×3)",
+    "value": "clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem) — 54px → 60px"
+   },
+   {
+    "name": "--space-2xl (×4)",
+    "value": "clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem) — 72px → 80px"
+   },
+   {
+    "name": "--space-3xl (×6)",
+    "value": "clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem) — 108px → 120px"
+   },
+   {
+    "name": "--space-s-m (one-up pair)",
+    "value": "clamp(1.125rem, 0.8641rem + 1.3043vw, 1.875rem) — 18px → 30px"
+   },
+   {
+    "name": "--space-m-l (one-up pair)",
+    "value": "clamp(1.6875rem, 1.4049rem + 1.413vw, 2.5rem) — 27px → 40px"
+   },
+   {
+    "name": "--space-l-xl (one-up pair)",
+    "value": "clamp(2.25rem, 1.7283rem + 2.6087vw, 3.75rem) — 36px → 60px"
+   },
+   {
+    "name": "--space-2xl-3xl (one-up pair)",
+    "value": "clamp(4.5rem, 3.4565rem + 5.2174vw, 7.5rem) — 72px → 120px"
+   },
+   {
+    "name": "--space-s-l (custom pair)",
+    "value": "clamp(1.125rem, 0.6467rem + 2.3913vw, 2.5rem) — 18px → 40px"
+   },
+   {
+    "name": "--space-2xl-4xl (custom pair)",
+    "value": "clamp(4.5rem, 2.587rem + 9.5652vw, 10rem) — 72px → 160px"
+   }
+  ],
+  "notes": "Проверено исполнением utopia-core 1.6.0. Прогон на холсте третьей витрины (320 — проверяемая ширина, 1440 — `--layout-canvas`; база 16→18 как `--text-md-size` из base.css) — кандидат, не совет Utopia: --space-s clamp(16px, 15.4286px + 0.1786vw, 18px); -m 24→27; -l 32→36; -xl 48→54; -2xl 64→72; -3xl 96→108; пары s-m 16→27, l-xl 32→54, s-l 16→36, l-2xl clamp(32px, 20.5714px + 3.5714vw, 72px), xl-3xl 48→108. Тип 1.2→1.25 даёт step-5 39.8→54.9px без нарушений WCAG; 1.2→1.333 переворачивает step--2 (11.11 → 10.13px) — тот самый эффект «негативных шагов». Сравнение с нынешними рампами витрины: `--layout-band-pad: clamp(48px, 6.1vw, 88px)` стоит на полу до 787px и лишена rem-части; двухточечная форма от 320 — clamp(48px, 36.5714px + 3.5714vw, 88px); `--layout-gutter-page: clamp(32px, 5vw, 72px)` плоская до 640px; `--text-section-size: clamp(40px, 4.15vw + 4px, 64px)` плоская до 867px. Это не ошибки Utopia, а свидетельство, что у нас рампы рисованы вручную от разных начал."
+ },
+ "roles": {
+  "hasSemanticLayer": false,
+  "examples": [
+   "--step-0 / --step-1 … --step-5, --step--1, --step--2 (тип, стиль меток `utopia`); стили `tailwind` (xs, sm, base, lg, xl, 2xl…) и `tshirt` (xs, s, m, l, xl, 2xl…) — только переименование тех же ступеней (`mapStepToLabel`)",
+   "--space-3xs, -2xs, -xs, -s, -m, -l, -xl, -2xl, -3xl (размеры), --space-s-m, --space-m-l (one-up pairs), --space-s-l, --space-2xl-4xl (custom pairs), --space-16-48 (безымянные clamps из `calculateClamps`)",
+   "Единственный ролевой псевдоним в выводе самого Utopia: `--grid-gutter: var(--space-s-l, clamp(1.125rem, 0.5625rem + 2.5vw, 2.5rem))` в grid-калькуляторе; на сайте utopia.fyi — `--gutter: var(--space-s-l)`",
+   "Советы по применению (пост Painting): `.c-card { padding: var(--space-s-m) }` — one-up pair для внутренних полей компонента; `.o-grid { grid-gap: var(--space-s-l) }` — custom pair для сетки; `.u-flow > * + * { margin-top: var(--space-s-m) }` — ритм текста; «3XS → 4XL» для героя; обратная «2XL → XS», где отступ УМЕНЬШАЕТСЯ на широкой"
+  ],
+  "notes": "Utopia — слой примитивов и только он: имена описывают величину (размер по футболке, пара «от–до»), а не место применения. Кто чем красит — оставлено проекту: Painting-пост даёт правило выбора (пара для полей компонента, custom pair для сетки и героя), но не словарь ролей. Для третьей витрины это значит, что ролевой слой мы пишем сами, как для цвета: `--space-*` — примитивы (сгенерированные), поверх — роли `--pad-*` (поля внутри узла), `--air-*` (воздух между блоками), `--gutter-*`; компонент читает только роль, и `token-layer.test.ts` для storefront3 расширяет запрет с `--palette-` на `--space-`.",
+  "vocabulary": [
+   "step (ступень типа; отрицательные — мельче базы)",
+   "min/max viewport (@min, @max — две ширины, между которыми считается прямая)",
+   "min/max font size (базовая пара body)",
+   "min/max type scale (две пропорции; minor third 1.2, major third 1.25, perfect fourth 1.333)",
+   "space size / t-shirt size (3xs…3xl, множитель от базы)",
+   "multiplier (0.25 … 6)",
+   "one-up pair (s-m: min младшего → max соседнего старшего)",
+   "custom pair (s-l, 2xl-4xl: любые два размера; обратная пара l-s)",
+   "fluid space palette (набор именованных размеров и пар, а не непрерывная шкала)",
+   "clamp / CSS locks (два метода вывода генератора)",
+   "relativeTo: viewport (vi) / viewport-width (vw) / container (cqi)",
+   "wcagViolation {from, to} (диапазон ширин, где ступень не масштабируется до 200%)",
+   "u-container, u-grid, u-flow (утилиты сетки и ритма)",
+   "Utopian size, Space @min, Space @max (коллекции переменных Figma)"
+  ]
+ },
+ "density": "Режимов плотности у Utopia нет — ни множителя, ни платформенных шкал, ни вариантов condensed/spacious. Плотность задаётся ровно двумя рычагами конфигурации: парой базовых размеров (`minSize`/`maxSize` — плотнее на телефоне, воздушнее на широкой) и составом множителей, где «more nuanced space options nearer the base font size, and fewer options at the larger end». «Драму» отступа даёт выбор пары, а не режим: `--space-s` меняется на 2px между 320 и 1240, `--space-s-l` — на 22px, `--space-2xl-4xl` — на 88px. Второй набор плотности — это второй запуск генератора с другой базой, Utopia его не поставляет. Для третьей витрины: плотность магазина = два числа базы в `fluid.config.ts` (например 16 @ 320 и 18 @ 1440), и это ровно то, что имеет смысл отдать владельцу в `brandTheme` вместо сегодняшнего слота на отдельный `--layout-band-pad`: сервер, собирая `<style>` из brandTheme, считает `calculateSpaceScale` от двух чисел той же функцией, что и статический файл, — пустое поле даёт файл, заполненное — ту же шкалу от другой базы. Compact/spacious как отдельные варианты не заводить, пока владелец их не назвал.",
+ "fluid": "Одна форма на всё: `clamp(MIN, INTERSECTION + SLOPE·100vw, MAX)`, где обе точки заданы явно (ширина + размер при ней), SLOPE = (MaxSize − MinSize)/(MaxWidth − MinWidth), INTERSECTION = −MinWidth·SLOPE + MinSize, в rem (/16) или px (`usePx`). Ниже MinWidth и выше MaxWidth значение зафиксировано клампом; между — прямая. Медиазапросов нет вовсе; единственный шов, который знает генератор, — две ширины конфигурации. Единица ширины выбирается: `vw` (umолчание кода 1.6.0), `vi` (умолчание SCSS, инлайн-ось), `cqi` (контейнер) — та же формула. Старая форма (пост fluid-custom-properties и собственный CSS сайта): `--fluid-bp: calc((var(--fluid-screen) − var(--fluid-min-width)/16·1rem)/(var(--fluid-max-width) − var(--fluid-min-width)))`, `--step-0: calc(var(--f-0-min)/16·1rem + (var(--f-0-max) − var(--f-0-min))·var(--fluid-bp))` и замок `@media (min-width:1140px){:root{--fluid-screen: calc(var(--fluid-max-width)·1px)}}` — «CSS locks» в генераторе живут до сих пор как второй метод. Zoom: при браузерном увеличении rem-слагаемое растёт, vw — нет, поэтому крупные ступени на широких экранах не доходят до 200% (WCAG 1.4.4). Генератор считает это сам: `checkWCAG` строит кусочные функции z5 (кегль при 500% zoom в Chrome/Firefox) и 2·z1 и решает z5 < 2·z1; при maxWidth < 5·minWidth ступень падает на [maxWidth, 5·minWidth], если `5·min < 2·max`, т.е. когда max > 2.5·min (Smashing формулирует то же: «maximum value must be less than or equal to 2.5 times the minimum»). Проверено кодом на 320→1440: 16→40 проходит, 16→41 падает на 1395–1690px, 20→64 — на 1084–2313px. Лечение по Trys: поднять пропорцию на минимуме или опустить на максимуме; для мелкого текста — отвязать от шкалы или строить шкалу от самого мелкого кегля (пост о негативных шагах). Для отступов zoom-проверка не нужна — там и есть смысл `usePx`.",
+ "layout": "Grid-калькулятор выдаёт минимум: `:root { --grid-max-width: 77.50rem; --grid-gutter: var(--space-s-l, clamp(1.125rem, 0.5625rem + 2.5vw, 2.5rem)); --grid-columns: 12; }`, `.u-container { max-width: var(--grid-max-width); padding-inline: var(--grid-gutter); margin-inline: auto; }`, `.u-grid { display: grid; gap: var(--grid-gutter); }`. Три связи, а не три числа: ширина контейнера = максимальная ширина конфигурации (77.5rem = 1240px), гуттер = пара из палитры пространства (s-l: 18 → 40px), причём «Most of the projects I work on use the step 0 value for the gutter size at the @min viewport width» — т.е. на телефоне гуттер равен базовому кеглю; и «let your main content container width be the total of the space palette values you choose». Ритм секций Utopia не предписывает — только способ: воздух между блоками берётся custom pair («3XS → 4XL» для героя), поля компонента — one-up pair, ритм абзацев — `.u-flow` с `--space-s-m`. На сайте utopia.fyi: `--gutter: var(--space-s-l)`, обёртка `max-width: 1048px; padding-left/right: var(--gutter)`, карточки `repeat(auto-fill, minmax(min(calc(100vw − var(--gutter)·2), 320px), 1fr))` — сетка заполняет строку, как в нашем правиле п. 4. Для третьей витрины: `--layout-canvas: 1440px` = maxWidth конфигурации (одно число в двух местах — предмет теста), `--layout-gutter-page: var(--space-s-l)` (16 → 36 при базе 16→18, либо s-2xl 16 → 72, если владелец хочет нынешние 72 на 1440), `--air-band` = пара l-2xl или xl-3xl вместо ручного clamp(48px, 6.1vw, 88px).",
+ "enforcement": "Держится генерацией, а не линтером. (1) Значения не пишут руками: utopia-core (TS) / utopia-core-scss (mixins `generateTypeScale`, `generateSpaceScale`, `generateClamps`, `prefix`, `allPairs`) / postcss-utopia (`margin-block-end: utopia.clamp(16, 24)` → `clamp(1rem, 0.7895rem + 1.0526vi, 1.5rem)`) — источник по-прежнему читается как две точки. (2) Формула закреплена тестами vitest в самом пакете: ожидаемые строки вида `'clamp(1rem, 0.6522rem + 1.7391vw, 2rem)'`, `'clamp(16px, 10.4348px + 1.7391vw, 32px)'`, `cqi`- и `vi`-варианты, полная таблица space scale с парами. (3) WCAG-сторож встроен в генератор: каждая ступень типа несёт `wcagViolation: {from, to} | null`, калькулятор показывает предупреждение. (4) Вывод генератора несёт обратную ссылку: «the generated code also includes a custom URL taking you back to the source of your defined calculations» — конфигурацию нельзя потерять. (5) Дизайн и код от одной конфигурации: плагин Figma создаёт коллекции «Utopian size», «Space @min», «Space @max», перезапуск обновляет привязанные компоненты. Чего у Utopia нет: запрета сырых чисел в компонентах и ролевого слоя — это наша часть: семейства `fontPx`/`spacingPx`/`nearStep` в `apps/storefront/tools/css-families.mjs` уже ловят «размер из шкалы / отступ в px мимо шкалы / соседние ступени ближе 8%» у первой витрины; у третьей их надо включить с первого дня, а не храповиком.",
+ "principles": [
+  {
+   "principle": "Пространство считается от базового кегля, а не заводится своей сеткой: `--space-s` = body, остальное — множители 0.25/0.5/0.75/1/1.5/2/3/4/6.",
+   "evidence": "utopia.fyi/space/calculator: «Using the same base values from the fluid type calculator…»; blog/designing-with-a-fluid-space-palette: «multiplied directly from the body font size»; src/index.ts: `minSize = Math.round(config.minSize * multiplier)`.",
+   "forStorefront3": "Файл `apps/storefront3/app/tokens/fluid.config.ts`: `{ minWidth: 320, maxWidth: 1440, minSize: <body@320>, maxSize: <body@1440>, negativeSteps: [0.25, 0.5, 0.75], positiveSteps: [1.5, 2, 3, 4, 6], customSizes: [...] }` — одна запись, из которой скрипт `scripts/fluid-css.mjs` (вызывает `calculateSpaceScale`/`calculateTypeScale` из utopia-core) пишет `tokens/fluid.css` с `--space-3xs…--space-3xl` и `--step-*`. Базу выбирает владелец из макета (body на 375 и на 1440), а не 4px-сетка `--space-1…--space-18`, как у первой витрины. Сторож: `fluid.test.ts` пересобирает файл из конфигурации и сравнивает с лежащим в репозитории — как `design-snapshot.test.ts`."
+  },
+  {
+   "principle": "Вся текучесть — прямая между двумя названными точками (ширина + размер при ней); третьей ширины не существует, ступеней и медиазапросов в шкале нет.",
+   "evidence": "utopia.fyi/: «Define type and space scales for a small screen… for a large screen… Tell the browser to interpolate»; blog/clamp: формулы Slope и yIntersection; в выводе генератора ни одного @media.",
+   "forStorefront3": "Точки — 320 (нижняя проверяемая ширина `test:phone`) и 1440 (`--layout-canvas`, холст макета): те же два числа для типа, пространства и гуттера. Записать их в `fluid.config.ts` и в реестр швов `seams.ts` третьей витрины как «концы рампы». Сторож: тест разбирает каждый `clamp()` в CSS витрины, решает уравнение прямой и требует, чтобы она проходила через (320, min) и (1440, max) с точностью округления; рампа с другим началом — как нынешняя `clamp(48px, 6.1vw, 88px)`, плоская до 787px, — не проходит."
+  },
+  {
+   "principle": "Предпочитаемое значение — `rem + vw`, а не голый `vw`: rem-слагаемое — единственное, что растёт при zoom.",
+   "evidence": "trysmudford.com/blog/utopia-wcag-warnings: «Where rem values increase when you zoom in, viewport units are not affected»; blog/clamp: «clamp can have a knock-on effect to the maximum font-size when the user explicitly sets a browser text zoom preference».",
+   "forStorefront3": "Кегли в `fluid.css` — в rem-форме генератора (`clamp(1rem, 0.9643rem + 0.1786vw, 1.125rem)`), отступы — `usePx: true` (проект целиком в px, 0 rem в токенах). Это решение записывается в DECISIONS до кода. Сторож: `lint:css`/`check:css` третьей витрины запрещает `clamp(…, <число>vw, …)` без аддитивного слагаемого и любой `vw` вне `fluid.css`."
+  },
+  {
+   "principle": "Ступеней больше у базы и меньше вдали от неё; шкала — палитра именованных размеров, а не непрерывный ряд.",
+   "evidence": "blog/designing-with-a-fluid-space-palette: «we need more nuanced space options nearer the base font size, and fewer options at the larger end»; blog/painting: «you need more options close to the origin ('S'), and fewer further out».",
+   "forStorefront3": "Девять размеров 3xs…3xl вместо тринадцати ступеней 4px-сетки; имена по футболке, потому что размер по индексу (`--space-12`) превращается в число в голове. Сторож: семейство `nearStep` из `css-families.mjs` (соседние ступени ближе 8% — глаз не различает) включено для storefront3 с порогом 0 находок; 3xs 4→5px при базе 16 — единственная почти-статичная ступень, и это нормально."
+  },
+  {
+   "principle": "Пары дают «характер» отступа: one-up pair — поля внутри компонента, custom pair — воздух между блоками и герой, обратная пара — отступ, убывающий на широкой.",
+   "evidence": "blog/painting-with-a-fluid-space-palette: «Pairs are perfect for handling internal component padding between small and large screens»; `.c-card { padding: var(--space-s-m) }`, `grid-gap: var(--space-s-l)`, «3XS → 4XL» для героя, «2XL → XS» обратная; src: `calculateOneUpPairs`, `customSizes`.",
+   "forStorefront3": "Custom pairs объявляются по имени в конфигурации (`customSizes: ['s-l', 'l-2xl', 'xl-3xl']`), а не пишутся руками в CSS. Роли: `--pad-card: var(--space-s-m)` (16→27), `--air-band: var(--space-l-2xl)` (32→72 — близко к нынешним 48→88 по замыслу, точные концы решает макет), `--gutter-page: var(--space-s-l)`. Сторож: тест находит все `--space-<a>-<b>` в CSS и требует, чтобы каждая пара была в конфигурации; `allPairs` не включать (см. doNotCopy)."
+  },
+  {
+   "principle": "Компонент читает роль, а не примитив пространства — так же, как с цветом.",
+   "evidence": "У Utopia ролевого слоя нет (вывод — только `--step-*`/`--space-*`); единственный псевдоним в его коде — `--grid-gutter: var(--space-s-l, …)` и `--gutter: var(--space-s-l)` на самом сайте; в проекте — `token-layer.test.ts` («компонент не читает палитру напрямую»).",
+   "forStorefront3": "`tokens/fluid.css` (сгенерировано, примитивы) → `tokens/rhythm.css` (роли: `--pad-*` поля узла, `--air-*` воздух между блоками, `--gutter-*`, `--flow-*` ритм текста) → компонент. Сторож: копия `token-layer.test.ts` для `apps/storefront3` с регуляркой `--(palette|tint|alpha|brand|space|step)-` — ни одного примитива в модулях компонентов."
+  },
+  {
+   "principle": "Контейнер и гуттер — из той же палитры: max-width = максимальная ширина конфигурации, гуттер = пара пространства, на телефоне равная базовому кеглю.",
+   "evidence": "utopia.fyi/grid/calculator: `--grid-max-width: 77.50rem; --grid-gutter: var(--space-s-l, clamp(1.125rem, 0.5625rem + 2.5vw, 2.5rem)); --grid-columns: 12`; blog/designing-a-utopian-layout-grid: «use the step 0 value for the gutter size at the @min viewport width».",
+   "forStorefront3": "`--layout-canvas` = `maxWidth` конфигурации (1440) — одно число, читаемое тестом из обоих мест; `--layout-gutter-page: var(--space-s-l)` вместо независимого `clamp(32px, 5vw, 72px)`; на 375 гуттер = base (16), что совпадает с телефонным швом 600 (343 содержимого в кадре 375). Сетки — `repeat(auto-fit, minmax(…))` с `gap: var(--gutter-grid)`; сторож — существующий «сетка не теряет колонку» из `test:wide`."
+  },
+  {
+   "principle": "Zoom-проверка WCAG 1.4.4 — часть генератора, а не аудита потом: ступень падает, если max > 2.5·min (при maxWidth < 5·minWidth).",
+   "evidence": "README utopia-core: «the viewports where the step fails to be zoomable to 200% are returned in `wcagViolation`»; src/index.ts `checkWCAG`: «solving for z5 < 2*z1», ветка `if (5 * min < 2 * max) failRange.push(maxWidth, 5 * minWidth)`; прогон: 16→40 проходит, 16→41 падает на 1395–1690px.",
+   "forStorefront3": "`fluid.test.ts` прогоняет каждую ступень типа и каждую ручную пару кеглей (герой, заголовок полосы) через `checkWCAG` и краснеет на любом `wcagViolation`; для отступов проверка не выполняется — это записанный смысл `usePx`. Лечение по источнику: поднять пропорцию на 320 или опустить на 1440, а не расширять диапазон ширин."
+  },
+  {
+   "principle": "Мелкий текст не обязан висеть на общей шкале: при заметной пропорции на широкой отрицательные ступени переворачиваются.",
+   "evidence": "blog/dealing-with-negativity-in-fluid-type-scales: «any text smaller than your base size might end up smaller on a large screen than on a small screen»; прогон 1.2→1.333 на 320→1440: step--2 11.11 → 10.13px.",
+   "forStorefront3": "Подписи и служебный текст (`--text-xs`, `--text-sm`) — либо отдельная мелкая пара с почти нулевым наклоном, либо статика; из шкалы берутся step-0 и выше. Сторож: тест требует у каждой рампы max ≥ min, кроме пар, объявленных обратными в конфигурации по имени (`l-s`)."
+  },
+  {
+   "principle": "Проектируют только две ширины, и переменные живут и в Figma, и в коде от одной конфигурации.",
+   "evidence": "blog/figma-variables: «three variable collections will be created: 'Utopian size', 'Space @min' and 'Space @max'»; «If you re-run the plugin, the variables will be updated»; blog/designing-with-fluid-type-scales: «Breakpoint-based type sizing has always felt a bit arbitrary».",
+   "forStorefront3": "Макет третьей витрины — два фрейма, 320/375 и 1440, с коллекциями Space @min / Space @max из плагина; `fluid.config.ts` повторяет те же числа, и «точность переноса из Figma» означает перенос конфигурации, а не 40 снятых пикселей. Сторож: комментарий-шапка `fluid.css` печатает конфигурацию и ссылку калькулятора (`?c=…`), как делает сам генератор; drift-тест не даёт править файл руками."
+  },
+  {
+   "principle": "Ритм страницы — одно число на все полосы — остаётся нашим правилом; Utopia лишь даёт ему форму пары, а не ручного clamp.",
+   "evidence": "DECISIONS.md «Ритм полосы — одно число на страницу» и слоты `bandPad`/`bandGap` (group 'rhythm') в contracts; Utopia: `.u-flow > * + * { margin-top: var(--space-s-m) }`, «the layout will simply 'breathe' to make the most of the available space».",
+   "forStorefront3": "`--air-band: var(--space-<пара>)`, `--air-head: var(--space-<пара>)` — роли ритма, обе читают пары из `fluid.css`; в `brandTheme` вместо двух сырых длин — база пространства @min/@max (два числа), от которой сервер пересчитывает всю палитру той же функцией `calculateSpaceScale`. Сторож: существующая проверка «страница держит один ритм для своих полос» из `test:wide` плюс тест, что слот `rhythm` не принимает `clamp()` руками."
+  }
+ ],
+ "doNotCopy": [
+  "Умолчания калькулятора (360→1240, 18→20, 1.2→1.25) как «рекомендацию»: это стартовые значения инструмента, в README и блоге они другие (320→1240, 320→1500, 320→1440). Наши концы — 320 и 1440, база — из макета.",
+  "`allPairs: true` (SCSS): n² переменных; сам Utopia предупреждает «this will result in a much larger final CSS output» и советует PurgeCSS. Пары — только названные в конфигурации.",
+  "rem для отступов без решения: проект целиком в px (0 rem в токенах), а `usePx` у Utopia — законный режим именно для пространства. Выбор один на витрину, записан в DECISIONS; смешивать по файлам нельзя.",
+  "Старую calc-форму «fluid custom properties» с замком `@media (min-width: 1140px)`: это второй язык раскладки и незарегистрированный шов; актуальная форма — предвычисленный clamp без медиазапросов.",
+  "Утилитарные классы `.u-container`, `.u-grid`, `.u-flow`: у нас CSS-модули и `composes`; переносится связь «гуттер = пара, контейнер = maxWidth», а не классы.",
+  "Отсутствие ролевого слоя: у Utopia компонент читает `--space-s-m` напрямую — ровно то, что `token-layer.test.ts` запрещает для цвета. Примитив → роль → компонент, без исключений.",
+  "`cqi` (контейнерные единицы) для токенов страницы: у нас число `@container` — ширина блока, а не окна (`seams.ts`); контейнерная рампа допустима внутри узла, но слой токенов остаётся viewport-based, чтобы у токена была одна прямая.",
+  "Пропорцию 1.333 и выше на 1440 вместе с отрицательными ступенями: переворачивает мелкий текст (11.11 → 10.13px); Utopia сам советует отвязать мелкий текст.",
+  "Метки `tailwind`/`tshirt` для типа рядом с `s/m/l` пространства: один словарь размеров на два разных рода величин путает; тип — `--step-N`, пространство — футболка, как в умолчании Utopia.",
+  "Голый `vw` в предпочитаемом значении (наш нынешний `clamp(48px, 6.1vw, 88px)`): без rem/px-слагаемого рампа не проходит через названные точки и стоит на полу до 787px — ступень, замаскированная под рампу."
+ ],
+ "quotes": [
+  {
+   "text": "Define type and space scales for a small screen. Define type and space scales for a large screen.",
+   "source": "https://utopia.fyi/"
+  },
+  {
+   "text": "Tell the browser to interpolate between the two scales, based on the current viewport width",
+   "source": "https://utopia.fyi/"
+  },
+  {
+   "text": "Slope = (MaxSize - MinSize) / (MaxWidth - MinWidth)",
+   "source": "https://utopia.fyi/blog/clamp"
+  },
+  {
+   "text": "yIntersection = (-1 * MinWidth) * Slope + MinSize",
+   "source": "https://utopia.fyi/blog/clamp"
+  },
+  {
+   "text": "font-size: clamp(MinSize[rem], yIntersection[rem] + Slope * 100vw, MaxSize[rem])",
+   "source": "https://utopia.fyi/blog/clamp"
+  },
+  {
+   "text": "clamp can have a knock-on effect to the maximum font-size when the user explicitly sets a browser text zoom preference",
+   "source": "https://utopia.fyi/blog/clamp"
+  },
+  {
+   "text": "Using the same base values from the fluid type calculator, this tool helps you to create a related fluid space system.",
+   "source": "https://utopia.fyi/space/calculator"
+  },
+  {
+   "text": "space value pairs which you can use to introduce more dramatic space variance",
+   "source": "https://utopia.fyi/space/calculator"
+  },
+  {
+   "text": "we need more nuanced space options nearer the base font size, and fewer options at the larger end of the scale",
+   "source": "https://utopia.fyi/blog/designing-with-a-fluid-space-palette"
+  },
+  {
+   "text": "the layout will simply 'breathe' to make the most of the available space",
+   "source": "https://utopia.fyi/blog/designing-with-a-fluid-space-palette"
+  },
+  {
+   "text": "Pairs are perfect for handling internal component padding between small and large screens.",
+   "source": "https://utopia.fyi/blog/painting-with-a-fluid-space-palette"
+  },
+  {
+   "text": "you need more options close to the origin ('S'), and fewer further out",
+   "source": "https://utopia.fyi/blog/painting-with-a-fluid-space-palette"
+  },
+  {
+   "text": "any text smaller than your base size might end up smaller on a large screen than on a small screen",
+   "source": "https://utopia.fyi/blog/dealing-with-negativity-in-fluid-type-scales"
+  },
+  {
+   "text": "Breakpoint-based type sizing has always felt a bit arbitrary to me.",
+   "source": "https://utopia.fyi/blog/designing-with-fluid-type-scales"
+  },
+  {
+   "text": "Most of the projects I work on use the step 0 value for the gutter size at the @min viewport width",
+   "source": "https://utopia.fyi/blog/designing-a-utopian-layout-grid"
+  },
+  {
+   "text": "let your main content container width be the total of the space palette values you choose",
+   "source": "https://utopia.fyi/blog/designing-a-utopian-layout-grid"
+  },
+  {
+   "text": "--grid-gutter: var(--space-s-l, clamp(1.125rem, 0.5625rem + 2.5vw, 2.5rem));",
+   "source": "https://utopia.fyi/grid/calculator"
+  },
+  {
+   "text": "this will result in a much larger final CSS output",
+   "source": "https://utopia.fyi/blog/generate-all-pairs"
+  },
+  {
+   "text": "margin-block-end: utopia.clamp(16, 24); → clamp(1rem, 0.7895rem + 1.0526vi, 1.5rem);",
+   "source": "https://utopia.fyi/blog/postcss-utopia"
+  },
+  {
+   "text": "three variable collections will be created: 'Utopian size', 'Space @min' and 'Space @max'",
+   "source": "https://utopia.fyi/blog/figma-variables"
+  },
+  {
+   "text": "the viewports where the step fails to be zoomable to 200% are returned in `wcagViolation`",
+   "source": "https://raw.githubusercontent.com/trys/utopia-core/main/README.md"
+  },
+  {
+   "text": "Pass `usePx: true` to separate space from browser text zoom preferences.",
+   "source": "https://raw.githubusercontent.com/trys/utopia-core-scss/main/README.md"
+  },
+  {
+   "text": "const minSize = Math.round(config.minSize * multiplier);",
+   "source": "https://github.com/trys/utopia-core/blob/main/src/index.ts (прочитано из npm utopia-core@1.6.0)"
+  },
+  {
+   "text": "piecewise functions for z5 (the font at 500% zoom in Chrome/Firefox) and 2*z1 … then solving for z5 < 2*z1",
+   "source": "https://github.com/trys/utopia-core/blob/main/src/index.ts (прочитано из npm utopia-core@1.6.0)"
+  },
+  {
+   "text": "Where `rem` values increase when you zoom in, viewport units are not affected.",
+   "source": "https://www.trysmudford.com/blog/utopia-wcag-warnings/"
+  },
+  {
+   "text": "either lift the type scale at your minimum viewport, or lower the type scale at your maximum viewport",
+   "source": "https://www.trysmudford.com/blog/utopia-wcag-warnings/"
+  },
+  {
+   "text": "The maximum value must be less than or equal to 2.5 times the minimum value.",
+   "source": "https://www.smashingmagazine.com/2023/11/addressing-accessibility-concerns-fluid-type/"
+  }
+ ],
+ "confidence": "Высокая по формулам, умолчаниям, единицам, парам и WCAG-проверке: прочитано из src/index.ts и index.test.ts пакета utopia-core 1.6.0 и исполнено локально; числа в scale.steps — вывод самого кода. Высокая по советам применения пар, гуттера и контейнера (посты Painting, Designing a layout grid, страница grid-калькулятора — прочитаны). Средняя по мотивации выбора `vi` против `vw` и по пояснительной прозе калькуляторов (рисуется JS, читались только подписи опций). Средняя-низкая по рабочему процессу плагина Figma (видео и файл сообщества не прочитаны; известно только из поста figma-variables). Прогон на 320→1440 с базой 16→18 — расчёт кандидата, не рекомендация Utopia; базу и пары для третьей витрины выбирает владелец по макету. Правило 2.5× — из вторичного источника (Smashing), но подтверждено веткой `5 * min < 2 * max` в коде и прогоном 16→40 / 16→41."
+}

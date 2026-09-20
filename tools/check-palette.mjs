@@ -1,9 +1,11 @@
 /*
  * Палитра не заводится на глаз.
  *
- * Проверка меряет РЕЗУЛЬТАТ ПОСТРОЕНИЯ шкалы, а не таблицу токенов: четыре
- * дефекта, которыми она куплена, рождались именно в том, как из токенов
- * считается остальное, и ни один сторож набора их не видел.
+ * Проверка меряет РЕЗУЛЬТАТ ПОСТРОЕНИЯ шкалы, а не таблицу токенов: шесть
+ * дефектов, которыми она куплена, рождались именно в том, как из токенов
+ * считается остальное, и ни один сторож набора их не видел. Последние два
+ * нашлись 20.09.2026 прогоном тех же наборов через эталон Radix: тёмная
+ * тема строила ступени 1–8 краской, а красный не мерил никто.
  *
  * Разбор, числа и источники — `.claude/skills/craft/references/palette.md`.
  * Закон — `SKILL.md`, «Палитра — это шкала из двенадцати ступеней».
@@ -84,17 +86,46 @@ const atLightness = (from, to, want) => {
 const inkOn = (bg) => (ratio('#FFFFFF', bg) >= ratio('#111111', bg) ? '#FFFFFF' : '#111111')
 
 /** Двенадцать ступеней. Девятая цветного ряда — сама краска, десятая
- *  отмеряется ОТ НЕЁ, а не гонится к отметке эталона. */
+ *  отмеряется ОТ НЕЁ, а не гонится к отметке эталона.
+ *
+ *  Лестница идёт от бумаги через краску к чернилам и НЕ РАЗВОРАЧИВАЕТСЯ:
+ *  ступени 1–8 держатся профиля, но не ближе 1.5 L* к краске со стороны
+ *  бумаги; 11 и 12 — профиля, но каждая не ближе шага заливки к предыдущей
+ *  со стороны чернил. До 20.09.2026 это держалось только в светлой теме и
+ *  только у краски светлее отметки 11-й: в тёмной все восемь первых ступеней
+ *  совпадали с краской, а у тёмной краски в светлой 11-я равнялась 9-й и
+ *  стояла светлее 10-й (palette.md, «Шкала строится в обе стороны»). */
 function scale(paper, ink, seed, mode) {
   const toward = mode === 'light' ? '#0A0A0A' : '#FAFAFA'
-  const gap = mode === 'light' ? -SOLID_GAP.light : SOLID_GAP.dark
+  const dir = mode === 'light' ? -1 : 1 /* куда идёт L* от бумаги к чернилам */
+  const gap = dir * SOLID_GAP[mode]
+  const solid = seed ? lightness(seed) : 0
+  const ahead = (a, b) => (dir < 0 ? Math.min(a, b) : Math.max(a, b)) /* дальше по лестнице */
+  const behind = (a, b) => (dir < 0 ? Math.max(a, b) : Math.min(a, b)) /* ближе к бумаге */
+  let last = solid + gap
   return PROFILE[mode].map((want, i) => {
     if (!seed) return atLightness(paper, ink, want)
     if (i === 8) return seed
-    if (i === 9) return atLightness(seed, toward, lightness(seed) + gap)
-    if (i < 8) return atLightness(paper, seed, Math.max(want, lightness(seed) + 1.5))
-    return atLightness(seed, toward, want)
+    if (i === 9) return atLightness(seed, toward, solid + gap)
+    if (i < 8) return atLightness(paper, seed, behind(want, solid - dir * 1.5))
+    last = ahead(want, last + gap)
+    return atLightness(seed, toward, last)
   })
+}
+
+/** Самая тесная пара самого эталона — 1 → 2 у `sand`: 0.6 L* в тёмной.
+ *  Меньше — две ступени с разной работой стали одной краской. */
+const STEP_MIN = 0.6
+
+/** Наименьший шаг лестницы по ходу от бумаги к чернилам; отрицательный —
+ *  лестница развернулась. */
+function tightest(row, mode) {
+  const dir = mode === 'light' ? -1 : 1
+  let worst = Number.POSITIVE_INFINITY
+  for (let i = 1; i < row.length; i += 1) {
+    worst = Math.min(worst, dir * (lightness(row[i]) - lightness(row[i - 1])))
+  }
+  return worst
 }
 
 /** Ступень нажатия — та, которой в шкале нет. Вдвое дальше наведения. */
@@ -135,6 +166,15 @@ export function auditPalette(seed, mode) {
   want('кольцо фокуса на листе', ratio(ring, n[0]), NEED.control)
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
   want('фирменный отличим от красного', difference(a[8], e[8]), NEED.brandApart)
+  /* Красный — такая же шкала, как марка: на нём стоит «нет в наличии» и
+     текст ошибки у поля, и до 20.09.2026 его не мерил никто (И190). */
+  want('текст ошибки на карточке', ratio(e[10], n[1]), NEED.text)
+  want('знак на заливке ошибки', ratio(inkOn(e[8]), e[8]), NEED.text)
+  /* Лестница не схлопывается: две ступени с разной работой в одной краске —
+     это контрол без ответа или цена, неотличимая от текста (И189). */
+  want('нейтральная лестница не схлопывается', tightest(n, mode), STEP_MIN)
+  want('фирменная лестница не схлопывается', tightest(a, mode), STEP_MIN)
+  want('красная лестница не схлопывается', tightest(e, mode), STEP_MIN)
   want('наведение кнопки заметно', hover, 2)
   want('нажатие кнопки заметно', pushed, 4)
   /* Слишком большой сдвиг — та же беда, что и нулевой: обвал янтаря заказчик

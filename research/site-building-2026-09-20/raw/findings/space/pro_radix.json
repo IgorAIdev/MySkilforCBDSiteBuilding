@@ -1,0 +1,305 @@
+{
+ "system": "Radix Themes (@radix-ui/themes 3.x) — шкала space-1…9 и глобальный множитель --scaling",
+ "sourcesRead": [
+  "https://www.radix-ui.com/themes/docs/theme/spacing",
+  "https://www.radix-ui.com/themes/docs/overview/layout",
+  "https://www.radix-ui.com/themes/docs/theme/breakpoints",
+  "https://www.radix-ui.com/themes/docs/theme/overview",
+  "https://www.radix-ui.com/themes/docs/components/theme",
+  "https://www.radix-ui.com/themes/docs/components/container",
+  "https://www.radix-ui.com/themes/docs/components/section",
+  "https://www.radix-ui.com/themes/docs/components/box",
+  "https://www.radix-ui.com/blog/themes-3",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/space.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/scaling.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/layout.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/base.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/index.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/radius.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/typography.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/shadow.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/cursor.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/color.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/breakpoints.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/postcss-breakpoints.cjs",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/props/prop-def.ts",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/props/padding.props.ts",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/props/margin.props.ts",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/props/gap.props.ts",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/props/layout.props.ts",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/theme.tsx",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/theme.props.tsx",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/section.props.tsx",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/container.props.tsx",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/section.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/container.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/button.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/_internal/base-button.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/card.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/_internal/base-card.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/inset.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/text-field.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/select.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/box.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/utilities/padding.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/utilities/margin.css",
+  "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/utilities/gap.css",
+  "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/primitives.css (раздел Spacing, Layout)",
+  "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/seams.ts",
+  "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/scale.test.ts",
+  "/home/user/CBD_ecommerce_eu/packages/contracts/src/index.ts (каталог SLOTS brandTheme, brandThemeToCss)",
+  "/home/user/CBD_ecommerce_eu/packages/ui/src/theme/brandTheme.tsx",
+  "/home/user/CBD_ecommerce_eu/apps/storefront/src/token-layer.test.ts",
+  "/home/user/CBD_ecommerce_eu/apps/storefront3/app/globals.css",
+  "/home/user/CBD_ecommerce_eu/apps/storefront3/CLAUDE.md",
+  "/home/user/CBD_ecommerce_eu/STACK.md §5",
+  "/home/user/CBD_ecommerce_eu/DECISIONS.md («Третья витрина набрана минимализмом-лакшери…», «Третья витрина открывается в Румынии…», «Долг первой витрины… числа вместо ступеней»)"
+ ],
+ "sourcesFailed": [
+  "https://www.radix-ui.com/themes/docs/theme/layout — 404: страница переехала на /themes/docs/overview/layout (прочитана там)",
+  "https://api.github.com/repos/radix-ui/themes/… (contents, git/trees) — 403 для этой сессии; листинг папки tokens не получен, файлы взяты по прямым raw-адресам, поэтому полноты списка файлов папки не гарантирую",
+  "raw …/src/components/theme.props.ts, section.props.ts, container.props.ts — 404 (у файлов расширение .tsx; прочитаны под ним)",
+  "raw …/postcss.config.cjs, …/components/base-button.css — 404 (неверный путь; base-button найден в _internal/)",
+  "Docs-страница Section через WebFetch не отдала таблицу отступов (24/40/64/80) — значения сняты с section.css и JSDoc в section.props.tsx",
+  "Тесты самого Radix Themes на токены не искал — утверждение «чем держится» ограничено прочитанными файлами типов и сборки"
+ ],
+ "unit": "px, умноженный на безразмерный множитель: `--space-1: calc(4px * var(--scaling))`, `--scaling` = 0.9…1.1. rem не используется нигде в шкале: тема — это поддерево (`.radix-themes` на элементе, не на `:root`), и её размеры не должны зависеть от корневого кегля страницы, в которую её вставили; плотность задаётся своим множителем, а не шрифтом браузера. Кегли и интерлиньяж тоже px × scaling (`--font-size-3: calc(16px * var(--scaling))`, `--line-height-3: calc(24px * var(--scaling))`), при этом `--default-line-height: 1.5` безразмерный, а межбуквенный интервал — доля кегля (`--letter-spacing-9: -0.025em`) и множителем не трогается. Радиусы — px × scaling × `--radius-factor` (0 / 0.75 / 1 / 1.5). Ширины контейнеров (`--container-4: 1136px`), швы (`min-width: 768px`) и тени — голые px без множителя: они принадлежат экрану, а не плотности.",
+ "scale": {
+  "base": "4px, помноженный на --scaling (по умолчанию 1)",
+  "generator": "список из 9 чисел на сетке 4px с растущим шагом: +4 на ступенях 1–4, +8 на 5–8, +16 на 9; каждое число обёрнуто в calc(N * var(--scaling)). Нулевой ступени в токенах нет — «0» существует только как значение пропа (rt-r-p-0 { padding: 0 })",
+  "steps": [
+   {
+    "name": "--space-1",
+    "value": "calc(4px * var(--scaling)) → 4px @100%, 3.6 @90%, 4.4 @110%"
+   },
+   {
+    "name": "--space-2",
+    "value": "calc(8px * var(--scaling)) → 8px"
+   },
+   {
+    "name": "--space-3",
+    "value": "calc(12px * var(--scaling)) → 12px"
+   },
+   {
+    "name": "--space-4",
+    "value": "calc(16px * var(--scaling)) → 16px"
+   },
+   {
+    "name": "--space-5",
+    "value": "calc(24px * var(--scaling)) → 24px"
+   },
+   {
+    "name": "--space-6",
+    "value": "calc(32px * var(--scaling)) → 32px"
+   },
+   {
+    "name": "--space-7",
+    "value": "calc(40px * var(--scaling)) → 40px"
+   },
+   {
+    "name": "--space-8",
+    "value": "calc(48px * var(--scaling)) → 48px"
+   },
+   {
+    "name": "--space-9",
+    "value": "calc(64px * var(--scaling)) → 64px"
+   },
+   {
+    "name": "--scaling (data-scaling)",
+    "value": "'90%'→0.9, '95%'→0.95, '100%'→1, '105%'→1.05, '110%'→1.1; по умолчанию '100%'"
+   },
+   {
+    "name": "--radius-1…6",
+    "value": "calc(3|4|6|8|12|16px * var(--scaling) * var(--radius-factor)); --radius-factor: none 0, small 0.75, medium 1, large 1.5, full 1.5 (+ --radius-full: 9999px)"
+   },
+   {
+    "name": "--font-size-1…9 / --line-height-1…9",
+    "value": "12|14|16|18|20|24|28|35|60px и 16|20|24|26|28|30|36|40|60px, каждое × var(--scaling)"
+   },
+   {
+    "name": "Section size 1…4 (padding-block)",
+    "value": "var(--space-5)=24, var(--space-7)=40, var(--space-9)=64, calc(80px * var(--scaling)); default size='3'"
+   },
+   {
+    "name": "--container-1…4 (max-width)",
+    "value": "448px, 688px, 880px, 1136px — без множителя; default size='4'; своего гуттера у Container нет"
+   }
+  ],
+  "notes": "Имена ступеней порядковые (1…9), а не по значению — потому что значение под именем меняется с --scaling, и имя «16» врало бы при 90%. Токены объявлены на `.radix-themes` (элемент Theme), а не на `:root`: каждый вложенный Theme несёт тот же класс и заново вычисляет calc со своим data-scaling. Файлы: tokens/space.css (шкала), tokens/scaling.css (множитель), tokens/layout.css = @import scaling + space; tokens/base.css собирает color, cursor, layout, radius, shadow, typography; tokens/index.css = 31 палитра + base. Сравнение с нашими примитивами (`packages/ui/src/tokens/primitives.css`): 13 ступеней, имена по значению в четвертях (`--space-16: 64px`), с внеплановыми `--space-2-5: 10px` и `--space-5: 20px`, дописанными «потому что их уже пишут»; у Radix — 9 ступеней и ни одной промежуточной: половинки пишутся на месте как `calc(var(--space-1) * 1.5)` (select.css, text-field.css), а не заводятся ступенью."
+ },
+ "roles": {
+  "hasSemanticLayer": false,
+  "vocabulary": [
+   "--space-1…9 (единственный глобальный словарь отступов; компоненты читают ступени напрямую)",
+   "--card-padding, --base-card-padding-top/right/bottom/left (свойство узла, выбранное по размеру: size-1 → --space-3 … size-5 → --space-8)",
+   "--inset-padding-top/right/bottom/left (карточка публикует свою внутреннюю рамку минус border, чтобы Inset мог выйти к краю отрицательным полем)",
+   "--button-ghost-padding-x/-y, --base-button-height (size-1…4 → --space-5…8, то есть 24/32/40/48)",
+   "--text-field-height (--space-5/6/7), --text-field-padding (calc(var(--space-2) - border))",
+   "--select-content-padding, --select-item-height, --select-trigger-ghost-padding-x/-y",
+   "--margin-top/right/bottom/left и --margin-*-override (внутренний канал пропов m/mx/my; компонент сбрасывает их в 0px, чтобы не унаследовать от родителя)",
+   "--p, --pl, --pr, --pt, --pb, --gap, --column-gap, --row-gap, --inset, --top… (custom properties, в которые кладётся произвольная CSS-строка из пропа)",
+   "Section size 1–4 (роли вертикального ритма страницы), Container size 1–4 (роли ширины чтения)"
+  ],
+  "examples": [
+   "button.css size-2: gap var(--space-2); padding-left/right var(--space-3); font-size var(--font-size-2); line-height var(--line-height-2) — один индекс размера тянет согласованный набор из всех шкал",
+   "card.css: `&:where(.rt-r-size-2) { --card-padding: var(--space-4); --card-border-radius: var(--radius-4); }` — узел объявляет своё свойство и связывает его со ступенью, а сама рамка пишется `padding-top: var(--base-card-padding-top)`",
+   "base-card.css: `--inset-padding-top: calc(var(--base-card-padding-top) - var(--base-card-border-width))` → inset.css: `--margin-top-override: calc(var(--margin-top) - var(--inset-padding-top-calc))` — вылет картинки к краю карточки читает поле карточки, а не второе число",
+   "section.css size-4: `padding-top: calc(80px * var(--scaling))` — число вне шкалы всё равно пишется через множитель, а не голым"
+  ],
+  "notes": "Между шкалой и компонентом нет слоя ролей вида `--space-inset-card` или `--space-stack-md`: роль — это собственное свойство компонента (`--card-padding`), объявленное в его же файле и выбранное по `size`. Семантика уровня страницы вынесена не в токены, а в два компонента: Section (вертикальный воздух между крупными частями) и Container (ширина чтения). Все пропы отступов типизированы как `enum | string`: ступени '0'–'9' (у margin и inset ещё '-1'…'-9') превращаются в утилитарный класс `rt-r-p-4`, произвольная строка (`'100px'`, `'calc(100vw - 200px)'`) — в класс `rt-r-p` плюс инлайн `--p`. Так побег из шкалы возможен, но всегда виден: у него свой класс и своя переменная."
+ },
+ "density": "Один множитель на поддерево. `<Theme scaling=\"90%|95%|100%|105%|110%\">` ставит `data-scaling` на свой `div.radix-themes`; `scaling.css` переводит атрибут в `--scaling: 0.9…1.1`; все ступени space, font-size, line-height, heading-line-height, radius объявлены на том же классе как `calc(N * var(--scaling))`, поэтому вложенный Theme (тот же класс, свой атрибут) пересчитывает их только внутри себя: «Nest another theme to modify configuration for a specific subtree. Configuration is inherited from the parent» — в theme.tsx это `scaling = context?.scaling ?? themePropDefs.scaling.default`. Шаг множителя 5%, диапазон ±10% — намеренно узкий: это плотность, а не масштаб. Вторая ось плотности — `size` компонента (Button 1–4, Card 1–5, Section 1–4), она отзывчива (`size={{ initial: '2', md: '3' }}`) и меняет не одно число, а согласованную строку из всех шкал. Что множитель не трогает: letter-spacing (em), тени, ширины Container, швы, курсоры. Свои стили подключаются к нему тем же токеном: docs советуют `calc(200px * var(--scaling))`.",
+ "fluid": "Текучести (clamp, vw) в шкале нет вовсе: ступень — фиксированное число на данном scaling, и по ширине ничего само не течёт. Отзывчивость дискретная, по шести именованным порогам из одного файла `styles/breakpoints.css`: `@custom-media --xs (min-width: 520px)`, `--sm 768`, `--md 1024`, `--lg 1280`, `--xl 1640`; плюс `initial` = 0. Все min-width («apply when the screen width is equal or greater»), то есть mobile-first. Сборочный плагин `postcss-breakpoints.cjs` читает этот файл и из каждого блока `@breakpoints { .rt-r-p-4 {…} }` размножает варианты `.xs\\:rt-r-p-4 … .xl\\:rt-r-p-4` под соответствующими медиазапросами; в TS тот же список — `breakpointsArray = ['initial','xs','sm','md','lg','xl']` в prop-def.ts. На стороне JSX это объект `p={{ initial: '3', md: '5' }}`. Произвольные значения допускаются («100px, 50vw, or even expressions like calc(100vw - 200px)»), значит `clamp()` можно передать строкой в проп — но это побег из системы, а не её правило.",
+ "layout": "Пять компонентов раскладки: Box, Flex, Grid, Section, Container; общие пропы p/px/py/pt/pr/pb/pl, m/mx/my/…, gap/gapX/gapY, width/height/min/max, position/inset/top/…, все отзывчивые. Container: «sole responsibility is to provide a consistent max-width» — четыре ширины 448 / 688 / 880 / 1136px (по умолчанию 4), `align` left/center/right; гуттера у него нет: `container.css` не пишет padding вовсе, боковой отступ автор кладёт сам через `px`. Section: «consistent vertical spacing between the larger parts of your page content» — padding-block 24 / 40 / 64 / 80px (ступени 5, 7, 9 и 80×scaling), по умолчанию 3 (64px). Ритм секций = один компонент с четырьмя размерами, а не число в каждом блоке. Сетка как таковая не задана числом колонок: Grid — обёртка над CSS grid с пропами columns/rows/areas и gap из шкалы. Отрицательные ступени `-1…-9` есть у margin и позиционных пропов; Inset — узел для выхода содержимого к краю Card, читающий её рамку через `--inset-padding-*`.",
+ "enforcement": "Держится типами и сборкой, не тестами (тесты Radix не читал). (1) Каждый проп описан в `*.props.ts` как `{ type: 'enum | string', values: ['0'…'9'], responsive: true, className: 'rt-r-p', customProperties: ['--p'] }` под `satisfies` — неизвестная ступень не проходит typecheck, а произвольная строка проходит только через свою переменную. (2) Список швов один — `breakpoints.css`; postcss-плагин строит из него и медиазапросы, и префиксы классов, так что второго списка ширин в CSS появиться негде. (3) Таблицы значений в docs берутся из JSDoc `@values` в тех же props-файлах (section.props.tsx содержит таблицу 24/40/64/80), то есть документация и код — один файл. (4) Стилевые правила через `:where()` держат нулевую специфичность, а stylelint (`selector-max-type`) закреплён комментариями в самих файлах. (5) Компонентные переменные сбрасываются на входе (`--margin-top: 0px` в Inset и ghost-Button) — защита от наследования чужого отступа записана в коде, а не в памяти.",
+ "principles": [
+  {
+   "principle": "Шкала — это база × множитель, а не список чисел. Плотность целиком меняется одной переменной, потому что множитель стоит внутри объявления каждой ступени, а не у потребителя.",
+   "evidence": "tokens/space.css: `--space-1: calc(4px * var(--scaling))`; tokens/scaling.css: `&:where([data-scaling='90%']) { --scaling: 0.9 }`; docs/theme/spacing: «The scaling factor token can be accessed using the --scaling CSS variable».",
+   "forStorefront3": "Множитель `--density` (по умолчанию 1) внутри объявлений `--space-*` в `packages/ui/src/tokens/primitives.css`: `--space-4: calc(16px * var(--density, 1))` — соседние витрины не меняются ни на пиксель. Значение приезжает из админки слотом `brandTheme.density` того же каталога `SLOTS` в `@cbdshop/contracts` (группа `rhythm`), перечислением из пяти строк 90/95/100/105/110%, как `font-choice` — ввод ограничен, раскладку сломать нельзя; `brandThemeToCss` печатает его в `:root` вместе с остальными. Сторож: `spacing-scale.test.ts` в `packages/ui/src/tokens` читает `primitives.css` и требует, чтобы каждое `--space-*` содержало `var(--density`, а голое `Npx` в этих строках было ошибкой; проверить обратным ходом — убрать множитель у одной ступени, тест красный."
+  },
+  {
+   "principle": "Список того, что масштабируется вместе с пространством, записан и закрыт: space, кегль, интерлиньяж, радиус, высоты органов управления — да; трекинг, тени, ширины контейнера, швы — нет.",
+   "evidence": "typography.css: `--font-size-3: calc(16px * var(--scaling))`, `--letter-spacing-9: -0.025em` (без множителя); radius.css: `calc(3px * var(--scaling) * var(--radius-factor))`; container.css: `--container-4: 1136px`; breakpoints.css: `(min-width: 768px)`; docs: «Values which affect layout (spacing, font size, line height) scale relatively to each other».",
+   "forStorefront3": "Два списка в одном тесте: семьи `--space-*`, `--radius-*`, `--control-pad-*` обязаны содержать `var(--density)`; семьи `--layout-*` (гуттер, колонка, ритм полос), `--tracking-*`/`*-tracking`, `--border-hairline`, `--control-size` (44 — цель под пальцем) и записи `seams.ts` — не должны. Кегль отдельно: у нас `--text-*-size` правит владелец из админки длиной в px, и умножать его же множителем — второе правило об одном узле; тут два разумных ответа (плотность трогает кегль, как у Radix, или только воздух), и это вопрос владельцу до кода, с записью в `DECISIONS.md`."
+  },
+  {
+   "principle": "Токены объявляются на элементе темы, а не на :root, поэтому «Theme внутри Theme» — это тот же файл, прочитанный ещё раз с другим атрибутом; плотность поддерева не требует второго словаря.",
+   "evidence": "theme.tsx рендерит `<div class=\"radix-themes\" data-scaling={scaling} data-is-root-theme=…>` и берёт `scaling = context?.scaling ?? default`; docs/components/theme: «Nest another theme to modify configuration for a specific subtree. Configuration is inherited from the parent».",
+   "forStorefront3": "Ступени `--space-*` живут под селектором `:root, [data-density]`, а множитель — `[data-density='90%'] { --density: .9 }` … в `packages/ui/src/tokens/primitives.css`. Корневой `layout.tsx` ставит `data-density` из `brandTheme`; плотный узел витрины (список строк корзины, таблица сравнения, оформление на 375) ставит свой атрибут и получает пересчёт только внутри себя — без класса `…Dense` и без второго набора отступов. Сторож: `density-scope.test.ts` — множество значений `data-density` в разметке витрины ⊆ реестру из пяти строк, как `seams.test.ts` держит ширины; и обратно: значение реестра, которого нет в CSS, — ошибка."
+  },
+  {
+   "principle": "Один индекс размера тянет согласованную строку из всех шкал: высота, поле, зазор, кегль, интерлиньяж, радиус выбираются по одному `size`, а не по одному в каждом свойстве.",
+   "evidence": "button.css size-2: `gap: var(--space-2); padding-left: var(--space-3); font-size: var(--font-size-2); line-height: var(--line-height-2)`; base-button.css: `--base-button-height: var(--space-6)` для size-2 (32px); card.css: size-1…5 → `--card-padding: var(--space-3|4|5|6|8)`.",
+   "forStorefront3": "У кнопки и поля третьей витрины ступени `sm/md/lg` описываются таблицей в одном месте (`packages/ui/src/components/Control/Control.module.css` уже держит `--control-size`/`--control-icon` для круглых; та же лесенка для прямоугольных: `--control-pad-sm: var(--space-4)` … `--control-pad-lg: var(--space-8)` есть в primitives). Правило: размер меняет ступень одной строкой (`--control-size`), а не переписывает высоту, поле и значок порознь. Сторож: тест таблицы — для каждого свойства индекс ступени не убывает от sm к lg (высота sm ≤ md ≤ lg, поле sm ≤ md ≤ lg), и ни одна ступень таблицы не написана числом."
+  },
+  {
+   "principle": "Роль отступа — это собственное свойство узла, привязанное к ступени в его же файле; глобального семантического словаря отступов нет, и потому шкала остаётся короткой.",
+   "evidence": "card.css: `--card-padding: var(--space-4)` → base-card.css `padding-top: var(--base-card-padding-top)`; text-field.css: `--text-field-padding: calc(var(--space-2) - var(--text-field-border-width))`; select.css: `--select-content-padding: var(--space-1)`.",
+   "forStorefront3": "Два уровня, как в палитре, но без третьего: ступень (`--space-N`) → свойство узла (`--card-pad`, `--field-pad`, `--band-pad`, `--band-gap`, `--stack-gap`). Свойство объявляется в модуле узла и читается всеми его внутренностями; ступень напрямую в `padding:` компонента писать можно (так делает Radix), голое число — нельзя. Сторож — брат `token-layer.test.ts` для отступов: в `apps/storefront3/**/*.module.css` значения `padding|margin|gap|inset|top|left|right|bottom` состоят из `0`, `auto`, `var(--…)`, `calc(` над ними и `1px` волосяной линии; любое другое `\\d+px` — красный. Обратный ход: вписать `padding: 24px` в любой модуль — тест падает."
+  },
+  {
+   "principle": "Вертикальный воздух страницы — один узел с четырьмя именованными размерами, привязанными к ступеням; блок не выбирает себе число.",
+   "evidence": "section.css: size-1 `var(--space-5)`, size-2 `var(--space-7)`, size-3 `var(--space-9)`, size-4 `calc(80px * var(--scaling))`; section.props.tsx: `default: '3'`; docs/overview/layout: «Section provides a consistent vertical spacing between the larger parts of your page content».",
+   "forStorefront3": "Полоса третьей витрины (`components/Band`) берёт `--layout-band-pad` и `--layout-band-gap` — слоты `bandPad`/`bandGap` группы `rhythm` в админке уже заведены и уже читаются `brandThemeToCss`. Внутренние рампы пишутся как `clamp(<ступень телефона>, <ramp>, <число макета>)`: пол — `var(--space-12)` (48) для полосы и `var(--space-8)` (32) для рельсы, потолок — из макета. Сторож: существующая проверка `test:wide` «страница держит один ритм для своих полос» ходит по дереву маршрутов и включает третью витрину автоматически; к ней — строка в `spacing-scale.test.ts`: нижняя граница каждого `--layout-band-*` и `--layout-rail-*` — ступень шкалы, а не число."
+  },
+  {
+   "principle": "Ширина чтения — именованная роль (четыре размера контейнера), и у контейнера нет гуттера: боковой воздух — отдельная ответственность, которую кладут явно.",
+   "evidence": "container.css: `--container-1: 448px; --container-2: 688px; --container-3: 880px; --container-4: 1136px`, правило `.rt-Container` без padding; docs: «Container's sole responsibility is to provide a consistent max-width to the content it wraps».",
+   "forStorefront3": "Три ширины с именами по назначению, а не по номеру: `--measure-text` (колонка статьи/политик), `--measure-form` (оформление, вход), `--layout-content` (полная колонка) — в `primitives.css` рядом с `--layout-column`. Гуттер — только `--layout-gutter-page` (16 на телефоне, `clamp(32px, 5vw, 72px)` на широкой), и кладёт его полоса, а не контейнер: так ни одна колонка не пишет `calc(100% - 32px)` своей рукой. Сторож: grep-тест — `max-width` в модулях третьей витрины только `var(--measure-*)`/`var(--layout-*)`; плюс проверка «сетка не теряет колонку, получив место» из `test:wide`, с неё и начинать каждую новую сетку."
+  },
+  {
+   "principle": "Побег из шкалы разрешён, но всегда виден и типизирован: произвольное значение идёт через свою переменную и свой класс, а не через число в стилях.",
+   "evidence": "padding.props.ts: `type: 'enum | string', values: ['0'…'9'], customProperties: ['--p']`; utilities/padding.css: `.rt-r-p { padding: var(--p) }` рядом с `.rt-r-p-4 { padding: var(--space-4) }`; blog/themes-3: «layout props will support valid CSS values. For example, 100px, 50vw…».",
+   "forStorefront3": "Побег — это именованный замер в `primitives.css` с комментарием, что он меряет (`--layout-hero-content-top: 112px` — высота шапки, а не ритм), как уже решено в «числа вместо ступеней». В модуле компонента побега не бывает: число без имени — находка. Сторож тот же спейсинговый тест из п. 5 плюс `lint:css`; для замеров — правило, что переменная семьи `--layout-*` объявлена только в `primitives.css` (`css-tokens.test.ts` уже проверяет «читаемая переменная объявлена»)."
+  },
+  {
+   "principle": "Отрицательный отступ существует только как обратная сторона положительного и читает ту же переменную: вылет к краю карточки берёт её поле, а не второе число.",
+   "evidence": "base-card.css: `--inset-padding-top: calc(var(--base-card-padding-top) - var(--base-card-border-width))`; inset.css: `--margin-top-override: calc(var(--margin-top) - var(--inset-padding-top-calc))`; margin.props.ts допускает '-1'…'-9' только как `calc(-1 * var(--space-N))`.",
+   "forStorefront3": "Карточка товара с фотографией во всю ширину — главный случай «лакшери-минимализма»: `ProductCard.module.css` объявляет `--card-pad`, а медиа пишет `margin-inline: calc(-1 * var(--card-pad))` и радиус `calc(var(--radius-card) - var(--border-hairline))`. Своей ступени у вылета нет. Сторож: в спейсинговом тесте отрицательное значение допускается только в форме `calc(-1 * var(--…))`, голое `-12px` — красный."
+  },
+  {
+   "principle": "Один список порогов ширины читают и CSS, и типы, и сборка; второму списку появиться негде. Пороги — min-width, то есть база правил пишется для телефона.",
+   "evidence": "styles/breakpoints.css: `@custom-media --sm (min-width: 768px)` (520/768/1024/1280/1640); postcss-breakpoints.cjs читает этот файл и размножает `@breakpoints {…}`; prop-def.ts: `breakpointsArray = ['initial','xs','sm','md','lg','xl']`; docs: «Values are min-width based and apply when the screen width is equal or greater».",
+   "forStorefront3": "Реестр швов уже есть — `packages/ui/src/tokens/seams.ts` с `seams.test.ts` в обе стороны; третьей витрине нужен свой список швов (у неё свой макет и свои ширины, а не 1439/1100/1060 первой) в том же типе `LayoutSeam`, с причиной у каждого. Запись базовых правил под телефон и `@media (min-width: …)` под широкую — прямое следствие «телефон — основной экран»; соседи пишут `max-width: 859px`, поэтому выбор для третьей витрины фиксируется записью в `DECISIONS.md` и сторожем: `seams.test.ts` третьей витрины принимает только `min-width` и только ширины из реестра."
+  },
+  {
+   "principle": "Имя ступени — порядковое, а не число: как только под именем стоит формула, имя-значение начинает врать.",
+   "evidence": "space.css именует 1…9 при значениях 4…64, а не `--space-16: 64px`; при `--scaling: .9` `--space-9` = 57.6px, и имя остаётся верным. Половинки не заводятся ступенью: select.css `gap: calc(var(--space-1) * 1.5)`.",
+   "forStorefront3": "Наши примитивы названы по значению (`--space-16: 64px`, `--space-2-5: 10px`), и это работает ровно потому, что множителя нет. Развилка, которую надо решить до кода и записать: либо множитель вводится — и третья витрина получает порядковую девятиступенчатую шкалу в своём `app/tokens/space.css` (соседи остаются на прежних именах, `css-tokens.test.ts` ловит нечитаемые имена), либо плотность живёт только в ролях ритма (`--layout-band-*`, `--card-pad`), а имена-значения остаются. Смешивать — множитель под именем-значением — нельзя: это тот случай, когда сторож зелёный, а токен врёт."
+  }
+ ],
+ "doNotCopy": [
+  "React-компонент `Theme` с контекстом и `data-*` на `div.radix-themes`: у нас тема — CSS-переменные из админки, напечатанные `BrandThemeStyle` в `:root` на сервере; клиентского контекста для плотности не нужно, хватает атрибута и каскада.",
+  "Пропы раскладки в JSX (`p=\"4\"`, `m={{ md: '6' }}`) и утилитарные классы `rt-r-p-4`, `md:rt-r-p-6`: у нас раскладка живёт в CSS-модулях с `composes`, а Tailwind-подобный слой в разметке — второй язык раскладки рядом с первым (`seams.ts` объясняет, почему второго языка не заводят).",
+  "Дискретная отзывчивость «ступень на пороге» вместо рампы: между 860 и 1440 наш макет сжимается `clamp(min, ramp, число_из_макета)` (CLAUDE.md, «Широкая раскладка сжимается»), а объект `{ initial, md, xl }` — это та самая ступень на неназванной ширине, которую там запрещают.",
+  "Числа Radix как таковые — 448/688/880/1136 контейнеров, 520/768/1024/1280/1640 порогов, 24/40/64/80 секций: они сняты с их макета и их продуктов; наши берутся с холста 1440 (`--layout-content: 1296`) и из реестра швов с причиной у каждого.",
+  "Множитель, доходящий до целей нажатия: у Radix Button size-1 = `--space-5` × scaling = 21.6px при 90% — годится для десктопного приложения, не для магазина с 79% телефона; `--control-size` 44 под `pointer: coarse` и волосяная линия 1px стоят вне множителя.",
+  "Общие отрицательные ступени как публичный API (`m=\"-3\"` где угодно): у нас отрицательный отступ существует только как обратная сторона поля родителя (образец — Inset, а не `m=\"-3\"`).",
+  "Диапазон плотности как пользовательская настройка витрины: пять значений — инструмент владельца в админке на весь магазин или на названный узел, а не переключатель для покупателя.",
+  "Шкала кеглей Radix (12…60px с шагом 35→60) и системный стек шрифтов: кегли третьей витрины — из её макета и слотов `text*Size` админки, шрифт — Geist из реестра `shopFonts`."
+ ],
+ "quotes": [
+  {
+   "text": "Spacing values are derived from a 9-step scale, which is used for props such as margin and padding.",
+   "source": "https://www.radix-ui.com/themes/docs/theme/spacing"
+  },
+  {
+   "text": "Values which affect layout (spacing, font size, line height) scale relatively to each other based on the scaling value",
+   "source": "https://www.radix-ui.com/themes/docs/theme/spacing"
+  },
+  {
+   "text": "The scaling factor token can be accessed using the --scaling CSS variable.",
+   "source": "https://www.radix-ui.com/themes/docs/theme/spacing"
+  },
+  {
+   "text": "--space-1: calc(4px * var(--scaling)); … --space-9: calc(64px * var(--scaling));",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/space.css"
+  },
+  {
+   "text": "&:where([data-scaling='90%']) { --scaling: 0.9; } … &:where([data-scaling='110%']) { --scaling: 1.1; }",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/scaling.css"
+  },
+  {
+   "text": "const scalings = ['90%', '95%', '100%', '105%', '110%'] as const;",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/theme.props.tsx"
+  },
+  {
+   "text": "--radius-1: calc(3px * var(--scaling) * var(--radius-factor));",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/radius.css"
+  },
+  {
+   "text": "--font-size-3: calc(16px * var(--scaling)); … --letter-spacing-9: -0.025em;",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/tokens/typography.css"
+  },
+  {
+   "text": "Nest another theme to modify configuration for a specific subtree. Configuration is inherited from the parent.",
+   "source": "https://www.radix-ui.com/themes/docs/components/theme"
+  },
+  {
+   "text": "Container's sole responsibility is to provide a consistent max-width to the content it wraps.",
+   "source": "https://www.radix-ui.com/themes/docs/overview/layout"
+  },
+  {
+   "text": "Section provides a consistent vertical spacing between the larger parts of your page content",
+   "source": "https://www.radix-ui.com/themes/docs/overview/layout"
+  },
+  {
+   "text": "You'll still have to wrap your app with Theme to provide the space scale and scaling factor settings.",
+   "source": "https://www.radix-ui.com/themes/docs/overview/layout"
+  },
+  {
+   "text": "--container-1: 448px; --container-2: 688px; --container-3: 880px; --container-4: 1136px;",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/container.css"
+  },
+  {
+   "text": "size-1 padding var(--space-5); size-2 var(--space-7); size-3 var(--space-9); size-4 calc(80px * var(--scaling))",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/section.css"
+  },
+  {
+   "text": "&:where(.rt-r-size-2) { --card-padding: var(--space-4); --card-border-radius: var(--radius-4); }",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/card.css"
+  },
+  {
+   "text": "--inset-padding-top: calc(var(--base-card-padding-top) - var(--base-card-border-width));",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/components/_internal/base-card.css"
+  },
+  {
+   "text": "const paddingValues = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] as const;",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/props/padding.props.ts"
+  },
+  {
+   "text": "@custom-media --xs (min-width: 520px); --sm 768px; --md 1024px; --lg 1280px; --xl 1640px",
+   "source": "https://raw.githubusercontent.com/radix-ui/themes/main/packages/radix-ui-themes/src/styles/breakpoints.css"
+  },
+  {
+   "text": "Values are min-width based and apply when the screen width is equal or greater.",
+   "source": "https://www.radix-ui.com/themes/docs/theme/breakpoints"
+  },
+  {
+   "text": "layout props will support valid CSS values. For example, 100px, 50vw, or even expressions like calc(100vw - 200px)",
+   "source": "https://www.radix-ui.com/blog/themes-3"
+  }
+ ],
+ "confidence": "Высокая по числам, именам токенов и механике множителя — всё снято с файлов репозитория (space.css, scaling.css, radius.css, typography.css, section.css, container.css, breakpoints.css, props) и сверено с дословными фразами docs, выгруженными curl. Средняя по «чем держится»: типы и postcss-плагин прочитаны, тесты самого Radix не искал. Средняя по переносу на третью витрину там, где названа развилка (множитель против имён-значений; трогает ли плотность кегль владельца): это решения, которых в проекте пока не записано, и они требуют записи в DECISIONS.md до кода, а не выбора в этом отчёте."
+}

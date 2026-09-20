@@ -1,0 +1,253 @@
+{
+ "topic": "Как в проекте построен слой ПАЛИТРЫ (примитив → роль → тема → компонент → админка → экран → сторож → документы) — образец для слоя отступов третьей витрины (apps/storefront3)",
+ "findings": [
+  {
+   "fact": "Один вход в систему токенов: index.css импортирует строго primitives → semantic → base. Третья витрина уже берёт его целиком (`@import '@cbdshop/ui/tokens.css'`) и переопределяет у себя только `--font-sans`; своих токенов отступов у неё нет ни одного.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/index.css:1-4; /home/user/CBD_ecommerce_eu/apps/storefront3/app/globals.css:13-41",
+   "implication": "Слой отступов для storefront3 строится тем же приёмом, что и шрифт: общие примитивы и роли живут в packages/ui, витрина переобъявляет РОЛИ на своём `:root`, а не заводит вторую шкалу."
+  },
+  {
+   "fact": "Уровень 1 — примитив. Заголовок primitives.css: «Primitives are market- and theme-agnostic: they name a value, not a role. Never reference these directly from a component». Палитра названа по значению (`--palette-cta-green`, `--palette-cream-white`), у каждого спорного числа — комментарий с датой, замером и ссылкой на запись DECISIONS (например `--palette-control-light`, 04.09.2026: 1.11 → 21 уровень канала). Разделы отбиты баннерами `/* --- Title ---- */`, и эти баннеры читает сборщик слепка как названия групп.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/primitives.css:1-57, 293-334, 485-601",
+   "implication": "У семейства примитивов три обязательных свойства: имя по значению, а не по роли; комментарий-происхождение у каждого неочевидного числа; баннер раздела, чтобы экран админки показал группу без правки скрипта."
+  },
+  {
+   "fact": "Отступы сегодня — только примитивы в том же файле: `--space-1…--space-18` (13 ступеней: 4,8,10,12,16,20,24,32,40,48,56,64,72), причём 10 и 20 добавлены «потому что их уже читали, а объявления не было» (незаданная var() выбрасывает всё свойство), 56 — «потому что просят пятеро»; плюс токены-места `--layout-band-pad/gap` (clamp с полом = число телефона), `--layout-rail-pad-start/end`, `--layout-gutter-page` (clamp + @media 860), `--control-pad-sm/md/lg` и `--cart-button-pad-*`, читающие --space.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/primitives.css:293-334, 445-452, 508-572, 609-614",
+   "implication": "У отступов есть примитив и есть несколько ролей-по-месту, но нет слоя ролей как такового: имя ступени `--space-6` ничего не говорит о том, где она стоит, а компонент читает её напрямую — ровно то положение, в котором палитра была до 26.08.2026."
+  },
+  {
+   "fact": "Уровень 2 — роль. semantic.css устроен тремя блоками: (а) голый `:root {` — неизменные роли, пары «фон/чернила» поверхностей, не следующих за темой (`--content-on-deep`, `--content-on-fill`, `--content-on-tint`, `--content-destructive`, 31 строка); (б) `:root, [data-theme='light']` — роли светлой; (в) `[data-theme='dark']` — переписывает подмножество. Имена: `--<что>-<качество|где>`: content/surface/border/state/interactive/shadow; `-on-<поверхность>` для чернил над названной поверхностью; `-muted/-subtle/-strong` для ступеней; `-hover/-press` для состояний. Рынок вправе переписать только оттенки бренда, не структурные роли.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/semantic.css:1-147, 149-339, 341-442",
+   "implication": "Роль = имя по назначению + значение через var() примитива + место в одном из трёх блоков в зависимости от того, меняется ли она с темой. Для отступов «тема» — это витрина/рынок и ширина, а не свет/тьма, но деление «неизменное / переопределяемое» переносится буквально."
+  },
+  {
+   "fact": "Полоса объявляет пару один раз: `Band.module.css .deep` переобъявляет ТЕ ЖЕ имена, что переобъявляет тёмная тема (`--content-strong`, `--surface-ghost`, `--state-hover-filter`…) значениями `-on-deep`; узел внутри пишет обычную роль. Отступы у полосы уже сделаны тем же приёмом: `--band-pad-start/end` с запасным `var(--layout-band-pad)` и `--band-lift`, объявленные запасным значением, а не объявлением, чтобы не спорить силой.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/components/Section/Band.module.css:31-58, 73-83, 119-152",
+   "implication": "Готовый образец «узел объявляет ручку отступа один раз, а внутренности читают её»: слой ролей отступов должен лечь на эти ручки, а не рядом с ними."
+  },
+  {
+   "fact": "Уровень 3 — компонент читает только роль; держит `token-layer.test.ts` (8 проверок): компонент не читает `--(palette|tint|alpha|brand)-` кроме чужих знаков `^--brand-[a-z]+$`; не пишет hex; неизменная роль не переписана темой (сравнение имён блоков `:root {` vs light/dark); полупрозрачная светлая краска имеет тёмную половину (раскрывает var() на два шага, ищет чернила и долю <0.5); тёмная не заводит роли без светлой; ошибка красится одной ролью; line-height долей при правимом кегле (читает `brandTokenFields`); тень — роль. Область: `packages/ui/src/components/**/*.css` + `apps/storefront/src/**/*.css`, слой токенов исключён закрытым списком `tokenLayer`, комментарии срезаются до поиска. Текст ошибки называет последствие («иначе второй рынок перекрашивается по файлам, а не по одному»).",
+   "where": "/home/user/CBD_ecommerce_eu/apps/storefront/src/token-layer.test.ts:37-56, 78-113, 140-155, 212-225",
+   "implication": "Это главный сторож семейства: закрытый список файлов-исключений с причиной, регулярка на префикс примитива, ошибка человеческим языком с последствием. Для отступов — тот же файл, добавить регулярку `--space-\\d` и добавить корни storefront3 (сегодня `here` = только apps/storefront/src)."
+  },
+  {
+   "fact": "Уровень 4 — админка. Каталог слотов один, в контракте: `SLOTS` — 26 слотов (11 цвет, 2 шрифт, 7 кегль/трекинг, 3 скругление, 2 ритм), у каждого `variable`, `kind` (color|length|ratio|font), `group`, `label`, `hint`, `coverage` ('full'|'partial'), необязательное `property` для подсчёта сырых значений. `brandTokenFields` рождается из SLOTS; `isValidBrandValue` — узкая регулярка на вид (защита от инъекции в `<style>`); `brandThemeToCss` печатает `:root{--var:value}` и отбрасывает негодное поштучно. У слотов ритма (`bandPad`, `bandGap`) `property` нет намеренно: «сырых отступов на витрине законно тысячи — ритм полос сторожит test:wide».",
+   "where": "/home/user/CBD_ecommerce_eu/packages/contracts/src/index.ts:410-457, 462-684, 686-763",
+   "implication": "Поле админки для отступа заводится строкой в SLOTS, а не в Sites.ts; покрытие «слушается везде» у отступов нельзя мерить сырыми px — нужна другая метрика (чтение примитива мимо роли)."
+  },
+  {
+   "fact": "Поля админки собираются из каталога: `slotField` даёт подпись, `validate` с текстом WRONG на языке владельца, описание = hint + EXAMPLE + PARTIAL_WARNING, ширина 50%/100% по виду; группы — вложенные `collapsible` (один ряд вкладок), открыт первый; группа `rhythm` подписана «Отступы: воздух вокруг блоков главной. Одно число на всю страницу…». В Sites.ts перед `designSystemField` стоит ui-поле `brandThemePreview`.",
+   "where": "/home/user/CBD_ecommerce_eu/apps/cms/src/fields/design-system.ts:23-73, 90-157; /home/user/CBD_ecommerce_eu/apps/cms/src/collections/Sites.ts:276-290",
+   "implication": "Для новых слотов отступов не пишется ни одного поля руками: строка в SLOTS + при необходимости новая группа в DESIGN_GROUPS (подпись и объяснение, п. 3 и 12 правил админки)."
+  },
+  {
+   "fact": "Договор каталог↔CSS держит `brandTheme.test.ts`: каждая `variable` слота объявлена в tokens/*.css; слот `full` ⇒ ноль сырых значений `property` в packages/ui/src (запасные числа в var() считаются, `%` и `clamp(` не считаются, считается только значение, встреченное в ≥2 файлах); `partial` при нуле сырых ⇒ обязан подняться до `full`; инъекции отвергаются; шрифт печатается стопкой.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/theme/brandTheme.test.ts:31-42, 56-143, 158-213",
+   "implication": "«Честность экрана закреплена тестом»: обещание владельцу и код связаны в обе стороны. Для отступов нужна своя метрика покрытия, иначе слот ритма остаётся обещанием без сторожа."
+  },
+  {
+   "fact": "Применение на витрине: `layout.tsx` складывает слои `{ ...brandTheme(рынок, content/bg.ts), ...ownedTheme(админка) }` и рендерит `<BrandThemeStyle>` в `<head>` после таблицы дизайн-системы; раньше стояло `ownedTheme ?? brandTheme`, и один цвет отменял шрифт рынка. Админка отдаёт `site.brandTheme` в `/api/storefront/chrome`. storefront3 просит `chrome` (site.server.ts:143), но `BrandThemeStyle` в своём layout не рендерит, хотя globals.css утверждает «Палитра приезжает из админки полем brandTheme».",
+   "where": "/home/user/CBD_ecommerce_eu/apps/storefront/src/app/layout.tsx:262-290; /home/user/CBD_ecommerce_eu/apps/cms/src/app/api/storefront/chrome/route.ts:170-177; /home/user/CBD_ecommerce_eu/apps/storefront3/app/layout.tsx:91-101; /home/user/CBD_ecommerce_eu/apps/storefront3/lib/site.server.ts:143",
+   "implication": "Слои складываются (дизайн-система → рынок/витрина → владелец), и это правило — часть архитектуры семейства. У третьей витрины цепочка обрывается на последнем шаге: комментарий обещает то, чего код не делает."
+  },
+  {
+   "fact": "Уровень 5 — показ. `BrandThemePreview.tsx` читает поля формы живьём (`useFormFields`), рисует мини-витрину в двух темах и 11 пар контраста WCAG, взятых из настоящих пар semantic.css; образец набора для шрифта/кегля/трекинга. Но 11 умолчаний DEFAULTS вписаны hex-ом прямо в компонент — вторая копия палитры, не сверяемая ни с primitives.css, ни со слепком.",
+   "where": "/home/user/CBD_ecommerce_eu/apps/cms/src/components/fields/BrandThemePreview.tsx:27-40, 92-164, 179-209",
+   "implication": "Превью — обязательная часть семейства («поле без образца — акт веры»), но у него уже есть слабое место: умолчания надо брать из слепка `@cbdshop/contracts/design`, а образец ритма (две полосы с живым воздухом) отсутствует."
+  },
+  {
+   "fact": "Экран `/admin/design`: глобал `DesignSystemScreen` (группа Settings, только чтение, одно ui-поле) → `DesignSystemReport.tsx` рисует слепок: цвет — квадратом, кегль — «Aa», длина — полосой той самой ширины (`isLength`, `--space-6` распознаётся длиной), тень — тенью, остальное — текстом; живые узлы — настоящие `CtaPill`, `control.roundSm/Md/Lg`, поле/плашка/метка из `@cbdshop/ui` (пакет копируется в образ админки, Dockerfile.cms:49). `themeDeclarations` печатает оба набора классами `.design--light/.design--dark`. `EDITABLE_HINT` говорит «Colours: colours, fonts and text sizes» — устарел (скругления и ритм тоже правятся).",
+   "where": "/home/user/CBD_ecommerce_eu/apps/cms/src/globals/DesignSystemScreen.ts:16-37; /home/user/CBD_ecommerce_eu/apps/cms/src/components/fields/DesignSystemReport.tsx:40-175; /home/user/CBD_ecommerce_eu/apps/cms/src/lib/design-screen.ts:23-74; /home/user/CBD_ecommerce_eu/infra/docker/Dockerfile.cms:49",
+   "implication": "Отступы уже видны на экране полосами (группы Spacing 13 и Layout 14), но без пояснений и без образца «рядом»: показать ритм — значит добавить вид Sample, как добавили тень."
+  },
+  {
+   "fact": "Слепок собирается машиной: `design-snapshot.mjs` читает только блок покоя `:root` primitives.css (телефонные @media исключены намеренно), режет его по баннерам `/* --- X --- */`, semantic — три блока, заголовок группы = короткий комментарий (≤24 знаков без точки), длинный комментарий = `note` первым предложением; заметки собираются только у semantic. Пишет `packages/contracts/src/design-snapshot.ts` («СОБРАННЫЙ ФАЙЛ — руками не править»), `--check`/`--print`; `design-snapshot.test.ts` пересобирает и сравнивает с записанным.",
+   "where": "/home/user/CBD_ecommerce_eu/scripts/design-snapshot.mjs:63-162, 186-239; /home/user/CBD_ecommerce_eu/scripts/design-snapshot.test.ts:21-36; /home/user/CBD_ecommerce_eu/packages/contracts/src/design-snapshot.ts:142-160, 221-240",
+   "implication": "Любая правка токенов отступов требует `node scripts/design-snapshot.mjs` тем же коммитом; роли отступов попадут на экран сами, если стоят в semantic.css под коротким заголовком-комментарием или в primitives под баннером."
+  },
+  {
+   "fact": "Уровень 6 — линтер и храповики. `.stylelintrc.json`: `z-index` только `var(--layer-*)`/auto/-1…3, `letter-spacing` — запрет сырых px и запасных чисел; для padding/margin/gap правила нет. `lint:css` ходит по `{apps,packages}/*/src/**` — storefront3 (`app/` без `src`) не проверяется вовсе (CORRECTIONS.md, «Стили третьей витрины не проверяются lint:css»).",
+   "where": "/home/user/CBD_ecommerce_eu/.stylelintrc.json:9-38; /home/user/CBD_ecommerce_eu/package.json:15-20; /home/user/CBD_ecommerce_eu/CORRECTIONS.md:446-461",
+   "implication": "Сторож палитры-по-линтеру существует (`z-index`, `letter-spacing`) и переносится на отступы одной записью allowed-list — но сначала глоб должен увидеть третью витрину."
+  },
+  {
+   "fact": "Набор вёрстки (кит) на storefront: `check-css.mjs` семья `spacingPx` — сырой px ≥ 8 (`SPACING_FLOOR`) в padding/margin/gap/inset, кроме блоков с собственной высотой/шириной или пилюль (геометрия контрола, а не ритм; `margin` — всегда ритм), `vw`+шкала в clamp не считается; семья `nearStep` — соседние ступени шкалы ≥ 8% друг от друга, но только для префикса шрифта. `kit.config.json` называет `scale.space: \"space\"`, `tokens`, `exempt` (сами файлы токенов). Замер сегодня: spacingPx 0, nearStep 0, всё по нулям кроме tapGrows 6. У storefront3 нет `tools/`, нет `kit.config.json`; `storefront-guard.test.ts` её не видит, потому что ищет `app/sitemap.ts`, которого у неё ещё нет. Инструменты кита руками не правятся — обновление из источника набора.",
+   "where": "/home/user/CBD_ecommerce_eu/apps/storefront/tools/check-css.mjs:43-48, 200-262, 1211-1245; /home/user/CBD_ecommerce_eu/apps/storefront/kit.config.json:1-45; /home/user/CBD_ecommerce_eu/scripts/storefront-guard.test.ts:32-83; /home/user/CBD_ecommerce_eu/DECISIONS.md:19536",
+   "implication": "Часть сторожей отступов уже есть в ките и включена в `pnpm accept`, но только на первой витрине; для третьей — поставить кит и `kit.config.json`, а `nearStep` для шкалы отступов — правка в источнике набора, не здесь."
+  },
+  {
+   "fact": "Живой сторож ритма: `test:wide` «the page keeps one rhythm for its bands» — на 1440, `/en`, собирает `<section>` во всю ширину, семейство определяет по префиксу CSS-модуля (`ProductRail` → rail, остальное → band; Hero исключён по имени), меряет paddingBlockStart+marginBlockStart и paddingBlockEnd, требует ровно одну пару на семейство. Семейства и исключение записаны в коде проверки, не в реестре.",
+   "where": "/home/user/CBD_ecommerce_eu/apps/storefront/src/wide-smoke.ts:1364-1449",
+   "implication": "Сторож результата для «воздуха» уже придуман; для storefront3 его нет, а список семейств стоило бы держать реестром (как `seams.ts`), чтобы третья витрина не переписала его у себя."
+  },
+  {
+   "fact": "Реестр решений, которых CSS не умеет выразить: `seams.ts` — девять швов, у каждого `width`, `name`, `why` (замер, макет или решение владельца); `seams.test.ts` падает и на незарегистрированной ширине, и на записи, которой в CSS нет. Записано: «ступень на неназванной ширине — это ramp, который не дописали».",
+   "where": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/seams.ts:1-117; /home/user/CBD_ecommerce_eu/DECISIONS.md:11297",
+   "implication": "Образец для реестра семейств ритма (полоса/рельса/страница) с причиной у каждого числа — и правила «число из макета переносится clamp(минимум, рампа, число)»."
+  },
+  {
+   "fact": "Ключевые записи DECISIONS с причинами: «Дизайн-система правится из админки, а числа собраны в шкалу» — из 154 `letter-spacing` через токен шли 44, зашитых чисел 273; порядок обратный ожидаемому: сначала числа в шкалу, потом шкала владельцу (экран поверх кода — ложь); каталог в contracts, а не в ui; поля из каталога; проверка ввода не косметика; stylelint поставлен ДО правок и краснел на 117 местах. «Неизменная поверхность — третий вид роли» — 59 чтений палитры в 20 файлах + 19 hex; 21 роль, каждая резолвится в прежнее значение (правка доказана арифметикой, ни один пиксель не сдвинулся); 4 проверки проверены откатом; экран не показывал голый :root — сборщик научен. «Тема красит текст…» — 1.12 при норме 4.5; test:theme сличает темы, не судит контраст. «Полоса объявляет свою пару» — четыре способа сказать «я на тёмном», война весов селекторов; один узел `.deep`. «Ритм полосы — одно число на страницу» — 64/48/32/24 по блокам против 88/48/88 макета; рельсы 32/72 — записанное исключение; полы clamp = числа телефона; два правила ниже 860 удалось убрать. «Номер слоя есть только у мебели» — правило без имён 11 дней не работало; линтер поставлен первым и показан красным на 5 числах. «Экран показывает узлы самими узлами» — копия узла врёт там, где отстала.",
+   "where": "/home/user/CBD_ecommerce_eu/DECISIONS.md:5758-5810, 8596-8700, 7103-7160, 14024-14100, 2924-2960, 16704-16760, 9406-9440, 7668-7710",
+   "implication": "Чек-лист семейства вырастает из этих ошибок: замер до правки, шкала до экрана, роли вне тем, доказательство нулевого сдвига, сторож поставлен красным до правки, экран из тех же файлов."
+  },
+  {
+   "fact": "Документы, в которых семейство обязано быть записано: CLAUDE.md — раздел-правило («Цвет текста берётся оттуда же…», 5 пунктов + имя сторожа) и п. 6 «Широкой раскладки» про `--layout-band-pad/gap`; DESIGN_SYSTEM.md — таблица «Что сюда пишется» (число → токен, не текст), §1 строка «Токены» с тремя сторожами, §4 таблица «место или узел» (число → токен; отступ от соседа → файл вызывающего), §5 шесть шагов, §6 таблица проверок; ARCHITECTURE.md — строки-указатели 111 (каталог в contracts), 122 (экран из таблиц стилей), 155 (имена слоёв + линтер) и абзац переносимого про пару фон/текст; STACK.md §5 шаг 3 («взять оформление, а не переписать: полоса берёт seam и deep») и §6 («числа из макета — clamp»).",
+   "where": "/home/user/CBD_ecommerce_eu/CLAUDE.md (разделы «Цвет текста берётся оттуда же…», «Широкая раскладка», п. 6); /home/user/CBD_ecommerce_eu/DESIGN_SYSTEM.md:12-30, 33-38, 143-250; /home/user/CBD_ecommerce_eu/ARCHITECTURE.md:111, 122, 155, 189-195; /home/user/CBD_ecommerce_eu/STACK.md:113-172",
+   "implication": "Порядок записи по проекту: DECISIONS → строка в ARCHITECTURE → правило в CLAUDE.md/DESIGN_SYSTEM.md → код; у отступов сегодня есть только строка про ритм полос, раздела-правила нет."
+  },
+  {
+   "fact": "Вторая витрина построила свою шкалу отступов по-своему: `--sp-1…--sp-11`, у каждой ступени назначение в комментарии (оптика под скруглением, внутри контрола, между строк группы, поле карточки, между блоками, заголовок к содержимому, между полками, между разделами, под страницей, между колонками разворота); мелкие ступени постоянны, крупные — clamp «тем подвижнее, чем больше»; значения сняты с того, что уже стояло в вёрстке (17 чисел); `--space-*` из `@cbdshop/ui` cbdin не читает вовсе.",
+   "where": "/home/user/CBD_ecommerce_eu/apps/cbdin/styles/tokens.css:920-942; /home/user/CBD_ecommerce_eu/apps/cbdin/tools/kit-config.mjs:65",
+   "implication": "В репозитории уже есть пример шкалы, где имя ступени несёт назначение и рампу; но это отдельный диалект, и третьей витрине его копировать нельзя — она делит слой токенов с первой."
+  },
+  {
+   "fact": "«Минимализм-лакшери» уже однажды переведён в числа: в заголовке Icons.tsx третьей витрины записано, из чего состоит стиль (одна волосяная толщина 1.25 в пикселях экрана, поля 3.25 от края, промежуток 2.5, «дорогое оформление узнаётся пустотой, а не деталями»), и держит это `tests/icons.test.ts`, проверенный четырьмя мутациями.",
+   "where": "/home/user/CBD_ecommerce_eu/DECISIONS.md:20639-20700; /home/user/CBD_ecommerce_eu/apps/storefront3/components/Icons.tsx; /home/user/CBD_ecommerce_eu/apps/storefront3/tests/icons.test.ts",
+   "implication": "Прецедент для отступов: слово владельца переводится в записанные числа с причиной и сторожем, иначе к третьему блоку набор разойдётся."
+  },
+  {
+   "fact": "Слот ритма переписывает рампу: `bandPad.variable = --layout-band-pad`, умолчание `clamp(48px, 6.1vw, 88px)`; владелец вписывает `72px`, `brandThemeToCss` печатает `:root{--layout-band-pad:72px}` после таблицы стилей — clamp исчезает, и телефон получает 72 вместо своего пола 48.",
+   "where": "/home/user/CBD_ecommerce_eu/packages/contracts/src/index.ts:671-684, 752-763; /home/user/CBD_ecommerce_eu/packages/ui/src/tokens/primitives.css:563-564",
+   "implication": "Схема «слот = переменная целиком» верна для цвета и не переносится на рампы: у семейства отступов владельцу надо отдавать ЧИСЛО МАКЕТА (верхний конец), а рампа и пол должны оставаться в роли."
+  }
+ ],
+ "guards": [
+  {
+   "name": "token-layer.test.ts — компонент читает роли, а не палитру",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/src/token-layer.test.ts",
+   "checks": "8 проверок: нет чтений `--(palette|tint|alpha|brand)-` в CSS компонентов (исключение `^--brand-[a-z]+$` с причиной), нет hex, неизменная роль (голый `:root {`) не переобъявлена ни light, ни dark, полупрозрачная светлая краска имеет тёмную половину, dark не заводит роли без light, `[data-invalid]/.error` красятся только `--content-invalid`, line-height долей при правимом кегле, box-shadow/drop-shadow — только var(). Область: packages/ui/src/components + apps/storefront/src, комментарии срезаны, tokenLayer — закрытый список. Сегодня 7/8 зелёные; №7 падает только из-за неустановленного `@cbdshop/contracts` в этой песочнице.",
+   "extensibleToSpace": "Да, тем же файлом и теми же функциями: добавить тест «компонент не читает шкалу отступов напрямую» (регулярка `--space-\\d` и `--layout-(band|rail)-pad` в componentSheets, исключение — закрытый список вроде Band.module.css с причиной) и «роль отступа объявлена один раз и вне переопределений» через `block()/names()`; добавить `apps/storefront3/app` в корни (сейчас `here` = только storefront/src) или завести зеркальный тест в storefront3/tests."
+  },
+  {
+   "name": "brandTheme.test.ts — каталог слотов и CSS говорят об одном",
+   "file": "/home/user/CBD_ecommerce_eu/packages/ui/src/theme/brandTheme.test.ts",
+   "checks": "Каждая `variable` слота объявлена в tokens/*.css; `coverage: 'full'` ⇒ 0 сырых значений `property` в packages/ui/src (считает запасные числа в var(), пропускает %, clamp и значения из одного файла); `partial` при нуле сырых ⇒ требует поднять флаг; инъекции `;}` не проходят ни в один вид; шрифт печатается стопкой; негодное отбрасывается поштучно.",
+   "extensibleToSpace": "Частично. Для слотов отступов `property: 'padding'` не годится (сырых px законно много — так записано в контракте); нужна новая функция покрытия: число чтений `var(--space-*)` мимо роли в компонентах — `full` значит ноль таких чтений у свойства, которым управляет слот."
+  },
+  {
+   "name": "css-tokens.test.ts — читаемая переменная объявлена",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/src/css-tokens.test.ts",
+   "checks": "Собирает объявления из всех .css и инлайновых `'--x':` в .tsx по корням apps/storefront/src и packages/ui/src; каждое `var(--x)` без запасного значения должно быть объявлено; шрифты — из реестра `shopFonts`, не руками; контроль полноты (`--space-4` найден, чтений > 50).",
+   "extensibleToSpace": "Да, без правок ловит опечатку в имени роли отступа; надо лишь добавить корень `apps/storefront3/app` (сегодня третья витрина невидима) — иначе `var(--pad-card)` без объявления снова выбросит padding молча."
+  },
+  {
+   "name": "design-snapshot.mjs + design-snapshot.test.ts — экран собран из таблиц стилей",
+   "file": "/home/user/CBD_ecommerce_eu/scripts/design-snapshot.mjs; /home/user/CBD_ecommerce_eu/scripts/design-snapshot.test.ts",
+   "checks": "Скрипт читает блок покоя `:root` primitives.css по баннерам `/* --- X --- */` и три блока semantic.css (заметки — первое предложение длинного комментария, заголовок группы — комментарий ≤24 знаков без точки), пишет design-snapshot.ts; тест пересобирает через `--print` и сравнивает с закоммиченным.",
+   "extensibleToSpace": "Да, автоматически: роли отступов под баннером в primitives или под коротким заголовком в semantic попадут в слепок; ограничения — заметки собираются только у semantic, телефонные @media в слепок не входят, заголовок группы обязан быть коротким."
+  },
+  {
+   "name": "design-screen.test.ts + DesignSystemReport.tsx — экран показывает всё и собой",
+   "file": "/home/user/CBD_ecommerce_eu/apps/cms/src/lib/design-screen.test.ts; /home/user/CBD_ecommerce_eu/apps/cms/src/components/fields/DesignSystemReport.tsx",
+   "checks": "Каждая группа слепка показана; оба набора объявлены и тёмный берёт своё; `isColour/isLength/isTextSize/isShadow` — цвет квадратом, длина полосой (`--space-6` = длина), кегль буквами, тень тенью; узлы — настоящие компоненты `@cbdshop/ui`.",
+   "extensibleToSpace": "Да: роли отступов покажутся полосами сами; для образца «воздух рядом» нужен новый вид Sample (две плитки, разделённые токеном) по образцу `isShadow` — и запись в тесте, что группа ритма показана образцом, а не прочерком."
+  },
+  {
+   "name": "scale.test.ts — значения шкалы записаны правильной единицей",
+   "file": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/scale.test.ts",
+   "checks": "Все `--*tracking*` в tokens/*.css заданы в em (ссылка var() наследует единицу и пропускается); текст ошибки объясняет, почему пиксель врёт при рампе и правке из админки.",
+   "extensibleToSpace": "Да, той же формой: «роль отступа — var() примитива или clamp из примитивов, никогда голый px» и «соседние примитивы `--space-*` отличаются не меньше чем на 8%» (зеркало `nearStep` кита, который сегодня смотрит только на шрифт)."
+  },
+  {
+   "name": ".stylelintrc.json — число, которое нельзя написать руками",
+   "file": "/home/user/CBD_ecommerce_eu/.stylelintrc.json",
+   "checks": "`z-index` только `var(--layer-*)`, auto, -1…3; `letter-spacing` — запрет сырых px/em/rem и запасных чисел в var(); `!important`, дубли селекторов и свойств. Гоняется хуком pre-commit, `pnpm accept`, CI (ci.yml:105). Глоб `{apps,packages}/*/src/**` — storefront3 не видит.",
+   "extensibleToSpace": "Да, одной записью `declaration-property-value-allowed-list` для `padding*`, `margin*`, `gap`, `row-gap`, `column-gap`, `inset*`: `0`, `auto`, `/^var\\(--(pad|gap|air)-/`, `/^(calc|clamp|max|min)\\(.*var\\(--(pad|gap|air|space)-/`; по прецеденту слоёв (DECISIONS 16704) ставится красным первым, а до этого — прибрать глоб, чтобы он ходил и в `apps/*/app/**` (CORRECTIONS.md:446)."
+  },
+  {
+   "name": "check-css.mjs (кит): spacingPx, nearStep, inlinePx",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/tools/check-css.mjs; /home/user/CBD_ecommerce_eu/apps/storefront/kit.config.json",
+   "checks": "`spacingPx`: сырой px ≥ 8 в padding/margin/gap/inset, кроме блоков с собственной высотой/шириной и пилюль (геометрия контрола), `margin` считается всегда, `vw`+шкала в clamp пропускается; `nearStep`: ступени шкалы шрифта ≥ 8% (оба конца clamp); `inlinePx`: числа в разметке. База — сегодняшний долг, красное только новое; `pnpm check:kit` в `accept`. Замер сегодня на storefront: spacingPx 0, nearStep 0.",
+   "extensibleToSpace": "Да, но не здесь: инструменты приходят из источника набора (IgorAIdev/MySkilforCBDSiteBuilding) и руками не правятся — `nearStep` для префикса `space` и распознавание ролей `--pad/--gap/--air` как «шкалы» надо вносить там; на storefront3 кит ставится `install.mjs --audit apps/storefront3` + `kit.config.json` (styles: app, components, ../../packages/ui/src; tokens: ../../packages/ui/src/tokens/index.css; scale.space)."
+  },
+  {
+   "name": "storefront-guard.test.ts — витрина без проверок набора не заводится",
+   "file": "/home/user/CBD_ecommerce_eu/scripts/storefront-guard.test.ts",
+   "checks": "Для каждой папки apps/* с next.config.ts и app/sitemap.ts требует tools/ (10 файлов), команды check:css/code/port в package.json, kit.config.json при раскладке не по соглашению; корневой check:kit входит в accept.",
+   "extensibleToSpace": "Уже переносится сам: как только у storefront3 появится `app/sitemap.ts`, сторож потребует кит — а с ним и `spacingPx`. До этого дня третья витрина для него не существует."
+  },
+  {
+   "name": "test:wide → «the page keeps one rhythm for its bands»",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/src/wide-smoke.ts:1364-1449",
+   "checks": "Живой, на 1440 и `/en`: полосы во всю ширину, семейство по префиксу CSS-модуля (ProductRail → rail, иначе band; Hero исключён по имени), воздух = paddingBlockStart + marginBlockStart и paddingBlockEnd; у каждого семейства ровно одна пара. Гоняет CI работой live.",
+   "extensibleToSpace": "Да — это и есть сторож результата для «воздуха»; для storefront3 нужен свой живой обход с тем же тестом, а семейства и исключения читать из реестра (аналог seams.ts), а не из `module === 'ProductRail'`."
+  },
+  {
+   "name": "band-contract.test.ts — полоса объявляет пару один раз",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/src/band-contract.test.ts",
+   "checks": "`.deep` объявляет чернила, вуали, разворот hover/press; тёмная полоса витрины берёт узел, а не пишет себя; ни класса `…OnDark`, ни пропа `tone` — исключение одно и названо (герой).",
+   "extensibleToSpace": "Да, зеркально: «полоса объявляет свой ритм один раз» — `--band-pad-start/end` берутся из роли, узлы внутри полосы не пишут `padding-block` на самой полосе, второго словаря (`…Tight`, проп `spacing`) не заводят."
+  },
+  {
+   "name": "seams.ts + seams.test.ts — реестр швов с причиной",
+   "file": "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/seams.ts; seams.test.ts",
+   "checks": "Каждая ширина медиазапроса витрины есть в реестре (±1) и у каждой записи есть ширина в CSS; у записи `why` — замер, макет или решение.",
+   "extensibleToSpace": "Как образец: `rhythm.ts` — реестр семейств ритма (band 88/48/88, rail 32/72, page-top/bottom…) с `why`; тест сверяет роли `--air-*` в CSS с реестром в обе стороны и отдаёт список семейств живому обходу."
+  },
+  {
+   "name": "test:theme (theme-smoke.ts) — пара, у которой сменилась одна половина",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/src/theme-smoke.ts",
+   "checks": "Открывает `/` и `/products` на 360 и 1440 в двух темах, сличает одни узлы, ругается только там, где фон остался, а текст ушёл за темой (или наоборот); контраст сам по себе не судит; список «решено владельцем» именной (`chipStrength`).",
+   "extensibleToSpace": "По духу: «половина пары» у отступов — padding из роли, gap числом; статически это ловит стилевой allowed-list, живьём — сравнение воздуха между витринами/ширинами по семействам."
+  },
+  {
+   "name": "owner-decisions.test.ts — решение владельца закреплено сторожем",
+   "file": "/home/user/CBD_ecommerce_eu/apps/storefront/src/owner-decisions.test.ts (см. DESIGN_SYSTEM.md §6)",
+   "checks": "Решения без следа в поведении (raised одно на систему, карточка держит число макета, одна глубина подъёма) — тест падает с текстом, называющим решение и дату, а не файл.",
+   "extensibleToSpace": "Да: сюда ложатся исключения ритма (рельса 32/72), «поля контрола — геометрия, не ритм», числа «минимализм-лакшери» третьей витрины, чтобы следующая сессия не выровняла их из лучших побуждений."
+  }
+ ],
+ "numbers": [
+  "primitives.css: 37 примитивов семейства цвета (--palette/--brand/--tint/--alpha); 13 ступеней --space-* (4,8,10,12,16,20,24,32,40,48,56,64,72); 15 токенов --layout-*; 3 --control-pad-* и 2 --cart-button-pad-*, все через var(--space-*)",
+  "semantic.css: 145 объявлений ролей в трёх блоках (неизменные в голом :root, светлая, тёмная); слепок: 34 неизменные роли, 12 Surfaces, 9 Content, 6 Borders, 22 Interactive, 13 Commerce",
+  "Компоненты (packages/ui/src/components + apps/storefront/src, .css): чтений --palette/--tint/--alpha — 0 (держит тест), --brand-* — 21, ролей цвета/состояния/тени — 892",
+  "Отступы в packages/ui/src/components/**/*.css: 1068 объявлений padding/margin/gap; 719 из них читают var(--space-*); всего чтений var(--space-*) — 937 в ui + 78 в apps/storefront/src = 1015; сырых px ≥3 — 11 (SiteFooter `clamp(24px, 4vw, 72px)`, CheckoutView `5px 9px`, EffectsMenu `52px`, SiteHeader `calc(var(--space-4) + 5px)`, MobileMenu `4px`, остальные 2–6px оптика); запасных чисел `var(--space-N, Npx)` — 7 (FaqSection, CartFlyout, OrderSummary, ProductPage, AccountPage, QuizPage)",
+  "Чтения токенов-мест: --layout-band-pad 9, --layout-band-gap 2, --layout-rail-pad-start 1, --layout-rail-pad-end 1, --layout-column 21, --layout-column-inset 7; 26 CSS-файлов компонентов объявляют свои ручки --*-pad/--*-gap (cta-pill-pad 7, cta-pill-gap 6, band-pad-start/end по 4, tag-pad-block 4, field-pad 3)",
+  "Кит на storefront (замер прогоном node tools/check-css.mjs): spacingPx 0, nearStep 0, inlinePx 0, единственный долг tapGrows 6; SPACING_FLOOR = 8px; nearStep смотрит только префикс шрифта",
+  "Каталог SLOTS: 26 слотов — 11 цвет, 2 шрифт, 7 кегль/трекинг, 3 скругление, 2 ритм; все coverage 'full'; `property` есть у 12, у обоих слотов ритма его нет",
+  "BrandThemePreview: 11 умолчаний hex вписаны в компонент (вторая копия палитры), 11 пар контраста WCAG; образец ритма — 0",
+  "Слепок design-snapshot.ts: 10 групп примитивов (Palette 31, Alpha 6, Typography 57, Spacing 13, Radii 12, Elevation 1, Layers 4, Controls 19, Layout 14, Motion 3) + 6 групп ролей; у токенов Spacing/Layout заметок 0 — скрипт собирает note только для semantic",
+  "DECISIONS «Дизайн-система правится из админки»: 273 зашитых числа по 4 свойствам, из 154 letter-spacing через токен 44; stylelint поставлен до правок и краснел на 117 местах; «Неизменная поверхность»: 59 чтений палитры в 20 файлах + 19 hex → 21 роль, 4 проверки откатом; «Полупрозрачная краска»: 2 дефекта, 0 ложных",
+  "token-layer.test.ts прогон здесь: 7 из 8 зелёные; №7 («высота строки долей») падает только потому, что `@cbdshop/contracts` не установлен в песочнице (ERR_MODULE_NOT_FOUND), в CI проходит",
+  "storefront3: 1 файл стилей на 41 строку, 0 своих токенов отступов, 1 сырой отступ в разметке (`padding: '2rem'` в app/[locale]/page.tsx:24), 4 теста (fonts, icons, locale-tree, page-language), 0 инструментов кита, не входит в глоб lint:css, в корни css-tokens.test и token-layer.test, не виден storefront-guard (нет app/sitemap.ts)",
+  "cbdin для сравнения: своя шкала --sp-1…--sp-11 с назначением в комментарии у каждой ступени и clamp у крупных; чтений --space-* из @cbdshop/ui — 0"
+ ],
+ "gaps": [
+  "Нет слоя ролей: у цвета компонент читает `--content-strong`, у отступов — `--space-6` напрямую (719 объявлений), то есть отступы стоят там, где палитра была 26.08.2026 (59 чтений палитры). Имена ступеней по номеру, а не по назначению; ролей-по-месту всего пять (`--layout-band-pad/gap`, `--layout-rail-pad-*`, `--control-pad-*`).",
+  "Нет сторожа «компонент не читает примитив отступа»: token-layer.test.ts ловит `--palette-`, но не `--space-`; stylelint для padding/margin/gap правила не имеет (есть только z-index и letter-spacing); nearStep кита проверяет только шкалу шрифта.",
+  "Нет реестра семейств ритма с причиной (аналог seams.ts): семейства band/rail живут в коде wide-smoke как `module === 'ProductRail'`, исключение героя — списком в тесте.",
+  "Слои переопределения не отделены: у цвета есть блоки light/dark и рынок `[data-market]`, у отступов единственный способ дать третьей витрине больше воздуха — переписать `--space-*` или `--layout-*` на её `:root`, то есть переписать примитив, а не роль.",
+  "Админка: ритм — 2 слота (bandPad, bandGap), рельса и гуттер владельцу не отдаются; у слотов ритма нет метрики покрытия (property отсутствует, тест их не сверяет); слот пишет число вместо clamp и убивает пол телефона; EDITABLE_HINT и описание DesignSystemScreen говорят только про «Colours: colours, fonts and text sizes».",
+  "Превью: BrandThemePreview показывает цвета и шрифт, ритма не показывает; умолчания вписаны hex-ом в компонент, а не взяты из слепка — вторая копия палитры без сторожа.",
+  "Экран /admin/design: отступы видны полосами, но без заметок (скрипт собирает note только у semantic) и без образца «воздух рядом»; телефонные значения ramp не видны по построению.",
+  "Документы: у цвета — раздел-правило в CLAUDE.md, строки в ARCHITECTURE.md (111, 122, 155), §4 DESIGN_SYSTEM.md; у отступов — только п. 6 «Широкой раскладки» про ритм полос и запись «Ритм полосы — одно число на страницу». Нет записи «как устроен слой отступов» и нет строки-указателя в ARCHITECTURE.md.",
+  "Третья витрина не покрыта ни одним статическим сторожем стилей: lint:css (глоб src/), css-tokens.test, token-layer.test, кит, storefront-guard — все её не видят; globals.css обещает палитру из админки, а layout.tsx `BrandThemeStyle` не рендерит; единственный отступ страницы написан числом в разметке.",
+  "Шкала --space-* росла по спросу (10 и 20 «потому что читали», 56 «потому что пятеро»), основание (сетка 4) и допустимая частота ступеней нигде не записаны; цвет же снят с переменных Figma с указанием ноды.",
+  "Нет «арифметического доказательства» для отступов: у палитры перевод 21 роли доказан тем, что каждая резолвится в прежнее значение; для перевода 719 чтений в роли нужен такой же способ (скрипт, сравнивающий вычисленное значение до/после)."
+ ],
+ "risks": [
+  "Вторая шкала рядом с первой: если storefront3 заведёт `--sp-*` по образцу cbdin, в одном каскаде окажутся две шкалы отступов (общая `--space-*` из @cbdshop/ui и своя), и ни token-layer, ни css-tokens этого не заметят — прямое нарушение «один список».",
+  "Правка значений `--space-*`/`--layout-*` в packages/ui ради «лакшери-воздуха» третьей витрины сдвинет 1015 чтений первой витрины; своё у витрины должно ложиться переопределением ролей на её `:root`, как уже сделано с `--font-sans`.",
+  "Слот админки кладёт голое число поверх clamp (`--layout-band-pad:72px`) — телефон теряет пол 48; перенос этой схемы на новые слоты отступов размножит ошибку. Решать до кода: владелец правит число макета, рампа и пол остаются в роли.",
+  "Линтер allowed-list на padding/margin/gap по всему репозиторию покраснеет на сотнях строк; по прецеденту слоёв его ставят красным первым, но тогда либо нужен глоб/override только на storefront3 и слой токенов, либо долг ложится в базу кита — выбор надо записать, иначе правило отключат «временно».",
+  "Инструменты кита не правятся руками: `nearStep` для шкалы отступов и распознавание ролей `--pad/--gap/--air` требуют правки в источнике набора; локальная правка — вторая расходящаяся копия (DECISIONS 19536).",
+  "Эвристика сборщика слепка: заголовок группы — комментарий ≤24 знаков без точки; длинное русское название раздела ролей отступов станет «заметкой», и группа сольётся с предыдущей; заметки у примитивов не собираются вовсе.",
+  "design-snapshot.test.ts краснеет на любой правке токенов без пересборки; брендовый порядок — скрипт в том же коммите, иначе приёмка красная у соседней сессии.",
+  "Две шляпы и порог 800 строк: ввод ролей и перевод 719 чтений — это несколько коммитов уборки без изменения вида, с доказательством нулевого сдвига; смешать с изменением воздуха третьей витрины — значит потерять возможность откатить одно без другого.",
+  "Живой сторож ритма есть только у первой витрины и только на `/en` 1440; у третьей нет ни страниц, ни обхода — до их появления правило держится лишь статикой и записью."
+ ],
+ "recommendations": [
+  "Шаг 0 — запись до кода: одна запись в DECISIONS.md («Отступы: примитив → роль → компонент, как у цвета; третья витрина переобъявляет роли, а не шкалу») с замером (сколько чтений --space-* и где, сколько своих ручек --*-pad, что показал кит), с именами семейств и с решением, что именно правит владелец; затем строка-указатель в ARCHITECTURE.md; затем раздел-правило в CLAUDE.md по образцу «Цвет текста берётся оттуда же…» (5 пунктов + имя сторожа) и строки в DESIGN_SYSTEM.md (§1 «Токены», §4 таблица «число → токен; ритм → роль; отступ от соседа → файл вызывающего», §6 проверки); в STACK.md §5 — шаг «взять роли отступов, переобъявить у себя».",
+  "Шаг 1 — замер и сырьё в `research/spacing-2026-09-<день>/`: снять с макета третьей витрины числа на её ширине холста и на 375 (рампа = clamp(пол телефона, ramp, число макета) — правило STACK §6); перечислить 719 чтений --space-* по назначению (поле внутри узла / зазор между соседями / воздух полос) — это и есть список ролей, а не догадка; снять кит на storefront3 (`install.mjs --audit`).",
+  "Шаг 2 — примитивы: оставить единственную шкалу `--space-*` в packages/ui/src/tokens/primitives.css под существующим баннером `/* --- Spacing --- */`; дописать в заголовок основание шкалы (сетка 4, почему 10 и 20, правило добавления ступени — «взяли хотя бы двое» и комментарий-происхождение, как у --space-14); никаких `--sp-*` в storefront3.",
+  "Шаг 3 — роли: раздел ролей отступов в semantic.css (или отдельный `spacing.css` между primitives и base — тогда обновить закрытый список `tokenLayer` в token-layer.test.ts и `exempt` в kit.config.json), три семейства по тому, что видит читатель: `--pad-*` (внутри узла: control, card, field, sheet), `--gap-*` (между соседями: row, stack, grid, rail), `--air-*` (между полосами: band, rail, page-top/bottom); каждая роль — `var(--space-N)` или `clamp(var(--space-a), рампа, var(--space-b))`; полы = числа телефона (образец --layout-band-pad); существующие `--layout-band-pad/gap`, `--layout-rail-pad-*`, `--control-pad-*`, `--cart-button-pad-*` привести к ролям через alias (`--cart-button-h-md: var(--control-height-md)` — прецедент «одно имя у одного факта»); заголовок группы — короткий комментарий без точки, чтобы слепок собрал группу.",
+  "Шаг 4 — слой витрины: storefront3/app/globals.css переобъявляет на `:root` только роли (`--air-band`, `--pad-card`…) своими числами «минимализм-лакшери», записанными с причиной в комментарии по образцу заголовка Icons.tsx; в layout.tsx добавить `<BrandThemeStyle theme={{...витринные, ...site.brandTheme}}>` — chrome уже отдаёт brandTheme; убрать `padding: '2rem'` из page.tsx в пользу роли.",
+  "Шаг 5 — сторожа тем же коммитом, что и каждый шаг, и каждый проверен обратным ходом: (а) token-layer.test.ts: «компонент не читает шкалу отступов напрямую» (`--space-\\d`, `--layout-(band|rail)-pad` в componentSheets; исключение — закрытый список с причиной, например Band.module.css как хозяин запасного значения) и «роль отступа объявлена один раз»; корни += apps/storefront3/app; (б) scale.test.ts: роли отступов — var()/clamp из примитивов, соседние ступени --space-* ≥ 8%; (в) .stylelintrc.json allowed-list для padding*/margin*/gap/row-gap/column-gap/inset* — поставить красным первым, до правок, а до него подготовительным коммитом починить глоб `lint:css` на `apps/*/app/**` (CORRECTIONS.md «Стили третьей витрины не проверяются»); (г) css-tokens.test.ts корни += storefront3; (д) `packages/ui/src/tokens/rhythm.ts` — реестр семейств ритма с `why`, тест в обе стороны, и wide-smoke берёт семейства оттуда; (е) band-contract: «полоса объявляет свой ритм один раз»; (ж) owner-decisions: рельса 32/72, поля контрола — геометрия, числа лакшери третьей витрины.",
+  "Шаг 6 — перевод компонентов на роли отдельными коммитами-уборками (≤800 строк, без изменения вида) с доказательством арифметикой: скрипт, который резолвит роль в px и сверяет с прежним числом на 375/860/1440 — тот же приём, что у 21 роли палитры («ни один пиксель не сдвинулся»).",
+  "Шаг 7 — админка: строки в SLOTS для ролей, которые владелец действительно двигает (воздух полосы, воздух рельсы, поле карточки, зазор сетки) с подписью и последствием человеческим языком; решить и записать: слот пишет ЧИСЛО МАКЕТА в свой примитив (`--…-max`), а роль остаётся `clamp(пол, рампа, var(--…-max))` — иначе телефон теряет пол; метрика покрытия для отступов — чтения примитива мимо роли, новая функция в brandTheme.test.ts; обновить EDITABLE_HINT и описание DesignSystemScreen (сейчас «только цвета, шрифты, кегли»).",
+  "Шаг 8 — показ: BrandThemePreview получает образец ритма (две полосы с живым воздухом из полей формы) и берёт умолчания из `@cbdshop/contracts/design`, а не из hex в компоненте; DesignSystemReport — новый вид Sample «две плитки, разделённые токеном» для семейства `--air/--gap`, и запись в design-screen.test.ts; `node scripts/design-snapshot.mjs` тем же коммитом с любой правкой токенов; при необходимости научить скрипт собирать note и у примитивов.",
+  "Шаг 9 — третья витрина как витрина: завести `app/sitemap.ts` (после этого storefront-guard потребует кит), `kit.config.json` (styles: app, components, ../../packages/ui/src; tokens: ../../packages/ui/src/tokens/index.css; scale.space: space; breakpoints из seams.ts), базы кита как сегодняшний долг; `tests/spacing-layer.test.ts` по образцу fonts.test.ts — цепочка целиком: роль объявлена → переобъявлена витриной → прочитана страницей → доехала до разметки.",
+  "Шаг 10 — порядок коммитов: запись → подготовительный рефакторинг (глоб линтера, корни тестов) → основание шкалы в комментарии → роли + alias с нулевым диффом → сторожа красным-зелёным → миграция компонентов пачками → слоты + превью + слепок → переопределения storefront3 + её тесты → уборка. Каждый шаг закрывается `pnpm accept` и пересборкой слепка."
+ ]
+}

@@ -23,7 +23,7 @@ export const CSS_FAMILIES = [
   'zIndex', 'focusGone', 'noPress', 'liftOnPress', 'stickyCap', 'scrollBleed', 'railY',
   'colLadder', 'proseCols', 'twiceDrawn', 'deadEffect', 'tapGrows', 'dressLayout',
   'twoOwners', 'barNoScroll', 'deadDress', 'plateGap', 'barTwice', 'groundGlue',
-  'important', 'takenTwice',
+  'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -67,4 +67,7 @@ export const CSS_LABELS = {
   plateGap: 'лист не объявил себя полом: белая карточка на тёмной палубе, а роли внутри неё остались палубными',
   takenTwice: 'взятое через composes и берущий его спорят об одном свойстве при равной силе — победителя выберет порядок кусков сборки',
   important: '!important вне основания: каскад перебит силой, а не порядком — следующая правка перебьёт его ещё одним',
+  bareVw: 'рампа без px/rem-слагаемого: голый vw/cqi не растёт при зуме — провал WCAG 1.4.4',
+  padPx: 'поле рядом с текстом в px: буквы выросли по настройке телефона, поле — нет (правило 2, роли --pad-*)',
+  airRatio: 'воздух страницы к полю карточки меньше 3 : 1 — предметы и промежутки одного размера, ритма нет (замер люкс-магазинов)',
 }

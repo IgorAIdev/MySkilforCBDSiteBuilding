@@ -1,0 +1,536 @@
+{
+ "topic": "Темы и переопределение для третьей витрины: светлая/тёмная без мигания при серверном рендере, light-dark() против двух наборов переменных, color-scheme и системные элементы, forced-colors и prefers-contrast, слои каскада (@layer) между общим пакетом @cbdshop/ui и витриной, CSS владельца из админки под CSP, проверка машиной.",
+ "sourcesRead": [
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-contrast",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/forced-color-adjust",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/system-color",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@layer",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/color-mix",
+  "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/color-scheme",
+  "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/theme-color",
+  "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Sec-CH-Prefers-Color-Scheme",
+  "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/style-src-attr",
+  "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie",
+  "https://web.dev/articles/prefers-color-scheme",
+  "https://web.dev/articles/light-dark",
+  "https://web.dev/articles/building/a-theme-switch-component",
+  "https://drafts.csswg.org/css-color-5/ (§7 light-dark(), текст извлечён из HTML спецификации)",
+  "https://drafts.csswg.org/css-color-adjust-1/ (§2.2–2.5 color-scheme, §3.1 список свойств forced colors)",
+  "https://drafts.csswg.org/css-cascade-5/#layering",
+  "https://html.spec.whatwg.org/multipage/rendering.html (таблица стилей браузера для dialog / ::backdrop)",
+  "https://raw.githubusercontent.com/web-platform-dx/web-features/main/features/{light-dark,cascade-layers,forced-colors,color-scheme,prefers-contrast,prefers-color-scheme,scrollbar-color,registered-custom-properties,container-style-queries,accent-color,if,color-mix,relative-color,prefers-reduced-transparency,view-transitions}.yml.dist (статусы Baseline и версии)",
+  "https://raw.githubusercontent.com/mdn/browser-compat-data/main/css/at-rules/media.json, css/properties/color-scheme.json, css/properties/forced-color-adjust.json, css/types/color.json, css/types/image.json, css/properties/accent-color.json, css/properties/scrollbar-color.json, http/headers/Sec-CH-Prefers-Color-Scheme.json",
+  "https://raw.githubusercontent.com/pacocoursey/next-themes/main/next-themes/README.md",
+  "https://nextjs.org/docs/app/guides/content-security-policy",
+  "https://nextjs.org/docs/app/api-reference/functions/cookies",
+  "https://nextjs.org/docs/app/api-reference/functions/generate-viewport",
+  "https://nextjs.org/docs/app/getting-started/css",
+  "https://react.dev/reference/react-dom/client/hydrateRoot",
+  "https://developer.chrome.com/blog/auto-dark-theme",
+  "https://developer.samsung.com/internet/blog/en/2020/12/15/dark-mode-in-samsung-internet",
+  "https://blogs.windows.com/msedgedev/2020/09/17/styling-for-windows-high-contrast-with-new-standards-for-forced-colors/",
+  "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+  "https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html",
+  "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html",
+  "https://github.com/Myndex/SAPC-APCA/blob/master/documentation/APCA_in_a_Nutshell.md",
+  "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+  "https://playwright.dev/docs/api/class-page#page-emulate-media",
+  "https://registry.npmjs.org/apca-w3 (0.1.9) и https://registry.npmjs.org/@axe-core/playwright (4.13.0) — существование пакетов",
+  "https://gs.statcounter.com/browser-market-share/mobile/romania и /croatia (август 2026)",
+  "Проект: apps/storefront/src/theme-smoke.ts, apps/storefront/src/app/layout.tsx, packages/ui/src/tokens/semantic.css, packages/ui/src/theme/brandTheme.tsx, packages/contracts/src/index.ts (brandThemeToCss, isValidBrandValue), packages/ui/src/components/SiteHeader/ThemeToggle.tsx, apps/storefront3/app/layout.tsx, apps/storefront3/app/globals.css, apps/storefront3/lib/site.server.ts, apps/storefront3/next.config.ts, DECISIONS.md («Тема красит текст…», «Подъём над страницей — роль, а не число, и он меняется с темой»)"
+ ],
+ "sourcesFailed": [
+  "https://www.bram.us/2024/03/26/light-dark-and-custom-properties/ — 404; заменено web.dev/articles/light-dark и текстом css-color-5. Вывод о том, где именно вычисляется light-dark() внутри обычной и зарегистрированной (@property) переменной, сделан из спецификаций, а не из этой статьи — уверенность средняя",
+  "https://m2.material.io/design/color/dark-theme.html — страница отдаёт только заголовок (рисуется скриптом); числа Material (#121212, 87/60/38 % белого) не подтверждены и в правила не взяты",
+  "https://medium.com/samsung-internet-dev/dark-mode-in-samsung-internet-7d6e974ba09e — 403; прочитано официальное зеркало developer.samsung.com (2020, версия 13.2). Сведения о «Adaptive Force Dark» в Samsung Internet 25–26 — только из поисковых сниппетов, первоисточник не открылся (forum.developer.samsung.com отдал пустую страницу)",
+  "web-features: forced-color-adjust.yml.dist, system-colors, revert-layer, theme-color — 404 (эти возможности входят в записи forced-colors и cascade-layers; theme-color взят с MDN и там «не Baseline», версии по браузерам не подтверждены)",
+  "browser-compat-data: html/elements/meta/name/theme-color.json и color-scheme.json — 404 (другой путь в репозитории); поддержка meta theme-color по браузерам не подтверждена таблицей",
+  "Next.js 16 / Turbopack: поддержка `@import url(…) layer(имя)` в сборке не найдена в документации и не проверена сборкой — проверить `next build` и grep по выходному CSS до того, как строить на этом слой"
+ ],
+ "whichStep": "Прямо сейчас — на стыке слоёв «палитра сделана → пространство → типографика»: тема — это способ записи каждого цветового токена (light-dark() вместо двух блоков), одна точка переключения (`color-scheme` на `<html>` из cookie), порядок слоёв каскада между `@cbdshop/ui` и витриной и место для CSS владельца из админки. Если отложить: (1) каждый следующий слой — тени, поля, кнопки, девять окон `<dialog>`, шторки — запишет свой цвет по-своему, и тёмную тему придётся раскатывать задним числом по ~60 токенам (так у соседней витрины: 60 объявлений в светлом блоке, 51 в тёмном); (2) первый экран у 79 % посетителей с телефона будет мигать светлым перед тёмным на каждом заходе; (3) сторожу «сменилась ровно одна половина пары» (`test:theme`) нечего сличать, а он нужен со дня, когда появился второй цвет. Переключатель как орган управления — шаг «поведение узлов»; CSP-nonce для стиля владельца — шаг «сдача», но форму (`<style>` в head, не `style=\"\"` атрибуты) надо выбрать сейчас.",
+ "rules": [
+  {
+   "rule": "Переключатель темы — одно свойство `color-scheme` на `<html>`, значение приходит с сервера из cookie; скрипта до отрисовки нет. Без cookie — `color-scheme: light dark` (телефон решает сам), с cookie — `light` или `dark` через атрибут `data-theme`.",
+   "numbers": "0 инлайн-скриптов; cookie `theme=light|dark; path=/; max-age=31536000 (1 год); samesite=lax; secure` — как у ThemeToggle соседней витрины; три состояния (система/светлая/тёмная) без единого `matchMedia`: смену темы телефона браузер применяет сам.",
+   "evidence": "css-color-adjust §2.2: «its element color scheme is determined by finding the used color scheme, given the user's preferred color scheme and the element's color scheme support». Next.js cookies(): «Using it in a layout or page will opt a route into dynamic rendering» — layout storefront3 уже читает headers() (lib/site.server.ts:75), цена нулевая. next-themes: «injects a script into next/head … the page will not flash» — это путь для статических страниц и второй источник правды (localStorage), нам не нужен. web.dev theme-switch — тот же скриптовый путь.",
+   "forStorefront3": "`app/layout.tsx`: `const pref = (await cookies()).get('theme')?.value; <html lang={…} data-theme={pref === 'dark' || pref === 'light' ? pref : undefined}>`. В `globals.css`: `:root{color-scheme:light dark} :root[data-theme='light']{color-scheme:light} :root[data-theme='dark']{color-scheme:dark}` — и больше в `[data-theme]` блоках ничего. Cookie живёт на домене, значит у cbdin.ro и cbdshop.hr выбор свой сам собой; язык (hr/en/it/ro) на тему не влияет. Нажатие на переключатель ставит `data-theme` на `<html>` сразу (правило «ответ на касание — сразу») и пишет cookie для следующего серверного рендера; `suppressHydrationWarning` не нужен — сервер и клиент рисуют одно."
+  },
+  {
+   "rule": "Цветовой токен объявляется один раз функцией `light-dark(светлый, тёмный)`, а не двумя блоками `[data-theme=light]{…}` / `[data-theme=dark]{…}`. Токены остаются обычными переменными (без `@property`), чтобы полоса с `color-scheme: dark` перекрашивала всё внутри.",
+   "numbers": "light-dark(): Baseline low 2024-05-13 — Chrome 123, Firefox 120, Safari 17.5 (web-features, BCD). Форма с картинками — Chrome 150, Firefox 150, Safari 27: не Baseline, не использовать. Safari на телефонах: Румыния 15.05 %, Хорватия 27.23 % (StatCounter, 08.2026) — доля ниже iOS 17.5 (май 2024) мала, но не ноль.",
+   "evidence": "css-color-5 §7: «computes to the computed value of the first color, if the element color scheme is light, or … the second color, if … dark». MDN: `light-dark(var(--light), var(--dark))` работает. Запасной путь: обычная переменная принимает любое значение при разборе, поэтому старый Safari не «пропустит» light-dark(), а сделает свойство с `var()` невалидным на месте использования — трюк «два объявления подряд» для переменных не работает; нужен `@supports (color: light-dark(#000,#fff))` вокруг блока light-dark и обычный светлый блок снаружи.",
+   "forStorefront3": "`packages/ui/src/tokens/semantic.css` (или свой tokens-файл витрины): `:root{ --surface: #fff; --content: #111 }` — светлые числа как основа; `@supports (color: light-dark(#000,#fff)){ :root{ --surface: light-dark(#fff, #121212); … } }`. Телефон без light-dark получает честную светлую тему, а не пустоту. Проверяет статический сторож: объявления `--*` внутри `[data-theme]` и `@media (prefers-color-scheme)` запрещены (см. checks)."
+  },
+  {
+   "rule": "С темой меняется только цвет. Всё, что не цвет (фильтр, картинка, размер), либо не зависит от темы, либо переписывается через цвет: тень несёт `light-dark()` внутри себя, вуаль наведения — `color-mix()`, а не `filter: brightness()`.",
+   "numbers": "color-mix(): Baseline high 2025-11-09 (Chrome 111, Firefox 113, Safari 16.2). Единственные нецветовые тёмные токены соседней витрины: `--state-hover-filter: brightness(1.14)` и `--state-press-filter: brightness(1.24)`. Способы переключать нецвет одним правилом ещё не готовы: `@container style()` Baseline low 2026-05-19 (Firefox 151), `if()` — только Chrome 137.",
+   "evidence": "web.dev light-dark: «both of which must be a <color>». DECISIONS.md «Подъём над страницей — роль, а не число, и он меняется с темой»: тени обязаны меняться с темой — значит, их цвет внутрь light-dark(). Правило проекта «Против заплаток» п. 2: `@media (prefers-color-scheme: dark)` рядом с `[data-theme=dark]` для одного токена — два правила об одном узле.",
+   "forStorefront3": "`--shadow-control: 0 1px 2px light-dark(rgb(0 0 0 / .16), rgb(0 0 0 / .5))`; `--surface-hover: color-mix(in srgb, var(--surface) 92%, var(--content))` вместо `filter`. Единственный нецветовой признак темы — сам `color-scheme`; если тема потребует другой размер/картинку, это вопрос владельцу, а не третий механизм."
+  },
+  {
+   "rule": "Тёмная полоса внутри светлой страницы — это `color-scheme: dark` на самой полосе. Один признак, а не второй словарь классов/пропов «я на тёмном».",
+   "numbers": "1 объявление на полосу вместо 8 переопределений (`composes: deep` у соседней витрины переносит заливку, чернила, вуали, обводки, ответ на наведение).",
+   "evidence": "css-color-adjust §2.2, пример со style guide: «Only the subsections rooted at .light-theme-example or .dark-theme-example will be opted into the light or dark themes specifically». web.dev light-dark: «force a certain subtree of the DOM to use only light or dark mode by setting color-scheme». Работает только для незарегистрированных переменных: у `@property`-токена значение вычисляется там, где объявлен (`:root`), и полоса его не перевернёт — уверенность средняя, выведено из спецификации.",
+   "forStorefront3": "`Band.module.css`: `.deep { color-scheme: dark }` — и внутри обычные `color: var(--content)`. Побочная польза: поля ввода, `<select>`, скроллбар и `<dialog>` внутри полосы тоже темнеют сами. Исключение из CLAUDE.md остаётся: чернила над фотографией выбирает владелец под снимок."
+  },
+  {
+   "rule": "`<meta name=\"color-scheme\">` стоит в `<head>` раньше таблиц стилей и повторяет то же значение, что и CSS: так холст страницы и системные элементы красятся до прихода CSS, и первого белого кадра у тёмной темы нет.",
+   "numbers": "meta color-scheme: Baseline high 2022-02-03 (Chrome 98 / `only` 98, Firefox 96, Safari 13). Печатает Next: `viewport.colorScheme` → `<meta name=\"color-scheme\" content=\"…\">`.",
+   "evidence": "MDN color-scheme: meta в head до CSS «inform user agents about the preferred color scheme and prevent unwanted screen flashes during page load». Спецификация: color-scheme меняет «the color of the canvas surface, the default colors of scrollbars … form controls». Next generate-viewport: `colorScheme: 'dark'` → `<meta name=\"color-scheme\" content=\"dark\" />`.",
+   "forStorefront3": "`generateViewport()` в `app/layout.tsx` читает ту же cookie: без неё `'light dark'`, с ней — `'light'` или `'dark'`; порядок «meta раньше `<link rel=stylesheet>`» проверяется строкой в исходном HTML (см. checks). Плюс `themeColor` для адресной строки телефона — см. отдельное правило."
+  },
+  {
+   "rule": "Объявленный `color-scheme: light dark` — это и защита от «авто-тёмного» режима браузеров телефона: Chrome Android и Samsung Internet применяют свой алгоритм затемнения только к сайтам, которые не объявили поддержку. `only light` пишут только если магазин решено держать светлым.",
+   "numbers": "Мобильные браузеры, 08.2026: Румыния — Chrome 76.82 %, Safari 15.05 %, Samsung 5.21 %; Хорватия — Chrome 63.56 %, Safari 27.23 %, Samsung 4.69 % (StatCounter). Chrome Auto Dark Theme — с Chrome 96 (Android); Samsung «Force Dark» — с 13.2, «Prefer Media Query Over Force Dark» смотрит на `prefers-color-scheme` и meta `color-scheme`.",
+   "evidence": "Chrome blog: «the browser applies an automatically generated dark theme to light themed sites, when the user has opted into dark themes in the operating system»; opt-out — `color-scheme: only light` или meta `only light`. Samsung: «the browser will apply the alternate styles provided by the web developer if they exist, otherwise will apply its own transformations». css-color-adjust §2.5: для страниц с объявленной поддержкой авто-переворот «has no effect other than reporting a dark value for the prefers-color-scheme media query».",
+   "forStorefront3": "Ничего дополнительно: правила 1 и 5 уже дают meta и свойство. Вторая проверка — `<meta name=\"color-scheme\">` есть на каждой из страниц дерева маршрутов (расширение `test:dev`). Если владелец однажды выберет «только светлая», значение `only light` ставится в обоих местах разом."
+  },
+  {
+   "rule": "Норма контраста — WCAG 1.4.3/1.4.11 как ворота, APCA — как предупреждение для тёмной темы: WCAG-формула в тёмных парах завышает контраст.",
+   "numbers": "Текст 4.5:1; крупный (≥ 24px или ≥ 18.5px при жирности 700) — 3:1; нетекст (границы полей, значки, кольцо фокуса) — 3:1; 2.999:1 не округляется до 3; AAA — 7:1 / 4.5:1. APCA: Lc 90 — предпочтительно для длинного текста; Lc 75 — минимум для основного текста (18px/400, 16px/500, 14px/700); Lc 60 — не-основной текст (24px/400, 18px/600, 16px/700); Lc 45 — заголовки (36px/400 или 24px/700); Lc 30 — абсолютный минимум для текста и смысловой графики; Lc 15 — ниже невидимо. Логотип и «выключенное» без нормы.",
+   "evidence": "WCAG 1.4.3: «1pt = 1.333px, therefore 14pt and 18pt are equivalent to approximately 18.5px and 24px». 1.4.11: «the computed values should not be rounded (e.g. 2.999:1 would not meet the 3:1 threshold)». APCA: «WCAG 2.x contrast cannot be used for guidance designing 'dark mode'»; «APCA is the candidate contrast method for the future WCAG 3» — не норматив. Соседняя витрина: theme-smoke.ts уже считает WCAG с допуском 0.005 и держит именной список решений владельца (`chipStrength`, 3.60 при норме 4.5 — оставлено 25.08.2026).",
+   "forStorefront3": "Тёмную палитру владельца проверяют обеими шкалами до типографики: пары «фон/чернила» из tokens-файла через `apca-w3` (npm 0.1.9) — предупреждать при |Lc| < 75 для основного текста и < 60 для подписей, блокировать только по WCAG. Список «посмотрели и оставили» — именной, по имени класса, с датой."
+  },
+  {
+   "rule": "В режиме принудительных цветов (Windows High Contrast) выживают обводки и `outline`, а тени, заливки и фоновые градиенты стираются. Поэтому у кнопки есть `border` (хоть прозрачный), у фокуса — `outline`, у значка — `fill: currentColor`; `forced-color-adjust: none` — только для образцов цвета, никогда для текста и кнопок.",
+   "numbers": "forced-colors media: Baseline high 2025-03-12 (Chrome 89, Firefox 89, Safari 16 — у Safari нет самого режима, только ответ на запрос). `forced-color-adjust: none` — Chrome 89, Firefox 113, Safari — нет; `preserve-parent-color` — только Chrome 106+. Стирается: `box-shadow`→none, `text-shadow`→none, `background-image`→none кроме `url()`, `color-scheme`→`light dark`, `scrollbar-color`→auto, `accent-color`→auto; принудительно перекрашиваются 16 цветовых свойств (color, background-color, border-color, outline-color, fill, stroke, caret-color, accent-color, text-decoration-color …). У `background-color` сохраняется только альфа — прозрачное остаётся прозрачным.",
+   "evidence": "css-color-adjust §3.1: «box-shadow and text-shadow compute to none»; «background-image computes to none unless the original value contains a url() function». MDN forced-colors: «its intended usage is to make small tweaks to improve usability or legibility». Edge blog: «If authors wish to use non-system color values in forced color modes, they will need to supply forced-colors-adjust: none;». Системные слова: Canvas/CanvasText, ButtonFace/ButtonText/ButtonBorder, LinkText, Highlight/HighlightText, Field/FieldText, GrayText, AccentColor.",
+   "forStorefront3": "В `Control.module.css` (общее поведение нажимаемого): `border: 1px solid transparent` в покое — в forced colors станет ButtonText; кольцо фокуса — `outline`, не `box-shadow`; выключенное — `GrayText` придёт само. В `@media (forced-colors: active)` — только точечное: обводка карточки товара `1px solid CanvasText` вместо тени, обводка цветной плашки концентрации. Значки — inline SVG с `currentColor`; картинки-значки — `background-image: url()` выживает, градиент — нет. Playwright: `emulateMedia({ forcedColors: 'active' })`."
+  },
+  {
+   "rule": "`prefers-contrast: more` (iOS «Увеличить контраст», Windows) усиливает существующие токены, а не рисует вторую тему: волосяная обводка становится сплошной, полупрозрачные чернила — непрозрачными, вуали — заливкой.",
+   "numbers": "Baseline high 2024-11-30 (Chrome 96, Firefox 101, Safari 14.1). У соседней витрины на глубокой полосе: обводка 16 % белого, вуаль 8 %, приглушённые чернила 75 % и 48 % — все ниже 3:1 к фону; при `more` — 100 % / сплошная / ≥ 3:1 (1.4.11). Значение `custom` = `forced-colors: active`.",
+   "evidence": "MDN prefers-contrast: `more` — «User has requested an interface with higher contrast levels»; пример — `outline: 2px dashed` → `solid`. Playwright `contrast: 'more'` появился в 1.51.",
+   "forStorefront3": "Один блок в tokens-файле: `@media (prefers-contrast: more){ :root{ --border-hairline: var(--content); --content-muted: var(--content); --surface-ghost: var(--surface-strong) } }` — токены, не узлы. Это цветовые токены, значит light-dark() внутри них продолжает работать."
+  },
+  {
+   "rule": "Витрина переопределяет общий пакет порядком слоёв каскада, а не специфичностью: пакет объявляет свои слои, витрина — свой поверх; порядок слоёв бьёт вес селектора, `!important` не нужен (и запрещён lint:css).",
+   "numbers": "@layer: Baseline high 2024-09-14 (Chrome 99, Firefox 97, Safari 15.4) — включая `@import … layer()` и `revert-layer`. Порядок: первая объявленная — самая слабая; правила вне слоёв сильнее любого слоя; у `!important` порядок обратный.",
+   "evidence": "css-cascade-5: «for normal rules the declaration whose cascade layer is latest in the layer order wins»; «Unlayered rules are sorted later than any layered rules within the same parent layer». Next.js CSS: порядок в сборке = порядок импортов, и «CSS ordering can behave differently in development, always ensure to check the build». Слои снимают зависимость от порядка импортов для всего, что лежит в слое. Прецедент в проекте: Payload держит стили в `@layer payload-default`, и `custom.scss` без слоя перебивает их без `!important`.",
+   "forStorefront3": "Первая строка `app/globals.css`: `@layer ds.tokens, ds.base, ds.components, shop;` затем `@import '@cbdshop/ui/tokens.css' layer(ds.tokens);` `@import '@cbdshop/ui/base.css' layer(ds.base);`. Свои токены витрины — `@layer shop { :root { --surface: … } }` тем же селектором `:root`, побеждают порядком. Стиль владельца из админки — самый поздний слой `shop.owner` (или вне слоёв). CSS-модули компонентов остаются вне слоёв — они и так сильнее базы. Отмена правила пакета точечно — `revert-layer`. До сборки на этом: проверить `next build` — что `@import … layer()` дошёл до выходного CSS (не подтверждено документацией)."
+  },
+  {
+   "rule": "CSS владельца из админки — один `<style>` в `<head>` после таблицы дизайн-системы, только объявления переменных, только значения, прошедшие проверку по виду токена; никаких `style=\"\"` атрибутов с данными из админки — иначе строгая CSP невозможна.",
+   "numbers": "Под CSP nonce покрывает `<style>` (`style-src-elem`), но не атрибуты `style=\"\"` (`style-src-attr` знает только `'unsafe-inline'` / `'unsafe-hashes'`). Nonce в Next требует рендера по запросу — у storefront3 он и так по запросу (домен из headers()). В `next.config.ts` витрины CSP сейчас нет — это готовность, не блокер.",
+   "evidence": "MDN style-src-attr: «specifies valid sources for inline styles applied to individual DOM elements»; nonce среди источников отсутствует. Next CSP: «you must use dynamic rendering to add nonces»; proxy кладёт `x-nonce`, читается `(await headers()).get('x-nonce')`. Контракт проекта: `brandThemeToCss` печатает `:root{--x:значение}` только для значений, прошедших `isValidBrandValue` (регулярки PATTERNS по виду; шрифт — только из реестра `shopFonts`), негодное отбрасывается поодиночке.",
+   "forStorefront3": "`<BrandThemeStyle theme={appearance} nonce={nonce} />` в `<head>`, CSS обёрнут в `@layer shop.owner{…}`. Точечные цвета из админки (тон плитки эффекта, цвет полосы) — тоже в этот `<style>` по идентификатору (`[data-effect='sleep']{--tint:…}`), не в `style={{'--tint': …}}`. Спорное, спросить владельца: поле цвета в админке — одно значение или пара «светлая/тёмная»? Если одно, тёмный вариант выводит машина (`color-mix` — Baseline; относительный синтаксис `oklch(from …)` — Baseline low 2024-09-16, Safari 18) и `Shop health` предупреждает; если пара — `brandThemeToCss` печатает `light-dark(a, b)`."
+  },
+  {
+   "rule": "Сторож «сменилась ровно одна половина пары» — общий для витрин и работает с первого цветового токена: один и тот же узел меряется в обеих темах; ошибка — когда читаемость разошлась, а сменился только фон или только цвет текста. Сам контраст выбором макета сторож не судит.",
+   "numbers": "У соседней витрины: 2 страницы × 2 ширины (360, 1440), норма 4.5 / 3 с допуском 0.005, пропускает текст над фото и полупрозрачный текст (alpha < 0.99), исключения — именной список `BY_OWNERS_EYE`. Для storefront3 состояний три: без cookie + тёмная ОС, cookie light, cookie dark.",
+   "evidence": "apps/storefront/src/theme-smoke.ts: `surfaceMoved !== inkMoved` → находка. DECISIONS.md «Тема красит текст — значит, она же красит и фон под ним»: 1.12 при норме 4.5 на плитках эффектов в тёмной теме. Playwright: `colorScheme` (с 1.9) эмулирует prefers-color-scheme; cookie ставится `context.addCookies`.",
+   "forStorefront3": "Перенести `theme-smoke.ts` в общий пакет проверок с параметрами (имя cookie, адрес, страницы) и добавить сравнение состояний: (без cookie, ОС тёмная) обязано давать те же вычисленные цвета узлов, что (cookie dark, ОС светлая) — это доказывает, что light-dark() и атрибут согласованы. Языки не влияют: прогон на главном языке магазина плюс один второй, чтобы длинные хорватские подписи попали в замер."
+  },
+  {
+   "rule": "Смена темы не анимируется: фоны и чернила без `transition`. Переключение — мгновенное по замыслу, тогда не нужен ни `*{transition:none !important}` (запрещён lint:css), ни View Transitions.",
+   "numbers": "View Transitions (в одном документе): Baseline low 2025-10-14 (Chrome 111, Firefox 144, Safari 18) — можно как украшение позже, не как основа. next-themes `disableTransitionOnChange` временно вставляет `*{transition:none}` — на проекте не пройдёт lint.",
+   "evidence": "next-themes README: опция «disable all CSS transitions when switching themes» существует ровно потому, что переходы на цветах при смене темы мерцают по очереди. Правило проекта: `!important` не проходит `lint:css`.",
+   "forStorefront3": "В `control.css` анимировать только `transform`/`opacity` ответа на нажатие, не `background-color`. Переключатель: `aria-label` на четырёх языках из `content/<язык>.ts`, `aria-live=\"polite\"` для объявления состояния (web.dev theme-switch)."
+  },
+  {
+   "rule": "Цвет адресной строки телефона следует за темой страницы, а не только за ОС: без cookie — две `<meta name=\"theme-color\" media=…>`, с cookie — одна без `media` с цветом холста выбранной темы.",
+   "numbers": "meta theme-color — «не Baseline» по MDN (Firefox не поддерживает; версии по браузерам не подтверждены). Next печатает массив `themeColor: [{media, color}]` в две meta.",
+   "evidence": "MDN theme-color: «a suggested color that user agents should use to customize the display of the page or of the surrounding user interface», пример с `media=\"(prefers-color-scheme: dark)\"`. Next generate-viewport: `themeColor: [{ media: '(prefers-color-scheme: light)', color }, …]`.",
+   "forStorefront3": "`generateViewport()` рядом с `colorScheme`: цвета — те же числа, что `--surface` светлой и тёмной темы (сверять сторожем, чтобы не разошлись). Это украшение: при отсутствии поддержки ничего не ломается."
+  },
+  {
+   "rule": "Логотип и картинки, у которых есть тёмный вариант, следуют за темой страницы, а не за настройкой ОС: `<picture media=\"(prefers-color-scheme: dark)\">` и медиазапрос внутри SVG-в-`<img>` смотрят на ОС и на cookie-выбор не отвечают.",
+   "numbers": "`prefers-color-scheme` внутри SVG/iframe наследует `color-scheme` родителя: Chrome 129, Firefox 105, Safari — нет (BCD `respects-inherited-scheme`). Фотографии в тёмной теме — по web.dev, отправная точка `grayscale(50%)`, решает владелец; `filter: invert()` — только для монохромных значков, не для фото.",
+   "evidence": "css-color-adjust §2.3: «the embedding element's element color scheme is used as the embedded document's preferred color scheme» — но Safari этого не делает. web.dev prefers-color-scheme: «the majority of the surveyed people prefer slightly less vibrant and brilliant images when dark mode is active».",
+   "forStorefront3": "Одноцветный логотип — inline SVG с `fill: currentColor` или `fill: light-dark(…)` (это цвет, а не картинка — Baseline). Два растровых логотипа через `[data-theme]` и `display:none` не годятся: спрятанное грузится целиком (правило проекта). Фото товара — без фильтров, пока владелец не решил."
+  },
+  {
+   "rule": "Системные элементы не красят руками — их красит `color-scheme`: скроллбар, поля ввода, `<select>`, календарь даты, `<dialog>` и его `::backdrop`, подчёркивание проверки орфографии, цвет выделения.",
+   "numbers": "Таблица стилей браузера: `dialog { background-color: Canvas; color: CanvasText; border: solid; padding: 1em }`, `dialog::backdrop { background: rgba(0,0,0,0.1) }` — Canvas/CanvasText следуют за color-scheme. `scrollbar-color` — Baseline low только с 2025-12-12 (Safari 26.2); `accent-color` — не Baseline (Safari 26.2, Chrome 93, Firefox 92).",
+   "evidence": "css-color-adjust: `color-scheme` «opt the browser-controlled UI (scrollbars, inputs, etc) to match with a simple global declaration». HTML-спецификация, раздел Rendering — правила dialog выше. web.dev: «let the browser render form fields with a dark background and light text, adjust the scroll bars».",
+   "forStorefront3": "Девять окон `<dialog>` берут `dialogSurface` (сброс коробки) и получают цвет холста от `color-scheme` — свою заливку объявляют только там, где макет требует иной. Флажки и радио — системный акцент до Baseline `accent-color`, это приемлемо."
+  }
+ ],
+ "mechanisms": [
+  {
+   "name": "color-scheme (CSS-свойство и <meta name=\"color-scheme\">)",
+   "what": "Говорит браузеру, какие схемы страница поддерживает (`light dark`), либо принуждает элемент/страницу к одной (`light`, `dark`, `only light`). От этого зависят цвет холста, системные элементы, `light-dark()` и то, будет ли браузер телефона сам «затемнять» сайт. Наследуется, работает на поддереве.",
+   "support2026": "Baseline high с 2022-02-03: Chrome 81 (`only` — 98), Firefox 96, Safari 13, Samsung Internet зеркалит Chrome. Запасного пути не требует: неизвестное свойство игнорируется, страница остаётся светлой.",
+   "whenToUse": "Всегда: `:root{color-scheme:light dark}` + meta в head; `dark` на тёмной полосе; `[data-theme]` меняет только это свойство. `only light` — только по решению владельца «магазин светлый»."
+  },
+  {
+   "name": "light-dark(<color>, <color>)",
+   "what": "Возвращает первый цвет при светлой схеме элемента и второй при тёмной; работает внутри переменных и внутри теней/градиентов (везде, где стоит `<color>`). Один токен вместо двух блоков; без `color-scheme` не переключается.",
+   "support2026": "Baseline low с 2024-05-13: Chrome 123, Firefox 120, Safari 17.5. Форма с картинками — Chrome 150, Firefox 150, Safari 27 — не Baseline. Запасной путь: светлые значения обычными числами вне `@supports (color: light-dark(#000,#fff))`, блок light-dark — внутри; старые Safari получают светлую тему.",
+   "whenToUse": "Для каждого цветового токена в tokens-файле. Не для нецветовых значений и не внутри `@property`-переменных (тогда полоса с `color-scheme: dark` не перекрасит содержимое)."
+  },
+  {
+   "name": "@media (prefers-color-scheme: dark)",
+   "what": "Медиазапрос настройки ОС. Нужен теперь только там, где нет `color-scheme`-контекста: `<link media>`, `<picture><source media>`, meta theme-color, `matchMedia` в скрипте. Для токенов заменён light-dark().",
+   "support2026": "Baseline high с 2022-07-15: Chrome 76, Firefox 67, Safari 12.1 (iOS 13), Samsung 14.2. Наследование схемы в SVG-в-<img>/iframe: Chrome 129, Firefox 105, Safari — нет.",
+   "whenToUse": "`viewport.themeColor` с media; не использовать для токенов рядом с `[data-theme]` (два правила об одном узле)."
+  },
+  {
+   "name": "Атрибут `data-theme` на <html> из cookie (серверный рендер Next)",
+   "what": "Сервер читает `cookies()` в root layout и печатает `data-theme` до отправки HTML; CSS по атрибуту ставит `color-scheme`. Без cookie атрибута нет — тема системная. Клиентский переключатель ставит атрибут сразу и пишет cookie.",
+   "support2026": "Любой браузер (это HTML + cookie). Цена: маршрут рендерится по запросу — у storefront3 так уже (headers() ради домена). Альтернатива для статических страниц — инлайн-скрипт до отрисовки (next-themes, web.dev theme-switch) с localStorage и `suppressHydrationWarning` на <html>.",
+   "whenToUse": "Основа темы витрины. Скрипт — не использовать: второй источник правды, обход React-гидрации, CSP-nonce на скрипт."
+  },
+  {
+   "name": "Слои каскада: @layer, @import … layer(), revert-layer",
+   "what": "Порядок слоёв решает конфликт раньше специфичности; правила вне слоёв сильнее любого слоя; `!important` переворачивает порядок. Пакет оформления живёт в своих слоях, витрина — поверх, тем же селектором `:root`.",
+   "support2026": "Baseline high с 2024-09-14: Chrome 99, Firefox 97, Safari 15.4. Запасной путь не нужен. Не проверено: как Next 16 (Turbopack) переносит `@import … layer()` в выходной CSS — проверить сборкой.",
+   "whenToUse": "Первая строка `globals.css` витрины объявляет порядок `ds.tokens, ds.base, ds.components, shop`; стиль владельца — последним. Отменить правило пакета точечно — `revert-layer`."
+  },
+  {
+   "name": "forced-colors: active + системные цвета + forced-color-adjust",
+   "what": "Режим принудительных цветов (Windows High Contrast): 16 цветовых свойств заменяются палитрой пользователя, тени и градиенты стираются, у прозрачных фонов сохраняется альфа. Системные слова (Canvas, CanvasText, ButtonText, LinkText, Highlight, GrayText…) — единственные цвета, которые там можно называть. `forced-color-adjust: none` выключает это для элемента.",
+   "support2026": "Медиазапрос — Baseline high с 2025-03-12: Chrome 89, Firefox 89, Safari 16 (у Safari самого режима нет). `forced-color-adjust: none` — Chrome 89, Firefox 113, Safari — нет; `preserve-parent-color` — только Chrome 106+. Запасной путь — сама вёрстка: обводки и outline вместо теней.",
+   "whenToUse": "Точечные правки внутри `@media (forced-colors: active)`: обводка карточки вместо тени, обводка цветной плашки. `none` — только для образца цвета, не для текста."
+  },
+  {
+   "name": "@media (prefers-contrast: more | less | custom)",
+   "what": "Просьба пользователя усилить (или ослабить) контраст; `custom` совпадает с forced-colors. iOS «Increase Contrast», Windows High Contrast, macOS.",
+   "support2026": "Baseline high с 2024-11-30: Chrome 96, Firefox 101, Safari 14.1 (iOS 14.5). Запасной путь не нужен. Playwright `contrast: 'more'` — с 1.51.",
+   "whenToUse": "Один блок на токены: обводки сплошные, полупрозрачные чернила → 100 %, вуали → заливка."
+  },
+  {
+   "name": "<meta name=\"theme-color\" media=…> через `viewport.themeColor`",
+   "what": "Цвет адресной строки/оболочки браузера на телефоне; с `media` — по ОС, без — жёстко.",
+   "support2026": "Не Baseline (MDN): Chrome Android и Safari — да, Firefox — нет; таблица версий не подтверждена. Запасной путь: ничего не происходит.",
+   "whenToUse": "Без cookie — две meta с media; с cookie — одна, цвет холста выбранной темы."
+  },
+  {
+   "name": "color-mix() и относительный синтаксис цвета",
+   "what": "`color-mix(in srgb, a 92%, b)` — вуали, наведение, приглушённые чернила из двух ролей; `oklch(from var(--x) calc(l - .2) c h)` — вывод тёмного оттенка из одного цвета владельца.",
+   "support2026": "color-mix — Baseline high с 2025-11-09 (Chrome 111, Firefox 113, Safari 16.2). Относительный синтаксис — Baseline low с 2024-09-16 (Chrome 125, Firefox 128, Safari 18). Запасной путь для относительного: явное второе значение из админки.",
+   "whenToUse": "Вместо `filter: brightness()` для ответа на наведение (чтобы тема жила в цвете); для вывода тёмной пары из одного поля админки — только после решения владельца «одно поле или пара»."
+  },
+  {
+   "name": "@property (зарегистрированные переменные)",
+   "what": "Типизирует переменную (`<color>`), даёт начальное значение и анимируемость; значение вычисляется у объявившего элемента.",
+   "support2026": "Baseline low с 2024-07-09: Chrome 85, Firefox 128, Safari 16.4.",
+   "whenToUse": "Не для токенов темы: фиксирует light-dark() на `:root`, полоса с `color-scheme: dark` перестаёт перекрашивать (уверенность средняя). Только там, где токен обязан анимироваться."
+  },
+  {
+   "name": "Sec-CH-Prefers-Color-Scheme (клиентская подсказка HTTP)",
+   "what": "Браузер присылает предпочтение темы заголовком после `Accept-CH`/`Critical-CH`; сервер мог бы рендерить тему без cookie.",
+   "support2026": "Только Chromium: Chrome 93, Samsung 23; Firefox и Safari — нет. Не Baseline. Запасной путь — cookie + light-dark().",
+   "whenToUse": "Не использовать как основу: покрывает 64–77 % телефонов и требует повторного запроса на первом заходе."
+  },
+  {
+   "name": "CSP nonce для <style> владельца (Next proxy → x-nonce → headers())",
+   "what": "Proxy генерирует nonce на запрос, кладёт в `Content-Security-Policy` и `x-nonce`; Next сам ставит его на свои скрипты и стили; свой `<style>` получает `nonce={await headers().get('x-nonce')}`. Атрибуты `style=\"\"` nonce не покрывает.",
+   "support2026": "CSP уровня 3 в текущих браузерах; в Next требует рендера по запросу (у storefront3 есть). В `next.config.ts` витрины CSP пока не задана.",
+   "whenToUse": "Шаг «сдача». Сейчас — форма: данные админки только в `<style>`, не в атрибутах."
+  },
+  {
+   "name": "@container style() и if() — переключение нецветовых значений по токену",
+   "what": "Единственные способы сказать «если тема тёмная — другой размер/картинка» одним правилом без медиазапроса.",
+   "support2026": "style-queries — Baseline low с 2026-05-19 (Chrome 111, Safari 18, Firefox 151); `if()` — только Chrome 137. Запасной путь — не иметь нецветовых различий между темами.",
+   "whenToUse": "Пока нет. Вернуться, когда style-queries станут Baseline high (~ 2028)."
+  },
+  {
+   "name": "scrollbar-color и accent-color",
+   "what": "Ручная раскраска скроллбара и системного акцента флажков/радио.",
+   "support2026": "scrollbar-color — Baseline low с 2025-12-12 (Chrome 121, Firefox 64, Safari 26.2); accent-color — не Baseline (Chrome 93, Firefox 92, Safari 26.2). В forced colors оба сбрасываются в auto.",
+   "whenToUse": "Не использовать: `color-scheme` красит их сам в обеих темах."
+  },
+  {
+   "name": "Playwright: emulateMedia и контекст",
+   "what": "`colorScheme: 'light'|'dark'` (с 1.9), `forcedColors: 'active'` (1.15), `contrast: 'more'` (1.51), `reducedMotion`; `newContext({ javaScriptEnabled: false })` — проверка «тема работает без скрипта»; `addCookies` — состояние cookie.",
+   "support2026": "Уже в проекте (`smoke-browser.ts`); работа `live` в CI на заглушке каталога.",
+   "whenToUse": "Все проверки темы, forced colors и контраста ниже."
+  }
+ ],
+ "checks": [
+  {
+   "check": "Тема следует за телефоном без скрипта и без cookie",
+   "how": "Контекст `javaScriptEnabled: false`, `colorScheme: 'dark'`, без cookie → `getComputedStyle(document.documentElement).colorScheme === 'dark'` и `getComputedStyle(body).backgroundColor` равен тёмному значению `--surface`; повторить с `'light'`. Красный, если в CSS остался `[data-theme]` без `color-scheme` или тема поставлена скриптом.",
+   "tool": "Playwright (`test:theme`, работа `live`)"
+  },
+  {
+   "check": "Cookie сильнее телефона, и три состояния согласованы",
+   "how": "cookie `theme=light` + `colorScheme: 'dark'` → страница светлая; `theme=dark` + `'light'` → тёмная. Затем сравнить вычисленные `color`/`backgroundColor` всех видимых узлов первого экрана: (без cookie, ОС тёмная) === (cookie dark, ОС светлая). Расхождение = токен записан не через light-dark(), а вторым блоком.",
+   "tool": "Playwright + `getComputedStyle`"
+  },
+  {
+   "check": "Первый кадр уже в нужной теме (нет мигания)",
+   "how": "Без браузера: `curl -H 'Cookie: theme=dark' https://…/` → в исходном HTML есть `<html … data-theme=\"dark\"` и `<meta name=\"color-scheme\" content=\"dark\">`, и позиция этой meta меньше позиции первого `<link rel=\"stylesheet\"`. Без cookie — `content=\"light dark\"`. Прогнать по всем страницам дерева маршрутов (как `test:dev`).",
+   "tool": "node:test + fetch по дереву маршрутов"
+  },
+  {
+   "check": "«Сменилась ровно одна половина пары» (перенос theme-smoke.ts)",
+   "how": "Один узел в обеих темах: если `readable(light) !== readable(dark)` и при этом изменился ровно один из (`bg`, `color`) → находка с текстом, цветами и отношением. Норма 4.5 / 3 (≥ 24px или ≥ 18.5px при 700), допуск 0.005, пропуск текста над фото и alpha < 0.99, именной список решений владельца с датой. Ширины 360 и 1440, страницы: главная и каталог, два языка магазина.",
+   "tool": "Playwright (`apps/storefront/src/theme-smoke.ts` → общий пакет проверок)"
+  },
+  {
+   "check": "Тёмная палитра по APCA — предупреждение, не блокер",
+   "how": "Для тех же пар «фон/чернила» из tokens-файла посчитать Lc через `apca-w3` (`APCAcontrast(sRGBtoY(text), sRGBtoY(bg))`); печатать предупреждение при |Lc| < 75 у основного текста и < 60 у подписей; блокировать только по WCAG. Тёмная тема даёт отрицательные Lc — сравнивать по модулю.",
+   "tool": "node:test + apca-w3 (npm 0.1.9)"
+  },
+  {
+   "check": "Токен темы объявлен один раз",
+   "how": "Статически по `packages/ui/src/tokens/*.css` и `apps/storefront3/**/*.css`: внутри блоков `[data-theme=…]` и `@media (prefers-color-scheme…)` разрешено только объявление `color-scheme`; любое `--*:` там — ошибка. `light-dark(` встречается только в tokens-файлах (расширение `token-layer.test.ts`). Проверено обратным ходом: добавить `--surface` в `[data-theme='dark']` — красный.",
+   "tool": "node:test (regex по CSS без комментариев)"
+  },
+  {
+   "check": "Forced colors: нажимаемое остаётся видимым",
+   "how": "`emulateMedia({ forcedColors: 'active' })` → у каждого `button, a[href], [role=button], input, select`: `borderStyle !== 'none'` или (после `focus()`) `outlineStyle !== 'none'` с шириной ≥ 1px; у inline-SVG значков вычисленный `fill` равен `color` родителя; список элементов с `forced-color-adjust: none` совпадает с именным (пустым).",
+   "tool": "Playwright (`test:phone`/`live`)"
+  },
+  {
+   "check": "prefers-contrast: more убирает полупрозрачность и слабые обводки",
+   "how": "`emulateMedia({ contrast: 'more' })` → ни одного текстового узла с alpha < 1 в `color`; все `borderColor` у полей ввода и кнопок ≥ 3:1 к фону под ними (1.4.11, без округления).",
+   "tool": "Playwright"
+  },
+  {
+   "check": "Слои каскада дошли до сборки и витрина побеждает без специфичности",
+   "how": "После `next build` в `.next/static/css/*.css` первое правило — `@layer ds.tokens,ds.base,ds.components,shop` и присутствуют оба `@layer ds.tokens{…}` / `@layer shop{…}`; затем на живой странице `getComputedStyle(html).getPropertyValue('--surface')` равно значению витрины, а не пакета. `lint:css` уже держит `!important` и дубли селекторов.",
+   "tool": "node:test по выходному CSS + Playwright"
+  },
+  {
+   "check": "Стиль владельца — в <style>, не в атрибутах",
+   "how": "В исходном HTML каждой страницы: ровно один `<style data-brand-theme>` (если тема заполнена) и ни одного `style=\"…--…\"` атрибута с переменной из `brandTokenFields`. Когда появится CSP: заголовок содержит `'nonce-…'` и тот же nonce стоит на этом `<style>`.",
+   "tool": "node:test + fetch"
+  },
+  {
+   "check": "Ввод владельца не ломает CSS",
+   "how": "Unit: `brandThemeToCss` отбрасывает значения с `;`, `}`, `url(`, `expression(`, `</style`, а годное печатает как `--x:значение`; при полях-парах печатает `light-dark(a,b)`, при пустой тёмной половине — только светлую и запись для `Shop health`.",
+   "tool": "node:test (`packages/contracts`)"
+  },
+  {
+   "check": "theme-color совпадает с холстом темы",
+   "how": "При cookie dark — одна `<meta name=\"theme-color\">` без `media`, `content` равен вычисленному `backgroundColor` у `<html>`; без cookie — две с `media`, значения равны светлому и тёмному `--surface` из tokens-файла (читать из файла, не помнить числом).",
+   "tool": "node:test + Playwright"
+  },
+  {
+   "check": "Решение владельца по теме закреплено сторожем",
+   "how": "Если владелец выберет «магазин только светлый» или «пары цветов в админке» — тест с текстом ошибки, называющим решение и дату (образец `owner-decisions.test.ts`), падает при молчаливой смене `only light` ↔ `light dark`.",
+   "tool": "node:test"
+  }
+ ],
+ "vocabulary": [
+  {
+   "term": "color-scheme (схема цветов)",
+   "plain": "Заявление страницы или блока: «я умею быть светлым и/или тёмным». По нему браузер красит холст, скроллбар, поля ввода, окна и выбирает половину в light-dark().",
+   "example": ":root { color-scheme: light dark } .band-deep { color-scheme: dark }"
+  },
+  {
+   "term": "light-dark(a, b)",
+   "plain": "Функция цвета: даёт «a» в светлой схеме и «b» в тёмной. Один токен вместо двух блоков.",
+   "example": "--surface: light-dark(#ffffff, #121212)"
+  },
+  {
+   "term": "prefers-color-scheme",
+   "plain": "Настройка телефона «тёмная тема», которую видит CSS и скрипт. Нужна теперь только для meta theme-color и картинок; токенам хватает color-scheme.",
+   "example": "<meta name=\"theme-color\" media=\"(prefers-color-scheme: dark)\" content=\"#121212\">"
+  },
+  {
+   "term": "Мигание темы (flash of wrong theme)",
+   "plain": "Первый кадр светлый, через миг — тёмный: тема выбиралась скриптом уже после отрисовки. Лечится тем, что сервер печатает тему в HTML из cookie, а meta color-scheme стоит до CSS.",
+   "example": "curl -H 'Cookie: theme=dark' … | grep 'data-theme=\"dark\"'"
+  },
+  {
+   "term": "Cookie против localStorage",
+   "plain": "Cookie уезжает на сервер с каждым запросом — сервер знает тему до отрисовки. localStorage виден только скрипту в браузере — сервер темы не знает и нужен скрипт до отрисовки.",
+   "example": "document.cookie = 'theme=dark;path=/;max-age=31536000;samesite=lax;secure'"
+  },
+  {
+   "term": "Слой каскада (@layer)",
+   "plain": "Полка в шкафу правил: что на более поздней полке — сильнее, независимо от «веса» селектора. Правила без полки — сильнее всех полок.",
+   "example": "@layer ds.tokens, ds.base, ds.components, shop;"
+  },
+  {
+   "term": "revert-layer",
+   "plain": "«Откати это свойство к тому, что было на предыдущей полке» — способ снять правило пакета без переписывания числом.",
+   "example": ".btn { box-shadow: revert-layer }"
+  },
+  {
+   "term": "Forced colors (принудительные цвета, Windows High Contrast)",
+   "plain": "Режим, в котором Windows перекрашивает все сайты в свою палитру: тени и фоны стираются, остаются границы и системные цвета.",
+   "example": "@media (forced-colors: active) { .card { border: 1px solid CanvasText } }"
+  },
+  {
+   "term": "Системные цвета (Canvas, CanvasText, ButtonText, LinkText, Highlight, GrayText)",
+   "plain": "Имена цветов «как у системы»: холст, текст, кнопка, ссылка, выделение, выключенное. Меняются вместе с color-scheme и с палитрой пользователя.",
+   "example": "dialog { background: Canvas; color: CanvasText } — так по умолчанию у браузера"
+  },
+  {
+   "term": "forced-color-adjust: none",
+   "plain": "«Этот элемент не перекрашивать» — исключение из forced colors для образцов цвета. Для текста и кнопок — запрещено.",
+   "example": ".swatch { forced-color-adjust: none }"
+  },
+  {
+   "term": "prefers-contrast: more",
+   "plain": "Настройка «увеличить контраст» на iPhone/Windows. Ответ — усилить обводки и убрать полупрозрачность, а не рисовать вторую тему.",
+   "example": "@media (prefers-contrast: more) { :root { --border-hairline: var(--content) } }"
+  },
+  {
+   "term": "Контраст WCAG 4.5:1 / 3:1",
+   "plain": "Отношение яркостей текста и фона: 4.5 для обычного текста, 3 для крупного (от 24px или 18.5px жирного) и для рамок/значков. Норма закона и норма проекта.",
+   "example": "белый на #87bd4f = 1.9 — не проходит; белый на #1b3b2a ≈ 10 — проходит"
+  },
+  {
+   "term": "APCA, Lc",
+   "plain": "Новый способ считать контраст, точнее в тёмной теме; число Lc (0–106, в тёмной теме отрицательное). Не закон, а будущий WCAG 3; в проекте — предупреждение.",
+   "example": "Lc 75 — минимум для основного текста 16px/500"
+  },
+  {
+   "term": "«Сменилась ровно одна половина пары»",
+   "plain": "Признак ошибки темы: фон остался прежним, а текст ушёл за темой (или наоборот) — и текст пропал в одной из тем. Если сменились обе половины — это выбор макета, сторож молчит.",
+   "example": "плитка эффекта: фон из фото одинаков, подпись `--content-strong` стала белой → 1.12"
+  },
+  {
+   "term": "Baseline low / high",
+   "plain": "Отметка web.dev/MDN: «low» — работает в последних версиях всех четырёх браузеров (дата = когда стало), «high» — прошло 30 месяцев с тех пор, можно не думать о старых.",
+   "example": "light-dark(): low с 13.05.2024; @layer: high с 14.09.2024"
+  },
+  {
+   "term": "Auto Dark Theme / Force Dark",
+   "plain": "Chrome Android и Samsung Internet сами затемняют светлые сайты у пользователей с тёмной ОС. Объявленный color-scheme говорит им: «у меня есть своя тёмная тема, не трогай».",
+   "example": "<meta name=\"color-scheme\" content=\"light dark\">"
+  },
+  {
+   "term": "CSP nonce, style-src-elem / style-src-attr",
+   "plain": "Одноразовый пароль в заголовке безопасности, разрешающий конкретный `<style>`. На атрибуты `style=\"\"` пароль не действует — их либо запрещают, либо разрешают все.",
+   "example": "<style nonce=\"…\" data-brand-theme>:root{--interactive-cta:#…}</style>"
+  },
+  {
+   "term": "Холст (canvas) страницы",
+   "plain": "Цвет «под всем», который браузер рисует до прихода CSS; при color-scheme: dark он тёмный сразу — отсюда отсутствие белой вспышки.",
+   "example": "background-color: Canvas"
+  }
+ ],
+ "antiPatterns": [
+  "Инлайн-скрипт до отрисовки с localStorage (next-themes, web.dev theme-switch) на витрине, которая и так рендерится по запросу: второй источник правды, `suppressHydrationWarning` на `<html>`, nonce на скрипт, и в dev-режиме всё равно мигает.",
+  "Два набора переменных `[data-theme='light']{60 строк}` / `[data-theme='dark']{51 строка}` при доступном light-dark(): токен объявлен дважды и разъезжается на первом же новом цвете.",
+  "`@media (prefers-color-scheme: dark){ :root:not([data-theme='light']) … }` рядом с `[data-theme='dark'] …` для одного токена — два правила об одном узле; вместо этого атрибут ставит только color-scheme.",
+  "`color-scheme: only light` «чтобы не мигало»: выключает и вашу тёмную тему, и тёмные системные элементы у всех.",
+  "`@property` на цветовых токенах темы: light-dark() вычисляется у `:root`, и тёмная полоса перестаёт перекрашивать содержимое.",
+  "Тень или фильтр наведения, зависящие от темы, отдельным тёмным блоком — вместо цвета внутри тени и `color-mix()` вуали.",
+  "`filter: invert()` на фотографии или цветном логотипе для тёмной темы; `<picture media=prefers-color-scheme>` для логотипа при cookie-теме — картинка следует за ОС, а не за выбором.",
+  "Два логотипа через `[data-theme]` + `display: none`: спрятанный грузится целиком (правило проекта о картинках).",
+  "`* { transition: none !important }` на время переключения (disableTransitionOnChange) — запрещено lint:css; проще не анимировать фоновые цвета вовсе.",
+  "Граница карточки или фокус только `box-shadow`: в forced colors стирается — исчезает и кнопка, и фокус.",
+  "`forced-color-adjust: none` на тексте, кнопках или «чтобы бренд-цвет остался»: отменяет выбор пользователя с нарушением зрения.",
+  "Ручная раскраска скроллбара (`scrollbar-color`) и флажков (`accent-color`) до Baseline — вместо `color-scheme`, который делает это сам.",
+  "CSS владельца в атрибутах `style=\"\"` (`style={{'--tint': …}}`): строгий CSP тогда невозможен, nonce на атрибуты не действует.",
+  "`:root:root`, `html[data-theme] :root` и прочее наращивание специфичности, чтобы «перебить пакет», — вместо `@layer` и порядка слоёв.",
+  "Sec-CH-Prefers-Color-Scheme как основа серверной темы — только Chromium (Firefox и Safari не шлют).",
+  "Считать WCAG 4.5:1 достаточным для тёмной палитры без APCA-проверки — формула завышает контраст тёмных пар.",
+  "Проверять тему одним прогоном «cookie dark»: три состояния (без cookie + тёмная ОС, cookie light, cookie dark) обязаны сходиться, иначе light-dark() и атрибут расходятся молча.",
+  "Число цвета холста для theme-color, записанное руками рядом с токеном, — разойдётся; читать из tokens-файла."
+ ],
+ "quotes": [
+  {
+   "text": "To enable support for the light-dark() color function, the color-scheme must have a value of light dark",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/light-dark"
+  },
+  {
+   "text": "computes to the computed value of the first color, if the element color scheme is light, or … the second color, if … dark",
+   "source": "https://drafts.csswg.org/css-color-5/#light-dark"
+  },
+  {
+   "text": "The color of the canvas surface, the default colors of scrollbars and other interaction UI, the default colors of form controls",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme"
+  },
+  {
+   "text": "force a certain subtree of the DOM to use only light or dark mode by setting color-scheme to either dark or light",
+   "source": "https://web.dev/articles/light-dark"
+  },
+  {
+   "text": "this has no effect other than reporting a dark value for the prefers-color-scheme media query",
+   "source": "https://drafts.csswg.org/css-color-adjust-1/#color-scheme-override (о страницах с объявленной поддержкой тёмной схемы)"
+  },
+  {
+   "text": "the browser applies an automatically generated dark theme to light themed sites, when the user has opted into dark themes",
+   "source": "https://developer.chrome.com/blog/auto-dark-theme"
+  },
+  {
+   "text": "will apply the alternate styles provided by the web developer if they exist, otherwise will apply its own transformations",
+   "source": "https://developer.samsung.com/internet/blog/en/2020/12/15/dark-mode-in-samsung-internet"
+  },
+  {
+   "text": "Using it in a layout or page will opt a route into dynamic rendering.",
+   "source": "https://nextjs.org/docs/app/api-reference/functions/cookies"
+  },
+  {
+   "text": "ThemeProvider automatically injects a script into next/head to update the html element with the correct attributes",
+   "source": "https://github.com/pacocoursey/next-themes/blob/main/next-themes/README.md"
+  },
+  {
+   "text": "This only works one level deep, and is intended to be an escape hatch.",
+   "source": "https://react.dev/reference/react-dom/client/hydrateRoot (suppressHydrationWarning)"
+  },
+  {
+   "text": "for normal rules the declaration whose cascade layer is latest in the layer order wins",
+   "source": "https://drafts.csswg.org/css-cascade-5/#layering"
+  },
+  {
+   "text": "Unlayered rules are sorted later than any layered rules within the same parent layer",
+   "source": "https://drafts.csswg.org/css-cascade-5/#layering"
+  },
+  {
+   "text": "CSS ordering can behave differently in development, always ensure to check the build (next build) to verify the final CSS order.",
+   "source": "https://nextjs.org/docs/app/getting-started/css"
+  },
+  {
+   "text": "you must use dynamic rendering to add nonces",
+   "source": "https://nextjs.org/docs/app/guides/content-security-policy"
+  },
+  {
+   "text": "specifies valid sources for inline styles applied to individual DOM elements",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/style-src-attr"
+  },
+  {
+   "text": "box-shadow and text-shadow compute to none",
+   "source": "https://drafts.csswg.org/css-color-adjust-1/#forced-colors-properties"
+  },
+  {
+   "text": "background-image computes to none unless the original value contains a url() function",
+   "source": "https://drafts.csswg.org/css-color-adjust-1/#forced-colors-properties"
+  },
+  {
+   "text": "its intended usage is to make small tweaks to improve usability or legibility",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors"
+  },
+  {
+   "text": "If authors wish to use non-system color values in forced color modes, they will need to supply forced-colors-adjust: none;",
+   "source": "https://blogs.windows.com/msedgedev/2020/09/17/styling-for-windows-high-contrast-with-new-standards-for-forced-colors/"
+  },
+  {
+   "text": "1pt = 1.333px, therefore 14pt and 18pt are equivalent to approximately 18.5px and 24px",
+   "source": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+  },
+  {
+   "text": "the computed values should not be rounded (e.g. 2.999:1 would not meet the 3:1 threshold)",
+   "source": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+  },
+  {
+   "text": "WCAG 2.x contrast cannot be used for guidance designing 'dark mode'",
+   "source": "https://github.com/Myndex/SAPC-APCA/blob/master/documentation/APCA_in_a_Nutshell.md"
+  },
+  {
+   "text": "The minimum level for columns of body text with a font no smaller than 24px/300 weight, 18px/400, 16px/500 and 14px/700",
+   "source": "https://github.com/Myndex/SAPC-APCA/blob/master/documentation/APCA_in_a_Nutshell.md (Lc 75)"
+  },
+  {
+   "text": "The particular currently non-matching stylesheets are still loaded, but with the lowest priority",
+   "source": "https://web.dev/articles/prefers-color-scheme"
+  },
+  {
+   "text": "initially adhere to the signal the browser sends through prefers-color-scheme, but to then optionally allow users to override",
+   "source": "https://web.dev/articles/prefers-color-scheme"
+  },
+  {
+   "text": "This rule will not report on text elements that have a background-image, are obscured by other elements or are images of text.",
+   "source": "https://dequeuniversity.com/rules/axe/4.10/color-contrast"
+  },
+  {
+   "text": "the embedding element's element color scheme is used as the embedded document's preferred color scheme",
+   "source": "https://drafts.csswg.org/css-color-adjust-1/#color-scheme-processing"
+  }
+ ],
+ "confidence": "Высокая: статусы Baseline и версии браузеров (взяты напрямую из web-features и browser-compat-data), семантика color-scheme / light-dark() / forced colors / @layer (из спецификаций CSSWG и MDN), поведение cookies()/nonce в Next 16 (официальные документы), доли браузеров (StatCounter, 08.2026), устройство существующих сторожей проекта (прочитан код). Средняя: (1) утверждение, что light-dark() в обычной переменной разрешается на элементе-потребителе, а в `@property`-переменной — у объявившего `:root` (выведено из спецификаций, статья Bramus не открылась); (2) что трюк «два объявления подряд» не спасает переменные в старом Safari и нужен `@supports` (следует из правил разбора custom properties, опытом не проверено); (3) Samsung Internet «Adaptive Force Dark» v25–26 — только сниппеты поиска; (4) поддержка `@import … layer()` в сборке Next 16/Turbopack — не проверена; (5) версии браузеров для meta theme-color — не подтверждены таблицей. Не включено: числа Material Design для тёмной темы (страница не открылась), доля пользователей тёмной темы (первоисточник не найден)."
+}

@@ -1,0 +1,674 @@
+{
+ "topic": "Адаптивность 2026 для третьей витрины: текучая раскладка, контейнерные запросы, швы ширины, единицы окна, палец против курсора, складные и планшеты, проверка машиной",
+ "sourcesRead": [
+  "https://web.dev/articles/new-responsive",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_containment/Container_queries",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/container-type",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/length",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/pointer",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/hover",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/any-pointer",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/any-hover",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/:hover",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/interpolate-size",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/env",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/text-size-adjust",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/min-width",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/hyphens",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/white-space",
+  "https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollWidth",
+  "https://developer.mozilla.org/en-US/docs/Web/API/Viewport_Segments_API",
+  "https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/CSS_layout/Responsive_Design",
+  "https://web.dev/articles/responsive-web-design-basics",
+  "https://web.dev/blog/viewport-units",
+  "https://web.dev/articles/optimize-cls",
+  "https://web.dev/articles/cls",
+  "https://web.dev/articles/accessible-tap-targets",
+  "https://web.dev/learn/design/media-queries",
+  "https://web.dev/learn/design/interaction",
+  "https://web.dev/learn/design/screen-configurations",
+  "https://web.dev/learn/design/micro-layouts",
+  "https://web.dev/learn/design/macro-layouts",
+  "https://web.dev/learn/css/container-queries",
+  "https://web.dev/case-studies/netflix-cq",
+  "https://web.dev/baseline",
+  "https://developer.chrome.com/docs/css-ui/",
+  "https://developer.chrome.com/docs/css-ui/style-queries",
+  "https://developer.chrome.com/docs/css-ui/anchor-positioning-api",
+  "https://developer.chrome.com/docs/css-ui/animate-to-height-auto",
+  "https://developer.chrome.com/blog/css-scroll-state-queries",
+  "https://developer.chrome.com/blog/viewport-resize-behavior",
+  "https://developer.chrome.com/docs/lighthouse/seo/tap-targets",
+  "https://developer.chrome.com/docs/lighthouse/seo/font-size",
+  "https://developer.chrome.com/docs/lighthouse/pwa/viewport",
+  "https://www.w3.org/TR/css-values-4/#viewport-relative-lengths",
+  "https://www.w3.org/TR/css-contain-3/",
+  "https://www.w3.org/TR/mediaqueries-4/#mf-interaction",
+  "https://www.w3.org/TR/css-flexbox-1/#min-size-auto (частично: оглавление и вывод, сам текст §4.5 не показан)",
+  "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+  "https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced.html",
+  "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+  "https://www.w3.org/WAI/WCAG22/Techniques/failures/F94",
+  "https://developer.apple.com/design/human-interface-guidelines/buttons (прочитано через JSON-данные страницы developer.apple.com/tutorials/data/design/human-interface-guidelines/buttons.json)",
+  "https://developer.apple.com/design/human-interface-guidelines/accessibility (через .../accessibility.json)",
+  "https://developer.android.com/guide/topics/ui/accessibility/apps",
+  "https://webkit.org/blog/7929/designing-websites-for-iphone-x/",
+  "https://playwright.dev/docs/emulation",
+  "https://playwright.dev/docs/api/class-testoptions",
+  "https://playwright.dev/docs/test-snapshots",
+  "https://playwright.dev/docs/accessibility-testing",
+  "https://dequeuniversity.com/rules/axe/4.10/target-size",
+  "https://adrianroselli.com/2019/12/responsive-type-and-zoom.html",
+  "https://www.smashingmagazine.com/2026/09/stop-treating-css-container-queries-traditional-media-queries/",
+  "https://www.smashingmagazine.com/2022/08/fluid-sizing-multiple-media-queries/",
+  "https://www.smashingmagazine.com/2024/05/modern-css-layouts-no-framework-needed/",
+  "https://baymard.com/blog/list-items-hover-and-hit-area",
+  "https://utopia.fyi/space/calculator/",
+  "https://developers.google.com/search/docs/crawling-indexing/mobile/mobile-sites-mobile-first-indexing",
+  "https://gs.statcounter.com/screen-resolution-stats/mobile/romania",
+  "https://gs.statcounter.com/screen-resolution-stats/mobile/croatia",
+  "https://gs.statcounter.com/platform-market-share/desktop-mobile-tablet/romania",
+  "https://gs.statcounter.com/platform-market-share/desktop-mobile-tablet/croatia",
+  "https://bugzilla.mozilla.org/show_bug.cgi?id=1638556",
+  "https://unpkg.com/web-features@latest/data.json (официальные данные Baseline, пакет web-features, скачан 20.09.2026)",
+  "https://raw.githubusercontent.com/ChromeDevTools/devtools-frontend/main/front_end/models/emulation/EmulatedDevices.ts (пресеты устройств Chrome DevTools, в т.ч. складные)",
+  "/home/user/CBD_ecommerce_eu/packages/ui/src/tokens/seams.ts (реестр швов проекта)",
+  "/home/user/CBD_ecommerce_eu/apps/storefront3/CLAUDE.md"
+ ],
+ "sourcesFailed": [
+  "https://web.dev/learn/design/container-queries — 404; вместо неё прочитана https://web.dev/learn/css/container-queries",
+  "https://m3.material.io/foundations/designing/structure — страница отдаёт только заголовок (рисуется скриптом); число 48dp взято из developer.android.com",
+  "https://developer.apple.com/design/human-interface-guidelines/accessibility и /buttons как HTML — только заголовок; текст добыт через JSON-данные тех же страниц (developer.apple.com/tutorials/data/...)",
+  "https://raw.githubusercontent.com/microsoft/playwright/main/packages/playwright-core/src/server/deviceDescriptorsSource.json и unpkg playwright-core@1.63.0/lib/server/deviceDescriptorsSource.json — 404 (файл переехал); ширины устройств взяты из пресетов Chrome DevTools",
+  "https://github.com/microsoft/playwright/issues/18061 — GitHub API отдал лимит, gh не установлен; утверждение «hasTouch: true включает (pointer: coarse) и (hover: none)» держится только на стороннем замере (firm86.com, Playwright 1.62.1) — уверенность средняя, в проверке это надо утверждать самим matchMedia",
+  "https://baymard.com/blog/mobile-product-list-hit-areas — открылся только анонс, чисел исследования нет",
+  "Покрытие словарей переноса (hyphens: auto) для хорватского, румынского и итальянского по браузерам — первоисточника с таблицей языков не нашёл; уверенность низкая, поэтому в правилах перенос слов держится на overflow-wrap: anywhere и <wbr>, а hyphens — как улучшение"
+ ],
+ "whichStep": "Основной потребитель — слой «раскладка» (швы, контейнерные запросы, сетки, ленты), но четыре куска нужны раньше или позже него. (1) Слой «пространство» (следующий): формула текучего отступа clamp(min, rem + vw, max) с rem-частью и границами по ширине холста — без неё отступы либо ступеньками по медиазапросам, либо ломают зум 200% (WCAG 1.4.4). (2) Слой «типографика»: перенос длинных слов на четырёх языках (overflow-wrap, hyphens + lang), text-size-adjust, кегль не в чистых vw. (3) Слой «поведение узлов»: pointer/hover, цель 44 под пальцем, :active вместо :hover. (4) Слой «страницы магазина»: dvh/svh для ворот возраста, шторок и героя; safe-area для липкой полосы покупки; клавиатура и position: fixed в оформлении заказа. Без этого ломается предсказуемо: горизонтальный скролл на 320 и отзум всей страницы; скачок высоты на шве 860 (у складных внутренний экран сидит ровно по обе стороны: 690 и 829); кнопка «купить» под адресной строкой iOS при 100vh; залипший :hover на телефоне; блок с container-type: size, свернувшийся в 0 высоты; сетка minmax(300px,1fr), вылезающая на 320.",
+ "rules": [
+  {
+   "rule": "Сначала телефон, но не «только телефон»: раскладка пишется от узкой (min-width / width >=), широкая добавляется сверху. Google индексирует и ранжирует мобильную версию, поэтому на телефоне обязан быть весь контент, те же title/description и та же разметка, что на широкой.",
+   "numbers": "Google: mobile-first indexing действует для всех сайтов. StatCounter, август 2026: Румыния — mobile 54.93%, desktop 44.47%, tablet 0.6%; Хорватия — desktop 57.49%, mobile 41.1%, tablet 1.4% (весь веб-трафик, не только магазины).",
+   "evidence": "developers.google.com/search/docs/crawling-indexing/mobile/mobile-sites-mobile-first-indexing; developer.mozilla.org/.../Responsive_Design («Designing for mobile first»); web.dev/learn/design/media-queries; gs.statcounter.com/platform-market-share/desktop-mobile-tablet/{romania,croatia}",
+   "forStorefront3": "Правило «сначала 375» из корневого CLAUDE.md остаётся, но в Хорватии доля десктопа выше половины: широкая раскладка 1024–1440 — не «вариант для меньшинства», а половина покупателей. Обе раскладки принимаются равноправно; ничего не прячется на узкой (Google читает именно её). Планшет — 0.6–1.4%: отдельной работы не заслуживает, достаточно, чтобы 768 (узкая) и 1024 (широкая) проходили те же проверки."
+  },
+  {
+   "rule": "Мета-тег viewport: width=device-width, initial-scale=1, без user-scalable=no и без maximum-scale. Зум остаётся покупателю.",
+   "numbers": "Без тега телефон рисует страницу как десктоп (~980 px) и уменьшает; initial-scale < 1 включает двойное касание для зума и добавляет задержку 300 мс на каждое нажатие.",
+   "evidence": "developer.chrome.com/docs/lighthouse/pwa/viewport; web.dev/articles/responsive-web-design-basics",
+   "forStorefront3": "В app/[locale]/layout.tsx один viewport на все магазины: width=device-width, initial-scale=1, viewport-fit=cover (последнее — ради safe-area, см. ниже). Никаких minimum/maximum-scale: возрастные ворота и корзина обязаны зумиться."
+  },
+  {
+   "rule": "На 320 CSS-пикселях страница обязана отдавать всё без горизонтальной прокрутки (переток). Ширина 320 — это и узкий телефон, и десктоп 1280 при зуме 400%: одна проверка закрывает оба случая.",
+   "numbers": "WCAG 2.2 SC 1.4.10 Reflow (AA): 320 CSS px по ширине, 256 CSS px по высоте для горизонтального контента; 320 = 1280 при 400%. Исключения: карты, диаграммы, таблицы данных, ленты по замыслу.",
+   "evidence": "www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+   "forStorefront3": "Свип ширин начинается с 320, а не с 360, хотя в StatCounter 320 нет: это замена проверки зума. Горизонтально скроллится только то, что объявлено лентой (рельса товаров) — и у ленты overflow-x на самой ленте, а не на странице."
+  },
+  {
+   "rule": "Шов раскладки — это решение с именем и причиной, а не число «на глаз». Швов мало, все в реестре, между ними — плавные рампы clamp(). Шов выбирается по содержимому (где строка становится неудобной), а не по классу устройства.",
+   "numbers": "В проекте 9 зарегистрированных швов (1439, 1100, 1060, 1024, 950, 860, 640, 600, 360), главный шов раскладки один — 860, телефонный — 600. web.dev: пример шва «50em — строки текста становятся слишком длинными»; норма строки 70–80 знаков.",
+   "evidence": "packages/ui/src/tokens/seams.ts; web.dev/learn/design/media-queries («choose your breakpoints based on your content»); web.dev/articles/responsive-web-design-basics",
+   "forStorefront3": "Третья витрина заводит свой реестр швов тем же типом LayoutSeam и тем же сторожем seams.test.ts (шов без записи — красный тест, запись без CSS — красный тест). Начальный набор — не копия девяти швов болгарской витрины (она не образец), а минимум: один главный шов раскладки, один телефонный (гуттер 16), один «узкий телефон»; остальное добавляется только с замером. Важно для складных: внутренний экран Z Fold 5 даёт 690 в портрете и 829 в альбоме — обе стороны шва 860 обязаны быть полноценными раскладками."
+  },
+  {
+   "rule": "Медиазапрос — для того, что зависит от окна (макро-раскладка: шапка, колонки страницы, подвал, док). Контейнерный запрос — для узла, который живёт в разных местах (карточка товара в рельсе, в сетке каталога, в боковой колонке статьи). Контейнер — родительская обёртка, узел не может мерить сам себя.",
+   "numbers": "Baseline: контейнерные запросы широко доступны с 14.08.2023 (Chrome 105, Firefox 110, Safari 16); Netflix: до −30% CSS у отдельных компонентов после перехода.",
+   "evidence": "web.dev/articles/new-responsive; smashingmagazine.com/2026/09/stop-treating-css-container-queries-traditional-media-queries/; web.dev/case-studies/netflix-cq; web-features data.json (container-queries: baseline high, 2025-08-14)",
+   "forStorefront3": "Карточка товара, промокарточка, блок вопроса, плитка эффекта — все получают container-type: inline-size на обёртке-ячейке (не на самой карточке) и меняют внутреннюю раскладку по @container, а не по ширине окна. Медиазапросы остаются шапке, подвалу, сеткам страницы и мебели (док, полоса покупки). Проверка «сетка не теряет колонку, получив место» из test:wide уже мерит ширину блока, а не окна — это тот же принцип."
+  },
+  {
+   "rule": "Контейнер объявляют inline-size, а не size. Контейнер с размерным сдерживанием не умеет брать размер у своего содержимого: без заданной высоты блок с container-type: size схлопывается в 0, а flex-элемент с inline-size без flex-basis может ужаться в ноль по ширине.",
+   "numbers": "Спецификация: «intrinsic sizes of the principal box are determined as if the element had no content». Единицы cq* без контейнера откатываются на малые единицы окна (sv*).",
+   "evidence": "www.w3.org/TR/css-contain-3/; developer.mozilla.org/en-US/docs/Web/CSS/container-type («collapse if no contextual or explicit size»); smashingmagazine.com/2026/09/... («Block-size queries collapse layouts»)",
+   "forStorefront3": "Правило для lint: в CSS витрины разрешён только container-type: inline-size (и scroll-state как улучшение); size — запрещён, кроме случаев с явной высотой, названных в комментарии. Обёртка-контейнер в flex-ряду получает flex: 1 1 <основа> и min-width: 0, чтобы не свернуться."
+  },
+  {
+   "rule": "Размер, снятый с макета, переносится рампой clamp(min, rem-часть + vw-часть, max), а не ступенью в медиазапросе. У рампы обязана быть rem-часть: чисто-vw размер не увеличивается при зуме и проваливает WCAG 1.4.4 (200%).",
+   "numbers": "Формула — линейная интерполяция между двумя ширинами: y = y0(rem) + k·100vw. Пример Smashing: clamp(1rem, -1rem + 4vw, 2rem) заменяет три медиазапроса. Utopia по умолчанию считает рампы между 360 и 1240 px. min/max/clamp — Baseline широко с 28.01.2023.",
+   "evidence": "smashingmagazine.com/2022/08/fluid-sizing-multiple-media-queries/; utopia.fyi/space/calculator/; www.w3.org/WAI/WCAG22/Techniques/failures/F94; adrianroselli.com/2019/12/responsive-type-and-zoom.html",
+   "forStorefront3": "Слой «пространство»: токены отступов --space-* задаются как clamp() с нижней границей на 320–360 и верхней на ширине холста макета (1440), промежуток — rem + vw. Кегли — так же, но с rem-частью не меньше половины итогового значения (чтобы зум 200% давал заметный рост). Числа из Figma — это max рампы, а не константа (правило «число из Figma — это размер на 1440»)."
+  },
+  {
+   "rule": "Внутри компонента текучесть считается от контейнера, а не от окна: cqi вместо vw. Иначе карточка в узкой боковой колонке на широком экране получает «широкие» размеры.",
+   "numbers": "1cqi = 1% инлайновой ширины контейнера; пример: font-size: clamp(1rem, .5rem + 3cqi, 2rem). Единицы cq* входят в тот же Baseline, что и контейнерные запросы.",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/length; smashingmagazine.com/2026/09/...; web.dev/learn/css/container-queries",
+   "forStorefront3": "У карточки товара цена, заголовок и отступы — от cqi; у страницы (заголовок полосы, гуттер) — от vw. Одна и та же карточка тогда одинаково честно живёт в рельсе на телефоне (плитка 200) и в сетке каталога на 1440."
+  },
+  {
+   "rule": "Сетка заполняет строку сама: repeat(auto-fit, minmax(min(<плитка>, 100%), 1fr)). Внутренний min() обязателен: без него minmax(300px, 1fr) на ширине меньше 300 вылезает за экран.",
+   "numbers": "web.dev: repeat(auto-fill, minmax(15em, 1fr)) — одна строка без медиазапросов; для «ровно две колонки, пока половина строки шире 320» — minmax(max(320px, calc(50% - 12px)), 1fr) (правило проекта).",
+   "evidence": "smashingmagazine.com/2024/05/modern-css-layouts-no-framework-needed/; web.dev/learn/design/macro-layouts; корневой CLAUDE.md, «Сетка заполняет строку»",
+   "forStorefront3": "Каталог, плитки эффектов, колонки подвала — только auto-fit/auto-fill с min() внутри minmax. Пересчёт числа колонок по контрольным ширинам запрещён: владелец добавит плитку из админки, и ступень сломается."
+  },
+  {
+   "rule": "Flex-элемент по умолчанию не ужимается меньше своего содержимого (min-width: auto = min-content). Всё, что должно переноситься или обрезаться, получает min-width: 0 (или overflow не visible). nowrap ставится только там, где строка не должна переноситься никогда.",
+   "numbers": "Замер проекта: на 320 ряд шапки просил 324 px и браузер отзумил всю страницу (seams.ts, шов 360).",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/min-width (auto для flex/grid = min-content); www.w3.org/TR/css-flexbox-1/#min-size-auto; developer.mozilla.org/en-US/docs/Web/CSS/white-space",
+   "forStorefront3": "Lint-правило для CSS витрины: у каждого flex-потомка с текстом — min-width: 0; white-space: nowrap разрешён только с комментарием «почему никогда» и только у узла, у которого есть свой overflow (обрезка/прокрутка). Сторож test:phone («строка шире своего блока — ошибка») уже это ловит на живой странице."
+  },
+  {
+   "rule": "Длинное слово должно иметь, где переломиться: overflow-wrap: anywhere у текстовых узлов (в отличие от break-word оно учитывается в min-content и не расширяет flex/grid-ячейку); hyphens: auto — только как улучшение и только при правильном lang на странице.",
+   "numbers": "overflow-wrap — Baseline широко с 10.2018; hyphens — Baseline широко с 09.2023, но «Hyphenation rules are language-specific», словари по языкам у браузеров разные (для hr/ro/it первоисточника с таблицей не нашёл).",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap; developer.mozilla.org/en-US/docs/Web/CSS/hyphens",
+   "forStorefront3": "Четыре языка и два формата цены (RON: «1.234,56 lei», EUR: «123,45 €») — ширина строк непредсказуема. html lang ставится из магазина (hr, ro, it, en) — это условие и для переноса, и для чтения вслух. Названия с «+» и «/» проходят через breakable() (<wbr>). Проверка длинных слов — фикстурой с самыми длинными словами каждого языка на 320."
+  },
+  {
+   "rule": "100vh на телефоне — это большое окно (lvh), то есть высота при спрятанной адресной строке: низ блока уезжает под панель браузера. Для «на весь экран» брать svh (никогда не больше видимого) или dvh (следует за панелью, но меняется во время прокрутки и может дёргать раскладку).",
+   "numbers": "Baseline: sv*/lv*/dv* широко доступны с 05.06.2025 (Chrome 108, Firefox 101, Safari 15.4). Спецификация разрешает браузеру не анимировать dv-единицы при выезде панели.",
+   "evidence": "web.dev/blog/viewport-units; developer.mozilla.org/en-US/docs/Web/CSS/length; www.w3.org/TR/css-values-4/#viewport-relative-lengths; web-features data.json (viewport-unit-variants)",
+   "forStorefront3": "Ворота возраста, мобильное меню, шторка фильтров, корзина-шторка — max-height: 100dvh (шторка обязана заканчиваться там, где кончается видимое). Герой и полосы — min-height через clamp(), не 100svh: у телефона в альбоме высота ~360–412 px, и 100svh-герой съест весь экран. 100vh в CSS витрины запрещён lint-ом целиком."
+  },
+  {
+   "rule": "Экранная клавиатура на Android Chrome и iOS Safari по умолчанию уменьшает только видимую область, не раскладку: position: fixed внизу остаётся на месте и может оказаться под клавиатурой; единицы окна не меняются. Формы оформления заказа проверяются с открытой клавиатурой.",
+   "numbers": "Chrome 108 (11.2022) перешёл на interactive-widget=resizes-visual как у Safari iOS; Firefox Android и Edge Android — по-прежнему resizes-content. Вернуть старое: <meta name=viewport content=\"..., interactive-widget=resizes-content\">.",
+   "evidence": "developer.chrome.com/blog/viewport-resize-behavior",
+   "forStorefront3": "Липкая полоса покупки и кнопка «оформить» внизу оформления: при фокусе на поле формы полоса либо прячется, либо позиционируется от visualViewport (API Baseline широко с 02.2024). Заранее резервировать место под ответ (правило «денежные страницы занимают место под ответ») — здесь то же самое, но для клавиатуры."
+  },
+  {
+   "rule": "Вырезы, скруглённые углы и полоска «домой» на iPhone: страница с viewport-fit=cover обязана сама отступать на env(safe-area-inset-*), и отступ пишется через max(свой отступ, env(...)), чтобы не потерять базовое поле там, где inset = 0.",
+   "numbers": "На прямоугольных экранах env(...) = 0. Baseline широко с 15.07.2022 (Chrome 69, Firefox 65, Safari 11.1). Есть safe-area-max-inset-* (статические максимумы).",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/env; webkit.org/blog/7929/designing-websites-for-iphone-x/",
+   "forStorefront3": "Полоса покупки внизу: padding-bottom: max(var(--space-s), env(safe-area-inset-bottom)); её измеренную высоту она же объявляет в --bottom-furniture (правило проекта «мебель у нижнего края объявляет свою высоту»). Плавающий док и кнопки контактов прибавляют env(safe-area-inset-right/left) в альбоме — там вырез сбоку."
+  },
+  {
+   "rule": "100vw — это ширина окна вместе с полосой прокрутки: на десктопе с классическими полосами блок шириной 100vw шире страницы и рождает горизонтальный скролл. Ширина «во всю страницу» — это 100% или инлайновая ширина контейнера; место под полосу прокрутки резервируется scrollbar-gutter: stable.",
+   "numbers": "Спецификация: единицы окна считаются так, будто полос прокрутки нет, если только overflow/scrollbar-gutter на корне не заставляет их появляться безусловно. scrollbar-gutter — Baseline newly с 11.12.2024 (Safari 18.2).",
+   "evidence": "www.w3.org/TR/css-values-4/#viewport-relative-lengths; developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter",
+   "forStorefront3": "На корне html — scrollbar-gutter: stable (в Хорватии половина покупателей с десктопа, где полоса классическая): при открытии длинной страницы содержимое не прыгает влево. 100vw в CSS запрещён lint-ом наравне со 100vh; полосы «от края до края» делаются полем самой полосы, а не отрицательным margin в vw."
+  },
+  {
+   "rule": "Цель нажатия под пальцем — не меньше 44×44 CSS px, и между целями есть зазор. Юридический минимум ниже (24), платформенные нормы — 44 (Apple) и 48 (Android/Google); брать нужно верхнюю.",
+   "numbers": "WCAG 2.2 SC 2.5.8 (AA): 24×24 CSS px или круг 24 px вокруг центра не пересекает соседей; SC 2.5.5 (AAA): 44×44. Apple HIG: hit region ≥ 44×44 pt, зазор ~12 pt у кнопок с рамкой, ~24 pt без рамки; Android: ≥ 48×48 dp; Lighthouse: < 48×48 или пересечение ≥25% в радиусе 48 — провал, рекомендуемый зазор 8 px.",
+   "evidence": "www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html; .../target-size-enhanced.html; developer.apple.com/design/human-interface-guidelines/buttons; developer.android.com/guide/topics/ui/accessibility/apps; developer.chrome.com/docs/lighthouse/seo/tap-targets; web.dev/articles/accessible-tap-targets",
+   "forStorefront3": "Норма проекта 44 остаётся, зазор — не меньше 8 px между соседними целями (плюс/минус счётчика, значки шапки, чипы фильтров). Пишется в @media (pointer: coarse) — но для планшета с трекпадом/клавиатурой безопаснее any-pointer: coarse (палец никуда не делся). Значок 24 px внутри цели 44 — за счёт padding, а не за счёт увеличения значка (правило «круглая кнопка — ступень»)."
+  },
+  {
+   "rule": ":hover пишется только внутри @media (hover: hover). На тачскрине :hover может не срабатывать, срабатывать на миг или оставаться включённым после касания, пока не коснёшься другого места — покупатель видит «залипшую» кнопку. Ответ на касание — :active, и сразу, а не по ответу сервера.",
+   "numbers": "hover/pointer/any-hover/any-pointer — Baseline широко с 12.2018. Спецификация: тачскрин, где долгое нажатие считается наведением, — это hover: none. Baymard: 76% крупных магазинов не синхронизируют hover по всей строке списка.",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/:hover; www.w3.org/TR/mediaqueries-4/#mf-interaction; developer.mozilla.org/en-US/docs/Web/CSS/@media/hover; baymard.com/blog/list-items-hover-and-hit-area",
+   "forStorefront3": "Поведение берётся из общего pressable (control.css) — там наведение уже под (hover: hover). Для карточки товара: одна цель — вся карточка (единый hit-area по Baymard), кнопка внутри отвечает на своё наведение. На планшете с мышью any-hover: hover даёт наведение, primary при этом может быть палец — поэтому hover-ответ никогда не несёт смысла, только украшает."
+  },
+  {
+   "rule": "pointer и hover — эвристики о «главном» устройстве ввода, а не факт. По ним меняют размер цели и отклик, но не прячут содержимое и не переключают раскладку: у ноутбука с тачскрином primary может быть палец, а у планшета с трекпадом — курсор.",
+   "numbers": "Firefox на Windows-ноутбуках с трекпадом годами отдавал pointer: coarse (bug 1638556, исправлен). MDN: any-pointer может совпадать сразу с coarse и fine на одном устройстве.",
+   "evidence": "bugzilla.mozilla.org/show_bug.cgi?id=1638556; developer.mozilla.org/en-US/docs/Web/CSS/@media/any-pointer; web.dev/learn/design/interaction («A larger target area benefits everyone»)",
+   "forStorefront3": "Ширина решает раскладку, указатель — размер цели (правило 10 корневого CLAUDE.md), и это же относится к третьей витрине. Ничего вроде «на coarse убрать поиск» или «на fine показать мини-корзину при наведении» — покупатель с мышью должен иметь всё то же, что и с пальцем, и наоборот."
+  },
+  {
+   "rule": "orientation — это пропорция окна, а не положение устройства: открытая клавиатура в портрете делает окно шире, чем выше, и включает «альбомные» стили. Раскладку выбирает ширина, не orientation.",
+   "numbers": "Baseline широко с 07.2015. portrait = высота ≥ ширины.",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation",
+   "forStorefront3": "Медиазапросов по orientation в витрине нет. Телефон в альбоме — обычная ширина 780–932 px при высоте 360–430: он сидит по обе стороны шва 860 (360×780 → узкая, 393×873 → широкая), и обе обязаны работать при высоте ~400 — то есть без 100svh-героев и без шторок с фиксированной высотой."
+  },
+  {
+   "rule": "Планшет и складной — не третья раскладка. Планшет в портрете получает узкую, в альбоме широкую; внутренний экран складного в развёрнутом виде — это «маленький планшет» с шириной ровно вокруг шва. Про шарнир (viewport segments) в 2026 году не проектируют: это только Chrome.",
+   "numbers": "Chrome DevTools: Galaxy Z Fold 5 — 344×882 снаружи, 690×829 внутри (портрет), 829×690 (альбом); Pixel 9 Pro Fold — 412×922 / 836×842; Surface Duo — 540×720 / 1114×720 с шарниром 34 px; iPad Mini — 768×1024; Asus Zenbook Fold — 853×1280 / 1706×1280. Viewport Segments API — только Chrome 138+, не Baseline.",
+   "evidence": "ChromeDevTools/devtools-frontend EmulatedDevices.ts; developer.mozilla.org/en-US/docs/Web/API/Viewport_Segments_API; web.dev/learn/design/screen-configurations",
+   "forStorefront3": "К свипу ширин добавить 690, 829, 836 и 842: сложенный внутренний экран — самое частое место, где раскладка ровно на шве. Складной снаружи (344 px) — уже 360: узкий телефон должен держаться от 320. Ничего для шарнира не пишется; env(viewport-segment-*) — не заводить."
+  },
+  {
+   "rule": "Раскладка не прыгает, потому что место под всё, что придёт позже, занято заранее: картинки с width/height или aspect-ratio, место под ответ движка, шрифты с font-display и preload. Норма CLS — 0.1 на 75-м процентиле визитов.",
+   "numbers": "CLS: хорошо ≤ 0.1, плохо > 0.25; сдвиг = доля затронутого экрана × доля смещения; сессионное окно ≤ 5 с с промежутками < 1 с; сдвиг в пределах 500 мс после действия пользователя помечен hadRecentInput и не считается. aspect-ratio — Baseline широко с 20.03.2024.",
+   "evidence": "web.dev/articles/cls; web.dev/articles/optimize-cls; web-features data.json (aspect-ratio)",
+   "forStorefront3": "Каждый <Image> с явными width/height или aspect-ratio на обёртке; корзина и оформление резервируют высоту в стилях страницы (не вида). Проверка не только «CLS ≤ 0.1 на 375», а «высота страницы при ширине w не отличается от высоты при w±1 больше, чем на высоту одной строки» — это ловит скачки на швах, которые CLS не видит (они происходят при смене ширины, не при загрузке)."
+  },
+  {
+   "rule": "Новые механизмы делятся на три класса по Baseline: «широко доступно» (можно без запасного пути), «недавно доступно» (с @supports или запасным путём), «не Baseline» (только как улучшение, отсутствие которого никто не заметит).",
+   "numbers": "Baseline newly = работает во всех основных браузерах (Chrome, Edge, Firefox, Safari, десктоп и мобильные); widely = прошло 30 месяцев с newly. Состояние на 20.09.2026: контейнерные запросы, cq-единицы, range-syntax медиазапросов, sv/lv/dv-единицы, safe-area, aspect-ratio, :has(), subgrid, flex gap — widely; style queries (с 19.05.2026), scrollbar-gutter (с 11.12.2024), anchor positioning ядро (с 13.01.2026) — newly; scroll-state queries (Chrome 133), interpolate-size/calc-size (Chrome 129), viewport segments (Chrome 138), text-size-adjust (без Firefox) — не Baseline.",
+   "evidence": "web.dev/baseline; unpkg.com/web-features@latest/data.json",
+   "forStorefront3": "Хорватия и Румыния — обычный набор браузеров, Safari iOS там есть, поэтому «работает в Chrome» не аргумент. Правило для кода: widely — пишем прямо; newly — оборачиваем @supports и держим запасной путь; не Baseline — только там, где без него страница не хуже (анимация раскрытия, тень липкой шапки)."
+  },
+  {
+   "rule": "Стилевые контейнерные запросы (@container style(--x: y)) переключают вариант узла по пользовательскому свойству родителя — без второго класса и без пропа. Пока запрашиваются только custom properties; контейнер объявлять не нужно.",
+   "numbers": "Chrome 111, Safari 18, Firefox 151; Baseline newly с 19.05.2026 (30 месяцев истекут в ноябре 2028).",
+   "evidence": "developer.chrome.com/docs/css-ui/style-queries; web-features data.json (container-style-queries)",
+   "forStorefront3": "Естественный кандидат — тон полосы («полоса объявляет свою пару фон+чернила один раз»): полоса ставит --band: deep, узлы внутри читают @container style(--band: deep). Но до широкой доступности запасной путь — сегодняшний composes: deep; переход одной работой, когда Firefox 151 разойдётся по рынку."
+  },
+  {
+   "rule": "Anchor positioning (меню, подсказки, выпадашки, привязанные к кнопке) — newly с января 2026: применять с запасным путём (popover в верхнем слое + обычное позиционирование) или полифилом; части API (anchors-visible, transforms) ещё разные по браузерам.",
+   "numbers": "Ядро: Chrome 125, Firefox 147, Safari 26; position-visibility plurals — Firefox 147/Safari 26.2; anchor-positioning-transforms — только Chrome 144; полифил OddBird — от Chrome 51/Firefox 54.",
+   "evidence": "developer.chrome.com/docs/css-ui/anchor-positioning-api; web-features data.json (anchor-positioning*)",
+   "forStorefront3": "Меню языка (три+ языка → пилюля с меню), панель сортировки, подсказка у поля — кандидаты; шторки и окна остаются <dialog> + showModal (правило «что перекрывает страницу — не получает номера»). Anchor — только под @supports (anchor-name: --x), иначе прежний способ."
+  },
+  {
+   "rule": "Анимация к height: auto (аккордеон вопросов, раскрытие описания) — interpolate-size: allow-keywords на :root или calc-size(); чистое улучшение, без него просто нет плавности.",
+   "numbers": "Chrome/Edge 129+ только; не Baseline. Нельзя интерполировать между двумя ключевыми словами — один конец обязан быть длиной.",
+   "evidence": "developer.chrome.com/docs/css-ui/animate-to-height-auto; developer.mozilla.org/en-US/docs/Web/CSS/interpolate-size",
+   "forStorefront3": "Одна строка на :root, и всё, что раскрывается по клику, получает transition на height — Safari/Firefox откроют мгновенно. Не строить на этом ничего, что несёт смысл; и под @media (prefers-reduced-motion: no-preference)."
+  },
+  {
+   "rule": "Липкая шапка «узнаёт», что прилипла, через scroll-state контейнерные запросы, а не через JS-слушатель прокрутки; но это только Chrome — обязательно под @supports.",
+   "numbers": "Chrome 133+. Состояния: stuck, snapped, scrollable. Синтаксис: container-type: scroll-state; @container scroll-state(stuck: top).",
+   "evidence": "developer.chrome.com/blog/css-scroll-state-queries",
+   "forStorefront3": "Тень у прилипшей шапки, подсветка активной плитки в рельсе со snap, стрелка «есть что листать» у ленты — всё как улучшение. Без него шапка просто без тени; рельса — без подсветки. JS ради этого не пишется."
+  },
+  {
+   "rule": "iOS Safari в альбоме раздувает текст сам (text inflation); text-size-adjust: 100% выключает это на грамотно адаптивной странице.",
+   "numbers": "Chrome 54+; в Safari — только с префиксом -webkit-; Firefox не поддерживает; не Baseline. Lighthouse (до версии 13): ≥60% текста не мельче 12 px.",
+   "evidence": "developer.mozilla.org/en-US/docs/Web/CSS/text-size-adjust; developer.chrome.com/docs/lighthouse/seo/font-size",
+   "forStorefront3": "В базовых стилях: -webkit-text-size-adjust: 100%; text-size-adjust: 100%. Ниже 12 px в витрине не бывает ничего (правило админки «ниже 12 не бывает» распространяется на витрину), а кегль подписи — токен, не доля."
+  },
+  {
+   "rule": "Контрольные ширины телефона берутся из замера рынка, а не из привычки: в Румынии и Хорватии самые частые ширины — 393, 384, 414, 360, 412, 390; ширины 375 нет в первой шестёрке ни у одной страны.",
+   "numbers": "StatCounter, август 2026, мобильные: Румыния — 393×873 11.97%, 384×832 9.25%, 414×896 8.69%, 360×800 5.57%, 412×915 5.41%, 360×780 4.89%; Хорватия — 414×896 16.96%, 384×832 10.48%, 360×780 7.59%, 390×844 7.38%, 393×873 6.02%, 360×800 4.33%.",
+   "evidence": "gs.statcounter.com/screen-resolution-stats/mobile/romania; gs.statcounter.com/screen-resolution-stats/mobile/croatia",
+   "forStorefront3": "Для test:phone третьей витрины ширины: 320 (переток/зум), 360, 384, 393, 414 (покрывает 412). 375 можно оставить как проверку «между», но она не «главная». Высоты для проверки шторок и героев — 780 (самая низкая частая) и 896."
+  }
+ ],
+ "mechanisms": [
+  {
+   "name": "Медиазапросы по ширине с range-синтаксисом: @media (width >= 860px), @media (600px <= width < 860px)",
+   "what": "Условие на размер окна браузера. Пишется от узкой раскладки вверх (min-width / >=). Одно правило — один зарегистрированный шов.",
+   "support2026": "Медиазапросы — Baseline с 2015; range-синтаксис — widely с 27.09.2025 (Chrome 104, Firefox 102, Safari 16.4). Запасной путь не нужен.",
+   "whenToUse": "Макро-раскладка: колонки страницы, шапка, подвал, мебель (док, полоса покупки). Только на зарегистрированных швах; для всего, что «просто меняет размер», — clamp()."
+  },
+  {
+   "name": "Контейнерные запросы по размеру: container-type: inline-size на обёртке; @container [имя] (width >= 400px) { .card {…} }",
+   "what": "Узел меняет свою внутреннюю раскладку по ширине родительской ячейки, а не окна. Контейнер — обёртка, сам узел себя мерить не может; inline-size, чтобы не схлопнуть высоту.",
+   "support2026": "Baseline widely с 14.08.2025 (Chrome 105, Firefox 110, Safari 16). Запасной путь не нужен; там, где нужна поддержка старее, — медиазапрос с grid/flex.",
+   "whenToUse": "Карточка товара, промокарточка, плитка эффекта, блок вопроса, виджет отзыва — всё, что живёт и в рельсе, и в сетке, и в боковой колонке."
+  },
+  {
+   "name": "Единицы контейнера cqi / cqw / cqb / cqmin / cqmax",
+   "what": "1cqi = 1% инлайновой ширины ближайшего контейнера. Без контейнера — откат на малые единицы окна (svi/svw).",
+   "support2026": "В одном Baseline с контейнерными запросами — widely. Запасной путь: если контейнера нет, единицы всё равно валидны (считаются от окна).",
+   "whenToUse": "Текучий кегль и отступы внутри компонента: clamp(1rem, .5rem + 3cqi, 2rem) у заголовка карточки."
+  },
+  {
+   "name": "Стилевые контейнерные запросы: @container style(--band: deep) { … }",
+   "what": "Условие на значение пользовательского свойства у родителя. Контейнер объявлять не нужно; обычные свойства пока не запрашиваются.",
+   "support2026": "Baseline newly с 19.05.2026 (Chrome 111, Safari 18, Firefox 151). Запасной путь: класс через composes / data-атрибут; или @supports (container-type: inline-size) не помогает — нужен @supports selector? Нет: проверять через @supports (container-name: x) нельзя различить; держать старый способ параллельно до widely.",
+   "whenToUse": "Варианты узла по контексту полосы (тёмная/светлая), плотность («компактная карточка»), когда родитель хочет сказать детям одно слово."
+  },
+  {
+   "name": "Scroll-state контейнерные запросы: container-type: scroll-state; @container scroll-state(stuck: top)",
+   "what": "Стили по состоянию прокрутки: прилип (stuck), защёлкнут (snapped), есть что листать (scrollable) — без JS.",
+   "support2026": "Только Chrome/Edge 133+; не Baseline. Запасной путь: без эффекта (обернуть в @supports (container-type: scroll-state)).",
+   "whenToUse": "Тень у липкой шапки, подсветка текущей плитки в рельсе, стрелка листания у ленты, кнопка «наверх»."
+  },
+  {
+   "name": "Единицы окна: svh / lvh / dvh (и svw/lvw/dvw, svi/svb…)",
+   "what": "svh — высота при показанной панели браузера (самая маленькая), lvh — при спрятанной (= vh), dvh — текущая, меняется при прокрутке. vh на телефоне равен lvh, поэтому «100vh» выше видимого.",
+   "support2026": "Baseline widely с 05.06.2025 (Chrome 108, Firefox 101, Safari 15.4). Запасной путь: height: 100vh; height: 100dvh (второе перебьёт, где понято).",
+   "whenToUse": "dvh — max-height шторок, окон, мобильного меню; svh — только если нужно «не больше видимого при первом показе»; для героев — clamp() по высоте, а не 100svh."
+  },
+  {
+   "name": "clamp(min, rem + vw, max), min(), max()",
+   "what": "Плавная рампа между двумя значениями на двух ширинах: линейная интерполяция y = y0(rem) + k·vw, зажатая границами. rem-часть держит зум, vw-часть — текучесть.",
+   "support2026": "Baseline widely с 28.01.2023 (Chrome 79, Firefox 75, Safari 13.1). Запасной путь не нужен.",
+   "whenToUse": "Все отступы, кегли, ширины колонок, высоты полос, снятые с макета 1440: число из Figma — это max рампы. Внутри компонентов — с cqi вместо vw."
+  },
+  {
+   "name": "Сетка repeat(auto-fit, minmax(min(<плитка>, 100%), 1fr)) и flex-wrap + flex-basis + min-width: 0",
+   "what": "Число колонок отвечает контейнер, а не медиазапрос; min() внутри не даёт плитке быть шире экрана. Для строки однородных элементов — перенос flex-wrap; для переносимого — min-width: 0.",
+   "support2026": "Grid/flex/gap — widely (flex gap с 26.10.2023). Запасной путь не нужен.",
+   "whenToUse": "Каталог, плитки эффектов, колонки подвала, ряд чипов фильтров. Не для раскладок, где перенос меняет смысл чтения — там медиазапрос по шву."
+  },
+  {
+   "name": "@media (pointer: coarse | fine | none), (hover: hover | none), any-pointer, any-hover",
+   "what": "pointer — точность главного устройства ввода (палец = coarse), hover — умеет ли оно удобно наводить. any-* — про любое из подключённых устройств. Тачскрин с долгим нажатием = hover: none.",
+   "support2026": "Baseline widely с 12.2018. Запасной путь: стили по умолчанию — «под палец», hover-ответ только внутри (hover: hover).",
+   "whenToUse": "Размер цели 44 и зазор — под (pointer: coarse) или надёжнее (any-pointer: coarse); :hover — только под (hover: hover). Не для сокрытия содержимого и не для выбора раскладки."
+  },
+  {
+   "name": "env(safe-area-inset-*) + <meta name=viewport content=\"…, viewport-fit=cover\">",
+   "what": "Отступы от вырезов, скруглений и полоски «домой». Без viewport-fit=cover Safari сам отступает и env() = 0. Пишется через max(своё поле, env(...)).",
+   "support2026": "Baseline widely с 15.07.2022 (Chrome 69, Firefox 65, Safari 11.1). Запасной путь: второй аргумент env(safe-area-inset-bottom, 0px).",
+   "whenToUse": "Нижняя полоса покупки, док, кнопки в углах, шторки на всю высоту, липкая шапка в альбоме (вырез сбоку)."
+  },
+  {
+   "name": "interactive-widget (viewport meta) и visualViewport API",
+   "what": "Как экранная клавиатура меняет окно: resizes-visual (по умолчанию в Chrome 108+ и Safari iOS: раскладка не сжимается, fixed-низ может уйти под клавиатуру) или resizes-content (Firefox Android). visualViewport даёт реальные видимые размеры и offset.",
+   "support2026": "visualViewport — Baseline widely с 10.02.2024. interactive-widget понимает Chrome Android; Safari игнорирует (у него и так resizes-visual). Запасной путь: прятать нижнюю мебель при фокусе в поле.",
+   "whenToUse": "Оформление заказа, вход, поиск — везде, где под полем формы стоит нижняя мебель."
+  },
+  {
+   "name": "scrollbar-gutter: stable (на html) и запрет 100vw",
+   "what": "Резервирует место под классическую полосу прокрутки, чтобы содержимое не прыгало при её появлении; 100vw же считает ширину без полосы и на десктопе даёт горизонтальный скролл.",
+   "support2026": "scrollbar-gutter — Baseline newly с 11.12.2024 (Chrome 94, Firefox 97, Safari 18.2); на overlay-полосах (телефон, mac по умолчанию) ничего не делает — это и есть запасной путь.",
+   "whenToUse": "Корень документа на витрине с большой десктопной долей (Хорватия 57%); прокручиваемые панели фильтров."
+  },
+  {
+   "name": "aspect-ratio + width/height у картинок; резерв места под ответ",
+   "what": "Место под картинку/блок известно до загрузки: браузер не двигает соседей. CLS считает impact × distance; сдвиг в 500 мс после действия пользователя не считается.",
+   "support2026": "aspect-ratio — Baseline widely с 20.03.2024. Запасной путь: атрибуты width/height (браузер сам выводит пропорцию).",
+   "whenToUse": "Каждый <Image>, каждая карточка с фото, блоки корзины/оформления до ответа движка."
+  },
+  {
+   "name": "overflow-wrap: anywhere, hyphens: auto + <html lang>, <wbr> (breakable())",
+   "what": "Где слову переломиться, если оно длиннее строки. anywhere учитывается в min-content (ячейка не растянется), break-word — нет. hyphens: auto ставит переносы по словарю языка из lang.",
+   "support2026": "overflow-wrap — widely с 10.2018; hyphens — widely с 09.2023, но словари по языкам различаются (hr/ro/it не проверено первоисточником). Запасной путь: anywhere + <wbr>.",
+   "whenToUse": "Названия товаров, заголовки, подписи плиток на всех четырёх языках; цены RON/EUR; адреса пунктов выдачи."
+  },
+  {
+   "name": "Anchor positioning: anchor-name / position-anchor / position-area / @position-try",
+   "what": "Позиционирование одного элемента относительно другого с автоматическим переворотом у края окна — без JS-библиотек.",
+   "support2026": "Ядро — Baseline newly с 13.01.2026 (Chrome 125, Firefox 147, Safari 26); части позже (Safari 26.2, Chrome 144 для transforms). Запасной путь: @supports (anchor-name: --a) и обычный position + popover; полифил OddBird.",
+   "whenToUse": "Меню языка, панель сортировки, подсказка к полю. Не для шторок и окон — те остаются <dialog>."
+  },
+  {
+   "name": "interpolate-size: allow-keywords / calc-size()",
+   "what": "Разрешает анимировать к auto/max-content/fit-content (раскрытие блока по клику).",
+   "support2026": "Только Chrome/Edge 129+; не Baseline. Запасной путь: ничего — без поддержки блок открывается мгновенно.",
+   "whenToUse": "Аккордеон вопросов, «показать больше» в описании, раскрытие фильтра."
+  },
+  {
+   "name": "Viewport Segments (horizontal-/vertical-viewport-segments, env(viewport-segment-*))",
+   "what": "Сведения о шарнире складного: сколько сегментов и их координаты.",
+   "support2026": "Только Chrome 138+; не Baseline. Запасной путь: не проектировать под шарнир вовсе — проверять обе стороны шва на 690/829 и 836/842.",
+   "whenToUse": "Пока — нигде на витрине; только знать, что существует."
+  },
+  {
+   "name": "text-size-adjust: 100% (с -webkit-)",
+   "what": "Выключает самовольное раздувание текста Safari iOS в альбоме.",
+   "support2026": "Chrome 54+, Safari с префиксом, Firefox — нет; не Baseline. Безвредно там, где не понято.",
+   "whenToUse": "Базовые стили витрины, одна строка."
+  }
+ ],
+ "checks": [
+  {
+   "check": "Свип ширин без горизонтального переполнения: на каждой странице дерева маршрутов, для ширин 320, 360, 384, 393, 414, 600, 640, 690, 740, 768, 800, 829, 836, 860, 915, 1024, 1180, 1280, 1440, 1600 — document.documentElement.scrollWidth <= clientWidth, и ни у одного элемента getBoundingClientRect().right не больше innerWidth (кроме потомков объявленных лент с overflow-x).",
+   "how": "Playwright: browser.newContext({ viewport: {width, height: 780}, isMobile: true, hasTouch: true }) для ширин < 860 и обычный контекст выше; page.goto; page.evaluate с обходом document.querySelectorAll('*'). Ленты помечаются data-rail и исключаются вместе с потомками. Обе темы (colorScheme: 'light' | 'dark'). Ширины берутся из seams.ts плюс рыночные, а не пишутся руками в тесте второй раз.",
+   "tool": "Playwright (@playwright/test), node --test как в test:phone / test:wide"
+  },
+  {
+   "check": "Нет скачков высоты на швах: для каждой зарегистрированной ширины шва s измерить высоту страницы на s-1, s, s+1; разница между соседями не больше высоты одной строки текста (≈ 2 × line-height) или явно записанного исключения; и общий храповик test:wide: высота на 1024/1180/1280 ≤ 1.35 × высоты на 1440.",
+   "how": "Playwright page.setViewportSize по тройкам вокруг каждого шва из seams.ts; page.evaluate(() => document.documentElement.scrollHeight). Порог читается из токена line-height, а не пишется числом.",
+   "tool": "Playwright + seams.ts как источник ширин"
+  },
+  {
+   "check": "Текст не обрезан своим блоком: у каждого текстового узла с overflow: hidden/clip — scrollWidth <= clientWidth и scrollHeight <= clientHeight (кроме узлов с объявленным line-clamp), на 320/360/384/393/414 и на фикстуре с самыми длинными словами каждого языка (hr, ro, it, en) и самой длинной ценой (RON).",
+   "how": "Тот же обход в Playwright; фикстура каталога с длинными названиями — как у CI-заглушки test:phone. Проверяет и <wbr>-переносы: строка с «+» или «/» не шире блока.",
+   "tool": "Playwright, заглушка каталога (fixture)"
+  },
+  {
+   "check": "Цель под пальцем ≥ 44×44 CSS px и зазор ≥ 8 px до соседней цели; юридический минимум 24 (WCAG 2.5.8) — через axe.",
+   "how": "Контекст с hasTouch: true, isMobile: true; сначала assert page.evaluate(() => matchMedia('(pointer: coarse)').matches) === true (иначе тест мерит не ту ветку — утверждение о hasTouch держится на стороннем замере). Затем для a[href], button, input, [role=button], summary: rect.width/height ≥ 44 (кроме ссылок внутри абзаца) и расстояние до ближайшей цели ≥ 8. Плюс new AxeBuilder({page}).withTags(['wcag22aa']).analyze() → violations без 'target-size'. Отдельно Lighthouse tap-targets на собранной витрине (48 и 25%-пересечение в радиусе 48).",
+   "tool": "Playwright + @axe-core/playwright; Lighthouse (SEO → tap-targets)"
+  },
+  {
+   "check": ":hover только под @media (hover: hover); :active есть у каждого нажимаемого; cursor: pointer — только в Control.module.css; нет 100vh и 100vw; container-type: size без явной высоты запрещён; z-index только var(--layer-*).",
+   "how": "Статический разбор собранного CSS (postcss / stylelint-плагин проекта): для каждого правила с :hover — проверить, что цепочка at-rules содержит (hover: hover); grep по 100vh|100vw|container-type:\\s*size; существующие control-states.test.ts и lint:css расширяются, не дублируются.",
+   "tool": "stylelint / postcss в pnpm lint:css; control-states.test.ts"
+  },
+  {
+   "check": "Каждый шов из CSS есть в реестре, каждая запись реестра есть в CSS (обе стороны), и число швов не растёт молча.",
+   "how": "seams.test.ts: собрать все числа из @media (…width…) в CSS витрины (с учётом ±1) и сравнить с layoutSeams; @container в подсчёт не входит.",
+   "tool": "node --test, seams.test.ts (уже есть в @cbdshop/ui — переиспользовать для storefront3)"
+  },
+  {
+   "check": "Сетка не теряет колонку, получив больше места: число колонок по ширине самого блока монотонно не убывает на 375, 600, 690, 740, 800, 829, 915, 1024, 1280, 1440.",
+   "how": "Playwright: getComputedStyle(grid).gridTemplateColumns.split(' ').length при каждой ширине; сравнение с шириной блока (rect.width), не окна. Уже реализовано в test:wide — перенести.",
+   "tool": "Playwright, test:wide"
+  },
+  {
+   "check": "CLS ≤ 0.1 на 393×873 и 414×896 с придушенными CPU (4×) и сетью; ни одного layout-shift без hadRecentInput после первой отрисовки корзины/оформления.",
+   "how": "Playwright + CDP: Emulation.setCPUThrottlingRate, Network.emulateNetworkConditions; в page.addInitScript ставится PerformanceObserver({type:'layout-shift', buffered:true}), сумма value у записей с hadRecentInput === false; порог 0.1. Отдельно для корзины: после ответа движка сумма == 0 (место занято заранее).",
+   "tool": "Playwright + CDP, как в test:speed"
+  },
+  {
+   "check": "Зум 200% и переток: страница на 640 px ширины при html { font-size: 200% } (эквивалент текстового зума 200%) и на 320 px без зума — без горизонтального скролла и без обрезанного текста; кегли растут не менее чем в 1.6 раза (проверка, что rem-часть рампы достаточна).",
+   "how": "Playwright: page.addStyleTag({content:'html{font-size:200%}'}), затем тот же обход переполнения; сравнить computed font-size ключевых узлов до/после.",
+   "tool": "Playwright"
+  },
+  {
+   "check": "Единицы окна и safe-area на мебели: у каждого элемента с position: fixed/sticky у нижнего края в CSS есть env(safe-area-inset-bottom); в <meta viewport> есть viewport-fit=cover; шторки и окна — max-height в dvh; --bottom-furniture совпадает с измеренной высотой полосы.",
+   "how": "Разбор CSS (правила с bottom: 0 и position fixed/sticky → в padding/inset есть env(safe-area-inset-bottom)); page.evaluate: getComputedStyle(root).getPropertyValue('--bottom-furniture') == rect.height полосы на 393 и на 1440. Симуляция самого выреза в Playwright невозможна (нет эмуляции safe-area) — проверяется наличие правила, а не пиксели; это надо сказать словами в тесте.",
+   "tool": "postcss + Playwright"
+  },
+  {
+   "check": "Телефон в альбоме и складные: те же проверки переполнения, высоты и целей на 780×360, 873×393, 896×414, 915×412 (высота ~400: шторки, герой, ворота возраста помещаются) и на 690×829, 829×690, 836×842 (внутренний экран складных по обе стороны шва).",
+   "how": "Тот же свип; для складных viewport из пресетов Chrome DevTools (EmulatedDevices.ts) — переписать в тест как данные с указанием источника.",
+   "tool": "Playwright"
+  },
+  {
+   "check": "Экранная клавиатура в оформлении: при фокусе в любом поле формы кнопка «оформить»/полоса покупки не перекрыта и остаётся достижимой.",
+   "how": "Playwright не эмулирует клавиатуру; проверяется правило: при :focus-within у формы нижняя мебель либо скрыта (display none / translateY), либо позиционирована от visualViewport (наличие слушателя visualViewport.resize и смена inset). Остальное — ручная приёмка на iPhone и Android, записать как ручной пункт.",
+   "tool": "Playwright (частично) + ручная приёмка"
+  },
+  {
+   "check": "Картинки не двигают раскладку: у каждого <img> есть width и height (или aspect-ratio у обёртки), sizes соответствует реальной ширине отрисовки (±10%), priority только у LCP-картинки.",
+   "how": "page.evaluate по всем img: атрибуты width/height или computed aspect-ratio != 'auto'; сравнить rect.width с currentSrc-шириной по srcset. Уже есть в test:speed («точный sizes») — переиспользовать.",
+   "tool": "Playwright, test:speed"
+  },
+  {
+   "check": "Одна и та же страница на четырёх языках не меняет число колонок и число строк заголовка (перевод не ломает раскладку): для каждой страницы и каждого языка магазина — одинаковое gridTemplateColumns у сеток и высота шапки блока в пределах одной строки на 393 и 1440.",
+   "how": "Playwright с locale контекста и адресом /hr/…, /ro/…, /it/…, /en/…; сравнение метрик между языками, а не с эталоном.",
+   "tool": "Playwright"
+  },
+  {
+   "check": "Снимки-эталоны на контрольных ширинах для регрессий внешнего вида (не для приёмки): toHaveScreenshot на 393, 860, 1440 с maxDiffPixels и stylePath, прячущим динамику (цены, даты).",
+   "how": "expect(page).toHaveScreenshot(name, { maxDiffPixels: N, stylePath }); эталоны свои на каждую пару браузер+ОС — гонять только в CI на одной платформе.",
+   "tool": "Playwright toHaveScreenshot"
+  }
+ ],
+ "vocabulary": [
+  {
+   "term": "Окно (viewport)",
+   "plain": "Видимая часть страницы в браузере. У телефона она меняется, когда адресная строка прячется или выезжает.",
+   "example": "iPhone 15: 393 px в ширину, 852 в высоту, а с панелями Safari видно меньше — потому и нужны svh/dvh."
+  },
+  {
+   "term": "CSS-пиксель против физического",
+   "plain": "Раскладка меряется в CSS-пикселях; экран телефона имеет в 2–3.5 раза больше физических точек (DPR). Медиазапросы всегда про CSS-пиксели.",
+   "example": "Pixel 7: 412×915 CSS px при DPR 2.625, физически 1080×2400."
+  },
+  {
+   "term": "Медиазапрос",
+   "plain": "Условие в CSS «если окно шире/уже такого-то — применить эти стили».",
+   "example": "@media (width >= 860px) { .page { grid-template-columns: 1fr 320px } }"
+  },
+  {
+   "term": "Контейнерный запрос",
+   "plain": "То же, но условие — не окно, а ширина родительской ячейки, в которой стоит узел. Карточка сама знает, в узком она месте или в широком.",
+   "example": "@container (width >= 400px) { .card { display: flex } } — карточка ложится в строку только там, где ей дали ≥400."
+  },
+  {
+   "term": "Шов (breakpoint)",
+   "plain": "Ширина, на которой раскладка меняется ступенькой. Швов должно быть мало, у каждого — имя и причина.",
+   "example": "860 — главный шов: ниже всё встаёт в столбик."
+  },
+  {
+   "term": "Рампа (текучий размер, clamp)",
+   "plain": "Размер, который плавно растёт с шириной между двумя границами, вместо ступенек.",
+   "example": "padding: clamp(16px, 0.5rem + 2vw, 48px) — 16 на телефоне, 48 на 1440, между — плавно."
+  },
+  {
+   "term": "Mobile-first",
+   "plain": "Сначала пишется узкая раскладка, широкая добавляется условиями «если шире». Не «только телефон».",
+   "example": "Базовые стили — столбик; @media (width >= 860px) — колонки."
+  },
+  {
+   "term": "rem / vw / cqi",
+   "plain": "rem — от базового кегля браузера (растёт при зуме); vw — 1% ширины окна; cqi — 1% ширины контейнера.",
+   "example": "font-size: clamp(1rem, .5rem + 3cqi, 2rem)."
+  },
+  {
+   "term": "svh / lvh / dvh",
+   "plain": "Три «высоты окна» на телефоне: с панелью браузера (маленькая), без неё (большая), текущая (динамическая).",
+   "example": "Шторка корзины: max-height: 100dvh — не выше видимого."
+  },
+  {
+   "term": "Safe area (безопасная зона)",
+   "plain": "Часть экрана без выреза, скруглений и полоски «домой». Браузер сообщает отступы через env(safe-area-inset-*).",
+   "example": "Полоса покупки: padding-bottom: max(12px, env(safe-area-inset-bottom))."
+  },
+  {
+   "term": "pointer: coarse / fine",
+   "plain": "Главное устройство ввода грубое (палец) или точное (мышь, стилус). Не факт, а догадка браузера.",
+   "example": "@media (pointer: coarse) { .btn { min-height: 44px } }"
+  },
+  {
+   "term": "hover",
+   "plain": "Наведение курсора без нажатия. У пальца его нет; на тачскрине «наведение» залипает после касания.",
+   "example": "@media (hover: hover) { .btn:hover { … } }"
+  },
+  {
+   "term": "Цель нажатия (tap target)",
+   "plain": "Площадь, куда попадает палец. Норма 44×44 CSS px (Apple), 48 (Android), закон — 24 (WCAG AA).",
+   "example": "Значок 24 px + поле по 10 px с каждой стороны = цель 44."
+  },
+  {
+   "term": "Baseline (newly / widely)",
+   "plain": "Метка «работает во всех основных браузерах» (newly) и «прошло 30 месяцев с тех пор» (widely — можно без запасного пути).",
+   "example": "Контейнерные запросы — widely с августа 2025; style queries — newly с мая 2026."
+  },
+  {
+   "term": "CLS (скачок раскладки)",
+   "plain": "Насколько содержимое сдвинулось само после появления. Норма ≤ 0.1.",
+   "example": "Картинка без размеров подгрузилась и столкнула кнопку вниз — это CLS."
+  },
+  {
+   "term": "Переток (reflow)",
+   "plain": "Страница на 320 px ширины показывает всё без горизонтальной прокрутки — как десктоп при зуме 400%.",
+   "example": "WCAG 1.4.10."
+  },
+  {
+   "term": "min-content / внутренний размер",
+   "plain": "Самая узкая ширина, в которую содержимое помещается без переполнения (самое длинное слово). Flex-элемент ниже неё не ужимается, пока не сказано min-width: 0.",
+   "example": "«Najpopularniji» в одну строку задаёт min-content всей карточке."
+  },
+  {
+   "term": "Сдерживание (containment)",
+   "plain": "Браузер считает блок «отдельно», не глядя на содержимое. Контейнер запросов так устроен — потому без явной высоты схлопывается.",
+   "example": "container-type: size без height → 0 px высоты."
+  },
+  {
+   "term": "Горизонтальное переполнение",
+   "plain": "Что-то шире окна — появляется боковая прокрутка, телефон отзумливает всю страницу.",
+   "example": "scrollWidth > clientWidth у <html>."
+  }
+ ],
+ "antiPatterns": [
+  "Швы «по устройствам» (768 = планшет, 1024 = ноутбук) вместо швов по содержимому; и ступень на ширине, которой нет в реестре.",
+  "Ступень в медиазапросе там, где нужна рампа: размер из макета, стоящий константой на всех ширинах (картинка 249 px в плавной сетке).",
+  "Размер только в vw (font-size: 4vw, padding: 3vw): зум 200% не работает — провал WCAG 1.4.4 (F94).",
+  "100vh на телефоне (низ под адресной строкой) и 100vw на десктопе (шире страницы на полосу прокрутки).",
+  "container-type: size без явной высоты (схлопывание в 0); контейнер на самом узле, а не на обёртке; попытка var(--breakpoint) внутри @container.",
+  "minmax(300px, 1fr) без min(…, 100%) — на 320 плитка шире экрана.",
+  "white-space: nowrap у заголовка «чтобы на широкой был в одну строку» — на 375 он стоил половины слова; flex-элемент без min-width: 0.",
+  "overflow-wrap: break-word там, где нужен anywhere (ячейка всё равно растягивается под длинное слово).",
+  ":hover вне @media (hover: hover) — залипшая кнопка на телефоне; hover, несущий смысл (мини-корзина, меню, подсказка только по наведению).",
+  "Прятать содержимое или менять раскладку по pointer/hover/orientation: это эвристики, а orientation переключается открытой клавиатурой.",
+  "Маленькие цели «потому что мышь»: 24 px — юридический минимум, не норма; цели без зазора рядом (плюс/минус счётчика вплотную).",
+  "user-scalable=no / maximum-scale=1 в viewport; initial-scale ≠ 1 (задержка 300 мс).",
+  "Один герой на 100svh — на телефоне в альбоме (высота ~360–412) он съедает весь экран.",
+  "Забыть viewport-fit=cover и env(safe-area-inset-bottom) у нижней полосы — кнопка «купить» под полоской «домой» на iPhone.",
+  "position: fixed внизу в форме оформления без учёта клавиатуры (resizes-visual в Chrome 108+/Safari): кнопка под клавиатурой.",
+  "Картинки без width/height и без aspect-ratio; блоки, ждущие ответа движка, без заранее занятого места.",
+  "Строить на Chrome-only механизмах (scroll-state, interpolate-size, viewport segments) что-то, без чего страница хуже; или, наоборот, тащить JS-полифил там, где хватило бы «без анимации».",
+  "Отдельная «планшетная» раскладка и проектирование под шарнир складного вместо проверки обеих сторон шва на 690/829.",
+  "Проверять адаптивность глазами на одной ширине («на широком выглядит хорошо») вместо свипа ширин машиной; писать контрольные ширины в тест руками, а не читать из реестра и рынка.",
+  "Считать «79% с телефона» универсальным: в Хорватии десктоп 57%, в Румынии 44% — широкая раскладка там не второстепенна."
+ ],
+ "quotes": [
+  {
+   "text": "the component itself owns its responsive information and sizes according to the container, not the viewport",
+   "source": "https://web.dev/articles/new-responsive"
+  },
+  {
+   "text": "Media queries look outward … Container queries look inward",
+   "source": "https://www.smashingmagazine.com/2026/09/stop-treating-css-container-queries-traditional-media-queries/"
+  },
+  {
+   "text": "the inline-axis intrinsic sizes of the principal box are determined as if the element had no content",
+   "source": "https://www.w3.org/TR/css-contain-3/"
+  },
+  {
+   "text": "if no eligible query container is available, then use the small viewport size for that axis",
+   "source": "https://www.w3.org/TR/css-contain-3/"
+  },
+  {
+   "text": "using viewport-percentage units based on the dynamic viewport size can cause the content to resize while a user is scrolling",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/length"
+  },
+  {
+   "text": "The small viewport size allows the content you design to fill the entire viewport when browser interfaces are expanded.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/length"
+  },
+  {
+   "text": "Elements that use position: fixed remain in place and can be obscured by the OSK",
+   "source": "https://developer.chrome.com/blog/viewport-resize-behavior"
+  },
+  {
+   "text": "a touchscreen where a long press is treated as hovering would match hover: none",
+   "source": "https://www.w3.org/TR/mediaqueries-4/#mf-interaction"
+  },
+  {
+   "text": "The :hover pseudo-class is problematic on touchscreens.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/:hover"
+  },
+  {
+   "text": "As a general rule, a button needs a hit region of at least 44x44 pt — in visionOS, 60x60 pt",
+   "source": "https://developer.apple.com/design/human-interface-guidelines/buttons"
+  },
+  {
+   "text": "Consider spacing between controls as important as size.",
+   "source": "https://developer.apple.com/design/human-interface-guidelines/accessibility"
+  },
+  {
+   "text": "each interactive UI element have a focusable area, or touch target size, of at least 48dpx48dp",
+   "source": "https://developer.android.com/guide/topics/ui/accessibility/apps"
+  },
+  {
+   "text": "The size of the target for pointer inputs is at least 24 by 24 CSS pixels",
+   "source": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
+  },
+  {
+   "text": "Touch targets should also be spaced about 8 pixels apart, horizontally and vertically.",
+   "source": "https://web.dev/articles/accessible-tap-targets"
+  },
+  {
+   "text": "Vertical scrolling content at a width equivalent to 320 CSS pixels",
+   "source": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html"
+  },
+  {
+   "text": "It's best to choose your breakpoints based on your content rather than popular device sizes",
+   "source": "https://web.dev/learn/design/media-queries"
+  },
+  {
+   "text": "We don't recommend using minimum-scale, maximum-scale, and user-scalable attributes",
+   "source": "https://web.dev/articles/responsive-web-design-basics"
+  },
+  {
+   "text": "This feature does not correspond to device orientation.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/orientation"
+  },
+  {
+   "text": "Google uses the mobile version of a site's content, crawled with the smartphone agent, for indexing and ranking",
+   "source": "https://developers.google.com/search/docs/crawling-indexing/mobile/mobile-sites-mobile-first-indexing"
+  },
+  {
+   "text": "30 months have passed since the newly interoperable date.",
+   "source": "https://web.dev/baseline"
+  },
+  {
+   "text": "Sites should strive to have a CLS score of 0.1 or less",
+   "source": "https://web.dev/articles/cls"
+  },
+  {
+   "text": "Always include width and height size attributes on your images and video elements.",
+   "source": "https://web.dev/articles/optimize-cls"
+  },
+  {
+   "text": "If the element's content can fit without a need for horizontal scrollbar, its scrollWidth is equal to clientWidth.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollWidth"
+  },
+  {
+   "text": "Whether the meta viewport tag is taken into account and touch events are enabled.",
+   "source": "https://playwright.dev/docs/api/class-testoptions"
+  },
+  {
+   "text": "they noticed a significant reduction in CSS code—up to 30% for certain components",
+   "source": "https://web.dev/case-studies/netflix-cq"
+  },
+  {
+   "text": "Failure of Success Criterion 1.4.4 due to incorrect use of viewport units to resize text",
+   "source": "https://www.w3.org/WAI/WCAG22/Techniques/failures/F94"
+  }
+ ],
+ "confidence": "Высокая по правилам и числам из спецификаций, MDN, web.dev, WCAG, Apple/Android и по статусам Baseline (взяты из официального пакета web-features 20.09.2026 с датами и версиями). Высокая по ширинам складных и планшетов (пресеты Chrome DevTools) и по рыночным долям (StatCounter, август 2026; это весь веб-трафик, не только магазины — для покупателей CBD доля телефона может отличаться). Средняя: утверждение, что Playwright с hasTouch: true включает (pointer: coarse)/(hover: none) — первоисточник (issue #18061) не прочитан, есть только сторонний замер; в проверке это надо утверждать самим matchMedia. Низкая: покрытие словарей hyphens: auto для хорватского, румынского и итальянского — первоисточника нет, поэтому перенос слов держится на overflow-wrap: anywhere и <wbr>. Часть текста спецификации flexbox §4.5 не показалась в выдаче — правило про min-width: auto подтверждено MDN. Все «forStorefront3» — мои выводы из правил проекта и источников, а не решения владельца."
+}

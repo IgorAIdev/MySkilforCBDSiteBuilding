@@ -1,0 +1,595 @@
+{
+ "source": "Brad Frost — Atomic Design (книга, 2016, главы 1–5) + блог bradfrost.com: «Atomic Web Design» (2013), «Extending Atomic Design», «Creating Themeable Design Systems» (2019), «The Many Faces of Themeable Design Systems», «The Design System Ecosystem», курс «Subatomic: The Complete Guide to Design Tokens» (2025, только открытая программа)",
+ "sourcesRead": [
+  "https://atomicdesign.bradfrost.com/chapter-1/",
+  "https://atomicdesign.bradfrost.com/chapter-2/",
+  "https://atomicdesign.bradfrost.com/chapter-3/ (прочитана выборочно: разделы о динамических данных, псевдо-паттернах, lineage)",
+  "https://atomicdesign.bradfrost.com/chapter-4/",
+  "https://atomicdesign.bradfrost.com/chapter-5/",
+  "https://bradfrost.com/blog/post/atomic-web-design/",
+  "https://bradfrost.com/blog/post/extending-atomic-design/",
+  "https://bradfrost.com/blog/post/design-tokens-atomic-design-%E2%9D%A4%EF%B8%8F/",
+  "https://bradfrost.com/blog/post/creating-themeable-design-systems/",
+  "https://bradfrost.com/blog/post/the-many-faces-of-themeable-design-systems/",
+  "https://bradfrost.com/blog/post/the-design-system-ecosystem/",
+  "https://bradfrost.com/blog/post/subatomic-design-tokens-course-chapter-2-now-live/",
+  "https://bradfrost.com/blog/post/introducing-subatomic-the-complete-guide-to-design-tokens/",
+  "https://bradfrost.com/blog/post/subatomic-update-figma-and-code-token-architecture-available/ (только анонс)",
+  "https://designtokenscourse.com/ (только программа курса: названия глав и уроков)"
+ ],
+ "sourcesFailed": [
+  "https://bradfrost.com/blog/post/design-tokens-are-a-team-sport/ — 404, такой записи в блоге нет; вместо неё прочитаны «Extending Atomic Design», «Creating Themeable Design Systems», «The Many Faces of Themeable Design Systems»",
+  "designtokenscourse.com — содержимое уроков «MVP token system», «Color/Typography/Spacing systems» за платной стеной; прочитаны только названия уроков и их порядок, состав минимального набора токенов у Фроста дословно неизвестен"
+ ],
+ "layers": [
+  {
+   "order": 1,
+   "name": "Interface inventory + establishing direction (lo-fi content order, style tiles, element collages, «prep chef») — «Опись и направление»",
+   "plain": "Прежде чем что-то красить, перечисляют всё, из чего магазин состоит: какие экраны нужны и что на каждом стоит сверху вниз на телефоне. Рядом делают два-три пробных «настроения» (цвет, шрифт, фактура) без раскладки, чтобы договориться, как выглядит «минимализм-лакшери», до того как рисовать страницы. Разработчик с первого дня заводит пустую библиотеку образцов.",
+   "contains": [
+    "Опись экранов и блоков магазина: главная, полка, страница товара, корзина, оформление, статья, поиск, кабинет, выбор страны/языка",
+    "Лоу-фай список содержимого каждого экрана: что и в каком порядке, снятый на телефоне (mobile-first), без раскладки",
+    "Style tiles (стиль-плитки): цвет, шрифт, фактура, значки — «атмосфера» без макета страницы",
+    "Element collages: те же настроения, примеренные на реальные детали интерфейса (кнопка, карточка, шапка)",
+    "«Prep chef»: настроенная среда, пустые заготовки шаблонов, структурная разметка ожидаемых узлов, библиотека образцов (Pattern Lab / Storybook) с первого дня"
+   ],
+   "dependsOn": [],
+   "doneWhen": "У каждого экрана записан список содержимого в порядке важности для телефона; выбрано одно направление стиля (стиль-плитка + коллаж деталей), с которым согласен владелец; библиотека образцов открывается, пусть и пустая. Порядок выведен из главы 4: инвентаризация → направление всеми дисциплинами одновременно, «concurrently but not in isolation».",
+   "artifacts": [
+    "Таблица-опись экранов и блоков (über-document со скриншотами/списком)",
+    "Лоу-фай списки содержимого экранов на 375",
+    "Стиль-плитка и коллаж деталей (1–3 варианта, один выбран)",
+    "Пустой проект библиотеки образцов и заготовки шаблонов в репозитории"
+   ]
+  },
+  {
+   "order": 2,
+   "name": "Design tokens — subatomic: Tier 1 (raw ingredients) → Tier 2 (semantic roles) → Tier 3 (component) — «Токены: сырьё → роли → узлы»",
+   "plain": "Это словарь всех красок и чисел магазина: какие цвета, какие размеры букв, какие расстояния вообще разрешены (сырьё); что из них для чего — «цвет главной кнопки», «зазор между карточками» (роли); и что именно берёт каждая кнопка (узел). Кнопка знает только роль. Поменять страну, сезон или тёмную тему — значит заменить набор сырья и ролей, а не трогать кнопки. Порядок категорий по курсу Фроста: цвет → шрифт → отступы → рамки, тени, движение → точки перелома, слои.",
+   "contains": [
+    "Color (у storefront3 уже сделано: примитивы → роли → тема → компонент читает роль)",
+    "Typography: семейства, лестница кеглей, интерлиньяж, начертания, межбуквенное — «составные токены», чтобы связанные значения ездили вместе",
+    "Spacing: шкала отступов на 8- (или 4-) пиксельной сетке: зазоры, поля, воздух полос",
+    "Border: радиусы, толщины; Shadow/elevation: ступени тени; Animation: длительности и кривые",
+    "Breakpoints (швы раскладки) и z-index (слои) — «Other» в программе курса",
+    "Темы: наборы tier 1 и tier 2 на страну, бренд, сезонную кампанию, тёмный режим — «core + theme»; узлы (tier 3) при этом не меняются",
+    "Foundations-библиотека: словарь лежит отдельно, и на него «подписываются» и Figma, и библиотека компонентов"
+   ],
+   "dependsOn": [
+    "Опись и направление"
+   ],
+   "doneWhen": "Ни в одном компоненте нет голого числа или hex; у каждой категории три яруса и одинаковые имена в макете и коде; вторая тема (тёмная или вторая страна) включается заменой одного набора файлов без правки узлов; словарь лежит своей библиотекой, которую компоненты берут как зависимость; расхождение ловит сторож-тест. Порядок категорий взят из порядка уроков курса (гл. 2 и гл. 4), Фрост причину порядка не объясняет.",
+   "artifacts": [
+    "Файлы токенов по категориям в структуре темы: colors, typography, spacing, border, shadow, animation (как в «theme-name/--tier-1-definitions/*.json» у Фроста)",
+    "Сгенерированные CSS-переменные трёх ярусов",
+    "Экран-обзор системы (у нас — /admin/design из слепка токенов)",
+    "Тест «компонент читает роль, а не сырьё»",
+    "Вторая тема как отдельный набор (dark / вторая страна)"
+   ]
+  },
+  {
+   "order": 3,
+   "name": "Atoms (+ icons как своя полка в экосистеме) — «Атомы: буквы, кнопки, поля, значки»",
+   "plain": "Самые мелкие детали, которые дальше не разбираются: одна кнопка, одно поле ввода, один заголовок, одна картинка, один значок. Сами по себе они бесполезны, как кирпич без стены, но у каждого уже есть все состояния: обычное, под пальцем, в фокусе, выключенное — и все они собраны из ролей словаря.",
+   "contains": [
+    "Кнопки (первичная, вторичная, призрачная, круглая), ссылки",
+    "Поля ввода, подписи, ошибки формы, переключатели",
+    "Заголовки h1–h4, абзац, мелкий текст, цена, бейдж",
+    "Картинка с заданными размерами; значок — в экосистеме Фроста иконки живут отдельной полкой: Figma-библиотека + SVG-репозиторий + пакет",
+    "Состояния каждого атома: покой, наведение (только при hover: hover), нажатие, фокус, выключено"
+   ],
+   "dependsOn": [
+    "Токены: сырьё → роли → узлы"
+   ],
+   "doneWhen": "Каждый атом нарисован только из ролей (tier 2/3), показан во всех состояниях в библиотеке образцов, работает в обеих темах, назван по структуре («button»), а не по месту («hero button»). Фрост: атомы «оживают только в применении» — поэтому слой закрыт не сам по себе, а когда его детали видны в молекуле.",
+   "artifacts": [
+    "Компоненты-атомы в общем пакете оформления",
+    "Набор иконок (SVG + пакет)",
+    "Страницы атомов в библиотеке образцов со всеми состояниями"
+   ]
+  },
+  {
+   "order": 4,
+   "name": "Molecules — «Молекулы: маленькие связки ради одного дела»",
+   "plain": "Несколько деталей, сцепленных ради одного дела: поле + кнопка = поиск; картинка + название + цена + кнопка = карточка товара; минус, число, плюс = счётчик количества. Правило одно: молекула делает одно дело и делает его хорошо, тогда её легко проверить и переставить в другое место.",
+   "contains": [
+    "Поиск (подпись + поле + кнопка)",
+    "Карточка товара (картинка, название, цена, «в корзину»)",
+    "Счётчик количества",
+    "Цена + призыв, скидка + старая цена",
+    "Пилюля языка/страны, ряд чипов фильтра, строка формы с подписью и ошибкой",
+    "Варианты («pseudo-patterns»): длинное название, нет картинки, нет в наличии, скидка"
+   ],
+   "dependsOn": [
+    "Атомы: буквы, кнопки, поля, значки"
+   ],
+   "doneWhen": "Молекула собрана только из атомов, отвечает за одно дело, показана в библиотеке с «плохим» содержимым (длинное название с диакритикой, отсутствующая картинка, товар кончился) и не ломается; переиспользуема без правок.",
+   "artifacts": [
+    "Компоненты-молекулы",
+    "Наборы данных-вариантов для каждой молекулы (JSON, как в Pattern Lab)",
+    "Страницы молекул в библиотеке образцов"
+   ]
+  },
+  {
+   "order": 5,
+   "name": "Organisms — «Организмы: целые куски экрана»",
+   "plain": "Заметные части страницы, которые узнаёшь сразу: шапка, подвал, сетка товаров, полоса фильтров, итог корзины. Сетка товаров — это одна карточка, повторённая много раз, и та же сетка стоит и на полке, и в поиске, и в «похожих товарах». Организм — это то, что можно переставлять между страницами целиком.",
+   "contains": [
+    "Шапка (логотип, меню, поиск, язык/страна, корзина), мобильное меню, подвал",
+    "Сетка товаров (одна карточка много раз) — полка, поиск, похожие, эффекты",
+    "Первый экран (hero), рельса товаров, полоса фильтров и сортировки",
+    "Итог корзины, шаг оформления, блок вопросов-ответов, рельса статей",
+    "Lineage: из каких молекул/атомов собран и где используется"
+   ],
+   "dependsOn": [
+    "Молекулы: маленькие связки ради одного дела"
+   ],
+   "doneWhen": "Организм собран из молекул/атомов, стоит минимум в двух местах без правок, держится на 320/375/414 и на широкой, и у него записано происхождение (из чего собран, где стоит).",
+   "artifacts": [
+    "Компоненты-организмы",
+    "Записи lineage (из чего собран / где используется) в библиотеке образцов"
+   ]
+  },
+  {
+   "order": 6,
+   "name": "Templates — «Шаблоны: скелет страницы без настоящего текста»",
+   "plain": "Страница-заготовка: где стоит шапка, где сетка, где подвал, но вместо товаров серые прямоугольники с подписью «картинка 4:5», «название до 60 знаков». Так видно, какое место чему отведено, ещё до того, как известен товар, и заготовка сразу пишется тем же кодом, который уйдёт в бой, а не картинкой.",
+   "contains": [
+    "Шаблон каждого типа страницы: главная, полка/эффект, товар, корзина, оформление, статья, поиск, кабинет",
+    "Для каждого места: пропорция картинки, предел длины заголовка и текста, что обязательно, а что может отсутствовать",
+    "Структура содержимого, а не содержимое: «what is your content made from, not what your content is» (Boulton, цит. Фростом)",
+    "HTML-каркас в браузере, который «дорастает» до боевого; статичный полный макет — только когда направление уже принято"
+   ],
+   "dependsOn": [
+    "Организмы: целые куски экрана"
+   ],
+   "doneWhen": "Каждый тип страницы собран из организмов; в заготовке записаны размеры картинок и пределы длины текста и эти числа поставлены в проверки; шаблон живёт в браузере и является тем же кодом, что пойдёт в бой. Фрост: по мере дозревания узлов «любой шаблон, включающий узел, дозревает вместе с ним» — новые шаблоны дешевеют.",
+   "artifacts": [
+    "Шаблоны страниц с серыми заглушками и подписями пределов",
+    "Таблица пределов длины и пропорций картинок на каждый слот",
+    "Проверки пределов (тесты)"
+   ]
+  },
+  {
+   "order": 7,
+   "name": "Pages — «Страницы: проверка настоящим содержимым»",
+   "plain": "В заготовку заливают настоящие товары, названия, цены и все языки магазина — и смотрят, что сломалось. Одна и та же страница с одним товаром в корзине и с десятью, с коротким и длинным заголовком, на хорватском и итальянском. Что сломалось — чинят в детали (в атоме или молекуле), а не заплаткой на странице. Это то, что подписывает владелец.",
+   "contains": [
+    "Настоящее представительное содержимое в каждом шаблоне на каждом языке",
+    "Вариации шаблона: корзина 1/10 товаров, полка 0/6/40 товаров, заголовок короткий/длинный, товар в наличии/нет, со скидкой/без",
+    "Приёмка владельцем (stakeholder sign-off)",
+    "Обратная петля: поломка на странице → правка на «более атомном уровне»"
+   ],
+   "dependsOn": [
+    "Шаблоны: скелет страницы без настоящего текста"
+   ],
+   "doneWhen": "Каждый шаблон показан с настоящим содержимым на всех языках магазина и во всех записанных вариантах; ни один вариант не ломает раскладку; каждая находка починена в атоме/молекуле и закреплена проверкой; владелец принял глазами. Фрост: «pages are essential for testing the effectiveness of the underlying design system».",
+   "artifacts": [
+    "Живые страницы на 375/414/1024 со всеми вариантами",
+    "Наборы данных-вариантов (JSON) для живого обхода",
+    "Отчёт приёмки владельца"
+   ]
+  },
+  {
+   "order": 8,
+   "name": "Pattern library / reference website (living) — «Библиотека образцов: живая витрина системы»",
+   "plain": "Отдельный сайт-каталог самой системы: все детали, их состояния, из чего собраны и где в магазине стоят. Заводится в первый день (слой 1) и наполняется по ходу; «готов» он не бывает раз и навсегда: как только он перестаёт совпадать с магазином, он мёртв, и тогда правки снова расползаются по страницам.",
+   "contains": [
+    "Демо каждого узла + код + все состояния",
+    "Lineage: из чего собран и где используется (Pattern Lab считает сам)",
+    "Документация «когда, как и где» применять узел, с снимками контекста",
+    "Проверка на разных ширинах, реальные данные из JSON, псевдо-паттерны (плохие сценарии)",
+    "У Фроста: reference website — «витрина» системы: часть маркетинг, часть документация, часть поддержка"
+   ],
+   "dependsOn": [
+    "Токены: сырьё → роли → узлы",
+    "Атомы: буквы, кнопки, поля, значки",
+    "Молекулы: маленькие связки ради одного дела",
+    "Организмы: целые куски экрана",
+    "Шаблоны: скелет страницы без настоящего текста",
+    "Страницы: проверка настоящим содержимым"
+   ],
+   "doneWhen": "Библиотека отражает текущее состояние магазина; у каждого образца есть контекст «где стоит»; расхождение с магазином ловит машина (слепок/тест), а не память. Место в порядке выведено: Фрост заводит её в начале («prep chef», Pattern Lab с первого дня), а оценивает по итогу (гл. 5).",
+   "artifacts": [
+    "Сайт библиотеки образцов (Pattern Lab / Storybook)",
+    "Экран «Design system» в админке из слепка токенов",
+    "DESIGN_SYSTEM.md как список узлов и правил",
+    "Тест «слепок совпадает с токенами»"
+   ]
+  },
+  {
+   "order": 9,
+   "name": "Ecosystem: tech-specific implementation → recipes → smart components → product — «Рецепты, умные узлы, продукт» (по нужде)",
+   "plain": "Когда у магазина появляются свои сборки из общих деталей («карточка масла с процентом CBD»), их держат отдельной полкой — рецепты. Детали, к которым пришит ум («в корзину» умеет говорить с движком, форма знает про оплату), — умные узлы. Сам магазин (продукт) берёт всё это как зависимости. Полки заводят только когда без них тесно: «система только настолько сложна, насколько надо».",
+   "contains": [
+    "Tech-specific: обёртки под конкретный стек (React/Next) над ядром",
+    "Recipes: композиции общих узлов, нужные одному продукту/рынку",
+    "Smart components: формы, платежи, автодополнение, таблицы данных, аналитика, интеграция с CMS",
+    "Product: сам магазин, который «consumes as dependencies» библиотеку компонентов, рецепты и умные узлы"
+   ],
+   "dependsOn": [
+    "Токены: сырьё → роли → узлы",
+    "Атомы: буквы, кнопки, поля, значки",
+    "Молекулы: маленькие связки ради одного дела",
+    "Организмы: целые куски экрана",
+    "Библиотека образцов: живая витрина системы"
+   ],
+   "doneWhen": "Общая деталь не знает о движке и админке; всё, что знает, лежит уровнем выше и берёт общую деталь как зависимость; слой заведён по реальной нужде (вторая страна, вторая витрина), а не заранее. Порядок — явная стопка из статьи «The Design System Ecosystem», почти все слои помечены «optional».",
+   "artifacts": [
+    "Пакет ядра (токены + иконки + компоненты + документация)",
+    "Пакеты рецептов и умных узлов (по нужде)",
+    "Зависимости продукта на эти пакеты (package.json)"
+   ]
+  },
+  {
+   "order": 10,
+   "name": "Make a thing → show it's useful → make it official; maintain — «Пилот → польза → узаконить → жить»",
+   "plain": "Сначала систему строят на одном настоящем магазине (пилот), потом показывают, что она сэкономила время, и только потом объявляют общей платформой: с хозяином, планом, версиями и правилом, как в неё попадает новая деталь. Система — не проект с концом, а продукт, который кормят; библиотека, отставшая от магазина, устаревает.",
+   "contains": [
+    "Пилотный проект (storefront3 = пилот)",
+    "Показ пользы: где сэкономили время и деньги",
+    "Официальный статус: люди, бюджет, план, backlog",
+    "Управление: как узел добавляют, меняют, списывают; семантические версии; выпуск тем",
+    "Именование без контекста («carousel», не «homepage carousel»), контекст в документации, доступность и видимость для всех дисциплин"
+   ],
+   "dependsOn": [
+    "Страницы: проверка настоящим содержимым",
+    "Библиотека образцов: живая витрина системы"
+   ],
+   "doneWhen": "Записан порядок: как новая деталь попадает в систему, кто решает, как выходит версия; библиотека не отстаёт от магазина; вторая страна/витрина берёт общее без переписывания; система живёт как продукт с планом, а не закрыта как проект.",
+   "artifacts": [
+    "Записи решений и правил (DECISIONS / DESIGN_SYSTEM)",
+    "Версии пакета системы и журнал изменений",
+    "План и очередь работ системы"
+   ]
+  }
+ ],
+ "orderRationale": "У Фроста два разных «порядка», и их нельзя путать. Первый — направление зависимости: токен применяется к атому («оживает только в применении»), атомы сцепляются в молекулы, молекулы — в организмы, организмы стоят в шаблоне, страница — экземпляр шаблона с настоящим содержимым; в экосистеме то же самое стопкой: токены → иконки → компоненты → сайт-справочник, поверх — обёртки под стек, рецепты, умные узлы, продукт, который берёт всё как зависимости. Строить снизу вверх выгодно потому, что правка внизу «расходится волной по всей системе» (ripple), а компонентные объявления «вряд ли изменятся, раз поставленные» — вся тематизация происходит ярусом выше; словарь при этом лежит своей библиотекой, на которую компоненты «подписываются». Второй порядок — рабочий процесс (гл. 4–5), и он прямо запрещает делать из первого водопад: «atomic design is not a linear process», «foolish to design buttons and other elements in isolation». Начинают с описи интерфейса и лоу-фай порядка содержимого на телефоне, направление стиля ищут плитками и коллажами без раскладки, разработчик кодит с первого дня, узлы сразу втыкаются в шаблоны, а страницы с настоящим содержимым — это проверка, которая отправляет назад «на более атомный уровень». Поэтому «страницы» — конец цепочки зависимостей, но не конец работы: он советует «concurrently create final UIs and their underlying design systems», с плотной петлёй между деталью и целым. Что ломается при другом порядке: начать со страниц — «cherry picking patterns after the fact», система собирается задним числом и расходится; сделать все атомы в отрыве — они не сложатся в целое; компонент, читающий сырьё напрямую, — каждая тема/страна становится правкой всех компонентов; шаблон без структуры содержимого — настоящее имя «переносится на пять строк» и ломает узор; библиотека, переставшая отражать продукт, — «becomes obsolete», и правки снова идут по страницам. Порядок категорий токенов (цвет → шрифт → отступы → рамки/тени/движение → швы/слои) взят из порядка уроков курса «Subatomic»; Фрост его не аргументирует, это вывод из навигации курса, а не из текста.",
+ "vocabulary": [
+  {
+   "term": "Design token (токен) / subatomic",
+   "plain": "Одно записанное число или краска с именем: «зелёный бренда», «отступ 16», «кегль заголовка». Сам по себе ничего не рисует — оживает, когда его берёт кнопка или текст. У Фроста это «субатомная частица», уровень ниже атомов.",
+   "example": "color-brand-green = #1F5E3C; space-4 = 16px"
+  },
+  {
+   "term": "Tier 1 (global / primitive) — «сырьё»",
+   "plain": "Полный список того, что вообще разрешено: все цвета палитры, все размеры букв, все шаги отступов. Ещё без ответа «для чего».",
+   "example": "color-green-700, font-size-24, space-8"
+  },
+  {
+   "term": "Tier 2 (semantic / role) — «роль»",
+   "plain": "Имя по назначению, которое указывает на сырьё: «цвет главной кнопки», «зазор между карточками». Тема, страна и тёмный режим меняются именно здесь.",
+   "example": "theme-color-primary-background → color-green-700"
+  },
+  {
+   "term": "Tier 3 (component) — «узел»",
+   "plain": "Что именно берёт конкретная деталь; указывает на роль и почти никогда не меняется.",
+   "example": "button-background-color → theme-color-primary-background"
+  },
+  {
+   "term": "Composite token — «составной токен»",
+   "plain": "Несколько связанных значений, которые всегда ездят вместе, чтобы не разошлись: шрифт + кегль + высота строки + начертание.",
+   "example": "typography-heading-1 = {Inter, 32px, 1.2, 600}"
+  },
+  {
+   "term": "8-point grid — «сетка восьмёрки»",
+   "plain": "Все отступы кратны 8 (или 4): 8, 16, 24, 32. Не потому что красиво, а чтобы расстояний было мало и они складывались.",
+   "example": "space-2 = 8, space-3 = 12, space-4 = 16"
+  },
+  {
+   "term": "Foundations — «основы»",
+   "plain": "Токены и сопутствующие правила, собранные в отдельную библиотеку, на которую подписываются и макет, и код.",
+   "example": "packages/ui/tokens как отдельный вход, который берут все витрины"
+  },
+  {
+   "term": "Theme — «тема»",
+   "plain": "Набор сырья и ролей, который можно подменить целиком: страна, бренд, сезон, тёмный режим. Узлы при этом не трогают.",
+   "example": "core + hr-theme-light + hr-theme-dark"
+  },
+  {
+   "term": "Atom — «атом»",
+   "plain": "Самая мелкая деталь, дальше не делится: кнопка, поле, подпись, значок, картинка.",
+   "example": "кнопка «В корзину»"
+  },
+  {
+   "term": "Molecule — «молекула»",
+   "plain": "Несколько атомов ради одного дела.",
+   "example": "картинка + название + цена + кнопка = карточка товара"
+  },
+  {
+   "term": "Organism — «организм»",
+   "plain": "Заметный кусок экрана из молекул; переставляется между страницами целиком.",
+   "example": "сетка товаров = карточка, повторённая много раз"
+  },
+  {
+   "term": "Template — «шаблон»",
+   "plain": "Скелет страницы с серыми заглушками: где что стоит, какая пропорция картинки, сколько знаков в названии — без настоящего товара.",
+   "example": "шаблон страницы товара: фото 4:5, название до 60 знаков"
+  },
+  {
+   "term": "Page — «страница»",
+   "plain": "Тот же шаблон с настоящими товарами и текстом; на нём проверяют, держится ли система.",
+   "example": "страница масла 10% на хорватском с 4 похожими товарами"
+  },
+  {
+   "term": "Pseudo-pattern / variation — «вариант»",
+   "plain": "Тот же узел с «плохими» данными: длинное имя, нет картинки, десять товаров в корзине. Дизайнеры склонны рисовать только лучший случай — варианты его ломают нарочно.",
+   "example": "карточка с названием «Ulje CBD širokog spektra 20% + CBN»"
+  },
+  {
+   "term": "Interface inventory — «опись интерфейса»",
+   "plain": "Собрать в одну таблицу все детали, из которых состоит магазин (все кнопки, все поля, все карточки), чтобы увидеть, чего сколько и где двойники.",
+   "example": "все стили кнопок с главной — в одной таблице"
+  },
+  {
+   "term": "Style tile — «стиль-плитка»",
+   "plain": "Лист с цветами, шрифтами, фактурой и парой значков — настроение без раскладки страницы.",
+   "example": "три плитки «минимализм-лакшери», владелец выбирает одну"
+  },
+  {
+   "term": "Element collage — «коллаж деталей»",
+   "plain": "Настроение, примеренное на настоящие детали: как в этом стиле выглядят кнопка, карточка, шапка.",
+   "example": "карточка масла и шапка в выбранном стиле, ещё без страницы"
+  },
+  {
+   "term": "Pattern library / reference website — «библиотека образцов»",
+   "plain": "Отдельный сайт со всеми деталями, их состояниями и тем, где они стоят в магазине. Живая, а не документ на память.",
+   "example": "Storybook / экран Design system в админке"
+  },
+  {
+   "term": "Lineage — «происхождение»",
+   "plain": "Запись у каждого узла: из чего он собран и на каких страницах стоит.",
+   "example": "сетка товаров: из карточки; стоит на полке, в поиске, в похожих"
+  },
+  {
+   "term": "Recipe — «рецепт»",
+   "plain": "Сборка из общих деталей, нужная только одному магазину или рынку; общая библиотека о ней не знает.",
+   "example": "«карточка масла с процентом и спектром» для CBD-магазина"
+  },
+  {
+   "term": "Smart component — «умный узел»",
+   "plain": "Общая деталь, к которой пришита логика: знает движок, оплату, CMS.",
+   "example": "кнопка «В корзину», которая говорит с Vendure"
+  }
+ ],
+ "principles": [
+  {
+   "principle": "Токены — три яруса, и компонент читает роль, а не сырьё; тема (страна, сезон, тёмный режим) — замена сырья и ролей, а не правка узлов.",
+   "evidence": "«Creating Themeable Design Systems»: «These component-level declarations aren't likely to change once they're put in place», «the theming stuff happen at a higher level»; «Many Faces»: «controls a brand's look and feel in its own layer away from the core component library».",
+   "forStorefront3": "То, что уже сделано для цвета, повторяется для шрифта, отступов, рамок, теней, движения тем же тройным ярусом; страна-магазин и сезонная акция — отдельные наборы tier 1/2, включаемые по домену; сторож «компонент не читает сырьё» расширяется с цвета на все категории."
+  },
+  {
+   "principle": "Порядок основ: цвет → типографика → отступы → рамки/тени/движение → швы и слои; типографика и тени — составными токенами.",
+   "evidence": "Программа курса Subatomic, гл. 2 и гл. 4 (designtokenscourse.com): «Color systems, Typography systems, Spacing systems, Other: border, shadow, animation, breakpoints, z-index»; «composite tokens are used to ensure related tokens always travel together».",
+   "forStorefront3": "Следующий слой после палитры — типографика: семейства из реестра шрифтов, лестница кеглей как рампы (число макета = 1440), высоты строк, составные токены «заголовок 1/2/3, тело, подпись». Потом шкала отступов на восьмёрке (воздух полос, зазоры сетки), потом радиусы/тени/движение, и последними реестр швов и имена слоёв — они у проекта уже есть."
+  },
+  {
+   "principle": "Основы лежат своей библиотекой, на которую подписываются и макет, и компоненты.",
+   "evidence": "«The Design System Ecosystem»: «The foundations should be managed in their own design library that other files and libraries — including the UI component library — can subscribe to».",
+   "forStorefront3": "Токены storefront3 — отдельный вход в пакете оформления, который импортируют компоненты и из которого собирается слепок для экрана Design system; те же имена — в Figma-переменных, чтобы макет и код читали один словарь."
+  },
+  {
+   "principle": "Строить снизу вверх, но проверять сверху вниз непрерывно: слой не закрывается в отрыве от целого.",
+   "evidence": "Гл. 2: «Atomic design is not a linear process», «It would be foolish to design buttons and other elements in isolation»; гл. 4: «This work can happen concurrently but shouldn't happen in isolation».",
+   "forStorefront3": "Пока строится слой типографики, одна настоящая страница (карточка товара на 375) держится открытой; признак готовности слоя — не «все токены записаны», а «страница с ними стоит и вариации не ломают её»."
+  },
+  {
+   "principle": "Шаблон записывает структуру содержимого: пропорции картинок и пределы длины текста — и учитывает, что содержимое динамическое.",
+   "evidence": "Гл. 2: «articulate important properties of components like image sizes and character lengths»; «Design systems must account for the dynamic nature of content».",
+   "forStorefront3": "У каждого слота шаблона — пропорция картинки и предел знаков, снятые с макета и поставленные в тест; хорватские/итальянские/румынские названия с диакритикой и знаками «+», «/» — варианты, которыми шаблон проверяется, а не исключения."
+  },
+  {
+   "principle": "Страницы — проверка системы: настоящее содержимое и вариации; сломалось — чинится на атомном уровне.",
+   "evidence": "Гл. 2: «pages are essential for testing the effectiveness of the underlying design system»; «A user has one item in their shopping cart and another user has ten items»; «address that broken behavior at a more atomic level».",
+   "forStorefront3": "Живой обход гоняет каждую страницу с наборами вариантов: корзина 1/10, полка 0/6/40, товар без картинки, нет в наличии, четыре языка; найденное правится в узле, и правка получает сторож — что уже и есть правило проекта."
+  },
+  {
+   "principle": "Начинать с лоу-фай порядка содержимого на телефоне, а не с макета страницы.",
+   "evidence": "Гл. 4: «start with lo-fi sketches that establish what appears on a particular screen and in what general order»; «Making lo-fi wireframes mobile-first means using the constraints of small screens to force the team to focus».",
+   "forStorefront3": "Для каждого экрана третьей витрины — список «что и в каком порядке на 375» до Figma-нод: он же становится структурой шаблона и порядком блоков в админке."
+  },
+  {
+   "principle": "Имя узла — по структуре, не по месту и не по содержимому.",
+   "evidence": "Гл. 5: «rather than naming your component “homepage carousel” … you can simply call it “carousel”»; упражнение «blur out the content so your names reflect the patterns' structures».",
+   "forStorefront3": "ProductRail, а не HomeOilsRail; PromoBand, а не ValentineBand; при именовании содержимое мысленно замазывается — иначе узел не переедет на вторую страну."
+  },
+  {
+   "principle": "Молекула делает одно дело; организм переиспользуется везде, где нужен тот же кусок.",
+   "evidence": "Гл. 2: «do one thing and do it well» (single responsibility); «The product grid organism can be employed anywhere a group of products needs to be displayed».",
+   "forStorefront3": "Одна сетка товаров для полки, поиска, страницы эффекта и «похожих»; одна карточка товара внутри неё; их варианты — данные, а не вторые компоненты."
+  },
+  {
+   "principle": "Разработчик кодит с первого дня, решения принимаются в браузере, узлы сразу стоят в шаблонах; каждый дозревший узел дозревает все шаблоны.",
+   "evidence": "Гл. 4: «If developers aren't coding from day one of the project, there's something wrong with the process»; «Once the designs are in the browser, they should stay in the browser»; «any template that includes the pattern will become more fully baked as well».",
+   "forStorefront3": "Части, которые владелец передаёт из Figma по мере готовности, ставятся в живые шаблоны сразу серыми заглушками; страница существует с первого дня и наполняется, а не собирается в конце."
+  },
+  {
+   "principle": "Система только настолько сложна, насколько нужно; слои (рецепты, умные узлы) добавляются по реальной нужде.",
+   "evidence": "«The Design System Ecosystem»: «it's critical for a design system architecture to be only as complex as it needs to be», «add additional layers or complexity only when real needs arise» (со ссылкой на закон Галла).",
+   "forStorefront3": "Пока страна одна — общее ядро + витрина; рецепты и умные обёртки над движком заводятся, когда вторая страна или вторая витрина попросит своей сборки. Но темы нужны с первого дня, потому что многострановость заявлена, — значит три яруса токенов не откладываются."
+  },
+  {
+   "principle": "Пилот → показать пользу → узаконить; система — продукт, а не проект; библиотека, отставшая от продукта, устарела.",
+   "evidence": "Гл. 5: «Make a thing. Show that it's useful. Make it official.»; «a product meant to grow and evolve over time»; «Once the pattern library ceases to reflect the current state of the products it serves, it becomes obsolete».",
+   "forStorefront3": "storefront3 — пилот; что доказало пользу, поднимается в общие пакеты платформы и получает версию; расхождение библиотеки образцов и магазина ловит тест, а не память (слепок токенов, DESIGN_SYSTEM.md как список узлов)."
+  },
+  {
+   "principle": "Документация показывает контекст и происхождение: где узел стоит и из чего собран.",
+   "evidence": "Гл. 5: «you need to demonstrate context for design system users to understand how and where to properly use them»; гл. 3: Pattern Lab «automatically generates» lineage.",
+   "forStorefront3": "У каждого узла в библиотеке образцов — список страниц, где он стоит, собранный из импортов машиной; так «выключатель проверяется во всех местах сразу» получает карту мест."
+  }
+ ],
+ "ecommerceSpecific": [
+  "Сетка товаров — организм из одной молекулы «карточка товара» (картинка, название, цена), повторённой много раз; та же сетка стоит на полке категории, в результатах поиска и в «похожих товарах» (гл. 2, пример Gap).",
+  "Корзина с одним товаром и корзина с десятью — вариации одного шаблона, которые система обязана выдержать; рисовать только лучший случай («имя всегда помещается в одну строку») — типичная ошибка статичных макетов (гл. 2, гл. 3).",
+  "Карусель на главной интернет-магазина — самый сложный организационно узел: бизнес выбирает товары, копирайтеры пишут, дизайн, разработка; поэтому назвать её «carousel», а не «homepage carousel», и документировать роли всех дисциплин (гл. 5).",
+  "Сезонные кампании ритейлеров — главная ко Дню Валентина с розовыми кнопками и другим шрифтом промо-заголовков — это отдельная тема токенов (tier 1/2), а не правка компонентов («The Many Faces of Themeable Design Systems»).",
+  "Умные узлы для магазина: формы, платежи, автодополнение поиска, таблицы данных, аналитика, интеграция с CMS — обёртки над «глупыми» общими компонентами, отдельный слой поверх ядра («The Design System Ecosystem»).",
+  "Шаблон товарной страницы записывает пропорции картинок и пределы длины названий и текстов; настоящие названия товаров на страницах — проверка этих пределов (гл. 2, пример Time Inc.).",
+  "Опись интерфейса начинается с самого частого: все уникальные стили кнопок на главной в одной таблице (гл. 4).",
+  "Реальные данные в библиотеке образцов живут в JSON и правятся контент-людьми без разработчика (гл. 3, Pattern Lab) — для четырёхъязычного магазина это значит: тексты в данных и админке, компонент их не знает."
+ ],
+ "quotes": [
+  {
+   "text": "Atomic design is not a linear process, but rather a mental model to help us think of our user interfaces",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "It would be foolish to design buttons and other elements in isolation, then cross our fingers",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "interface atoms don't exist in a vacuum and only really come to life with application",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "they focus on the page's underlying content structure rather than the page's final content",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "articulate important properties of components like image sizes and character lengths",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "pages are essential for testing the effectiveness of the underlying design system",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "The content we pour into our UIs at the page stage will influence the characteristics and parameters",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "we would need to address that broken behavior at a more atomic level",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "A product grid organism on Gap's e-commerce website consists of the same product item molecule repeated again and again",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "The product grid organism can be employed anywhere a group of products needs to be displayed",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "A user has one item in their shopping cart and another user has ten items in their cart.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-2/"
+  },
+  {
+   "text": "We're not designing pages, we're designing systems of components.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-1/"
+  },
+  {
+   "text": "by assembling rather than deconstructing, we're crafting a system right out of the gate",
+   "source": "https://bradfrost.com/blog/post/atomic-web-design/"
+  },
+  {
+   "text": "The design token color-brand-blue is a critical ingredient of a UI, but it's not exactly functional on its own.",
+   "source": "https://bradfrost.com/blog/post/extending-atomic-design/"
+  },
+  {
+   "text": "Design tokens are ultimately applied to UI components in order to achieve a specific look and feel.",
+   "source": "https://bradfrost.com/blog/post/the-design-system-ecosystem/"
+  },
+  {
+   "text": "The foundations should be managed in their own design library that other files and libraries",
+   "source": "https://bradfrost.com/blog/post/the-design-system-ecosystem/"
+  },
+  {
+   "text": "it's critical for a design system architecture to be only as complex as it needs to be",
+   "source": "https://bradfrost.com/blog/post/the-design-system-ecosystem/"
+  },
+  {
+   "text": "Tier 1 tokens define the theme's design properties in the abstract, which serve as the raw materials",
+   "source": "https://bradfrost.com/blog/post/the-many-faces-of-themeable-design-systems/"
+  },
+  {
+   "text": "Tier 2 tokens are a semantic theme layer that map Tier-1 tokens to high-level usage within a UI.",
+   "source": "https://bradfrost.com/blog/post/the-many-faces-of-themeable-design-systems/"
+  },
+  {
+   "text": "Tier 3 tokens are specific to components and are mapped to Tier-2 tokens.",
+   "source": "https://bradfrost.com/blog/post/the-many-faces-of-themeable-design-systems/"
+  },
+  {
+   "text": "This architecture controls a brand's look and feel in its own layer away from the core component library",
+   "source": "https://bradfrost.com/blog/post/the-many-faces-of-themeable-design-systems/"
+  },
+  {
+   "text": "build an e-commerce website homepage for Valentine's Day that features pink call-to-action buttons",
+   "source": "https://bradfrost.com/blog/post/the-many-faces-of-themeable-design-systems/"
+  },
+  {
+   "text": "These component-level declarations aren't likely to change once they're put in place",
+   "source": "https://bradfrost.com/blog/post/creating-themeable-design-systems/"
+  },
+  {
+   "text": "the team can swap out variables and see those changes ripple throughout the design system",
+   "source": "https://bradfrost.com/blog/post/creating-themeable-design-systems/"
+  },
+  {
+   "text": "Tier 1 tokens define all of the ingredients available to the design token system",
+   "source": "https://bradfrost.com/blog/post/subatomic-design-tokens-course-chapter-2-now-live/"
+  },
+  {
+   "text": "Spacing systems and the importance of an 8-point (or 4-point) grid",
+   "source": "https://bradfrost.com/blog/post/subatomic-design-tokens-course-chapter-2-now-live/"
+  },
+  {
+   "text": "composite tokens are used to ensure related tokens always travel together",
+   "source": "https://bradfrost.com/blog/post/subatomic-design-tokens-course-chapter-2-now-live/"
+  },
+  {
+   "text": "An interface inventory is a comprehensive collection of the bits and pieces that make up your user interface.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "it's better to start with lo-fi sketches that establish what appears on a particular screen and in what general order",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "Making lo-fi wireframes mobile-first means using the constraints of small screens to force the team to focus",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "If developers aren't coding from day one of the project, there's something wrong with the process.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "This work can happen concurrently but shouldn't happen in isolation.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "Once the designs are in the browser, they should stay in the browser.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "as each pattern becomes more fully baked, any template that includes the pattern will become more fully baked as well",
+   "source": "https://atomicdesign.bradfrost.com/chapter-4/"
+  },
+  {
+   "text": "designers working with static tools have had a tendency to only design best-case scenarios",
+   "source": "https://atomicdesign.bradfrost.com/chapter-3/"
+  },
+  {
+   "text": "Make a thing. Show that it's useful. Make it official.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-5/"
+  },
+  {
+   "text": "a design system shouldn't be a project with a finite scope, but rather a product meant to grow and evolve over time",
+   "source": "https://atomicdesign.bradfrost.com/chapter-5/"
+  },
+  {
+   "text": "Once the pattern library ceases to reflect the current state of the products it serves, it becomes obsolete.",
+   "source": "https://atomicdesign.bradfrost.com/chapter-5/"
+  },
+  {
+   "text": "you can simply call it \"carousel,\" which means you can now put carousels everywhere!",
+   "source": "https://atomicdesign.bradfrost.com/chapter-5/"
+  },
+  {
+   "text": "you need to demonstrate context for design system users to understand how and where to properly use them",
+   "source": "https://atomicdesign.bradfrost.com/chapter-5/"
+  }
+ ],
+ "confidence": "Высокая по иерархии атомы→молекулы→организмы→шаблоны→страницы, по трём ярусам токенов, по рабочему процессу главы 4 и по стопке экосистемы — всё прочитано в первоисточнике и цитаты сверены с текстом. Средняя по порядку категорий токенов (цвет → шрифт → отступы → рамки/тени/движение → швы/слои): это порядок уроков курса, Фрост его не обосновывает. Низкая по составу «MVP token system»: урок за платной стеной, известны только названия. Важная оговорка: единый список из десяти слоёв — моя сборка из трёх текстов Фроста (зависимости гл. 2, процесс гл. 4–5, стопка экосистемы); сам он подчёркивает, что пять стадий — не линейный порядок работ, а модель мышления, и строить и проверять надо одновременно."
+}

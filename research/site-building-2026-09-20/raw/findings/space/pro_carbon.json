@@ -1,0 +1,184 @@
+{
+ "system": "IBM Carbon Design System — Spacing layer (@carbon/layout package: spacing scale, fluid spacing, container/size/icon-size/border-radius primitives, deprecated layout scale, 2x Grid)",
+ "sourcesRead": [
+  "https://carbondesignsystem.com/elements/spacing/overview/",
+  "https://carbondesignsystem.com/elements/spacing/code/",
+  "https://carbondesignsystem.com/elements/2x-grid/overview/",
+  "https://github.com/carbon-design-system/carbon/blob/main/docs/migration/10.x-layout.md",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/docs/sass.md",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/scss/_spacing.scss",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/scss/_convert.scss",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/style-dictionary/sd.config.js",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/src/dtcg/layout.json",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/style-dictionary/formats/js-layout.js",
+  "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/.gitignore",
+  "https://github.com/carbon-design-system/carbon/tree/main/packages/layout"
+ ],
+ "sourcesFailed": [
+  "mcp__github repo-content browsing: 'GitHub access to this repository is not enabled for this session' — worked around via raw.githubusercontent.com + a WebFetch of the GitHub tree page instead of the API.",
+  "packages/layout/style-dictionary/formats/scss-layout.js and js-icon-size/other formatter files — not fetched (time-boxed); js-layout.js alone was enough to confirm the miniUnits/rem math but I did not verify the exact generated SCSS map syntax.",
+  "No separate 'fluid spacing usage guidance' page found beyond the 4 token values + one-line description each in src/dtcg/layout.json — could not confirm a fuller rationale doc exists elsewhere in Carbon's docs."
+ ],
+ "unit": "rem is the default output unit for nearly everything — spacing-01…13, size-xs…2xl, icon-size-01…02 and most border-radius steps are all computed at build time as (miniUnit-multiple × 8px) ÷ 16px root, or (raw px) ÷ 16px root, via one shared to-rem() function with a configurable $base-font-size (16px !default). Two edge tokens stay literal px because rem is meaningless there (border-radius-00: \"0px\", border-radius-max: \"999999px\" for pill shapes). fluid-spacing-02…04 are vw (viewport-width %), not rem/px/clamp() at all. JS exports mirror the same rem *strings* (e.g. spacing01 = '0.125rem'), not raw px numbers — px only ever appears in prose/descriptions, never as a shipped unit for the main scale.",
+ "scale": {
+  "generator": "Not a constant ratio/modular scale — a hand-tuned interleave over one atomic 8px 'mini unit'. Steps 01–03 are fractions of the mini-unit (0.25×, 0.5×, 1× = 2/4/8px, for sub-grid fine adjustments); steps 04–13 alternate 'half-step' and 'whole-step' multiples of it (1.5,2,3,4,5,6,8,10,12,20 × 8px). Source of truth is one DTCG JSON file (src/dtcg/layout.json) with an explicit $extensions.carbon.layout.converter:'miniUnits' on each token; a Style-Dictionary build (sd.config.js) turns that single file into scss/generated/*.scss + js/generated/layout-tokens.(js|d.ts) — nobody hand-authors the numbers twice.",
+  "base": "8px 'mini unit' (= 1 mini-unit = 0.5rem @ 16px root); confirmed three independent ways in the sources: the 2x-Grid docs prose ('the 8-pixel square mini unit'), the Sizing-scale table (8px = 1x, 16px = 2x … 80px = 10x), and the js-layout.js formatter's own constant `const MINI_UNIT = 8;`.",
+  "steps": [
+   {
+    "name": "spacing-01",
+    "value": "2px / 0.125rem"
+   },
+   {
+    "name": "spacing-02",
+    "value": "4px / 0.25rem"
+   },
+   {
+    "name": "spacing-03",
+    "value": "8px / 0.5rem"
+   },
+   {
+    "name": "spacing-04",
+    "value": "12px / 0.75rem"
+   },
+   {
+    "name": "spacing-05",
+    "value": "16px / 1rem"
+   },
+   {
+    "name": "spacing-06",
+    "value": "24px / 1.5rem"
+   },
+   {
+    "name": "spacing-07",
+    "value": "32px / 2rem"
+   },
+   {
+    "name": "spacing-08",
+    "value": "40px / 2.5rem"
+   },
+   {
+    "name": "spacing-09",
+    "value": "48px / 3rem"
+   },
+   {
+    "name": "spacing-10",
+    "value": "64px / 4rem"
+   },
+   {
+    "name": "spacing-11",
+    "value": "80px / 5rem"
+   },
+   {
+    "name": "spacing-12",
+    "value": "96px / 6rem"
+   },
+   {
+    "name": "spacing-13",
+    "value": "160px / 10rem"
+   }
+  ],
+  "notes": "These 13 values are byte-identical to the long-standing Carbon v10 Sass scale (cross-checked against docs/migration/10.x-layout.md's $spacing-01…09/$spacing-3xs…3xl mapping table) even though the whole authoring pipeline was rewritten from hand-written Sass to a DTCG/Style-Dictionary JSON source in 2026 — i.e. the scale itself has been treated as immutable across a full architecture migration; only the machinery around it changed. Sibling primitive families exist for jobs the spacing scale is NOT meant for: container-01…05 (interactive-element height: 24/32/40/48/64px) and size-xs…2xl (named component size: 24/32/40/48/64/80px) — both their own small ladders, not spacing steps reused."
+ },
+ "roles": {
+  "hasSemanticLayer": false,
+  "vocabulary": [
+   "spacing-01…13 (general spacing scale, used directly in component/page code)",
+   "fluid-spacing-01…04 (viewport-relative, 0/2vw/5vw/10vw)",
+   "container-01…05 (interactive element height)",
+   "size-xs…2xl (named component size)",
+   "icon-size-01…02",
+   "border-radius-00/02/04/08/16/24/max",
+   "layout-01…07 — DEPRECATED, 'Replaced by the spacing scale — do not use in new work'"
+  ],
+  "examples": [
+   "spacing-05 — 'Standard spacing unit; use for typical component padding and gutters.' (16px)",
+   "spacing-09 — 'Use for large vertical rhythm and section separation.' (48px)",
+   "spacing-13 — 'Use for the largest page-level spacing needs.' (160px)",
+   "container-04 — 'Large interactive element height.' (48px)"
+  ],
+  "notes": "Unlike Carbon's color tokens (primitive → semantic role → component, enforced structurally so a component never reads a raw palette value), spacing has ONE layer: docs and code consume $spacing-05 etc. directly — there is no $spacing-card-padding or $spacing-section-gap semantic indirection in the core package. Each per-token $description in the DTCG source acts as prose usage-guidance ('use for X') instead of a second named token. Carbon DID once try a second full numeric scale for macro/page-level jobs (layout-01…07, for the exact 'воздух vs поля' split this research is for) — and explicitly deprecated it back into the single spacing scale rather than keep two ladders in sync."
+ },
+ "density": "No token-level density switch for the spacing scale itself — spacing-01…13 do not change value in any documented 'compact' mode. The one primary-source density lever found is at the grid, not the token: docs/migration/10.x-layout.md lists `$carbon--grid-gutter--condensed` as a v10-era Sass variable that swaps the grid gutter width. Component-level 'compact'/'condensed' variants (e.g. data table) restyle by picking a smaller spacing-XX step in their own CSS, not via a separate density multiplier applied to the scale.",
+ "fluid": "Two separate, non-interacting mechanisms — not a clamp() ramp anywhere in this package. (1) The 13-step spacing scale is entirely fixed/discrete: per the spacing FAQ, 'the tokens themselves do not change values based on the screen size,' and responsiveness means swapping which FIXED step you apply inside a media query ('at 1440px padding-right: $spacing-05 but at breakpoint 768px padding-right: $spacing-03') — never interpolating between two numbers. (2) A separate 4-token fluid-spacing-01…04 group (0, 2vw, 5vw, 10vw, from src/dtcg/layout.json) exists purely for full-bleed/hero sections, expressed as raw viewport-width percentages with NO clamp(), no min floor and no max ceiling — confirmed in js-layout.js's resolveValue(), which passes the vw string straight through with no bounding logic. At 320px wide, fluid-spacing-04 is 32px; at 2880px wide it is 288px — genuinely unbounded.",
+ "layout": "No separate 'page rhythm' token family (top/gap/bottom for a section band) survives in the current system — that job used to be the layout-01…07 scale (16/24/32/48/64/96/160px, i.e. the same numbers as spacing-05/06/07/09/10/12/13) and is now explicitly deprecated in favor of applying spacing-XX directly. What DOES carry fixed layout numbers is the 2x Grid itself: 5 named breakpoints (Small 320px/20rem·4 cols, Medium 672px/42rem·8 cols, Large 1056px/66rem·16 cols, X-Large 1312px/82rem·16 cols, Max 1584px/99rem·16 cols), each with its own margin (0/16/16/16/24px) while padding stays a constant 16px (= spacing-05) at every single breakpoint, and gutter is a fixed 32px total (= spacing-07, from doubling the 16px margin) — 'the margin around each grid box matches its padding, for a total gutter of 32 pixels.'",
+ "enforcement": "Architectural single-source-of-truth + generated build output, not a runtime/CI linter. packages/layout/src/dtcg/layout.json (W3C Design Tokens Community Group format) is the ONLY place values are authored; a Style Dictionary config (style-dictionary/sd.config.js) reads that one file and writes scss/generated/*.scss + js/generated/layout-tokens.(js|d.ts) — and packages/layout/.gitignore lists 'generated', so the build output isn't even committed, closing off hand-editing by construction (first rebuild would silently discard any manual edit). The docs' only enforcement language is advisory prose ('deviating from the spacing scales should be avoided whenever possible') — I found no automated stylelint-style rule in what I read that rejects a raw px/rem value in Carbon component code the way this project's lint:css rejects raw !important/duplicate selectors; the guardrail is that only the ~17 named exports exist to reach for, not a check that blocks reaching around them.",
+ "principles": [
+  {
+   "principle": "The whole scale is generated from ONE atomic base unit (8px mini-unit) via two multiplier rules, never hand-typed as 13 independent numbers.",
+   "evidence": "'The basic unit of 2x Grid geometry is the 8-pixel square mini unit' (elements/2x-grid/overview/); src/dtcg/layout.json: spacing-01 $value 0.25 with converter 'miniUnits' → 0.25×8=2px.",
+   "forStorefront3": "Give storefront3's spacing tokens one base-unit constant too and derive every step from it in a single generator file (JSON/TS → CSS custom properties + the admin design-snapshot.mjs slepok), the same discipline CLAUDE.md's rule 0 ('Против заплаток') already demands and that token-layer.test.ts already enforces for color — add an equivalent spacing generator + guard instead of 13 hand-typed clamp()/px literals scattered across CSS files."
+  },
+  {
+   "principle": "Spacing primitives are consumed directly in components — Carbon has NO semantic spacing layer analogous to its color primitive→role→component chain.",
+   "evidence": "DTCG source groups are spacing/fluid-spacing/container/size/icon-size/border-radius/layout only — no 'semantic' group; docs' own code examples call $spacing-05 directly, never through a role alias.",
+   "forStorefront3": "Don't force-fit the palette pattern (palette→semantic→component, held by token-layer.test.ts) onto spacing. Keep ONE primitive spacing scale file, and let the small number of named layout roles CLAUDE.md already requires (--layout-band-pad, --layout-band-gap, --layout-rail-pad-*) be thin, explicitly-listed aliases straight onto specific primitive steps — not a second full parallel scale, and not a per-component semantic token the way brandTheme colors get."
+  },
+  {
+   "principle": "Carbon tried a second numeric scale for macro/page-level gaps (layout-01…07) and explicitly deprecated it back into the single spacing scale rather than maintain two ladders.",
+   "evidence": "src/dtcg/layout.json, 'layout' group: '$description: Deprecated layout scale tokens. Replaced by the spacing scale — do not use in new work.' on every layout-0X token.",
+   "forStorefront3": "This is a direct warning for the 'поля vs воздух' split this research was commissioned for: keep 'поля' (padding) and 'воздух' (band rhythm) as two ROLE vocabularies, but pull both from the SAME one primitive spacing scale/registry (sit it next to the existing packages/ui/src/tokens/seams.ts) — never give 'воздух' its own independently-numbered ladder the way Carbon once did and had to walk back."
+  },
+  {
+   "principle": "The scale is fixed per breakpoint, not continuously interpolated — 'responsive spacing' in Carbon means switching to a different fixed step inside a media query, never a formula between two numbers.",
+   "evidence": "Spacing FAQ: 'No, the tokens themselves do not change values based on the screen size... it is acceptable at page breakpoints to jump a step(s)... (i.e., at 1440px padding-right: $spacing-05 but at breakpoint 768px padding-right: $spacing-03).'",
+   "forStorefront3": "storefront3's own rule for the 861–1440 seam (CLAUDE.md, 'Широкая раскладка сжимается') already goes further than Carbon by using clamp() ramps instead of a hard breakpoint jump — treat that as a deliberate, already-decided improvement, not a gap; just make sure the clamp() endpoints themselves are primitive-scale numbers (spacing-XX values) pulled from the same registry, not independently eyeballed pixel numbers."
+  },
+  {
+   "principle": "A genuinely fluid/viewport-relative group exists (fluid-spacing-01…04 = 0/2vw/5vw/10vw) but it is deliberately simple and UNCLAMPED — no min floor, no max ceiling.",
+   "evidence": "src/dtcg/layout.json fluid-spacing values are bare vw strings; style-dictionary/formats/js-layout.js's resolveValue() passes non-miniUnit/non-rem values through unchanged (no clamp/min/max logic anywhere in that formatter).",
+   "forStorefront3": "Do NOT copy the bare-vw approach for any storefront3 fluid gap — CLAUDE.md already mandates clamp(minimum, ramp, число_из_макета) for exactly the failure mode a bare vw has (no floor at 320px, no ceiling above 1440px, as documented in DECISIONS.md's ramp discussions). If a full-bleed hero gap is ever wanted, it's Carbon's 'proportional gap' idea PLUS the clamp() guard storefront3's own rules already require — never vw alone."
+  },
+  {
+   "principle": "Component/target sizing (container-01…05, size-xs…2xl) is its own small primitive family, deliberately NOT derived from the 8px spacing ladder, because 44px-class touch targets don't land cleanly on 8px multiples.",
+   "evidence": "src/dtcg/layout.json 'container' group (24/32/40/48/64px, converter miniUnits ×8) and 'size' group (24/32/40/48/64/80px, converter 'rem' i.e. raw px) are separate token groups from 'spacing'.",
+   "forStorefront3": "This validates the project's existing roundSm(44)/roundMd(48)/roundLg(72) control-size ladder in CLAUDE.md's 'Кнопка отвечает одинаково' section as the right pattern, not a special case to reconcile with the spacing scale — keep touch-target sizing as its own small named scale, the way Carbon keeps container-* separate from spacing-*, instead of trying to make 44px a spacing-scale step."
+  },
+  {
+   "principle": "One authored source file + a build step generates every downstream artifact (SCSS vars, JS constants, .d.ts types); the generated output is .gitignore'd so it structurally cannot be hand-edited without being silently overwritten.",
+   "evidence": "style-dictionary/sd.config.js: source: [DTCG_SOURCE] → writes scss/generated/ and js/generated/; packages/layout/.gitignore contains the single line 'generated'.",
+   "forStorefront3": "Mirror this exactly for spacing the way it's already done for color (design-snapshot.mjs + design-snapshot.test.ts): one authored spacing token file → a generator writes the CSS custom properties AND feeds the admin Design-system screen's slepok, with a sentinel test that fails if the generated file is stale — same shape as token-layer.test.ts, applied to spacing instead of palette."
+  }
+ ],
+ "doNotCopy": [
+  "Carbon's fluid-spacing (2vw/5vw/10vw) is unclamped — copying it verbatim would violate storefront3's own already-written clamp() rule (no floor/ceiling), which exists precisely to prevent this failure mode.",
+  "Carbon's 5 grid breakpoints (320/672/1056/1312/1584) don't match storefront3's seam registry (860 shop seam, 1440 Figma reference) — take the discipline (named, registered breakpoints), not the specific pixel values.",
+  "Carbon exposes spacing primitives with literally no semantic layer; don't read that as license to skip naming roles for storefront3's 'поля'/'воздух' split — Carbon's own history (deprecating layout-01…07) argues against a SECOND full numeric scale, not against a handful of named aliases onto one scale.",
+  "Don't paste Carbon's 13 px numbers as if they were universal law — they're derived from Carbon's own 8px mini-unit and 16px root; if storefront3 picks a different base unit or root size, every step must be re-derived from that base, not copied as literals.",
+  "Carbon's 'acceptable to jump a step at breakpoints' FAQ answer describes a coarser, hard-breakpoint model than what storefront3 already committed to (clamp() ramps across 861–1440) — don't regress storefront3's spacing to breakpoint-jump behavior citing this as 'how Carbon does it.'"
+ ],
+ "quotes": [
+  {
+   "text": "The basic unit of 2x Grid geometry is the 8-pixel square mini unit.",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "The Carbon spacing scale complements the 2x Grid and typography scale by using multiples of two, four, and eight.",
+   "source": "https://carbondesignsystem.com/elements/spacing/overview/"
+  },
+  {
+   "text": "No, the tokens themselves do not change values based on the screen size.",
+   "source": "https://carbondesignsystem.com/elements/spacing/overview/"
+  },
+  {
+   "text": "it is acceptable at page breakpoints to jump a step(s) on the spacing scale to fit spacing needs",
+   "source": "https://carbondesignsystem.com/elements/spacing/overview/"
+  },
+  {
+   "text": "Deprecated layout token — 16px. Replaced by spacing scale. Do not use in new work.",
+   "source": "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/src/dtcg/layout.json"
+  },
+  {
+   "text": "Padding is always a fixed multiple of mini units: 16 pixels at all standard breakpoints.",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "There are always exceptions to the rule, but deviating from the spacing scales should be avoided whenever possible.",
+   "source": "https://carbondesignsystem.com/elements/spacing/overview/"
+  },
+  {
+   "text": "Fluid spacing token — 10vw. Use for large fluid spacing in full-bleed or hero sections.",
+   "source": "https://github.com/carbon-design-system/carbon/blob/main/packages/layout/src/dtcg/layout.json"
+  }
+ ],
+ "confidence": "High for all numeric values (spacing-01…13, fluid-spacing-01…04, container-*, size-*): read directly from the primary DTCG token source (src/dtcg/layout.json) and independently cross-checked against three other sources that all agree — the public docs site's live scss/js API tables, the historical v9→v10 migration table, and the js-layout.js formatter's own MINI_UNIT=8/BASE_FONT_SIZE=16 constants. Medium for governance/enforcement claims: the Style-Dictionary pipeline and .gitignore'd output are directly verified facts, but the claim 'no automated lint against raw px in component code' is an absence inferred from what I could read in the time available, not from an exhaustive search of the whole carbon-components-react/web-components source. Medium-low for the 'no fuller fluid-spacing rationale doc' claim, since I did not search IBM Products / other Carbon-adjacent doc sites beyond carbondesignsystem.com and the core carbon repo."
+}

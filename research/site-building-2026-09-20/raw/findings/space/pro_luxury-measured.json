@@ -1,0 +1,452 @@
+{
+ "confidence": "Дифференцированная. Высокая: header-height, base font-size/line-height, product-card padding и grid-gap (rowGap/colGap) на muji-us/byredo/cuyana/lelabo/glossier — прямые числа из getComputedStyle/getBoundingClientRect на реально отрисованной странице, перепроверены двумя независимыми прогонами скрипта. Средняя: «page-edge gutter» и «content max-width» — сняты эвристикой (проба нескольких якорных элементов: h1, logo, первый <p>, «внешний контейнер»), на части сайтов эти якоря расходятся на 10-20px, поэтому дано диапазоном/с оговоркой, где именно измерено. Низкая/не измерено: «промежуток между секциями» (macro air) для apple (0 — верстка не даёт отдельных верхнеуровневых блоков, вся ритмика внутри paddingBottom одного повторяющегося блока), byredo (герой на абсолютном позиционировании и отрицательных margin — bounding-box между блоками даёт мусорные отрицательные числа) и lelabo (вся главная — один div высотой 2673px с наложенным поп-апом). Diptyque — каталог не открылся (404 у всех проверенных URL), поэтому карточка/грид для него не измерены вовсе. 4 заблокированных магазина из стартового списка (aesop, cos, arket, muji.com) и ещё 7 альтернативных люкс/премиум сайтов не дали вообще никаких чисел (403/challenge) — по ним измерений нет и не выдумано.",
+ "density": "Явного единого «множителя плотности» (condensed/spacious-переключателя) на измеренных сайтах снаружи не видно — это не токен, доступный по DOM. Но воспроизводимый паттерн есть: коэффициент масштабирования одной и той же роли отступа между 375 и 1440 кластеризуется в узком диапазоне ≈1.33–1.5×, а не «плоская добавка» и не удвоение: muji-us section-gap 44→60px (1.36×), glossier section-spacer 60→80px (1.33×), glossier grid colGap 12→16px (1.33×), cuyana header 50→68px (1.36×), byredo header 56→84px (1.5×), byredo card-pad-top 12→16px (1.33×), diptyque section pad-bottom 40→56px (1.4×). Выбросы — byredo grid rowGap 16→44px (2.75×) и colGap 4→12px (3×), диптик content-inset 32→394px и muji heading-inset 19→288px (эти двое — не масштаб отступа, а переход от узкой мобильной колонки к центрированной широкой, другая природа числа). Для third-store вывод: единый множитель ~1.35× между минимумом на 375 и максимумом на 1440 — разумная цель для ramp у РОЛЕЙ «section-gap» и «card-pad»; content-inset/max-width — отдельная, гораздо более растущая величина, тем же множителем не описывается.",
+ "doNotCopy": [
+  "Число 208px (внешний гуттер Apple на 1440) само по себе — это (1440−1024)/2, побочный эффект их собственного content-max-width 1024px, а не универсальная «люкс-гуттер»-константа. Скопировать голое число без max-width, который его порождает, значит получить пустоту без причины.",
+  "Любое измеренное px-значение дословно — оно ниже по потоку от чужой типографики, чужого max-width, чужой шапки. Переносимы РАТИО и СЛОИ (page-edge vs content-inset vs section-gap vs card-pad; macro:micro ≈3-5:1; mobile→desktop ≈1.33-1.5×), а не сырые числа.",
+  "Вывод «это clamp(), плавная функция» из двух точек (375 и 1440) — доказано только то, что число на 375 и на 1440 разное. Нужна третья ширина (например 1024, как в собственном test:wide проекта), чтобы отличить плавный clamp от жёсткого брейкпоинта.",
+  "Числа по aesop.com, cos.com, arket.com, muji.com, jomalone.com, tomford.com, net-a-porter.com, jcrew.com, uniqlo.com, aritzia.com, kiehls.com — из памяти или по аналогии с «типичным люксом»: в этой сессии они не загрузились (403 / Cloudflare-challenge / Access Denied) ни разу, про их отступы ничего не измерено и утверждать нечего.",
+  "«Секционный ритм» apple/byredo/lelabo как якобы измеренный — у apple это 0px между обёртками (вся ритмика внутри одного повторяющегося блока), у byredo герой на абсолютном позиционировании даёт отрицательные псевдо-«промежутки», у lelabo вся главная — один div. Эти три значения — не сигнал, а артефакт разметки, и в scale.steps помечены как неизмеримые, а не как «ноль»."
+ ],
+ "enforcement": "По аналогии с уже держащим palette token-layer.test.ts: (1) файл примитивов --space-1…--space-n на шаге ~4px (наблюдаемый кластер значений 8/12/16/24/28/44/56/60/72/80 — почти все кратны 4, многие кратны 8, что совпадает с уже принятой в проекте логикой ступеней control.css: roundSm 44 / roundMd 48 / roundLg 72); (2) слой ролей поверх примитивов: --space-page-edge (10-16px, константа, не растёт с шириной — по образцу diptyque/muji, где внешний край не менялся 375→1440), --space-content-inset (растущая величина колонки, отдельная от края — по образцу diptyque 32→394px), --space-section-gap/band-gap (macro-ритм между полосами, ramp ~1.33-1.5× между 375 и 1440), --space-card-pad (micro, внутри карточки), --space-grid-gap (между карточками в сетке); компонент читает только роль, как того требует уже принятая архитектура; (3) сторож на структуру — по образцу token-layer.test.ts: компонент не имеет права обращаться к --space-N напрямую, только к --space-<роль>; (4) живой сторож на смысл — по образцу test:wide/seams.test.ts: на отрендеренной странице band-gap измеряется по bounding-box (не по значению CSS-свойства, ровно как в этом исследовании пришлось делать вручную, потому что часть сайтов держит отступ не паддингом, а margin-утилитой или отдельным spacer-блоком) и обязан быть не меньше ~3× card-pad; page-edge проверяется одинаковым у ВСЕХ верхнеуровневых блоков полосы (шапка, герой, секции, подвал) — если хоть один блок держит свой край сам, тест краснеет, как того требует правило «одинаковое живёт в одном месте».",
+ "fluid": "Замерено ровно в двух ширинах (375 и 1440) — этого достаточно, чтобы увидеть, что число на 375 и на 1440 РАЗНОЕ и что отношение между ними кластеризуется около 1.33-1.5×, но НЕДОСТАТОЧНО, чтобы отличить плавный clamp() от жёсткого брейкпоинта — оба варианта дают ровно два разных числа на двух опрошенных ширинах. У diptyque и muji-us внешний край (page-edge) вообще не изменился между 375 и 1440 (12px и 10px соответственно на обеих ширинах) — то есть эта роль не «текучая», а константа; при этом их же content-inset вырос в 12-15 раз — то есть это разные роли с разным поведением по ширине, не одна и та же переменная. Для third-store вывод по методу, уже принятому в проекте (CLAUDE.md: «число из Figma — это clamp(мин, ramp, число_из_макета)»): роли, которые в этом замере росли (section-gap, card-pad, header-height, content-inset), — кандидаты на clamp() с проверкой на третьей ширине (1024, как в test:wide); роли, что не менялись (page-edge у diptyque/muji), — просто константа, clamp() для них не нужен.",
+ "layout": "Два разных архитектурных приёма контейнера видны в замере, не один. (1) «max-width + центрирование»: apple — content max-width 1024px на 1440-вьюпорте, что и даёт симметричный внешний гуттер 208px (подтверждено дважды: через вычисленный max-width и через outerLeft≈outerRight≈208); byredo — max-width 1180px на 1440, внешний гуттер 28px. (2) «маленький фиксированный край + отдельная читаемая колонка»: diptyque и muji-us держат внешний край страницы константой (12px и 10px) на ОБЕИХ ширинах — а настоящий «гуттер» для текста растёт совсем другим числом и совсем другим механизмом (у diptyque первый абзац: 32px на 375 → 394px на 1440; у muji-us заголовок: 19px → 288px) — то есть колонка контента центрируется независимо от внешнего края страницы, который остаётся тонкой рамкой под полноширинные медиа. Для storefront3 это значит: «гуттер» — не одна переменная, а минимум две роли с разной физикой (page-edge — тонкая константа под full-bleed картинки; content-inset/max-width — растущая колонка для текста), и путать их — то самое «два правила об одном узле».",
+ "principles": [
+  {
+   "principle": "Макро-ритм (промежуток между полосами страницы) измеримо больше микро-поля (внутри карточки товара) — не равен ему: соотношение держится около 3-5:1, а не 1:1.",
+   "evidence": "muji-us: gap 44px vs card-pad 17px на 375 (2.6:1); gap 60px vs card-pad 17px на 1440 (3.5:1). glossier: явный spacer-блок 60px vs grid colGap 12px на 375 (5:1); 80px vs 16px на 1440 (5:1 — тот же коэффициент на обеих ширинах).",
+   "forStorefront3": "Завести отдельные роли --space-band-gap (macro) и --space-card-pad (micro) с ЗАВЕДОМО разным множителем (band-gap ≈ 3-5 × card-pad), а не заимствовать один и тот же токен для «отступа вообще»; guard-тест на живой странице (bounding-box, не CSS-значение) падает, если band-gap опустился ниже ~3× card-pad."
+  },
+  {
+   "principle": "У «тихих люкс»-брендов базовый шрифт часто МЕНЬШЕ типового веб-дефолта 16px (13-14px обычное дело), а «люксовость» держится воздухом вокруг текста, а не его размером.",
+   "evidence": "byredo 13px/20px (line-height×1.54), cuyana 13px/20px (×1.54), muji-us 13.125px/15.09px (×1.15), lelabo 14px/18.2px (×1.3); из семи — только apple (17px/25px) и glossier (16px/18.4px) на уровне или выше 16px.",
+   "forStorefront3": "Не гнаться за увеличением --text-body ради «дороже смотрится»; вместо этого щедро масштабировать --space-* токены вокруг умеренного (13-15px) тела текста, а коэффициент строка/кегль (1.15 плотный vs 1.5+ просторный) — осознанное разовое решение, а не копия чужого числа."
+  },
+  {
+   "principle": "Внешний край страницы (page-edge) и отступ читаемой колонки (content-inset) — две разные величины с разной физикой: первая у части сайтов вообще не меняется с шириной экрана, вторая растёт на порядок.",
+   "evidence": "diptyque: page-edge 12px на 375 И на 1440 (без изменений), а инсет первого абзаца 32px→394px (×12.3). muji-us: page-edge 10px на обеих ширинах, инсет заголовка 19px→288px (×15.2).",
+   "forStorefront3": "Не одна переменная «гуттер», а минимум две роли: --space-page-edge (маленькая константа 10-16px, держит full-bleed медиа впритык к краю) и --space-content-inset / max-width контента (растущая величина читаемой колонки) — раздельные ramp, раздельные guard-тесты."
+  },
+  {
+   "principle": "Коэффициент масштабирования одной и той же роли отступа между 375 и 1440 у разных, не связанных друг с другом магазинов кластеризуется в узком диапазоне ≈1.33-1.5×, а не является ни плоской добавкой, ни удвоением.",
+   "evidence": "muji-us section-gap ×1.36, glossier spacer ×1.33 и colGap ×1.33, cuyana header ×1.36, byredo header ×1.5, byredo card-pad ×1.33, diptyque section-pad ×1.4.",
+   "forStorefront3": "При записи clamp(мин, ramp, макс) для отступов (тем же приёмом, что проект уже применяет к размерам из Figma) целиться в отношение максимум/минимум ≈1.35, а не в произвольный скачок между брейкпоинтами."
+  },
+  {
+   "principle": "Наблюдаемые числа почти все кратны 4px, многие кратны 8px — свидетельство общей базовой 4/8-пиксельной сетки, даже когда сами бренды не совпадают ни одним конкретным значением.",
+   "evidence": "byredo 84/56/16/28/44/12; muji-us 44/60/17(≈16); glossier 60/80/12/16; cuyana 50/68/12; apple 208/40/48/44 — все кратны 4, большинство кратны 8.",
+   "forStorefront3": "Строить примитивный --space-N ряд на шаге 4px, тем же способом, каким уже устроены ступени control.css (roundSm 44 / roundMd 48 / roundLg 72 — тоже кратны 4); каждая семантическая роль отступа обязана лечь на примитив этой сетки, а не на «удобное число»."
+  },
+  {
+   "principle": "Часть измеренных витрин (muji-us, cuyana, glossier, diptyque) построена на Shopify Online Store 2.0 — видно по классам `shopify-section`/explicit `section-spacer`-блоку у glossier — где вертикальный отступ секции обычно редактируется владельцем магазина в конструкторе темы ползунком, а не зашит разработчиком.",
+   "evidence": "class=\"shopify-section section-spacer\" высотой ровно 60px(375)/80px(1440) на https://www.glossier.com/ — отдельный пустой блок-спейсер, а не padding содержательной секции; тот же паттерн класса `shopify-section` на muji.us, cuyana.com, diptyqueparis.com.",
+   "forStorefront3": "Совпадает с уже принятой в проекте философией «владелец правит из админки» (применённой к brandTheme-цвету): --space-band-gap каждой полосы — сильный кандидат на редактируемое владельцем поле в админке, ограниченное шагами токенной сетки, а не зашитое в код число, как это уже фактически устроено у Shopify-тем, которые здесь измерялись."
+  },
+  {
+   "principle": "Там, где реальный воздух держится margin-утилитой на элементе-контенте, а не padding обёртки-секции, замер на уровне обёртки покажет 0 — значит токен обязан жить на узле, который РЕАЛЬНО создаёт видимый промежуток, а не на удобном для выборки предке.",
+   "evidence": "cuyana: промежуток между `.shopify-section`-обёртками 0-8px почти везде, при этом карточки каталога используют класс `mb-3` (margin-bottom утилита) — а не padding — и в замере card-pad тоже читается как 0px, хотя визуальный интервал между карточками есть.",
+   "forStorefront3": "Прямое подтверждение уже записанного в CLAUDE.md принципа «сторож меряет то, что видит покупатель, а не то, из чего это собрано» (раздел «Инженерный цикл», п.4а) — guard для --space-* обязан мерить bounding-box на отрендеренной странице, а не читать, на каком именно CSS-свойстве отступ реализован."
+  },
+  {
+   "principle": "«Гуттер» страницы неоднозначен даже при ручном осмотре: разные якорные элементы (h1, логотип, первый абзац, внешняя обёртка) на одной и той же странице расходятся на 10-30px — потому что «гуттер» на деле это несколько разных паддингов (у шапки свой, у героя свой, у колонки контента свой), которые визуально выглядят выровненными, но таковыми не являются по коду.",
+   "evidence": "apple/375: h1-left=22px против outerLeft=40px (разница 18px); muji-us/375: logo-left=113px (центрирование нав-бара) против heading-left=19px против outerLeft=10px — три разных числа на одной странице одной ширины.",
+   "forStorefront3": "Нельзя выводить «тот самый» --space-page-edge из одного удобного компонента; нужна одна явная роль, которую потребляют ВСЕ верхнеуровневые блоки (шапка, герой, секции, подвал) явно, и guard, что все они дают одинаковый computed-отступ от края — прямой аналог уже принятого в проекте «одинаковое живёт в одном месте» (SectionHead.module.css как единственный файл правды)."
+  }
+ ],
+ "quotes": [
+  {
+   "text": "computed max-width on centered wrapper: 1024px at 1440px viewport (outer gutter 208px both sides)",
+   "source": "https://www.apple.com/shop"
+  },
+  {
+   "text": "div.shopify-section.section-spacer height: 60px @375 / 80px @1440 — explicit empty spacer block, not padding",
+   "source": "https://www.glossier.com/"
+  },
+  {
+   "text": "outer page-edge padding: 12px, identical at 375 and 1440 (no scaling at all)",
+   "source": "https://www.diptyqueparis.com/en_us/"
+  },
+  {
+   "text": "catalog product-card grid: rowGap 16px@375 → 44px@1440 (×2.75), colGap 4px→12px (×3) — biggest jump measured",
+   "source": "https://www.byredo.com/us_en/"
+  },
+  {
+   "text": "body { font-size: 13.125px; line-height: 15.09px } @375 — below the 16px web default",
+   "source": "https://muji.us/"
+  },
+  {
+   "text": "HTTP/2 403, cf-mitigated: challenge, server: cloudflare — Cloudflare managed challenge, not a real 403",
+   "source": "https://www.aesop.com/us/ (curl response header, confirmed identically in Playwright)"
+  }
+ ],
+ "roles": {
+  "hasSemanticLayer": false,
+  "vocabulary": [
+   "space-page-edge (proposed)",
+   "space-content-inset (proposed)",
+   "space-band-gap / space-section-gap (proposed)",
+   "space-card-pad (proposed)",
+   "space-grid-gap (proposed)"
+  ],
+  "examples": [
+   "diptyque: page-edge constant 12px vs content-inset growing 32px→394px — two roles behaving differently, observed even without seeing their source tokens",
+   "glossier: an actual empty <div class=\"shopify-section section-spacer\"> element used as the band-gap role, rather than padding on the section itself",
+   "muji-us: heading-inset (19px→288px) behaves like a distinct 'content column' role separate from the 10px page-edge that never changes"
+  ],
+  "notes": "Все перечисленные роли — ПРЕДЛОЖЕННЫЕ по наблюдаемому поведению computed-стилей на живых страницах, а НЕ извлечены из исходных токен-файлов этих брендов: это чужие коммерческие сайты, у нас нет доступа к их несжатому CSS/дизайн-токенам на GitHub (в отличие от, например, Material Design или open-source Shopify Dawn theme, которые не входили в тему этого конкретного замера). hasSemanticLayer=false отражает именно это — не то, что слоя нет у них, а то, что мы не видели его исходники, только результат."
+ },
+ "scale": {
+  "generator": "Не единая формула — чёрный ящик стороннего CSS, снятый только по computed-значениям на живой странице. Тем не менее видимая закономерность: (1) абсолютные числа кластеризуются на кратных 4px (реже 8px) значениях, что похоже на общую implicit 4/8-пиксельную сетку; (2) коэффициент масштабирования одной роли между 375 и 1440 у разных сайтов сходится в диапазоне ≈1.33-1.5×.",
+  "base": "≈4px implied base step (не подтверждено исходным кодом — вывод по частоте встречающихся чисел)",
+  "notes": "Каждая строка — 'магазин/что/ширина → значение', снято Playwright/Chromium (getBoundingClientRect + getComputedStyle) на реально отрендеренной странице, headless, 2026-09-20. 'section-gap'/'ритм' — расстояние между соседними top-level блоками под <main> (с спуском через цепочки obёрток с единственным видимым потомком); 'card-pad' — paddingTop/Bottom первой найденной карточки товара; 'grid rowGap/colGap' — минимальный положительный зазор между bounding-box карточек в одной строке/колонке; 'header-height' — высота найденного header/nav у верхнего края; 'page-gutter-outer' — эвристика по нескольким текстовым якорям, где помечено — расхождение якорей дано отдельно.",
+  "steps": [
+   {
+    "name": "apple/section-gap/375",
+    "value": "0 px — блоки rs-cardsshelf примыкают друг к другу впритык; ритм целиком внутри paddingBottom (28-30px) одного повторяющегося блока, не между блоками"
+   },
+   {
+    "name": "apple/section-gap/1440",
+    "value": "0 px, тот же паттерн; paddingBottom блока 46-62px"
+   },
+   {
+    "name": "apple/page-gutter-outer/375",
+    "value": "40 px"
+   },
+   {
+    "name": "apple/page-gutter-outer/1440",
+    "value": "208 px (= (1440−1024)/2)"
+   },
+   {
+    "name": "apple/content-max-width/1440",
+    "value": "1024 px (computed max-width, подтверждено симметричным внешним гуттером)"
+   },
+   {
+    "name": "apple/h1-inset/375",
+    "value": "22 px слева / 53 px справа (асимметрично — h1 в узкой текстовой колонке)"
+   },
+   {
+    "name": "apple/h1-inset/1440",
+    "value": "140 px слева / 660 px справа"
+   },
+   {
+    "name": "apple/header-height/375",
+    "value": "48 px (#ac-globalnav/nav)"
+   },
+   {
+    "name": "apple/header-height/1440",
+    "value": "44 px"
+   },
+   {
+    "name": "apple/body-font/375 и 1440",
+    "value": "17px / line-height 25px (ratio 1.47, одинаково на обеих ширинах)"
+   },
+   {
+    "name": "apple/catalog-card",
+    "value": "не найдено — разметка apple.com/shop/buy-mac не совпала ни с одним из опробованных селекторов карточки товара"
+   },
+   {
+    "name": "lelabo/page-gutter-outer/375",
+    "value": "30 px"
+   },
+   {
+    "name": "lelabo/page-gutter-outer/1440",
+    "value": "20 px (по логотипу; на этой ширине асимметрично, ближе к оценке)"
+   },
+   {
+    "name": "lelabo/header-height/375",
+    "value": "51 px"
+   },
+   {
+    "name": "lelabo/header-height/1440",
+    "value": "81 px (×1.59)"
+   },
+   {
+    "name": "lelabo/body-font/375 и 1440",
+    "value": "14px / line-height 18.2px (ratio 1.3, одинаково)"
+   },
+   {
+    "name": "lelabo/catalog-card-pad/375",
+    "value": "0 px (li без собственного padding)"
+   },
+   {
+    "name": "lelabo/catalog-grid-rowGap/375",
+    "value": "31 px"
+   },
+   {
+    "name": "lelabo/catalog-grid-colGap/375",
+    "value": "7 px"
+   },
+   {
+    "name": "lelabo/catalog-grid/1440",
+    "value": "не захвачено — разметка сетки на этой ширине не совпала с эвристикой (меньше 3 карточек по селектору)"
+   },
+   {
+    "name": "lelabo/section-rhythm/375 и 1440",
+    "value": "не измеримо — главная whole-page один div .wrapper.homepage (2673px/1100px) с наложенным поп-апом на весь экран поверх"
+   },
+   {
+    "name": "byredo/header-height/375",
+    "value": "56 px"
+   },
+   {
+    "name": "byredo/header-height/1440",
+    "value": "84 px (×1.5)"
+   },
+   {
+    "name": "byredo/body-font/375",
+    "value": "13px / line-height 20px (ratio 1.54)"
+   },
+   {
+    "name": "byredo/body-font/1440",
+    "value": "14px / line-height 20px (ratio 1.43)"
+   },
+   {
+    "name": "byredo/page-gutter-outer/375",
+    "value": "16 px"
+   },
+   {
+    "name": "byredo/page-gutter-outer/1440",
+    "value": "28 px (×1.75)"
+   },
+   {
+    "name": "byredo/content-max-width/1440",
+    "value": "1180 px (computed)"
+   },
+   {
+    "name": "byredo/catalog-card-pad-top/375",
+    "value": "12 px"
+   },
+   {
+    "name": "byredo/catalog-card-pad-top/1440",
+    "value": "16 px (×1.33)"
+   },
+   {
+    "name": "byredo/catalog-grid-rowGap/375",
+    "value": "16 px"
+   },
+   {
+    "name": "byredo/catalog-grid-rowGap/1440",
+    "value": "44 px (×2.75)"
+   },
+   {
+    "name": "byredo/catalog-grid-colGap/375",
+    "value": "4 px"
+   },
+   {
+    "name": "byredo/catalog-grid-colGap/1440",
+    "value": "12 px (×3)"
+   },
+   {
+    "name": "byredo/section-rhythm/375 и 1440",
+    "value": "не измеримо — герой на абсолютном позиционировании и отрицательных margin (-56px/-84px), bounding-box между блоками даёт мусорные отрицательные числа"
+   },
+   {
+    "name": "diptyque/page-gutter-outer/375 и 1440",
+    "value": "12 px (идентично на обеих ширинах — константа, не растёт)"
+   },
+   {
+    "name": "diptyque/content-inset-firstP/375",
+    "value": "32 px"
+   },
+   {
+    "name": "diptyque/content-inset-firstP/1440",
+    "value": "394 px (×12.3 — растущая центрированная колонка, другая природа числа, чем гуттер)"
+   },
+   {
+    "name": "diptyque/header-height/375",
+    "value": "69 px"
+   },
+   {
+    "name": "diptyque/header-height/1440",
+    "value": "120 px (×1.74)"
+   },
+   {
+    "name": "diptyque/body-font/375 и 1440",
+    "value": "16px / line-height: normal (≈19.2px браузерный дефолт ×1.2 — не явный токен)"
+   },
+   {
+    "name": "diptyque/section-pad-bottom/375",
+    "value": "40 px (.section-text-gallery-med)"
+   },
+   {
+    "name": "diptyque/section-pad-bottom/1440",
+    "value": "56 px (×1.4)"
+   },
+   {
+    "name": "diptyque/catalog",
+    "value": "FAILED — все проверенные /collections/... URL вернули 404 в этой сессии; card-pad/grid-gap для diptyque не измерены"
+   },
+   {
+    "name": "muji-us/page-gutter-outer/375 и 1440",
+    "value": "10 px (идентично — константа)"
+   },
+   {
+    "name": "muji-us/heading-inset/375",
+    "value": "19 px"
+   },
+   {
+    "name": "muji-us/heading-inset/1440",
+    "value": "288 px (×15.2)"
+   },
+   {
+    "name": "muji-us/section-gap/375",
+    "value": "18, 17, 44, 44, 44, 44 px — двухуровневый ритм: ~17-18px внутри группы, 44px между разными промо-секциями"
+   },
+   {
+    "name": "muji-us/section-gap/1440",
+    "value": "25, 25, 59, 60, 60, 59 px — тот же паттерн, масштаб ×≈1.35"
+   },
+   {
+    "name": "muji-us/header-height/375",
+    "value": "47 px"
+   },
+   {
+    "name": "muji-us/header-height/1440",
+    "value": "132 px (мега-меню, ×2.8)"
+   },
+   {
+    "name": "muji-us/body-font/375",
+    "value": "13.125px / line-height 15.09px (ratio 1.15)"
+   },
+   {
+    "name": "muji-us/body-font/1440",
+    "value": "14px / line-height 16.1px (ratio 1.15, та же форма)"
+   },
+   {
+    "name": "muji-us/catalog-card-pad/375 и 1440",
+    "value": "17 px сверху, 17 px снизу, 0 слева/справа (без изменений)"
+   },
+   {
+    "name": "muji-us/catalog-grid-rowGap-colGap/375",
+    "value": "6 px / 6 px"
+   },
+   {
+    "name": "muji-us/catalog-grid-rowGap-colGap/1440",
+    "value": "8 px / 8 px (×1.33)"
+   },
+   {
+    "name": "muji-us/ratio-air-to-card-pad/375",
+    "value": "44 : 17 ≈ 2.6 : 1"
+   },
+   {
+    "name": "muji-us/ratio-air-to-card-pad/1440",
+    "value": "60 : 17 ≈ 3.5 : 1"
+   },
+   {
+    "name": "cuyana/page-gutter-outer/375",
+    "value": "15 px / 12 px (почти симметрично)"
+   },
+   {
+    "name": "cuyana/page-gutter-outer/1440",
+    "value": "15 px (обе стороны)"
+   },
+   {
+    "name": "cuyana/header-height/375",
+    "value": "50 px"
+   },
+   {
+    "name": "cuyana/header-height/1440",
+    "value": "68 px (×1.36)"
+   },
+   {
+    "name": "cuyana/body-font/375 и 1440",
+    "value": "13px / line-height 20px (ratio 1.54, идентично)"
+   },
+   {
+    "name": "cuyana/section-gap/375",
+    "value": "5, 0, 0, 8 px — почти ноль, блоки full-bleed примыкают впритык"
+   },
+   {
+    "name": "cuyana/section-gap/1440",
+    "value": "12, 0, 0, 8 px — тот же паттерн"
+   },
+   {
+    "name": "cuyana/catalog-card-pad/375 и 1440",
+    "value": "0 px — отступ держится не padding, а margin-утилитой `mb-3` на карточке"
+   },
+   {
+    "name": "cuyana/catalog-grid-rowGap/375",
+    "value": "37 px"
+   },
+   {
+    "name": "cuyana/catalog-grid-rowGap/1440",
+    "value": "75 px (×2)"
+   },
+   {
+    "name": "cuyana/catalog-grid-colGap/375 и 1440",
+    "value": "12 px (без изменений)"
+   },
+   {
+    "name": "glossier/page-gutter-outer/375",
+    "value": "12 px"
+   },
+   {
+    "name": "glossier/page-gutter-outer/1440",
+    "value": "16 px (×1.33)"
+   },
+   {
+    "name": "glossier/header-height/375 и 1440",
+    "value": "40 px (fixed, идентично на обеих ширинах)"
+   },
+   {
+    "name": "glossier/body-font/375 и 1440",
+    "value": "16px / line-height 18.4px (ratio 1.15, идентично)"
+   },
+   {
+    "name": "glossier/section-spacer-block/375",
+    "value": "60 px (явный div.shopify-section.section-spacer — отдельный пустой блок-спейсер, не padding)"
+   },
+   {
+    "name": "glossier/section-spacer-block/1440",
+    "value": "80 px (×1.33)"
+   },
+   {
+    "name": "glossier/catalog-grid-colGap/375",
+    "value": "12 px"
+   },
+   {
+    "name": "glossier/catalog-grid-colGap/1440",
+    "value": "16 px (×1.33)"
+   },
+   {
+    "name": "glossier/catalog-card-pad/375 и 1440",
+    "value": "ненадёжно — найденное 'paddingBottom' (211px/411px) почти наверняка высота текстового блока подписи/цены карточки, а не реальный CSS-padding; исключено из расчёта отношения"
+   },
+   {
+    "name": "glossier/ratio-spacer-to-colGap/375",
+    "value": "60 : 12 = 5 : 1"
+   },
+   {
+    "name": "glossier/ratio-spacer-to-colGap/1440",
+    "value": "80 : 16 = 5 : 1 (тот же коэффициент на обеих ширинах)"
+   }
+  ]
+ },
+ "sourcesFailed": [
+  "https://www.aesop.com/ — HTTP 403, Cloudflare managed challenge (cf-mitigated: challenge), заголовок 'Just a moment...'; и в curl, и в headless Chromium (после корректной установки доверия к CA прокси)",
+  "https://www.cos.com/ — HTTP 403 'Access Denied' (H&M Group anti-bot)",
+  "https://www.arket.com/ — HTTP 403 'Access Denied' (тот же H&M Group анти-бот периметр, что и cos.com)",
+  "https://www.muji.com/ — HTTP 403 'Access Denied'; заменено на региональный https://muji.us/, который открылся нормально (200) и был измерен вместо него",
+  "https://www.jomalone.com/ — HTTP 403 'Access Denied'",
+  "https://www.tomford.com/ — HTTP 403 'Access Denied'",
+  "https://www.net-a-porter.com/ — HTTP 403 'Access Denied'",
+  "https://www.jcrew.com/ — HTTP 403 'Access Denied'",
+  "https://www.uniqlo.com/us/en/ — HTTP 403 'Access Denied'",
+  "https://www.aritzia.com/us/en/ — HTTP 403, Cloudflare challenge ('Just a moment...')",
+  "https://www.kiehls.com/ — HTTP 403, Cloudflare challenge ('Just a moment...')",
+  "https://www.diptyqueparis.com/ catalog (все проверенные /collections/... URL) — HTTP 404 в этой сессии; главная страница диптика загрузилась нормально и измерена, каталог — нет",
+  "https://www.lelabofragrances.com/ catalog на 1440 — грид карточек не захвачен эвристикой (менее 3 совпадений по селекторам карточки товара на этой ширине)"
+ ],
+ "sourcesRead": [
+  "https://www.apple.com/shop и https://www.apple.com/shop/buy-mac — главная и каталог, замерено на 375 и 1440 через Playwright/Chromium",
+  "https://www.lelabofragrances.com/ и https://www.lelabofragrances.com/classic-collection.html — главная и каталог, 375 и 1440",
+  "https://www.byredo.com/us_en/ и https://www.byredo.com/us_en/c/perfume/personal-fragrances/categories/perfumes — главная и каталог, 375 и 1440 (реальный путь /us_en/ найден через 302-редирект с https://www.byredo.com/, стартовый /us/en/ из задания вернул 404)",
+  "https://www.diptyqueparis.com/en_us/ — главная, 375 и 1440 (каталог не открылся, см. sourcesFailed)",
+  "https://muji.us/ и https://muji.us/collections/all — главная и каталог, 375 и 1440 (региональная замена муджи.com, который заблокирован)",
+  "https://www.cuyana.com/ и https://www.cuyana.com/collections/all — главная и каталог, 375 и 1440",
+  "https://www.glossier.com/ и https://www.glossier.com/collections/all — главная и каталог, 375 и 1440",
+  "Методология: /root/.ccr/README.md прочитан перед началом; для прохождения TLS headless Chromium (Playwright) через прокси-CA потребовалось явно импортировать /root/.ccr/agent-proxy-ca.crt в NSS-хранилище Chromium (certutil -A -d sql:~/.pki/nssdb) — системный /etc/ssl/certs/ca-certificates.crt уже содержал этот CA, но собственное Chrome Root Store бандла не читает; TLS-проверка не отключалась ни разу, curl --cacert тоже подтверждает легитимную цепочку сертификатов до прокси."
+ ],
+ "system": "Эмпирическая шкала отступов/«воздуха», снятая напрямую с 7 живых minimalism-luxury/premium DTC-витрин через Playwright (не из документации вендоров): Apple Store, Le Labo, Byredo, Diptyque Paris, MUJI US, Cuyana, Glossier — на 375 и 1440 CSS-px, главная + страница каталога у каждой, где это удалось.",
+ "unit": "px — все числа сняты через getBoundingClientRect()/getComputedStyle() в браузере, которые всегда возвращают вычисленные CSS-пиксели независимо от того, в чём объявлен исходный CSS (px/rem/em/%/clamp) — по внешнему замеру нельзя восстановить, в какой единице был написан исходник у измеряемых сайтов; это ограничение метода, а не наблюдение о них."
+}

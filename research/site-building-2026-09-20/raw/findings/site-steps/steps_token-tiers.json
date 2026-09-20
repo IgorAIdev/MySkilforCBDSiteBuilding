@@ -1,0 +1,640 @@
+{
+ "source": "Ярусы токенов: Nathan Curtis (EightShapes), W3C Design Tokens Community Group (DTCG), Style Dictionary, Figma",
+ "sourcesRead": [
+  "https://nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421 (авторское зеркало Medium-статьи 2016)",
+  "https://nathanacurtis.substack.com/p/naming-tokens-in-design-systems-9e86c7444676 (зеркало Medium 2020)",
+  "https://nathanacurtis.substack.com/p/reimagining-a-token-taxonomy-462d35b2b033 (2022)",
+  "https://nathanacurtis.substack.com/p/purposeful-vs-aesthetic-naming-4390870ef463 (2025)",
+  "https://nathanacurtis.substack.com/p/design-system-tiers-2c827b67eae1 (2019)",
+  "https://nathanacurtis.substack.com/p/color-in-design-systems-a1c80f65fa3 (2016)",
+  "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62 (2016)",
+  "https://nathanacurtis.substack.com/p/typography-in-design-systems-6ed771432f1e (2019)",
+  "https://nathanacurtis.substack.com/p/size-in-design-systems-64f234aec519 (2019)",
+  "https://nathanacurtis.substack.com/p/light-dark-9f8ea42c9081 (2017)",
+  "https://nathanacurtis.substack.com/p/dealing-with-dependencies-inside-design-systems-aa6ce2cf7bc3 (2018)",
+  "https://nathanacurtis.substack.com/p/system-features-step-by-step-e69c90982630 (2017)",
+  "https://nathanacurtis.substack.com/p/defining-design-systems-6dd4b03e0ff6 (2017)",
+  "https://nathanacurtis.substack.com/p/starting-a-design-system-6b909a578325 (2017)",
+  "https://nathanacurtis.substack.com/p/design-system-conventions-in-figma (2026)",
+  "https://nathanacurtis.substack.com/api/v1/archive (полный список статей, 3 страницы)",
+  "https://www.designtokens.org/TR/drafts/format/ (Format Module 2025.10; сюда переадресует tr.designtokens.org/format/)",
+  "https://www.designtokens.org/TR/drafts/resolver/ (Resolver Module)",
+  "https://www.designtokens.org/glossary/",
+  "https://www.designtokens.org/",
+  "https://raw.githubusercontent.com/design-tokens/community-group/main/README.md",
+  "https://styledictionary.com/info/tokens/",
+  "https://styledictionary.com/info/architecture/",
+  "https://styledictionary.com/info/dtcg/",
+  "https://styledictionary.com/reference/config/",
+  "https://styledictionary.com/reference/hooks/transforms/predefined/",
+  "https://raw.githubusercontent.com/style-dictionary/style-dictionary/main/examples/basic/tokens/{colors,dimensions,text}.json",
+  "https://raw.githubusercontent.com/style-dictionary/style-dictionary/main/examples/advanced/multi-brand-multi-platform/README.md + tokens/globals/color/base.json + tokens/globals/font/index.json + tokens/globals/size/font.json",
+  "https://raw.githubusercontent.com/style-dictionary/style-dictionary/main/examples/advanced/referencing_aliasing/README.md + tokens/button/button.json",
+  "https://help.figma.com/hc/en-us/articles/18490793776023-Update-1-Tokens-variables-and-styles",
+  "https://help.figma.com/hc/en-us/articles/15145852043927-Create-and-manage-variables-and-collections",
+  "https://help.figma.com/hc/en-us/articles/15343816063383-Modes-for-variables",
+  "https://help.figma.com/hc/en-us/articles/14548865734679-Lesson-3-Build-your-design-system",
+  "https://help.figma.com/hc/en-us/sections/23536356509975-Build-design-systems (оглавление раздела)",
+  "https://help.figma.com/hc/en-us/articles/15339657135383-Guide-to-variables-in-Figma (только оглавление, структурных правил там нет)",
+  "https://www.figma.com/resource-library/design-tokens/"
+ ],
+ "sourcesFailed": [
+  "https://eightshapes.com/articles/ и https://www.eightshapes.com/articles/ — DNS не разрешается, через прокси 502; заменено авторским зеркалом на nathanacurtis.substack.com (те же id статей в адресах)",
+  "https://medium.com/eightshapes-llc/tokens-in-design-systems-25dd82d58421 и …/naming-tokens-in-design-systems-9e86c7444676 — 403 от Medium; прочитаны те же статьи на Substack автора",
+  "http://web.archive.org/… (снимки Medium и eightshapes) — инструмент чтения не пускает на web.archive.org",
+  "https://scribe.rip/eightshapes-llc/… — зеркало вернуло пустую страницу",
+  "https://nathanacurtis.substack.com/ (главная) — списка статей не отдаёт; использован JSON-архив /api/v1/archive",
+  "https://api.github.com/repos/style-dictionary/style-dictionary/… — доступ к API репозитория в сессии не включён; файлы примеров прочитаны через raw.githubusercontent.com и HTML-страницы github.com",
+  "https://raw.githubusercontent.com/design-tokens/community-group/main/GLOSSARY.md — 404; глоссарий прочитан на designtokens.org/glossary/",
+  "Статья Nathan Curtis с названием «Design Tokens and Tiers» — в полном архиве автора такой нет; ближайшие по теме: «Design System Tiers» (2019, про ярусы системы, не токенов) и «Reimagining a Token Taxonomy» (2022, три типа токенов Generic/Semantic/Component)",
+  "Figma «Update 2/3» серии про токены — в разделе Build design systems есть только Update 1; поиск подтверждает"
+ ],
+ "layers": [
+  {
+   "order": 1,
+   "name": "Token taxonomy & specification (Curtis: Plan → Audit → Decide → Implement; Naming Tokens) — Словарь имён и таблица-спецификация",
+   "plain": "Прежде чем заводить значения, договариваются, как всё будет называться и из каких частей складывается имя — как адрес на конверте: страна → город → улица → дом. Без этого каждое новое число получает случайное имя, и через месяц их никто не находит. Профессионалы сначала обходят то, что уже есть (где числа вписаны руками), и только потом решают имена.",
+   "contains": [
+    "Четыре уровня имени в фиксированном порядке: Namespace (system / theme / domain) → Object (component group / component / element) → Base (category / concept / property) → Modifier (variant / state / scale / mode)",
+    "Список категорий = список оснований: color, font (type), space, size, elevation (z-index / layer), breakpoints, shadow, touch, time (duration)",
+    "Список концептов: action, feedback, heading, body, visualization",
+    "Колонка «тип токена» — Generic / Semantic / Component — для сортировки и фильтра",
+    "Обход as-is: где стили применены в Figma и в коде, какие значения вписаны руками («token gaps»)",
+    "Таблица-спецификация: swatch, value, name, alias, Figma style, use description на каждый токен",
+    "Правило «включать только нужные уровни», без дублирования полных кортежей"
+   ],
+   "dependsOn": [],
+   "doneWhen": "Спецификация с колонками имя / значение / алиас / тип / где применять записана, разослана рецензентам из дизайна и кода и принята («Circulate token specifications across relevant reviewers»); каждое найденное вписанное руками значение либо получило имя, либо занесено в список на замену.",
+   "artifacts": [
+    "Таблица-спецификация токенов (Curtis: у большинства команд — в design specification, не в таблице навсегда)",
+    "Раздел «Как называем» в DESIGN_SYSTEM.md",
+    "Тест на форму имени (порядок частей, допустимые слова категорий и модификаторов)"
+   ]
+  },
+  {
+   "order": 2,
+   "name": "Options / Primitive (Generic, Global) tokens — Примитивы: склад сырых значений",
+   "plain": "Склад всех чисел и красок, которыми магазин вообще пользуется: каждый оттенок, каждый шаг отступа, каждый кегль — с именем, но без смысла («серый-500», «шаг-4»). Со склада напрямую в витрину ничего не берут: примитивы только для ссылок из следующего слоя. У третьей витрины цветная часть этого склада уже есть; остальные полки — пусты.",
+   "contains": [
+    "Семь простых типов DTCG — это и есть полный список того, что вообще хранится на складе: color, dimension, fontFamily, fontWeight, number, duration, cubicBezier",
+    "Цветовые ступени (100…900 или по светлоте 05…92), нейтральные серые, брендовые",
+    "Размерная лесенка dimension от базового числа (Style Dictionary basic: 0, 4, 8, 12 … 60 px)",
+    "Семейства и начертания шрифтов, доли для высоты строки (number)",
+    "Длительности и кривые для движения",
+    "Правило Figma: «primitive tokens are for reference only» — примитив не применяют к элементу"
+   ],
+   "dependsOn": [
+    "1"
+   ],
+   "doneWhen": "Ни одного сырого значения в макете и в коде, у которого нет примитива; ни один примитив не применён к элементу напрямую; у каждого есть $type; палитра примитивов не меняется от темы и от страны (одно значение, без режимов).",
+   "artifacts": [
+    "tokens/primitives/*.json в формате DTCG ($value, $type)",
+    "Коллекция «Primitives» в Figma (одна колонка значений)",
+    "Сгенерированные custom properties на :root (не правятся руками)"
+   ]
+  },
+  {
+   "order": 3,
+   "name": "Space (Curtis: inset / stack / inline, base unit, scale) — Пространство: воздух, поля и ритм",
+   "plain": "Это и есть то, что вы называете «воздух, поля, ритм»: расстояние внутри блока (поля), между блоками сверху вниз (ритм, «стопка») и между соседями в строке. Берут одно памятное базовое число, строят из него лесенку, ступени называют как размеры футболок — и все расстояния в магазине кратны этой лесенке. Отдельно — понятие («поле карточки»), отдельно — само число.",
+   "contains": [
+    "Базовое число («memorable base number») и нелинейная лесенка от него",
+    "Три понятия: inset (поля внутри, как паспарту у фотографии), stack (между блоками по вертикали — «мы стопкуем»), inline (между элементами в строке); плюс squish / stretch для кнопок и полей",
+    "Имена ступеней как футболки: xs, s, m, l, xl",
+    "Сетка и контейнер — тоже потребители пространства («Grid is a component that uses space»)",
+    "Понятие и свойство разведены: одно понятие → много свойств (padding, margin, gap)",
+    "Плотность настраивается той же лесенкой"
+   ],
+   "dependsOn": [
+    "2 (dimension-примитивы)"
+   ],
+   "doneWhen": "Все padding / margin / gap витрины ссылаются на именованные ступени, а не на числа; сетка и контейнеры описаны теми же ступенями; в коде нет расстояния, которого нет в лесенке.",
+   "artifacts": [
+    "Лесенка dimension (примитивы) + роли inset / stack / inline (семантика)",
+    "Custom properties --space-* и --layout-*",
+    "В Figma — number-переменные, ограниченные областью gap / padding"
+   ]
+  },
+  {
+   "order": 4,
+   "name": "Typography (Curtis; DTCG composite «typography») — Типографика",
+   "plain": "Какими буквами набран магазин: семейство, его толщины, размеры для текста и заголовков, высота строки. Это составной слой — он собирается из готовых кусочков склада (шрифт + кегль + толщина + высота строки), поэтому стоит после примитивов и после ритма. Цвет текста здесь не решают: его дают цветовые роли.",
+   "contains": [
+    "Порядок решений по Curtis: семейство и начертания → шкала основного текста (S / M / L) → цвета текста (primary, secondary, interactive, disabled, error — из цветовых ролей) → уровни заголовков (4–6) → line-height, letter-spacing → отзывчивое масштабирование → связь с компонентами (Heading, Article)",
+    "Состав DTCG typography: fontFamily + fontSize (dimension) + fontWeight + letterSpacing (dimension) + lineHeight (number)",
+    "Уровень заголовка ≠ HTML-тег H#",
+    "Шкала тела короткая, но с допуском точечных вариантов вне шкалы",
+    "Figma Lesson 3: цвет текстового стиля задаётся цветовым стилем, не текстовым"
+   ],
+   "dependsOn": [
+    "2 (fontFamily / fontWeight / dimension / number)",
+    "3 (высота строки и ритм — одна лесенка)",
+    "цветовые роли (готовы)"
+   ],
+   "doneWhen": "Каждый текст на странице набран одним из именованных стилей (body S/M/L, heading 1…n) и ни одним размером мимо шкалы; текстовые цвета читают цветовые роли; выбор начертаний зафиксирован (это «долгосрочные последствия»).",
+   "artifacts": [
+    "Составные токены typography.* (DTCG) и текстовые стили в Figma",
+    "Custom properties / классы --text-*",
+    "Файлы шрифтов по языкам рынка (для hr / it / ro — latin-ext)"
+   ]
+  },
+  {
+   "order": 5,
+   "name": "Size & density (Curtis: Size in Design Systems) — Размер и плотность",
+   "plain": "Высота кнопок, полей, значков — то, что делает ряд элементов ровным. Размер не задают числом: он получается из кегля и полей, поэтому этот слой идёт после шрифта и воздуха. Размеров два-три (S / M / L) на весь каталог, и «маленькая кнопка» с «маленьким полем» одной высоты.",
+   "contains": [
+    "Высота компонента = font-size + line-height + padding (+ border); ширина зависит от содержимого",
+    "Два или максимум три размера: Small (плотные данные), Medium (по умолчанию), Large (маркетинг, простые сценарии)",
+    "Цель под пальцем (touch) как категория токенов",
+    "Размеры значков, привязанные к размеру узла",
+    "Единая конвенция по каталогу с нюансом на компонент"
+   ],
+   "dependsOn": [
+    "3",
+    "4"
+   ],
+   "doneWhen": "Элементы одного размера стоят в одной строке одной высоты по всему каталогу («Small input и small button — одинаковый small»); шаги размеров описаны токенами, а не числами внутри компонентов; у каждой цели под пальцем — размер из слоя.",
+   "artifacts": [
+    "Токены size / control (--control-size-*, --icon-size-*)",
+    "Таблица высот по размерам на компонент"
+   ]
+  },
+  {
+   "order": 6,
+   "name": "Shape, elevation, layer, motion, breakpoints (DTCG composites shadow / border / transition; Curtis categories) — Форма, глубина, слой, время, точки перелома",
+   "plain": "Остальные основания: скругление углов, тени и «этажность» (что над чем лежит), скорость и характер движения, ширины экрана, на которых меняется раскладка. Почти все — составные: тень = цвет + расстояния, переход = длительность + кривая, поэтому идут после склада.",
+   "contains": [
+    "radius (dimension)",
+    "shadow = color + offsetX + offsetY + blur + spread (dimension); может быть списком теней",
+    "border = color + width (dimension) + style (strokeStyle)",
+    "transition = duration + delay + timingFunction (cubicBezier)",
+    "gradient = stops (color + position number)",
+    "elevation / z-index как именованные слои",
+    "breakpoints (media-query) и touch"
+   ],
+   "dependsOn": [
+    "2"
+   ],
+   "doneWhen": "У каждой тени, скругления, длительности и слоя есть именованный токен; в CSS нет z-index, радиуса или миллисекунд, написанных числом.",
+   "artifacts": [
+    "Составные токены shadow.* / border.* / transition.* (DTCG)",
+    "Custom properties --radius-*, --shadow-*, --layer-*, --motion-*",
+    "Реестр точек перелома"
+   ]
+  },
+  {
+   "order": 7,
+   "name": "Decisions / Semantic (alias) tokens — Роли: смысл вместо значения",
+   "plain": "Здесь каждому складскому значению дают должность: не «зелёный-600», а «цена», «кнопка покупки», «текст на карточке». Именно эти имена читают экраны. Поменяли, какой оттенок стоит за должностью, — поменялся весь магазин, а экраны не тронули. Для цвета у третьей витрины это уже сделано; для воздуха, шрифта, размера, тени — предстоит.",
+   "contains": [
+    "Curtis 2016: decision = option applied to a context; семантические токены Figma отвечают «как и где»",
+    "Имена по назначению, не по виду (purposeful vs aesthetic): action, feedback, heading, body, surface, content",
+    "Полное имя из concept + property + variant + state + mode: color-action-background-secondary-hover-on-light",
+    "Цепочки алиасов разрешены: semantic.link → semantic.brand → base.primary; инструмент обязан дойти до явного значения",
+    "Роли для каждой категории: цвет (готово), пространство (inset-card, stack-section), типографика (body-m, heading-1), размер (control-m), глубина (raised, overlay)",
+    "Style Dictionary multi-brand: color.action.primary → {color.primary} → {color.brand.primary}"
+   ],
+   "dependsOn": [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6"
+   ],
+   "doneWhen": "Каждое применение в компоненте читает роль, а не примитив; у каждой роли есть алиас на примитив (нет висячих значений); все имена ролей — по назначению; для новой страны или темы не понадобилось ни одного нового имени.",
+   "artifacts": [
+    "tokens/semantic/*.json",
+    "Коллекция «Tokens» в Figma (с режимами)",
+    "Custom properties ролей (--content-*, --surface-*, --space-inset-*, --text-body-*)"
+   ]
+  },
+  {
+   "order": 8,
+   "name": "Component-specific tokens — Компонентные токены (только по необходимости)",
+   "plain": "Отдельные имена для одного узла — «фон кнопки покупки при нажатии». Заводят только там, где узел должен отличаться от общего правила. Сначала держат внутри компонента и лишь когда несколько разных берут одно и то же — поднимают в общие. Figma прямо пишет, что этот ярус нужен не всем.",
+   "contains": [
+    "Уровень Object в имени: component group / component / element (esds-input-left-icon-color-fill)",
+    "Состояния: default, hover, press, focus, disabled, visited, error",
+    "Правило продвижения: локально → группа компонентов (3+ пользователей) → глобально",
+    "Компонентный токен ссылается на роль, не на примитив (Habitz: button primary → surface/brand-contrast)",
+    "Ярус необязателен: «might not be necessary for everyone»"
+   ],
+   "dependsOn": [
+    "7"
+   ],
+   "doneWhen": "Каждый компонентный токен ссылается на роль, а не на примитив; список компонентных токенов короче списка ролей; у каждого записано, чем узел отличается от общего правила.",
+   "artifacts": [
+    "tokens/components/*.json (при наличии)",
+    "Переменные внутри CSS-модуля узла"
+   ]
+  },
+  {
+   "order": 9,
+   "name": "Modes & themes (Figma modes; DTCG resolver sets / modifiers; Style Dictionary include / source, brands / platforms) — Режимы и темы",
+   "plain": "Одни и те же должности, разные значения по обстоятельствам: светлая и тёмная тема, другая страна с другим брендом или шрифтом. Режим — это столбец в таблице ролей; экран об этом не знает и переключается сам. У примитивов столбец один, поэтому режимы живут ярусом выше.",
+   "contains": [
+    "Figma: mode хранит одно значение на переменную; коллекция «Tokens» несёт режимы, «Primitives» — нет",
+    "Curtis light/dark: меняются background, text, border, interactive, layered; on-light / on-dark в имени; theme (бренд) ≠ mode (свет/тьма)",
+    "Style Dictionary multi-brand: папки brands/ (цвет бренда), platforms/ (шрифт), globals/ (общее), и глобальные роли ссылаются на брендовые",
+    "include = база, source = переопределение поверх",
+    "DTCG resolver: sets, modifiers, contexts; порядок: позже в списке — сильнее",
+    "Curtis Color: брендовые цвета — территория бренда, система их пропускает, а не выбирает"
+   ],
+   "dependsOn": [
+    "7"
+   ],
+   "doneWhen": "Смена темы или страны не требует правки ни одного компонента; у каждой роли есть значение в каждом режиме; все пары «фон + текст» проверены на контраст в каждом режиме.",
+   "artifacts": [
+    "Наборы значений на режим / страну (sets) и resolver.json",
+    "Блоки [data-theme] и по магазину в сгенерированном CSS",
+    "Поля в админке на магазин: значения ролей, не имена"
+   ]
+  },
+  {
+   "order": 10,
+   "name": "Build pipeline & guard (Style Dictionary architecture) — Конвейер сборки и сторож",
+   "plain": "Машина читает таблицу токенов и сама выпускает файлы для сайта и для админки; человек больше не переписывает числа руками. Здесь же ставят сторожа: сломанная ссылка, число мимо шкалы, компонент, взявший примитив вместо роли — сборка красная.",
+   "contains": [
+    "Девять шагов: config → найти файлы → разобрать → deep merge → preprocess → transform → resolve aliases → format → actions",
+    "Алиас может лежать в любом файле — всё сливается в один объект",
+    "Несуществующий или циклический алиас — ошибка сборки",
+    "Выходы: CSS custom properties, JSON для админки, Figma",
+    "Сторожа: имя по форме, роль ↔ примитив, «компонент читает роль», нет сырых значений в модулях"
+   ],
+   "dependsOn": [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+   ],
+   "doneWhen": "Один запуск собирает все выходы и все режимы из одного источника; CI падает на сломанной ссылке, на сыром значении в компоненте и на имени не по форме; сгенерированный файл никто не правит руками.",
+   "artifacts": [
+    "tokens/**/*.json (DTCG) — единственный источник",
+    "Конфиг сборки и сгенерированные CSS / JSON",
+    "Тесты-сторожа в CI"
+   ]
+  },
+  {
+   "order": 11,
+   "name": "Components → documentation (Curtis: Dependencies; Features Step-by-Step; Figma Lesson 3) — Компоненты и документация поверх оснований",
+   "plain": "Только теперь собирают кнопки, карточки, шапку: они берут готовые должности и ничего своего не изобретают. Порядок выпуска у профессионалов один: токены → компоненты → документация, потому что изменение основания катится по этой цепи вниз.",
+   "contains": [
+    "Порядок Figma Lesson 3: значки → гибкие компоненты с вариантами → паттерны из них",
+    "Атомарные → составные; у значка больше всего зависимых (62 у Atlassian)",
+    "Каждая часть проходит 5 шагов: Discover → Design → Build → Doc → Publish с критерием «готово» на каждом",
+    "Ядро (core tier): цвет, типографика, значки, пространство + button, checkbox, input, heading"
+   ],
+   "dependsOn": [
+    "7",
+    "8",
+    "10"
+   ],
+   "doneWhen": "В компоненте нет ни одного сырого значения; изменение токена доходит до всех компонентов без их правки; у каждой части закрыты все пять шагов с их критериями.",
+   "artifacts": [
+    "Библиотека компонентов",
+    "Документация с примерами и спецификациями"
+   ]
+  }
+ ],
+ "orderRationale": "Порядок в этом семействе задаётся двумя правилами, и оба выводимы из текста источников, а не из моды. Первое — ярусы строятся снизу вверх, потому что ссылки идут только вниз: DTCG требует, чтобы инструмент «шёл по каждой ссылке, пока не найдёт токен с явным значением», а Figma говорит прямо, что структура «всегда начинается с основания из примитивов», и «примитивы только для ссылок». Написать роль раньше значения нельзя — ей не на что сослаться; написать компонент раньше роли — значит вписать число руками, и это ровно те «token gaps … hard-coded values», которые Curtis находит на обходе каждой системы. Режимы (свет/тьма, страна) стоят после ролей, потому что режим — столбец значений на роль: в Habitz коллекция Primitives несёт одно значение, коллекция Tokens — режимы; у Style Dictionary брендовые папки подменяют значения, на которые ссылаются глобальные роли. Конвейер сборки — после того, как есть что собирать; компоненты и документация — последними, потому что цепь выпуска у Shopify «tokens, then React, UI Kit, then Doc Site», а у Atlassian правка значка тянет 62 зависимых. Второе правило — среди категорий простые типы раньше составных: по DTCG typography = fontFamily + dimension + fontWeight + number, shadow = color + dimension, border = color + dimension + strokeStyle, transition = duration + cubicBezier; значит цвет и размерная лесенка (dimension) идут первыми, а типографика, тени, рамки, переходы — вторыми. Размер (высота узлов) — после типографики и пространства, потому что по Curtis он «получается из кегля и полей», а не задаётся числом. Явного предписания «сначала пространство, потом шрифт» ни один источник не даёт; этот порядок выведен из урока Figma (spacing grid → color → typography → effects → icons → components → patterns), из ремарки Figma resource library «start with color, spacing, and typography» и из зависимости line-height от той же лесенки. Таксономия имён стоит нулевым шагом по Curtis (Plan → Audit → Decide → Implement): имена решают до значений, иначе на выходе «разрозненные, плохо организованные списки переменных». Что ломается при другом порядке: роли до примитивов — висячие ссылки; компоненты до ролей — сырые числа в 60 файлах и перекраска страны руками; режимы на примитивах — удвоенная палитра и перекраска компонентов при смене темы; типографика до лесенки — свой ритм у каждого заголовка; размер до шрифта — «маленькая кнопка» и «маленькое поле» разной высоты. Для третьей витрины отсюда следует: палитра закрыла слои 2 и 7 только для категории «цвет»; следующий шаг по этому семейству — записать словарь имён (слой 1, если он ещё не записан) и завести размерную лесенку с ролями пространства (слои 2 → 3), затем типографику (4), размер (5), форму/глубину/время (6), и лишь потом первый компонент.",
+ "vocabulary": [
+  {
+   "term": "Токен (design token)",
+   "plain": "Именованное значение: имя + число или краска. Не «#1a7f37», а «цвет-цены = #1a7f37». Имя живёт долго, значение можно менять.",
+   "example": "color-text-price: #1a7f37"
+  },
+  {
+   "term": "Примитив / option / generic / global",
+   "plain": "Значение со склада без смысла: просто «зелёный-600» или «шаг-4». Из него можно только ссылаться, к элементу его не прикладывают.",
+   "example": "green-600 = #1a7f37; dimension-4 = 16px"
+  },
+  {
+   "term": "Роль / семантический / alias / decision",
+   "plain": "Должность для складского значения: «цена», «фон карточки», «поле внутри карточки». Именно её читают экраны. Curtis: решение = значение, приложенное к обстоятельствам.",
+   "example": "content-price → green-600; space-inset-card → dimension-4"
+  },
+  {
+   "term": "Компонентный токен",
+   "plain": "Должность для одного конкретного узла, когда ему нужно отличаться от общего правила. Ссылается на роль, а не на склад. Нужен не всем.",
+   "example": "button-buy-background-hover → surface-action-strong"
+  },
+  {
+   "term": "Алиас (ссылка)",
+   "plain": "Запись «возьми значение вон у того». Можно строить цепочку, но в конце всегда должно быть настоящее число.",
+   "example": "{color.action.primary} → {color.primary} → {color.brand.primary} → #3B5998"
+  },
+  {
+   "term": "Ярус (tier)",
+   "plain": "Этаж системы: склад → роли → узлы. Ссылки идут только вниз по этажам.",
+   "example": "Figma: Primitives → Tokens (semantic + component)"
+  },
+  {
+   "term": "Категория (category)",
+   "plain": "Какого рода значение: цвет, шрифт, пространство, размер, глубина, тень, время, точка перелома. Список категорий и есть список оснований, которые надо построить.",
+   "example": "color, font, space, size, elevation, shadow, time, breakpoints"
+  },
+  {
+   "term": "Концепт (concept)",
+   "plain": "Про что этот токен по смыслу: действие, обратная связь, заголовок, тело текста.",
+   "example": "color-feedback-error, font-heading-size-1"
+  },
+  {
+   "term": "Свойство (property)",
+   "plain": "К какой части элемента прикладывается: текст, фон, рамка, заливка, толщина, высота строки.",
+   "example": "color-action-background, color-action-text"
+  },
+  {
+   "term": "Вариант (variant)",
+   "plain": "Какой из нескольких равноправных: главный / второстепенный, успех / ошибка / предупреждение.",
+   "example": "button primary vs secondary"
+  },
+  {
+   "term": "Состояние (state)",
+   "plain": "Что сейчас происходит с элементом: покой, наведение, нажатие, фокус, выключен.",
+   "example": "color-action-background-hover"
+  },
+  {
+   "term": "Шкала (scale)",
+   "plain": "Ступени одного и того же: 100…900, xs…xl, 1x / 2x / 4x. Лесенка, по которой ходят все.",
+   "example": "space-xs, space-s, space-m; gray-05 … gray-92"
+  },
+  {
+   "term": "Режим (mode)",
+   "plain": "Столбец значений для тех же ролей при других обстоятельствах: светлая / тёмная тема, другая страна. Экран не знает, в каком он режиме.",
+   "example": "content-strong = #111 (light) / #fafafa (dark)"
+  },
+  {
+   "term": "Тема (theme) vs режим",
+   "plain": "Тема — другой бренд или страна (свои краски и шрифт), режим — свет/тьма внутри той же темы. Curtis разводит их прямо.",
+   "example": "тема cbdshop.hr / cbdshop.it; режим light / dark"
+  },
+  {
+   "term": "Коллекция (Figma collection)",
+   "plain": "Папка переменных в Figma с общими режимами. Обычно две: «Primitives» (один столбец) и «Tokens» (столбцы-режимы).",
+   "example": "Primitives / Tokens в файле Habitz"
+  },
+  {
+   "term": "Составной токен (composite)",
+   "plain": "Токен из нескольких кусочков склада сразу: текстовый стиль = шрифт + кегль + толщина + высота строки; тень = цвет + смещения + размытие.",
+   "example": "typography.heading = {sans} + {dimension-7} + {bold} + 1.8"
+  },
+  {
+   "term": "Пространство (space): inset / stack / inline",
+   "plain": "«Воздух» в трёх видах: поля внутри блока (inset, как паспарту у фото), расстояние между блоками сверху вниз (stack — ритм), расстояние между соседями в строке (inline).",
+   "example": "inset-m внутри карточки; stack-l между полосами главной"
+  },
+  {
+   "term": "Ритм",
+   "plain": "Повторяющийся шаг расстояний сверху вниз, кратный одной лесенке; у Curtis это stack на базовом числе.",
+   "example": "88 / 48 / 88 между полосами — одна ступень на всю страницу"
+  },
+  {
+   "term": "Базовое число (base unit)",
+   "plain": "Одно памятное число, из которого выросла вся лесенка расстояний.",
+   "example": "4 → 4, 8, 12, 16, 24, 32, 48, 64"
+  },
+  {
+   "term": "Размер (size) и плотность (density)",
+   "plain": "Размер — высота узла (кнопки, поля), выведенная из кегля и полей; плотность — сколько всего влезает на экран. Размер влияет на плотность, но это не одно и то же.",
+   "example": "control S / M / L; touch target 44"
+  },
+  {
+   "term": "Глубина / слой (elevation, z-index)",
+   "plain": "Что над чем лежит и как это показано тенью.",
+   "example": "layer-raised, shadow-overlay"
+  },
+  {
+   "term": "Точка перелома (breakpoint)",
+   "plain": "Ширина экрана, на которой раскладка меняется.",
+   "example": "860 — единственный шов раскладки"
+  },
+  {
+   "term": "Пространство имён (namespace)",
+   "plain": "Приставка, чья это система / тема / область, чтобы не путать со сторонним.",
+   "example": "esds-color-…, aads-ocean-color-primary"
+  },
+  {
+   "term": "DTCG-формат",
+   "plain": "Общий язык JSON для токенов, о котором договорились Figma, Adobe, Google, Shopify и другие: у каждого токена $value и $type, ссылки в фигурных скобках.",
+   "example": "{\"color\": {\"$type\": \"color\", \"brand\": {\"$value\": \"#…\"}}}"
+  },
+  {
+   "term": "Style Dictionary",
+   "plain": "Машина, которая читает файлы токенов и выпускает из них CSS, JSON и файлы для других платформ. Правишь один источник — обновляется всё.",
+   "example": "tokens/*.json → build/css/variables.css"
+  },
+  {
+   "term": "Purposeful vs aesthetic naming",
+   "plain": "Имя по назначению («ошибка») против имени по виду («красный»). В ролях — только по назначению, иначе перекраска бренда переименовывает всё.",
+   "example": "severity=error, а не color=red"
+  }
+ ],
+ "principles": [
+  {
+   "principle": "Компонент читает роль, роль читает примитив, примитив напрямую никто не применяет.",
+   "evidence": "Figma Update 1: «primitive tokens are for reference only … you wouldn't apply them directly»; Habitz: button primary → surface/brand-contrast. Style Dictionary referencing example: button.color.primary → {color.primary} → {color.base.green}. DTCG §7.2.2: цепочки алиасов разрешены, инструмент идёт до явного значения.",
+   "forStorefront3": "То, что уже сделано для цвета, распространить на каждую следующую категорию: .card { padding: var(--space-inset-card) }, а не 16px; font: var(--text-body-m), а не 15px/1.5. Сторож в CI: в компонентных модулях нет hex, px, ms, кроме ссылок на роли."
+  },
+  {
+   "principle": "Имя даётся по назначению, а не по виду — тогда смена бренда или страны меняет значения, а не имена.",
+   "evidence": "Figma resource library: «Name every token for what it does rather than what it is»; Curtis (Purposeful vs Aesthetic): предпочитает purpose, потому что смысл даёт консистентность и доступность; Naming: concept + variant → color-feedback-success.",
+   "forStorefront3": "Роли вида --content-price, --surface-buy, --space-inset-card, --text-heading-1; для cbdshop.hr / .it / .ro меняются только значения в админке магазина, имена общие. Тест: имя роли не содержит слов цвета и чисел из шкалы."
+  },
+  {
+   "principle": "Порядок частей имени фиксирован: namespace → object → category / concept / property → variant / state / scale / mode; включают только нужные уровни.",
+   "evidence": "Curtis Naming: «Namespaces are prepended first; modifiers tend to be appended last»; «Include only levels needed to sufficiently describe purposeful intent». Style Dictionary CTI: category → type → item, «color_background_button_error, not button_color_error».",
+   "forStorefront3": "Записать грамматику имени в DESIGN_SYSTEM.md одной строкой и закрепить тестом-разборщиком: --color-action-background-primary-hover разбирается на части, --btnBgHov — нет."
+  },
+  {
+   "principle": "Список категорий и есть список оснований, и простые заводят раньше составных.",
+   "evidence": "DTCG: простые типы color, dimension, fontFamily, fontWeight, number, duration, cubicBezier; составные typography (fontFamily + dimension + fontWeight + number), shadow (color + dimension), border (color + dimension + strokeStyle), transition (duration + cubicBezier). Curtis Naming: категории color, font, space, size, elevation, breakpoints, shadow, touch, time.",
+   "forStorefront3": "Следующие слои после палитры именно в этом порядке: размерная лесенка (dimension) → пространство → шрифтовые примитивы → типографика → размер → радиус / тень / слой / движение / точки перелома. Каждая категория — свой файл tokens/<category>.json."
+  },
+  {
+   "principle": "Пространство строится от одного памятного базового числа, лесенкой с именами, и разводит понятие (inset / stack / inline) со свойством (padding / margin / gap).",
+   "evidence": "Curtis Space: «Ground your spatial system's range with a memorable base number»; «Name space options simply, using a scale like t-shirt sizes»; «Tease apart concepts from property names. They are many to one and limit reuse». Style Dictionary basic: dimensions 0 / 4 / 8 / 12 … 60.",
+   "forStorefront3": "Одна лесенка --space-1…n от 4px, роли --space-inset-{card,control,page}, --space-stack-{section,block,line}, --space-inline-*. Тест: каждое padding / margin / gap в модулях — var(--space-…); полоса главной берёт stack-роль, а не своё число."
+  },
+  {
+   "principle": "Размер узла — производная от кегля и полей, и размеров два-три на весь каталог.",
+   "evidence": "Curtis Size: «A component library likely requires two or (at most) three sizes»; высота = font-size + line-height + padding; «Small input and small button aren't the same small» — признак сломанного каталога.",
+   "forStorefront3": "control-s / m / l как роли, из которых кнопка, поле и пилюля считают высоту одинаково; цель под пальцем 44 — роль touch на ярусе размера, а не число в каждом модуле. Тест: узлы одного размера в одной строке равны по высоте."
+  },
+  {
+   "principle": "Режимы и темы — столбцы на ярусе ролей, а не на примитивах; страна и свет/тьма — разные оси.",
+   "evidence": "Figma Update 1: «A mode contains a list of values for a variable within a collection, storing one value per variable»; коллекция Primitives без режимов, Tokens с режимами. Curtis Naming: Theme ≠ Mode. Style Dictionary multi-brand: brands/ + platforms/ + globals/, глобальные роли ссылаются на брендовые значения. DTCG resolver: позже в списке — сильнее.",
+   "forStorefront3": "Магазин по домену = тема (набор значений ролей в админке на сайт), тёмная тема = режим внутри неё; примитивы общие на все страны. Тест: смена сайта или темы не меняет ни одного компонентного файла, только набор значений."
+  },
+  {
+   "principle": "Компонентные токены заводят локально и поднимают вверх только по факту повторного использования; ярус необязателен.",
+   "evidence": "Curtis Naming: «Start within, then promote across components as reuse becomes evident»; «keep tooltip-specific tokens local». Figma: component tokens «might not be necessary for everyone».",
+   "forStorefront3": "Пока узел не должен отличаться от общего правила — компонентного токена нет, он читает роль. Появился третий потребитель одного отличия — токен поднимается в общие. Записать порог в DESIGN_SYSTEM.md."
+  },
+  {
+   "principle": "Спецификация — до значений, и с обходом того, что уже вписано руками.",
+   "evidence": "Curtis Reimagining: Plan → Audit as-is → Decide → Implement; «Token gaps are widespread, with hard-coded values resting where rigor is needed»; спецификация хранит «swatch, value, name, alias, Figma style, and use description per token».",
+   "forStorefront3": "Перед каждым слоем — grep по apps/storefront3/app/globals.css и модулям на сырые значения категории, таблица «было → станет» в DESIGN_SYSTEM.md, и только потом токены. Слой считается открытым, когда таблица записана, а не когда написан первый файл."
+  },
+  {
+   "principle": "Один источник — машина собирает все выходы; висячая или круговая ссылка — ошибка сборки, а не предупреждение.",
+   "evidence": "Style Dictionary architecture: 9 шагов от config до actions; «aliases can be in any token file and still work»; referencing README: несуществующий или циклический путь — «generates an error». DTCG: инструмент обязан дойти до явного значения.",
+   "forStorefront3": "tokens/**/*.json (DTCG) → сгенерированные custom properties и слепок для админки; «Не править руками» проверяется сравнением с выводом скрипта; CI красный на алиасе без цели и на значении мимо шкалы."
+  },
+  {
+   "principle": "Порядок выпуска: токены → компоненты → документация; правка основания катится по цепи зависимых.",
+   "evidence": "Curtis Dependencies: «Tokens, then React, UI Kit, then Doc Site» (Shopify); у Atlassian значок имеет 62 зависимых, кнопка 42. Figma Lesson 3: стили → значки → компоненты → паттерны.",
+   "forStorefront3": "Первую карточку товара не собирать, пока не закрыты пространство, типографика и размер: иначе каждая правка основания — обход всех карточек. Реестр зависимостей: какой узел какие роли читает."
+  },
+  {
+   "principle": "Шаг закрыт по внешнему критерию, а не по ощущению — и критерий записан заранее.",
+   "evidence": "Curtis Features Step-by-Step: Discover / Design / Build / Doc / Publish, у каждого своё «done» («I've reviewed that the build … adheres to system conventions»); Reimagining: спецификация проходит рецензентов из дизайна и кода.",
+   "forStorefront3": "У каждого слоя — своя строка doneWhen из этого отчёта, переписанная в тест (сторож на сырые значения, на форму имени, на роль ↔ примитив), и живая проверка на 375 в обеих темах. Зелёный тест + глаза — приёмка; отчёт — нет."
+  },
+  {
+   "principle": "Брендовые цвета и шрифт — решение владельца, система их пропускает и защищает, а не выбирает.",
+   "evidence": "Curtis Color: «Brand colors are the brand team's territory … defer to their judgment»; «Settle on them» — постоянно меняющиеся primary выдают команду без порядка. Style Dictionary multi-brand: бренд задаёт primary / secondary, платформа — шрифт, роли берут их по ссылке.",
+   "forStorefront3": "Админка магазина правит значения примитивов бренда и выбор шрифта из реестра; роли и компоненты остаются как есть. Сторож контраста на каждой паре фон + текст в каждом режиме бережёт от неудачного выбора."
+  }
+ ],
+ "ecommerceSpecific": [
+  "Ни один из четырёх источников не пишет про магазин; всё переносимое — общие правила. Что подходит именно витрине: пример Style Dictionary multi-brand / multi-platform — ровно наша схема «одна сборка, несколько стран»: brands/ (цвет бренда на страну), platforms/ (шрифт), globals/ (общее), а роли color.action.primary ссылаются на брендовое значение.",
+  "Curtis: концепт action (cta, interactive) и feedback (alert, notification) — это именно кнопка «купить», цена, «нет в наличии», ошибка формы; roles этих концептов заводятся первыми среди семантики, потому что деньги идут через них.",
+  "Curtis Size: размер и плотность решаются под цель нажатия (touch как категория) — при 79% телефонных посетителей ярус размера строится от 44 px, а не от макета на 1440.",
+  "Curtis Typography: «Article component» отдельно от UI-типографики — для магазина это блог и юридические страницы (длинное чтение) против карточек и оформления (интерфейс); две шкалы тела, одна лесенка.",
+  "Curtis Light & Dark: сложность «текст на фоне на фоне» — карточка товара на цветной полосе; таксономия on-light / on-dark или ролей поверхности нужна до первой полосы с фоном.",
+  "DTCG не знает категорий «пропорция картинки товара», «ширина колонки каталога», «высота липкой полосы покупки» — это наши концепты внутри категорий dimension / size / layer, и их надо записать в спецификацию слоя 1 сами.",
+  "Figma resource library советует начинать с цвета, пространства и типографики — три категории, из которых состоит 90% страницы каталога; остальное (тени, движение) можно закрывать после первого компонента.",
+  "Curtis Design System Tiers: «core» = цвет, типографика, значки, пространство + button, checkbox, input, heading — минимальный набор, который одинаков для всех стран третьей витрины; страновое — ярусом ниже."
+ ],
+ "quotes": [
+  {
+   "text": "A (Design) Token is information associated with a human readable name, at minimum a name/value pair.",
+   "source": "https://www.designtokens.org/TR/drafts/format/ (§3.1)"
+  },
+  {
+   "text": "Design tokens are a methodology for expressing design decisions in a platform-agnostic way",
+   "source": "https://www.designtokens.org/TR/drafts/format/ (Introduction)"
+  },
+  {
+   "text": "tools MUST follow each reference until they find a token with an explicit value.",
+   "source": "https://www.designtokens.org/TR/drafts/format/ (§7.2.2 Aliases)"
+  },
+  {
+   "text": "tools MUST NOT try to infer any special meaning or typing of tokens based on a group they happen to be in.",
+   "source": "https://www.designtokens.org/TR/drafts/format/ (§9.2 Groups)"
+  },
+  {
+   "text": "tokens later in the array override any tokens that came before them, in case of conflict",
+   "source": "https://www.designtokens.org/TR/drafts/resolver/ (§4.1.6 resolutionOrder)"
+  },
+  {
+   "text": "Design tokens are indivisible pieces of a design system such as colors, spacing, typography scale.",
+   "source": "https://raw.githubusercontent.com/design-tokens/community-group/main/README.md"
+  },
+  {
+   "text": "Design token structures should always begin with a foundation of primitive tokens.",
+   "source": "https://help.figma.com/hc/en-us/articles/18490793776023-Update-1-Tokens-variables-and-styles"
+  },
+  {
+   "text": "primitive tokens are for reference only.",
+   "source": "https://help.figma.com/hc/en-us/articles/18490793776023-Update-1-Tokens-variables-and-styles"
+  },
+  {
+   "text": "Semantic tokens give us context on how the token should be used.",
+   "source": "https://help.figma.com/hc/en-us/articles/18490793776023-Update-1-Tokens-variables-and-styles"
+  },
+  {
+   "text": "A mode contains a list of values for a variable within a collection, storing one value per variable.",
+   "source": "https://help.figma.com/hc/en-us/articles/18490793776023-Update-1-Tokens-variables-and-styles"
+  },
+  {
+   "text": "Name every token for what it does rather than what it is.",
+   "source": "https://www.figma.com/resource-library/design-tokens/"
+  },
+  {
+   "text": "text style's color is defined by a color style, not a text style",
+   "source": "https://help.figma.com/hc/en-us/articles/14548865734679-Lesson-3-Build-your-design-system"
+  },
+  {
+   "text": "A system's strength comes from knowing how to apply options to contexts. This grounds the option as a decision.",
+   "source": "https://nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421"
+  },
+  {
+   "text": "Tokens protect you from unpredictable, widespread change given their specificity and limited intentional use.",
+   "source": "https://nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421"
+  },
+  {
+   "text": "Namespaces are prepended first; modifiers tend to be appended last",
+   "source": "https://nathanacurtis.substack.com/p/naming-tokens-in-design-systems-9e86c7444676"
+  },
+  {
+   "text": "Start within, then promote across components as reuse becomes evident",
+   "source": "https://nathanacurtis.substack.com/p/naming-tokens-in-design-systems-9e86c7444676"
+  },
+  {
+   "text": "Include only levels needed to sufficiently describe purposeful intent",
+   "source": "https://nathanacurtis.substack.com/p/naming-tokens-in-design-systems-9e86c7444676"
+  },
+  {
+   "text": "Token gaps are widespread, with hard-coded values resting where rigor is needed",
+   "source": "https://nathanacurtis.substack.com/p/reimagining-a-token-taxonomy-462d35b2b033"
+  },
+  {
+   "text": "Token type (Generic, Semantic, Component) for sorting and filtering",
+   "source": "https://nathanacurtis.substack.com/p/reimagining-a-token-taxonomy-462d35b2b033"
+  },
+  {
+   "text": "Space rivals color in frequency of use within a library's style rules",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "Ground your spatial system's range with a memorable base number, and limit expectations on how it's used.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "Tease apart concepts from property names. They are many to one and limit reuse.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "Getting to a primary font isn't always hard, but choosing weights carries long term consequences.",
+   "source": "https://nathanacurtis.substack.com/p/typography-in-design-systems-6ed771432f1e"
+  },
+  {
+   "text": "A component library likely requires two or (at most) three sizes",
+   "source": "https://nathanacurtis.substack.com/p/size-in-design-systems-64f234aec519"
+  },
+  {
+   "text": "Density ≠ size. But size impacts density and varying density can correlate strongly with tuning size.",
+   "source": "https://nathanacurtis.substack.com/p/size-in-design-systems-64f234aec519"
+  },
+  {
+   "text": "Brand colors are the brand team's territory. So discuss adjustments with them and defer to their judgment as needed.",
+   "source": "https://nathanacurtis.substack.com/p/color-in-design-systems-a1c80f65fa3"
+  },
+  {
+   "text": "Tokens, then React, UI Kit, then Doc Site for changed links to those + release docs",
+   "source": "https://nathanacurtis.substack.com/p/dealing-with-dependencies-inside-design-systems-aa6ce2cf7bc3 (Kaelig, Shopify)"
+  },
+  {
+   "text": "Once additional system tiers begin to emerge, designate a 'core' tier useful to all adopters.",
+   "source": "https://nathanacurtis.substack.com/p/design-system-tiers-2c827b67eae1"
+  },
+  {
+   "text": "Because Style Dictionary merges all token files into a single object, aliases can be in any token file and still work.",
+   "source": "https://styledictionary.com/info/architecture/"
+  },
+  {
+   "text": "The tokens found using the 'source' attribute will overwrite tokens found using include.",
+   "source": "https://styledictionary.com/reference/config/"
+  },
+  {
+   "text": "if the path is not valid, doesn't exist or is a circular reference, Style Dictionary generates an error in the console.",
+   "source": "https://raw.githubusercontent.com/style-dictionary/style-dictionary/main/examples/advanced/referencing_aliasing/README.md"
+  }
+ ],
+ "confidence": "Высокая по Figma, DTCG и Style Dictionary — официальные страницы и файлы репозитория прочитаны напрямую. Средне-высокая по Nathan Curtis — оригиналы на Medium (403) и eightshapes.com (DNS) недоступны, читались авторские зеркала тех же статей на его Substack (совпадают id в адресах); статьи «Design Tokens and Tiers» у автора не существует, роль «ярусов токенов» несут «Reimagining a Token Taxonomy» (Generic / Semantic / Component) и «Naming Tokens». Порядок ярусов (примитивы → роли → компоненты → режимы) источники задают явно; порядок категорий (пространство раньше шрифта, размер после обоих) явно не предписан ни одним — выведен из зависимостей составных типов DTCG и из порядка урока Figma, что отмечено в orderRationale. Цитаты получены через пересказчика страниц (WebFetch), дословность отдельных слов не гарантирована на 100%; сомнительные пересказы («paraphrased») в quotes не включены."
+}

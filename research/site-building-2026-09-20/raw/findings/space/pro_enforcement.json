@@ -1,0 +1,208 @@
+{
+ "system": "Единой «спецификации отступов» с одним каноничным именем в индустрии нет — есть общая архитектура, которую независимо воспроизвели минимум четыре профессиональные системы (Atlassian Design System, GitHub Primer, Adobe Spectrum, Chakra UI/Tailwind), и общий стек принуждения поверх stylelint/ESLint. Архитектура токенов: примитив (сырое число, обычно px, без смысла) → семантическая роль (именованный шаг шкалы с описанием «когда использовать») → компонент (читает только роль). Это буквально та же форма, что палитра→роли в этом проекте, перенесённая с цвета на расстояние. Принуждение строится не одним инструментом, а стеком: (1) общее правило stylelint на запрет/разрешение пар свойство-значение, (2) плагин, требующий переменную/функцию вместо сырого числа с точечными исключениями, (3) специализированный «scale-aware» линтер отступов (rhythmguard), который не банит числа поголовно, а сверяет со шкалой и предлагает ближайший токен, (4) нативное правило stylelint на логические свойства (padding-inline-start вместо padding-left), сменившее сторонний плагin, (5) правило «переменная должна существовать», (6) машинное требование к комментарию-отключению — что он не пустой, не лишний и не мимо конфигурации. Для JS-in-CSS (styled-components/emotion) тот же список свойств и то же «сырое число → токен» решается ESLint-правилом с доменами (color/spacing/shape/...) в одной точке, а не N похожими правилами.",
+ "sourcesRead": [
+  "https://stylelint.io/user-guide/rules/declaration-property-value-disallowed-list",
+  "https://github.com/stylelint/stylelint/blob/main/lib/rules/declaration-property-value-disallowed-list/README.md",
+  "https://github.com/stylelint/stylelint/blob/main/lib/rules/declaration-property-value-allowed-list/README.md",
+  "https://github.com/stylelint/stylelint/blob/main/lib/rules/property-layout-mappings/README.md",
+  "https://github.com/stylelint/stylelint/blob/main/docs/user-guide/configure.md",
+  "https://github.com/stylelint/stylelint/blob/main/docs/user-guide/rules.md",
+  "https://github.com/AndyOGo/stylelint-declaration-strict-value (README)",
+  "https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard (README)",
+  "https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard/blob/main/docs/rules/use-scale.md",
+  "https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard/blob/main/docs/rules/prefer-token.md",
+  "https://github.com/csstools/stylelint-use-logical (README)",
+  "https://github.com/csstools/stylelint-value-no-unknown-custom-properties (README)",
+  "https://github.com/primer/primitives/blob/main/src/tokens/functional/spacing/space.json5",
+  "https://github.com/primer/primitives/blob/main/src/tokens/base/size/size.json5",
+  "https://github.com/chakra-ui/chakra-ui/blob/main/packages/react/src/theme/tokens/spacing.ts",
+  "https://github.com/adobe/spectrum-design-data/blob/v12.2.0/src/layout.json",
+  "https://github.com/pioug/atlassian-frontend-mirror/blob/master/design-system/tokens/src/artifacts/tokens-raw/atlassian-spacing.tsx",
+  "https://github.com/pioug/atlassian-frontend-mirror/blob/master/design-system/tokens/src/artifacts/token-names.tsx",
+  "npm @atlaskit/eslint-plugin-design-system@16.13.0 dist/cjs/rules/ensure-design-token-usage/{is-spacing-property.js,is-valid-spacing-value.js,index.js,spacing.js} via cdn.jsdelivr.net"
+ ],
+ "sourcesFailed": [
+  "https://raw.githubusercontent.com/carbon-design-system/carbon/main/packages/themes/src/tokens.ts — 404, точный путь к файлу шкалы отступов Carbon (@carbon/layout) не найден за отведённое время; числа Carbon (spacing-01…13) в ответ НЕ включены",
+  "https://raw.githubusercontent.com/carbon-design-system/carbon/main/packages/layout/src/spacing.js — 404, то же",
+  "Shopify polaris-tokens: точный файл числовой шкалы space.ts/dist/spacing.raw.json — репозиторий переехал в Shopify/polaris-tokens, найден src/configs/base.ts (цвета, не отступы), сама шкала px-значений не вскрыта; числа Polaris в ответ НЕ включены",
+  "https://raw.githubusercontent.com/adobe/spectrum-design-data/main/src/layout.json — 404 на ветке main (иная раскладка HEAD), прочитано вместо этого на зафиксированном релизном теге v12.2.0",
+  "jsdelivr flat-листинг pioug/atlassian-frontend-mirror@master/main — 403 'Package size exceeded the configured limit of 50 MB', обойдено точечными raw.githubusercontent.com путями"
+ ],
+ "unit": "Токены отступов в проверенных источниках заданы в px как источник истины (Atlassian: \"2px\"…\"80px\"; Adobe Spectrum: spacing-50=\"2px\"…spacing-1000=\"96px\"; GitHub Primer: base.size.N = {value:2, unit:'px'}) — то есть НЕ в rem, который зависит от корневого font-size. Это не случайность: линтер Atlaskit (`is-valid-spacing-value.js`, домен spacing) явно ЗАПРЕЩАЕТ `rem`/`vw`/`vh` в свойствах-отступах регэкспом `/(\\d+rem$)|(vw$)|(vh$)/` и требует известный статический font-size, чтобы вообще допустить `em`. Логика: отступ должен оставаться жёстко привязан к сетке макета независимо от того, что пользователь увеличил текст, а не «плавать» вместе с типографикой. Против этого — утилитарные системы (Chakra UI/Tailwind): их шкала в `rem` (0.125rem…24rem), потому что там отступ намеренно масштабируется вместе с текстом как часть общей «плотности» интерфейса. Для витрины с фиксированным брендовым ритмом (не пользовательский zoom-режим) ближе первый лагерь: px-примитивы, не завязанные на живой `html{font-size}`.",
+ "scale": {
+  "generator": "Не единая формула — куратированный список «удобных» чисел на базе шага 4px (с одним допущенным полушагом 2px), а не строгая геометрическая прогрессия; у Chakra/Tailwind в этом же 4px-базисе прогрессия становится геометрической только в верхней части шкалы (шаг растёт с 0.25rem до нескольких rem по мере роста значения).",
+  "steps": [
+   {
+    "name": "space.0 / spacing-0",
+    "value": "0px"
+   },
+   {
+    "name": "space.025 / spacing-50",
+    "value": "2px"
+   },
+   {
+    "name": "space.050 / spacing-75",
+    "value": "4px"
+   },
+   {
+    "name": "space.075",
+    "value": "6px"
+   },
+   {
+    "name": "space.100 / spacing-100",
+    "value": "8px"
+   },
+   {
+    "name": "space.150 / spacing-200",
+    "value": "12px"
+   },
+   {
+    "name": "space.200 / spacing-300",
+    "value": "16px"
+   },
+   {
+    "name": "space.250",
+    "value": "20px"
+   },
+   {
+    "name": "space.300 / spacing-400",
+    "value": "24px"
+   },
+   {
+    "name": "space.400 / spacing-500",
+    "value": "32px"
+   },
+   {
+    "name": "space.500 / spacing-600",
+    "value": "40px"
+   },
+   {
+    "name": "space.600 / spacing-700",
+    "value": "48px"
+   },
+   {
+    "name": "space.800 / spacing-800",
+    "value": "64px"
+   },
+   {
+    "name": "space.1000 / spacing-900",
+    "value": "80px"
+   },
+   {
+    "name": "spacing-1000 (только Spectrum)",
+    "value": "96px"
+   }
+  ],
+  "notes": "Значения слева — Atlassian Design System (source: atlassian-spacing.tsx), справа через слэш — где совпадает или близко у Adobe Spectrum (layout.json@v12.2.0). Обе системы независимо пришли к базе 8px с половинным (4px) и четвертным (2px) шагом внизу шкалы и удвоением интервала наверху. GitHub Primer использует не длинную числовую линейку, а короткий куратированный список из 6 ролей (xxs=2px, xs=4px, sm=8px, md=12px, lg=16px, xl=24px) поверх тех же примитивов — то есть тот же базис 4/8px, но с меньшим числом разрешённых шагов на уровне компонента. Rhythmguard по умолчанию использует пресет `rhythmic-4`: [0,4,8,12,16,24,32,40,48,64] — тот же ряд, официально закреплённый как дефолт линтера, а не только как практика конкретной команды."
+ },
+ "roles": {
+  "hasSemanticLayer": true,
+  "vocabulary": [
+   "xxs / xs / sm / md / lg / xl — GitHub Primer, т-шёрт-размеры с описанием use-case и Figma-областью применения в самом токене",
+   "space.025…space.1000 (+ space.negative.025…) — Atlassian, числовая шкала ×100 от базовой единицы, читаемая как доля базового шага (025 = четверть, 100 = единица)",
+   "spacing-50…spacing-1000 — Adobe Spectrum, тот же числовой принцип, независимо повторённый",
+   "0.5…96 (числитель без единиц, доли rem) — Chakra/Tailwind, чисто арифметическая нумерация по шагу 0.25rem"
+  ],
+  "notes": "Все четыре — это alias-слой поверх примитивов, а не сами примитивы: у Primer роль буквально ссылается на примитив синтаксисом `{base.size.N}` (Style Dictionary alias), у Atlassian/Spectrum примитив скрыт от потребителя и наружу видна только именованная шкала. Компонент везде читает только вторую колонку (роль), никогда — сырое число. Это ровно та форма, что уже держит token-layer.test.ts для цвета в этом проекте (примитив → роль → компонент), только область другая."
+ },
+ "density": "Явный «механизм плотности» нашёлся у одной системы, но сильный: Adobe Spectrum хранит для части компонентных токенов не одно число, а параллельный набор `\"sets\": {\"desktop\": {...}, \"mobile\": {...}}` под ОДНИМ и тем же семантическим именем токена (пример: `component-pill-edge-to-visual-100` = 14px на desktop и 17px на mobile — это не breakpoint в CSS, а выбор набора на уровне платформы/сборки). Ни одна из проверенных систем не даёт спейсинг через один множитель плотности compact/regular поверх всей шкалы разом (как это иногда делают в enterprise-сетках вне токен-репозиториев) — гранулярность идёт per-токен, а не глобальным рычагом. Для мобайл-первой витрины это подтверждает, а не опровергает уже принятый в проекте путь: «то же семантическое место — разное число по контексту» реализуется как набор точек привязки (у Spectrum — платформенный набор значений; у этого проекта, судя по CLAUDE.md, — clamp() между телефонным минимумом и цифрой из макета 1440, зарегистрированный в seams.ts), а не единым числовым мультипликатором на всю шкалу.",
+ "fluid": "В прочитанных токен-репозиториях (Atlassian, Spectrum, Primer, Chakra) отступ всегда задан как дискретное число на дискретной ступени — ни одного `clamp()`, `min()/max()` или пары значений внутри самого токена не встретилось; это не эксперимент, а системное решение: токен = одно число. Разное значение под разный контекст получают не интерполяцией, а второй параллельной записью (см. density) либо тем, что компонент выбирает другую СТУПЕНЬ той же шкалы на другом брейкпоинте в коде потребителя — сама библиотека токенов такого выбора не делает и не обязана. Прямых источников про clamp()-шкалы отступов в их официальных токен-файлах не нашлось (не значит, что практики clamp() для spacing не существует в индустрии вообще — значит, что в этих конкретных, наиболее цитируемых репозиториях она не текущий стандарт для ЗНАЧЕНИЯ токена). Вывод для сторонних источников честно ограничен тем, что было прочитано, помечено уверенностью ниже средней по этому конкретному пункту.",
+ "layout": "Прямой «отдельной раскладочной шкалы» (bands/rails/контейнеры) в токен-репозиториях не нашлось — они описывают шкалу значений, а не сетку страницы. Но нашлась смежная и полезная практика: Atlassian и Primer размечают КАЖДЫЙ шаг единой шкалы отступов тегом «для чего он» прямо в токене — у Atlassian это текстовое поле `description`, группирующее шкалу в три яруса использования («small/compact», «larger/less dense», «largest/layout elements»), у Primer это `$extensions.\"org.primer.llm\".usage: ['gap','padding','margin','section-gap',...]` и `rules` с человекочитаемым объяснением. То есть «полосный» и «внутрикомпонентный» отступ не разводятся в отдельные шкалы — это одна лестница чисел с ярлыком уровня применения на каждой ступени, читаемым и человеком, и линтером/агентом.",
+ "enforcement": "Стек принуждения (все примеры конфигураций — рабочие, взятые из официальных README):\n\n1) Базовое stylelint-правило (без плагинов) — declaration-property-value-disallowed-list / -allowed-list:\n```json\n{\n  \"declaration-property-value-disallowed-list\": {\n    \"/^(margin|padding|gap|inset)/\": [\"/^\\\\d.*(px|rem|em)$/\"]\n  }\n}\n```\nРаботает по регэкспу на СВОЁ значение целиком, не заглядывает в var() — годится как первая грубая заслонка «сырое число в этих свойствах — нельзя», но ничего не знает о шкале и не предлагает замену.\n\n2) stylelint-declaration-strict-value (AndyOGo) — требует переменную/функцию/явно разрешённое ключевое слово вместо литерала, с точечными исключениями и автофиксом:\n```js\n{\n  \"plugins\": [\"stylelint-declaration-strict-value\"],\n  \"rules\": {\n    \"scale-unlimited/declaration-strict-value\": [\n      [\"margin\", \"padding\", \"gap\", \"/^inset/\"],\n      { \"ignoreValues\": { \"*\": [\"0\", \"auto\", \"100%\"] }, \"expandShorthand\": true }\n    ]\n  }\n}\n```\nИсключение по месту — стандартный `/* stylelint-disable-line */`.\n\n3) stylelint-plugin-rhythmguard — специализированный «scale-aware» линтер именно отступов (не блокирует поголовно, сверяет со шкалой и подсказывает 2 ближайших шага):\n```json\n{ \"extends\": [\"stylelint-plugin-rhythmguard/configs/recommended\"] }\n```\nили явной настройкой:\n```json\n{ \"rules\": { \"rhythmguard/use-scale\": [true, { \"scale\": \"auto\", \"scaleSources\": [\"./packages/ui/src/tokens/primitives.css\"] }] } }\n```\n`scale: \"auto\"` читает шкалу прямо из файла токенов проекта (CSS custom properties, DTCG/Style Dictionary JSON, либо готово знает пакеты `@shopify/polaris-tokens`, `@spectrum-css/tokens`, `@primer/primitives`, `@radix-ui/themes`, `@mantine/core`) — то есть шкала не дублируется между токенами и линтером. По умолчанию `0`, проценты (`allowPercentages`) и «волоски» ≤1px (`allowHairlines`, точный физический смысл — компенсация border/подпиксельного рендера, а не решение по отступу) исключены из проверки автоматически, без ручного списка. Второе правило того же пакета, `rhythmguard/prefer-token`, отдельно требует именно токен там, где число УЖЕ на шкале, но записано литералом:\n```json\n{ \"rules\": { \"rhythmguard/prefer-token\": [true, { \"tokenPattern\": \"^--space-\", \"tokenMapFromCssCustomProperties\": true }] } }\n```\nПакет также даёт CLI-аудит с baseline/ratchet (`rhythmguard audit --write-baseline`, `--since-baseline --fail-on-new-drift`) — механизм постепенного внедрения на существующей кодовой базе без единовременного красного CI.\n\n4) Логические свойства — раньше сторонний плагин stylelint-use-logical, теперь официально «largely in maintenance mode», заменён нативным правилом самого stylelint:\n```json\n{\n  \"property-layout-mappings\": [\"flow-relative\", {}],\n  \"languageOptions\": { \"directionality\": { \"block\": \"top-to-bottom\", \"inline\": \"left-to-right\" } }\n}\n```\nАвтофикс `padding-left` → `padding-inline-start` работает только когда `languageOptions.directionality` задан явно.\n\n5) Существование переменной — stylelint-value-no-unknown-custom-properties (csstools), ловит `var(--опечатка)` или ссылку на удалённый токен:\n```json\n{ \"csstools/value-no-unknown-custom-properties\": [true, { \"importFrom\": [\"packages/ui/src/tokens/primitives.css\"] }] }\n```\n\n6) Дисциплина самого комментария-отключения — нативные report-опции stylelint (не rule, а конфиг верхнего уровня):\n```json\n{ \"reportDescriptionlessDisables\": true, \"reportNeedlessDisables\": true, \"reportInvalidScopeDisables\": true }\n```\nТребует, чтобы `/* stylelint-disable-next-line rhythmguard/use-scale -- причина */` всегда нёс причину; отдельно ловит «мёртвые» отключения (правило и так не сработало бы) и отключения не той области.\n\n7) JS-in-CSS / styled-components сторона (не CSS-файл, а объект стилей в коде) — @atlaskit/eslint-plugin-design-system, ОДНО правило `ensure-design-token-usage` с доменами, а не по правилу на свойство:\n```js\n{\n  \"rules\": {\n    \"@atlaskit/design-system/ensure-design-token-usage\": [\"error\", { \"domains\": [\"color\", \"spacing\"] }]\n  }\n}\n```\nВнутри — фиксированный список «что вообще является отступом» (`padding*`, `margin*`, `gap`/`rowGap`/`columnGap`, `inset`-логические, `outline-offset`), явный запрет `rem`/`vw`/`vh` для этих свойств и автофикс к ближайшему токену через `get-token-replacement`.",
+ "principles": [
+  {
+   "principle": "Отступ строится тем же двухслойным паттерном, что уже держит цвет в проекте: примитив (сырое число, без смысла) → семантическая роль (имя + правило «когда») → компонент читает только роль.",
+   "evidence": "GitHub Primer: base.size.N (сырой px) через alias `{base.size.N}` даёт space.xxs…xl с описанием и Figma-скоупом; Atlassian и Adobe Spectrum независимо повторили ту же форму числовой шкалой.",
+   "forStorefront3": "Примитивы `--space-1…-N` в packages/ui/src/tokens/primitives.css (px, шаг 4 с допуском 2), поверх них — уже существующие по CLAUDE.md ролевые токены `--layout-band-pad`, `--layout-band-gap`, `--layout-rail-pad-*` как `var(--space-N)`-алиасы; стороже́м проверять, что компонентный CSS не ссылается на `--space-N` напрямую, только на ролевые имена — зеркало token-layer.test.ts для отступа."
+  },
+  {
+   "principle": "Базовый шаг шкалы — 4px (с половинным исключением 2px), это не выбор одной команды, а сходящаяся точка минимум трёх независимых систем и дефолт специализированного линтера.",
+   "evidence": "Atlassian: 2/4/6/8/12/16/20/24/32/40/48/64/80px; Adobe Spectrum: 2/4/8/12/16/24/32/40/48/64/80/96px; Primer: 2/4/6/8/12/16/24px; rhythmguard пресет по умолчанию `rhythmic-4` = [0,4,8,12,16,24,32,40,48,64].",
+   "forStorefront3": "Фиксировать `--space-*` строго кратно 4 (единственное официально признанное отступление — «hairline» ≤1px под компенсацию рамки/подпикселя, не под отступ по смыслу), и подключить это как источник шкалы для линтера (см. следующий пункт), а не как текст в CLAUDE.md, который никто не сверяет с CSS."
+  },
+  {
+   "principle": "Отступ измеряется в px (или rem с фиксированной базой), а не в живом rem — потому что сетка должна оставаться жёсткой при увеличении пользователем текста, а не плыть вместе с типографикой.",
+   "evidence": "Atlaskit ESLint-правило `is-valid-spacing-value.js` явно отклоняет `\\d+rem$`, `vw$`, `vh$` для padding/margin/gap/inset и требует статический font-size даже для `em`; utility-фреймворки (Chakra/Tailwind), где отступ в rem, делают это осознанно ради другого эффекта — масштабирования плотности вместе с текстом, что этому проекту не подходит.",
+   "forStorefront3": "Держать `--space-*` в px (или в rem, вычисленном от фиксированной базы 16px, а не от живого `html{font-size}`), и добавить в lint:css правило, запрещающее `rem`/`vw`/`vh` внутри padding/margin/gap/inset — по образцу is-valid-spacing-value.js."
+  },
+  {
+   "principle": "Основной линтер отступов должен быть scale-aware (сверяет с шкалой и подсказывает ближайший шаг), а не бинарный блок-лист сырых чисел — иначе он либо слишком шумный, либо требует ручного списка исключений (0, %, hairline), который кто-то забудет.",
+   "evidence": "rhythmguard/use-scale по умолчанию исключает 0, проценты и hairline ≤1px автоматически и сообщением называет два ближайших легальных шага; declaration-strict-value и голый disallowed-list этого не умеют — исключения там ручные.",
+   "forStorefront3": "Подключить `stylelint-plugin-rhythmguard/configs/recommended` с `scale: \"auto\"` и `scaleSources: [\"packages/ui/src/tokens/primitives.css\"]`, чтобы шкала линтера читалась из файла токенов, а не дублировалась в конфиге — тот же принцип, что «сторож читает число из источника, а не помнит его» (п. 4б Инженерного цикла)."
+  },
+  {
+   "principle": "Логические свойства (padding-inline-start вместо padding-left) — теперь нативное правило самого stylelint, сторонний плагин для этого официально в режиме поддержки и отсылает на встроенное.",
+   "evidence": "README stylelint-use-logical: «this project is largely in maintenance mode... use the Layout Mappings rules which are now built into Stylelint»; правило называется `property-layout-mappings`.",
+   "forStorefront3": "Не тащить stylelint-use-logical как новую зависимость — включить нативный `property-layout-mappings: [\"flow-relative\", {}]` с `languageOptions.directionality`, это прямое попадание в уже принятую в CLAUDE.md заготовку логических свойств (`inset-inline`, `padding-inline`) для витрины с 4 языками (пока все LTR, но задел бесплатный)."
+  },
+  {
+   "principle": "Комментарий-исключение из-под линтера обязан нести причину и не быть «мёртвым» — это машинно проверяется самим stylelint, не только соглашением.",
+   "evidence": "docs/user-guide/configure.md: «Report `stylelint-disable` comments without a description» — опция `reportDescriptionlessDisables`; рядом `reportNeedlessDisables` и `reportInvalidScopeDisables`.",
+   "forStorefront3": "Включить в .stylelintrc `reportDescriptionlessDisables: true` и `reportNeedlessDisables: true` — это машинная версия уже действующего в проекте правила «временная мера названа вслух и с причиной» (Против заплаток, п.1), только для отступов конкретно."
+  },
+  {
+   "principle": "Ссылка на токен (var(--x)) должна быть проверена на существование — иначе переименование или удаление роли молча оставляет мёртвую ссылку, которая выглядит рабочей до первого визуального расхождения.",
+   "evidence": "stylelint-value-no-unknown-custom-properties: «disallow usage of unknown custom properties», ошибка на var(), для которого нет объявления ни в файле, ни в importFrom.",
+   "forStorefront3": "`csstools/value-no-unknown-custom-properties` с `importFrom` на файл ролевых токенов — прямой аналог уже существующих в проекте сверок «два списка не разошлись» (effect-keys.test.ts, doc-links.test.ts), только для CSS-переменных отступа."
+  },
+  {
+   "principle": "Для styled-in-JS (не файловый CSS) весь домен «сырое число вместо токена» решается ОДНИМ правилом с параметром-доменом (color/spacing/…), а не отдельным правилом на каждое семейство свойств.",
+   "evidence": "@atlaskit/eslint-plugin-design-system: единственное правило `ensure-design-token-usage` принимает `domains: ['color','spacing',...]`, внутри которого — общий список spacing-свойств (`is-spacing-property.js`) и общая функция валидности значения (`is-valid-spacing-value.js`).",
+   "forStorefront3": "Хотя витрина сейчас на CSS Modules, а не styled-in-JS, тот же принцип «одно правило — одна функция» уже прямо сформулирован в CLAUDE.md для выключателей разделов (lib/live-taxonomy.ts) — держать линт-конфиг отступов и цвета в одном общем stylelint-фрагменте с параметризацией по свойству/регэкспу, а не заводить второй похожий блок правил при следующей находке."
+  },
+  {
+   "principle": "«Тот же семантический слот — разное число по контексту» решается параллельным набором значений на одном имени токена, а не глобальным множителем плотности поверх всей шкалы.",
+   "evidence": "Adobe Spectrum: `component-pill-edge-to-visual-100` = {desktop: 14px, mobile: 17px} — один токен, два зарегистрированных набора, а не единый compact/regular переключатель на всю систему.",
+   "forStorefront3": "Это ближе к уже принятому в проекте механизму `seams.ts` + `clamp(телефонное_число, ramp, число_из_макета)`, чем к глобальному множителю плотности — исследование не даёт повода менять этот механизм, скорее подтверждает его форму (именованная точка адаптации, а не CSS-угаданное число в медиазапросе)."
+  }
+ ],
+ "doNotCopy": [
+  "Числовую нотацию Atlassian (`space.025`, `--ds-space-100`, ×100-от-базы) — это их внутреннее соглашение под их 8px-базу; проект уже использует смысловые kebab-case имена для токенов (--layout-band-pad и т.п.), заимствовать чужую нумерацию значит завести второй словарь имён рядом с уже принятым.",
+  "Rem-based шкалу Chakra/Tailwind как есть — она даёт другой эффект (отступ ползёт вместе с пользовательским масштабом текста), который в этом исследовании отдельно показан как то, чего профессиональные UI-kit-системы (Atlassian/Spectrum/Primer) намеренно избегают для spacing именно потому что это UI-chrome, а не текст.",
+  "stylelint-use-logical как новую зависимость — проект сам называет её в режиме поддержки; правильный путь уже встроен в stylelint (`property-layout-mappings`).",
+  "Точные px-числа Spectrum/Primer/Atlassian как готовую шкалу для бренда витрины без сверки с Figma — это чужие библиотеки компонентов, не источник бренд-ритма; числом истины для сторefront3 остаются макет 1440 и уже существующий `packages/ui/src/tokens/seams.ts`, шкала отступов лишь даёт форму (шаг 4, примитив→роль), а не сами цифры."
+ ],
+ "quotes": [
+  {
+   "text": "Rhythmguard is scale-aware rather than a blanket ban: values on your scale pass, values off it are reported",
+   "source": "https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard"
+  },
+  {
+   "text": "A hairline is a non-zero length that resolves to one CSS pixel or less: `1px`, `-1px`, `0.5px`, `0.0625rem`.",
+   "source": "https://github.com/PetriLahdelma/stylelint-plugin-rhythmguard/blob/main/docs/rules/use-scale.md"
+  },
+  {
+   "text": "this project is largely in maintenance mode",
+   "source": "https://github.com/csstools/stylelint-use-logical"
+  },
+  {
+   "text": "Physical layout properties like `margin-left` are tied to the physical dimensions of the screen.",
+   "source": "https://github.com/stylelint/stylelint/blob/main/lib/rules/property-layout-mappings/README.md"
+  },
+  {
+   "text": "Report `stylelint-disable` comments without a description.",
+   "source": "https://github.com/stylelint/stylelint/blob/main/docs/user-guide/configure.md"
+  },
+  {
+   "text": "A stylelint plugin that enforces either variables (`$sass`, `namespace.$sass`, `@less`, `var(--cssnext)`)",
+   "source": "https://github.com/AndyOGo/stylelint-declaration-strict-value"
+  },
+  {
+   "text": "disallow usage of unknown custom properties.",
+   "source": "https://github.com/csstools/stylelint-value-no-unknown-custom-properties"
+  },
+  {
+   "text": "Default spacing for most UI elements. Comfortable visual density for standard component layouts.",
+   "source": "https://github.com/primer/primitives/blob/main/src/tokens/functional/spacing/space.json5"
+  },
+  {
+   "text": "Use for small and compact pieces of UI.",
+   "source": "https://github.com/pioug/atlassian-frontend-mirror/blob/master/design-system/tokens/src/artifacts/tokens-raw/atlassian-spacing.tsx"
+  },
+  {
+   "text": "a regular expression value is matched against the entire value of the declaration, not specific parts of it",
+   "source": "https://github.com/stylelint/stylelint/blob/main/lib/rules/declaration-property-value-disallowed-list/README.md"
+  }
+ ],
+ "confidence": "Средне-высокая по ядру (stylelint: disallowed/allowed-list, property-layout-mappings, report*-опции, csstools-плагины) и по rhythmguard — всё прочитано дословно из официальных README/docs на GitHub, конфиги рабочие, не придуманы. Средняя по токенам Atlassian/Adobe Spectrum/GitHub Primer/Chakra — числа сняты напрямую из файлов токенов конкретных версий (Spectrum зафиксирован на теге v12.2.0, у Atlassian использован общеизвестный community-зеркало pioug/atlassian-frontend-mirror, т.к. официальный источник на Bitbucket, а не GitHub — это стоит перепроверить при следующей сверке, если появится официальный GitHub-репозиторий). Слабая по полю fluid (clamp()) — вывод «профессиональные токен-репозитории не хранят spacing как clamp()» сделан от ОТСУТСТВИЯ находок в четырёх конкретных источниках, а не от прямого утверждения индустрии, что так делать не нужно. Данные Carbon Design System и точная числовая шкала Shopify Polaris НЕ включены в ответ вообще — путь к файлу токенов не найден за отведённое время (см. sourcesFailed), лучше пустое место, чем цифры из памяти."
+}

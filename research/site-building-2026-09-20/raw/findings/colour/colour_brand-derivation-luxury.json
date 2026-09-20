@@ -1,0 +1,247 @@
+{
+ "source": "Прямое чтение первоисточников: официальные доки Material Design 3 и repo material-color-utilities (Google), доки и репозиторий Radix Colors (WorkOS/Modulz), спецификация W3C CSS Color Module Level 4 (раздел 9, OKLab/OKLCH), WCAG 2.1/2.2 (W3C), репозитории Andrew Somers apca-w3 и SAPC-APCA плюс git.apcacontrast.com, блог-пост Bjorn Ottosson (2020), препринт Refactoring UI \"Building Your Color Palette\", статьи NN/g (Aesop/минимализм, эвристика \"aesthetic-minimalist design\"), статьи Baymard (button design, discount pricing), README Huetone. Пара второстепенных источников (агрегированный поиск по \"brand color vs success color\") помечена как менее надёжная и вынесена отдельно.",
+ "sourcesRead": [
+  "https://www.refactoringui.com/previews/building-your-color-palette",
+  "https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale",
+  "https://www.radix-ui.com/colors",
+  "https://www.radix-ui.com/colors/docs/palette-composition/composing-a-palette",
+  "https://www.radix-ui.com/colors/docs/overview/custom-palettes",
+  "https://bottosson.github.io/posts/oklab/",
+  "https://github.com/material-foundation/material-color-utilities",
+  "https://m3.material.io/styles/color/system/how-the-system-works (через reader-зеркало r.jina.ai)",
+  "https://m3.material.io/styles/color/roles (через reader-зеркало r.jina.ai)",
+  "https://github.com/Myndex/apca-w3",
+  "https://raw.githubusercontent.com/Myndex/apca-w3/master/README.md",
+  "https://github.com/Myndex/SAPC-APCA/blob/master/documentation/README.md",
+  "https://git.apcacontrast.com/documentation/APCA_in_a_Nutshell.html",
+  "https://www.w3.org/TR/css-color-4/ (полный текст, раздел 9.4 specifying-oklab-oklch, скачан curl)",
+  "https://www.w3.org/TR/WCAG21/#contrast-minimum",
+  "https://www.w3.org/TR/WCAG22/#non-text-contrast",
+  "https://www.nngroup.com/articles/why-does-a-design-look-good-part2/",
+  "https://www.nngroup.com/articles/aesthetic-minimalist-design/",
+  "https://baymard.com/learn/button-design",
+  "https://baymard.com/blog/product-page-price-discounts",
+  "https://raw.githubusercontent.com/ardov/huetone/master/README.md"
+ ],
+ "sourcesFailed": [
+  "https://m3.material.io/styles/color/system/overview (SPA, отдал только title, контент не отрендерился)",
+  "https://m3.material.io/styles/color/roles (прямой fetch - только title; контент получен обходным путём через reader-зеркало, см. sourcesRead)",
+  "https://www.radix-ui.com/colors/custom (интерактивный инструмент, текстовой методологии на странице нет)",
+  "https://raw.githubusercontent.com/radix-ui/colors/main/README.md (README содержит только установку и ссылку на доки, без методологии)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/palettes/tonal_palette.ts (в файле нет готового списка стопов тона)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/palettes/core_palette.ts (список тонов вынесен в другой файл, не получен)",
+  "https://material-foundation.github.io/material-theme-builder/ (SPA, только title)",
+  "https://huetone.ardov.me/ (SPA, только title; описание получено из README на GitHub)",
+  "https://r.jina.ai/https://www.w3.org/TR/css-color-4/#the-oklab-oklch (reader-прокси вернул нерелевантный контент - заменено прямой загрузкой спецификации через curl)"
+ ],
+ "model": "Три задокументированных модели построения шкалы из одного цвета, ни одна не использует HSL lighten/darken:\n\n1. Material Design 3 (Google, material-color-utilities): пространство HCT (Hue, Chroma, Tone) - \"based on CAM16 x L*, that accounts for viewing conditions\" (модель цветовосприятия CAM16 поверх светлоты CIE L*). Из одного seed-цвета алгоритм получает 5 ключевых палитр: Primary, Secondary, Tertiary, Neutral, Neutral Variant (\"The algorithm manipulates the source color's hue and chroma to generate five complimentary key colors\"), плюс отдельная фиксированная палитра Error, которая от seed не наследуется. Каждая палитра - \"tonal palette\", диапазон тона 0-100 в одном hue/chroma с фиксированными стопами: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 100 (13-14 стопов).\n\n2. OKLCH / Oklab (Bjorn Ottosson, декабрь 2020, формально принят в CSS Color 4 с явной ссылкой на автора): перцептивно равномерное Lab-подобное пространство, созданное потому что у существующих моделей \"all these existing models have drawbacks\"; CIELAB \"largest issue is their inability to predict hue. In particular blue hues are predicted badly\", а HSV \"meets essentially none\" требований. Замеренная точность (RMS по трём датасетам): Lightness RMS Oklab 0.20 против CIELAB 1.70 и HSV 11.59; Chroma RMS Oklab 0.81 против CIELAB 1.84 и HSV 3.38. Спецификация W3C приводит собственный пример, почему нельзя строить шкалу через HSL: hsl(240 100% 50%) (синий) и hsl(60 100% 50%) (жёлтый) имеют одинаковую HSL-светлоту 50%, но \"clearly the yellow looks much lighter than the blue\"; в OKLCH те же цвета получают L 0.452 и 0.968 - \"clearly reflect the visual lightnesses\". Аналогично HSL hue не перцептивно равномерен: пара с разницей 30° градусов может выглядеть похоже, а другая пара с той же разницей 30° - совсем по-разному.\n\n3. Radix Colors (12 ступеней): шкалы не выводятся формулой из бренд-цвета \"с нуля\" - они курируются вручную дизайнерами под конкретный hue, светлая/тёмная версии проектируются как согласованная пара (\"matched pairs\"), не инверсия. Инструмент для кастомной палитры (radix-ui.com/colors/custom) берёт \"a couple of reference colors\" и переиспользует уже откалиброванные отношения между ступенями существующих шкал Radix, поэтому результат надёжен \"as long as you use a reasonable background color\" - то есть это гибрид \"формула поверх ручной калибровки\", а не чистый алгоритм от одного цвета.\n\n4. Refactoring UI прямо отвергает чистую формулу для продакшна: \"As tempting as it is, you can't rely purely on math to craft the perfect color palette\" - ступени выбираются глазами, формула (если есть) - только стартовая точка.",
+ "scale": {
+  "stepsPerHue": "Radix: ровно 12 ступеней на шкалу (пронумерованы 1-12), плюс альфа-варианты и P3-варианты. Material 3: 13-14 стопов тона на tonal palette (0,10,20,30,40,50,60,70,80,90,95,98,99,100). Refactoring UI: без жёсткого числа - 8-10 ступеней для серого, 5-10 для каждого primary/accent-цвета, часто в нотации 100-900.",
+  "stepRoles": [
+   {
+    "step": "Radix 1-2",
+    "role": "фон приложения и малозаметный фон компонентов (app background, striped/card/sidebar background)"
+   },
+   {
+    "step": "Radix 3",
+    "role": "фон UI-элемента в обычном состоянии"
+   },
+   {
+    "step": "Radix 4",
+    "role": "фон UI-элемента в hover"
+   },
+   {
+    "step": "Radix 5",
+    "role": "фон UI-элемента в pressed/selected"
+   },
+   {
+    "step": "Radix 6",
+    "role": "малозаметная граница у неинтерактивных компонентов (sidebar, header, card, alert, разделитель)"
+   },
+   {
+    "step": "Radix 7",
+    "role": "малозаметная граница у интерактивных компонентов"
+   },
+   {
+    "step": "Radix 8",
+    "role": "заметная граница у интерактивных компонентов и focus ring"
+   },
+   {
+    "step": "Radix 9",
+    "role": "сплошной (solid) фон - самая высокая насыщенность (chroma) во всей шкале; основной цвет кнопки/бренд-заливки"
+   },
+   {
+    "step": "Radix 10",
+    "role": "hover-состояние для solid-фона (сплошной фон в покое = ступень 9)"
+   },
+   {
+    "step": "Radix 11",
+    "role": "текст низкой контрастности; гарантировано Lc 60 APCA против фона ступени 2 той же шкалы"
+   },
+   {
+    "step": "Radix 12",
+    "role": "текст высокой контрастности; гарантировано Lc 90 APCA против фона ступени 2 той же шкалы"
+   },
+   {
+    "step": "Material tone 40 (light) / tone 80 (dark)",
+    "role": "роль primary - заливка высокой значимости"
+   },
+   {
+    "step": "Material tone 100 (light) / tone 20 (dark)",
+    "role": "роль on-primary - текст/иконка поверх primary"
+   },
+   {
+    "step": "Material tone 90 (light) / tone 30 (dark)",
+    "role": "роль primary-container - менее насыщенная заливка"
+   },
+   {
+    "step": "Material tone ~99 (light) / tone ~10 (dark)",
+    "role": "роль surface - фон по умолчанию (из Neutral-палитры)"
+   }
+  ],
+  "neutrals": "Radix: серый выбирается отдельно от акцента - либо нейтральный ('gray will work well with any hue or palette'), либо естественно подкрашенный в тон бренда ('choose the gray scale which is saturated with the hue closest to your accent hue' - для более цельного, но менее нейтрального вида); выбор ручной, не автоматический. Material 3: две отдельные палитры Neutral и Neutral Variant выводятся из seed (тот же алгоритм харизм hue/chroma, что и у Secondary/Tertiary, но с низкой chroma) - серый концептуально 'из бренда', но конкретный уровень насыщенности задаётся отдельно. Refactoring UI: 8-10 серых используются почти для всего интерфейса ('Text, backgrounds, panels, form controls - almost everything in an interface is grey')."
+ },
+ "contrast": "{\"metric\": \"Две параллельно живущие метрики. (1) WCAG 2.x contrast ratio - действующий юридический стандарт сегодня, основан на относительной яркости sRGB. (2) APCA (Accessible Perceptual Contrast Algorithm, Andrew Somers/Myndex) - кандидат в WCAG 3, уже используется как внутренняя гарантия шкалы Radix Colors и как движок Huetone; сам автор заявляет, что 'WCAG 2 contrast math is substantially inaccurate in relation to human perception' и отдельно что 'WCAG 2.x contrast can not calculate for dark mode correctly, therefore no useful comparison can be made'.\", \"thresholds\": \"WCAG 2.1 SC 1.4.3 (Contrast Minimum): обычный текст - 'contrast ratio of at least 4.5:1'; крупный текст - 'contrast ratio of at least 3:1', крупный текст определён как 'at least 18 point or 14 point bold'. WCAG 2.2 SC 1.4.11 (Non-text Contrast): 'Visual information required to identify user interface components and states' и значимые части графики - минимум 3:1 к соседнему цвету (применимо к обводке кнопки, иконке, чекбоксу, полю ввода). APCA Lc-шкала (диапазон примерно -108..+106, знак = полярность светлый-на-тёмном/тёмный-на-светлом): Lc 90 - 'preferred level for fluent text and columns of body text with a font no smaller than 18px/weight 300 or 14px/weight 400'; Lc 75 - 'the minimum level for columns of body text with a font no smaller than 24px/300, 18px/400, 16px/500, 14px/700'; Lc 60 - 'the minimum level recommended for content text that is not body, column, or block text' (от 24px normal); Lc 45 - минимум для крупного жирного текста (36px normal или 24px bold) вроде заголовков; Lc 30 - 'the absolute minimum for any text not listed above, including text considered as spot readable' (placeholder, disabled), ниже Lc 30 не опускаться никогда. Формула APCA (версия 0.0.98G-W3): экспоненты mainTRC 2.4, normBG 0.56, normTXT 0.57, revTXT 0.62, revBG 0.65; коэффициенты sRGB-люмы sRco 0.2126729, sGco 0.7151522, sBco 0.0721750.\", \"roleBackedPairs\": \"Radix гарантирует ровно одну пару на шкалу: ступени 11 и 12 против фона именно ступени 2 той же шкалы дают Lc 60 и Lc 90 соответственно - это не 'любые две ступени подряд', а конкретная, заранее посчитанная пара. Material 3 гарантирует пару структурно на уровне алгоритма: каждой роли X сопоставлена on-X с целевой дельтой тона, и есть три пользовательских режима контраста - Standard (по умолчанию), Medium (минимум 3:1) и High (7:1 для ключевых элементов) - то есть контраст встроен в генерацию роли, а не проверяется постфактум на каждом компоненте.\"}",
+ "roles": {
+  "hasSemanticLayer": true,
+  "naming": "Radix: числовая нотация ступени (1-12) внутри именованной hue-шкалы (accent-9, gray-2 и т.п.) - роль определяется конвенцией использования ступени, а не именем токена. Material 3: полностью именованные семантические роли (primary, on-primary, primary-container, on-primary-container; то же для secondary/tertiary/error; surface, on-surface, on-surface-variant, surface-container-lowest/low/default/high/highest; inverse-surface/inverse-on-surface/inverse-primary; outline, outline-variant) - имя роли фиксирует назначение независимо от конкретного тона.",
+  "examples": [
+   "primary - 'High-emphasis fills, texts, and icons against surface'",
+   "on-primary - 'Text and icons against primary'",
+   "primary-container - 'Standout fill color against surface, for key components like FAB'",
+   "error / on-error / error-container - 'Attention-grabbing color against surface for fills, icons, and text' - отдельная, не выводимая из seed палитра",
+   "surface / on-surface - 'Default color for backgrounds' / 'Text and icons against any surface or surface container color'",
+   "outline / outline-variant - 'Important boundaries, such as a text field outline' / 'Decorative elements, such as dividers'",
+   "inverse-surface / inverse-on-surface / inverse-primary - для элементов, которые должны контрастировать с текущей темой (например, снекбар в светлой теме)"
+  ],
+  "pairs": "Обе системы гарантируют пару 'фон+текст на нём' структурно, но по-разному. Material: каждая роль X всегда поставляется вместе с on-X, вычисленным алгоритмом так, чтобы 'dark surface color is algorithmically paired with a light text label color so the UI automatically meets contrast requirements' - минимум 3:1 в Standard-режиме. Radix: гарантия жёстко привязана к конкретным ступеням (11/12 против фона ступени 2 этой же шкалы), а не к произвольной паре 'фон-компонента + текст-компонента' - если текст ставится на ступень 3-5 (фон компонента), гарантии из коробки уже нет и это нужно проверять отдельно."
+ },
+ "darkTheme": "Ни одна система не строит тёмную тему инверсией/фильтром - обе показывают отдельную калибровку на роль. Material 3: одна и та же tonal palette (тот же hue/chroma) используется в обеих темах, но каждая роль берёт РАЗНЫЙ тон, и дельта между ролью и её on-ролью не постоянна: primary = tone 40 (светлая тема) / tone 80 (тёмная), а on-primary = tone 100 (светлая) / tone 20 (тёмная) - то есть на primary тон \"едет\" на 40 пунктов вверх, а на on-primary - на 80 пунктов вниз; у каждой роли свой сдвиг, посчитанный отдельно, а не общая формула 100-tone. Radix Colors: светлая и тёмная версии каждой из ~30 шкал спроектированы дизайнерами как \"matched pairs\" - отдельные наборы значений с сохранением тех же 12 ролей по номеру ступени; переключение темы технически сводится к смене класса/импорта CSS, при этом имена токенов (ступеней) не меняются, меняется только их конкретное значение. Контраст-режимы Material (Standard/Medium 3:1/High 7:1) применяются поверх любой из тем, то есть ортогональны выбору светлая/тёмная.",
+ "brand": "Два разных задокументированных пути \"один цвет бренда → вся система\", плюс сигнал о конфликте зелёного бренда со статусными цветами.\n\n1. Алгоритмический (Material Theme Builder / material-color-utilities): один seed-цвет проходит через HCT и через фиксированные хроматические гармоники даёт 5 ключевых палитр (Primary/Secondary/Tertiary/Neutral/Neutral-Variant), из каждой строится полная tonal palette (13-14 стопов), а роли light/dark схем вычисляются автоматически. Error при этом НЕ выводится из seed - \"Fixed palette for error states\" - то есть даже у самого автоматического пайплайна есть жёсткая граница: статус остаётся вне алгоритма бренд-цвета.\n\n2. Полу-ручной (Radix custom palette tool): берёт не один, а \"a couple of reference colors\", и переиспользует уже откалиброванные Radix-ом соотношения между ступенями существующих шкал - то есть это перенастройка готовой системы под новый hue, а не построение с нуля; авторы прямо предупреждают, что итоговый контраст надёжен \"as long as you use a reasonable background color\", то есть система не гарантирует произвольный вход.\n\n3. Refactoring UI занимает противоположную позицию: даже при одной стартовой точке автоматика опасна (\"That's how you end up with 35 slightly different blues that all look the same\") - ступени лучше фиксировать вручную один раз и переиспользовать как палитру, а не генерировать заново.\n\n4. Зелёный/CBD-ловушка: сама Material-архитектура структурно разводит бренд-производные палитры (Primary/Secondary/Tertiary, все из seed) и статусную Error (фиксирована, вне seed) - это первичный сигнал, что статус и бренд должны иметь разную генеалогию. Дополнительно (источник вторичный, agregated web-search, не единый канонический документ) явно формулируется правило разделения: \"Functional status alerts like errors, warnings, and success messages must remain visually distinct and completely isolated from brand palettes\" - для зелёного CBD-бренда это означает, что success-зелёный обязан отличаться от brand-зелёного по hue-диапазону или заметно по светлоте/насыщенности, иначе тост \"добавлено в корзину\" визуально не отличим от обычного фирменного цвета интерфейса.",
+ "tooling": "Material Theme Builder (m3.material.io/theme-builder, редиректит на material-foundation.github.io/material-theme-builder) - веб-инструмент и Figma-плагин: вводится один seed-цвет, генерируются tonal palettes и полные light/dark schemes, экспортируются токены/код; движок - открытая библиотека material-color-utilities (TS/Java/Dart/Swift/C++), в её основе HCT-пространство. Radix custom color tool (radix-ui.com/colors/custom, авторы Colm Tuite и Vlad Moroz, код открыт в репозитории radix-ui website) - генерирует 12-ступенчатую шкалу (+alpha +P3) из нескольких референсных цветов, переиспользуя откалиброванные соотношения существующих шкал Radix. Huetone (huetone.ardov.me, repo ardov/huetone) - редактор перцептивно равномерных шкал с расчётом APCA-контраста в реальном времени; README прямо называет APCA \"still a working draft for WCAG 3\". Эталонная реализация формулы APCA - npm-пакет apca-w3 (Andrew Somers/Myndex) с зафиксированными экспонентами и коэффициентами (см. поле contrast). Для WCAG2-порогов - любой стандартный чекер относительной яркости sRGB по формуле из самой WCAG 2.1.",
+ "principles": [
+  {
+   "principle": "Шкала строится вручную по выбранным ступеням (5-10 на цвет, 8-10 на серый), формула - только стартовая точка, не конечный результат.",
+   "evidence": "Refactoring UI: 'In practice, you want 8-10 shades to choose from' (grays), 'you need a variety (5-10) of lighter and darker shades' (primary/accent); итог - 'As tempting as it is, you can't rely purely on math to craft the perfect color palette.'",
+   "forStorefront3": "Если у storefront3 в админке заведён генератор шкалы из одного цвета владельца, на выходе должен быть небольшой курированный список стопов (не бесконечная лесенка hsl-lighten), и хотя бы крайние/срединные значения проверяются глазами перед публикацией темы."
+  },
+  {
+   "principle": "Строить шкалу в перцептивном пространстве (HCT или OKLCH), а не варьируя L в HSL - иначе соседние ступени лгут о реальной светлоте и оттенке.",
+   "evidence": "Спецификация W3C: 'hsl(240deg 100% 50%)' (синий) и 'hsl(60deg 100% 50%)' (жёлтый) имеют одинаковую HSL-светлоту 50%, но 'clearly the yellow looks much lighter than the blue'; в OKLCH те же цвета честно получают L 0.452 и 0.968.",
+   "forStorefront3": "Раз цвета правятся из админки на лету, любой код, который выводит производные оттенки (hover/active/tint) из цвета владельца, обязан считать их в OKLCH/HCT, а не через простое умножение HSL-lightness - иначе для одних выбранных владельцем цветов ступени будут выглядеть нормально, а для других (в т.ч. вероятно для зелёного CBD-бренда) - плоско или нечитаемо."
+  },
+  {
+   "principle": "Статусные палитры (особенно error) не выводятся из бренд-hue гармониками вместе с primary/secondary/tertiary - они фиксированы отдельно.",
+   "evidence": "material-color-utilities: из seed через хроматические гармоники выводится Primary/Secondary/Tertiary/Neutral/Neutral-Variant, но 'Error: Fixed palette for error states' - не зависит от seed.",
+   "forStorefront3": "Основной бренд-зелёный магазина алгоритмически выводит primary/neutral-шкалы, но success/error/warning должны быть отдельными, независимо подобранными шкалами, а не производными от того же зелёного - иначе 'успешно добавлено в корзину' и 'фирменный зелёный фон' становятся визуально одним и тем же сигналом."
+  },
+  {
+   "principle": "12-ступенчатая шкала гарантирует ровно одну конкретную пару контраста (текстовые ступени против конкретного фонового шага той же шкалы), а не произвольную пару фон+текст.",
+   "evidence": "Radix: 'Steps 11 and 12... are guaranteed to Lc 60 and Lc 90 APCA contrast ratio on top of a step 2 background from the same scale.'",
+   "forStorefront3": "Если у storefront3 будет реестр токенов по ступеням (аналог packages/ui/src/tokens), гарантия контраста должна быть встроена в саму шкалу как факт ('ступень 11 на фоне ступени 2 = порог X'), а не проверяться отдельным ручным тестом на каждом новом компоненте - иначе повторится история с подписью 'выбор по эффекту' (1.12 при норме 4.5), уже описанная в проекте."
+  },
+  {
+   "principle": "Тёмная тема - отдельно откалиброванная пара тонов на каждую роль, а не единая формула инверсии.",
+   "evidence": "Material: primary = tone 40 (светлая) / tone 80 (тёмная), но on-primary = tone 100 (светлая) / tone 20 (тёмная) - разные дельты у разных ролей; Radix проектирует light/dark как 'matched pairs', не инверсию.",
+   "forStorefront3": "Переключение темы должно менять конкретное значение каждой роли по отдельно заданному правилу (как в проекте уже сформулировано про фон+текст из одного источника), а не применять общий фильтр/формулу ко всей палитре разом - иначе часть пар (особенно там, где заливка не из токена темы, а из фото/палитры) неизбежно разъедется."
+  },
+  {
+   "principle": "Люкс/минимализм в цвете держится на малом числе цветов (3-4) и монохромной/приглушённой гамме; иерархия делается контрастом и пустым пространством, а не количеством оттенков.",
+   "evidence": "NN/g про Aesop: 'By limiting your palette to 3-4 colors, you will be able to easily convey visual hierarchy'; 'Gray and black work together to create a visual hierarchy for typography (black for primary text and gray for secondary).'",
+   "forStorefront3": "На любом одном экране 'минимализм-лакшери' storefront3 не должно одновременно читаться больше 3-4 различимых hue (бренд-зелёный + нейтраль + максимум 1-2 акцента вроде скидки/статуса) - остальная иерархия строится ступенями контраста и отступами, а не новыми красками."
+  },
+  {
+   "principle": "Цвет CTA-кнопки работает через выделенность/контраст на конкретном экране, а не через 'правильный' оттенок - единого выигрышного цвета не существует.",
+   "evidence": "Baymard: 'there is no perfect color to use when you're designing UI buttons... consider color an important visual cue to ensure a primary button stands out from the other buttons on a page'; '48% of ecommerce sites neglect one or more of these elements' (уникальный стиль, заметность, расположение, микротекст).",
+   "forStorefront3": "Правило для главной кнопки должно звучать не 'кнопка цвета X', а 'кнопка берёт самый насыщенный/контрастный доступный на текущей поверхности шаг шкалы (условный аналог ступени 9 Radix)' - тогда она останется заметной после того, как владелец поменяет цвета магазина из админки."
+  },
+  {
+   "principle": "Скидка/цена: различимость важнее конкретного цвета - обязательна связка 'зачёркнутая старая цена + визуально иначе оформленная новая', жёсткого 'скидка = красный' в исследованиях нет.",
+   "evidence": "Baymard про страницу товара: 'using a distinguishing color helps differentiate price from surrounding text'; 'Using text treatment such as a strikethrough for the original price or larger bolded text for the sale price can help users understand the price they will actually be paying' - конкретный цвет (у REI - красный) показан как пример, не как правило.",
+   "forStorefront3": "Токен цены со скидкой должен быть определён семантически (--price-sale, отдельно от --price-regular и отдельно от --status-error), обязательно в паре со strikethrough у старой цены; жёстко привязывать 'скидка = тот же красный, что error' не нужно и небезопасно при разных цветах бренда/тем."
+  },
+  {
+   "principle": "Статус-цвета отделяются от бренд-цвета отдельной семантической схемой токенов - особенно критично, когда бренд сам зелёный (риск спутать 'успех' и 'фирменное').",
+   "evidence": "Синтез вторичных источников по семантическим токенам (не первоисточник W3C/Material напрямую, поэтому ниже уровень доверия): 'Functional status alerts like errors, warnings, and success messages must remain visually distinct and completely isolated from brand palettes'; структурно то же самое видно в самом Material - Error держится отдельной, не производной от seed палитрой.",
+   "forStorefront3": "Реестр токенов storefront3 должен завести --status-success как самостоятельную шкалу (другой hue-band или заметно другая светлота/насыщенность), а не переиспользовать --brand-green впрямую для success-состояний."
+  }
+ ],
+ "checklist": [
+  "Нейтральная шкала: 8-10 визуально различимых ступеней серого в обеих темах - проверить, открыв все ступени рядом на 375 и 1440; порог: любые две соседние ступени должны отличаться на глаз (Refactoring UI, 'you want 8-10 shades to choose from').",
+  "Акцентная (бренд) шкала: 5-10 ступеней, подобранных вручную, без визуально 'слипшихся' соседей - порог тот же, что у серых: сосед от соседа отличим глазом, не только по HEX-коду.",
+  "Число различимых hue на одном экране не больше 3-4 (бренд + нейтраль + до 2 акцентов вроде скидки/статуса) - посчитать вручную на карточке товара, в корзине, на главной; порог - 4 максимум (NN/g, разбор Aesop).",
+  "Обязательный минимум для комплаенса - WCAG 2.1 SC1.4.3: пары текст/фон дают не менее 4.5:1 для обычного текста и не менее 3:1 для крупного текста (18pt / 14pt bold и крупнее) - проверить автоматическим WCAG-контраст-чекером по каждой заявленной паре токенов.",
+  "Если система заявляет более точную/строгую проверку - APCA Lc: Lc>=90 для основного текста тела 14-18px, Lc>=75 минимум для колонок текста, Lc>=60 для некорпусного контентного текста от 24px, Lc>=45 для крупных заголовков (36px/400 или 24px/700), Lc>=30 - абсолютный пол для disabled/placeholder-текста, ниже Lc 30 нигде не опускаться - сверить APCA-калькулятором (apca-w3 или huetone).",
+  "Нетекстовые элементы (обводка кнопки, иконка состояния, граница активного поля) - минимум 3:1 к соседнему цвету, WCAG 2.2 SC1.4.11 - проверить контраст именно рамки/иконки отдельно от текста внутри неё.",
+  "У каждой смысловой роли (primary, surface, error, discount-price и т.д.) есть явный зафиксированный в системе текстовый партнёр ('X + on-X'), а не выбор текста на глаз в каждом компоненте - пройтись по списку токенов, для каждого фонового - есть ли официальный текстовый.",
+  "Тёмная тема - не инверсия одной формулой: для каждой роли отдельно проверить, что связка фон+текст сохраняет свой порог контраста именно в тёмной теме (а не унаследована от светлой автоматическим фильтром) - порог тот же WCAG/APCA, что и в светлой теме.",
+  "Статус-цвета (success/error/warning/info) визуально отличимы от цвета бренда, особенно у зелёного бренда - сравнить success-зелёный и brand-зелёный рядом в обеих темах; порог - отличие по hue или заметный сдвиг по светлоте/насыщенности, не 'тот же зелёный чуть темнее'.",
+  "Кнопка основного CTA выделяется контрастом сильнее любой другой кликабельной поверхности на этом же экране - визуально сравнить главную кнопку со всеми остальными интерактивными элементами экрана; порог - она читается первой без подсказки текста (Baymard, 'ensure a primary button stands out').",
+  "Скидочная цена: зачёркнутая старая цена + визуально иначе оформленная (цветом и/или весом) новая цена присутствуют одновременно - проверить на карточке и на странице товара, что две цены нельзя перепутать при беглом взгляде (Baymard, product-page-price-discounts).",
+  "Путь построения шкалы задокументирован и единообразен: либо весь бренд-цвет выводится алгоритмически через HCT/OKLCH в один проход, либо все стопы отобраны вручную - без смешения 'половина формулой, половина на глаз' в разных местах системы одновременно."
+ ],
+ "doNotCopy": [
+  "Не переносить буквальные HEX/шаг-значения чужих систем (конкретные оттенки Radix tomato/grass, дефолтный Material purple) - они откалиброваны под чужой бренд-hue, для зелёного CBD-бренда не подходят напрямую.",
+  "Не строить производные оттенки (hover/active/tint) через hsl(lighten()/darken()) в цикле - и Refactoring UI, и сам пример из спецификации CSS Color 4 показывают, что HSL-lightness лжёт о перцептивной светлоте между разными hue.",
+  "Не полагаться на голый WCAG 2.x ratio как на единственный критерий для тёмной темы - по словам автора APCA 'WCAG 2.x contrast can not calculate for dark mode correctly'.",
+  "Не делать тёмную тему одной формулой инверсии (100-L или CSS filter: invert) на всю палитру разом - ни Material, ни Radix так не поступают, у каждой роли свой пересчитанный тон.",
+  "Не жёстко привязывать 'скидка = красный' без проверки на конфликт с error/status-палитрой того же магазина - в исследованиях Baymard конкретный цвет для скидки не предписан, обязательна только разлиичимость + strikethrough.",
+  "Не путать локальную гарантию контраста шкалы (у Radix - только ступени 11/12 против конкретно ступени 2) с гарантией 'любая пара ступеней подряд контрастна' - это не так, каждую нестандартную пару нужно проверять отдельно.",
+  "Не выводить статусные (success/error) палитры из того же алгоритма гармоник, что и бренд-hue, если бренд зелёный - структурно даже Material держит Error фиксированной палитрой отдельно от seed-производных Primary/Secondary/Tertiary."
+ ],
+ "quotes": [
+  {
+   "text": "In practice, you want 8-10 shades to choose from",
+   "source": "https://www.refactoringui.com/previews/building-your-color-palette"
+  },
+  {
+   "text": "As tempting as it is, you can't rely purely on math to craft the perfect color palette.",
+   "source": "https://www.refactoringui.com/previews/building-your-color-palette"
+  },
+  {
+   "text": "guaranteed to Lc 60 and Lc 90 APCA contrast ratio on top of a step 2 background from the same scale",
+   "source": "https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale"
+  },
+  {
+   "text": "The system uses a color space called HCT, which defines all colors using three dimensions: hue, chroma, and tone.",
+   "source": "https://m3.material.io/styles/color/system/how-the-system-works"
+  },
+  {
+   "text": "the algorithm assigns the color tone primary40 to the primary role and the tone primary100 to the on primary role",
+   "source": "https://m3.material.io/styles/color/system/how-the-system-works"
+  },
+  {
+   "text": "Both have an HSL Lightness of 50%, but clearly the yellow looks much lighter than the blue.",
+   "source": "https://www.w3.org/TR/css-color-4/#specifying-oklab-oklch"
+  },
+  {
+   "text": "WCAG 2.x contrast can not calculate for dark mode correctly, therefore no useful comparison can be made.",
+   "source": "https://github.com/Myndex/SAPC-APCA/blob/master/documentation/README.md"
+  },
+  {
+   "text": "consider color an important visual cue to ensure a primary button stands out",
+   "source": "https://baymard.com/learn/button-design"
+  },
+  {
+   "text": "48% of ecommerce sites neglect one or more of these elements",
+   "source": "https://baymard.com/learn/button-design"
+  },
+  {
+   "text": "By limiting your palette to 3-4 colors, you will be able to easily convey visual hierarchy",
+   "source": "https://www.nngroup.com/articles/why-does-a-design-look-good-part2/"
+  },
+  {
+   "text": "a contrast ratio of at least 4.5:1",
+   "source": "https://www.w3.org/TR/WCAG21/#contrast-minimum"
+  },
+  {
+   "text": "Preferred level for fluent text and columns of body text with a font no smaller than 14px/weight 400",
+   "source": "https://git.apcacontrast.com/documentation/APCA_in_a_Nutshell.html"
+  },
+  {
+   "text": "a strikethrough for the original price or larger bolded text for the sale price",
+   "source": "https://baymard.com/blog/product-page-price-discounts"
+  }
+ ],
+ "confidence": "Высокая по ядру данных: WCAG-пороги (прямой текст спецификации), формула/экспоненты APCA (репозиторий и README автора), текст CSS Color 4 про OKLCH и сравнение с HSL (скачан curl напрямую с w3.org, не пересказ), README Radix про гарантию Lc 60/90 на ступенях 11/12 (прочитан напрямую). Средне-высокая по Material 3: сам сайт m3.material.io - SPA без серверного рендера, прямой WebFetch отдавал только title; контент получен через reader-зеркало (r.jina.ai) и перепроверен вторым независимым поиском (список тонов 0-10-...-100 и назначение ролей primary40/80 совпали в обоих заходах) - технические цифры можно считать надёжными, но это не эквивалент чтения официального HTML напрямую. Средняя по Radix custom-tool: сама механика генерации ('на основе пары референсных цветов, переиспользуя откалиброванные соотношения существующих шкал') подтверждена текстом доки, но исходный код инструмента не прочитан построчно - точный алгоритм не проверен. Ниже среднего - только один пункт: связка 'бренд-зелёный конфликтует со status-зелёным' в принципах и чек-листе опирается на агрегированный поиск по вторичным блогам о дизайн-токенах, а не на единый канонический документ; она подкреплена косвенно первоисточником (Material держит Error отдельно от seed-палитр), но сама формулировка про 'изоляцию статусов от бренда' - вторична, это явно помечено в тексте самого principle."
+}

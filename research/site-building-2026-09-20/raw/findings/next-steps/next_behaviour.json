@@ -1,0 +1,296 @@
+{
+ "topic": "Слой поведения: состояния нажимаемого, фокус, касание, окна и меню в верхнем слое, anchor positioning, движение по прокрутке",
+ "sourcesRead": [
+  "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog",
+  "https://developer.mozilla.org/en-US/docs/Web/API/Popover_API",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_anchor_positioning",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_scroll-driven_animations",
+  "https://web.dev/articles/inp",
+  "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md",
+  "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/",
+  "https://developer.chrome.com/docs/web-platform/view-transitions/",
+  "https://caniuse.com/css-anchor-positioning",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion",
+  "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert",
+  "https://github.com/web-platform-dx/web-features/issues/3558",
+  "https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action",
+  "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+  "https://developer.chrome.com/blog/300ms-tap-delay-gone-away (через поиск)",
+  "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/147 (через поиск)",
+  "https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/148 (через поиск)",
+  "https://groups.google.com/a/mozilla.org/g/dev-platform/c/B71NFNrZ8Lo/m/e1ZMg8fjCAAJ — Intent to ship: CSS Anchor Positioning (через поиск)",
+  "https://web-platform-dx.github.io/web-features-explorer/features/dialog-closedby/ (через поиск)",
+  "https://web-platform-dx.github.io/web-features-explorer/features/scroll-driven-animations/ (через поиск)",
+  "https://caniuse.com/mdn-html_elements_dialog_closedby (через поиск)",
+  "https://github.com/vercel/next.js/pull/74659 (через поиск)"
+ ],
+ "sourcesFailed": [
+  "https://nextjs.org/docs/app/api-reference/config/next-config-js/viewTransition — 404, такой страницы нет; реальный адрес nextjs.org/docs/app/guides/view-transitions найден только через поиск, не прочитан напрямую — данные о Next.js View Transitions менее надёжны, чем остальные"
+ ],
+ "whichStep": "Слой 5 из объявленного порядка сборки (палитра → пространство → типографика → раскладка → поведение узлов → страницы → наполнение → сдача). Без этого слоя: (1) девять окон витрины (возрастные ворота, фильтры, сортировка, корзина, док, быстрый заказ, вход, мобильное меню, выбор города/пункта выдачи — тот же список, что уже есть в двух других витринах) будут либо переизобретать бесплатное поведение браузера (фокус-трап, Escape, inert, верхний слой), либо потеряют INP-бюджет ≤200 мс, уже записанный в CLAUDE.md как норма Core Web Vitals; (2) выпадающие меню шапки (язык, эффекты, сортировка) будут либо на JS-библиотеке позиционирования, либо будут ломаться при скролле; (3) любая анимация по прокрутке на «минимализм-лакшери» витрине будет либо без @supports-фолбэка (и ломает Firefox), либо будет требовать отдельного JS для reduced-motion. Раскладка (слой 4) уже должна быть готова — anchor positioning и scroll-timeline привязаны к готовой геометрии страницы, а не наоборот.",
+ "rules": [
+  {
+   "rule": "INP (Interaction to Next Paint) — метрика отклика на тап/клик/клавишу от нажатия до отрисовки следующего кадра; считается по 75-му перцентилю визитов.",
+   "numbers": "≤200 мс — хорошо; 200–500 мс — нужно улучшать; >500 мс — плохо",
+   "evidence": "web.dev/articles/inp — официальная методика Core Web Vitals",
+   "forStorefront3": "подтверждает уже записанный в CLAUDE.md порог (п.5/5а «Телефон — основной экран»): кнопка меняет вид по :active синхронно с касанием, а не после ответа сервера/движка — круговой рейс к движку сам по себе почти секунда и в INP-бюджет не влезает"
+  },
+  {
+   "rule": "Искусственная 300-мс задержка клика (браузер ждал возможного двойного тапа на зум) снимается сама, если есть <meta viewport width=device-width>; touch-action:manipulation убирает её явно на уровне элемента.",
+   "numbers": "300 мс — исторический размер задержки; снята в Chrome начиная с версии 32 (2014) при viewport width=device-width",
+   "evidence": "developer.chrome.com/blog/300ms-tap-delay-gone-away; MDN touch-action",
+   "forStorefront3": "viewport meta уже стандартный в Next.js layout — этого достаточно в большинстве браузеров, но touch-action:manipulation стоит держать в общем pressable-классе как страховку для встроенных webview соцсетей (Instagram/Meta in-app браузер), откуда приходит заметная часть CBD-покупателей из-за запрета обычной рекламы"
+  },
+  {
+   "rule": "touch-action:manipulation разрешает пан и пинч-зум, но отключает двойной тап на зум и тем самым убирает саму причину ждать 300 мс перед click.",
+   "numbers": "Baseline: широко доступно с сентября 2019",
+   "evidence": "MDN CSS touch-action",
+   "forStorefront3": "пишется один раз в общем pressable (по уже записанному правилу CLAUDE.md «Поведение берётся, а не пишется»), не точечно на отдельных кнопках"
+  },
+  {
+   "rule": ":focus-visible — эвристика браузера: показывать кольцо фокуса, когда похоже, что фокус пришёл с клавиатуры, а не с указателя/пальца.",
+   "numbers": "Baseline: широко доступно с марта 2022",
+   "evidence": "MDN :focus-visible",
+   "forStorefront3": "зеркально уже принятому правилу CLAUDE.md «:hover только в @media (hover:hover)» — для фокуса ту же задачу решает сам браузер, свой JS-детектор ввода (what-input) не нужен"
+  },
+  {
+   "rule": "Кольцо фокуса обязано иметь контраст не ниже определённого порога к соседним цветам.",
+   "numbers": "≥3:1 (WCAG 2.2, не-текстовый контраст/видимость фокуса)",
+   "evidence": "упомянуто в контексте :focus-visible на MDN; официальный порог — WCAG 2.2 SC 1.4.11/2.4.11",
+   "forStorefront3": "по уже действующему правилу «Цвет текста берётся оттуда же, откуда цвет фона» — кольцо фокуса тоже нужно сверять в обеих темах отдельно, не одним токеном на обе"
+  },
+  {
+   "rule": "<dialog>+showModal() бесплатно даёт: ::backdrop, закрытие по Escape, фокус-трап (Tab/Shift+Tab не выходят за пределы), inert на остальной странице, верхний слой без z-index.",
+   "numbers": "Baseline: широко доступно с марта 2022",
+   "evidence": "MDN <dialog>; MDN inert",
+   "forStorefront3": "ровно то, что уже сделано в двух других витринах (9 окон, общий сброс dialogSurface) — переносится в storefront3 без переизобретения, меняется только оформление коробки под «минимализм-лакшери»"
+  },
+  {
+   "rule": "showModal() НЕ даёт закрытие по клику вне окна само по себе — нужен свой обработчик (сравнение цели клика с самим диалогом) либо closedby='any', который на сентябрь 2026 не является Baseline: Safari его ещё не поддерживает.",
+   "numbers": "closedby: Chrome/Edge 134+, Firefox ~137–141+; Safari — не поддерживает на сентябрь 2026 (обещано к концу года в рамках Interop 2026)",
+   "evidence": "MDN <dialog> (closedby); web-features-explorer/dialog-closedby; поиск по Interop 2026",
+   "forStorefront3": "закрытие по клику вне окна писать руками как основной путь; closedby='any' — только как прогрессивное улучшение, не единственный механизм, учитывая долю iOS Safari среди 79% мобильных покупателей"
+  },
+  {
+   "rule": "На открытии диалога фокус ставится на элемент внутри него (autofocus на кнопку закрытия по умолчанию либо на первое смысловое поле); на закрытии фокус обязан вернуться туда, откуда диалог открыли.",
+   "numbers": "—",
+   "evidence": "W3C ARIA APG Dialog (Modal) Pattern",
+   "forStorefront3": "окно быстрого заказа и выбора города/пункта выдачи — autofocus сразу на поле ввода (не на кнопку закрытия), чтобы клавиатура на телефоне появилась без второго тапа"
+  },
+  {
+   "rule": "Popover API (атрибут popover + popovertarget) даёт то же, что <dialog>, но без модальности: верхний слой, light-dismiss сам по себе (без ручного кода), Escape, ::backdrop — но без фокус-трапа и без inert остальной страницы.",
+   "numbers": "Baseline: новое, доступно с января 2025",
+   "evidence": "MDN Popover API",
+   "forStorefront3": "немодальные выпадашки шапки (переключатель языка, меню эффектов, подсказка сортировки) — кандидат на popover=auto вместо <dialog>, раз им не нужен фокус-трап; 9 «настоящих» окон трогать не нужно"
+  },
+  {
+   "rule": "CSS anchor positioning (anchor-name/position-anchor/anchor()/position-try/position-area) привязывает всплывающий блок к элементу через CSS без JS-библиотеки; включена по умолчанию в Chrome, Safari 26 (сент. 2025), Firefox 147 (13.01.2026) — во всех трёх движках на сентябрь 2026, но со статусом «новое», не «широко доступно», и с открытыми багами.",
+   "numbers": "Firefox 147+ с 13.01.2026; Safari 26+ с сент. 2025; Chrome — с 2024; совокупное покрытие ~86–91% браузеров по разным замерам",
+   "evidence": "MDN CSS anchor positioning; caniuse.com/css-anchor-positioning; github.com/web-platform-dx/web-features issue #3558; релиз-ноты Firefox 147/148",
+   "forStorefront3": "использовать anchor positioning для выпадающих меню шапки вместо Popper/Floating UI, обязательно с position-try-fallbacks и визуальной проверкой на настоящем Safari и Firefox (не только Chrome DevTools) — первоисточник прямо предупреждает о недоделанных углах (переполнение контейнера, позиционирование внутри popover)"
+  },
+  {
+   "rule": "Scroll-driven animations (animation-timeline: scroll()/view()) НЕ Baseline на сентябрь 2026: Firefox не поддерживает по умолчанию (за флагом layout.css.scroll-driven-animations.enabled), Chrome 115+ и Safari 26+ поддерживают.",
+   "numbers": "покрытие ~85% браузеров; Firefox — только за флагом",
+   "evidence": "MDN CSS scroll-driven animations; web-features-explorer/scroll-driven-animations",
+   "forStorefront3": "любой scroll-reveal/прогресс-эффект пишется так, чтобы без анимации контент уже был виден (например opacity:1 по умолчанию), а сама привязка к прокрутке — строго внутри @supports (animation-timeline: view()); без этого ~15% покупателей на Firefox получат невидимый блок вместо анимированного"
+  },
+  {
+   "rule": "View Transitions API: для одного документа (SPA-переход) поддержана широко; для перехода между страницами (MPA, @view-transition{navigation:auto}) — уже, Firefox не поддерживает вовсе. React-обёртка Next.js остаётся экспериментальной.",
+   "numbers": "same-document: Chrome/Edge 111+, Safari 18+, Firefox 144+; cross-document: Chrome/Edge 126+, Safari 18.2+, Firefox — нет; Next.js unstable_ViewTransition требует experimental.viewTransition в конфиге",
+   "evidence": "developer.chrome.com/docs/web-platform/view-transitions; поиск по vercel/next.js PR #74659 и nextjs.org/docs/app/guides/view-transitions",
+   "forStorefront3": "для переходов между страницами каталога — нативный CSS @view-transition{navigation:auto} с @supports-проверкой (в Firefox просто обычная навигация без анимации, без поломки); от React-компонента unstable_ViewTransition в проде пока держаться в стороне — тот же принцип осторожности, что уже записан в CLAUDE.md про родные зависимости, естественно распространяется и на экспериментальные API фреймворка"
+  },
+  {
+   "rule": "prefers-reduced-motion:reduce обязан снимать или укорачивать анимацию, привязанную к прокрутке или переходу.",
+   "numbers": "два значения — no-preference/reduce; Baseline: широко доступно с января 2020",
+   "evidence": "MDN prefers-reduced-motion",
+   "forStorefront3": "каждый @supports-блок со scroll-driven анимацией и каждый view-transition получает пару @media (prefers-reduced-motion: reduce), глушащую animation-timeline/transition-duration — без неё анимация не должна проходить приёмку, по той же логике, что уже действует для поведения нажимаемого"
+  },
+  {
+   "rule": "Минимальный размер цели нажатия для указателя — WCAG 2.5.8 (AA), с исключениями на inline/spacing/эквивалент/essential; уже принятые в проекте 44px (roundSm) — это уровень выше AAA (2.5.5).",
+   "numbers": "24×24 CSS px — минимум AA (WCAG 2.5.8); 44×44 CSS px — уровень AAA (2.5.5), уже принят в проекте",
+   "evidence": "w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+   "forStorefront3": "ничего менять не нужно — существующий токен roundSm (44px) уже с запасом закрывает и AA, и AAA; это первоисточник под уже принятое число, не новое требование"
+  }
+ ],
+ "mechanisms": [
+  {
+   "name": "<dialog> + showModal()",
+   "what": "Модальное окно: фокус-трап, Escape, inert остальной страницы, верхний слой, ::backdrop — всё от браузера",
+   "support2026": "Baseline: широко доступно с марта 2022; вложенный атрибут closedby — НЕ Baseline (Safari ещё не поддерживает)",
+   "whenToUse": "любое окно, где взаимодействие с остальной страницей должно быть полностью заблокировано: корзина, вход, быстрый заказ, ворота возраста, выбор города/пункта выдачи"
+  },
+  {
+   "name": "Popover API (popover, popovertarget)",
+   "what": "Немодальный всплывающий слой: верхний слой, light-dismiss сам по себе, Escape, ::backdrop, без фокус-трапа и без inert остальной страницы",
+   "support2026": "Baseline: новое, с января 2025",
+   "whenToUse": "выпадающие меню без блокировки страницы: переключатель языка, меню сортировки/фильтра-подсказки"
+  },
+  {
+   "name": "CSS anchor positioning (anchor-name / position-anchor / anchor() / position-try)",
+   "what": "Привязка позиционированного блока к другому элементу через CSS, без измерения координат в JS",
+   "support2026": "по умолчанию во всех трёх движках с 13.01.2026 (Firefox 147), но с открытыми багами позиционирования — фактически «новое», не «широко доступно»",
+   "whenToUse": "выпадающие меню шапки, тултипы, подсказки к иконкам — вместо Popper/Floating UI; обязателен position-try-fallbacks и живая проверка вне Chrome"
+  },
+  {
+   "name": ":focus-visible",
+   "what": "CSS-эвристика браузера: показывать кольцо фокуса только когда фокус похоже пришёл с клавиатуры",
+   "support2026": "Baseline: широко доступно с марта 2022",
+   "whenToUse": "любой фокусируемый узел — вместо самодельного JS-детектора ввода"
+  },
+  {
+   "name": "inert",
+   "what": "Глобальный атрибут: выключает клик/фокус/текстовый поиск по элементу и его потомкам, убирает их из дерева доступности",
+   "support2026": "Baseline: широко доступно с апреля 2023; <dialog>, открытый через showModal(), сам «убегает» от инертности без ручной настройки соседей",
+   "whenToUse": "только если нужен свой оверлей вне <dialog>/popover; для 9 стандартных окон витрины не нужен вовсе — браузер уже сделал это"
+  },
+  {
+   "name": "CSS scroll-driven animations (animation-timeline: scroll()/view())",
+   "what": "Анимация, управляемая позицией прокрутки вместо времени",
+   "support2026": "НЕ Baseline: Firefox — за флагом; Chrome 115+/Safari 26+ поддерживают по умолчанию; покрытие ~85%",
+   "whenToUse": "reveal-эффекты, прогресс-бар листания — только внутри @supports (animation-timeline: view()) с видимым по умолчанию содержимым как фолбэком"
+  },
+  {
+   "name": "View Transitions API (document.startViewTransition / @view-transition)",
+   "what": "Плавный переход между состояниями DOM (SPA) или между полными страницами (MPA)",
+   "support2026": "same-document широко (Chrome/Edge 111+, Safari 18+, Firefox 144+); cross-document уже, Firefox не поддерживает вовсе",
+   "whenToUse": "переход между страницами каталога/товара — нативный @view-transition с @supports, без экспериментальной React-обёртки Next.js"
+  },
+  {
+   "name": "touch-action: manipulation",
+   "what": "Отключает двойной тап на зум, оставляет пан/пинч, убирает искусственную 300-мс задержку клика",
+   "support2026": "Baseline: широко доступно с сентября 2019",
+   "whenToUse": "каждый нажимаемый узел — прописывается один раз в общем pressable-классе"
+  },
+  {
+   "name": "prefers-reduced-motion",
+   "what": "Медиа-запрос: пользователь попросил операционную систему уменьшить анимацию",
+   "support2026": "Baseline: широко доступно с января 2020",
+   "whenToUse": "рядом с любым animation-timeline/view-transition/decorative-motion блоком — обязательная пара, а не опция"
+  }
+ ],
+ "checks": [
+  {
+   "check": "Каждый нажимаемый узел отвечает на :active и :focus-visible",
+   "how": "статический разбор скомпилированного CSS: у класса, применённого к <button>/[role=button]/ссылке, есть либо composes: pressable, либо собственные правила под :active и :focus-visible; дополнительно браузерная проверка — эмуляция pointerdown и Tab-фокуса, сравнение getComputedStyle до/после",
+   "tool": "расширение существующего control-states.test.ts (по образцу CLAUDE.md, «Кнопка отвечает одинаково — потому что ответ у неё общий»)"
+  },
+  {
+   "check": "INP на тап по ключевым кнопкам ≤200 мс",
+   "how": "синтетическое измерение: трассировка события pointerdown → первый кадр покраски через CDP; либо полевые данные CrUX/PageSpeed Insights по факту",
+   "tool": "test:speed (дополнить метрикой INP) или Lighthouse CI"
+  },
+  {
+   "check": "Кто нарисован сверху при открытом окне/попапе",
+   "how": "открыть диалог/попап, перебрать все элементы, чья коробка пересекается с ним, спросить document.elementFromPoint(x,y) в центре пересечения и убедиться, что это узел внутри оверлея — не сеткой точек, а по фактическому пересечению",
+   "tool": "расширение test:overlay (тот же метод, что CLAUDE.md уже описывает для проверки верхнего слоя)"
+  },
+  {
+   "check": "Anchor-позиционированное меню не вылезает за экран",
+   "how": "открыть меню на каждой контрольной ширине (320/375/414/768/1024), boundingBox() меню должен целиком лежать внутри viewport; отдельный прогон в движке Firefox и WebKit, не только Chromium",
+   "tool": "новый тест в наборе test:phone/test:wide"
+  },
+  {
+   "check": "prefers-reduced-motion честно гасит анимацию",
+   "how": "эмуляция reducedMotion:'reduce' и проверка, что элемент с animation-timeline не двигается при прокрутке (сравнение bounding box до/после)",
+   "tool": "новый тест по аналогии с test:theme — сверяет пару состояний motion/no-motion"
+  },
+  {
+   "check": "Scroll-driven анимация не ломает Firefox",
+   "how": "прогон в движке Firefox — элемент с animation-timeline должен иметь видимое базовое состояние (например opacity:1) без анимации и без JS, до срабатывания @supports-блока",
+   "tool": "тот же multi-engine прогон, что и проверка anchor positioning"
+  },
+  {
+   "check": "Диалог возвращает фокус на открывший его элемент после закрытия",
+   "how": "запомнить document.activeElement до открытия, закрыть диалог через Escape и через кнопку, сверить activeElement после в обоих случаях",
+   "tool": "control-states.test.ts или отдельный focus-return.test.ts"
+  },
+  {
+   "check": "300-мс задержка отсутствует на нажимаемых",
+   "how": "имитация тапа через touchscreen API, замер времени от тапа до срабатывания click/pointerup обработчика",
+   "tool": "test:phone (расширить существующий живой обход)"
+  }
+ ],
+ "vocabulary": [
+  {
+   "term": "Top layer (верхний слой)",
+   "plain": "Невидимый слой браузера поверх всей страницы, куда сам браузер кладёт <dialog> и popover — номера z-index туда не достают и не мешают",
+   "example": "открытая корзина всегда поверх шапки, даже если у шапки z-index:9999"
+  },
+  {
+   "term": "::backdrop",
+   "plain": "Затемнение позади модального окна/попапа, которое рисует сам браузер, а не своя вуаль поверх страницы",
+   "example": "::backdrop { background: rgba(0,0,0,.5) } — фон за открытой корзиной"
+  },
+  {
+   "term": ":focus-visible",
+   "plain": "Правило браузера: показывать рамку фокуса, только когда явно пришли с клавиатуры, а не мышью/пальцем",
+   "example": "кнопка «В корзину» без рамки при клике, но с рамкой при переходе по Tab"
+  },
+  {
+   "term": "inert",
+   "plain": "Атрибут, который выключает клики/фокус/поиск по куску страницы, будто его нет",
+   "example": "остальная страница получает inert сама собой, пока открыта модалка через showModal()"
+  },
+  {
+   "term": "Anchor positioning",
+   "plain": "Привязка всплывающего блока (меню, подсказки) к кнопке через CSS, без JS-библиотеки и расчёта координат",
+   "example": "меню сортировки всегда под своей кнопкой, даже если страницу прокрутили"
+  },
+  {
+   "term": "animation-timeline",
+   "plain": "Переключатель, который вместо секунд слушает, насколько прокручена страница",
+   "example": "полоса прогресса ленты товаров заполняется по мере прокрутки, а не по таймеру"
+  },
+  {
+   "term": "INP (Interaction to Next Paint)",
+   "plain": "Сколько времени проходит от касания экрана до того, как браузер нарисовал ответ на этот тап",
+   "example": "нажал «Добавить в корзину» — счётчик должен измениться на экране быстрее чем за 200 мс"
+  },
+  {
+   "term": "closedby",
+   "plain": "Атрибут <dialog>, который явно говорит, чем можно закрыть окно: кликом снаружи, клавишей Esc или только кнопкой",
+   "example": "closedby='any' на окне быстрого заказа — но Safari эту настройку пока не понимает, нужен свой обработчик клика по фону"
+  }
+ ],
+ "antiPatterns": [
+  "Ждать клика вне <dialog> с showModal() — по умолчанию этого не происходит, нужен обработчик клика по ::backdrop (сравнение цели клика с самим диалогом).",
+  "Писать свой JS-фокус-трап и Escape-обработчик рядом с <dialog>/popover — браузер уже делает это; второй обработчик того же события — заплатка (CLAUDE.md, «Два правила об одном узле = шов»).",
+  "Ставить анимацию через animation-timeline без @supports-фолбэка — на Firefox без включённого флага элемент застревает в начальном (часто невидимом) кадре анимации.",
+  "Полагаться на React unstable_ViewTransition как на стабильный API в продакшене — префикс unstable_ в имени в 2026 году всё ещё буквален.",
+  "Строить дропдауны меню только на :hover-логике или JS-расчёте координат, когда anchor positioning уже поддержан во всех трёх движках по умолчанию — лишний JS ради того, что теперь делает CSS.",
+  "Ставить :hover-стили нажимаемому без @media (hover: hover) — уже запрещено в CLAUDE.md; :focus-visible решает симметричную задачу для клавиатуры, и её тоже нельзя подменять постоянно видимой рамкой.",
+  "Класть touch-action: manipulation только на некоторые кнопки — это признак нажимаемого и должно быть в общем pressable-классе, а не точечно (по аналогии с cursor: pointer из CLAUDE.md).",
+  "Проверять anchor positioning и scroll-driven анимации только в Chrome DevTools — оба источника (GitHub issue #3558, web-features-explorer) прямо указывают на баги в конкретных движках, которые Chrome не покажет."
+ ],
+ "quotes": [
+  {
+   "text": "Tab and Shift + Tab do not move focus outside the dialog",
+   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"
+  },
+  {
+   "text": "When a dialog closes, focus returns to the element that invoked the dialog",
+   "source": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"
+  },
+  {
+   "text": "No other element can escape inertness.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert"
+  },
+  {
+   "text": "Enable panning and pinch zoom gestures, but disable additional non-standard gestures such as double-tap to zoom.",
+   "source": "https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action"
+  },
+  {
+   "text": "The size of the target for pointer inputs is at least 24 by 24 CSS pixels",
+   "source": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
+  },
+  {
+   "text": "in reality it is further from being even baseline",
+   "source": "https://github.com/web-platform-dx/web-features/issues/3558"
+  }
+ ],
+ "confidence": "Высокая уверенность (первоисточник прочитан напрямую) — для: <dialog>/showModal, inert, :focus-visible, touch-action, prefers-reduced-motion, WCAG 2.5.8, ARIA APG dialog/menu-button, Popover API, INP-пороги. Средняя — для anchor positioning и scroll-driven animations: базовые факты подтверждены MDN напрямую, но точные номера версий браузеров и проценты покрытия расходятся между caniuse (версии до Chrome/Safari ~150) и web-features-explorer/релиз-нот Firefox (более консервативные конкретные даты 13.01.2026 и 24.02.2026) — в тексте отдан приоритет датированным релиз-нотам как более проверяемым. Ниже средней — для Next.js View Transitions: прямая страница документации не открылась (404), данные собраны через поисковую агрегацию, а не чтение первоисточника; перед реализацией стоит перепроверить актуальный адрес nextjs.org/docs/app/guides/view-transitions напрямую. Не покрыто в этом заходе: паттерны ARIA APG combobox/listbox/tabs (только dialog и menu-button) — понадобятся отдельно, когда до кода дойдёт выбор города/пункта выдачи (CLAUDE.md уже требует для него единый способ выбора)."
+}

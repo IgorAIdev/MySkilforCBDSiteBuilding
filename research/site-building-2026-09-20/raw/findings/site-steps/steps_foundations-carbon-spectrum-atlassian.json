@@ -1,0 +1,794 @@
+{
+ "source": "Каталоги оснований: IBM Carbon (carbondesignsystem.com, Elements), Adobe Spectrum (spectrum.adobe.com, Foundations + @adobe/spectrum-tokens), Atlassian Design System (atlassian.design, Foundations + @atlaskit/tokens, @atlaskit/primitives)",
+ "sourcesRead": [
+  "https://raw.githubusercontent.com/carbon-design-system/carbon-website/main/src/data/nav-items.yaml (порядок разделов сайта Carbon)",
+  "https://carbondesignsystem.com/elements/color/overview/ (прочитано из исходника: raw.githubusercontent.com/carbon-design-system/carbon-website/main/src/pages/elements/color/overview.mdx)",
+  "https://carbondesignsystem.com/elements/color/usage/ (…/elements/color/usage.mdx: layering tokens, contextual tokens, inline theming, light/dark mode)",
+  "https://carbondesignsystem.com/elements/color/tokens/ (…/elements/color/tokens.mdx)",
+  "https://carbondesignsystem.com/elements/themes/overview/ и /code/ (…/elements/themes/overview.mdx, code.mdx)",
+  "https://carbondesignsystem.com/elements/spacing/overview/ (…/elements/spacing/overview.mdx)",
+  "https://carbondesignsystem.com/elements/typography/overview/, /type-sets/, /code/ (…/elements/typography/*.mdx)",
+  "https://carbondesignsystem.com/elements/2x-grid/overview/ (…/elements/2x-grid/overview.mdx)",
+  "https://carbondesignsystem.com/elements/motion/overview/ (…/elements/motion/overview.mdx)",
+  "https://carbondesignsystem.com/elements/icons/usage/ (…/elements/icons/usage.mdx)",
+  "https://carbondesignsystem.com/designing/get-started/ и /developing/get-started/ (…/designing/get-started.mdx, developing/get-started.mdx)",
+  "https://raw.githubusercontent.com/carbon-design-system/carbon/main/packages/{elements,themes,colors,type,layout,grid,motion,icons,styles}/package.json (граф зависимостей пакетов @carbon/*)",
+  "https://www.ibm.com/design/language/ (навигация IBM Design Language, на котором «построен» Carbon)",
+  "https://spectrum.adobe.com/page/principles/ (через r.jina.ai — сайт без JS не отдаёт текст)",
+  "https://spectrum.adobe.com/page/design-tokens/",
+  "https://spectrum.adobe.com/page/platform-scale/",
+  "https://spectrum.adobe.com/page/theming/",
+  "https://spectrum.adobe.com/page/color-system/",
+  "https://spectrum.adobe.com/page/color-fundamentals/ (начало)",
+  "https://spectrum.adobe.com/page/using-color/ (background layers, interactive states)",
+  "https://spectrum.adobe.com/page/typography/",
+  "https://spectrum.adobe.com/page/spacing/",
+  "https://spectrum.adobe.com/page/responsive-grid/",
+  "https://spectrum.adobe.com/page/object-styles/",
+  "https://spectrum.adobe.com/page/states/",
+  "https://spectrum.adobe.com/page/iconography/",
+  "https://spectrum.adobe.com/page/international-design/",
+  "https://spectrum.adobe.com/page/bi-directionality/ (начало)",
+  "https://spectrum.adobe.com/page/inclusive-design/ (начало)",
+  "https://spectrum.adobe.com/sitemap.xml + данные меню из JS-бандла сайта (порядок Foundations)",
+  "https://unpkg.com/@adobe/spectrum-tokens@15.4.1/src/{color-palette,semantic-color-palette,color-aliases,layout,layout-component,typography,icons}.json (какие токены имеют наборы light/dark и desktop/mobile)",
+  "https://cdn.jsdelivr.net/npm/@adobe/spectrum-tokens/README.md",
+  "https://react-spectrum.adobe.com/react-spectrum/Provider.html",
+  "https://react-spectrum.adobe.com/react-spectrum/theming.html",
+  "https://react-spectrum.adobe.com/react-spectrum/getting-started.html",
+  "https://atlassian.design/foundations (порядок оснований, из HTML)",
+  "https://atlassian.design/foundations/tokens",
+  "https://atlassian.design/foundations/tokens/design-tokens",
+  "https://atlassian.design/foundations/tokens/migrate-to-tokens",
+  "https://atlassian.design/foundations/spacing",
+  "https://atlassian.design/foundations/grid",
+  "https://atlassian.design/foundations/color",
+  "https://atlassian.design/foundations/typography",
+  "https://atlassian.design/foundations/elevation",
+  "https://atlassian.design/foundations/iconography",
+  "https://atlassian.design/foundations/motion",
+  "https://atlassian.design/components/primitives/overview",
+  "https://atlassian.design/components/tokens/code и /examples",
+  "https://atlassian.design/get-started/develop (через r.jina.ai с ожиданием отрисовки)",
+  "https://cdn.jsdelivr.net/npm/@atlaskit/tokens/README.md, @atlaskit/primitives/README.md, package.json пакетов @atlaskit/tokens, @atlaskit/primitives, @atlaskit/button (граф зависимостей)"
+ ],
+ "sourcesFailed": [
+  "spectrum.adobe.com напрямую: сайт отвечает «doesn't work without JavaScript» — текст получен только через рендер-прокси r.jina.ai; цитаты из него, но верстка таблиц могла потеряться",
+  "web.archive.org (заблокирован политикой выхода в сеть) и archive.ph (сброс соединения) — зеркала Spectrum не открылись",
+  "https://developer.adobe.com/app-builder/docs/resources/spectrum-intro/lesson1 — открылось, но структуры оснований не содержит",
+  "Порядок и названия групп меню Spectrum (Foundations/Content/…) в JS-бандле найдены частично: страницы Spacing и Responsive grid есть в sitemap и открываются, но в текущем меню их место не найдено",
+  "https://spectrum.adobe.com/page/color-palette/, /motion/, /illustration/, /using-color/ (целиком) — не прочитаны",
+  "https://atlassian.design/get-started/design, /foundations/border, /radius, /illustrations, /logos, /accessibility, /content — не прочитаны (get-started/design отрисовывается только JS)",
+  "https://github.com/adobe/spectrum-tokens — ветка main содержит только сайт; README и токены взяты из npm-пакета @adobe/spectrum-tokens@15.4.1",
+  "raw.githubusercontent.com/atlassian/atlassian-frontend-mirror/… (404) — README взяты из npm",
+  "Carbon: полный список цветовых токенов, style-strategies, pictograms — не читались; motion — только длительности и чек-лист"
+ ],
+ "layers": [
+  {
+   "order": 1,
+   "name": "Principles (Spectrum) · IBM Design Language (основа Carbon) · Guidelines: Accessibility, Content (Atlassian) — Принципы и язык",
+   "plain": "Прежде чем выбирать цвета и размеры, записывают, каким магазин должен ощущаться и для кого он: «минимализм-лакшери, телефон — главный экран, четыре языка». Это как договориться о характере дома до покупки плитки. Все три системы ставят это первым и держат отдельно от чисел.",
+   "contains": [
+    "Принципы (Spectrum: rational, human, focused; «для всех платформ», «для всех людей»)",
+    "Что система обещает покупателю: доступность (контраст 4.5:1 / 3:1 у всех троих), инклюзивность, международность",
+    "Язык текста: Atlassian «Content», Carbon «Content», Spectrum раздел про письмо — отдельная глава, не часть визуала",
+    "У Carbon над системой стоит IBM Design Language (типографика, цвет, 2x grid, иконки, иллюстрация, фото, анимация) — «Carbon translates the design language into code»"
+   ],
+   "dependsOn": [],
+   "doneWhen": "Принципы записаны словами и на каждый есть проверяемое следствие (Spectrum: у каждого принципа ссылка на конкретное основание — platform scale, inclusive design, international design). Carbon: «Step 1: Learn about Carbon» — сначала язык, потом инструменты.",
+   "artifacts": [
+    "Документ принципов с ссылкой от каждого принципа к слою, который его исполняет",
+    "Требования доступности как числа (контраст, цель нажатия) — они потом становятся тестами"
+   ]
+  },
+  {
+   "order": 2,
+   "name": "Design tokens (Spectrum, Atlassian) · Tokens (Carbon) — Словарь решений и правило имён",
+   "plain": "Токен — это именованное решение: не «#1a1a1a», а «цвет основного текста». Один словарь, из которого читают и макет, и код. Сначала строят сам словарь и правило, как в нём называть слова; цвета — только первое, что в него кладут. Владелец уже сделал это для цвета; остальные слои — те же слова, но про расстояния, шрифты, углы, тени, движение.",
+   "contains": [
+    "Имя → значение; значение может быть другим токеном (alias). Spectrum: global → alias → component-specific; Carbon: палитра ($blue-60) → core tokens ($text-primary) → component tokens ($button-primary); Atlassian: Foundation.Property.Modifier (color.icon.success)",
+    "Правило имён: Atlassian — «тип.куда.роль.акцент.состояние»; Spectrum — «context → common unit → clarification», плоская структура, читаемая человеком; Carbon — «элемент-роль-состояние» ($background-hover)",
+    "Какие семейства бывают: Spectrum — spacing, color, typography, object styles, animation; Carbon — Color, Spacing, Typography, Global; Atlassian — color, elevation, opacity, space, typography, border, radius, motion",
+    "Запрет сырых значений в компонентах и машина, которая его держит: Atlassian ESLint-плагин и babel-plugin токенов; Carbon — токены «pre-baked» в компоненты",
+    "Версионирование и вывод из оборота: Spectrum — deprecated/renamed на токене, semver; Atlassian — codemod «только предлагает, нужен ручной просмотр»"
+   ],
+   "dependsOn": [
+    "Принципы и язык"
+   ],
+   "doneWhen": "Словарь лежит одним файлом данных, из которого собираются и переменные для кода, и стили для макета (Spectrum: «Design tokens are directly integrated into our component libraries, UI kits»; Atlassian: token() возвращает CSS-переменную, тот же список в Figma). Написано правило имён, и линтер падает на голом значении.",
+   "artifacts": [
+    "Файл(ы) токенов как данные (JSON/TS) со схемой типов (Spectrum: $schema color / dimension / alias / font-weight…)",
+    "Генератор CSS-переменных и стилей для макета",
+    "Линтер «нет сырых значений» (Atlassian eslint-plugin-design-system)",
+    "Правило именования, записанное словами, с примерами"
+   ]
+  },
+  {
+   "order": 3,
+   "name": "Platform scale + Theming (Spectrum) · Themes (Carbon) · Themes: light/dark/compact… (Atlassian) — Оси: для какого пальца и какой темы значение",
+   "plain": "У одного и того же токена бывает несколько значений: одно для светлой темы, другое для тёмной; одно для мышки, другое для пальца. Это оси. Их называют до того, как заполнять цифры, — иначе каждую таблицу потом придётся раздваивать. Spectrum ставит «Platform scale» вторым основанием сразу после токенов: сначала решают, что мобильный экран в 1.25 раза крупнее, и только потом рисуют шрифты и кнопки.",
+   "contains": [
+    "Ось «масштаб» (Spectrum platform scale): desktop (курсор) и mobile (палец), 1:1.25; web ≤768px — mobile; React Spectrum выбирает scale по типу указателя (touch vs mouse), colorScheme — по настройке ОС. По данным @adobe/spectrum-tokens: 149 из 340 layout-токенов и 36 из 72 типографских имеют наборы desktop/mobile; spacing и border-width статичны",
+    "Ось «тема/режим»: Carbon — четыре темы по цвету фона (White, Gray 10, Gray 90, Gray 100), «Themes control the color value assigned to a token»; Spectrum — light/dark/darkest (+wireframe в данных); Atlassian — light/dark/auto, «Non-color themes are also possible: compact views, reduced motion, custom typography»",
+    "Тема ≠ цветовая тема (Spectrum Theming): тема может менять цвет, скругление, тень, шрифт; «Component options and general dimensions stay the same across themes» — раскладка и размеры не тема",
+    "Как ось попадает в страницу: Carbon — mixin theme() на :root / [data-carbon-theme], prefers-color-scheme; Atlassian — setGlobalTheme ставит data-theme и data-color-mode на <html>; React Spectrum — Provider (theme, colorScheme, scale, locale) в корне приложения, вложенные Provider для участков",
+    "Локаль как ось: React Spectrum Provider принимает locale (BCP 47) и переключает направление письма"
+   ],
+   "dependsOn": [
+    "Словарь решений"
+   ],
+   "doneWhen": "Перечислены оси и для каждого семейства токенов записано, по каким осям оно меняется (Spectrum spacing: «static and don't change based on platform scale»; border width: «remains the same for desktop scale and mobile scale»). Переключение оси не трогает ни один компонент: Carbon — «Each theme shares the same variables and roles, with only the value changing».",
+   "artifacts": [
+    "Реестр осей (тема, указатель/масштаб, локаль) и таблица «семейство токенов × оси»",
+    "Механизм применения: атрибут на корне документа + запрос prefers-color-scheme / pointer",
+    "Наборы значений (sets) в файле токенов: light/dark, desktop/mobile"
+   ]
+  },
+  {
+   "order": 4,
+   "name": "Color + Themes + layering (Carbon) · Color fundamentals / Color system / Using color / Palette (Spectrum) · Color + Elevation (Atlassian) — Цвет, роли, слои поверхностей",
+   "plain": "Это слой, который владелец уже начал: краски → роли («фон страницы», «основной текст», «ошибка») → тема. У профессионалов в этом же слое живёт ещё одно: этажи. Карточка лежит на странице, поле — на карточке, окно — над всем. В светлой теме этажи чередуются белый/серый, в тёмной каждый этаж чуть светлее предыдущего, а тени в темноте почти не видны — поэтому высоту показывают светлотой, а не тенью. Без этого дизайн тёмной темы рассыпается.",
+   "contains": [
+    "Палитра как система, а не набор: Spectrum — 13 цветов × 14 ступеней, серые считаются от контраста с фоном, «Dark themes target higher contrast ratios»; Carbon — 10 ступеней на оттенок, таблица «сколько ступеней нужно для 4.5:1»",
+    "Роли: Carbon 10 групп core-токенов (background, layer, field, border, text, link, icon, support, focus, skeleton); Atlassian — свойство (background/text/border/icon) × роль (neutral, brand, information, success, warning, danger, discovery, accent, inverse, input) × акцент (subtlest…bold) × состояние; Spectrum — семантики informative, accent, negative, notice, positive",
+    "Этажи (layering): Carbon — base, layer-01/02/03, наборы токенов на этаж ($layer-02 + $field-03 + $border-strong-03), контекстные токены + компонент Layer, чтобы один компонент работал на любом этаже; Spectrum — background base / layer 1 / layer 2 как alias-токены на тему; Atlassian — elevation.surface / .raised / .overlay всегда в паре с тенью, «the higher the elevation, the lighter the surface»",
+    "Обратный участок (inline theming): Carbon — тёмная шапка на светлой странице через Theme-компонент, «Only use inline theming for major shifts in color»",
+    "Цвета состояний по правилу, не на глаз: Carbon hover = полступени, active = две ступени, selected = одна; Spectrum — индексы растут default → hover → down; фокус — отдельный токен, 3:1",
+    "Картинки в тёмной теме: Carbon — «switch out assets entirely between modes», иначе прозрачный фон"
+   ],
+   "dependsOn": [
+    "Словарь решений",
+    "Оси"
+   ],
+   "doneWhen": "Ни один компонент не знает hex; смена темы и этажа меняет значения без правки компонентов (Carbon: «You cannot implement light or dark mode without using color tokens everywhere»). Текст и значки на каждом этаже каждой темы проходят контраст (Spectrum: токены текста «guaranteed to meet or exceed WCAG contrast minimums» на слоях фона). Atlassian: сначала тема, потом компоненты, потом замена сырых значений — и «apply and test tokens across an experience before releasing dark mode».",
+   "artifacts": [
+    "Палитра-ступени (private), роли, наборы на этаж, состояния (hover/active/selected/focus/disabled)",
+    "Таблица «этаж × тема → значение фона, поля, обводки»",
+    "Компонент/атрибут этажа (Carbon Layer) и компонент участка темы (Carbon Theme)",
+    "Тест контраста всех пар «текст на поверхности» в обеих темах"
+   ]
+  },
+  {
+   "order": 5,
+   "name": "Spacing (Carbon, Spectrum, Atlassian) · 2x Grid mini unit + sizing scale (Carbon) — Воздух: одна линейка расстояний и размеров",
+   "plain": "«Воздух» — это пустота между вещами, а «поля» — пустота внутри коробки и по краям экрана. Все три системы делают одну линейку из числа 8: 2, 4, 8, 12, 16, 24, 32, 40, 48, 64, 80… и запрещают брать расстояние «из головы». Одна линейка на всё и создаёт ритм: глаз видит, что отступы повторяются. Внутри компонента и между компонентами — разные вещи, но линейка одна.",
+   "contains": [
+    "База 8px: Carbon «mini unit» 8px, шкала $spacing-01…13 = 2…160px; Atlassian space.100 = 8px, шкала 0…80px + отрицательные; Spectrum spacing-50…1000 = 2…96px",
+    "Что чем меряют: Atlassian — 0–8px внутри компонентов и между значком и текстом, 12–24 между блоками, 32–80 на уровне страницы; Spectrum — «spacing values don't apply to the padding within a component», между компонентами; Carbon — токены и внутри компонентов, и между ними",
+    "Шкала размеров (Carbon sizing scale 8/16/24/32/48/64/80) и пропорции коробок 1:1, 2:1, 2:3, 3:2, 4:3, 16:9 — из того же mini unit",
+    "Токены расстояний не зависят от ширины экрана (Carbon: «the tokens themselves do not change values based on the screen size»; Spectrum: статичны при смене scale) — на шве допустимо шагнуть на ступень шкалы, а не выдумать число",
+    "Расстояние — обязанность родителя, а не ребёнка: Carbon Stack «allows components to not use margin and instead delegate ... to parent components»; Atlassian Stack/Inline с gap только из токенов",
+    "Правила восприятия: Atlassian — группировка сходством и близостью, иерархия, «Introduce visual rhythm», оптическая коррекция; Carbon — «Elements that have more spacing around them tend to be perceived as higher in importance»"
+   ],
+   "dependsOn": [
+    "Словарь решений",
+    "Оси"
+   ],
+   "doneWhen": "У всех margin/padding/gap значение из шкалы (Carbon FAQ: отступления «should be avoided whenever possible»). Компоненты не носят внешних полей — их ставит контейнер. Линтер ловит число мимо шкалы.",
+   "artifacts": [
+    "Токены шкалы расстояний и шкалы размеров",
+    "Stack/Inline (или один Box) с gap из токенов",
+    "Таблица «какой диапазон шкалы для чего» (внутри / между / уровень страницы)"
+   ]
+  },
+  {
+   "order": 6,
+   "name": "2x Grid (Carbon) · Responsive grid (Spectrum) · Grid (Atlassian) — Сетка, швы и области раскладки",
+   "plain": "Сетка — колонки, зазоры между ними и поля у края экрана, плюс названные ширины экрана (швы), на которых раскладка меняется. К сетке прижимают только крупные области страницы, а не каждую кнопку. Carbon называет сетку «фундаментом всего», Atlassian ставит её сразу после воздуха — потому что колонки считаются из той же восьмёрки.",
+   "contains": [
+    "12 колонок у Spectrum и Atlassian; у Carbon 4/8/16 колонок по швам 320/672/1056/1312/1584; Atlassian швы xxs 320…xl 1768: телефон 2 колонки, зазор 12, поле 16; десктоп 12 колонок, зазор 16, поле 32",
+    "Фиксированные поля по краю при плавных колонках (Carbon: «margins ... always a fixed size within a breakpoint»); Spectrum — «Breakpoints are defined as min-width», между швами наследуется меньший",
+    "Что выравнивать: Spectrum — «Layout regions are the only aspect ... that should align to the responsive grid»; Atlassian — верхние контейнеры по сетке, внутри — токены расстояний; окна и меню вне сетки",
+    "Плавная сетка vs плитка фиксированных коробок (Carbon): «If a user's goal is to see more items, scale column count by tiling fixed boxes. If ... more content within each item, scale boxes» — колонок становится больше по мере ширины, а не по медиазапросу",
+    "Ширина чтения: Atlassian fixed-narrow 864px для длинных текстов, fixed-wide 1296px для витрин; Spectrum fixed grid 1280 по центру для контентных страниц; Carbon — плавные для редакционного/дашбордов",
+    "Влиятели сетки: панели, рельсы, шапка (Carbon screen regions; Spectrum «Rails and panels offset the responsive grid»)",
+    "Швы читаются из одного места: React Spectrum Provider breakpoints S 640 / M 768 / L 1024 / XL 1280 / XXL 1536, переопределяются одним пропом"
+   ],
+   "dependsOn": [
+    "Воздух (шкала)",
+    "Оси"
+   ],
+   "doneWhen": "Швы перечислены в одном реестре и проверены: Carbon — «test designs and code at each of these standard breakpoints»; Atlassian — минимум два размера, всегда включая мобильный. Ни одна область не влезает в зазор (Spectrum: «Do not extend your layout regions into the gutters»).",
+   "artifacts": [
+    "Реестр швов с причиной каждого",
+    "Компонент сетки (Carbon Grid/Column, Atlassian Grid, React Spectrum Grid/Flex)",
+    "Ширины чтения (узкая для статей, широкая для полок) как токены"
+   ]
+  },
+  {
+   "order": 7,
+   "name": "Typography (все три) — Шрифт, кегли, межстрочные и наборы стилей",
+   "plain": "Не «шрифт 16px», а готовые роли текста: «заголовок раздела», «текст абзаца», «подпись», «цена». У каждой роли сразу шрифт, кегль, высота строки и вес. На телефоне буквы крупнее (Spectrum: 17px вместо 14 в основе). Для страниц-витрин заголовки могут плавно расти с шириной, для форм и корзины — нет: там плотность важнее.",
+   "contains": [
+    "Шкала кеглей по формуле: Spectrum — ratio 1.125 от базы 14 (desktop) / 17 (mobile), два набора размеров; Carbon — формула от 12px; Atlassian — rem от 16px, heading.xxsmall…xxlarge 12…32px, body 12/14/16",
+    "Токен стиля = семья + кегль + высота строки (+ вес): Atlassian «font family, font size, and line height», отдельно вес; Carbon type tokens как готовые конфигурации; Spectrum компоненты Heading/Body/Detail/Code",
+    "Два набора под разные страницы (Carbon): productive (фиксированные, плотные, для продукта) и expressive (fluid-заголовки, растут по швам, «Do not use these styles inside a container»)",
+    "Высота строки по письменности: Spectrum — 1.3 у заголовков и 1.5 у текста для латиницы; для CJK 1.5/1.7; в CJK нет курсива",
+    "Правила чтения: 50–120 знаков в строке, лучше ~70 (Spectrum); только один h1 и не пропускать уровни, «Use heading styles, rather than bold» (Atlassian); табличные цифры для чисел (Spectrum)",
+    "Шрифт с запасными: Spectrum таблица fallback по ОС; Carbon стек IBM Plex → Helvetica Neue → Arial; @carbon/styles везёт Plex для арабского, деванагари, иврита, тайского отдельными пакетами",
+    "Зависимость в коде Carbon: @carbon/type зависит от @carbon/layout и @carbon/grid — плавные заголовки не построить без швов"
+   ],
+   "dependsOn": [
+    "Словарь решений",
+    "Оси (масштаб)",
+    "Сетка и швы"
+   ],
+   "doneWhen": "Каждый текст на странице набран ролью, а не числом; у роли есть значение для каждого масштаба (Spectrum: «When using font-size-400 on desktop scale, also use font-size-400 on mobile»); шрифт грузится с запасными и подмножествами знаков.",
+   "artifacts": [
+    "Токены кеглей/высот строк/весов по масштабам и токены-роли (heading.*, body.*, metric.* — Atlassian «metric» для чисел)",
+    "Компоненты Heading/Text (Atlassian, Spectrum) или mixin type-style (Carbon)",
+    "Файлы шрифтов + стек запасных"
+   ]
+  },
+  {
+   "order": 8,
+   "name": "Object styles (Spectrum) · Border, Radius, Elevation shadows (Atlassian) · Global tokens (Carbon) — Форма: углы, обводки, тени",
+   "plain": "Скругление углов, толщина линий и тени — тоже словарь, и у каждого пункта есть смысл: полностью круглая кнопка — «это главное действие», тень — «это временно всплыло и закрывается». Углы растут с масштабом (4px на десктопе, 5px на телефоне), а толщина линии — никогда. Для «лакшери-минимализма» этот слой особенно важен: тут решается, что теней почти нет, а линий — одна толщина.",
+   "contains": [
+    "Скругление: Spectrum default 4px desktop / 5px mobile, «small» привязано к толщине обводки (снаружи круг, внутри квадрат), full — только у главных кнопок «to draw attention to calls to action»; в данных токенов corner-radius-75…800 и alias'ы small/medium/large-default",
+    "Обводка: Spectrum 1px (поля, теги, разделители), 2px (главные кнопки, фокус, слайдеры), 4px — только крупные разделители; «border width remains the same at all times» между масштабами",
+    "Тень: Spectrum одна тень, размер зависит от масштаба, непрозрачность выше в тёмных темах, «Shadows are reserved for transient components that appear elevated and are dismissible»; Atlassian shadow.raised/overlay/overflow только в паре с surface; Carbon — большинство различий этажами, тени редко",
+    "Atlassian: Border и Radius — отдельные основания с токенами; Carbon держит «layer usage or border width» в категории Global-токенов темы"
+   ],
+   "dependsOn": [
+    "Словарь решений",
+    "Оси (масштаб, тема)",
+    "Цвет и этажи"
+   ],
+   "doneWhen": "Радиус, обводка и тень берутся только из токенов с семантическими именами (Spectrum «every object style carries a semantic meaning»); тень не появляется у того, что не всплывает; поверхность и тень выбраны парой (Atlassian «Always pair matching surface and shadow tokens»).",
+   "artifacts": [
+    "Токены corner-radius (по масштабу), border-width (без масштаба), shadow (по масштабу и теме)",
+    "Список «какой форме какой смысл» (CTA — full, поле — 1px, всплывающее — тень)"
+   ]
+  },
+  {
+   "order": 9,
+   "name": "States (Spectrum) · Interaction states + Motion (Carbon, Atlassian, Spectrum) — Состояния и движение",
+   "plain": "Каждая нажимаемая вещь обязана отвечать: навёл, нажал, выбрал, добрался с клавиатуры, выключена, ошибка. Ответ считается по правилу (на ступень темнее, кольцо фокуса), а не рисуется отдельно для каждой кнопки. Движение — тоже словарь: короткое для отклика на палец, длиннее для появления окна, и всё это выключается, если человек попросил «меньше анимации».",
+   "contains": [
+    "Список состояний: Spectrum default, hover, down, keyboard focus, disabled, selected, dragged, error — часть «от пользователя», часть «от опции компонента»; Atlassian hovered, pressed, selected, focused, disabled как модификаторы токена; Carbon -hover, -active, -selected, focus, disabled",
+    "Правило вычисления: Carbon hover = полступени, active = две ступени, selected = одна; Spectrum индексы растут default → hover → down, фокус = hover + кольцо 2px; фокус обязателен и 3:1",
+    "Disabled — всегда серый и вне требований контраста (Carbon), но существует «to maintain layout continuity» (Spectrum)",
+    "Длительности: Carbon duration-fast-01 70ms … slow-02 700ms, «productive» быстрее «expressive»; Atlassian interactions 50–150ms, transitions 150–400ms; кривые ease-out на ввод, ease-in на уход",
+    "Reduced motion: Atlassian отключает всё движение при настройке; Carbon — «Always provide alternatives for interface state transitions»",
+    "Токены движения семантические: Atlassian motion.popup.enter вместо сырых чисел"
+   ],
+   "dependsOn": [
+    "Цвет и этажи",
+    "Форма",
+    "Оси (тема)"
+   ],
+   "doneWhen": "У каждого интерактивного узла есть все состояния из общего механизма и они проходят контраст; движение только из токенов длительности/кривой; при prefers-reduced-motion интерфейс остаётся понятным без движения (Carbon чек-лист: «Is your motion purposeful? responsive? meticulous? unobtrusive?»).",
+   "artifacts": [
+    "Токены состояний на каждую роль цвета",
+    "Общий механизм нажимаемого (Atlassian Pressable/Anchor/Focusable; в проекте — composes pressable)",
+    "Токены duration/easing и правило reduced-motion"
+   ]
+  },
+  {
+   "order": 10,
+   "name": "Icons, Pictograms (Carbon) · Iconography, Illustration (Spectrum) · Iconography, Illustrations, Logos (Atlassian) — Значки и картинки",
+   "plain": "Значки — отдельный набор, нарисованный под точные размеры (16/20/24 у Carbon, 18 на десктопе и 22 на телефоне у Spectrum), их не растягивают. Цвет значку даёт та же роль, что и тексту рядом. Иллюстрации и логотипы — свои наборы с правилами для светлой и тёмной темы.",
+   "contains": [
+    "Размеры по масштабу: Spectrum 18px desktop / 22px mobile, «don't arbitrarily scale icons»; Carbon 16/20/24/32, 16 и 20 сбалансированы с 14 и 16px Plex; Atlassian 16 (12 для мелких)",
+    "Цвет из роли: Atlassian «icon-specific color tokens or text color tokens»; Spectrum монохромные, цвет зависит от состояния и темы; Carbon группа icon-токенов",
+    "Цель нажатия: Carbon «All touch targets for interactive icons need to be 44px or larger»; Spectrum 48px",
+    "Международность значков: Spectrum — зеркалить значки движения в RTL, не зеркалить время и галочки; буквы в значках не переводятся",
+    "Иллюстрации в тёмной теме: Carbon — отдельные ассеты на режим или прозрачный фон"
+   ],
+   "dependsOn": [
+    "Цвет и этажи",
+    "Оси (масштаб)"
+   ],
+   "doneWhen": "Набор значков лежит одним пакетом с размерами на каждый масштаб, красится ролью, у нажимаемых значков цель ≥44/48px; иллюстрации проверены в обеих темах.",
+   "artifacts": [
+    "Пакет значков (Carbon @carbon/icons без зависимостей — корневой пакет)",
+    "Правила размера/цвета/зеркалирования",
+    "Иллюстрации в двух вариантах по теме или с прозрачным фоном"
+   ]
+  },
+  {
+   "order": 11,
+   "name": "Inclusive design, International design, Bi-directionality (Spectrum) · Accessibility, Content (Atlassian, Carbon) — Все люди и все языки",
+   "plain": "Spectrum держит «международный дизайн» среди оснований, а не в конце как перевод: короткая надпись на кнопке в другом языке бывает втрое длиннее, цвета значат разное в разных странах, а в некоторых письменностях нет курсива. Значит, коробки должны тянуться, а смысл не должен держаться на одном цвете. У Carbon и Atlassian то же самое разложено на «доступность» и «текст».",
+   "contains": [
+    "Расширение текста при переводе (Spectrum, по данным IBM): до 10 знаков — до 300% (кнопки, вкладки), 11–20 — 200% (подписи, поля), 21–30 — 180%, 31–50 — 160%, 51–70 — 140%, 70+ — 130%",
+    "«Spectrum tokens are not localized» — локаль меняет раскладку и содержание, а не словарь; цвета не носят единственного смысла: «no color can be assumed to have a consistent meaning across cultures»",
+    "Письменности: CJK крупнее и с большим межстрочным, без курсива; арабский/иврит — зеркалирование интерфейса, но не времени и не галочек",
+    "Доступность как числа у всех троих: 4.5:1 для текста, 3:1 для крупного и графики; фокус видим; цвет не единственный носитель (Spectrum: при семантическом цвете обязателен текст или значок)",
+    "Текст как основание: Atlassian Content, Carbon Content, Spectrum — voice and tone, grammar, writing for errors"
+   ],
+   "dependsOn": [
+    "Принципы и язык",
+    "Сетка",
+    "Типографика"
+   ],
+   "doneWhen": "Раскладка проверена самым длинным языком магазина и не ломается; ни один смысл не держится только на цвете; язык страницы известен шрифту и скринридеру (Spectrum: locale через Provider; проверка контраста «for all color themes supported by your product»).",
+   "artifacts": [
+    "Тест «самая длинная строка перевода» на кнопках/вкладках/подписях",
+    "Правила про цвет + текст/значок",
+    "Настройка locale/направления в корневом провайдере"
+   ]
+  },
+  {
+   "order": 12,
+   "name": "Primitives: Box, Stack, Inline, Grid, Text, Pressable, XCSS (Atlassian) · Stack, Layer, Theme, Grid components (Carbon) · Provider, Flex, Grid (React Spectrum) — Кирпичи раскладки",
+   "plain": "Между словарём и готовыми кнопками стоит слой простых кирпичей: «коробка», «столбик с одинаковыми промежутками», «ряд», «текст», «нажимаемое». Кирпич умеет принимать только слова из словаря — не число. Так страница собирается из кирпичей, а не из свежих стилей, и токены не обойти. Внимание: Atlassian называет это «primitives», а владелец тем же словом назвал базовые краски палитры — это разные вещи.",
+   "contains": [
+    "Atlassian: «Primitives are token-backed low-level building blocks»; Box (коробка), Inline (ряд), Stack (столбик), Flex, Grid, Bleed (выход за поля отрицательными токенами), Text/MetricText, Pressable/Anchor/Focusable; xcss принимает только токены; ESLint use-primitives подсказывает, где их применить",
+    "Порядок сборки страницы (Atlassian): сначала разбить на Box, внутри Inline для горизонтали и Stack для вертикали, Flex/Grid — только где проще не выходит",
+    "Carbon: Stack (gap из шкалы), Layer (этаж), Theme (участок другой темы), Grid/Column — тоже кирпичи между токенами и компонентами",
+    "React Spectrum: Provider в корне «must be the root component» — тема, colorScheme, scale, locale, breakpoints, вложенные провайдеры для участков; Flex/Grid для раскладки",
+    "Граф зависимостей npm: @atlaskit/primitives зависит от @atlaskit/tokens (+ app-provider); @atlaskit/button зависит от primitives + tokens + icon — компоненты стоят на кирпичах, кирпичи на токенах"
+   ],
+   "dependsOn": [
+    "Словарь решений",
+    "Воздух",
+    "Сетка",
+    "Типографика",
+    "Состояния"
+   ],
+   "doneWhen": "Страницу можно собрать из кирпичей без своего CSS; кирпич отвергает значение мимо токена (тип или линтер); в корне один провайдер осей (тема, масштаб, локаль).",
+   "artifacts": [
+    "Box/Stack/Inline/Text/Pressable с пропами только из токенов",
+    "Корневой провайдер осей + вложенный для участков (Carbon Theme/Layer)",
+    "Линтер «используй кирпич вместо своего стиля»"
+   ]
+  },
+  {
+   "order": 13,
+   "name": "Components (все три) — Компоненты и образцы",
+   "plain": "Только теперь — кнопки, поля, карточки, окна. Каждый собран из кирпичей и словаря, имеет все состояния, размеры на оба масштаба и работает на любом этаже. Своих чисел у компонента почти нет; если есть — это «компонентный токен», и он не переиспользуется в других компонентах.",
+   "contains": [
+    "Component tokens: Carbon — «should never be used for anything other than their own component»; Spectrum — component-specific tokens для верифицированных компонентов; Atlassian — компоненты «already have tokens built-in»",
+    "Размеры t-shirt (Spectrum: small/medium/large/extra-large, шаг 8px на десктопе; component-height-100 = 32/40px desktop/mobile) — ограниченный набор, «important to have a limited amount of sizes»",
+    "Этажность: Carbon — вариант на этаж или контекстные токены; Spectrum — компоненты на background layers",
+    "Проверка готовности: Spectrum — у каждой сущности своя версия, список issues и «design checklist»; Carbon — Component checklist в Contributing; Atlassian — release phases",
+    "Образцы (patterns) — уровень выше компонентов: Carbon Patterns «harvested from products built with Carbon»"
+   ],
+   "dependsOn": [
+    "Кирпичи раскладки",
+    "Форма",
+    "Состояния",
+    "Значки"
+   ],
+   "doneWhen": "В компоненте нет сырых значений; есть все состояния и оба масштаба; работает на каждом этаже в обеих темах; пройден чек-лист компонента и выпущен с версией (Spectrum: «Everything in our system has its own individual versioning ... and a design checklist»).",
+   "artifacts": [
+    "Компонент + его component-токены + документация «когда использовать»",
+    "Чек-лист компонента как тест",
+    "Версия и журнал изменений"
+   ]
+  },
+  {
+   "order": 14,
+   "name": "Get started / Migrate to tokens (Atlassian) · Getting started (Carbon, React Spectrum) — Порядок подключения и приёмка",
+   "plain": "Профессионалы описывают и порядок, в котором всё это включают в живой проект: сначала сброс и словарь, потом тема на корне, потом готовые компоненты, потом замена оставшихся «голых» чисел, потом проверка всей страницы целиком — и только затем публикация тёмной темы. Машина подсказывает, человек решает.",
+   "contains": [
+    "Atlassian develop: «Install our dependencies: CSS reset and design tokens» → импорт css-reset в корне → babel-plugin токенов «before other CSS-in-JS plugins» → ESLint-плагин «highly recommended»",
+    "Atlassian migrate: «Set up theming in your application» → «Update any design system components to the latest versions» → «Replace raw CSS values ... with the tokens» → codemod «only provides token suggestions, so manual review is required» → «apply and test tokens across an experience before releasing new colors (dark mode)»",
+    "React Spectrum: install → «All React Spectrum applications start with a Provider» (тема, локаль) → компоненты → theming, styling, layout",
+    "Carbon designers: Step 1 learn the language → tools → Figma kits (elements, core components) → usage guidance → foundational guidance; developers: «foundational elements like the grid, colors tokens, and type tokens ... reduce the need for custom CSS», потом фреймворк",
+    "Минуты и стоимость: Atlassian Chrome-расширение «toggle between themes in an app during migration» — проверка глазами в обеих темах до релиза"
+   ],
+   "dependsOn": [
+    "все предыдущие слои"
+   ],
+   "doneWhen": "Линтер и babel/CSS-плагин стоят в сборке; на странице нет сырых значений; переключение темы и масштаба проверено на всей странице, а не на одном блоке; после этого тёмная тема открыта публике.",
+   "artifacts": [
+    "Порядок работ в документе проекта",
+    "Линтер + плагин сборки токенов",
+    "Переключатель темы/масштаба для проверки в разработке"
+   ]
+  }
+ ],
+ "orderRationale": "Ни один из трёх источников не даёт нумерованного списка «слой 1, слой 2»; порядок выведен из трёх независимых признаков, и они сходятся. (1) Carbon: граф зависимостей пакетов @carbon/* (машинный, не редакторский): colors, layout (шкала расстояний + швы + mini unit), motion, icons — корни без зависимостей; grid зависит от layout; type — от layout и grid (плавные заголовки не построить без швов); themes — от colors, layout и type; elements и styles — от всего плюс шрифты; компоненты (@carbon/react) — поверх styles. Навигация сайта Carbon (2x Grid, Color, Icons, Pictograms, Motion, Spacing, Themes, Typography) — алфавитная и порядка не несёт, но текст говорит: 2x Grid «fundamental to everything we design», а тёмный режим «cannot implement without using color tokens everywhere». (2) Atlassian: страница Foundations идёт Tokens (отдельной группой, первой) → Guidelines (Accessibility, Content) → Styles: Spacing, Grid, Color, Typography, Motion, Iconography, Illustrations, Logos, Elevation, Border, Radius; граф npm: tokens ← primitives ← button; порядок миграции: тема → компоненты → замена сырых значений → проверка всей страницы → релиз тёмной темы. (3) Spectrum: меню Foundations (из данных сайта) идёт Design tokens → Platform scale → Theming → Color (fundamentals, system, using color, palette) → Typography → Object styles → Motion → States → Iconography → Illustration → Inclusive design → International design → Bi-directionality; а файлы токенов показывают, почему оси стоят до значений: цветовые токены имеют наборы light/dark/wireframe, размерные и типографские — desktop/mobile, расстояния и толщина обводки — статичны. Общее ядро: сначала принципы и механизм словаря, затем оси (тема, масштаб), затем значения (цвет с этажами, воздух, сетка, шрифт), затем форма и состояния, затем кирпичи и компоненты, и в конце порядок подключения с линтером. Что ломается при другом порядке: шрифт до швов — плавные заголовки не к чему привязать (Carbon type зависит от grid); цвет без этажей — тёмная тема без глубины (Atlassian: тени в темноте не видны, нужна светлота поверхности); значения до осей — каждую таблицу потом раздваивать на тему и масштаб (Spectrum держит наборы в самом токене); компоненты до кирпичей — токены обходятся своим CSS (Atlassian ввёл primitives именно чтобы «prevents accidents or mistakes»); тёмная тема до проверки всей страницы — Atlassian прямо велит тестировать «across an experience» до релиза. Расхождения: Atlassian ставит Spacing раньше Color, Spectrum — Color раньше Spacing; для владельца это не важно, потому что палитра уже сделана, а оба источника согласны, что расстояния и сетка идут до типографики и формы.",
+ "vocabulary": [
+  {
+   "term": "Design token / токен",
+   "plain": "Именованное решение вместо числа: «цвет основного текста», «средний отступ». Один словарь для макета и кода.",
+   "example": "Carbon $text-primary; Atlassian color.text; Spectrum accent-background-color-default"
+  },
+  {
+   "term": "Global token / палитра / «примитив» цвета (в проекте владельца)",
+   "plain": "Сырая краска или сырое число без смысла: «синий 60», «8px». Из них собирают роли; в компонентах их не пишут.",
+   "example": "Carbon $blue-60; Spectrum gray-100 (private в данных); Atlassian B400"
+  },
+  {
+   "term": "Alias / role / semantic token — роль",
+   "plain": "Токен, который ссылается на другой и несёт смысл «для чего». Spectrum советует использовать только их.",
+   "example": "Spectrum negative-border-color-default → negative-color-900; Carbon $layer-01 → Gray 10 в белой теме"
+  },
+  {
+   "term": "Component token — компонентный токен",
+   "plain": "Число, принадлежащее одному компоненту; в другие не переносится.",
+   "example": "Carbon $button-primary-active; Spectrum tooltip-maximum-width 160/200px"
+  },
+  {
+   "term": "Theme / тема",
+   "plain": "Набор значений для всех токенов сразу, дающий один вид. Смена темы не трогает компоненты. Тема шире цветовой темы: может менять углы, тени, шрифт, но не размеры.",
+   "example": "Carbon White/Gray 10/Gray 90/Gray 100; Spectrum «Spectrum» и «Spectrum for Adobe Express»"
+  },
+  {
+   "term": "Color scheme / mode — режим",
+   "plain": "Светлый или тёмный вариант, обычно по настройке телефона.",
+   "example": "React Spectrum colorScheme авто по OS; Atlassian colorMode: auto"
+  },
+  {
+   "term": "Platform scale / масштаб",
+   "plain": "Вторая ось: для пальца всё в 1.25 раза крупнее, чем для мышки. Не путать с шириной экрана.",
+   "example": "Spectrum component-height-100 = 32px desktop / 40px mobile; scale=large при touch"
+  },
+  {
+   "term": "Layer / background layer / elevation — этаж, поверхность",
+   "plain": "Насколько «высоко» лежит блок: страница, карточка на ней, окно над всем. В светлой теме этажи чередуются, в тёмной каждый светлее.",
+   "example": "Carbon $layer-01/02/03; Spectrum background base / layer 1 / layer 2; Atlassian elevation.surface.raised"
+  },
+  {
+   "term": "Contextual token (Carbon)",
+   "plain": "Токен, который сам понимает, на каком этаже стоит, — один компонент вместо трёх вариантов.",
+   "example": "$field внутри <Layer> даёт field-01, -02, -03"
+  },
+  {
+   "term": "Inline theming — участок другой темы",
+   "plain": "Тёмная шапка на светлой странице: не свои цвета, а вложенная тема.",
+   "example": "Carbon <Theme theme=\"g100\">, вложенный Provider в React Spectrum"
+  },
+  {
+   "term": "Spacing / whitespace — воздух",
+   "plain": "Пустота между вещами. Берётся из шкалы 2-4-8-12-16-24-32…, не из головы.",
+   "example": "Carbon «Spacing is the negative area between elements and components»; Atlassian space.200 = 16px"
+  },
+  {
+   "term": "Margin / padding — поля",
+   "plain": "Margin — пустота снаружи коробки (и у края экрана), padding — внутри. У сетки поля по краю фиксированы даже при плавных колонках.",
+   "example": "Carbon padding 16px на всех швах; Atlassian margin 16 на телефоне, 32 на десктопе"
+  },
+  {
+   "term": "Base unit / mini unit — базовая единица",
+   "plain": "Число, от которого считают всё: 8 пикселей. Всё остальное — его половины и кратные.",
+   "example": "Carbon 8px mini unit; Atlassian space.100 = 8px"
+  },
+  {
+   "term": "Scale — шкала (расстояний, размеров, кеглей)",
+   "plain": "Короткий разрешённый список чисел. Сдержанность списка и создаёт единообразие.",
+   "example": "Carbon sizing scale 8/16/24/32/48/64/80; Spectrum font-size ratio 1.125"
+  },
+  {
+   "term": "Rhythm / visual rhythm — ритм",
+   "plain": "Ощущение, что расстояния повторяются и предсказуемы; получается само, если все берут из одной шкалы.",
+   "example": "Carbon «mini unit ... maintaining a consistent visual rhythm»; Atlassian «Introduce visual rhythm»"
+  },
+  {
+   "term": "Grid: columns, gutters, margins — сетка",
+   "plain": "Колонки, зазоры между ними, поля по краям. К ней прижимают крупные области, не кнопки.",
+   "example": "Atlassian 12 колонок, зазор 16, поле 32 на десктопе"
+  },
+  {
+   "term": "Breakpoint — шов",
+   "plain": "Названная ширина экрана, на которой раскладка меняется. Между швами наследуется меньший.",
+   "example": "Spectrum XS 304 / S 768 / M 1280 / L 1768 / XL 2160"
+  },
+  {
+   "term": "Fluid vs fixed — плавное и фиксированное",
+   "plain": "Плавное делит ширину пополам и растёт с экраном; фиксированное — коробки одного размера, которых становится больше.",
+   "example": "Carbon: «see more items → tile fixed boxes; more content per item → scale boxes»"
+  },
+  {
+   "term": "Type set / type style — набор и стиль текста",
+   "plain": "Готовые роли текста с кеглем, высотой строки и весом. Productive — плотные для форм; expressive — крупные, растут на витринах.",
+   "example": "Carbon heading-01 (fixed) и fluid-heading-03; Atlassian font.heading.large"
+  },
+  {
+   "term": "Line height / leading — межстрочное",
+   "plain": "Расстояние между строками; зависит от письменности.",
+   "example": "Spectrum 1.3 заголовки, 1.5 текст; CJK 1.5/1.7"
+  },
+  {
+   "term": "Object styles — стили формы",
+   "plain": "Слово Spectrum для скруглений, толщины линий и теней вместе; у каждого есть смысл.",
+   "example": "Полный круг — CTA; тень — только у всплывающего"
+  },
+  {
+   "term": "State — состояние",
+   "plain": "Как выглядит вещь, когда её навели, нажали, выбрали, выключили, добрались клавиатурой.",
+   "example": "Spectrum: default, hover, down, keyboard focus, disabled, selected, dragged, error"
+  },
+  {
+   "term": "Motion duration / easing — длительность и кривая движения",
+   "plain": "Сколько длится анимация и как разгоняется. Тоже токены; отклик на палец — самый короткий.",
+   "example": "Carbon duration-fast-01 70ms; Atlassian interactions 50–150ms"
+  },
+  {
+   "term": "Primitives (Atlassian) — кирпичи раскладки",
+   "plain": "Простые компоненты-коробки, принимающие только токены: Box, Stack, Inline, Text, Pressable. НЕ то же, что «примитивы» палитры у владельца.",
+   "example": "<Stack space=\"space.200\">; <Box padding=\"space.100\" backgroundColor=\"elevation.surface\">"
+  },
+  {
+   "term": "Provider — корневой провайдер",
+   "plain": "Обёртка всего приложения, где один раз задают тему, режим, масштаб и язык.",
+   "example": "React Spectrum <Provider theme locale colorScheme scale>"
+  },
+  {
+   "term": "Touch hit area / touch target — цель нажатия",
+   "plain": "Невидимая область, в которую попадает палец; не меньше 44–48px, даже если значок мельче.",
+   "example": "Carbon 44px; Spectrum 48px"
+  },
+  {
+   "term": "Text expansion — расширение текста",
+   "plain": "Насколько длиннее становится строка при переводе; чем короче исходник, тем сильнее растёт.",
+   "example": "Spectrum: до 10 знаков → до 300%"
+  },
+  {
+   "term": "Contrast ratio — контраст",
+   "plain": "Разница яркости текста и фона; 4.5:1 для обычного текста, 3:1 для крупного и графики.",
+   "example": "Carbon таблица «сколько ступеней палитры нужно для 4.5:1»"
+  }
+ ],
+ "principles": [
+  {
+   "principle": "Компонент знает роль, а не значение; голые числа и hex запрещены везде, и запрет держит машина.",
+   "evidence": "Carbon: «Tokens are role-based, and themes specify the color values»; Atlassian: «Don't use a token just because the colors appear to match»; Spectrum: «Only use global tokens when there are no available aliases»; Atlassian ESLint-плагин и babel-plugin токенов в сборке.",
+   "forStorefront3": "Распространить сделанное для цвета на расстояния, кегли, углы, тени, движение: один файл токенов → CSS-переменные, и lint:css падает на px/hex в CSS компонентов так же, как сегодня падает на !important и на числовой z-index."
+  },
+  {
+   "principle": "Сначала оси, потом значения: значение токена — это набор по осям «тема × указатель × локаль», а не одно число.",
+   "evidence": "Spectrum ставит Platform scale и Theming сразу после Design tokens; в @adobe/spectrum-tokens цвета имеют sets light/dark, layout и typography — desktop/mobile, spacing и border-width статичны; React Spectrum Provider выбирает scale по типу ввода, colorScheme по OS, locale по браузеру.",
+   "forStorefront3": "Записать реестр осей (тема light/dark; указатель coarse/fine — уже правило проекта «44px в @media (pointer: coarse)»; рынок/язык — из админки). Для каждого семейства токенов записать, по каким осям оно меняется: размеры целей и кегли — по указателю, цвет — по теме, расстояния — ни по чему."
+  },
+  {
+   "principle": "Этажи и высота — часть цветовой системы: в тёмной теме глубина показывается светлотой поверхности, а не тенью.",
+   "evidence": "Carbon: «In the dark themes, layers become one step lighter with each added layer»; Atlassian: «the higher the elevation, the lighter the surface looks», тени только в паре с поверхностью; Spectrum background base/layer 1/layer 2 как alias-токены на тему.",
+   "forStorefront3": "Завести наборы «этаж × тема» (страница / карточка / поле на карточке / шторка / окно) и правило пары «фон + чернила + обводка» на этаж — расширение уже существующего правила проекта «полоса объявляет свою пару один раз». Тени — только у шторок, окон и всплывающих меню."
+  },
+  {
+   "principle": "Одна линейка расстояний от восьмёрки; отступ внутри компонента и промежуток между компонентами — разные обязанности, но одна шкала; за промежутки отвечает контейнер, не ребёнок.",
+   "evidence": "Carbon Stack: компоненты «not use margin and instead delegate ... to parent components»; Spectrum: «spacing values don't apply to the padding within a component»; Atlassian: 0–8 внутри, 12–24 между блоками, 32–80 на странице.",
+   "forStorefront3": "Токены space-* (2…96) и токены ритма полос (--layout-band-*) сделать ступенями одной шкалы; Stack/Inline с gap из токенов; компоненты без внешних margin. Внутри компонентов — младшая часть шкалы, между полосами — старшая."
+  },
+  {
+   "principle": "Расстояния не зависят от ширины экрана; на шве шагают на ступень шкалы, а не выдумывают число.",
+   "evidence": "Carbon FAQ: «No, the tokens themselves do not change values based on the screen size ... acceptable at page breakpoints to jump a step»; Spectrum: «Spacing values are static and don't change based on platform scale».",
+   "forStorefront3": "Там, где сегодня clamp() тянет отступ между двумя произвольными числами, оба края рампы должны быть ступенями шкалы (например 48 → 88 = space-700 → space-1100), чтобы владелец мог назвать отступ словом из словаря, а не числом."
+  },
+  {
+   "principle": "К сетке прижимают области, не элементы; число колонок растёт с местом (плитка фиксированных коробок), ширина чтения — своя у витрины и у статьи.",
+   "evidence": "Spectrum: «Layout regions are the only aspect of your design that should align to the responsive grid»; Carbon: «If a user's goal is to see more items, scale column count by tiling fixed boxes»; Atlassian fixed-narrow 864 для статей, fixed-wide 1296 для витрин.",
+   "forStorefront3": "Совпадает с правилом проекта «сетка заполняет строку (auto-fit)». Добавить токены ширины чтения: узкая (~860) для блога и оформления заказа, широкая для полок; реестр швов уже есть (seams.ts) — оставить как источник для сетки."
+  },
+  {
+   "principle": "Типографика — роли, а не кегли; на телефоне база крупнее; плавные заголовки только вне контейнеров; межстрочное зависит от письменности.",
+   "evidence": "Spectrum: база 14px desktop / 17px mobile, ratio 1.125, line-height 1.3/1.5 (CJK 1.5/1.7); Carbon: productive — фиксированные, expressive — fluid, «Do not use these styles inside a container»; Atlassian: «Use heading styles, rather than bold», один h1.",
+   "forStorefront3": "Два набора: «витринный» (hero, блог, плавные заголовки от ширины) и «рабочий» (карточка, корзина, оформление — фиксированные кегли), оба с парой значений по указателю; хорватские č/ć/ž/š/đ уже везутся latin-ext — добавить проверку высоты строки с диакритикой."
+  },
+  {
+   "principle": "Форма несёт смысл: полное скругление — только главное действие, тень — только у всплывающего и закрываемого, толщина линии не масштабируется.",
+   "evidence": "Spectrum object styles: «every object style carries a semantic meaning», «Shadows are reserved for transient components that appear elevated and are dismissible», «border width remains the same for desktop scale and mobile scale».",
+   "forStorefront3": "Для «минимализм-лакшери» — три радиуса (none / small / full), одна толщина линии, одна тень для шторок/окон. Кнопка «в корзину» — единственный full-радиус на странице, это и есть её выделение без цвета."
+  },
+  {
+   "principle": "Состояния считаются по правилу от базового цвета, а не рисуются на каждую кнопку; фокус — свой токен и 3:1.",
+   "evidence": "Carbon: hover — полступени, active — две ступени, selected — одна, «Focus states are required on all interactive elements and must pass 3:1»; Spectrum: индексы растут default → hover → down; Atlassian модификаторы hovered/pressed/selected/focused/disabled.",
+   "forStorefront3": "Генерировать *-hover/*-active/*-selected из ступеней палитры одним скриптом (как design-snapshot), скармливать общему pressable; сторож сверяет, что у каждой роли есть все состояния в обеих темах и что фокус контрастен."
+  },
+  {
+   "principle": "Международность — основание, а не последний шаг: коробки тянутся под перевод до 300%, смысл не держится на одном цвете, словарь не переводится.",
+   "evidence": "Spectrum international design: таблица расширения (≤10 знаков → 300%); «Spectrum tokens are not localized»; «no color can be assumed to have a consistent meaning across cultures»; при семантическом цвете обязателен текст или значок.",
+   "forStorefront3": "Четыре языка одной сборкой: тест «самая длинная строка из четырёх переводов» для кнопок, вкладок, бейджей (расширение правила проекта «раскладка не зависит от вежливости данных»); статусы заказа — цвет + слово; язык страницы — в корневой провайдер вместе с темой."
+  },
+  {
+   "principle": "Между словарём и компонентами стоит слой кирпичей, принимающих только токены; страница собирается из них, а не из свежего CSS.",
+   "evidence": "Atlassian: «Primitives are token-backed low-level building blocks», «prevents accidents or mistakes», ESLint use-primitives; граф npm: button → primitives → tokens; Carbon Stack/Layer/Theme; React Spectrum Provider + Flex/Grid.",
+   "forStorefront3": "Завести Box/Stack/Inline/Text с пропами-токенами в packages/ui (проект уже имеет Band, SectionHead, Control — они кандидаты); новый блок страницы пишется из них, и ревью спрашивает «почему тут свой CSS»."
+  },
+  {
+   "principle": "Тема — это не только цвет, но размеры и состав компонентов темой не меняются; для нескольких стран одной сборкой это граница «что своё у рынка».",
+   "evidence": "Spectrum Theming: тема «can encompass changes to any visual aspect ... such as colors, rounding, shadow, and typography. Component options and general dimensions stay the same»; Atlassian: темы spacing/typography/shape отдельно от цвета.",
+   "forStorefront3": "Экран «Дизайн-система» в админке на сайт = объект темы: цвет, шрифт, радиус, тень — можно; раскладка, швы, размеры целей, состав блоков — нельзя. Это одновременно ответ на вопрос STACK.md «что вторая витрина берёт, а что пишет заново»."
+  },
+  {
+   "principle": "Слой «построен» — когда он опубликован как версия с журналом изменений и снятием с оборота через переименование, а не удаление.",
+   "evidence": "Spectrum: у каждого основания своя версия (Object styles 5.0.0, Spacing 1.0.0, Typography 5.1.0), токены помечаются deprecated/renamed до удаления; Atlassian: codemod-миграции и changelog токенов; Carbon: токены в @carbon/themes по версиям.",
+   "forStorefront3": "Каждый слой получает версию в слепке (design-snapshot) и запись в DECISIONS.md; переименование токена — alias со сроком, а не поиск-замена по проекту; сторож падает на удалённом токене, на который ещё ссылаются."
+  },
+  {
+   "principle": "Порядок подключения: сброс + словарь → тема на корне → компоненты → замена сырых значений → проверка всей страницы в обеих темах → релиз тёмной темы; машина предлагает, человек решает.",
+   "evidence": "Atlassian develop: «Install our dependencies: CSS reset and design tokens», babel-plugin токенов «before other CSS-in-JS plugins»; migrate: «Set up theming» → «Update any design system components» → «Replace raw CSS values», «apply and test tokens across an experience before releasing»; codemod «only provides token suggestions, so manual review is required».",
+   "forStorefront3": "После палитры: (1) оси + провайдер на корне, (2) шкала расстояний + ритм полос, (3) сетка/швы уже есть — привязать к шкале, (4) типографика, (5) форма, (6) состояния/движение, (7) кирпичи, (8) компоненты; на каждом шаге — сторож в CI до следующего шага, тёмная тема публикуется после test:theme на всех страницах."
+  }
+ ],
+ "ecommerceSpecific": [
+  "Все три каталога построены для рабочих приложений (IBM продукты, Adobe-редакторы, Jira/Confluence); ни в одном нет оснований «цена», «карточка товара», «пропорция фото товара», «бейдж скидки», «полоса покупки» — их придётся заводить как компонентные токены и образцы, и это нормально: Carbon так же держит компонентные токены отдельно от core.",
+  "Carbon даёт готовое разделение, которое магазину нужно целиком: productive-набор текста (плотный, фиксированный) для корзины/оформления/фильтров и expressive-набор (плавные заголовки, «for editorial and marketing design») для главной, полок и блога — это два набора ролей, а не выбор одного.",
+  "Spectrum: «Full rounding ... meant to draw attention to calls to action» — правило для кнопки «в корзину»; и «Numbers within components should be tabular with lining figures» — правило для цен и количеств, чтобы цифры не прыгали при смене товара.",
+  "Ширина чтения: Atlassian fixed-narrow 864px «for blogs, articles, documentation», Spectrum fixed grid 1280 по центру для контентных страниц; Carbon fluid для витрин и дашбордов — блогу и странице оформления нужна узкая колонка, полкам — широкая.",
+  "Пропорции картинок: Carbon ограничивает коробки набором 1:1, 2:1, 2:3, 3:2, 4:3, 16:9 и считает высоту от ширины колонки — готовое правило для фото товаров и промо-плиток; совпадает с правилом проекта «второй файл только когда меняется пропорция».",
+  "Телефон как главный экран: Spectrum считает web ≤768px мобильным масштабом, React Spectrum выбирает scale по типу указателя, Atlassian требует «всегда включать мобильный размер», Carbon — цели 44px; для витрины с 79% телефона мобильный масштаб — умолчание, а десктоп — вариант, что совпадает с правилом проекта «сначала 375».",
+  "Тёмная тема и фото: Carbon велит менять иллюстрации между режимами или держать прозрачный фон — для товарных фото на цветных подложках нужна подложка из токена этажа, а не запечённая в картинку.",
+  "Международность из Spectrum прямо про четыре языка одной сборкой: короткие надписи (кнопки, вкладки, бейджи «-20%») растут при переводе до 300%; цвет статуса заказа обязан идти со словом; словарь токенов не переводится — переводится содержание и растягивается раскладка.",
+  "Инлайн-тема Carbon (тёмная шапка/панель на светлой странице «to add emphasis and focus to a work flow») — это способ выделить полосу покупки или промо-полосу без своих цветов: участок другой темы, а не заплатка.",
+  "Доступность как число во всех трёх — 4.5:1 текст, 3:1 крупный текст и графика, фокус 3:1, цель 44–48px — уже совпадает с правилами проекта; новое — Spectrum требует проверять контраст «for all color themes supported by your product», то есть на каждом этаже каждой темы, а не только на фоне страницы."
+ ],
+ "quotes": [
+  {
+   "text": "Tokens are role-based, and themes specify the color values that serve those roles in the UI.",
+   "source": "https://carbondesignsystem.com/elements/color/overview/"
+  },
+  {
+   "text": "A token is the role-based identifier that assigns a color. Unlike hex codes, tokens apply universally across themes.",
+   "source": "https://carbondesignsystem.com/elements/color/overview/"
+  },
+  {
+   "text": "In the light themes, layers alternate between White and Gray 10 with each added layer.",
+   "source": "https://carbondesignsystem.com/elements/color/overview/"
+  },
+  {
+   "text": "In the dark themes, layers become one step lighter with each added layer.",
+   "source": "https://carbondesignsystem.com/elements/color/overview/"
+  },
+  {
+   "text": "You cannot implement light or dark mode without using color tokens everywhere in your product.",
+   "source": "https://carbondesignsystem.com/elements/color/usage/"
+  },
+  {
+   "text": "Only use inline theming for major shifts in color, like high contrast moments.",
+   "source": "https://carbondesignsystem.com/elements/color/usage/"
+  },
+  {
+   "text": "Whenever possible, switch out assets entirely between modes to reflect the theme",
+   "source": "https://carbondesignsystem.com/elements/color/usage/"
+  },
+  {
+   "text": "The 2x Grid is the geometric foundation of all the visual elements of IBM Design",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "The basic unit of 2x Grid geometry is the 8-pixel square mini unit.",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "For best results, test designs and code at each of these standard breakpoints.",
+   "source": "https://carbondesignsystem.com/elements/2x-grid/overview/"
+  },
+  {
+   "text": "No, the tokens themselves do not change values based on the screen size.",
+   "source": "https://carbondesignsystem.com/elements/spacing/overview/"
+  },
+  {
+   "text": "Spacing is the negative area between elements and components.",
+   "source": "https://carbondesignsystem.com/elements/spacing/overview/"
+  },
+  {
+   "text": "The productive type set uses fixed headings. Expressive headings are responsive",
+   "source": "https://carbondesignsystem.com/elements/typography/overview/"
+  },
+  {
+   "text": "All touch targets for interactive icons need to be 44px or larger.",
+   "source": "https://carbondesignsystem.com/elements/icons/usage/"
+  },
+  {
+   "text": "foundational elements like the grid, colors tokens, and type tokens ... reduce the need for custom CSS",
+   "source": "https://carbondesignsystem.com/developing/get-started/"
+  },
+  {
+   "text": "Design tokens are design decisions, translated into data.",
+   "source": "https://spectrum.adobe.com/page/design-tokens/"
+  },
+  {
+   "text": "Only use global tokens when there are no available aliases for your use case.",
+   "source": "https://spectrum.adobe.com/page/design-tokens/"
+  },
+  {
+   "text": "Mobile components are larger than their desktop counterparts. Spectrum uses a 1:1.25 scale ratio.",
+   "source": "https://spectrum.adobe.com/page/platform-scale/"
+  },
+  {
+   "text": "Text is shown larger in the mobile scale than in the desktop scale.",
+   "source": "https://spectrum.adobe.com/page/platform-scale/"
+  },
+  {
+   "text": "Spacing values are static and don’t change based on platform scale.",
+   "source": "https://spectrum.adobe.com/page/spacing/"
+  },
+  {
+   "text": "Keep in mind that spacing values don’t apply to the padding within a component.",
+   "source": "https://spectrum.adobe.com/page/spacing/"
+  },
+  {
+   "text": "Layout regions are the only aspect of your design that should align to the responsive grid.",
+   "source": "https://spectrum.adobe.com/page/responsive-grid/"
+  },
+  {
+   "text": "Due to Spectrum's focused nature, every object style carries a semantic meaning.",
+   "source": "https://spectrum.adobe.com/page/object-styles/"
+  },
+  {
+   "text": "Shadows are reserved for transient components that appear elevated and are dismissible",
+   "source": "https://spectrum.adobe.com/page/object-styles/"
+  },
+  {
+   "text": "The corner radius changes with the scale to maintain the component’s proportions",
+   "source": "https://spectrum.adobe.com/page/object-styles/"
+  },
+  {
+   "text": "Interactive states increase the color indices incrementally from default, to hover, and down.",
+   "source": "https://spectrum.adobe.com/page/using-color/"
+  },
+  {
+   "text": "Component options and general dimensions stay the same across themes.",
+   "source": "https://spectrum.adobe.com/page/theming/"
+  },
+  {
+   "text": "Spectrum tokens are not localized, so be sure to follow international design guidelines on color",
+   "source": "https://spectrum.adobe.com/page/color-system/"
+  },
+  {
+   "text": "translated text is likely going to be very different —sometimes up to 300% longer than the original one",
+   "source": "https://spectrum.adobe.com/page/international-design/"
+  },
+  {
+   "text": "In general, no color can be assumed to have a consistent meaning across cultures.",
+   "source": "https://spectrum.adobe.com/page/international-design/"
+  },
+  {
+   "text": "Numbers within components should be tabular with lining figures.",
+   "source": "https://spectrum.adobe.com/page/typography/"
+  },
+  {
+   "text": "All React Spectrum applications start with a Provider.",
+   "source": "https://react-spectrum.adobe.com/react-spectrum/getting-started.html"
+  },
+  {
+   "text": "Design tokens are the single source of truth to name and store decisions about the user interface.",
+   "source": "https://atlassian.design/foundations"
+  },
+  {
+   "text": "Don't use a token just because the colors appear to match. This can break the experience in other themes.",
+   "source": "https://atlassian.design/foundations/tokens/design-tokens"
+  },
+  {
+   "text": "Themes are how we switch color schemes and styles everywhere using a single set of tokens.",
+   "source": "https://atlassian.design/foundations/tokens/design-tokens"
+  },
+  {
+   "text": "Non-color themes are also possible: think cozy/comfortable/compact views, reduced motion, or custom typography styles.",
+   "source": "https://atlassian.design/foundations/tokens/design-tokens"
+  },
+  {
+   "text": "Our spacing system is built around a base unit of 8 pixels.",
+   "source": "https://atlassian.design/foundations/spacing"
+  },
+  {
+   "text": "Elevations are the layered surfaces that form the foundation of the UI.",
+   "source": "https://atlassian.design/foundations/elevation"
+  },
+  {
+   "text": "Always pair matching surface and shadow tokens",
+   "source": "https://atlassian.design/foundations/elevation"
+  },
+  {
+   "text": "Use heading styles, rather than bold or a change of font size",
+   "source": "https://atlassian.design/foundations/typography"
+  },
+  {
+   "text": "Primitives are token-backed low-level building blocks.",
+   "source": "https://cdn.jsdelivr.net/npm/@atlaskit/primitives/README.md"
+  },
+  {
+   "text": "Primitives are components that create layouts, add styling, make up other components.",
+   "source": "https://atlassian.design/components/primitives/overview"
+  },
+  {
+   "text": "Install our dependencies: CSS reset and design tokens.",
+   "source": "https://atlassian.design/get-started/develop"
+  },
+  {
+   "text": "Replace raw CSS values (e.g. colors, padding, or typography values) with the tokens.",
+   "source": "https://atlassian.design/foundations/tokens/migrate-to-tokens"
+  },
+  {
+   "text": "The codemod only provides token suggestions, so manual review is required.",
+   "source": "https://atlassian.design/foundations/tokens/migrate-to-tokens"
+  }
+ ],
+ "confidence": "Высокая для Carbon (текст взят из исходников сайта в GitHub, порядок зависимостей — из package.json пакетов @carbon/*) и для Atlassian (живые страницы + npm-пакеты; не прочитаны border/radius/illustrations/logos/get-started-design). Средне-высокая для Spectrum: сайт отдаёт текст только через рендер-прокси, таблицы могли потерять разметку; порядок меню Foundations взят из данных в JS-бандле сайта, но место страниц Spacing и Responsive grid в текущем меню не найдено (сами страницы существуют и версионированы). Сведение слоёв в один порядок — моё, выведено из трёх признаков (граф пакетов Carbon, порядок страниц и миграции Atlassian, порядок меню и наборы токенов Spectrum), а не взято из одного источника дословно."
+}
