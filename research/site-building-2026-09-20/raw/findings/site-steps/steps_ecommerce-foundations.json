@@ -1,0 +1,296 @@
+{
+ "source": "Витрина: что не входит в обычную дизайн-систему, а нужно только магазину — по Baymard Institute (UX-исследования и бенчмарки), Vercel Web Interface Guidelines (raw.githubusercontent.com/vercel-labs/web-interface-guidelines), Core Web Vitals (web.dev), поведению люкс-покупателя (Baymard Luxury benchmark + Think with Google / business.google.com)",
+ "sourcesRead": [
+  "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md (полный текст прочитан целиком)",
+  "https://github.com/vercel-labs/web-interface-guidelines (README)",
+  "https://web.dev/articles/vitals",
+  "https://baymard.com/blog/current-state-of-checkout-ux",
+  "https://baymard.com/blog/current-state-of-ecommerce-category-ux",
+  "https://baymard.com/learn/ecommerce-category-page",
+  "https://baymard.com/blog/2021-luxury-ecommerce-benchmark",
+  "https://baymard.com/research/homepage-and-category-usability",
+  "https://baymard.com/blog/perceived-security-of-payment-form",
+  "https://business.google.com/en-all/think/consumer-insights/trends-fashion-luxury/ (редирект с thinkwithgoogle.com)"
+ ],
+ "sourcesFailed": [
+  "https://baymard.com/blog/luxury-goods-benchmark-2024 — открылась, но это анонс-индекс без самих находок (подробности за Baymard Premium)",
+  "https://api.github.com/repos/vercel-labs/web-interface-guidelines/contents/ — не открылось (ошибка прокси «path could not be canonicalized»), поэтому не проверено, есть ли в репозитории файлы кроме command.md",
+  "Правило «цель нажатия — 44px» — в прочитанном тексте Vercel WIG такого числа нет вовсе (см. principles, пункт про размер цели); не нашёл его и в README — значит либо это из другого документа этого же репозитория, которого не увидел, либо источник этого числа не Vercel",
+  "Baymard про sticky add-to-cart и trust-seal placement на PDP — сам оригинал (baymard.com/research/product-page, полный текст) не открыт, цифры получены через пересказ вторичных сайтов (easyappsecom.com, trustsignals.com), которые ссылаются на Baymard, но это не первоисточник — пометил как менее надёжное"
+ ],
+ "layers": [
+  {
+   "order": 1,
+   "name": "Как отвечает нажимаемое и поле — Vercel Web Interface Guidelines, разделы Accessibility → Focus States → Forms → Animation → Typography → Touch & Interaction (порядок — это порядок заголовков самого файла command.md; источник не называет его «шагами сборки», это чек-лист, а не последовательность, но чек-лист даёт естественный приоритет: сначала «видно ли это тому, кто не видит и не может нажать мышью», потом «что происходит при вводе и ожидании», потом «как это выглядит на экране»)",
+   "plain": "Прежде чем рисовать новую страницу, у магазина должен быть словарь ответов на нажатие, ввод и ожидание — тот же смысл, что уже записан в разделе CLAUDE.md «Кнопка отвечает одинаково», только список Vercel шире и называет вещи, которых в этом разделе пока нет.",
+   "contains": [
+    "видимый фокус :focus-visible, а не убранный outline",
+    "кнопка отправки формы остаётся нажимаемой до начала запроса, во время — спиннер",
+    "ошибка формы — у самого поля, фокус прыгает на первую ошибку",
+    "тип клавиатуры по смыслу поля (email/tel/number), а не общий текст",
+    "анимация уважает prefers-reduced-motion и трогает только transform/opacity",
+    "числа в столбик — моноширинные (tabular-nums), троеточие вместо ...",
+    "touch-action: manipulation и safe-area-inset для вырезов экрана"
+   ],
+   "dependsOn": [
+    "Палитра (цвет фокус-кольца, цвет состояний — уже определены темой)"
+   ],
+   "doneWhen": "каждый нажимаемый узел и каждое поле формы проходит список Vercel WIG без пропуска — так же, как cbdshop уже проверяет свою «pressable»-примесь тестом control-states, только список проверки становится шире",
+   "artifacts": [
+    "control.css / pressable-примесь для storefront3",
+    "тест по образцу control-states.test.ts, дополненный проверкой tabular-nums у цены и autocomplete у полей адреса"
+   ]
+  },
+  {
+   "order": 2,
+   "name": "Потолок скорости — Core Web Vitals (web.dev/articles/vitals)",
+   "plain": "Прежде чем добавлять тяжёлое — крупные фото, видео, шрифты, анимацию — вешают потолок: как быстро видна главная картинка, как быстро страница отвечает на нажатие и не дёргается ли она, пока грузится. Источник не говорит «сделай это шагом номер два», но логика простая: потолок должен быть объявлен раньше тяжёлых узлов (галерея, видео на карточке товара), а не после них — иначе тяжёлое уже построено и его придётся переделывать.",
+   "contains": [
+    "LCP ≤ 2.5 c — «loading performance»",
+    "INP ≤ 200 мс — «interactivity»",
+    "CLS ≤ 0.1 — «visual stability»",
+    "мера — 75-й процентиль загрузок, отдельно для телефона и для широкого экрана"
+   ],
+   "dependsOn": [
+    "ничего из дизайн-системы — это внешний бюджет, который дизайн-система обязана уместить"
+   ],
+   "doneWhen": "собранная витрина держит все три числа на 75% загрузок на телефоне; в cbdshop это уже есть как test:speed — этот слой не про проверку, а про то, что числа нужно знать ДО того, как выбирается размер картинки-героя, наличие видео на карточке товара и вес шрифта",
+   "artifacts": [
+    "бюджет размера картинки первого экрана",
+    "priority только у LCP-картинки (в cbdshop уже есть)",
+    "font-display: swap + preload только для шрифта по умолчанию (в cbdshop уже есть)"
+   ]
+  },
+  {
+   "order": 3,
+   "name": "Свои детали магазина, которых нет в обычном наборе кнопок и полей — Baymard (product-page, category, checkout research)",
+   "plain": "Кнопка, поле и карточка — это ещё не магазин. Магазину дополнительно нужны: как показать цену, как устроена карточка товара, как работает фильтр, что делает кнопка «в корзину», которая едет за пальцем вниз по экрану, и где стоит значок доверия.",
+   "contains": [
+    "цена и валюта — числовой блок с моноширинными цифрами",
+    "карточка товара — картинка + цена + бейдж наличия/скидки",
+    "галерея товара — увеличение, порядок кадров",
+    "фильтр и сортировка — счётчик результатов у каждого значения, видимость применённых фильтров, состояние в адресной строке",
+    "липкая полоса покупки на карточке товара — цена, вариант, кнопка «в корзину» всегда на виду",
+    "значок доверия — вплотную к полю номера карты, а не общий бейдж в подвале",
+    "адресные поля — свой набор под каждую страну"
+   ],
+   "dependsOn": [
+    "Слой 1 (поведение нажимаемого) и палитра — карточка товара собирается из уже готовых кнопки, картинки и текста"
+   ],
+   "doneWhen": "у каждой из этих деталей есть один общий узел в дизайн-системе, а не отдельная вёрстка на каждой странице, где она встречается",
+   "artifacts": [
+    "Price/Currency-компонент с Intl.NumberFormat + tabular-nums",
+    "ProductCard-компонент",
+    "StickyBuyBar-компонент, резервирующий место через --bottom-furniture (правило у cbdshop уже есть — это подтверждение, что оно верно, а не изобретение заново)",
+    "AddressForm с полями по стране (hr/en/it/ro)"
+   ]
+  },
+  {
+   "order": 4,
+   "name": "Порядок страниц воронки — так, как сам Baymard делит исследование (явно указано на странице research/homepage-and-category-usability: Homepage → Category Taxonomy → Main Navigation → Intermediary Category Pages → Site-Wide Layout; и в целом по сайту разделы идут Homepage & Category → Product Listing → Product Details Page → Checkout → Accounts → Mobile)",
+   "plain": "Строить и проверять страницы магазина по одной, в том порядке, в котором покупатель их проходит: сначала «куда я попал» (главная и раздел), потом «что тут есть» (список и фильтр), потом «это то, что мне нужно» (карточка товара), потом «оформляю» (корзина и чекаут). Так исследователи сами делят свои 78 000+ часов наблюдений — потому что именно в этом порядке идёт живой покупатель.",
+   "contains": [
+    "Homepage — 17 правил",
+    "Category Taxonomy — 16 правил",
+    "Main Navigation — 17 правил",
+    "Intermediary Category Pages — 7 правил",
+    "Site-Wide Layout — 18 правил",
+    "далее по всему сайту: Product Listing → Product Details Page → Checkout → Accounts & Self-Service → Mobile"
+   ],
+   "dependsOn": [
+    "Слои 1-3 — без готового нажимаемого, бюджета скорости и деталей магазина строить страницы по этому порядку нечем"
+   ],
+   "doneWhen": "у storefront3 есть план: сначала обкатать домашнюю и раздел, потом список товаров с фильтром, потом карточку товара, потом корзину и чекаут — а не строить всё сразу вперемешку",
+   "artifacts": [
+    "ROADMAP.md storefront3 с этим порядком фаз",
+    "чек-лист приёмки по каждой фазе из списка выше"
+   ]
+  },
+  {
+   "order": 5,
+   "name": "Тон люкса поверх механики — Baymard Luxury Retail benchmark (2021) + Think with Google / business.google.com, тренды fashion & luxury",
+   "plain": "Когда механика уже работает, люксовый магазин добавляет своё: не давить продажей в лоб, объяснять материал и историю товара, не звать в чат каждую секунду, и помнить, что часть покупателей уйдёт с сайта покупать офлайн — и это тоже победа, а не потеря. Источник не даёт этому числового порядка — это последний слой, потому что он красит уже готовую страницу, а не строит новую механику.",
+   "contains": [
+    "личный подбор («Just for You») — 41% обычных сайтов есть, у люкса реже",
+    "явная ссылка на политику возврата/доставки в подвале",
+    "поиск понимает опечатки и непродуктовые запросы («условия возврата»)",
+    "нет тупика «нет в наличии» — есть предзаказ или уведомление",
+    "рассказ о материале/истории товара — не украшение, а часть решения о покупке",
+    "сообщение о честности цепочки поставок — 68% люкс-покупателей считают это важным"
+   ],
+   "dependsOn": [
+    "Все слои выше — тон накладывается на уже работающую механику"
+   ],
+   "doneWhen": "владелец смотрит готовую страницу и не видит агрессивных попапов, зато видит объяснение материала и историю бренда там, где раньше была голая спецификация",
+   "artifacts": [
+    "блок «материал и уход» на карточке товара",
+    "текст политики возврата в подвале на каждом языке (hr/en/it/ro)"
+   ]
+  }
+ ],
+ "orderRationale": "Важная честная оговорка: ни один из четырёх источников этой связки не описывает «слои дизайн-системы» в смысле «токены → примитивы → роли → тема → компонент» — так, как уже сделан слой палитры у storefront3. Baymard, Vercel WIG, Core Web Vitals и Think with Google отвечают на другой вопрос: «что нужно ИМЕННО магазину и ИМЕННО витрине сверх обычного набора кнопок и полей». Поэтому порядок в layers — это не альтернатива уже начатой пирамиде токенов, а НАКЛАДКА на неё: пять дополнительных оснований, которые нужно вплести в ту же пирамиду на своих местах.\nВнутри этой накладки порядок выведен так: слой 1 (поведение) идёт первым, потому что это прямое продолжение уже сделанной палитры — Vercel WIG ставит Accessibility и Focus States первыми пунктами своего файла, то есть сам документ считает «виден ли фокус» более срочным, чем «как выглядит анимация». Слой 2 (бюджет скорости) идёт вторым не потому, что так сказал web.dev буквально — там вообще нет разговора о порядке шагов, — а по логике: бюджет ограничивает то, что можно себе позволить в тяжёлых узлах, и объявлять его после того, как галерея и видео уже построены, поздно. Слой 3 (детали магазина) и слой 4 (порядок страниц воронки) — здесь порядок ДЕЙСТВИТЕЛЬНО дан источником: страница research/homepage-and-category-usability прямо перечисляет пять подтем в порядке Homepage → Category Taxonomy → Main Navigation → Intermediary Category Pages → Site-Wide Layout, а вся структура сайта Baymard (видно по разделам blog и research) идёт по воронке покупателя: главная/раздел → список товаров → карточка товара → корзина/чекаут → аккаунт → мобильное. Слой 5 (тон люкса) — последний, потому что и Baymard Luxury benchmark, и Think with Google говорят о вещах, которые красят уже готовую страницу (тон текста, что показывать вместо агрессивной продажи), а не о механике, без которой страница не работает вовсе.",
+ "vocabulary": [
+  {
+   "term": "tabular-nums (моноширинные цифры)",
+   "plain": "Обычно цифра «1» уже, чем «8» — из-за этого столбик цен дрожит при обновлении. Это свойство шрифта, при котором все цифры одной ширины, как в кассовом чеке.",
+   "example": "Цена товара в карточке и в корзине, счётчик товаров в фильтре — везде, где цифры стоят в столбик или сравниваются глазами."
+  },
+  {
+   "term": "LCP / INP / CLS",
+   "plain": "Три секундомера браузера: LCP — сколько ждать самую крупную картинку или текст на экране; INP — сколько ждать ответа после нажатия; CLS — насколько страница «прыгает», пока догружается.",
+   "example": "Если фото товара тяжёлое и без заданного размера, LCP растёт и CLS прыгает — покупатель видит пустоту, потом всё сдвигается."
+  },
+  {
+   "term": "safe-area-inset (безопасная зона)",
+   "plain": "На новых телефонах есть вырез или закруглённый край экрана. Это отступ, который браузер сам подсказывает, чтобы кнопка не пряталась под вырезом или за системной полосой снизу.",
+   "example": "Липкая полоса покупки внизу экрана карточки товара должна учитывать этот отступ, иначе кнопка «в корзину» уедет под системную панель."
+  },
+  {
+   "term": "sticky buy-bar (липкая полоса покупки)",
+   "plain": "Узкая полоска с ценой и кнопкой «купить», которая остаётся внизу экрана, пока покупатель листает длинную карточку товара, — чтобы кнопка всегда была под пальцем.",
+   "example": "У cbdshop это уже есть и называется «мебель у нижнего края» — Baymard подтверждает, что это правильный ход, а не изобретение с нуля."
+  },
+  {
+   "term": "75-й процентиль",
+   "plain": "Не среднее число, а то, при котором 75 из 100 посещений уложились в норму, а 25 — хуже. Это честнее среднего, потому что среднее прячет плохие случаи за хорошими.",
+   "example": "«LCP ≤ 2.5 c на 75-м процентиле» значит: у 3 из 4 посетителей телефона картинка появляется быстрее 2.5 секунд, а не «в среднем так»."
+  },
+  {
+   "term": "гостевой чекаут (guest checkout)",
+   "plain": "Возможность купить, не заводя аккаунт заранее. Покупателю проще нажать «оформить без регистрации», чем сначала придумывать пароль.",
+   "example": "На странице оформления заказа storefront3 кнопка «купить без аккаунта» должна быть виднее, чем «войти» или «зарегистрироваться»."
+  },
+  {
+   "term": "focus-visible (видимый фокус)",
+   "plain": "Рамка или подсветка вокруг кнопки/поля, когда до него добрались клавишей Tab, а не мышью, — чтобы человек, который не пользуется мышью, видел, где он сейчас находится на странице.",
+   "example": "Убрать outline у кнопки нельзя без замены — иначе человек с клавиатурой или скринридером теряет страницу."
+  }
+ ],
+ "principles": [
+  {
+   "principle": "Липкая полоса покупки резервирует своё место заранее, а не появляется поверх текста",
+   "evidence": "CLS ≤ 0.1 — web.dev, «measures visual stability»; практика sticky add-to-cart на PDP держит цену/вариант/кнопку видимыми при скролле (вторичные источники со ссылкой на Baymard, первоисточник не открыт — помечено в sourcesFailed)",
+   "forStorefront3": "У storefront3 правило CLAUDE.md «мебель у нижнего края объявляет свою высоту» (--bottom-furniture) — это уже верный ответ на требование Baymard/CWV; ничего не нужно придумывать заново, только не забыть применить к новой полосе покупки на карточке товара третьей витрины."
+  },
+  {
+   "principle": "Числа, которые сравнивают (цена, счётчик, остаток), набираются моноширинными цифрами",
+   "evidence": "Vercel WIG, раздел Typography: «font-variant-numeric: tabular-nums for number columns/comparisons»",
+   "forStorefront3": "В CLAUDE.md сейчас об этом ничего нет — это находка для нового слоя типографики storefront3: применить к цене в карточке, в корзине, к счётчику применённых фильтров."
+  },
+  {
+   "principle": "Обязательные И необязательные поля формы помечаются оба, а не только одно",
+   "evidence": "Baymard, checkout research: «32% of participants skipped required fields when only optional fields were marked»",
+   "forStorefront3": "Формы адреса storefront3 на четырёх языках (hr/en/it/ro) должны ставить и звёздочку у обязательного, и слово «необязательно» у необязательного поля — это касается каждой локали отдельно, не одной формы «на глаз»."
+  },
+  {
+   "principle": "Гостевой чекаут — самый заметный путь, не спрятан под созданием аккаунта",
+   "evidence": "Baymard, checkout best practices 2025: «62% of sites fail this»",
+   "forStorefront3": "Экран оформления заказа: кнопка «оформить без аккаунта» стоит визуально сильнее (размер, место), чем «войти»."
+  },
+  {
+   "principle": "Ошибка формы называет именно то, что не так, а не общее слово",
+   "evidence": "Baymard: «\"Your card number is incomplete\" instead of \"Your card number is invalid\" (94% of sites don't do this)»",
+   "forStorefront3": "Тексты ошибок форм storefront3 в content/<язык>.ts пишутся конкретно под каждое поле и под каждый язык, а не одним общим «проверьте поле»."
+  },
+  {
+   "principle": "Значок доверия ставится вплотную к полю номера карты, а не общим бейджем в подвале",
+   "evidence": "Baymard, perceived-security-of-payment-form: «Placing 1-2 icons within the encapsulated area performs well…»; «66% of major US e-commerce sites lack visual emphasis on credit card fields»",
+   "forStorefront3": "Если у storefront3 будет собственная форма оплаты (не редирект на платёжный шлюз целиком), карточка ввода номера карты нуждается в визуально обособленной рамке со значком рядом, а не значком в футере страницы."
+  },
+  {
+   "principle": "У Vercel WIG нет числа «минимум 44px под палец» — это не его тема",
+   "evidence": "В прочитанном полном тексте command.md (раздел Touch & Interaction) есть touch-action, tap-highlight-color, overscroll-behavior, но НЕТ упоминания минимального размера цели нажатия",
+   "forStorefront3": "Правило CLAUDE.md «44px по меньшей стороне» верное и нужное, но подкреплять его ссылкой на Vercel WIG нельзя — это из другого корпуса (обычно WCAG 2.5.5 «Target Size» или Apple/Material HIG); стоит перепроверить его первоисточник отдельно, если он важен для записи в DECISIONS.md."
+  },
+  {
+   "principle": "Люксовый магазин официально не меряется только онлайн-конверсией",
+   "evidence": "Baymard, 2021 luxury benchmark: «The primary purpose of luxury sites is to drive brand awareness, brand loyalty, and facilitate off-line purchases»",
+   "forStorefront3": "Для заявленного стиля «минимализм-лакшери» страница товара не обязана дожимать к покупке любой ценой — блок «материал, история, уход» имеет право занимать место, которое в обычном CBD-магазине отдали бы под ещё один призыв купить."
+  },
+  {
+   "principle": "Порядок сборки страниц следует порядку воронки покупателя, а не удобству разработки",
+   "evidence": "Baymard делит свои 78 000+ часов исследования именно по этому порядку: research/homepage-and-category-usability → product-page → checkout → accounts → mobile",
+   "forStorefront3": "Фазы ROADMAP.md для storefront3 стоит выстроить в этом же порядке: главная/раздел → список товаров с фильтром → карточка товара → корзина → оформление — а не строить их вперемешку по готовности макета."
+  }
+ ],
+ "ecommerceSpecific": [
+  "Цена и валюта — не обычный текст: нужен свой узел с Intl.NumberFormat и tabular-nums, потому что цифры сравниваются глазами построчно",
+  "Карточка товара — свой примитив (картинка + цена + бейдж наличия/скидки), которого нет в общем наборе UI-компонентов не-магазина",
+  "Галерея товара — увеличение и порядок кадров, отдельная механика от обычной картинки страницы",
+  "Фильтр и сортировка каталога — счётчик результатов у каждого значения фильтра ДО нажатия, видимость уже применённых фильтров, состояние обязательно в адресной строке",
+  "Липкая полоса покупки на карточке товара — цена, вариант, кнопка всегда на виду при скролле; резервирует своё место, чтобы не сдвигать текст (CLS)",
+  "Доверительный знак — рядом с полем номера карты, а не общий бейдж в подвале сайта",
+  "Адресные поля различаются по стране — у storefront3 (hr/en/it/ro) нельзя использовать одну форму адреса на все четыре рынка",
+  "Гостевой чекаут — путь без аккаунта должен быть заметнее, чем путь с созданием аккаунта",
+  "Дата доставки, а не общая фраза о скорости — «доставка 4–8 апреля» вместо «2 рабочих дня», чтобы покупатель не считал в уме",
+  "Счётчик количества в корзине — кнопки плюс/минус или кнопка+поле, а не голое текстовое поле, куда легко вписать не то число",
+  "Люксовый магазин официально признаёт офлайн-покупку и лояльность к бренду частью своей задачи — это меняет, что считается «успехом» страницы товара"
+ ],
+ "quotes": [
+  {
+   "text": "LCP should occur within 2.5 seconds of when the page first starts loading",
+   "source": "https://web.dev/articles/vitals"
+  },
+  {
+   "text": "pages should have a INP of 200 milliseconds or less",
+   "source": "https://web.dev/articles/vitals"
+  },
+  {
+   "text": "pages should maintain a CLS of 0.1 or less",
+   "source": "https://web.dev/articles/vitals"
+  },
+  {
+   "text": "font-variant-numeric: tabular-nums for number columns/comparisons",
+   "source": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md"
+  },
+  {
+   "text": "Submit button stays enabled until request starts; spinner during request",
+   "source": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md"
+  },
+  {
+   "text": "Interfaces succeed because of hundreds of choices. This is a living, non-exhaustive list.",
+   "source": "https://github.com/vercel-labs/web-interface-guidelines"
+  },
+  {
+   "text": "32% of participants skipped required fields when only optional fields were marked",
+   "source": "https://baymard.com/blog/current-state-of-checkout-ux"
+  },
+  {
+   "text": "Your card number is incomplete\" instead of \"Your card number is invalid\" (94% don't)",
+   "source": "https://baymard.com/blog/current-state-of-checkout-ux"
+  },
+  {
+   "text": "guest checkout the most prominent option — 62% of sites fail this",
+   "source": "https://baymard.com/blog/current-state-of-checkout-ux"
+  },
+  {
+   "text": "76% of sites perform at a level of 'mediocre' or worse",
+   "source": "https://baymard.com/research/homepage-and-category-usability"
+  },
+  {
+   "text": "The primary purpose of luxury sites is to drive brand awareness, brand loyalty, off-line purchases",
+   "source": "https://baymard.com/blog/2021-luxury-ecommerce-benchmark"
+  },
+  {
+   "text": "30% are likely to simply abandon (on 'out of stock' dead ends)",
+   "source": "https://baymard.com/blog/2021-luxury-ecommerce-benchmark"
+  },
+  {
+   "text": "Placing 1-2 icons within the encapsulated area performs well to help perceived reinforcement",
+   "source": "https://baymard.com/blog/perceived-security-of-payment-form"
+  },
+  {
+   "text": "66% of major US e-commerce sites lack visual emphasis on credit card fields",
+   "source": "https://baymard.com/blog/perceived-security-of-payment-form"
+  },
+  {
+   "text": "68% of luxury consumers believe sustainability policies and living wage are important",
+   "source": "https://business.google.com/en-all/think/consumer-insights/trends-fashion-luxury/"
+  },
+  {
+   "text": "Subcategory tiles should be the first thing a user sees when they land on the page",
+   "source": "https://baymard.com/learn/ecommerce-category-page"
+  }
+ ],
+ "confidence": "Смешанная, по частям. Высокая: Vercel WIG (прочитан весь файл command.md целиком, дословно, через raw.githubusercontent.com — это и есть первоисточник) и Core Web Vitals/web.dev (числа LCP/INP/CLS и правило 75-го процентиля взяты с самой страницы web.dev/articles/vitals дословно). Средняя: Baymard — контент читался через WebFetch, который пересказывает страницу своими словами и сокращает цитаты до 125 знаков по моему запросу, то есть это пересказ первоисточника, а не его полный дословный текст; часть материала (luxury-goods-benchmark-2024, детали product-page про sticky add-to-cart) оказалась за Baymard Premium и не вскрылась вовсе — заменено вторичными источниками с явной пометкой. Низкая для количественной части раздела про люкс с Think with Google: сама страница переехала (редирект thinkwithgoogle.com → business.google.com), и неясно, сохранилась ли она в исходном виде или это уже обновлённая версия статьи; мобильно-специфичных находок там не нашлось вовсе, хотя задание просило искать именно их. Отдельно стоит отметить как честную находку, а не подгонку: в самом тексте Vercel WIG нет требования «44px минимум под палец» — это разошлось с ожиданием из задания, и я не стал приписывать источнику то, чего он не говорит."
+}

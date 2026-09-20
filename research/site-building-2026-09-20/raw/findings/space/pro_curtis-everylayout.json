@@ -1,0 +1,173 @@
+{
+ "system": "Nathan Curtis (EightShapes) — эссе «Space in Design Systems» и «Tokens in Design Systems» (10 tips); Every Layout (Heydon Pickering & Andy Bell) — «Modular Scale», «The Stack», «The Center», «Axioms», «Global and local styling». Ни у Curtis, ни у Every Layout нет публичного GitHub-репозитория с «файлом токенов» под их собственным именем: Curtis — независимый консультант и автор текста, а не мейнтейнер библиотеки; Every Layout — платный гайд/книга, а не открытый компонентный пакет. Поэтому «файл токенов» для Every Layout — это не документация, а сам клиентский JS сайта (кастомные элементы stack-l/center-l/box-l), который генерирует настоящий CSS демо-примеров и отдаётся бесплатно на каждой странице, включая платную «The Center» — его текст прочитан как исходник, а не как статья.",
+ "sourcesRead": [
+  "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62",
+  "https://nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421",
+  "https://every-layout.dev/rudiments/modular-scale/",
+  "https://every-layout.dev/layouts/stack/",
+  "https://every-layout.dev/rudiments/axioms/",
+  "https://every-layout.dev/rudiments/global-and-local-styling/",
+  "https://every-layout.dev/layouts/center/ (только встроенный JS источник кастомного элемента center-l — текст статьи платный)"
+ ],
+ "sourcesFailed": [
+  "https://eightshapes.com/articles/space-in-design-systems/ — DNS не резолвится из этого окружения (getaddrinfo ENOTFOUND eightshapes.com); заменено публикацией того же автора и текста на Substack",
+  "https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62 — HTTP 403 (блок Medium)",
+  "https://medium.com/eightshapes-llc/size-in-design-systems-64f234aec519 — HTTP 403; статья Curtis о связке шкалы типографики и шкалы отступов НЕ прочитана, довод про общий базовый размер шрифта для обеих шкал не подтверждён напрямую этим источником",
+  "Every Layout «The Center» — письменное обоснование (gutters, measure, «excess space») закрыто платной версией; удалось прочитать только CSS-логику живого JS-компонента на той же странице, а не аргументацию авторов",
+  "Два предположенных пути raw.githubusercontent.com/carbon-design-system/carbon/.../spacing.scss — 404, не найден настоящий путь; попытка найти стороннюю продакшен-реализацию словаря inset/squish/stretch в реальном репозитории не доведена до чтения файла (только сниппеты WebSearch по Hopper/Workleap и Spirit/JDRF, не зафиксированы как прочитанные источники)"
+ ],
+ "unit": "rem — база в обеих системах. Every Layout стартует шкалу с `--s0: 1rem` (в :root). Curtis привязывает шкалу к «памятному базовому числу» (в примере — 16), которое на практике равно корневому размеру шрифта, то есть тоже 1rem: «Ground your spatial system's range with a memorable base number». Px нигде не прописан как значение токена — он появляется только как поясняющее число в скобках (documented equivalent), не как единица хранения. Для третьей витрины это довод писать `--space-*` в rem (как уже сделано с типографикой), а не в px: посетитель, увеличивший системный размер шрифта в браузере — обычная ситуация на телефоне (79% трафика) — обязан получить пропорционально больший отступ и цель нажатия, а не зафиксированный в px воздух рядом с выросшим текстом.",
+ "scale": {
+  "generator": "Геометрическая прогрессия от одной памятной базы через фиксированное отношение, а не подобранный на глаз список. Every Layout вычисляет каждую ступень через calc() цепочкой (никогда не переписывает результат числом): «var(--s2) * var(--ratio) is equivalent to var(--ratio) * var(--ratio) * var(--ratio)». Curtis описывает то же по сути как удвоение вокруг базы без формулы calc(), но с тем же принципом «одно число задаёт весь ряд».",
+  "steps": [
+   {
+    "name": "Every Layout --ratio",
+    "value": "1.5 (пример по умолчанию); альтернатива — золотое сечение 1.618…, названо явно как чужой, не обязательный выбор"
+   },
+   {
+    "name": "Every Layout --s0 (нулевая точка)",
+    "value": "1rem (= 16px при корневом размере шрифта браузера)"
+   },
+   {
+    "name": "Every Layout --s-5…--s-1",
+    "value": "calc(предыдущая / var(--ratio)), цепочкой; при ratio=1.5 (посчитано мной по формуле, не процитировано числом в источнике): --s-1≈0.667rem (10.7px), --s-2≈0.444rem (7.1px), --s-3≈0.296rem (4.7px)"
+   },
+   {
+    "name": "Every Layout --s1…--s5",
+    "value": "calc(предыдущая * var(--ratio)), цепочкой; при ratio=1.5 (посчитано мной): --s1=1.5rem (24px), --s2=2.25rem (36px), --s3=3.375rem (54px)"
+   },
+   {
+    "name": "Curtis — база",
+    "value": "16 («a memorable base number»), соответствует t-shirt размеру M / default"
+   },
+   {
+    "name": "Curtis — лестница вниз/вверх от базы",
+    "value": "вниз: 16, 8, 4, 2; вверх: 16, 32, 64 («and… that's about it») — удвоение/деление на 2 от базы; точное сопоставление букв XS/S/M/L/XL этим числам в прочитанном тексте не дано построчно — Curtis отдельно называет только, что M = default, а XS/S/L/XL и, при нужде, XXS/XXL — остальные ступени"
+   }
+  ],
+  "base": "1rem у Every Layout, «memorable base number» (обычно = корневой размер шрифта) у Curtis — оба варианта сажают шкалу отступов на ту же ось, что и шкалу шрифта, а не заводят отдельную произвольную константу воздуха.",
+  "notes": "Важное расхождение для роли ниже: у Every Layout сама шкала (--s-5…--s5) не именована по смыслу — это чистые примитивы; ролью становится не отдельный токен, а то, какой layout-примитив (Stack/Box/Center/Cluster) взял конкретную ступень своим значением по умолчанию. У Curtis, наоборот, есть отдельный явный словарь ролей (inset/squish/stretch/stack/inline/grid) поверх t-shirt-шкалы."
+ },
+ "roles": {
+  "hasSemanticLayer": true,
+  "vocabulary": [
+   "inset",
+   "inset-squish",
+   "inset-stretch",
+   "stack",
+   "inline",
+   "grid"
+  ],
+  "examples": [
+   "Curtis: space-inset (XS…XL) ветвится в space-inset-squish (XS…XL) и space-inset-stretch (XS…XL) — «Scales afford branching a token hierarchy to similar yet distinct variants»",
+   "Every Layout Stack: атрибут `space` по умолчанию = `var(--s1)` — примитив сам決 назначает себе примитивную ступень как роль, отдельного имени вида `--space-stack-default` в источнике нет",
+   "Every Layout Center: атрибут `gutters` по умолчанию = null (нет отступа), пока не задан явно — «роль» здесь это решение включить/не включить проп, а не выбор из именованного словаря",
+   "Every Layout Box (inset-аналог): `padding` по умолчанию = `var(--s1)`, `borderWidth` по умолчанию = `var(--border-thin)`"
+  ],
+  "notes": "Обе системы вместе описывают ДВЕ разные формы одного и того же слоя ролей: Curtis называет роль по смыслу отступа как токен (space-inset-squish-m) — это прямой аналог palette→semantic уже сделанного в проекте для цвета. Every Layout вместо словаря ролей встраивает роль в выбор КОМПОНЕНТА (Stack vs Box vs Cluster/Switcher для inline, Center для inset по горизонтали страницы) — компонент и есть семантика, а его проп берёт голую ступень шкалы. Для третьей витрины уместнее словарь Curtis (он про токены, а не про компонентную библиотеку), но сама идея «сосед владеет отступом» и «примитив сам решает свою ступень по умолчанию» — от Every Layout."
+ },
+ "density": "Явного переключателя плотности (compact/comfortable), отдельного от самой шкалы, ни у Curtis, ни у Every Layout нет. У Curtis рычаг плотности — это сам t-shirt размер: переключить компонент с inset-m на inset-s и есть «плотнее». У Every Layout плотности как понятия нет вовсе: `--ratio` и `--s0` — обычные custom properties, переобъявляемые в любом узле дерева, вплоть до Shadow DOM (это явно продемонстрировано на странице modular-scale как штатный приём, а не обход). Для третьей витрины это значит: мобильная/широкая разница отступов (уже требуемая CLAUDE.md для `--control-size` и клэмпов) реализуется тем же способом, что и у Every Layout — переобъявлением `--space-scale-0`/`--space-scale-ratio` внутри медиазапроса или `@container`, а не вторым параллельным набором токенов на «плотный» режим.",
+ "fluid": "Ни один источник не делает саму шкалу отступов текучей через clamp(): у Every Layout `--s0` и `--ratio` — плоские константы, а отзывчивость всего макета делает не изменение значения отступа, а логика layout-примитивов (Switcher, Sidebar через `flex-basis: calc((var(--threshold) - 100%) * 999)`, Cluster через `flex-wrap`) — то есть меняется, ЧТО переносится и когда, а не КАКОЙ ширины отступ. Curtis в прочитанной статье про space clamp()/fluid-типографику вообще не обсуждает — это его отдельная статья «Size in Design Systems», которую прочитать не удалось (HTTP 403), поэтому её довод про плавную шкалу этим источником не подтверждён и не заявляется. Собственное правило CLAUDE.md про `clamp(min, ramp, число-из-Figma)` для чисел — самостоятельное расширение проекта, а не то, что показывают эти два источника; выдавать его за их метод нельзя.",
+ "layout": "Оба источника отдают отступ владение узлу-контейнеру/примитиву, а не ребёнку и не странице. Every Layout Stack ставит `margin-block-start` на `* + *` — то есть на ОТНОШЕНИЕ соседей, а не на сам элемент: «margin is really a property of the relationship between two proximate elements»; это буквально совпадает с уже записанным в CLAUDE.md принципом «пробел между, а не у элемента» для ритма полосы. Center владеет своими `max-width`/`gutters` как собственными пропами примитива, не читая медиазапрос страницы. Curtis формулирует то же смыслово («stack» и «inline» как самостоятельные концепты) без привязки к конкретному CSS-механизму. Для третьей витрины: спейсинг между блоками полосы должен жить как `> * + * { margin-block-start: var(--space-stack-*) }` внутри общего контейнера полосы (`Section/Band`), а не как отступ, который каждый блок добавляет себе сам снизу — иначе при перестановке блоков владельцем (порядок задаётся в админке) появляется либо двойной, либо нулевой зазор именно там, где блок исчез или переместился.",
+ "enforcement": "Every Layout почти не полагается на код-ревью: его «аксиомы» explicitly доверяют каскаду и наследованию больше, чем построчной проверке — «CSS itself exists to enable the styling of HTML globally... rather than element-by-element» и «An exception-based approach to CSS lets us do most of our styling with the least of our code»; единственный технический «сторож» — то, что все значения идут через custom properties, а не литералы, что впоследствии проверяемо линтером (сам источник линтер не описывает). Curtis, наоборот, описывает процесс, а не код: именованная роль «token curator» — «I serve as a token curator, scanning work with an eye for token candidates» — и порог «использовано 3 раза» перед тем, как значение становится токеном, плюс JSON/YAML как формат обмена, чтобы токен доезжал до всех платформ инструментом, а не памятью человека. Ни один источник не описывает автотест уровня token-layer.test.ts. Для третьей витрины прямой перенос: тест-сторож по образцу уже существующего token-layer.test.ts — компонент имеет право ссылаться только на `var(--space-role-*)`, ролевой токен — только на `var(--space-scale-*)`, а сырое число в CSS отступов (кроме самого файла примитивов) красит сборку. Curtis'овский «curator + used 3 times» — это уже описанное в CLAUDE.md «Правило трёх» (раздел «Против заплаток», п.5), просто применённое к отступам, а не изобретённое заново.",
+ "principles": [
+  {
+   "principle": "Токен отступа называется по РОЛИ/СМЫСЛУ (inset, inset-squish, inset-stretch, stack, inline, grid), а не по CSS-свойству, которым он реализован (margin/padding).",
+   "evidence": "«Takeaway: Tease apart concepts from property names. They are many to one and limit reuse to a single platform.» — nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62",
+   "forStorefront3": "Ролевой слой называть `--space-inset-*`, `--space-stack-*`, `--space-inline-*` (не `--padding-*`/`--margin-*`). Новый сторож `space-layer.test.ts` рядом с `token-layer.test.ts`: компонент ссылается только на ролевой токен, ролевой токен — только на примитив шкалы. Это прямое продолжение уже сделанного для цвета (palette→semantic→компонент)."
+  },
+  {
+   "principle": "Squish и stretch — не отдельные произвольные числа, а поименованное ОТКЛОНЕНИЕ от обычного inset той же ступени по вертикальной оси (в примере Curtis — минус 50%).",
+   "evidence": "«A squished inset reduces space top and bottom, in our case by 50%.» — nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62",
+   "forStorefront3": "`--space-inset-squish-<size>: calc(var(--space-inset-<size>) / <k>)`, где k снимается с макета, а не берётся 50% по умолчанию (Curtis сам оговаривает «in our case» — это решение одного проекта, не закон). Кнопки/пилюли/ячейки таблицы/бейджи берут squish, поля ввода — stretch, карточки/панели — обычный inset; естественно ложится на уже существующую лестницу `roundSm/roundMd/roundLg`."
+  },
+  {
+   "principle": "Числовая шкала — геометрическая прогрессия от одной памятной базы через фиксированное отношение, вычисляемая формулой, а не подобранный на глаз список пикселей.",
+   "evidence": "«But it is in the strict adherence to whichever ratio you choose that harmony is created.» + `:root{--ratio:1.5; --s0:1rem; --s1:calc(var(--s0)*var(--ratio));...}` — every-layout.dev/rudiments/modular-scale/",
+   "forStorefront3": "В `packages/ui/src/tokens/primitives.css` завести `--space-scale-0` (=1rem, реальная база из Figma) и `--space-scale-ratio`, породить `--space-scale-1..5` / `--space-scale--1..-5` через calc()-цепочку, той же дисциплиной, что уже держит `--layer-*`: число руками не пишется, ступень — только через формулу."
+  },
+  {
+   "principle": "База шкалы отступов = база шкалы шрифта (1rem = корневой размер шрифта), а не отдельная произвольная константа воздуха.",
+   "evidence": "`--s0: 1rem;` как нулевая точка — every-layout.dev/rudiments/modular-scale/; «Ground your spatial system's range with a memorable base number» — nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62",
+   "forStorefront3": "`--space-*` хранить в rem, не в px, как уже сделано с кеглем. При увеличенном системном шрифте на телефоне (79% трафика) отступы и цель нажатия должны расти вместе с текстом, а не оставаться прибитыми в px рядом с выросшей буквой."
+  },
+  {
+   "principle": "Отступ между соседями — свойство ОТНОШЕНИЯ, а не свойство элемента: margin ставится на «* + *» (последующего соседа), никогда как собственный bottom-margin элемента.",
+   "evidence": "«margin is really a property of the relationship between two proximate elements.» и `.stack > * + * { margin-block-start: var(--space, 1.5rem); }` — every-layout.dev/layouts/stack/",
+   "forStorefront3": "Буквальная реализация уже записанного в CLAUDE.md правила «пробел между, а не у» для ритма полосы: `> * + * { margin-block-start: var(--layout-band-gap) }` внутри контейнера полосы, чтобы при перестановке или исчезновении блока владельцем в админке зазор не удваивался и не пропадал именно на стыке."
+  },
+  {
+   "principle": "Layout-примитив владеет своим отступом как собственным пропом со вменяемым значением по умолчанию, которое можно переопределить точечно — отступ не читается компонентом из брейкпоинта страницы.",
+   "evidence": "Kастомные элементы center-l/stack-l/box-l на every-layout.dev задают `space`/`gutters`/`padding` своими атрибутами по умолчанию (`var(--s1)`, `null`, `var(--s1)`) — прочитано из собственного JS-источника страницы every-layout.dev/layouts/center/, так как текстовое обоснование там платное",
+   "forStorefront3": "Уже частично сделано (`--layout-band-pad`, `--layout-band-gap`, `--layout-rail-pad-*` из CLAUDE.md, «Воздух вокруг полосы»); тот же приём стоит распространить вниз — на card-inset и chip-inline-gap, вместо отдельного clamp() на каждый новый компонент."
+  },
+  {
+   "principle": "Отступ задаётся ГЛОБАЛЬНО/по умолчанию и переопределяется только ИСКЛЮЧИТЕЛЬНО и локально — не наоборот.",
+   "evidence": "«CSS itself exists to enable the styling of HTML globally, and by category, rather than element-by-element.» — every-layout.dev/rudiments/global-and-local-styling/; «An exception-based approach to CSS lets us do most of our styling with the least of our code.» — every-layout.dev/rudiments/axioms/",
+   "forStorefront3": "Совпадает с уже записанным CLAUDE.md «Два правила об одном узле = шов» (Против заплаток, п.2): значение отступа живёт один раз в ролевом токене или в дефолте примитива, а переопределение в конкретном компоненте — редкое, именованное исключение (как уже существующий `roundLg` для 72px), а не путь по умолчанию."
+  },
+  {
+   "principle": "Токен становится токеном не потому, что кто-то придумал имя, а через процесс: куратор + порог повторения («использовано 3 раза») + машинно-читаемый формат (JSON/YAML), чтобы значение доезжало инструментом, а не памятью.",
+   "evidence": "«Nevertheless, I serve as a token curator, scanning work with an eye for token candidates.» и «Scales afford branching a token hierarchy to similar yet distinct variants» (про space-inset → space-inset-squish/stretch) — nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421",
+   "forStorefront3": "Повторяет уже действующее в проекте «Правило трёх» (Против заплаток, п.5) и уже действующий путь brandTheme из админки для цвета: ролевые токены отступа должны быть видны/редактируемы на экране `Design system` в админке (CLAUDE.md, «Дизайн-систему видно»), а не жить только в CSS; новое значение отступа заслуживает токена только после третьего повторения, и это закрывается тем же сторожем, что уже закрывает п.5 для остального кода."
+  }
+ ],
+ "doNotCopy": [
+  "Конкретное число --ratio: 1.5 (или золотое сечение 1.618) у Every Layout — это выбор демо-примера сайта, а не универсальный закон; третья витрина обязана снять свой коэффициент с реальных шагов отступов в Figma (см. CLAUDE.md «Точность переноса из Figma»), а не импортировать чужой ratio.",
+  "Конкретные 50% у Curtis для squish — он сам пишет «in our case», это решение одного клиентского проекта, а не правило пропорции; коэффициент squish/stretch берётся с макета storefront3.",
+  "Механизм доставки Every Layout через кастомные веб-компоненты (stack-l/center-l/box-l и их JS-рендер стилей в <style id> на лету) — это упаковка их платных демо на сайте, а не паттерн для копирования; в проекте уже есть свой слой (CSS-модули, `composes`), и та же идея («сосед владеет отступом», «примитив сам решает дефолт») реализуется в нём, а не через кастомные элементы.",
+  "Буквенный набор t-shirt Curtis (XXS…XXXL) как суффиксы токенов — в проекте уже есть своя лестница (roundSm/roundMd/roundLg, ключи эффектов и т.д.); суффиксы ролевых токенов отступа должны согласовываться с уже принятым словарём проекта, а не с чужим текстом.",
+  "Любые px-числа из этого отчёта (24px, 36px, 54px и т.п.) — они посчитаны мной по формуле источника на базе 1rem=16px и ratio=1.5 для иллюстрации механизма, а не измерены в реальном макете; настоящие числа шкалы отступов третьей витрины обязаны прийти из Figma, не из этого расчёта."
+ ],
+ "quotes": [
+  {
+   "text": "An inset offers indents content on all four sides like the matte of the framed photo on a wall.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "A squished inset reduces space top and bottom, in our case by 50%.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "And that means one thing: we stack things.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "We also arrange objects inline, wrapping as they flow like text from the left or right.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "Takeaway: Tease apart concepts from property names. They are many to one and limit reuse to a single platform.",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "we'll go in both directions to stops smaller (16, 8, 4, 2) and larger (16, 32, 64, and… that's about it)",
+   "source": "https://nathanacurtis.substack.com/p/space-in-design-systems-188bcbae0d62"
+  },
+  {
+   "text": "Scales afford branching a token hierarchy to similar yet distinct variants",
+   "source": "https://nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421"
+  },
+  {
+   "text": "Nevertheless, I serve as a token curator, scanning work with an eye for token candidates.",
+   "source": "https://nathanacurtis.substack.com/p/tokens-in-design-systems-25dd82d58421"
+  },
+  {
+   "text": "But it is in the strict adherence to whichever ratio you choose that harmony is created.",
+   "source": "https://every-layout.dev/rudiments/modular-scale/"
+  },
+  {
+   "text": "An exception-based approach to CSS lets us do most of our styling with the least of our code.",
+   "source": "https://every-layout.dev/rudiments/axioms/"
+  },
+  {
+   "text": "CSS itself exists to enable the styling of HTML globally, and by category, rather than element-by-element.",
+   "source": "https://every-layout.dev/rudiments/global-and-local-styling/"
+  },
+  {
+   "text": "margin is really a property of the relationship between two proximate elements.",
+   "source": "https://every-layout.dev/layouts/stack/"
+  }
+ ],
+ "confidence": "Высокая по Every Layout (Modular Scale, Stack, Axioms, Global-and-local-styling) и по обеим статьям Curtis (Space, Tokens) — все страницы прочитаны напрямую (raw HTML, не через посредника), цитаты сверены посимвольно с исходным текстом. Средняя по Center у Every Layout: сама CSS-логика достоверна (взята из живого клиентского JS того же домена, дословно), но авторское обоснование (gutters/measure/«excess space») осталось непрочитанным — оно за платной стеной, поэтому его рассуждение не пересказано и не приписано источнику. Низкая/отсутствует по «Size in Design Systems» Curtis (403, довод о единой базе шрифта и отступа не подтверждён этой статьёй напрямую, хотя косвенно вытекает из «Space» и из Every Layout) и по реальным продакшен-реализациям словаря inset/squish/stretch за пределами двух прочитанных источников (Hopper, Spirit и др. видны только в сниппетах поиска, не прочитаны как первоисточник и не использованы в principles/quotes)."
+}

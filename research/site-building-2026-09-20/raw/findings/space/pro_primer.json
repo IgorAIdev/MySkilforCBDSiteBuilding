@@ -1,0 +1,214 @@
+{
+ "system": "GitHub Primer Primitives — слой размеров/отступов (base.size → functional: space / control / stack / controlStack / overlay / breakpoint / viewportRange), формат DTCG, сборка Style Dictionary → CSS custom properties + JSON/TS + Figma variables",
+ "sourcesRead": [
+  "https://primer.style/foundations/primitives/size (WebFetch, страница отрендерена)",
+  "https://primer.style/foundations/layout (WebFetch, страница отрендерена)",
+  "https://github.com/primer/primitives — полный shallow-клон в /home/user/primer/primitives, commit f48bc06",
+  "src/tokens/base/size/size.json5 — сырой ряд base.size (читан целиком)",
+  "src/tokens/functional/size/size.json5 — control/stack/controlStack/overlay/spinner (775 строк, читан целиком)",
+  "src/tokens/functional/size/size-coarse.json5 и size-fine.json5 — пара pointer-вариантов (читаны целиком)",
+  "src/tokens/functional/spacing/space.json5 — роль space.xxs..xl (читан целиком)",
+  "src/tokens/functional/size/breakpoints.json5 и viewport.json5 (читаны целиком)",
+  "src/platforms/css.ts — сборочная привязка size-coarse/size-fine к @media (pointer: …) (строки 130-146)",
+  "src/formats/cssAdvanced.test.ts — снимок-тест, подтверждающий форму собранного CSS вокруг pointer-медиа",
+  "DESIGN_TOKENS_GUIDE.md — авторский (не сгенерированный) гид для агентов: Pattern Compression, RFC2119 MUST/SHOULD/NEVER, Golden Example, Hallucination Guard (217 строк, читан целиком)",
+  "README.md — раздел 'Design token data' (Style Dictionary) и 'Extensions property' (ссылка на W3C DTCG spec)",
+  "https://cdn.jsdelivr.net/npm/@primer/primitives/dist/css/functional/size/size.css — собранный CSS (control/stack/controlStack/overlay/spinner, значения в rem)",
+  "https://cdn.jsdelivr.net/npm/@primer/primitives/dist/css/functional/size/size-coarse.css и size-fine.css — собранные @media (pointer:…) блоки",
+  "https://cdn.jsdelivr.net/npm/@primer/primitives/dist/css/base/size/size.css — собранный сырой ряд в rem",
+  "https://cdn.jsdelivr.net/npm/@primer/primitives/dist/css/functional/spacing/space.css",
+  "https://cdn.jsdelivr.net/npm/@primer/primitives/dist/css/functional/size/breakpoints.css и viewport.css (custom-media)"
+ ],
+ "sourcesFailed": [
+  "https://primer.style/foundations/primitives/spacing — такой страницы нет: редиректит на домашнюю (200 на /), это подтверждает, что «spacing» как отдельная тема слита в единую /primitives/size, а не то, что у меня не получилось её прочитать",
+  "https://api.github.com/repos/primer/primitives/contents/... — GitHub REST API вернул 403 «access not enabled for this session» до присоединения репозитория; обойдено прямым `git clone` того же коммита, поэтому данные не потеряны, но сам путь через API не сработал",
+  "Значения контейнера/гаттера страницы (1280px max-width, 16px→24px по брейкпоинтам) — взяты только со страницы primer.style/foundations/layout через WebFetch (пересказ, не сырой JSON); в src/tokens репозитория primitives токенов «gutter»/«regionPadding»/«contentWidth» НЕТ — эти числа, похоже, живут в другом репозитории (primer/react, компонент PageLayout), который я не открывал, поэтому эта часть слабее подтверждена, чем всё остальное"
+ ],
+ "unit": "Исходник — px, целыми числами (`base.size.16` = `{value:16, unit:'px'}` в JSON5). Сборка Style Dictionary переводит каждый px в rem от корня 16 (`--base-size-16: 1rem`, `--control-medium-size: 2rem`, `--breakpoint-medium: 48rem`) — то есть автор пишет и думает в px, а магазин получает rem, зависимый от пользовательского масштаба шрифта/зума. Никаких `clamp()`, `vw` или иных текучих единиц в системе нет вовсе — единица везде дискретная (px→rem), отзывчивость сделана не единицей, а сменой токена (см. `fluid`).",
+ "scale": {
+  "generator": "Не геометрическая прогрессия и не строгая арифметика — почти линейная сетка с шагом 4px, но с двумя добавленными получами внизу (2 и 6) и удвоенным шагом наверху: после 48 сразу 64/80/96/112/128 (шаг 16). Отрицательные значения зеркалят тот же ряд (`base.size.negative-16` = -16px) для отступов-нахлёстов.",
+  "steps": [
+   {
+    "name": "base-size-2",
+    "value": "2px"
+   },
+   {
+    "name": "base-size-4",
+    "value": "4px"
+   },
+   {
+    "name": "base-size-6",
+    "value": "6px"
+   },
+   {
+    "name": "base-size-8",
+    "value": "8px"
+   },
+   {
+    "name": "base-size-12",
+    "value": "12px"
+   },
+   {
+    "name": "base-size-16",
+    "value": "16px"
+   },
+   {
+    "name": "base-size-20",
+    "value": "20px"
+   },
+   {
+    "name": "base-size-24",
+    "value": "24px"
+   },
+   {
+    "name": "base-size-28",
+    "value": "28px"
+   },
+   {
+    "name": "base-size-32",
+    "value": "32px"
+   },
+   {
+    "name": "base-size-36",
+    "value": "36px"
+   },
+   {
+    "name": "base-size-40",
+    "value": "40px"
+   },
+   {
+    "name": "base-size-44",
+    "value": "44px"
+   },
+   {
+    "name": "base-size-48",
+    "value": "48px"
+   },
+   {
+    "name": "base-size-64",
+    "value": "64px"
+   },
+   {
+    "name": "base-size-80",
+    "value": "80px"
+   },
+   {
+    "name": "base-size-96",
+    "value": "96px"
+   },
+   {
+    "name": "base-size-112",
+    "value": "112px"
+   },
+   {
+    "name": "base-size-128",
+    "value": "128px"
+   }
+  ],
+  "notes": "У каждого шага base.size стоит `$extensions.org.primer.figma.scopes: ['size', 'gap']` — то есть ОДИН и тот же сырой ряд размечен как годный и для размера элемента, и для промежутка между элементами. Это не два примитива (size-scale и spacing-scale), а один, различаемый только на уровне ролей (control.* против stack.*), не на уровне ряда чисел."
+ },
+ "roles": {
+  "hasSemanticLayer": true,
+  "vocabulary": [
+   "space.{xxs,xs,sm,md,lg,xl} → base.size.{2,4,8,12,16,24} — общая шкала «для чего угодно», не привязанная к компоненту",
+   "control.{xsmall,small,medium,large,xlarge}.size → base.size.{24,28,32,40,48} — габарит самого контрола",
+   "control.{размер}.paddingInline.{condensed,normal,spacious} и .paddingBlock — «поля» внутри контрола",
+   "control.{размер}.gap — промежуток между иконкой/текстом внутри одного контрола",
+   "control.minTarget.{fine,coarse} → base.size.{16,44} — минимальная цель под мышь/палец",
+   "stack.{padding,gap}.{condensed,normal,spacious} → base.size.{8,16,24} — «воздух» полосы/контейнера раскладки",
+   "controlStack.{small,medium,large}.gap.{auto,condensed,spacious} — промежуток МЕЖДУ сгруппированными контролами (не внутри одного)",
+   "overlay.{width,height,padding,paddingBlock,borderRadius,offset} — габариты модалок/поповеров, в px напрямую (192..960 по ширине), не через base.size",
+   "breakpoint.{xsmall..xxlarge} = 320/544/768/1012/1280/1400 px — именованные ширины для точечной подстройки",
+   "viewportRange.{narrow,regular,wide,portrait,landscape,narrowLandscape} — custom-media для крупных решений раскладки"
+  ],
+  "examples": [
+   "--control-medium-size: 2rem (32px)",
+   "--control-medium-paddingBlock: 0.375rem (6px)",
+   "--control-large-paddingInline-normal: 0.75rem (12px)",
+   "--stack-gap-spacious: 1.5rem (24px)",
+   "--controlStack-small-gap-auto: 0.5rem (8px) под мышь / 1rem (16px) под палец",
+   "--control-minTarget-auto: 1rem (16px) fine / 2.75rem (44px) coarse"
+  ],
+  "notes": "Роль отделена от примитива именем семьи, а не отдельным числовым рядом: control.* всегда про 'своё поле компонента', stack.* всегда про 'воздух вокруг блока раскладки', controlStack.* — про 'зазор между соседними контролами одной группы'. У каждой функциональной роли в самом JSON5 (не в отдельной доке) лежит `$description` человеческим текстом и `$extensions.org.primer.llm.{usage,rules}` — машиночитаемая инструкция «когда брать этот токен», прямо рядом со значением."
+ },
+ "density": "Плотность — явная 3-ступенчатая лесенка по ИМЕНИ (condensed/normal/spacious), а не один глобальный множитель и не платформенная шкала (мобильная/десктопная). Каждый функциональный токен отступа (`stack-gap-*`, `stack-padding-*`, `control-*-paddingInline-*`, `overlay-padding-*`) выпускается сразу в трёх готовых значениях; выбор — за компонентом/контекстом (проп), а не за медиазапросом. Плотность под палец/мышь (coarse/fine) — это ДРУГАЯ, независимая ось, реализованная media-запросом, а не четвёртая ступень той же лесенки density: `controlStack.*.gap.auto` — это отдельное «авто»-значение, которое coarse/fine переопределяют поверх обычных condensed/spacious.",
+ "fluid": "Текучих формул (`clamp()`, `vw`, интерполяция между двумя ширинами) в системе нет вовсе — Primer нигде не сжимает отступ непрерывно по ширине окна. Отзывчивость сделана тремя дискретными механизмами: (1) выбор size-варианта компонента (xsmall…xlarge выбирается пропом/JS, не шириной окна); (2) `@media (pointer: coarse)` / `@media (pointer: fine)` — ключевой для нашего правила: ОДНО и то же имя переменной (`--control-minTarget-auto`, `--controlStack-{size}-gap-auto`) получает разные значения из ДВУХ раздельных исходных файлов (`size-coarse.json5` → `@media (pointer: coarse)`, `size-fine.json5` → `@media (pointer: fine)`), которые Style Dictionary сшивает в два блока вокруг одного и того же `:root` — подтверждено кодом сборки `src/platforms/css.ts:130-146` и снимок-тестом `cssAdvanced.test.ts`; (3) именованные `viewportRange` (custom-media narrow/regular/wide) — для крупных решений раскладки, явно отделены в документации от `breakpoint`-токенов, которые названы для «точечной подстройки» (fine-tuning custom experiences).",
+ "layout": "По странице primer.style/foundations/layout (не подтверждено токен-файлом в primitives — см. sourcesFailed): контентная область максимум 1280px на xlarge; после отступа 24px видимая ширина контента 1232px. Гаттер ступенчатый, а не один на все ширины: 16px у content и pane на xsmall–large (320–1012px), 24px у content на xlarge–xxlarge (1280–1400px), у pane остаётся 16px. Явно сказано, что этот padding ставится на сам content/pane-узел, а не на родительскую обёртку — тот же принцип, что и в нашем правиле «поле — на элементе, который его просит». Брейкпоинты (проверено токен-файлом breakpoints.json5, точное совпадение с пересказом страницы): xsmall 320px, small 544px, medium 768px, large 1012px, xlarge 1280px, xxlarge 1400px.",
+ "enforcement": "Внутри самого репозитория primitives держат три вещи: (1) сборка — Style Dictionary (`scripts/buildTokens.ts`) компилирует JSON5-исходники в CSS/JS/Figma, и коду сборки запрещено видеть два разных «raw»-ряда — он один; (2) снимок-тесты форматов (`src/formats/cssAdvanced.test.ts`, `cssCustomMedia.test.ts`) — падают, если сборка перестала заворачивать `size-coarse`/`size-fine` в правильный `@media (pointer:…)`; (3) `DESIGN_TOKENS_GUIDE.md` — отдельный, вручную написанный файл-правило для ИИ-агентов и людей: таблицы MUST/SHOULD/NEVER (например «MUST use stack tokens for layout spacing», «MUST use control tokens for interactive elements»), эталонный «Golden Example» компонента и явный «Hallucination Guard» — требование пометить `/* check-token */` любое имя токена, в существовании которого агент не уверен. Линтера против «сырого px в CSS потребителей» в самом репозитории primitives нет — это, по всей видимости, задача repo-потребителей (primer/css, primer/react), которые не открывались; здесь подтверждена только дисциплина на уровне источника токенов и текстового гида, а не у конечных пользователей системы.",
+ "principles": [
+  {
+   "principle": "Один сырой ряд чисел обслуживает и «размер», и «отступ» — их не разносят по двум примитивным шкалам.",
+   "evidence": "base.size.* размечен `$extensions.org.primer.figma.scopes: ['size', 'gap']` одновременно; src/tokens/base/size/size.json5",
+   "forStorefront3": "Не заводить отдельно «примитивы размера» и «примитивы отступа» с разными числами: один `--sf3-scale-*` (или как решит владелец назвать), из которого control-роли берут и габарит кнопки, и её `padding`, и `gap` полосы — как уже сделано для цвета (palette → roles), но применить ту же дисциплину к числам."
+  },
+  {
+   "principle": "Функциональная роль — это ОТДЕЛЬНОЕ семейство имён под свою задачу (control.* — поле компонента, stack.* — воздух блока, controlStack.* — зазор между соседними контролами), а не один универсальный «spacing-token» на всё.",
+   "evidence": "src/tokens/functional/size/size.json5 — три независимых объекта control/stack/controlStack, каждый со своим $description и своими usage-правилами",
+   "forStorefront3": "У проекта уже есть зачаток этого («поля», «воздух», «примитивы» в задании) — довести до трёх настоящих CSS-семейств: `--control-*-padding*` (поле внутри кнопки/поля ввода), `--band-gap`/`--band-pad`/`--rail-pad-*` (воздух между блоками — это уже частично есть как `--layout-band-pad/-gap`, `--layout-rail-pad-*`), и отдельно завести `--controlstack-gap` для зазора между соседними кликабельными элементами в ряд (иконки шапки, кнопки в корзине) — этого семейства в CLAUDE.md пока нет."
+  },
+  {
+   "principle": "Плотность — явная лесенка из 3 именованных значений (condensed/normal/spacious) на каждом функциональном токене, выбираемая компонентом/контекстом, а не единый глобальный множитель.",
+   "evidence": "control.*.paddingInline.{condensed,normal,spacious}, stack.{padding,gap}.{condensed,normal,spacious} — src/tokens/functional/size/size.json5",
+   "forStorefront3": "Ритм полосы в CLAUDE.md уже описан как набор чисел (88/48/88, у рельс 32/72) — оформить их не как разные CSS-переменные с разными именами блоков, а как одну лесенку плотности `--band-gap-{condensed,normal,spacious}` и `--band-pad-{condensed,normal,spacious}`, где рельсы явно берут `condensed`, а не получают отдельно вписанное число 32/72."
+  },
+  {
+   "principle": "Минимальная цель под палец и минимальная цель под мышь — ОДНО имя переменной, значение которого переопределяет `@media (pointer: coarse)`/`@media (pointer: fine)`, а не два разных имени токена.",
+   "evidence": "size-coarse.json5 → `--control-minTarget-auto: 2.75rem` внутри `@media (pointer: coarse)`; size-fine.json5 → тот же `--control-minTarget-auto: 1rem` внутри `@media (pointer: fine)`; сборка — src/platforms/css.ts:130-146",
+   "forStorefront3": "Наше правило «44px в `@media (pointer: coarse)`» (CLAUDE.md, п.10 про планшет) устроить буквально так же: одна переменная `--control-min-target`, а значение 44px объявлять только внутри `@media (pointer: coarse) { :root { --control-min-target: 44px } }`, не вписывать 44px вторым правилом рядом с первым — иначе получится «шов» из раздела «Против заплаток»."
+  },
+  {
+   "principle": "Зазор МЕЖДУ соседними кликабельными элементами (не размер самой цели) тоже растёт под палец — это отдельный, специально названный токен, а не следствие роста самой кнопки.",
+   "evidence": "controlStack.{small,medium,large}.gap.auto: 8px (fine) → 12-16px (coarse) — size-coarse.json5/size-fine.json5",
+   "forStorefront3": "У нас в CLAUDE.md есть правило про размер цели (44px), но нет отдельного правила про зазор между соседними целями на телефоне/планшете (иконки шапки, кнопки в ряд действий, пункты мобильного меню) — стоит завести `--action-row-gap`, растущий в `@media (pointer: coarse)`, как отдельный, а не полагаться на побочный эффект от увеличения размера кнопки."
+  },
+  {
+   "principle": "Именованные ширины расходятся на два непересекающихся словаря с разной работой: breakpoint-токены — для точечной подстройки конкретного случая, viewportRange (custom-media) — для крупных решений раскладки; путать их в одном плоском списке не принято.",
+   "evidence": "функциональные size/breakpoints.json5 (6 значений 320-1400px) vs functional/size/viewport.json5 (custom-media narrow/regular/wide/portrait/landscape) — раздельные файлы; primer.style/foundations/layout явно называет их разными по назначению",
+   "forStorefront3": "У нас уже есть `packages/ui/src/tokens/seams.ts` — единый реестр из девяти именованных швов. Прецедент Primer подсказывает: возможно, стоит выделить внутри него подмножество «структурных» швов (аналог viewportRange — переход столбик/раскладка на 860, планшет-портрет/альбом) от «точечных» (аналог breakpoint — подгонка конкретного узла), чтобы новый шов сразу было видно, к какому из двух классов он относится, а не добавлялся в общий плоский список без разбора."
+  },
+  {
+   "principle": "Значение сырого токена авторится в px (целое, легко читать и держать руками), а собранная CSS-переменная отдаётся в rem — единица авторства и единица выпуска сознательно разные.",
+   "evidence": "base.size.16 = `{value:16, unit:'px'}` в JSON5 → собранный `--base-size-16: 1rem` в dist CSS",
+   "forStorefront3": "Раз у нас уже принят `clamp()` от чисел из макета (в px по факту, т.к. Figma отдаёт px) — при выпуске финальных custom properties стоит сверить, что они не потеряли связь с rem/пользовательским масштабом шрифта, если где-то на странице меняется `font-size` корня (сейчас это, вероятно, не задача, но прецедент показывает: авторский px и отданный rem — осознанный, а не случайный шаг конвертации)."
+  },
+  {
+   "principle": "Правило про отступы живёт не только в токене, но и в отдельном человеко- и машино-читаемом документе с жёсткими словами MUST/SHOULD/NEVER и явным «стоп, если не уверен» для агента.",
+   "evidence": "DESIGN_TOKENS_GUIDE.md, разделы «Pattern Compression», «Keyword Enforcement (RFC 2119)», «Hallucination Guard» («If you suggest a token name not found in this spec or the system, suffix it with `/* check-token */`»)",
+   "forStorefront3": "У проекта уже есть DESIGN_SYSTEM.md для узлов — по аналогии стоит рассмотреть в нём короткую таблицу «когда какой отступ» (control-паддинг vs band-gap vs rail-pad vs action-row-gap) с MUST/NEVER, специально читаемую агентом перед тем, как он впишет число руками; а сторож, проверяющий, что каждая CSS-переменная `--` действительно объявлена где-то в токенах (аналог hallucination guard), закрыл бы класс ошибок «агент выдумал имя токена, оно нигде не определено»."
+  }
+ ],
+ "doNotCopy": [
+  "Сами числа control-размеров (24/28/32/40/48px) и paddingBlock (2/4/6/10/14px) — это округление под типографику и плотность интерфейса GitHub, не универсальная константа; наши числа обязаны сниматься с макета Figma (см. CLAUDE.md, «Точность переноса из Figma»), а не с Primer.",
+  "Полное отсутствие clamp()/текучих значений — у нас уже принято обратное решение (широкая раскладка 861–1440 сжимается через clamp(), см. раздел CLAUDE.md про широкую раскладку), и это не переносится: подход Primer (дискретные size-варианты компонента) решает задачу плотности интерфейса GitHub, а не задачу «макет на 1440 сжимается без потери пропорций до 861», которая явно стоит у нас.",
+  "Ряд из 6 breakpoints Primer (320/544/768/1012/1280/1400) как замену seams.ts — это числа под сетку GitHub UI, не наши девять зарегистрированных швов, снятых с макета cbdshop.",
+  "Overlay-размеры (192-960px по ширине) заданы в Primer напрямую в px, а не через base.size — это единственное место, где они сами отступили от своего правила «числа только из base.size»; не копировать это исключение как образец, у нас правило «число — из примитива» должно остаться без дырок.",
+  "Контейнер/гаттер 1280px и 16→24px — взяты со страницы, а не из токен-файла (см. sourcesFailed), поэтому это не «первоисточник токенов», а вторичный пересказ; не выдавать это за такой же надёжный источник, как всё остальное в этом отчёте."
+ ],
+ "quotes": [
+  {
+   "text": "'scopes': ['size', 'gap']",
+   "source": "src/tokens/base/size/size.json5 (primer/primitives, commit f48bc06)"
+  },
+  {
+   "text": "Use as minimum size for interactive elements on touch devices. Ensures WCAG 2.5.5 compliance (44x44px minimum)",
+   "source": "src/tokens/functional/size/size-coarse.json5"
+  },
+  {
+   "text": "query: '@media (pointer: coarse)', matcher: (token) => token.filePath.includes('size-coarse')",
+   "source": "src/platforms/css.ts:139-140"
+  },
+  {
+   "text": "MUST use control tokens for interactive elements / MUST use stack tokens for layout spacing",
+   "source": "DESIGN_TOKENS_GUIDE.md, раздел Spacing"
+  },
+  {
+   "text": "If you suggest a token name not found in this spec or the system, suffix it with `/* check-token */`",
+   "source": "DESIGN_TOKENS_GUIDE.md, Hallucination Guard"
+  },
+  {
+   "text": "the $extensions property is used for additional meta data",
+   "source": "README.md, раздел Extensions property"
+  }
+ ],
+ "confidence": "Высокая по всему, что взято из самих файлов токенов (base/size, functional/size, size-coarse/fine, spacing/space, breakpoints, viewport) — прочитаны целиком напрямую из клона репозитория и перепроверены вторым, независимым путём (собранный CSS с jsdelivr CDN даёт те же числа в rem). Высокая по механике pointer-coarse/fine — подтверждена и исходным JSON5, и кодом сборки (css.ts), и собранным CSS с реальным @media-блоком. Средняя по разделу «layout» (контейнер 1280px, гаттер 16→24px) — источник один, вторичный (WebFetch-пересказ страницы), в самих токенах primitives таких значений нет; если для storefront3 это станет опорой для решения, стоит перепроверить у репозитория, где эти числа реально объявлены (вероятно primer/react, PageLayout), а не только у пересказа страницы."
+}

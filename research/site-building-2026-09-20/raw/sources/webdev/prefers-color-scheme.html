@@ -1,0 +1,3666 @@
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html 
+      lang="en"
+      dir="ltr">
+  <head>
+    <meta name="google-signin-client-id" content="157101835696-ooapojlodmuabs2do2vuhhnf90bccmoi.apps.googleusercontent.com"><meta name="google-signin-scope"
+          content="profile email https://www.googleapis.com/auth/developerprofiles https://www.googleapis.com/auth/developerprofiles.award https://www.googleapis.com/auth/devprofiles.full_control.firstparty"><meta property="og:site_name" content="web.dev">
+    <meta property="og:type" content="website"><meta name="theme-color" content="#3740ff"><meta charset="utf-8">
+    <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+
+    <link rel="manifest" href="/_pwa/web/manifest.json"
+          crossorigin="use-credentials">
+    <link rel="preconnect" href="//www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="//fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="//www.google-analytics.com" crossorigin><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Google+Sans:400,500|Roboto:400,400italic,500,500italic,700,700italic|Roboto+Mono:400,500,700&display=swap">
+      <link rel="stylesheet"
+            href="//fonts.googleapis.com/css2?family=Material+Icons&family=Material+Symbols+Outlined&display=block"><link rel="stylesheet" href="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/css/app.css">
+      
+        <link rel="stylesheet" href="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/css/dark-theme.css" disabled>
+      <link rel="shortcut icon" href="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/favicon.png">
+    <link rel="apple-touch-icon" href="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/touchicon-180.png"><link rel="canonical" href="https://web.dev/articles/prefers-color-scheme"><link rel="search" type="application/opensearchdescription+xml"
+            title="web.dev" href="https://web.dev/s/opensearch.xml">
+      <link rel="alternate" hreflang="en"
+          href="https://web.dev/articles/prefers-color-scheme" /><link rel="alternate" hreflang="x-default" href="https://web.dev/articles/prefers-color-scheme" /><link rel="alternate" hreflang="ar"
+          href="https://web.dev/articles/prefers-color-scheme?hl=ar" /><link rel="alternate" hreflang="bn"
+          href="https://web.dev/articles/prefers-color-scheme?hl=bn" /><link rel="alternate" hreflang="zh-Hans"
+          href="https://web.dev/articles/prefers-color-scheme?hl=zh-cn" /><link rel="alternate" hreflang="zh-Hant"
+          href="https://web.dev/articles/prefers-color-scheme?hl=zh-tw" /><link rel="alternate" hreflang="fa"
+          href="https://web.dev/articles/prefers-color-scheme?hl=fa" /><link rel="alternate" hreflang="fr"
+          href="https://web.dev/articles/prefers-color-scheme?hl=fr" /><link rel="alternate" hreflang="de"
+          href="https://web.dev/articles/prefers-color-scheme?hl=de" /><link rel="alternate" hreflang="he"
+          href="https://web.dev/articles/prefers-color-scheme?hl=he" /><link rel="alternate" hreflang="hi"
+          href="https://web.dev/articles/prefers-color-scheme?hl=hi" /><link rel="alternate" hreflang="id"
+          href="https://web.dev/articles/prefers-color-scheme?hl=id" /><link rel="alternate" hreflang="it"
+          href="https://web.dev/articles/prefers-color-scheme?hl=it" /><link rel="alternate" hreflang="ja"
+          href="https://web.dev/articles/prefers-color-scheme?hl=ja" /><link rel="alternate" hreflang="ko"
+          href="https://web.dev/articles/prefers-color-scheme?hl=ko" /><link rel="alternate" hreflang="pl"
+          href="https://web.dev/articles/prefers-color-scheme?hl=pl" /><link rel="alternate" hreflang="pt-BR"
+          href="https://web.dev/articles/prefers-color-scheme?hl=pt-br" /><link rel="alternate" hreflang="ru"
+          href="https://web.dev/articles/prefers-color-scheme?hl=ru" /><link rel="alternate" hreflang="es"
+          href="https://web.dev/articles/prefers-color-scheme?hl=es" /><link rel="alternate" hreflang="es-419"
+          href="https://web.dev/articles/prefers-color-scheme?hl=es-419" /><link rel="alternate" hreflang="th"
+          href="https://web.dev/articles/prefers-color-scheme?hl=th" /><link rel="alternate" hreflang="tr"
+          href="https://web.dev/articles/prefers-color-scheme?hl=tr" /><link rel="alternate" hreflang="vi"
+          href="https://web.dev/articles/prefers-color-scheme?hl=vi" /><link rel="alternate" hreflang="en-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme" /><link rel="alternate" hreflang="x-default" href="https://web.developers.google.cn/articles/prefers-color-scheme" /><link rel="alternate" hreflang="ar-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=ar" /><link rel="alternate" hreflang="bn-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=bn" /><link rel="alternate" hreflang="zh-Hans-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=zh-cn" /><link rel="alternate" hreflang="zh-Hant-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=zh-tw" /><link rel="alternate" hreflang="fa-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=fa" /><link rel="alternate" hreflang="fr-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=fr" /><link rel="alternate" hreflang="de-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=de" /><link rel="alternate" hreflang="he-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=he" /><link rel="alternate" hreflang="hi-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=hi" /><link rel="alternate" hreflang="id-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=id" /><link rel="alternate" hreflang="it-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=it" /><link rel="alternate" hreflang="ja-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=ja" /><link rel="alternate" hreflang="ko-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=ko" /><link rel="alternate" hreflang="pl-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=pl" /><link rel="alternate" hreflang="pt-BR-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=pt-br" /><link rel="alternate" hreflang="ru-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=ru" /><link rel="alternate" hreflang="es-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=es" /><link rel="alternate" hreflang="es-419-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=es-419" /><link rel="alternate" hreflang="th-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=th" /><link rel="alternate" hreflang="tr-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=tr" /><link rel="alternate" hreflang="vi-cn"
+          href="https://web.developers.google.cn/articles/prefers-color-scheme?hl=vi" /><title>prefers-color-scheme: Hello darkness, my old friend &nbsp;|&nbsp; Articles &nbsp;|&nbsp; web.dev</title>
+
+<meta property="og:title" content="prefers-color-scheme: Hello darkness, my old friend &nbsp;|&nbsp; Articles &nbsp;|&nbsp; web.dev"><meta name="description" content="Many devices now support an operating system wide dark mode or dark theme experience. This post explains how dark mode can be supported on web pages, lists best practices, and introduces a custom element named dark-mode-toggle that allows web developers to offer users a way to override their operating system level preference on specific web pages.">
+  <meta property="og:description" content="Many devices now support an operating system wide dark mode or dark theme experience. This post explains how dark mode can be supported on web pages, lists best practices, and introduces a custom element named dark-mode-toggle that allows web developers to offer users a way to override their operating system level preference on specific web pages."><meta property="og:url" content="https://web.dev/articles/prefers-color-scheme"><meta property="og:locale" content="en"><script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "dateModified": "2019-06-27",
+    "headline": "prefers-color-scheme: Hello darkness, my old friend"
+  }
+</script><script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Articles",
+      "item": "https://web.dev/articles"
+    },{
+      "@type": "ListItem",
+      "position": 2,
+      "name": "prefers-color-scheme: Hello darkness, my old friend",
+      "item": "https://web.dev/articles/prefers-color-scheme"
+    }]
+  }
+  </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </head>
+  <body class="color-scheme--light"
+        template="page"
+        theme="web-theme"
+        type="article"
+        
+        appearance
+        
+        layout="docs"
+        
+        
+        
+        
+        
+        display-toc
+        pending>
+  
+    <devsite-progress type="indeterminate" id="app-progress"></devsite-progress>
+  
+  
+    <a href="#main-content" class="skip-link button">
+      
+      Skip to main content
+    </a>
+    <section class="devsite-wrapper">
+      <devsite-cookie-notification-bar></devsite-cookie-notification-bar>
+        <devsite-header role="banner">
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="devsite-header--inner" data-nosnippet>
+  <div class="devsite-top-logo-row-wrapper-wrapper">
+    <div class="devsite-top-logo-row-wrapper">
+      <div class="devsite-top-logo-row">
+        <button type="button" id="devsite-hamburger-menu"
+          class="devsite-header-icon-button button-flat material-icons gc-analytics-event"
+          data-category="Site-Wide Custom Events"
+          data-label="Navigation menu button"
+          visually-hidden
+          aria-label="Open menu">
+        </button>
+        
+<div class="devsite-product-name-wrapper">
+
+  <a href="/" class="devsite-site-logo-link gc-analytics-event"
+   data-category="Site-Wide Custom Events" data-label="Site logo" track-type="globalNav"
+   track-name="webDev" track-metadata-position="nav"
+   track-metadata-eventDetail="nav">
+  
+  <picture>
+    
+    <source srcset="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/lockup-dark-theme.svg"
+            media="(prefers-color-scheme: dark)"
+            class="devsite-dark-theme">
+    
+    <img src="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/lockup.svg" class="devsite-site-logo" alt="web.dev">
+  </picture>
+  
+</a>
+
+
+
+</div>
+        <div class="devsite-top-logo-row-middle">
+          <div class="devsite-header-upper-tabs">
+            
+              
+              
+  <devsite-tabs class="upper-tabs">
+
+    <nav class="devsite-tabs-wrapper" aria-label="Upper tabs">
+      
+        
+          <tab class="devsite-dropdown
+    devsite-dropdown-full
+    
+    
+    ">
+  
+    <button
+      class="devsite-tabs-content devsite-tabs-dropdown-only gc-analytics-event  devsite-icon devsite-icon-arrow-drop-down"
+  
+       track-type="nav"
+       track-metadata-position="nav - resources"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Resources"
+         
+           track-name="resources"
+         
+       >
+    Resources
+  
+  </button>
+  
+  <div class="devsite-tabs-dropdown" role="menu" aria-label="submenu" hidden>
+    <div class="devsite-tabs-dropdown-content">
+      
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       build-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>Web Platform</li>
+              
+              
+                <li class="devsite-nav-description">Dive into the web platform, at your pace.
+</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/html"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/html"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="web platform"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      HTML
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/css"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/css"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="web platform"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      CSS
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/javascript"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/javascript"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="web platform"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      JavaScript
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       build-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>User experience</li>
+              
+              
+                <li class="devsite-nav-description">Learn how to build better user experiences.
+</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/performance"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/performance"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="user experience"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Performance
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/accessibility"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/accessibility"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="user experience"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Accessibility
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/identity"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/identity"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="user experience"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Identity
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       productivity-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>Learn</li>
+              
+              
+                <li class="devsite-nav-description">Get up to speed on web development.</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/html"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/html"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn HTML
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/css"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/css"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn CSS
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/javascript"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/javascript"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn JavaScript
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/ai"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/ai"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn AI
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/performance"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/performance"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn Performance
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn/accessibility"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn/accessibility"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Learn Accessibility
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/learn"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/learn"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="learn"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      More courses
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+        <div class="devsite-tabs-dropdown-column
+                    ">
+          
+            <ul class="devsite-tabs-dropdown-section
+                       experience-icon web-dev-subnav">
+              
+                <li class="devsite-nav-title" role="heading" tooltip>Additional resources</li>
+              
+              
+                <li class="devsite-nav-description">Explore content collections, patterns, and more.</li>
+              
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/explore/ai"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/explore/ai"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      AI and the web
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/explore"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/explore"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Explore
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://pagespeed.web.dev/"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://pagespeed.web.dev/"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      PageSpeed Insights
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/shows"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/shows"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Podcasts &amp; shows
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/newsletter"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/newsletter"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      Developer Newsletter
+                    </div>
+                    
+                  </a>
+                </li>
+              
+                <li class="devsite-nav-item">
+                  <a href="https://web.dev/about"
+                    
+                     track-type="nav"
+                     track-metadata-eventdetail="https://web.dev/about"
+                     track-metadata-position="nav - resources"
+                     track-metadata-module="tertiary nav"
+                     
+                       track-metadata-module_headline="additional resources"
+                     
+                     tooltip
+                  >
+                    
+                    <div class="devsite-nav-item-title">
+                      About web.dev
+                    </div>
+                    
+                  </a>
+                </li>
+              
+            </ul>
+          
+        </div>
+      
+    </div>
+  </div>
+</tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/discover"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/discover"
+    
+       track-type="nav"
+       track-metadata-position="nav - discover"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Discover"
+         
+           track-name="discover"
+         
+       >
+    Discover
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/baseline"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/baseline"
+    
+       track-type="nav"
+       track-metadata-position="nav - baseline"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Baseline"
+         
+           track-name="baseline"
+         
+       >
+    Baseline
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/how-to-use-baseline"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/how-to-use-baseline"
+    
+       track-type="nav"
+       track-metadata-position="nav - how to use baseline"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: How to use Baseline"
+         
+           track-name="how to use baseline"
+         
+       >
+    How to use Baseline
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/blog"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/blog"
+    
+       track-type="nav"
+       track-metadata-position="nav - blog"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Blog"
+         
+           track-name="blog"
+         
+       >
+    Blog
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+        
+          <tab  >
+            
+    <a href="https://web.dev/case-studies"
+    class="devsite-tabs-content gc-analytics-event "
+      track-metadata-eventdetail="https://web.dev/case-studies"
+    
+       track-type="nav"
+       track-metadata-position="nav - case studies"
+       track-metadata-module="primary nav"
+       
+       
+         
+           data-category="Site-Wide Custom Events"
+         
+           data-label="Tab: Case Studies"
+         
+           track-name="case studies"
+         
+       >
+    Case Studies
+  
+    </a>
+    
+  
+          </tab>
+        
+      
+    </nav>
+
+  </devsite-tabs>
+
+            
+           </div>
+          
+<devsite-search
+    enable-signin
+    enable-search
+    enable-suggestions
+      enable-query-completion
+    
+    enable-search-summaries
+    project-name="Articles"
+    tenant-name="web.dev"
+    
+    
+    
+    
+    
+    >
+  <form class="devsite-search-form" action="https://web.dev/s/results" method="GET">
+    <div class="devsite-search-container">
+      <button type="button"
+              search-open
+              class="devsite-search-button devsite-header-icon-button button-flat material-icons"
+              
+              aria-label="Open search"></button>
+      <div class="devsite-searchbox">
+        <input
+          aria-activedescendant=""
+          aria-autocomplete="list"
+          
+          aria-label="Search"
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          autocomplete="off"
+          class="devsite-search-field devsite-search-query"
+          name="q"
+          
+          placeholder="Search"
+          role="combobox"
+          type="text"
+          value=""
+          >
+          <div class="devsite-search-image material-icons" aria-hidden="true">
+            
+              <svg class="devsite-search-ai-image" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_6641_386)">
+                    <path d="M19.6 21L13.3 14.7C12.8 15.1 12.225 15.4167 11.575 15.65C10.925 15.8833 10.2333 16 9.5 16C7.68333 16 6.14167 15.375 4.875 14.125C3.625 12.8583 3 11.3167 3 9.5C3 7.68333 3.625 6.15 4.875 4.9C6.14167 3.63333 7.68333 3 9.5 3C10.0167 3 10.5167 3.05833 11 3.175C11.4833 3.275 11.9417 3.43333 12.375 3.65L10.825 5.2C10.6083 5.13333 10.3917 5.08333 10.175 5.05C9.95833 5.01667 9.73333 5 9.5 5C8.25 5 7.18333 5.44167 6.3 6.325C5.43333 7.19167 5 8.25 5 9.5C5 10.75 5.43333 11.8167 6.3 12.7C7.18333 13.5667 8.25 14 9.5 14C10.6667 14 11.6667 13.625 12.5 12.875C13.35 12.1083 13.8417 11.15 13.975 10H15.975C15.925 10.6333 15.7833 11.2333 15.55 11.8C15.3333 12.3667 15.05 12.8667 14.7 13.3L21 19.6L19.6 21ZM17.5 12C17.5 10.4667 16.9667 9.16667 15.9 8.1C14.8333 7.03333 13.5333 6.5 12 6.5C13.5333 6.5 14.8333 5.96667 15.9 4.9C16.9667 3.83333 17.5 2.53333 17.5 0.999999C17.5 2.53333 18.0333 3.83333 19.1 4.9C20.1667 5.96667 21.4667 6.5 23 6.5C21.4667 6.5 20.1667 7.03333 19.1 8.1C18.0333 9.16667 17.5 10.4667 17.5 12Z" fill="#5F6368"/>
+                  </g>
+                <defs>
+                <clipPath id="clip0_6641_386">
+                <rect width="24" height="24" fill="white"/>
+                </clipPath>
+                </defs>
+              </svg>
+            
+          </div>
+          <div class="devsite-search-shortcut-icon-container" aria-hidden="true">
+            <kbd class="devsite-search-shortcut-icon">/</kbd>
+          </div>
+      </div>
+    </div>
+  </form>
+  <button type="button"
+          search-close
+          class="devsite-search-button devsite-header-icon-button button-flat material-icons"
+          
+          aria-label="Close search"></button>
+</devsite-search>
+
+        </div>
+
+        
+
+          
+
+          
+
+          
+
+          <devsite-appearance-selector></devsite-appearance-selector>
+
+          
+<devsite-language-selector>
+  <ul role="presentation">
+    
+    
+    <li role="presentation">
+      <a role="menuitem" lang="en"
+        >English</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="de"
+        >Deutsch</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="es"
+        >Español</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="es_419"
+        >Español – América Latina</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="fr"
+        >Français</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="id"
+        >Indonesia</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="it"
+        >Italiano</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="pl"
+        >Polski</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="pt_br"
+        >Português – Brasil</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="vi"
+        >Tiếng Việt</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="tr"
+        >Türkçe</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ru"
+        >Русский</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="he"
+        >עברית</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ar"
+        >العربيّة</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="fa"
+        >فارسی</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="hi"
+        >हिंदी</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="bn"
+        >বাংলা</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="th"
+        >ภาษาไทย</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="zh_cn"
+        >中文 – 简体</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="zh_tw"
+        >中文 – 繁體</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ja"
+        >日本語</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ko"
+        >한국어</a>
+    </li>
+    
+  </ul>
+</devsite-language-selector>
+
+
+          
+
+        
+
+        
+          <devsite-user 
+                        
+                        
+                          enable-profiles
+                        
+                        
+                        id="devsite-user">
+            
+              
+              <span class="button devsite-top-button" aria-hidden="true" visually-hidden>Sign in</span>
+            
+          </devsite-user>
+        
+        
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="devsite-collapsible-section
+    
+      devsite-header-no-lower-tabs
+    ">
+    <div class="devsite-header-background">
+      
+        
+          <div class="devsite-product-id-row"
+           >
+            <div class="devsite-product-description-row">
+              
+                
+                <div class="devsite-product-id">
+                  
+                  
+                  
+                    <ul class="devsite-breadcrumb-list"
+  >
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+    
+    
+      
+        
+  <a href="https://web.dev/articles"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Lower Header"
+      
+        data-value="1"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="1"
+      
+        track-metadata-eventdetail="Articles"
+      
+    >
+    
+          Articles
+        
+  </a>
+  
+      
+    
+  </li>
+  
+</ul>
+                </div>
+                
+              
+              
+            </div>
+            
+          </div>
+          
+        
+      
+      
+    </div>
+  </div>
+
+</div>
+
+
+
+  
+</devsite-header>
+        <devsite-book-nav scrollbars hidden>
+          
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="devsite-book-nav-filter"
+     hidden>
+  <span class="filter-list-icon material-icons" aria-hidden="true"></span>
+  <input type="text"
+         placeholder="Filter"
+         
+         aria-label="Type to filter"
+         role="searchbox">
+  
+  <span class="filter-clear-button hidden"
+        data-title="Clear filter"
+        aria-label="Clear filter"
+        role="button"
+        tabindex="0"></span>
+</div>
+
+<nav class="devsite-book-nav devsite-nav nocontent" data-nosnippet
+     aria-label="Side menu">
+  <div class="devsite-mobile-header">
+    <button type="button"
+            id="devsite-close-nav"
+            class="devsite-header-icon-button button-flat material-icons gc-analytics-event"
+            data-category="Site-Wide Custom Events"
+            data-label="Close navigation"
+            aria-label="Close navigation">
+    </button>
+    <div class="devsite-product-name-wrapper">
+
+  <a href="/" class="devsite-site-logo-link gc-analytics-event"
+   data-category="Site-Wide Custom Events" data-label="Site logo" track-type="globalNav"
+   track-name="webDev" track-metadata-position="nav"
+   track-metadata-eventDetail="nav">
+  
+  <picture>
+    
+    <source srcset="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/lockup-dark-theme.svg"
+            media="(prefers-color-scheme: dark)"
+            class="devsite-dark-theme">
+    
+    <img src="https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/lockup.svg" class="devsite-site-logo" alt="web.dev">
+  </picture>
+  
+</a>
+
+
+</div>
+  </div>
+
+  <div class="devsite-book-nav-wrapper">
+    <div class="devsite-mobile-nav-top">
+      
+        <ul class="devsite-nav-list">
+          
+            <li class="devsite-nav-item">
+              
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Resources"
+      
+        track-name="resources"
+      
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Resources
+   </span>
+    
+  
+  </span>
+  
+
+  
+    <ul class="devsite-nav-responsive-tabs devsite-nav-has-menu
+               ">
+      
+<li class="devsite-nav-item">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Resources"
+      
+        track-name="resources"
+      
+    >
+  
+    <span class="devsite-nav-text" tooltip menu="Resources">
+      More
+   </span>
+    
+    <span class="devsite-nav-icon material-icons" data-icon="forward"
+          menu="Resources">
+    </span>
+    
+  
+  </span>
+  
+
+</li>
+
+    </ul>
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/discover"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Discover"
+      
+        track-name="discover"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Discover"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Discover
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/baseline"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Baseline"
+      
+        track-name="baseline"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Baseline"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Baseline
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/how-to-use-baseline"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: How to use Baseline"
+      
+        track-name="how to use baseline"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: How to use Baseline"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      How to use Baseline
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/blog"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Blog"
+      
+        track-name="blog"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Blog"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Blog
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+            <li class="devsite-nav-item">
+              
+  
+  <a href="/case-studies"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Tab: Case Studies"
+      
+        track-name="case studies"
+      
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Case Studies"
+     track-type="globalNav"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Case Studies
+   </span>
+    
+  
+  </a>
+  
+
+  
+              
+            </li>
+          
+          
+          
+        </ul>
+      
+    </div>
+    
+      <div class="devsite-mobile-nav-bottom">
+        
+        
+          
+    
+      
+      <ul class="devsite-nav-list" menu="Resources"
+          aria-label="Side menu" hidden>
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Web Platform
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/html"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: HTML"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      HTML
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/css"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: CSS"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      CSS
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/javascript"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: JavaScript"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      JavaScript
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      User experience
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/performance"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Performance"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Performance
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/accessibility"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Accessibility"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Accessibility
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/identity"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Identity"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Identity
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/html"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn HTML"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn HTML
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/css"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn CSS"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn CSS
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/javascript"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn JavaScript"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn JavaScript
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/ai"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn AI"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn AI
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/performance"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn Performance"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn Performance
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn/accessibility"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Learn Accessibility"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Learn Accessibility
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/learn"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: More courses"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      More courses
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+          
+            
+              
+<li class="devsite-nav-item devsite-nav-heading">
+
+  
+  <span
+    
+       class="devsite-nav-title"
+       tooltip
+    
+    >
+  
+    <span class="devsite-nav-text" tooltip >
+      Additional resources
+   </span>
+    
+  
+  </span>
+  
+
+</li>
+
+            
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/explore/ai"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: AI and the web"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      AI and the web
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/explore"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Explore"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Explore
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="https://pagespeed.web.dev/"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: PageSpeed Insights"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      PageSpeed Insights
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/shows"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Podcasts &amp;amp; shows"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Podcasts &amp;amp; shows
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/newsletter"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: Developer Newsletter"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      Developer Newsletter
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+              
+<li class="devsite-nav-item">
+
+  
+  <a href="/about"
+    
+       class="devsite-nav-title gc-analytics-event
+              
+              "
+    
+
+    
+     data-category="Site-Wide Custom Events"
+     data-label="Responsive Tab: About web.dev"
+     track-type="navMenu"
+     track-metadata-eventDetail="globalMenu"
+     track-metadata-position="nav">
+  
+    <span class="devsite-nav-text" tooltip >
+      About web.dev
+   </span>
+    
+  
+  </a>
+  
+
+</li>
+
+            
+          
+        
+      </ul>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+        
+        
+      </div>
+    
+  </div>
+</nav>
+          
+        </devsite-book-nav>
+      
+      <section id="gc-wrapper">
+        <main role="main" id="main-content" class="devsite-main-content"
+            
+              
+              has-sidebar
+            >
+          <div class="devsite-sidebar">
+            <div class="devsite-sidebar-content">
+                
+                <devsite-toc class="devsite-nav"
+                            role="navigation"
+                            aria-label="On this page"
+                            depth="2"
+                            scrollbars
+                            data-nosnippet
+                  ></devsite-toc>
+                <devsite-recommendations-sidebar class="nocontent devsite-nav" data-nosnippet>
+                </devsite-recommendations-sidebar>
+            </div>
+          </div>
+          <devsite-content>
+            
+              
+
+
+
+
+
+
+
+
+
+
+<article class="devsite-article">
+  
+  
+  
+  
+  
+
+  <div class="devsite-article-meta nocontent" role="navigation" data-nosnippet>
+    
+    
+    <ul class="devsite-breadcrumb-list"
+  
+    aria-label="Breadcrumb">
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+    
+    
+      
+        
+  <a href="https://web.dev/"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Breadcrumbs"
+      
+        data-value="1"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="1"
+      
+        track-metadata-eventdetail=""
+      
+    >
+    
+          Home
+        
+  </a>
+  
+      
+    
+  </li>
+  
+  <li class="devsite-breadcrumb-item
+             ">
+    
+      
+      <div class="devsite-breadcrumb-guillemet material-icons" aria-hidden="true"></div>
+    
+    
+    
+      
+        
+  <a href="https://web.dev/articles"
+      
+        class="devsite-breadcrumb-link gc-analytics-event"
+      
+        data-category="Site-Wide Custom Events"
+      
+        data-label="Breadcrumbs"
+      
+        data-value="2"
+      
+        track-type="globalNav"
+      
+        track-name="breadcrumb"
+      
+        track-metadata-position="2"
+      
+        track-metadata-eventdetail="Articles"
+      
+    >
+    
+          Articles
+        
+  </a>
+  
+      
+    
+  </li>
+  
+</ul>
+    
+      
+    <devsite-thumb-rating position="header">
+    </devsite-thumb-rating>
+  
+    
+  </div>
+  
+    <h1 class="devsite-page-title" tabindex="-1">
+      prefers-color-scheme: Hello darkness, my old friend<devsite-actions hidden data-nosnippet><devsite-feature-tooltip
+      ack-key="AckCollectionsBookmarkTooltipDismiss"
+      analytics-category="Site-Wide Custom Events"
+      analytics-action-show="Callout Profile displayed"
+      analytics-action-close="Callout Profile dismissed"
+      analytics-label="Create Collection Callout"
+      class="devsite-page-bookmark-tooltip nocontent"
+      data-nosnippet
+      dismiss-button="true"
+      id="devsite-collections-dropdown"
+      
+      dismiss-button-text="Dismiss"
+
+      
+      close-button-text="Got it">
+
+    
+    
+      <devsite-bookmark></devsite-bookmark>
+    
+
+    <span slot="popout-heading">
+      
+      Stay organized with collections
+    </span>
+    <span slot="popout-contents">
+      
+      Save and categorize content based on your preferences.
+    </span>
+  </devsite-feature-tooltip>
+    <devsite-llm-tools></devsite-llm-tools></devsite-actions>
+  
+      
+    </h1>
+  <div class="devsite-page-title-meta"><devsite-view-release-notes></devsite-view-release-notes></div>
+  
+
+  <devsite-toc class="devsite-nav"
+    depth="2"
+    devsite-toc-embedded
+    >
+  </devsite-toc>
+  
+    
+  <div class="devsite-article-body clearfix
+  ">
+
+  
+    
+    
+
+
+
+
+<p>Overhyped or necessity? Learn everything about dark mode and how to support it to the benefit of your users!</p>
+
+<p><style>
+  .wd-author__links {
+    display: flex;
+  }
+  </style>
+
+<div class="wd-authors" translate="no">
+  
+    
+    
+      <div class="wd-author">
+        
+          <img class="devsite-landing-row-item-icon" alt="Thomas Steiner" 
+            src="https://web.dev/images/authors/thomassteiner.jpg" 
+            decoding="async" height="64" loading="lazy" width="64"> 
+        
+        <div>
+          <span> 
+            Thomas Steiner
+          </span>
+          <div class="wd-author__links">
+            
+            
+              <a href="https://github.com/tomayac" aria-label="Thomas Steiner on GitHub" rel="me">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32.6 31.8">
+                  <title>GitHub</title>
+                  <path d="M16.3 0C7.3 0 0 7.3 0 16.3c0 7.2 4.7 13.3 11.1 15.5.8.1 1.1-.4 1.1-.8v-2.8c-4.5 1-5.5-2.2-5.5-2.2-.7-1.9-1.8-2.4-1.8-2.4-1.5-1 .1-1 .1-1 1.6.1 2.5 1.7 2.5 1.7 1.5 2.5 3.8 1.8 4.7 1.4.1-1.1.6-1.8 1-2.2-3.6-.4-7.4-1.8-7.4-8.1 0-1.8.6-3.2 1.7-4.4-.1-.3-.7-2 .2-4.2 0 0 1.4-.4 4.5 1.7 1.3-.4 2.7-.5 4.1-.5 1.4 0 2.8.2 4.1.5 3.1-2.1 4.5-1.7 4.5-1.7.9 2.2.3 3.9.2 4.3 1 1.1 1.7 2.6 1.7 4.4 0 6.3-3.8 7.6-7.4 8 .6.5 1.1 1.5 1.1 3V31c0 .4.3.9 1.1.8 6.5-2.2 11.1-8.3 11.1-15.5C32.6 7.3 25.3 0 16.3 0z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" />
+                </svg></a>
+            
+            
+            
+              <a href="https://www.linkedin.com/in/thomassteinerlinkedin" aria-label="Thomas Steiner on LinkedIn" rel="me">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 200 200">
+                  <title>LinkedIn</title>
+                  <path d="M185.2 0H14.8C6.6 0 0 6.4 0 14.3v171.3c0 7.9 6.6 14.3 14.8 14.3h170.4c8.1 0 14.8-6.4 14.8-14.3V14.3C199.9 6.4 193.3 0 185.2 0zM60.6 167.3H30.4V77.1h30.2v90.2zM45.5 64.8h-.2c-10.1 0-16.7-6.9-16.7-15.6 0-8.8 6.7-15.6 17.1-15.6 10.3 0 16.7 6.7 16.9 15.6 0 8.6-6.5 15.6-17.1 15.6zm124 102.5h-30.2V119c0-12.1-4.4-20.4-15.3-20.4-8.4 0-13.3 5.6-15.5 11-.8 1.9-1 4.6-1 7.3v50.4H77.3s.4-81.8 0-90.3h30.2v12.8c4-6.1 11.2-14.9 27.2-14.9 19.9 0 34.8 12.9 34.8 40.6v51.8zm-62.2-77.1c0-.1.1-.2.2-.3v.3h-.2z" fill="currentColor" />
+                </svg></a>
+            
+            
+              <a href="https://toot.cafe/@tomayac" aria-label="Thomas Steiner on Mastodon" rel="me">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 16 16">
+                  <title>Mastodon</title>
+                  <path fill="currentColor" d="M 15.659 9.592 C 15.424 10.72 13.553 11.956 11.404 12.195 C 10.283 12.32 9.18 12.434 8.003 12.384 C 6.079 12.302 4.56 11.956 4.56 11.956 C 4.56 12.13 4.572 12.297 4.595 12.452 C 4.845 14.224 6.478 14.33 8.025 14.379 C 9.586 14.429 10.976 14.02 10.976 14.02 L 11.04 15.337 C 11.04 15.337 9.948 15.884 8.003 15.984 C 6.93 16.039 5.598 15.959 4.047 15.576 C 0.683 14.746 0.104 11.4 0.015 8.006 C -0.012 6.998 0.005 6.048 0.005 5.253 C 0.005 1.782 2.443 0.765 2.443 0.765 C 3.672 0.238 5.782 0.017 7.975 0 L 8.029 0 C 10.221 0.017 12.332 0.238 13.561 0.765 C 13.561 0.765 15.999 1.782 15.999 5.253 C 15.999 5.253 16.03 7.814 15.659 9.592 Z M 13.124 5.522 L 13.124 9.725 L 11.339 9.725 L 11.339 5.646 C 11.339 4.786 10.951 4.35 10.175 4.35 C 9.317 4.35 8.887 4.867 8.887 5.891 L 8.887 8.124 L 7.113 8.124 L 7.113 5.891 C 7.113 4.867 6.683 4.35 5.825 4.35 C 5.049 4.35 4.661 4.786 4.661 5.646 L 4.661 9.725 L 2.876 9.725 L 2.876 5.522 C 2.876 4.663 3.111 3.981 3.582 3.476 C 4.067 2.971 4.703 2.712 5.493 2.712 C 6.406 2.712 7.098 3.039 7.555 3.695 L 8 4.39 L 8.445 3.695 C 8.902 3.039 9.594 2.712 10.507 2.712 C 11.297 2.712 11.933 2.971 12.418 3.476 C 12.889 3.981 13.124 4.663 13.124 5.522 Z" style="stroke:none;stroke-miterlimit:10;fill-rule:evenodd;"></path>
+                </svg></a>
+            
+            
+              <a href="https://bsky.app/profile/tomayac.com" aria-label="Thomas Steiner on Bluesky" rel="me">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 568 501">
+                  <title>Bluesky</title>
+                  <path fill="currentColor" d="M123.121 33.664C188.241 82.553 258.281 181.68 284 234.873c25.719-53.192 95.759-152.32 160.879-201.21C491.866-1.611 568-28.906 568 57.947c0 17.346-9.945 145.713-15.778 166.555-20.275 72.453-94.155 90.933-159.875 79.748C507.222 323.8 536.444 388.56 473.333 453.32c-119.86 122.992-172.272-30.859-185.702-70.281-2.462-7.227-3.614-10.608-3.631-7.733-.017-2.875-1.169.506-3.631 7.733-13.43 39.422-65.842 193.273-185.702 70.281-63.111-64.76-33.89-129.52 80.986-149.071-65.72 11.185-139.6-7.295-159.875-79.748C9.945 203.659 0 75.291 0 57.946 0-28.906 76.135-1.612 123.121 33.664Z"/>
+                </svg>
+              </a>
+            
+            
+              <a href="https://blog.tomayac.com/" aria-label="Thomas Steiner's homepage" rel="me">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 30 30">
+                  <title>Homepage</title>
+                  <circle cx="14.5" cy="14.5" r="13.5" stroke-width="2" stroke-miterlimit="10" fill="none" stroke="currentColor" />
+                  <ellipse cx="14.5" cy="14.5" rx="6.1" ry="13.5" stroke-width="2" stroke-miterlimit="10" fill="none" stroke="currentColor" />
+                  <path d="M1.6 9.6h25.8M1.6 19.4h25.8" stroke-width="2" stroke-miterlimit="10" fill="none" stroke="currentColor" />
+                </svg></a>
+            
+          </div>
+        </div>
+      </div>
+    
+  
+</div></p>
+
+<h2 id="introduction" data-text="Introduction" tabindex="-1">Introduction</h2>
+
+<aside class="note"><b>Note: </b> I have done a lot of background research on the history and theory of dark mode, if you are only interested in working with dark mode, feel free to <a href="#activating_dark_mode_in_the_operating_system">skip the introduction</a>. </aside>
+
+<h3 id="dark_mode_before_dark_mode" data-text="Dark mode before Dark Mode" tabindex="-1">Dark mode before <em>Dark Mode</em></h3>
+
+<figure data-float="right">
+  <img src="/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee.jpg" alt="An old, pre-90s computer showing green text on a black background." width="233" height="175" srcset="https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_36.jpg 36w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_48.jpg 48w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_72.jpg 72w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_96.jpg 96w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_480.jpg 480w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_720.jpg 720w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_856.jpg 856w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_960.jpg 960w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_1440.jpg 1440w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_1920.jpg 1920w,https://web.dev/static/articles/prefers-color-scheme/image/green-screen-computer-mon-01027d880d7ee_2880.jpg 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Green screen (<a href="https://commons.wikimedia.org/wiki/File:Compaq_Portable_and_Wordperfect.JPG">Source</a>)</figcaption>
+</figure>
+
+<p>We have gone full circle with dark mode.
+In the dawn of personal computing, dark mode wasn&#39;t a matter of choice,
+but a matter of fact:
+Monochrome <abbr title="Cathode-Ray Tube">CRT</abbr> computer monitors worked by firing electron beams
+on a phosphorescent screen and the phosphor used in early CRTs was green.
+Because text was displayed in green and the rest of the screen was black, these models were often referred to as
+<a href="https://commons.wikimedia.org/wiki/File:Schneider_CPC6128_with_green_monitor_GT65,_start_screen.jpg">green screens</a>.</p>
+
+<figure data-float="left">
+  <img src="/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013.jpg" alt="A monitor displaying the Windows 3.1 version of Microsoft Word." width="222" height="175" srcset="https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_36.jpg 36w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_48.jpg 48w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_72.jpg 72w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_96.jpg 96w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_480.jpg 480w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_720.jpg 720w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_856.jpg 856w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_960.jpg 960w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_1440.jpg 1440w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_1920.jpg 1920w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-word-processi-c815d99e74013_2880.jpg 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Dark-on-white (<a href="https://www.youtube.com/watch?v=qKkABzt0Zqg">Source</a>)</figcaption>
+</figure>
+
+<p>The subsequently introduced Color CRTs displayed multiple colors
+through the use of red, green, and blue phosphors.
+They created white by activating all three phosphors simultaneously.
+With the advent of more sophisticated <abbr title="What You See Is What You Get">WYSIWYG</abbr>
+<a href="https://en.wikipedia.org/wiki/Desktop_publishing">desktop publishing</a>,
+the idea of making the virtual document resemble a physical sheet of paper became popular.</p>
+
+<figure data-float="right">
+  <img src="/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe.png" alt="A cluster of windows showing dark-on-white web pages in the early WorldWideWeb browser." width="233" height="175" srcset="https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/dark-white-webpage-the-b32b5ae575bbe_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">The WorldWideWeb browser (<a href="https://commons.wikimedia.org/wiki/File:WorldWideWeb_FSF_GNU.png">Source</a>)</figcaption>
+</figure>
+
+<p>This is where <em>dark-on-white</em> as a design trend started,
+and this trend was carried over to the
+<a href="http://info.cern.ch/hypertext/WWW/TheProject.html">early document-based web</a>.
+The first ever browser,
+<a href="https://en.wikipedia.org/wiki/WorldWideWeb">WorldWideWeb</a>
+(remember,
+<a href="https://en.wikipedia.org/wiki/Cascading_Style_Sheets#History">CSS wasn&#39;t even invented</a> yet),
+displayed webpages this way.
+Fun fact: the second-ever browser,
+<a href="https://en.wikipedia.org/wiki/Line_Mode_Browser">Line Mode Browser</a>—a terminal-based browser—was
+green on dark.
+These days, web pages and web apps are typically designed with dark text
+on a light background, a baseline assumption that is also hard-coded in user agent stylesheets, including
+<a href="https://chromium.googlesource.com/chromium/blink/+/master/Source/core/css/html.css">Chrome&#39;s</a>.</p>
+
+<figure data-float="left">
+  <img src="/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4.jpg" alt width="262" height="175" srcset="https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_36.jpg 36w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_48.jpg 48w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_72.jpg 72w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_96.jpg 96w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_480.jpg 480w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_720.jpg 720w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_856.jpg 856w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_960.jpg 960w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_1440.jpg 1440w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_1920.jpg 1920w,https://web.dev/static/articles/prefers-color-scheme/image/smartphone-used-while-lyi-d0cbc01823ee4_2880.jpg 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Mobile phone used in bed</figcaption>
+</figure>
+
+<p>The days of CRTs are long over.
+Content consumption and creation has shifted to mobile devices
+that use backlit <abbr title="Liquid Crystal Display">LCD</abbr>
+or energy-saving <abbr title="Active-Matrix Organic Light-Emitting Diode">AMOLED</abbr> screens.
+Smaller and more transportable computers, tablets, and smartphones led to new usage patterns.
+Leisure tasks like web browsing, coding for fun, and high-end gaming
+frequently happen after-hours in dim environments.
+People even enjoy their devices in their beds at night-time.
+The more people use their devices in the dark,
+the more the idea of going back to the roots of <em>light-on-dark</em> becomes popular.</p>
+
+<h3 id="why_dark_mode" data-text="Why dark mode" tabindex="-1">Why dark mode</h3>
+
+<h4 id="dark_mode_for_aesthetic_reasons" data-text="Dark mode for aesthetic reasons" tabindex="-1">Dark mode for aesthetic reasons</h4>
+
+<p>When people get asked
+<a href="https://medium.com/dev-channel/let-there-be-darkness-maybe-9facd9c3023d">why they like or want dark mode</a>,
+the most popular response is that <em>&quot;it&#39;s easier on the eyes,&quot;</em>
+followed by <em>&quot;it&#39;s elegant and beautiful.&quot;</em>
+Apple in their
+<a href="https://developer.apple.com/documentation/appkit/supporting_dark_mode_in_your_interface">Dark Mode developer documentation</a>
+explicitly writes: <em>&quot;The choice of whether to enable a light or dark appearance
+is an aesthetic one for most users, and might not relate to ambient lighting conditions.&quot;</em></p>
+
+<aside class="note"><b>Note: </b> Read up more on <a href="https://medium.com/dev-channel/let-there-be-darkness-maybe-9facd9c3023d">user research regarding why people want dark mode and how they use it</a>. </aside>
+
+<figure data-float="right">
+  <img src="/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af.png" width="193" height="225" srcset="https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/closeview-mac-os-system-d5554c867b6af_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">CloseView in Mac OS System 7 with "White on Black" mode (<a href="https://archive.org/details/mac_Macintosh_System_7_at_your_Fingertips_1992">Source</a>)</figcaption>
+</figure>
+
+<h4 id="dark_mode_as_an_accessibility_tool" data-text="Dark mode as an accessibility tool" tabindex="-1">Dark mode as an accessibility tool</h4>
+
+<p>There are also people who actually <em>need</em> dark mode and use it as another accessibility tool,
+for example, users with low vision.
+The earliest occurrence of such an accessibility tool I could find is
+<a href="https://en.wikipedia.org/wiki/System_7">System&nbsp;7</a>&#39;s <em>CloseView</em> feature, which had a toggle for
+<em>Black on White</em> and <em>White on Black</em>.
+While System&nbsp;7 supported color, the default user interface was still black-and-white.</p>
+
+<p>These inversion-based implementations demonstrated their weaknesses once color was introduced.
+User research by Szpiro <em>et al.</em> on
+<a href="https://dl.acm.org/citation.cfm?id=2982168">how people with low vision access computing devices</a>
+showed that all interviewed users disliked inverted images,
+but that many preferred light text on a dark background.
+Apple accommodates for this user preference with a feature called
+<a href="https://www.apple.com//accessibility/iphone/vision/">Smart Invert</a>,
+which reverses the colors on the display, except for images, media,
+and some apps that use dark color styles.</p>
+
+<p>A special form of low vision is Computer Vision Syndrome, also known as Digital Eye Strain, which is
+<a href="https://onlinelibrary.wiley.com/doi/full/10.1111/j.1475-1313.2011.00834.x">defined</a>
+as <em>&quot;the combination of eye and vision problems associated with the use of computers
+(including desktop, laptop, and tablets) and other electronic displays (e.g.
+smartphones and electronic reading devices).&quot;</em>
+It has been <a href="https://bmjopen.bmj.com/content/5/1/e006748">proposed</a>
+that the use of electronic devices by adolescents, particularly at night time,
+leads to an increased risk of shorter sleep duration,
+longer sleep-onset latency, and increased sleep deficiency.
+Additionally, exposure to blue light has been widely
+<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4254760/">reported</a>
+to be involved in the regulation of
+<a href="https://en.wikipedia.org/wiki/Circadian_rhythm">circadian rhythm</a>
+and the sleep cycle,
+and irregular light environments may lead to sleep deprivation,
+possibly affecting mood and task performance, according to
+<a href="https://www.college-optometrists.org/oip-resource/computer-vision-syndrome--a-k-a--digital-eye-strain.html">research by Rosenfield</a>.
+To limit these negative effects, reducing blue light by adjusting the display color temperature
+through features like iOS&#39; <a href="https://support.apple.com/en-us/HT207570">Night Shift</a> or Android&#39;s
+<a href="https://support.google.com/pixelphone/answer/7169926">Night Light</a> can help,
+as well as avoiding bright lights or irregular lights in general through dark themes or dark modes.</p>
+
+<h4 id="dark_mode_power_savings_on_amoled_screens" data-text="Dark mode power savings on AMOLED screens" tabindex="-1">Dark mode power savings on AMOLED screens</h4>
+
+<p>Finally, dark mode is known to save a <em>lot</em> of energy on
+<abbr title="Active-Matrix Organic Light-Emitting Diode">AMOLED</abbr> screens.
+Android case studies that focused on popular Google apps
+like YouTube have shown that the power savings can be up to 60%.
+The video below has more details on these case studies and the power savings per app.</p>
+
+<figure data-size="full">
+  <devsite-video video-id="N_6sPd0Jd3g"></devsite-video>
+</figure>
+
+<h2 id="activating_dark_mode_in_the_operating_system" data-text="Activating dark mode in the operating system" tabindex="-1">Activating dark mode in the operating system</h2>
+
+<p>Now that I have covered the background of why dark mode is such a big deal for many users,
+let&#39;s review how you can support it.</p>
+
+<figure data-float="left">
+  <img src="/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da.png" alt width="218" height="250" srcset="https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/android-q-dark-mode-setti-43e0e230e78da_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Android Q dark mode settings</figcaption>
+</figure>
+
+<p>Operating systems that support a dark mode or dark theme
+typically have an option to activate it somewhere in the settings.
+On macOS&nbsp;X, it&#39;s in the system preference&#39;s <em>General</em> section and called <em>Appearance</em> (<a href="/articles/prefers-color-scheme/image/light-dark-theme-settings.png?auto=format">screenshot</a>),
+and on Windows&nbsp;10, it&#39;s in the <em>Colors</em> section and called <em>Choose your color</em> (<a href="/articles/prefers-color-scheme/image/choose-your-color.png?auto=format">screenshot</a>).
+For Android&nbsp;Q, you can find it under <em>Display</em> as a <em>Dark Theme</em> toggle switch (<a href="/articles/prefers-color-scheme/image/android-display-dark.png?auto=format">screenshot</a>),
+and on iOS&nbsp;13, you can change the <em>Appearance</em> in the <em>Display &amp; Brightness</em>
+section of the settings (<a href="/articles/prefers-color-scheme/image/android-light-dark-theme.jpg?auto=format">screenshot</a>).</p>
+
+<h2 id="the_prefers-color-scheme_media_query" data-text="The prefers-color-scheme media query" tabindex="-1">The <code translate="no" dir="ltr">prefers-color-scheme</code> media query</h2>
+
+<p>One last bit of theory before I get going.
+<a href="https://developer.mozilla.org/docs/Web/CSS/Media_Queries/Using_media_queries">Media queries</a>
+allow authors to test and query values or features of the user agent or display device,
+independent of the document being rendered.
+They are used in the CSS <code translate="no" dir="ltr">@media</code> rule to conditionally apply styles to a document,
+and in various other contexts and languages, such as HTML and JavaScript.
+<a href="https://drafts.csswg.org/mediaqueries-5/">Media Queries Level&nbsp;5</a>
+introduces so-called user preference media features, that is,
+a way for sites to detect the user&#39;s preferred way to display content.</p>
+
+<aside class="note"><b>Note: </b> ☝️ An established user preference media feature is <code translate="no" dir="ltr">prefers-reduced-motion</code> that lets you detect the desire for less motion on a page. I have <a href="/prefers-reduced-motion">written about <code translate="no" dir="ltr">prefers-reduced-motion</code></a> before. </aside>
+
+<p>The <a href="https://drafts.csswg.org/mediaqueries-5/#prefers-color-scheme"><code translate="no" dir="ltr">prefers-color-scheme</code></a>
+media feature is used to detect
+if the user has requested the page to use a light or dark color theme.
+It works with the following values:</p>
+
+<ul>
+<li><code translate="no" dir="ltr">light</code>:
+Indicates that the user has notified the system that they prefer a page that has a light theme
+(dark text on light background).</li>
+<li><code translate="no" dir="ltr">dark</code>:
+Indicates that the user has notified the system that they prefer a page that has a dark theme
+(light text on dark background).</li>
+</ul>
+
+<aside class="note"><b>Note: </b> An earlier version of the spec included a third value, <code translate="no" dir="ltr">no-preference</code>. It was meant to indicate that the user has made no preference known to the system. Since no browser ever implemented it, the value was <a href="https://github.com/w3c/csswg-drafts/issues/3857#issuecomment-634779976">removed</a> from the spec. </aside>
+
+<h2 id="supporting_dark_mode" data-text="Supporting dark mode" tabindex="-1">Supporting dark mode</h2>
+
+<h3 id="finding_out_if_dark_mode_is_supported_by_the_browser" data-text="Finding out if dark mode is supported by the browser" tabindex="-1">Finding out if dark mode is supported by the browser</h3>
+
+<p>As dark mode is reported through a media query, you can easily check if the current browser
+supports dark mode by checking if the media query <code translate="no" dir="ltr">prefers-color-scheme</code> matches at all.
+Note how I don&#39;t include any value, but purely check if the media query alone matches.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="JavaScript"><code translate="no" dir="ltr"><span class="devsite-syntax-k">if</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nb">window</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">matchMedia</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-s1">'(prefers-color-scheme)'</span><span class="devsite-syntax-p">).</span><span class="devsite-syntax-nx">media</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">!==</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-s1">'not all'</span><span class="devsite-syntax-p">)</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nx">console</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">log</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-s1">'🎉 Dark mode is supported'</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<p>At the time of writing, <code translate="no" dir="ltr">prefers-color-scheme</code> is supported on both desktop and mobile (where available)
+by Chrome and Edge as of version 76, Firefox as of version 67,
+and Safari as of version 12.1 on macOS and as of version 13 on iOS.
+For all other browsers, you can check the <a href="https://caniuse.com/#feat=prefers-color-scheme">Can I use support tables</a> document.</p>
+
+<aside class="note"><b>Note: </b> There is a custom element <a href="https://github.com/GoogleChromeLabs/dark-mode-toggle"><code translate="no" dir="ltr">&lt;dark-mode-toggle&gt;</code></a> available that adds dark mode support to older browsers. I write about it <a href="#the_dark-mode-toggle_custom_element">further down in this article</a>. </aside>
+
+<h3 id="learning_about_a_users_preferences_at_request_time" data-text="Learning about a user's preferences at request time" tabindex="-1">Learning about a user's preferences at request time</h3>
+
+<p>The <a href="/articles/user-preference-media-features-headers"><code translate="no" dir="ltr">Sec-CH-Prefers-Color-Scheme</code></a> client hint header
+allows sites to obtain the user&#39;s color scheme preferences optionally at request time,
+allowing servers to inline the right CSS and therefore avoid a flash of incorrect color theme.</p>
+
+<h3 id="dark_mode_in_practice" data-text="Dark mode in practice" tabindex="-1">Dark mode in practice</h3>
+
+<p>Let&#39;s finally see how supporting dark mode looks like in practice.
+Just like with the <a href="/%3Chttps://en.wikipedia.org/wiki/Highlander_(film)%3E">Highlander</a>,
+with dark mode <em>there can be only one</em>: dark or light, but never both!
+Why do I mention this? Because this fact should have an impact on the loading strategy.
+<strong>Please don&#39;t force users to download CSS in the critical rendering path
+that is for a mode they don&#39;t currently use.</strong>
+To optimize load speed, I have therefore split my CSS for the example app
+that shows the following recommendations in practice
+into three parts in order to <a href="/articles/defer-non-critical-css">defer non-critical CSS</a>:</p>
+
+<ul>
+<li><code translate="no" dir="ltr">style.css</code> that contains generic rules that are used universally on the site.</li>
+<li><code translate="no" dir="ltr">dark.css</code> that contains only the rules needed for dark mode.</li>
+<li><code translate="no" dir="ltr">light.css</code> that contains only the rules needed for light mode.</li>
+</ul>
+
+<h3 id="loading_strategy" data-text="Loading strategy" tabindex="-1">Loading strategy</h3>
+
+<p>The two latter ones, <code translate="no" dir="ltr">light.css</code> and <code translate="no" dir="ltr">dark.css</code>,
+are loaded conditionally with a <code translate="no" dir="ltr">&lt;link media&gt;</code> query.
+Initially,
+<a href="https://caniuse.com/#feat=prefers-color-scheme">not all browsers will support <code translate="no" dir="ltr">prefers-color-scheme</code></a>
+(detectable using the <a href="#finding_out_if_dark_mode_is_supported_by_the_browser">pattern above</a>),
+which I deal with dynamically by loading the default <code translate="no" dir="ltr">light.css</code> file
+via a conditionally inserted <code translate="no" dir="ltr">&lt;link rel=&quot;stylesheet&quot;&gt;</code> element in a minuscule inline script
+(light is an arbitrary choice, I could also have made dark the default fallback experience).
+To avoid a <a href="https://en.wikipedia.org/wiki/Flash_of_unstyled_content">flash of unstyled content</a>,
+I hide the content of the page until <code translate="no" dir="ltr">light.css</code> has loaded.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="HTML"><code translate="no" dir="ltr">&lt;script&gt;
+  // If `prefers-color-scheme` is not supported, fall back to light mode.
+  // In this case, light.css will be downloaded with `highest` priority.
+  if (window.matchMedia('(prefers-color-scheme: dark)').media === 'not all') {
+    document.documentElement.style.display = 'none';
+    document.head.insertAdjacentHTML(
+      'beforeend',
+      '&lt;link rel="stylesheet" href="/light.css" onload="document.documentElement.style.display = \'\'"&gt;',
+    );
+  }
+&lt;/script&gt;
+&lt;!--
+  Conditionally either load the light or the dark stylesheet. The matching file
+  will be downloaded with `highest`, the non-matching file with `lowest`
+  priority. If the browser doesn't support `prefers-color-scheme`, the media
+  query is unknown and the files are downloaded with `lowest` priority (but
+  above I already force `highest` priority for my default light experience).
+--&gt;
+&lt;link rel="stylesheet" href="/dark.css" media="(prefers-color-scheme: dark)" /&gt;
+&lt;link
+  rel="stylesheet"
+  href="/light.css"
+  media="(prefers-color-scheme: light)"
+/&gt;
+&lt;!-- The main stylesheet --&gt;
+&lt;link rel="stylesheet" href="/style.css" /&gt;
+</code></pre></devsite-code>
+<h3 id="stylesheet_architecture" data-text="Stylesheet architecture" tabindex="-1">Stylesheet architecture</h3>
+
+<p>I make maximum use of <a href="https://developer.mozilla.org/docs/Web/CSS/var">CSS variables</a>,
+this allows my generic <code translate="no" dir="ltr">style.css</code> to be, well, generic,
+and all the light or dark mode customization happens in the two other files <code translate="no" dir="ltr">dark.css</code> and <code translate="no" dir="ltr">light.css</code>.
+Below you can see an excerpt of the actual styles, but it should suffice to convey the overall idea.
+I declare two variables, <code translate="no" dir="ltr">-⁠-⁠color</code> and <code translate="no" dir="ltr">-⁠-⁠background-color</code>
+that essentially create a <em>dark-on-light</em> and a <em>light-on-dark</em> baseline theme.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* light.css: 👉 dark-on-light */</span>
+<span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">root</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code><div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* dark.css: 👉 light-on-dark */</span>
+<span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">root</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<p>In my <code translate="no" dir="ltr">style.css</code>, I then use these variables in the <code translate="no" dir="ltr">body { … }</code> rule.
+As they are defined on the
+<a href="https://developer.mozilla.org/docs/Web/CSS/:root"><code translate="no" dir="ltr">:root</code> CSS pseudo-class</a>—a
+selector that in HTML represents the <code translate="no" dir="ltr">&lt;html&gt;</code> element
+and is identical to the selector <code translate="no" dir="ltr">html</code>, except that its specificity is
+higher—they cascade down, which serves me for declaring global CSS variables.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* style.css */</span>
+<span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">root</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">color-scheme</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-n">light</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-n">dark</span><span class="devsite-syntax-p">;</span>
+<span class="devsite-syntax-p">}</span>
+
+<span class="devsite-syntax-nt">body</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--color</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--background-color</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<p>In the code sample above, you will probably have noticed a property
+<a href="https://drafts.csswg.org/css-color-adjust-1/#propdef-color-scheme"><code translate="no" dir="ltr">color-scheme</code></a>
+with the space-separated value <code translate="no" dir="ltr">light dark</code>.</p>
+
+<p>This tells the browser which color themes my app supports
+and allows it to activate special variants of the user agent stylesheet,
+which is useful to, for example, let the browser render form fields
+with a dark background and light text, adjust the scroll bars,
+or to enable a theme-aware highlight color.
+The exact details of <code translate="no" dir="ltr">color-scheme</code> are specified in
+<a href="https://drafts.csswg.org/css-color-adjust-1/">CSS Color Adjustment Module Level&nbsp;1</a>.</p>
+
+<aside class="note"><b>Note: </b> 🌒 Read up more on <a href="/articles/color-scheme">what <code translate="no" dir="ltr">color-scheme</code> actually does</a>. </aside>
+
+<p>Everything else is then just a matter of defining CSS variables
+for things that matter on my site.
+Semantically organizing styles helps a lot when working with dark mode.
+For example, rather than <code translate="no" dir="ltr">-⁠-⁠highlight-yellow</code>, consider calling the variable
+<code translate="no" dir="ltr">-⁠-⁠accent-color</code>, as &quot;yellow&quot; may actually not be yellow in dark mode or vice versa.
+Below is an example of some more variables that I use in my example.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* dark.css */</span>
+<span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">root</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--link-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">188</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">212</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--main-headline-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">233</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">30</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">99</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--accent-background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">188</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">212</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--accent-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code><div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* light.css */</span>
+<span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">root</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">5</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--link-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">238</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--main-headline-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">192</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--accent-background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">0</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">238</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--accent-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">rgb</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mi">250</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<h3 id="full_example" data-text="Full example" tabindex="-1">Full example</h3>
+
+<p>In the following <a href="https://googlechrome.github.io/samples/glitch-migration/darkmode/baseline/">Glitch</a> embed,
+you can see the complete example that puts the concepts from above into practice.
+Try toggling dark mode in your particular <a href="#activating_dark_mode_in_the_operating_system">operating system&#39;s settings</a>
+and see how the page reacts.</p>
+
+<div style="height: 900px; width: 100%;">
+  <iframe
+  allow="geolocation; microphone; camera; midi; vr; encrypted-media"
+  loading="lazy"
+  src="https://googlechrome.github.io/samples/glitch-migration/darkmode/baseline/"
+  style="height: 100%; width: 100%; border: 0;"
+  title="IFrame content"
+></iframe>
+</div>
+
+<h3 id="loading_impact" data-text="Loading impact" tabindex="-1">Loading impact</h3>
+
+<p>When you play with this example, you can see
+why I load my <code translate="no" dir="ltr">dark.css</code> and <code translate="no" dir="ltr">light.css</code> via media queries.
+Try toggling dark mode and reload the page:
+the particular currently non-matching stylesheets are still loaded, but with the lowest priority,
+so that they never compete with resources that are needed by the site right now.</p>
+
+<aside class="note"><b>Note: </b> 😲 Read up more on <a href="https://blog.tomayac.com/2018/11/08/why-browsers-download-stylesheets-with-non-matching-media-queries-180513">why browsers download stylesheets with non-matching media queries</a>. </aside>
+
+<figure>
+  <img src="/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95.png" alt="Network loading diagram showing how in light mode the dark mode CSS gets loaded with lowest priority." width="800" height="417" srcset="https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-012ca50547d95_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Site in light mode loads the dark mode CSS with lowest priority.</figcaption>
+</figure>
+
+<figure>
+  <img src="/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f.png" alt="Network loading diagram showing how in dark mode the light mode CSS gets loaded with lowest priority." width="800" height="417" srcset="https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-2c75aa35a227f_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Site in dark mode loads the light mode CSS with lowest priority.</figcaption>
+</figure>
+
+<figure>
+  <img src="/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc.png" alt="Network loading diagram showing how in default light mode the dark mode CSS gets loaded with lowest priority." width="800" height="417" srcset="https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/network-loading-diagram-s-f53f63ae3c9fc_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">Site in default light mode on a browser that doesn't support <code translate="no" dir="ltr">prefers-color-scheme</code> loads the dark mode CSS with lowest priority.</figcaption>
+</figure>
+
+<h3 id="reacting_on_dark_mode_changes" data-text="Reacting on dark mode changes" tabindex="-1">Reacting on dark mode changes</h3>
+
+<p>Like any other media query change, dark mode changes can be subscribed to via JavaScript.
+You can use this to, for example, dynamically change the
+<a href="https://developers.google.com/web/fundamentals/design-and-ux/browser-customization/#provide_great_icons_tiles">favicon</a>
+of a page or change the
+<a href="https://developers.google.com/web/fundamentals/design-and-ux/browser-customization/#meta_theme_color_for_chrome_and_opera"><code translate="no" dir="ltr">&lt;meta name=&quot;theme-color&quot;&gt;</code></a>
+that determines the color of the URL bar in Chrome.
+The <a href="#full_example">full example</a> above shows this in action,
+in order to see the theme color and favicon changes, open the
+<a href="https://googlechrome.github.io/samples/glitch-migration/darkmode/baseline/">demo in a separate tab</a>.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="JavaScript"><code translate="no" dir="ltr"><span class="devsite-syntax-kd">const</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nx">darkModeMediaQuery</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">=</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nb">window</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">matchMedia</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-s1">'(prefers-color-scheme: dark)'</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-nx">darkModeMediaQuery</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">addEventListener</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-s1">'change'</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nx">e</span><span class="devsite-syntax-p">)</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">=</span>&gt;<span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-kd">const</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nx">darkModeOn</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">=</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nx">e</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">matches</span><span class="devsite-syntax-p">;</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nx">console</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">log</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-sb">`Dark mode is </span><span class="devsite-syntax-si">${</span><span class="devsite-syntax-nx">darkModeOn</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">?</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-s1">'🌒 on'</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-s1">'☀️ off'</span><span class="devsite-syntax-si">}</span><span class="devsite-syntax-sb">.`</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">});</span>
+</code></pre></devsite-code>
+<p>As of Chromium&nbsp;93 and Safari&nbsp;15, you can adjust the color based on a
+media query with the <code translate="no" dir="ltr">media</code> attribute of the <code translate="no" dir="ltr">meta</code> theme color element. The
+first one that matches will be picked. For example, you could have one color for
+light mode and another one for dark mode. At the time of writing, you can&#39;t
+define those in your manifest. See <a href="https://github.com/w3c/manifest/issues/975">w3c/manifest#975 GitHub
+issue</a>.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="HTML"><code translate="no" dir="ltr">&lt;meta
+  name="theme-color"
+  media="(prefers-color-scheme: light)"
+  content="white"
+/&gt;
+&lt;meta name="theme-color" media="(prefers-color-scheme: dark)" content="black" /&gt;
+</code></pre></devsite-code>
+<h2 id="debugging_and_testing_dark_mode" data-text="Debugging and testing dark mode" tabindex="-1">Debugging and testing dark mode</h2>
+
+<h3 id="emulating_prefers-color-scheme_in_devtools" data-text="Emulating prefers-color-scheme in DevTools" tabindex="-1">Emulating <code translate="no" dir="ltr">prefers-color-scheme</code> in DevTools</h3>
+
+<p>Switching the entire operating system&#39;s color scheme can get annoying real quick,
+so Chrome DevTools now allows you to emulate the user&#39;s preferred color scheme
+in a way that only affects the currently visible tab.
+Open the <a href="https://developer.chrome.com/docs/devtools/command-menu">Command Menu</a>, start typing <code translate="no" dir="ltr">Rendering</code>, run the <code translate="no" dir="ltr">Show Rendering</code> command, and then change the <strong>Emulate CSS media feature prefers-color-scheme</strong> option.</p>
+
+<p><img src="/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773.png" alt="A screenshot of the 'Emulate CSS media feature prefers-color-scheme' option that is located in the Rendering tab of Chrome DevTools." width="800" height="552" srcset="https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/a-screenshot-the-emulat-f4221ac142773_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px"></p>
+
+<h3 id="screenshotting_prefers-color-scheme_with_puppeteer" data-text="Screenshotting prefers-color-scheme with Puppeteer" tabindex="-1">Screenshotting <code translate="no" dir="ltr">prefers-color-scheme</code> with Puppeteer</h3>
+
+<p><a href="https://github.com/GoogleChrome/puppeteer/">Puppeteer</a> is a Node.js library
+that provides a high-level API to control Chrome or Chromium over the
+<a href="https://chromedevtools.github.io/devtools-protocol/">DevTools Protocol</a>.
+With <a href="https://www.npmjs.com/package/dark-mode-screenshot"><code translate="no" dir="ltr">dark-mode-screenshot</code></a>, we provide
+a Puppeteer script that lets you create screenshots of your pages in both dark and light mode.
+You can run this script as a one-off, or alternatively make it part of your
+Continuous Integration (CI) test suite.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="Bash"><code translate="no" dir="ltr">npx<span class="devsite-syntax-w"> </span>dark-mode-screenshot<span class="devsite-syntax-w"> </span>--url<span class="devsite-syntax-w"> </span>https://googlechromelabs.github.io/dark-mode-toggle/demo/<span class="devsite-syntax-w"> </span>--output<span class="devsite-syntax-w"> </span>screenshot<span class="devsite-syntax-w"> </span>--fullPage<span class="devsite-syntax-w"> </span>--pause<span class="devsite-syntax-w"> </span><span class="devsite-syntax-m">750</span>
+</code></pre></devsite-code>
+<h2 id="dark_mode_best_practices" data-text="Dark mode best practices" tabindex="-1">Dark mode best practices</h2>
+
+<h3 id="avoid_pure_white" data-text="Avoid pure white" tabindex="-1">Avoid pure white</h3>
+
+<p>A small detail you may have noticed is that I don&#39;t use pure white.
+Instead, to prevent glowing and bleeding against the surrounding dark content,
+I choose a slightly darker white. Something like <code translate="no" dir="ltr">rgb(250, 250, 250)</code> works well.</p>
+
+<h3 id="re-colorize_and_darken_photographic_images" data-text="Re-colorize and darken photographic images" tabindex="-1">Re-colorize and darken photographic images</h3>
+
+<p>If you compare the two screenshots below, you will notice that not only the core theme has changed
+from <em>dark-on-light</em> to <em>light-on-dark</em>, but that also the hero image looks slightly different.
+My <a href="https://medium.com/dev-channel/re-colorization-for-dark-mode-19e2e17b584b">user research</a>
+has shown that the majority of the surveyed people
+prefer slightly less vibrant and brilliant images when dark mode is active.
+I refer to this as <em>re-colorization</em>.</p>
+
+<div class="wd-switcher">
+  <figure>
+    <img src="/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3.png" alt width="800" height="618" srcset="https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/hero-image-slightly-darke-a5b441df726e3_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+    <figcaption class="wd-caption">
+      Hero image slightly darkened in dark mode.
+    </figcaption>
+  </figure>
+  <figure>
+    <img src="/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3.png" alt width="800" height="618" srcset="https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/regular-hero-image-light-28d9151fd34c3_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+    <figcaption class="wd-caption">
+      Regular hero image in light mode.
+    </figcaption>
+  </figure>
+</div>
+
+<p>Re-colorization can be achieved through a CSS filter on my images.
+I use a CSS selector that matches all images that don&#39;t have <code translate="no" dir="ltr">.svg</code> in their URL,
+the idea being that I can give vector graphics (icons) a different re-colorization treatment
+than my images (photos), more about this in the <a href="#invert_vector_graphics_and_icons">next paragraph</a>.
+Note how I again use a <a href="https://developer.mozilla.org/docs/Web/CSS/var">CSS variable</a>,
+so I can later on flexibly change my filter.</p>
+
+<aside class="note"><b>Note: </b> 🎨 Read up more on <a href="https://medium.com/dev-channel/re-colorization-for-dark-mode-19e2e17b584b">user research regarding re-colorization preferences with dark mode</a>. </aside>
+
+<p>As re-colorization is only needed in dark mode, that is, when <code translate="no" dir="ltr">dark.css</code> is active,
+there are no corresponding rules in <code translate="no" dir="ltr">light.css</code>.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* dark.css */</span>
+<span class="devsite-syntax-nt">--image-filter</span><span class="devsite-syntax-o">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nt">grayscale</span><span class="devsite-syntax-o">(</span><span class="devsite-syntax-nt">50</span><span class="devsite-syntax-o">%);</span>
+
+<span class="devsite-syntax-nt">img</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">not</span><span class="devsite-syntax-o">([</span><span class="devsite-syntax-nt">src</span><span class="devsite-syntax-o">*=</span><span class="devsite-syntax-s1">'.svg'</span><span class="devsite-syntax-o">])</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">filter</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--image-filter</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<h4 id="customizing_dark_mode_re-colorization_intensities_with_javascript" data-text="Customizing dark mode re-colorization intensities with JavaScript" tabindex="-1">Customizing dark mode re-colorization intensities with JavaScript</h4>
+
+<p>Not everyone is the same and people have different dark mode needs.
+By sticking to the re-colorization method described above,
+I can easily make the grayscale intensity a user preference that I can
+<a href="https://developer.mozilla.org/docs/Web/CSS/Using_CSS_custom_properties#Values_in_JavaScript">change via JavaScript</a>,
+and by setting a value of <code translate="no" dir="ltr">0%</code>, I can also disable re-colorization completely.
+Note that <a href="https://developer.mozilla.org/docs/Web/API/Document/documentElement"><code translate="no" dir="ltr">document.documentElement</code></a>
+provides a reference to the root element of the document,
+that is, the same element I can reference with the
+<a href="https://developer.mozilla.org/docs/Web/CSS/:root"><code translate="no" dir="ltr">:root</code> CSS pseudo-class</a>.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="JavaScript"><code translate="no" dir="ltr"><span class="devsite-syntax-kd">const</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nx">filter</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-o">=</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-s1">'grayscale(70%)'</span><span class="devsite-syntax-p">;</span>
+<span class="devsite-syntax-nb">document</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">documentElement</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">style</span><span class="devsite-syntax-p">.</span><span class="devsite-syntax-nx">setProperty</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-s1">'--image-filter'</span><span class="devsite-syntax-p">,</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nx">value</span><span class="devsite-syntax-p">);</span>
+</code></pre></devsite-code>
+<h3 id="invert_vector_graphics_and_icons" data-text="Invert vector graphics and icons" tabindex="-1">Invert vector graphics and icons</h3>
+
+<p>For vector graphics—that in my case are used as icons that I reference via <code translate="no" dir="ltr">&lt;img&gt;</code> elements—I
+use a different re-colorization method.
+While <a href="https://dl.acm.org/citation.cfm?id=2982168">research</a> has shown
+that people don&#39;t like inversion for photos, it does work very well for most icons.
+Again I use CSS variables to determine the inversion amount
+in the regular and in the <a href="https://developer.mozilla.org/docs/Web/CSS/:hover"><code translate="no" dir="ltr">:hover</code></a> state.</p>
+
+<div class="wd-switcher">
+  <figure>
+    <img src="/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6.png" alt="White icons and text on a black background." width="744" height="48" srcset="https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/icons-are-inverted-dark-d78f9971c6dd6_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+    <figcaption class="wd-caption">
+      Icons are inverted in dark mode.
+    </figcaption>
+  </figure>
+  <figure>
+    <img src="/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e.png" alt="Black icons and text on a white background." width="744" height="48" srcset="https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/regular-icons-light-mode-bcabc11023a1e_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+    <figcaption class="wd-caption">
+      Regular icons in light mode.
+    </figcaption>
+  </figure>
+</div>
+
+<p>Note how again I only invert icons in <code translate="no" dir="ltr">dark.css</code> but not in <code translate="no" dir="ltr">light.css</code>, and how <code translate="no" dir="ltr">:hover</code>
+gets a different inversion intensity in the two cases to make the icon appear
+slightly darker or slightly brighter, dependent on the mode the user has selected.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* dark.css */</span>
+<span class="devsite-syntax-nt">--icon-filter</span><span class="devsite-syntax-o">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nt">invert</span><span class="devsite-syntax-o">(</span><span class="devsite-syntax-nt">100</span><span class="devsite-syntax-o">%);</span>
+<span class="devsite-syntax-nt">--icon-filter_hover</span><span class="devsite-syntax-o">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nt">invert</span><span class="devsite-syntax-o">(</span><span class="devsite-syntax-nt">40</span><span class="devsite-syntax-o">%);</span>
+
+<span class="devsite-syntax-nt">img</span><span class="devsite-syntax-o">[</span><span class="devsite-syntax-nt">src</span><span class="devsite-syntax-o">*=</span><span class="devsite-syntax-s1">'.svg'</span><span class="devsite-syntax-o">]</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">filter</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--icon-filter</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code><div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* light.css */</span>
+<span class="devsite-syntax-nt">--icon-filter_hover</span><span class="devsite-syntax-o">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nt">invert</span><span class="devsite-syntax-o">(</span><span class="devsite-syntax-nt">60</span><span class="devsite-syntax-o">%);</span>
+</code></pre></devsite-code><div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-c">/* style.css */</span>
+<span class="devsite-syntax-nt">img</span><span class="devsite-syntax-o">[</span><span class="devsite-syntax-nt">src</span><span class="devsite-syntax-o">*=</span><span class="devsite-syntax-s1">'.svg'</span><span class="devsite-syntax-o">]</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-nd">hover</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">filter</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--icon-filter_hover</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<h3 id="use_currentcolor_for_inline_svgs" data-text="Use currentColor for inline SVGs" tabindex="-1">Use <code translate="no" dir="ltr">currentColor</code> for inline SVGs</h3>
+
+<p>For <em>inline</em> SVG images, instead of <a href="#invert_vector_graphics_and_icons">using inversion filters</a>,
+you can leverage the <a href="https://developer.mozilla.org/docs/Web/CSS/color_value#currentColor_keyword"><code translate="no" dir="ltr">currentColor</code></a>
+CSS keyword that represents the value of an element&#39;s <code translate="no" dir="ltr">color</code> property.
+This lets you use the <code translate="no" dir="ltr">color</code> value on properties that do not receive it by default.
+Conveniently, if <code translate="no" dir="ltr">currentColor</code> is used as the value of the SVG
+<a href="https://developer.mozilla.org/docs/Web/SVG/Tutorial/Fills_and_Strokes#Fill_and_Stroke_Attributes"><code translate="no" dir="ltr">fill</code> or <code translate="no" dir="ltr">stroke</code> attributes</a>,
+it instead takes its value from the inherited value of the color property.
+Even better: this also works for
+<a href="https://developer.mozilla.org/docs/Web/SVG/Element/use"><code translate="no" dir="ltr">&lt;svg&gt;&lt;use href=&quot;…&quot;&gt;&lt;/svg&gt;</code></a>,
+so you can have separate resources
+and <code translate="no" dir="ltr">currentColor</code> will still be applied in context.
+Please note that this only works for <em>inline</em> or <code translate="no" dir="ltr">&lt;use href=&quot;…&quot;&gt;</code> SVGs,
+but not SVGs that are referenced as the <code translate="no" dir="ltr">src</code> of an image or somehow via CSS.
+You can see this applied in the demo below.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="Text only" syntax-guessed><code translate="no" dir="ltr">&lt;!-- Some inline SVG --&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg"
+    stroke="currentColor"
+&gt;
+  […]
+&lt;/svg&gt;
+</code></pre></devsite-code>
+<div style="height: 950px; width: 100%;">
+  <iframe
+  allow="geolocation; microphone; camera; midi; vr; encrypted-media"
+  loading="lazy"
+  src="https://googlechrome.github.io/samples/glitch-migration/darkmode/currentcolor/"
+  style="height: 100%; width: 100%; border: 0;"
+  title="dark-mode-currentcolor embed"
+></iframe>
+</div>
+
+<h3 id="smooth_transitions_between_modes" data-text="Smooth transitions between modes" tabindex="-1">Smooth transitions between modes</h3>
+
+<p>Switching from dark mode to light mode or vice versa can be smoothed thanks to the fact
+that both <code translate="no" dir="ltr">color</code> and <code translate="no" dir="ltr">background-color</code> are
+<a href="https://www.quackit.com/css/css3/animations/animatable_properties/">animatable CSS properties</a>.
+Creating the animation is as easy as declaring two <code translate="no" dir="ltr">transition</code>s for the two properties.
+The example below illustrates the overall idea, you can experience it live in the
+<a href="https://googlechrome.github.io/samples/glitch-migration/darkmode/baseline/">demo</a>.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="CSS"><code translate="no" dir="ltr"><span class="devsite-syntax-nt">body</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-p">{</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--duration</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-mf">0.5</span><span class="devsite-syntax-kt">s</span><span class="devsite-syntax-p">;</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-nv">--timing</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-kc">ease</span><span class="devsite-syntax-p">;</span>
+
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--color</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">background-color</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--background-color</span><span class="devsite-syntax-p">);</span>
+
+<span class="devsite-syntax-w">  </span><span class="devsite-syntax-k">transition</span><span class="devsite-syntax-p">:</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-kc">color</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--duration</span><span class="devsite-syntax-p">)</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--timing</span><span class="devsite-syntax-p">),</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-k">background-color</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span>
+<span class="devsite-syntax-w">        </span><span class="devsite-syntax-nv">--duration</span>
+<span class="devsite-syntax-w">      </span><span class="devsite-syntax-p">)</span><span class="devsite-syntax-w"> </span><span class="devsite-syntax-nf">var</span><span class="devsite-syntax-p">(</span><span class="devsite-syntax-nv">--timing</span><span class="devsite-syntax-p">);</span>
+<span class="devsite-syntax-p">}</span>
+</code></pre></devsite-code>
+<h3 id="art_direction_with_dark_mode" data-text="Art direction with dark mode" tabindex="-1">Art direction with dark mode</h3>
+
+<p>While for loading performance reasons in general I recommend to exclusively work with <code translate="no" dir="ltr">prefers-color-scheme</code>
+in the <code translate="no" dir="ltr">media</code> attribute of <code translate="no" dir="ltr">&lt;link&gt;</code> elements (rather than inline in stylesheets),
+there are situations where you actually may want to work with <code translate="no" dir="ltr">prefers-color-scheme</code> directly inline in your HTML code.
+Art direction is such a situation.
+On the web, art direction deals with the overall visual appearance of a page and how it communicates visually,
+stimulates moods, contrasts features, and psychologically appeals to a target audience.</p>
+
+<p>With dark mode, it&#39;s up to the judgment of the designer to decide what is the best image at a particular mode
+and whether <a href="#re-colorize_and_darken_photographic_images">re-colorization of images</a> is maybe <em>not</em> good enough.
+If used with the <code translate="no" dir="ltr">&lt;picture&gt;</code> element, the <code translate="no" dir="ltr">&lt;source&gt;</code> of the image to be shown can be made dependent on the <code translate="no" dir="ltr">media</code> attribute.
+In the example below, I show the Western hemisphere for dark mode, and the Eastern hemisphere for light mode
+or when no preference is given, defaulting to the Eastern hemisphere in all other cases.
+This is of course purely for illustrative purposes.
+Toggle dark mode on your device to see the difference.</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="HTML"><code translate="no" dir="ltr">&lt;picture&gt;
+  &lt;source srcset="western.webp" media="(prefers-color-scheme: dark)" /&gt;
+  &lt;source srcset="eastern.webp" media="(prefers-color-scheme: light)" /&gt;
+  &lt;img src="eastern.webp" /&gt;
+&lt;/picture&gt;
+</code></pre></devsite-code>
+<div style="height: 600px; width: 100%;">
+  <iframe
+  allow="geolocation; microphone; camera; midi; vr; encrypted-media"
+  loading="lazy"
+  src="https://googlechrome.github.io/samples/glitch-migration/darkmode/picture/"
+  style="height: 100%; width: 100%; border: 0;"
+  title="dark-mode-currentcolor embed"
+></iframe>
+</div>
+
+<h3 id="dark_mode_but_add_an_opt-out" data-text="Dark mode, but add an opt-out" tabindex="-1">Dark mode, but add an opt-out</h3>
+
+<p>As mentioned in the <a href="#why_dark_mode">why dark mode</a> section above,
+dark mode is an aesthetic choice for most users.
+In consequence, some users may actually like to have their operating system UI
+in dark, but still prefer to see their webpages the way they are used to seeing them.
+A great pattern is to initially adhere to the signal the browser sends through
+<code translate="no" dir="ltr">prefers-color-scheme</code>, but to then optionally allow users to override their system-level setting.</p>
+
+<h4 id="the_dark-mode-toggle_custom_element" data-text="The &lt;dark-mode-toggle&gt; custom element" tabindex="-1">The <code translate="no" dir="ltr">&lt;dark-mode-toggle&gt;</code> custom element</h4>
+
+<p>You can of course create the code for this yourself, but you can also just use
+a ready-made custom element (web component) that I have created right for this purpose.
+It&#39;s called <a href="https://github.com/GoogleChromeLabs/dark-mode-toggle"><code translate="no" dir="ltr">&lt;dark-mode-toggle&gt;</code></a>
+and it adds a toggle (dark mode: on/off) or
+a theme switcher (theme: light/dark) to your page that you can fully customize.
+The demo below shows the element in action
+(oh, and I have also 🤫 silently snuck it in all of the
+<a href="https://googlechrome.github.io/samples/glitch-migration/darkmode/baseline/">other</a>
+<a href="https://googlechrome.github.io/samples/glitch-migration/darkmode/currentcolor/">examples</a>
+<a href="https://googlechrome.github.io/samples/glitch-migration/darkmode/picture/">above</a>).</p>
+<div></div><devsite-code><pre class="devsite-click-to-copy" translate="no" dir="ltr" is-upgraded syntax="HTML"><code translate="no" dir="ltr">&lt;dark-mode-toggle
+  legend="Theme Switcher"
+  appearance="switch"
+  dark="Dark"
+  light="Light"
+  remember="Remember this"
+&gt;&lt;/dark-mode-toggle&gt;
+</code></pre></devsite-code>
+<figure>
+  <img src="/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d.png" alt width="140" height="76" srcset="https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-4a5dd3fe9675d_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">
+    <code translate="no" dir="ltr">&lt;dark-mode-toggle&gt;</code> in light mode.
+  </figcaption>
+</figure>
+
+<figure>
+  <img src="/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2.png" alt width="140" height="76" srcset="https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_36.png 36w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_48.png 48w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_72.png 72w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_96.png 96w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_480.png 480w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_720.png 720w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_856.png 856w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_960.png 960w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_1440.png 1440w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_1920.png 1920w,https://web.dev/static/articles/prefers-color-scheme/image/dark-mode-toggle-light-f0b507bcb5df2_2880.png 2880w" sizes="(max-width: 840px) 100vw, 856px">
+  <figcaption class="wd-caption">
+    <code translate="no" dir="ltr">&lt;dark-mode-toggle&gt;</code> in dark mode.
+  </figcaption>
+</figure>
+
+<p>Try clicking or tapping the dark mode controls in the upper right corner in the following demo.
+If you check the checkbox in the third and the fourth control, see how your mode selection
+is remembered even when you reload the page.
+This allows your visitors to keep their operating system in dark mode,
+but enjoy your site in light mode or vice versa.</p>
+
+<div style="height: 800px; width: 100%;">
+  <iframe
+  allow="geolocation; microphone; camera; midi; vr; encrypted-media"
+  loading="lazy"
+  src="https://googlechromelabs.github.io/dark-mode-toggle/demo/index.html"
+  style="height: 100%; width: 100%; border: 0;"
+  title="IFrame content"
+></iframe>
+</div>
+
+<h2 id="conclusions" data-text="Conclusions" tabindex="-1">Conclusions</h2>
+
+<p>Working with and supporting dark mode is fun and opens up new design avenues.
+For some of your visitors it can be the difference between not being able to handle your site
+and being a happy user.
+There are some pitfalls and careful testing is definitely required,
+but dark mode is definitely a great opportunity for you to show that you care about all of your users.
+The best practices mentioned in this post and helpers like the
+<a href="https://github.com/GoogleChromeLabs/dark-mode-toggle"><code translate="no" dir="ltr">&lt;dark-mode-toggle&gt;</code></a> custom element
+should make you confident in your ability to create an amazing dark mode experience.
+<a href="https://twitter.com/tomayac">Let me know on Twitter</a> what you create and if this post was useful
+or also suggestions for improving it.
+Thanks for reading! 🌒</p>
+
+<h2 id="related_links" data-text="Related links" tabindex="-1">Related links</h2>
+
+<p>Resources for the <code translate="no" dir="ltr">prefers-color-scheme</code> media query:</p>
+
+<ul>
+<li><a href="https://chromestatus.com/feature/5109758977638400">Chrome Platform Status page</a></li>
+<li><a href="https://crbug.com/889087">Chromium bug</a></li>
+<li><a href="https://drafts.csswg.org/mediaqueries-5/#prefers-color-scheme">Media Queries Level&nbsp;5 spec</a></li>
+</ul>
+
+<p>Resources for the <code translate="no" dir="ltr">color-scheme</code> meta tag and CSS property:</p>
+
+<ul>
+<li><a href="/articles/color-scheme">The <code translate="no" dir="ltr">color-scheme</code> CSS property and meta tag</a></li>
+<li><a href="https://chromestatus.com/feature/5330651267989504">Chrome Platform Status page</a></li>
+<li><a href="http://crbug.com/925935">Chromium bug</a></li>
+<li><a href="https://drafts.csswg.org/css-color-adjust-1/">CSS Color Adjustment Module Level&nbsp;1 spec</a></li>
+<li><a href="https://github.com/w3c/csswg-drafts/issues/3299">CSS WG GitHub Issue for the meta tag and the CSS property</a></li>
+<li><a href="https://github.com/whatwg/html/issues/4504">HTML WHATWG GitHub Issue for the meta tag</a></li>
+</ul>
+
+<p>General dark mode links:</p>
+
+<ul>
+<li><a href="https://material.io/design/color/dark-theme.html">Material Design—Dark Theme</a></li>
+<li><a href="https://webkit.org/blog/8892/dark-mode-in-web-inspector/">Dark Mode in Web Inspector</a></li>
+<li><a href="https://webkit.org/blog/8840/dark-mode-support-in-webkit/">Dark Mode Support in WebKit</a></li>
+<li><a href="https://developer.apple.com/design/human-interface-guidelines/macos/visual-design/dark-mode/">Apple Human Interface Guidelines—Dark Mode</a></li>
+</ul>
+
+<p>Background research articles for this post:</p>
+
+<ul>
+<li><a href="https://medium.com/dev-channel/what-does-dark-modes-supported-color-schemes-actually-do-69c2eacdfa1d">What Does Dark Mode&#39;s &quot;supported-color-schemes&quot; Actually Do? 🤔</a></li>
+<li><a href="https://medium.com/dev-channel/let-there-be-darkness-maybe-9facd9c3023d">Let there be darkness! 🌚 Maybe…</a></li>
+<li><a href="https://medium.com/dev-channel/re-colorization-for-dark-mode-19e2e17b584b">Re-Colorization for Dark Mode</a></li>
+</ul>
+
+<h2 id="acknowledgements" data-text="Acknowledgements" tabindex="-1">Acknowledgements</h2>
+
+<p>The <code translate="no" dir="ltr">prefers-color-scheme</code> media feature, the <code translate="no" dir="ltr">color-scheme</code> CSS property,
+and the related meta tag are the implementation work of 👏 <a href="https://twitter.com/runeli">Rune Lillesveen</a>.
+Rune is also a co-editor of the <a href="https://drafts.csswg.org/css-color-adjust-1/">CSS Color Adjustment Module Level&nbsp;1</a> spec.
+I would like to 🙏 thank <a href="https://www.linkedin.com/in/lukasz-zbylut/">Lukasz Zbylut</a>,
+<a href="https://twitter.com/rowan_m">Rowan Merewood</a>,
+<a href="https://www.linkedin.com/in/chiragd/">Chirag Desai</a>,
+and <a href="https://twitter.com/rob_dodson">Rob Dodson</a>
+for their thorough reviews of this article.
+The <a href="#loading_strategy">loading strategy</a> is the brainchild of <a href="https://twitter.com/jaffathecake">Jake Archibald</a>.
+<a href="https://twitter.com/ecbos_">Emilio Cobos Álvarez</a> has pointed me to the correct <code translate="no" dir="ltr">prefers-color-scheme</code> detection method.
+The tip with referenced SVGs and <code translate="no" dir="ltr">currentColor</code> came from
+<a href="https://twitter.com/xeenon">Timothy Hatcher</a>.
+Finally, I am thankful to the many anonymous participants of the various user studies
+that have helped shape the recommendations in this article.</p>
+
+  
+
+  
+</div>
+
+  
+    
+    
+      
+    <devsite-thumb-rating position="footer">
+    </devsite-thumb-rating>
+  
+       
+    
+    
+  
+
+  <div class="devsite-floating-action-buttons"></div></article>
+
+
+<devsite-content-footer class="nocontent" data-nosnippet>
+  <p>Except as otherwise noted, the content of this page is licensed under the <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 License</a>, and code samples are licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 License</a>. For details, see the <a href="https://developers.google.com/site-policies">Google Developers Site Policies</a>. Java is a registered trademark of Oracle and/or its affiliates.</p>
+  <p>Last updated 2019-06-27 UTC.</p>
+</devsite-content-footer>
+
+
+<devsite-notification
+>
+</devsite-notification>
+
+
+  
+<div class="devsite-content-data">
+  
+  
+    <template class="devsite-content-data-template">
+      [[["Easy to understand","easyToUnderstand","thumb-up"],["Solved my problem","solvedMyProblem","thumb-up"],["Other","otherUp","thumb-up"]],[["Missing the information I need","missingTheInformationINeed","thumb-down"],["Too complicated / too many steps","tooComplicatedTooManySteps","thumb-down"],["Out of date","outOfDate","thumb-down"],["Samples / code issue","samplesCodeIssue","thumb-down"],["Other","otherDown","thumb-down"]],["Last updated 2019-06-27 UTC."],[],[]]
+    </template>
+  
+</div>
+            
+          </devsite-content>
+        </main>
+        <devsite-footer-promos class="devsite-footer">
+          
+            
+          
+        </devsite-footer-promos>
+        <devsite-footer-linkboxes class="devsite-footer">
+          
+            
+<nav class="devsite-footer-linkboxes nocontent"
+     aria-label="Footer links"
+     data-nosnippet>
+  
+  <ul class="devsite-footer-linkboxes-list">
+    
+    <li class="devsite-footer-linkbox wd-footer-promo">
+    <h3 class="devsite-footer-linkbox-heading no-link">web.dev</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <h3 class="devsite-footer-linkbox-heading no-link">
+          
+            web.dev
+          
+          </h3>
+          
+          
+          <div class="devsite-footer-linkbox-description">We want to help you build beautiful, accessible, fast, and secure websites that work cross-browser, and for all of your users. This site is our home for content to help you on that journey, written by members of the Chrome team, and external experts.</div>
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+    <li class="devsite-footer-linkbox ">
+    <h3 class="devsite-footer-linkbox-heading no-link">Contribute</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://issuetracker.google.com/issues/new?component=1400680&amp;template=1857359"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 1)"
+            >
+            
+          
+            File a bug
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://issuetracker.google.com/issues?q=status:open%20componentid:1400680&amp;s=created_time:desc"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 2)"
+            >
+            
+              
+              
+            
+          
+            See open issues
+          
+          </a>
+          
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+    <li class="devsite-footer-linkbox ">
+    <h3 class="devsite-footer-linkbox-heading no-link">Related Content</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://developer.chrome.com/"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 1)"
+            >
+            
+          
+            Chrome for Developers
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://blog.chromium.org/"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 2)"
+            >
+            
+          
+            Chromium updates
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="/case-studies"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 3)"
+            >
+            
+          
+            Case studies
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="/shows"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 4)"
+            >
+            
+              
+              
+            
+          
+            Podcasts &amp; shows
+          
+          </a>
+          
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+    <li class="devsite-footer-linkbox ">
+    <h3 class="devsite-footer-linkbox-heading no-link">Follow</h3>
+      <ul class="devsite-footer-linkbox-list">
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://twitter.com/ChromiumDev"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 1)"
+            >
+            
+          
+            @ChromiumDev on X
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://www.youtube.com/user/ChromeDevelopers"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 2)"
+            >
+            
+          
+            YouTube
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="https://www.linkedin.com/showcase/chrome-for-developers"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 3)"
+            >
+            
+          
+            Chrome for Developers on LinkedIn
+          
+          </a>
+          
+          
+        </li>
+        
+        <li class="devsite-footer-linkbox-item">
+          
+          <a href="/static/blog/feed.xml"
+             class="devsite-footer-linkbox-link gc-analytics-event"
+             data-category="Site-Wide Custom Events"
+            
+             data-label="Footer Link (index 4)"
+            >
+            
+              
+              
+            
+          
+            RSS
+          
+          </a>
+          
+          
+        </li>
+        
+      </ul>
+    </li>
+    
+  </ul>
+  
+</nav>
+          
+        </devsite-footer-linkboxes>
+        <devsite-footer-utility class="devsite-footer">
+          
+            
+
+<div class="devsite-footer-utility nocontent" data-nosnippet>
+  
+
+  
+  <nav class="devsite-footer-utility-links" aria-label="Utility links">
+    
+    <ul class="devsite-footer-utility-list">
+      
+      <li class="devsite-footer-utility-item
+                 ">
+        
+        
+        <a class="devsite-footer-utility-link gc-analytics-event"
+           href="//policies.google.com/terms"
+           data-category="Site-Wide Custom Events"
+           data-label="Footer Terms link"
+         >
+          Terms
+        </a>
+        
+      </li>
+      
+      <li class="devsite-footer-utility-item
+                 ">
+        
+        
+        <a class="devsite-footer-utility-link gc-analytics-event"
+           href="//policies.google.com/privacy"
+           data-category="Site-Wide Custom Events"
+           data-label="Footer Privacy link"
+         >
+          Privacy
+        </a>
+        
+      </li>
+      
+      <li class="devsite-footer-utility-item
+                 glue-cookie-notification-bar-control">
+        
+        
+        <a class="devsite-footer-utility-link gc-analytics-event"
+           href="#"
+           data-category="Site-Wide Custom Events"
+           data-label="Footer Manage cookies link"
+         
+           aria-hidden="true"
+         >
+          Manage cookies
+        </a>
+        
+      </li>
+      
+    </ul>
+    
+    
+<devsite-language-selector>
+  <ul role="presentation">
+    
+    
+    <li role="presentation">
+      <a role="menuitem" lang="en"
+        >English</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="de"
+        >Deutsch</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="es"
+        >Español</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="es_419"
+        >Español – América Latina</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="fr"
+        >Français</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="id"
+        >Indonesia</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="it"
+        >Italiano</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="pl"
+        >Polski</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="pt_br"
+        >Português – Brasil</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="vi"
+        >Tiếng Việt</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="tr"
+        >Türkçe</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ru"
+        >Русский</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="he"
+        >עברית</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ar"
+        >العربيّة</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="fa"
+        >فارسی</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="hi"
+        >हिंदी</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="bn"
+        >বাংলা</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="th"
+        >ภาษาไทย</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="zh_cn"
+        >中文 – 简体</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="zh_tw"
+        >中文 – 繁體</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ja"
+        >日本語</a>
+    </li>
+    
+    <li role="presentation">
+      <a role="menuitem" lang="ko"
+        >한국어</a>
+    </li>
+    
+  </ul>
+</devsite-language-selector>
+
+  </nav>
+</div>
+          
+        </devsite-footer-utility>
+        <devsite-panel>
+          
+        </devsite-panel>
+        
+      </section>
+      </section>
+    <devsite-sitemask></devsite-sitemask>
+    <devsite-snackbar></devsite-snackbar>
+    <devsite-tooltip ></devsite-tooltip>
+    <devsite-heading-link></devsite-heading-link>
+    <devsite-analytics>
+      
+        <script type="application/json" analytics>[]</script>
+<script type="application/json" tag-management>{&#34;at&#34;: &#34;True&#34;, &#34;ga4&#34;: [], &#34;ga4p&#34;: [], &#34;gtm&#34;: [{&#34;id&#34;: &#34;GTM-MZWCJPP&#34;, &#34;purpose&#34;: 0}], &#34;parameters&#34;: {&#34;internalUser&#34;: &#34;False&#34;, &#34;language&#34;: {&#34;machineTranslated&#34;: &#34;False&#34;, &#34;requested&#34;: &#34;en&#34;, &#34;served&#34;: &#34;en&#34;}, &#34;pageType&#34;: &#34;article&#34;, &#34;projectName&#34;: &#34;Articles&#34;, &#34;signedIn&#34;: &#34;False&#34;, &#34;tenant&#34;: &#34;web&#34;, &#34;recommendations&#34;: {&#34;sourcePage&#34;: &#34;&#34;, &#34;sourceType&#34;: 0, &#34;sourceRank&#34;: 0, &#34;sourceIdenticalDescriptions&#34;: 0, &#34;sourceTitleWords&#34;: 0, &#34;sourceDescriptionWords&#34;: 0, &#34;experiment&#34;: &#34;&#34;}, &#34;experiment&#34;: {&#34;ids&#34;: &#34;&#34;}}}</script>
+      
+    </devsite-analytics>
+    
+      <devsite-badger></devsite-badger>
+    
+    
+    
+    
+<script nonce="Z5rZoWCaMV8+qG+CEWA9AbIHOzVQwG">
+  
+  (function(d,e,v,s,i,t,E){d['GoogleDevelopersObject']=i;
+    t=e.createElement(v);t.async=1;t.src=s;E=e.getElementsByTagName(v)[0];
+    E.parentNode.insertBefore(t,E);})(window, document, 'script',
+    'https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/js/app_loader.js', '[27,"en",null,"/js/devsite_app_module.js","https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87","https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web","https://web-dot-devsite-v2-prod-3p.appspot.com",1,null,["/_pwa/web/manifest.json","https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/images/video-placeholder.svg","https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/favicon.png","https://www.gstatic.com/devrel-devsite/prod/v826fb839c0b38141980abf47020a61dc3ff340cbde624f57178f4c01d184ef87/web/images/lockup.svg","https://fonts.googleapis.com/css?family=Google+Sans:400,500|Roboto:400,400italic,500,500italic,700,700italic|Roboto+Mono:400,500,700&display=swap"],1,null,[1,6,8,12,14,17,21,25,50,52,63,70,75,76,80,87,91,92,93,97,98,100,101,102,103,104,105,107,108,109,110,112,113,117,118,120,122,124,125,126,127,129,130,131,132,133,134,135,136,138,140,141,147,148,149,151,152,156,157,158,159,161,163,164,168,169,170,179,180,182,183,186,191,193,196],"AIzaSyCNm9YxQumEXwGJgTDjxoxXK6m1F-9720Q","AIzaSyCc76DZePGtoyUjqKrLdsMGk_ry7sljLbY","web.dev","AIzaSyB9bqgQ2t11WJsOX8qNsCQ6U-w91mmqF-I","AIzaSyAdYnStPdzjcJJtQ0mvIaeaMKj7_t6J_Fg",null,null,null,["Concierge__enable_actions_menu","Profiles__enable_recognition_badges","Cloud__cache_serialized_dynamic_content","MiscFeatureFlags__fix_lower_breadcrumbs","CloudShell__cloud_shell_button","Profiles__require_profile_eligibility_for_signin","MiscFeatureFlags__enable_explicit_template_dependencies","DevPro__enable_enterprise","Profiles__enable_completecodelab_endpoint","DevPro__enable_google_payments_buyflow","Concierge__enable_devsite_llm_tools","Profiles__enable_page_saving","Cloud__enable_cloud_shell","Profiles__enable_callout_notifications","Profiles__enable_developer_profiles_callout","Profiles__enable_targeted_hero","Profiles__enable_developer_profile_benefits_ui_redesign","MiscFeatureFlags__enable_framebox_badge_methods","Profiles__enable_developer_profile_pages_as_content","MiscFeatureFlags__developers_footer_image","CloudShell__cloud_code_overflow_menu","DevPro__enable_nvidia_credits_card","DevPro__enable_developer_subscriptions","Profiles__enable_awarding_url","BookNav__enable_tenant_cache_key","DevPro__enable_g1_integration","MiscFeatureFlags__enable_variable_operator","DevPro__enable_devsite_captcha","Profiles__enable_playlist_community_acl","MiscFeatureFlags__developers_footer_dark_image","Profiles__enable_profile_collections","OnSwitch__enable","Profiles__enable_complete_playlist_endpoint","Profiles__enable_public_developer_profiles","Search__enable_dynamic_content_confidential_banner","Experiments__reqs_query_experiments","Profiles__enable_purchase_prompts","DevPro__enable_cloud_innovators_plus","MiscFeatureFlags__enable_llms_txt","Cloud__enable_legacy_calculator_redirect","MiscFeatureFlags__enable_variable_operator_index_yaml","Cloud__enable_cloudx_experiment_ids","DevPro__remove_eu_tax_intake_form","Analytics__enable_devpro_interaction_logging","Cloud__enable_cloud_dlp_service","DevPro__enable_firebase_workspaces_card","Concierge__enable_pushui","MiscFeatureFlags__enable_project_variables","SignIn__enable_l1_signup_flow","MiscFeatureFlags__enable_firebase_utm","DevPro__enable_embed_profile_creation","Search__enable_page_map","MiscFeatureFlags__remove_cross_domain_tracking_params","Cloud__enable_cloud_shell_fte_user_flow","MiscFeatureFlags__enable_appearance_cookies","TpcFeatures__enable_unmirrored_page_left_nav","MiscFeatureFlags__enable_view_transitions","Search__enable_ai_search_summaries_for_all","Profiles__enable_dashboard_curated_recommendations","DevPro__enable_free_benefits","DevPro__enable_google_one_card","AIStudioInteractionsToggle__interactions_are_default","DevPro__enable_code_assist","MiscFeatureFlags__gdp_dashboard_reskin_enabled","Profiles__enable_auto_apply_credits","Profiles__enable_stripe_subscription_management","Profiles__enable_join_program_group_endpoint","Cloud__fast_free_trial","Cloud__enable_free_trial_server_call","Concierge__enable_remove_info_panel_tags","Search__enable_ai_eligibility_checks","DevPro__enable_devpro_offers","Profiles__enable_completequiz_endpoint","DevPro__enable_g1_ineligible_redirect","Analytics__enable_clearcut_logging","DevPro__enable_credits_banner","DevPro__enable_vertex_credit_card","Search__enable_suggestions_from_borg","Profiles__enable_release_notes_notifications","Profiles__enable_user_type","TpcFeatures__proxy_prod_host","EngEduTelemetry__enable_engedu_telemetry"],null,null,"AIzaSyA58TaKli1DculwmAmbpzLVGuWc8eCQgQc","https://developerscontentserving-pa.googleapis.com","AIzaSyDWBU60w0P9hEkr29kkksYs8Z7gvZ8u_wc","https://developerscontentsearch-pa.googleapis.com",2,4,null,"https://developerprofiles-pa.googleapis.com",[27,"web","web.dev","web.dev",null,"web-dot-devsite-v2-prod-3p.appspot.com",null,null,[null,null,null,null,null,null,null,null,null,null,null,[1],null,null,null,null,null,null,[1],null,null,null,null,[1,null,1],[1,1,null,1,1],null,null,null,null,null,[1]],null,[38,null,null,null,null,null,"/images/lockup.svg","/images/touchicon-180.png",null,null,null,1,1,null,null,null,null,null,null,null,null,2,null,null,null,"/images/lockup-dark-theme.svg",[]],[],null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,[[],[1,1]],[[null,null,null,null,null,["GTM-MZWCJPP"],null,null,null,null,null,[["GTM-MZWCJPP",1]],1]],null,4],1,null,1,null,"https://developerscontentinsights-pa.googleapis.com","AIzaSyC11xEGtFhkmSh_iF6l_itbxnFz2GrIBOg","AIzaSyAXJ10nRF73mmdSDINgkCNX5bbd2KPcWm8","https://developers.googleapis.com",null,null,"AIzaSyCjP0KOnHfv8mwe38sfzZJMOnqE3HvrD4A",null,null,"https://developers.googleapis.com"]')
+  
+</script>
+
+    <devsite-a11y-announce></devsite-a11y-announce>
+  </body>
+</html>

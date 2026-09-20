@@ -1,0 +1,341 @@
+{
+ "source": "Material Design 3 — цветовая система: HCT, тональные палитры, роли цвета, тон-возвышение в тёмной теме (m3.material.io + material-color-utilities + material-web/MDC-Android токены)",
+ "sourcesRead": [
+  "https://m3.material.io/styles/color/roles (страница SPA, текст снят через рендер-прокси r.jina.ai)",
+  "https://m3.material.io/styles/color/system/how-the-system-works (через r.jina.ai)",
+  "https://m3.material.io/styles/color/system/overview (через r.jina.ai; раздел What's new: май 2025, август 2024, февраль 2023)",
+  "https://m3.material.io/styles/color/choosing-a-scheme (через r.jina.ai)",
+  "https://m3.material.io/styles/color/static/baseline (через r.jina.ai; только порядок работы в Figma, hex там нет)",
+  "https://m3.material.io/styles/color/static/custom-brand (через r.jina.ai)",
+  "https://m3.material.io/styles/color/advanced/overview, /define-new-colors, /adjust-existing-colors (через r.jina.ai)",
+  "https://m3.material.io/styles/color/dynamic/choosing-a-source (через r.jina.ai)",
+  "https://m3.material.io/foundations/designing/color-contrast (через r.jina.ai)",
+  "https://m3.material.io/foundations/design-tokens/overview (через r.jina.ai)",
+  "https://m3.material.io/blog/tone-based-surface-color-m3 (через r.jina.ai)",
+  "https://m3.material.io/blog/science-of-color-design (через r.jina.ai; автор — James O'Leary, создатель HCT)",
+  "https://m2.material.io/design/color/dark-theme.html (через r.jina.ai; M2, для правил тёмной темы)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/README.md",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/hct/hct.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/contrast/contrast.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/utils/color_utils.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/palettes/tonal_palette.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/palettes/core_palette.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/color_spec_2021.ts (таблица ролей → тонов, кривые контраста)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/color_spec_2025.ts (спека 2025 / M3 Expressive)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/dynamic_scheme.ts (хрома палитр по вариантам)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/dynamic_color.ts (foregroundTone, «неловкая зона» 50–59)",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/contrast_curve.ts, tone_delta_pair.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dislike/dislike_analyzer.ts, blend/blend.ts",
+  "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/scheme/scheme_*.ts (7 вариантов схем)",
+  "https://raw.githubusercontent.com/material-components/material-web/main/docs/theming/color.md и README.md",
+  "https://raw.githubusercontent.com/material-components/material-web/main/tokens/_md-sys-color.scss (список из 49 токенов)",
+  "https://raw.githubusercontent.com/material-components/material-web/main/tokens/versions/v0_192/_md-ref-palette.scss (hex базовой палитры) и _md-sys-color.scss (роль → ступень, light/dark)",
+  "https://raw.githubusercontent.com/material-components/material-components-android/master/docs/theming/Color.md (таблица ролей → ступеней для light/dark, разделы Contrast Control)",
+  "https://raw.githubusercontent.com/material-foundation/material-theme-builder/main/README.md",
+  "https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio (частично: формула и критерии 1.4.3/1.4.6/1.4.11)",
+  "Собственный пересчёт: скрипт по формулам contrast.ts/color_utils.ts — контраст всех пар ступеней базовой схемы и минимумы при ΔT 10…70 (числа ниже помечены «пересчитано»)"
+ ],
+ "sourcesFailed": [
+  "Прямой WebFetch/curl любой страницы m3.material.io и material.io/blog — сайт отдаёт только «This website requires JavaScript»; текст получен через рендер-прокси r.jina.ai (содержимое официальное, но прошло через стороннюю сборку — цитаты сверены по смыслу с кодом MCU)",
+  "https://m3.material.io/styles/color/advanced/apply-colors — прокси вернул пустое тело (150 байт), не прочитано",
+  "https://m3.material.io/styles/color/dynamic/user-generated-color — адрес отдаёт содержимое страницы choosing-a-source, отдельной страницы не получено",
+  "https://material-foundation.github.io/material-color-utilities/ — не открывалась; вместо неё взят исходник репозитория (первичнее)",
+  "https://www.w3.org/TR/WCAG21/ — WebFetch вернул только отрывок: формула относительной яркости sRGB в ответ не попала (взята из color_utils.ts MCU, где она реализована так же)",
+  "Точные hex базовой схемы со страницы baseline — на странице их нет; взяты из material-web tokens v0_192 (совпадают с MDC-Android)"
+ ],
+ "model": "Пространство — HCT (hue, chroma, tone): hue и chroma из модели восприятия CAM16, tone = L* из CIELAB (то есть та же яркость, что в LCH/Lab). Диапазоны: hue 0–360 (круг), chroma 0…~120 (максимум зависит от hue и tone — «bright light red не существует»), tone 0 (чёрный) … 100 (белый). Tone линеен восприятию и однозначно связан с относительной яркостью Y из WCAG: Y = 100·f⁻¹((T+16)/116), где f⁻¹(t) = t³ при t³ > 216/24389, иначе (116t−16)/(24389/27) (color_utils.ts, yFromLstar). Потому контраст можно считать не по hex, а по разнице тонов. HSL объявлен непригодным: «HSL isn't remotely accurate, and doesn't try to be» — при HSL-lightness 50 измеренная яркость гуляет от 33 до 96; M3 прямо говорит не смешивать HCT с HSL при проверке цветов. Построение шкалы: тональная палитра = фиксированные hue и chroma, меняется только tone; цвет ступени решается HctSolver (Hct.from(h,c,t)) — если запрошенная chroma на этом тоне недостижима, chroma снижается, tone держится (поэтому ступени 90–100 и 0–10 всегда почти серые). Документированные ступени: 0,10,20,30,40,50,60,70,80,90 + 95, 98, 99 (+100) — «в приращениях по 10, а также 95, 98 и 99; у некоторых палитр больше значений»; в базовой палитре у neutral дополнительно 4, 6, 12, 17, 22, 24, 87, 92, 94, 96 (24 ступени), у акцентов 13. Ключевой цвет (key color) палитры — первый тон, начиная от T50, на котором достижима заданная chroma (tonal_palette.ts, KeyColor.create, pivot 50). Спека 2021 (TonalSpot, то, что описано в документации): из одного source colour рождаются 5 палитр — primary: hue источника, chroma 36 (старый CorePalette: max(48, chroma источника)); secondary: тот же hue, chroma 16; tertiary: hue+60°, chroma 24; neutral: тот же hue, chroma 6 (до 02.2023 было 4); neutral variant: chroma 8; error — всегда hue 25, chroma 84 (dynamic_scheme.ts / core_palette.ts). Другие варианты (variant.ts): NEUTRAL (primary chroma 12, neutral 2), VIBRANT (primary chroma 200 = максимум, secondary/tertiary с поворотом hue по таблице), EXPRESSIVE (primary hue+240°, chroma 40), MONOCHROME (chroma 0), FIDELITY/CONTENT (primary = chroma источника; secondary = max(c−32, c·0.5); neutral = c/8; neutral variant = c/8+4; tertiary — комплементарный/аналоговый через TemperatureCache, с поправкой DislikeAnalyzer). Спека 2025 (M3 Expressive, DEFAULT_SPEC_VERSION в коде пока '2021'): TonalSpot на телефоне primary chroma 32 (в тёмной 26), neutral 5, error hue считается кусочно от hue источника с chroma 60; акценты берутся на тоне максимальной chroma (tMaxC), поверхности получают множители chroma 1.25–1.7. Уверенность: высокая — всё снято с кода и документации.",
+ "scale": {
+  "stepsPerHue": "13 документированных (0,10,…,90,95,99,100; в тексте how-the-system-works названы 95, 98, 99); у neutral в базовой палитре 24 (добавлены 4, 6, 12, 17, 22, 24, 87, 92, 94, 96, 98 — это ступени поверхностей). Роли берут ступени из ПЯТИ палитр: primary, secondary, tertiary, neutral, neutral-variant (+ error). Всего 26 стандартных ролей + дополнительные (fixed, dim/bright, container-*) = 45.",
+  "stepRoles": [
+   {
+    "step": "neutral 98 (светлая) / neutral 6 (тёмная)",
+    "role": "surface и background — фон страницы (с 02.2023 светлый фон тон 98, а не 99; hex базы #FEF7FF / #141218)"
+   },
+   {
+    "step": "neutral 100 / 4",
+    "role": "surface-container-lowest — самая «низкая» ёмкость: в светлой чистый белый, в тёмной темнее фона"
+   },
+   {
+    "step": "neutral 96 / 10",
+    "role": "surface-container-low — карточка, поднятая кнопка (= бывшая surface +1)"
+   },
+   {
+    "step": "neutral 94 / 12",
+    "role": "surface-container — ёмкость по умолчанию: полосы навигации, меню (= бывшая surface +2)"
+   },
+   {
+    "step": "neutral 92 / 17",
+    "role": "surface-container-high — диалог, FAB (= бывшая +3)"
+   },
+   {
+    "step": "neutral 90 / 22",
+    "role": "surface-container-highest — поле ввода, выключенный переключатель (= бывшие +4/+5 и surface-variant)"
+   },
+   {
+    "step": "neutral 87 / 6",
+    "role": "surface-dim — самая тёмная поверхность обеих тем; в светлой это фон, против которого проверяют контраст акцентов"
+   },
+   {
+    "step": "neutral 98 / 24",
+    "role": "surface-bright — самая светлая поверхность обеих тем; в тёмной именно против неё проверяют контраст текста и акцентов"
+   },
+   {
+    "step": "neutral 10 / 90",
+    "role": "on-surface — основной текст и иконки на любой surface/surface-container (кривая контраста 4.5/7/11/21: при стандартном уровне 7:1)"
+   },
+   {
+    "step": "neutral-variant 30 / 80",
+    "role": "on-surface-variant — текст пониженного акцента, подписи (4.5:1 стандарт)"
+   },
+   {
+    "step": "neutral-variant 50 / 60",
+    "role": "outline — граница поля ввода, важные контуры (3:1 к поверхности стандарт)"
+   },
+   {
+    "step": "neutral-variant 80 / 30",
+    "role": "outline-variant — разделители, декоративные линии (1:1 стандарт, 3:1 только на среднем уровне контраста); границей органа управления быть не может"
+   },
+   {
+    "step": "primary 40 / 80",
+    "role": "primary — залитая кнопка, активные состояния, текст-акцент на surface (4.5:1 к самой тяжёлой поверхности при стандарте, 3:1 на низком)"
+   },
+   {
+    "step": "primary 100 / 20",
+    "role": "on-primary — текст на primary (белый в светлой, тёмный тон 20 в тёмной; 7:1 стандарт, 4.5 минимум)"
+   },
+   {
+    "step": "primary 90 / 30",
+    "role": "primary-container — заметная заливка против surface (FAB, чипы); к surface контраста не требует (1:1), но обязана держать разницу тонов 10 к primary (ToneDeltaPair 'nearer')"
+   },
+   {
+    "step": "primary 30 / 90 (до 08.2024 было 10 / 90)",
+    "role": "on-primary-container — текст на контейнере; с августа 2024 в светлой теме тон 30 «более цветной, всё ещё доступный» (4.5:1 стандарт)"
+   },
+   {
+    "step": "secondary 40/80, 100/20, 90/30, 30/90",
+    "role": "те же четыре роли для второстепенного акцента (фильтр-чипы, тональные кнопки); tertiary — те же тона для контрастного акцента (бейдж, поле ввода)"
+   },
+   {
+    "step": "error 40 / 80, 100 / 20, 90 / 30, 30 / 90",
+    "role": "error, on-error, error-container, on-error-container — статичный красный (hue 25, chroma 84), не меняется с брендом, меняется со сменой темы"
+   },
+   {
+    "step": "neutral 20 / 90 и 95 / 20; primary 80 / 40",
+    "role": "inverse-surface, inverse-on-surface, inverse-primary — снекбар и тосты «наоборот» относительно темы"
+   },
+   {
+    "step": "primary 90 (обе темы), 80 (обе), on: 10, variant 30",
+    "role": "primary-fixed, primary-fixed-dim, on-primary-fixed, on-primary-fixed-variant — цвета, одинаковые в обеих темах; там, где нужен контраст, не применять"
+   },
+   {
+    "step": "primary 40 / 80",
+    "role": "surface-tint — оттенок для устаревших elevation-overlay (совместимость)"
+   },
+   {
+    "step": "neutral 0",
+    "role": "scrim и shadow — затемнение под окнами и тень"
+   }
+  ],
+  "neutrals": "Серые подкрашены брендом, не чистые: neutral = hue источника с chroma 6 (до февраля 2023 — 4; в спеке 2025 на телефоне 5), neutral-variant = chroma 8; при content/fidelity — chroma/8 и chroma/8+4; вариант NEUTRAL — chroma 2/2; чистые серые только в MONOCHROME (chroma 0). Из neutral берутся все surface-* и on-surface, из neutral-variant — on-surface-variant, outline, outline-variant (в спеке 2025 outline и on-surface-variant тоже переведены на neutral с множителем chroma 1.7). У neutral больше ступеней, чем у акцентов, потому что поверхности ходят шагом 2–5 тонов (100/98/96/94/92/90/87 и 4/6/10/12/17/22/24). Чистые #000 — только scrim/shadow и ступень 0; чистый #FFF — только ступень 100 (surface-container-lowest в светлой, on-primary в светлой).",
+  "notes": "Контраст соседних поверхностей мал по замыслу (пересчитано: 94 к 98 — 1.11:1, 90 к 98 — 1.23:1, 22 к 6 — 1.50:1): иерархия ёмкостей читается тоном, а не границей; граница добавляется outline-variant. Между акцентом и его контейнером — разница тонов ровно 10 (40↔… нет: primary 40 и container 90 — 50; правило «10» действует при пересчёте на уровнях контраста, container не может подойти к primary ближе 10 тонов). Аналог правил «примеры чисел» для тёмной: surface 6 → highest 22 → bright 24; для светлой: lowest 100 → dim 87."
+ },
+ "contrast": "Метрика — WCAG 2 contrast ratio (1…21), и только она: Contrast.ratioOfYs = (Y_светлее + 5) / (Y_темнее + 5) при Y в 0…100 (то же, что (L1+0.05)/(L2+0.05) у W3C). APCA в Material не используется нигде. Хитрость системы: раз tone = L*, требование в ratio переводится в разницу тонов. Заявленные гарантии (hct.ts): ΔT ≥ 40 → ratio ≥ 3.0; ΔT ≥ 50 → ratio ≥ 4.5. Пересчитано по их же формуле для всех пар 0…100: ΔT 40 даёт минимум 3.17 (худший случай), ΔT 50 — минимум 4.484 (пара 50↔100, округляется до 4.5; на всех остальных парах ≥ 4.5), ΔT 60 — ≥ 6.46, ΔT 70 — ≥ 9.15, ΔT 30 — только ≥ 2.25, ΔT 20 — ≥ 1.6. Из этого пороги для белого/чёрного текста (пересчитано): белый текст держит 4.5:1 на фоне тона ≤ 49, чёрный — на фоне ≥ 49; 3:1 — белый до T61, чёрный от T38; 7:1 — белый до T37, чёрный от T62. В коде это зашито: tonePrefersLightForeground(T) = T < 60, toneAllowsLightForeground(T) = T ≤ 49, а фон с тоном 50–59 («awkward zone») принудительно сдвигается к 49 или 60, потому что в этой зоне ни белый, ни чёрный текст не дают 4.5. Пороги по документации: текст 4.5:1, крупный текст (18pt / 14pt bold) и графика 3:1 (W3C, повторено на странице color-contrast M3); контейнеры кнопок в группе — 3:1 к фону, одиночный FAB может 3:1 не держать; «disabled states do not need to meet contrast requirements». Пары, которые гарантирует сама шкала (ContrastCurve = значения при уровнях контраста −1 / 0 / 0.5 / 1, т.е. low / standard / medium / high; color_spec_2021.ts): on-primary ↔ primary (4.5 / 7 / 11 / 21); on-surface ↔ самая тяжёлая поверхность темы (4.5 / 7 / 11 / 21); on-surface-variant ↔ поверхность (3 / 4.5 / 7 / 11); on-primary-container ↔ primary-container (3 / 4.5 / 7 / 11); primary/secondary/tertiary/error ↔ поверхность (3 / 4.5 / 7 / 7); outline ↔ поверхность (1.5 / 3 / 4.5 / 7); primary-container и outline-variant ↔ поверхность (1 / 1 / 3 / 4.5 — при стандарте контраст не обещан вовсе); inverse-on-surface ↔ inverse-surface (4.5 / 7 / 11 / 21). «Поверхность» для проверки — highestSurface: surface-dim (T87) в светлой и surface-bright (T24) в тёмной, то есть худший фон темы, а не средний. Уровни контраста для пользователя: Standard, Medium («minimum contrast ratio of 3:1»), High («7:1 contrast ratio» для существенного, контейнер карточки не трогают); уровни применяются к обеим темам и тонизированы (May 2025). Фактические числа базовой схемы (пересчитано по тонам): primary40/белый 6.46; primary80/on20 7.72; container90/on30 7.24 (со старым on10 — 13.27); surface98/on10 16.3; surface6/on90 14.4; primary40 на surface-dim87 4.62 (на surface98 — 6.15); primary80 на bright24 6.78; outline50 на 98 — 4.27, на dim87 — 3.20; outline60 на bright24 — 3.64; outline-variant80 на 98 — 1.62; primary-container90 на 98 — 1.23. Если пара не дотягивает, DynamicColor.foregroundTone ищет ближайший тон с нужным ratio (Contrast.lighter/darker с запасом 0.4 тона под гамут) — светлый передний план предпочитается на фоне < 60.",
+ "roles": {
+  "hasSemanticLayer": true,
+  "naming": "Три класса токенов: reference (md.ref.palette.primary40 = #6750A4 — «все доступные значения, от контекста не зависят»), system (md.sys.color.primary → указывает на ref-токен, «здесь происходит тематизация», в светлой и тёмной на разные ступени), component (md.comp.fab.container.color → указывает на sys-токен). Правило: sys указывает на ref, comp — на sys/ref, hex в comp не пишется. На вебе — CSS custom properties `--md-sys-color-<роль>` (material-web), 49 токенов в списке $supported-tokens. Имя роли строится словами: [on-] <группа> [-container|-fixed|-fixed-dim|-variant]; группы: primary, secondary, tertiary, error, surface, outline, inverse, scrim, shadow, surface-tint. «On» = текст/иконка поверх одноимённого родителя; «Container» = заливка элемента переднего плана, «не для текста и иконок»; «Variant» = менее акцентная версия пары. Роли одни на обе темы: страница не знает, светлая она или тёмная — «одна и та же роль в light и dark».",
+  "examples": [
+   "primary / on-primary / primary-container / on-primary-container",
+   "secondary / on-secondary / secondary-container / on-secondary-container",
+   "tertiary / on-tertiary / tertiary-container / on-tertiary-container",
+   "error / on-error / error-container / on-error-container",
+   "surface, surface-dim, surface-bright, surface-container-lowest, -low, surface-container, -high, -highest",
+   "on-surface, on-surface-variant, outline, outline-variant",
+   "inverse-surface, inverse-on-surface, inverse-primary",
+   "primary-fixed, primary-fixed-dim, on-primary-fixed, on-primary-fixed-variant (и то же для secondary/tertiary)",
+   "surface-tint, scrim, shadow",
+   "CSS: --md-sys-color-primary, --md-sys-color-on-primary, --md-sys-color-surface-container-high",
+   "Пользовательские статичные: success / on-success / success-container / on-success-container — те же четыре роли, что у акцентов"
+  ],
+  "pairs": "Пара гарантируется тем, что «on»-роль определена ОТНОСИТЕЛЬНО своего фона, а не сама по себе: у каждого DynamicColor есть background (какая роль под ним) и contrastCurve (сколько контраста нужно на каждом уровне), и при построении схемы тон «on»-цвета пересчитывается, пока пара не выполнит кривую. Поэтому «all tokens have a corresponding --md-sys-color-on-<token>» и «apply colors only in the intended pairs or layering orders»: primary + on-primary, primary-container + on-primary-container, любая surface* + on-surface / on-surface-variant, inverse-surface + inverse-on-surface + inverse-primary. Скрещивать половины (primary + primary-container как текст, on-surface на secondary-container) документация показывает как «Don't»: пара разваливается на среднем и высоком уровнях контраста. Второй вид связи — ToneDeltaPair: две роли обязаны держать разницу тонов (container ↔ accent: 10, 'nearer'; fixed ↔ fixed-dim: 10, 'lighter', stayTogether) и не оказываться по разные стороны зоны 50–59. Третий — у on-*-fixed два фона сразу (fixed и fixed-dim), тон подбирается так, чтобы контраст держался против обоих."
+ },
+ "darkTheme": "Тёмная тема — не инверсия ступеней, а вторая таблица «роль → тон» из тех же палитр (одни и те же роли, разные тона). Правила по коду и документации: (1) Поверхности низкие, но не чёрные: surface/background = neutral 6 (#141218; M2 рекомендовал #121212 и «dark grey rather than black»), lowest 4, low 10, container 12, high 17, highest 22, bright 24 — в спеке 2025 ещё темнее: 4 / 0 / 6 / 9 / 12 / 15 / 18. (2) Тон-возвышение: в тёмной чем «выше» ёмкость, тем светлее (4→10→12→17→22→24), в светлой — тем темнее (100→96→94→92→90→87); это заменило с февраля 2023 полупрозрачные overlays M2 (5% при 1dp … 16% при 24dp белого поверх surface): «Surface at elevation +1 becomes Surface Container Low, +2 → Container, +3 → High, +4/+5 → Highest, Surface Variant → Highest». Surface-bright и surface-dim «keep their relative brightness across both themes» — bright самая светлая в обеих, dim самая тёмная в обеих. (3) Акценты светлее: primary/secondary/tertiary/error — тон 80 вместо 40; их «on» — тон 20 вместо 100 (не чистый белый); контейнеры — тон 30 вместо 90; on-container — 90 вместо 30; outline 60 вместо 50, outline-variant 30 вместо 80; on-surface 90 вместо 10, on-surface-variant 80 вместо 30; inverse-surface 90, inverse-on-surface 20, inverse-primary 40. (4) Насыщенность: в спеке 2021 хрома палитры одна на обе темы (36), но на тоне 80 та же хрома выглядит пастельно; спека 2025 понижает primary chroma на телефоне в тёмной с 32 до 26 и secondary с 24 до 16; M2 формулирует прямо: «desaturated colors so they pass 4.5:1 at all elevation levels», насыщенные «produce optical vibrations against a dark background», брендовый цвет в полной насыщенности — не более чем на одном-двух элементах (логотип, одна кнопка). (5) Проверка контраста в тёмной ведётся против самой светлой поверхности (surface-bright T24), а не против фона: белый/тон 90 на T24 — 8.9:1 (пересчитано), primary80 на T24 — 6.8:1; M2 требовал 15.8:1 между белым и базовой поверхностью, чтобы на самой светлой (24dp) оставалось 4.5. (6) Fixed-роли (тон 90/80 в обеих темах) в тёмной теме теряют контраст к поверхности — использовать только там, где контраст несёт содержимое. (7) Ошибки/семантика: тона те же, что у акцентов (80/20/30/90); M2 показывал вывод тёмного error как светлый на 40% белого (#B00020 → #CF6679). (8) Тени остаются тёмными; «light glows» вместо тени — Don't. (9) Текст тонами, не прозрачностью: M2 давал 87% / 60% / 38% белого для high/medium/disabled, в M3 это заменено on-surface (T90) и on-surface-variant (T80); disabled в M3 — прозрачность 38% содержимого, 12% контейнера (из M2, в M3 те же числа в компонентных токенах — уверенность средняя).",
+ "brand": "Из одного цвета вся система выводится так: source colour → HCT → пять ключевых цветов (hue/chroma по правилу варианта) → пять тональных палитр по 13+ ступеней → таблица «роль → ступень» (одна на светлую, одна на тёмную, ещё две-четыре на уровни контраста) → компоненты. В варианте по умолчанию (TonalSpot) бренд даёт только hue: primary получает chroma 36 (а не хрому бренда), secondary — 16 на том же hue, tertiary — hue+60° с chroma 24, neutral — 6, neutral-variant — 8; error всегда hue 25 / chroma 84. Следствие: сам брендовый hex в схему может не попасть — акцент берётся на тоне 40/80, а не на тоне бренда. Если бренд обязан быть виден точно, включают fidelity (варианты FIDELITY/CONTENT): primary-container получает тон источника, primary — хрому источника, on-container пересчитывается на 4.5:1; или задают бренд как static colour (transit-линии, логотип — «colors can stay completely static and forgo harmonization if their values are tied to literal sources, such as brand colors»). В Material Theme Builder порядок: Primary вводится первым (он же source и перекрывает остальные ключи), потом при желании Secondary, Tertiary, Neutral, Neutral variant, Error; правило вложения: «Secondary, neutral variant, and neutral colors match primary in hue but are progressively less chromatic in that order», tertiary — комплементарный по hue. Что делать с зелёным CBD: (а) hue зелёного в HCT ~120–160; зона 105–125 в коде помечена isYellow и получает особую обработку тона 99 (усреднение 98 и 100), а зона hue 90–111 при chroma > 16 и tone < 65 — «universally disliked» (оливково-болотный): DislikeAnalyzer поднимает такой цвет до тона 70; проверить, что тёмно-зелёный бренда (тон ~30–40) не попадает в hue 90–111, иначе система сама его «исправит»; (б) primary зелёный на тоне 40 в светлой, тоне 80 в тёмной — тон 80 зелёного пастельный, для «лакшери» это ожидаемо, M2 то же: «lighter tones (200–50) in dark theme»; (в) зелёный успех и зелёный бренд — конфликт смысла: M3 советует семантику заводить «define static colors» (success / on-success / success-container / on-success-container с теми же тонами 40/100/90/30 и 80/20/30/90) и гармонизировать её к primary (Blend.harmonize: поворот hue к hue бренда на min(Δ·0.5, 15°) при сохранении chroma и tone), бренд не гармонизировать; при зелёном бренде success должен отличаться от primary либо hue (жёлто-зелёный vs сине-зелёный ≥ 30°), либо не быть цветом вовсе, а словом/значком — иначе «успех» и «бренд» неразличимы, чего M3 не решает, только предупреждает про пары; (г) error остаётся красным hue 25 / chroma 84 независимо от бренда и в схеме 2025 сдвигается кусочно к hue бренда (для зелёного ~hue 25±12) — красная скидка/ошибка на зелёном фоне держит контраст только тоном, не hue: проверять ΔT, а не «красное на зелёном видно».",
+ "tooling": "Библиотека: @material/material-color-utilities (npm; также Dart, Java, Swift, C++, Kotlin) — Hct.fromInt / Hct.from(hue, chroma, tone); TonalPalette.fromHueAndChroma(h, c).tone(T); Contrast.ratioOfTones(a, b), Contrast.lighter/darker(tone, ratio) — «какой тон даст нужный ratio»; DynamicColor.foregroundTone(bgTone, ratio); SchemeTonalSpot / SchemeNeutral / SchemeVibrant / SchemeExpressive / SchemeMonochrome / SchemeFidelity / SchemeContent(hct, isDark, contrastLevel −1…1, specVersion '2021'|'2025', platform 'phone'|'watch'); MaterialDynamicColors.<роль>.getArgb(scheme); Blend.harmonize(design, source); DislikeAnalyzer.fixIfDisliked; ViewingConditions для пересчёта под яркость окружения; hexFromArgb/argbFromHex в utils/string_utils. Инструменты: Material Theme Builder — веб (material-foundation.github.io/material-theme-builder) и Figma-плагин: вход — hex или картинка, выход — схемы light/dark + medium/high contrast, экспорт в JSON, CSS (--md-sys-color-*), Compose, Android Views, Flutter; HCT-пикер; «match color» (fidelity) на каждый введённый цвет; extended colors с гармонизацией; state layers. Формулы для своей проверки: Y = 100·labInvf((T+16)/116); ratio = (Yhi+5)/(Ylo+5); T из hex = 116·labF(Y/100)−16, где Y — относительная яркость sRGB (линеаризация WCAG); порог 4.5 ⇔ ΔT ≈ 50, 3.0 ⇔ ΔT ≈ 40, 7.0 ⇔ ΔT ≈ 62. Токены ссылками: md.ref.palette.* → md.sys.color.* → md.comp.*; в CSS — var(--md-sys-color-primary, #fallback).",
+ "principles": [
+  {
+   "principle": "Сначала тон, потом цвет: контраст решается разницей тонов (ΔT ≥ 40 → 3:1, ΔT ≥ 50 → 4.5:1), hue и chroma остаются свободными для бренда.",
+   "evidence": "hct.ts: «A difference of 40 in HCT tone guarantees a contrast ratio >= 3.0, and a difference of 50 guarantees >= 4.5»; блог Science of Color: мелкие элементы (< ¼″ / 40 dp) — ΔT 50, крупные — ΔT 40; пересчитано: минимум 3.17 и 4.48.",
+   "forStorefront3": "Каждое поле brandTheme в админке (brandPrimary, cta, textPrimary, pageBackground, sale, accent, border, darkPageBackground, darkSurfaceRaised…) переводится в тон L*, и правило пары пишется тонами: текст на странице ΔT ≥ 50 к фону, кнопка ΔT ≥ 40 к фону, граница поля ΔT ≥ 40. Сторож при сохранении в админке считает L* из hex, а не HSL-lightness, и не пускает пару ниже порога — «слишком светлый цвет здесь делает магазин нечитаемым» из подсказки поля становится проверкой, а не предупреждением."
+  },
+  {
+   "principle": "Роли, а не значения: цвет назначается элементу как «номер» (surface, on-surface, primary…), и у каждой заливки есть своя «on»-роль, гарантированная относительно неё.",
+   "evidence": "roles: «On – Roles starting with this term indicate a color for text or icons on top of its paired parent color»; material-web color.md: «All tokens have a corresponding --md-sys-color-on-<token>»; roles: «apply colors only in the intended pairs».",
+   "forStorefront3": "Это то же, что правило проекта «фон и текст из одного источника» (--surface-* ↔ --content-*), только доведённое до конца: у каждой заливки, которую вводит владелец (cta, brandPrimary, sale, accent, surfaceSecondary, darkSurfaceRaised), в токенах должен существовать парный --content-on-<имя> и --border-on-<имя>, выведенный из неё, а не назначенный вручную. Список заливок без пары = 0."
+  },
+  {
+   "principle": "Тёмная тема — своя таблица тонов, не инверсия: поверхности 4–24, акценты на 80 вместо 40, их «on» — 20, а не белый; ёмкости светлеют с возвышением.",
+   "evidence": "color_spec_2021.ts: surface 6, container 12, high 17, highest 22, bright 24; primary isDark ? 80 : 40; onPrimary isDark ? 20 : 100; блог tone-based surfaces: «+1 → Surface Container Low … Surface Variant becomes Surface Container Highest».",
+   "forStorefront3": "В админке сейчас есть только два тёмных поля (darkPageBackground, darkSurfaceRaised) и brandLight как тёмный акцент. По M3 тёмная тема выводится из тех же палитр: darkPageBackground ≈ T4–8, darkSurfaceRaised ≈ T12–17, поверх него ещё одна ступень (T22–24) для полей и меню; brandLight должен быть тоном 70–85 того же hue, что brandPrimary; текст в тёмной — T90 (не #FFF), граница — T30. Проверять контраст текста и кнопок против самой светлой тёмной поверхности, а не против фона."
+  },
+  {
+   "principle": "Нейтральные серые несут hue бренда при очень низкой chroma (6 и 8 из 120); чистый серый — только в монохроме.",
+   "evidence": "dynamic_scheme.ts: TONAL_SPOT neutral chroma 6.0, neutralVariant 8.0; overview What's new 02.2023: «Updated the chroma for the neutral palette, increasing it from 4 to 6»; MONOCHROME: chroma 0.",
+   "forStorefront3": "pageBackground, surfaceSecondary, border, darkPageBackground, darkSurfaceRaised обязаны быть одного hue с brandPrimary при HCT-chroma ≤ 8 (для «лакшери» допустимо 2–4); если владелец вписал в фон чужой hue (тёплый крем при холодном зелёном), это находка сторожа: «фон не той температуры, что бренд». Практично: не просить у владельца пять серых, а вывести их из brandPrimary: neutral(hue, chroma 4–6).tone(98/96/94/92/90/87 и 6/10/12/17/22/24)."
+  },
+  {
+   "principle": "Контраст — не одно число, а кривая на роль: у каждой пары свой порог на стандартном, среднем и высоком уровне; контейнеры и разделители при стандарте контраста к фону не обещают вовсе.",
+   "evidence": "color_spec_2021.ts: on-primary (4.5, 7, 11, 21); primary к поверхности (3, 4.5, 7, 7); primary-container и outline-variant (1, 1, 3, 4.5); outline (1.5, 3, 4.5, 7); how-the-system-works: Medium «minimum 3:1», High «7:1».",
+   "forStorefront3": "Пороги перепроверки палитры: textPrimary на pageBackground ≥ 7:1 (стандарт M3 для основного текста; 4.5 — нижняя граница WCAG), приглушённый текст ≥ 4.5, cta/brandPrimary как заливка и как текст на самой тяжёлой поверхности ≥ 4.5, border как контур поля ≥ 3:1, border как разделитель — без порога, но тогда им нельзя обводить кнопки и чипы; surfaceSecondary к pageBackground — без порога (1.1–1.5 нормально), иерархия читается тоном."
+  },
+  {
+   "principle": "Заливка не живёт в тонах 50–59: там ни белый, ни чёрный текст не дают 4.5:1; светлый текст — только на тоне ≤ 49.",
+   "evidence": "dynamic_color.ts: tonePrefersLightForeground = T < 60; toneAllowsLightForeground = T ≤ 49; «Avoids the 50-59 awkward zone» — фон сдвигается к 49 или 60; пересчитано: белый на T50 — 4.48, на T49 — 4.53.",
+   "forStorefront3": "Для cta, brandPrimary, sale, accent сторож проверяет тон: если 50 ≤ T < 60 — красная находка «цвет в зоне без читаемого текста»; если T ≤ 49 — текст на нём белый/кремовый, если T ≥ 60 — тёмный; автоматически выбирать «on»-цвет по этому правилу, а не спрашивать владельца."
+  },
+  {
+   "principle": "Семантические цвета (ошибка, успех, скидка) статичны и строятся теми же четырьмя ролями и теми же тонами, что акценты; к бренду их можно гармонизировать, бренд к ним — нет.",
+   "evidence": "roles: «Error is an example of a static color … They still adapt to light and dark theme»; define-new-colors: Success, On Success, Success Container, On Success Container; blend.ts harmonize: поворот hue на min(Δ·0.5, 15°); adjust: «Don't harmonize … brand colors».",
+   "forStorefront3": "sale — тот же набор, что error: тон 40 в светлой / 80 в тёмной, hue 25 chroma ~60–84, on-sale белый/T20; success (заказ оплачен, «в наличии») — четыре роли, но hue не совпадающий с brandPrimary (≥ 30°) или другой носитель смысла (значок/слово), потому что у зелёного магазина зелёный «успех» неотличим от бренда. Warning (оранжевый) по правилу админки «оранжевый — будет стоить денег потом» — тем же способом."
+  },
+  {
+   "principle": "Fidelity против доступности: система по умолчанию берёт у бренда только hue, акцент ставит на тон 40/80, а сам брендовый hex может не появиться; точное совпадение — отдельное решение (fidelity или static).",
+   "evidence": "dynamic_scheme.ts TONAL_SPOT: primary chroma 36 (не источника); color_spec_2021.ts primaryContainer при fidelity = s.sourceColorHct.tone; adjust-existing-colors: «Color fidelity … adjusts tones … to match that of your input color».",
+   "forStorefront3": "Владелец вводит hex бренда как есть и ждёт увидеть его на кнопке. Записать правило: brandPrimary в светлой теме используется как введён, если его тон 25–49 (тогда белый текст держит 4.5); если тон выше — сам цвет уходит на контейнеры/плашки, а кнопка получает тон 40 того же hue и chroma; в тёмной теме брендовый hex в полной насыщенности допустим на одном-двух узлах (логотип, одна кнопка), остальное — тон 80 (M2, «one or two branded elements»)."
+  },
+  {
+   "principle": "Ёмкости через тон, а не через прозрачность или тень: пять surface-container вместо overlay-слоёв; отличие соседних ёмкостей 2–5 тонов, контраст между ними 1.05–1.5:1 — иерархия, а не граница.",
+   "evidence": "блог tone-based surfaces: «dedicated surface color roles that are no longer tied to elevation»; MDC-Android: «tonal surface color roles by default (instead of elevation overlays)»; пересчитано: 94↔98 = 1.11, 22↔6 = 1.50.",
+   "forStorefront3": "Карточка товара, панель фильтров, поле ввода, меню — четыре ёмкости тонами (светлая 100/96/94/92, тёмная 4/10/12/17), а не одна surfaceSecondary плюс тени и color-mix с прозрачностью; правило админки «прозрачность поверх цвета не ставится» совпадает с M3. Для «минимализм-лакшери» это главный инструмент глубины без границ."
+  },
+  {
+   "principle": "Токены трёх классов и одно направление ссылок: ref (значение) ← sys (роль, здесь тема) ← comp (узел); компонент не знает hex.",
+   "evidence": "design-tokens overview: «Whenever possible, system tokens should point to reference tokens rather than static values»; «component tokens should point to a system or reference token, and not contain hardcoded values such as hex codes».",
+   "forStorefront3": "Слой из админки — это ref-слой (палитра из brandTheme), --surface-*/--content-*/--border-* — sys-слой, CSS-модули узлов — comp-слой. Проверка: в CSS витрины нет hex и rgb() вне tokens.css; sys-токен ссылается на палитру, а не на другой sys-токен по кругу; тема переключается заменой ref→sys таблицы, а не переписыванием узлов."
+  }
+ ],
+ "checklist": [
+  "Пары текст/фон в обеих темах — посчитать WCAG-ratio по hex (или ΔT по L*) для каждой пары --content-* ↔ --surface-*, включая заливки из админки (cta, brandPrimary, sale, accent, surfaceSecondary, darkSurfaceRaised) — порог: основной текст на surface ≥ 7:1 (ΔT ≥ 62; допустимый минимум 4.5 / ΔT 50), приглушённый текст ≥ 4.5, текст на кнопке ≥ 4.5 (M3 стандарт для on-primary — 7), крупный текст и иконки ≥ 3 (ΔT ≥ 40)",
+  "Акцент против худшей поверхности — ratio cta/brandPrimary к самой тёмной светлой поверхности (surface-dim, ~T87) и к самой светлой тёмной (surface-bright, ~T24), а не к фону страницы — порог ≥ 4.5 (M3 curve 3/4.5/7/7), для чисто графических кнопок ≥ 3",
+  "Тон заливок вне «неловкой зоны» — L* каждой заливки, на которой стоит текст — порог: T ∉ [50, 60); при T ≤ 49 текст светлый, при T ≥ 60 тёмный; заливка с T 50–59 — красная находка",
+  "Тёмные поверхности низкие и упорядочены — L* фона, поднятой поверхности, поля/меню в тёмной — порог: фон T 4–8 (M3 6, M2 #121212 ≈ T7), поднятая выше фона на 4–6 тонов (T10–12), следующая ступень T17–24; порядок строго возрастающий с возвышением, белый/T90 текст на самой светлой ≥ 4.5 (M2 требовал 15.8:1 к базовой)",
+  "Светлые поверхности упорядочены — L* фона и ёмкостей — порог: фон T 96–99 (M3 98), ёмкости 100 / 96 / 94 / 92 / 90 / dim 87 с шагом ≥ 2 тонов; ёмкость темнее фона не ниже T85, иначе она перестаёт быть «поверхностью»",
+  "Серые подкрашены брендом — HCT hue и chroma каждого нейтрального (pageBackground, surfaceSecondary, border, darkPageBackground, darkSurfaceRaised, текст) — порог: hue = hue brandPrimary ± 15°, chroma ≤ 8 (M3: 6 / 8; «лакшери» 2–6); чистые #000/#FFF только у затемнения окна, тени и самой нижней ёмкости",
+  "Тёмный акцент светлее и мягче светлого — L* и chroma brandLight (тёмный акцент) против brandPrimary — порог: тон 70–85 (M3 80), chroma ≤ chroma светлого акцента (спека 2025: 32 → 26); «on» на нём тон ≤ 25, а не #FFF; ratio к тёмному фону ≥ 4.5",
+  "Граница поля против разделителя — ratio border к фону обеих тем — порог: если border обводит поле ввода/кнопку/чип — ≥ 3:1 (outline, T50/T60); если только разделитель — порога нет (outline-variant, T80/T30), но тогда нужен второй токен для контуров органов; один токен на обе роли — находка",
+  "Контейнер и его акцент держат дистанцию — ΔT между заливкой-плашкой (surfaceSecondary, container чипа) и акцентом того же hue — порог: ΔT ≥ 10 (ToneDeltaPair), к фону контраста плашки не требуется (1.1–1.5 норма)",
+  "У каждой заливки есть пара — перечень всех --surface-* и цветов из brandTheme против --content-on-* / --border-on-* — порог: заливок без выведенной «on»-пары = 0; «on»-цвет вычислен из тона заливки, а не назначен вручную",
+  "Семантика по образцу error — sale/success/warning: тон 40 (светлая) / 80 (тёмная), контейнер 90 / 30, on-container 30 / 90 — порог: те же ratio, что у акцентов (≥ 4.5 к поверхности); hue success отличается от brandPrimary ≥ 30° или смысл несёт значок/слово; error/sale hue ≈ 25, chroma 60–84, к бренду не гармонизируется",
+  "Бренд не в зоне «нелюбимых» — HCT brandPrimary — порог: не (hue 90–111 и chroma > 16 и tone < 65) — оливково-болотный, который сама система поднимает до T70; для зелёного CBD проверить hue: 120–160 в порядке",
+  "Тона считаются по L*, а не по HSL — способ измерения в сторожах и в админке — порог: L* (CIELAB) или Y по WCAG; HSL-lightness запрещён как мера («At HSL lightness 50, measured lightness ranges from 33 to 96»)",
+  "Fixed-цвета не носят контраст — цвета, одинаковые в обеих темах (логотип, брендовая плашка) — порог: на них нет текста, который обязан читаться, либо для текста подобран отдельный «on» под каждую тему",
+  "Токены ссылаются в одну сторону — grep по CSS витрины — порог: hex/rgb/oklch только в файле палитры; --content-*/--surface-* ссылаются на --palette-*/brandTheme; узлы — только на sys-токены; медиазапрос тёмной темы меняет ref→sys таблицу, а не узлы",
+  "Уровень «больше контраста» (по желанию) — при prefers-contrast: more — порог: текст ≥ 11, кнопки ≥ 7, контейнеры ≥ 3, разделители ≥ 3 (кривые medium/high M3); если не поддерживается — записать решение, а не оставить молча"
+ ],
+ "doNotCopy": [
+  "Динамический цвет из обоев/картинок (quantization, user-generated и content-based схемы) — магазин брендовый, источник цвета один и статичный; берётся только механизм «источник → палитры → роли»",
+  "Полный набор из 45 ролей и три уровня контраста × две темы — для витрины достаточно 20–26 ролей; fixed / fixed-dim / on-fixed-variant, inverse-* (кроме, возможно, снекбара), surface-tint — лишние слои",
+  "Базовые hex Material (#6750A4 фиолетовый, #FEF7FF фон) — это бренд Google, а не образец; берутся тона и chroma, а не цвета",
+  "Автоматический tertiary «hue+60°, chroma 24» и вращения hue по таблицам EXPRESSIVE/VIBRANT — для минимализма-лакшери третий акцент выбирается руками или не заводится вовсе",
+  "Спека 2025 (M3 Expressive): акценты на максимальной chroma (tMaxC), множители chroma на поверхностях 1.25–1.7 — громче, чем нужно; DEFAULT_SPEC_VERSION в коде и сейчас '2021'",
+  "Elevation-overlay из M2 (белый 5–16% поверх surface) и текст прозрачностью 87/60/38% — заменены тон-ёмкостями и on-surface-variant; в проекте прозрачность поверх приглушённого токена уже запрещена",
+  "Гармонизация бренда к динамическому primary (Blend.harmonize) — у нас primary и есть бренд; гармонизировать можно только семантику к бренду",
+  "Правило «контейнеры без контраста к фону» как разрешение обводить кнопки outline-variant — M3 сам ставит на это Don't; разделитель и контур поля — два токена",
+  "Имена платформ (colorPrimary, system_accent1_600, md.comp.fab.*) и Figma-workflow с Material Theme Builder — токены витрины остаются в своих именах (--surface-*, --content-*); MTB полезен как калькулятор, а не как источник имён",
+  "Правило «disabled не обязан держать контраст» — на витрине выключенная кнопка «в корзину» всё равно должна читаться как «нет в наличии»; порог 3:1 для неё разумнее взять как минимум"
+ ],
+ "quotes": [
+  {
+   "text": "A difference of 40 in HCT tone guarantees a contrast ratio >= 3.0, and a difference of 50 guarantees a contrast ratio >= 4.5",
+   "source": "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/hct/hct.ts"
+  },
+  {
+   "text": "smaller elements (less than ¼” or 40 dp) require a tone difference of 50 with their background, larger elements require 40",
+   "source": "https://m3.material.io/blog/science-of-color-design"
+  },
+  {
+   "text": "At HSL “lightness” 50, accurately measured lightness ranges from 33 to 96!",
+   "source": "https://m3.material.io/blog/science-of-color-design"
+  },
+  {
+   "text": "Colors in these palettes are given a number from 0 to 100 in increments of 10, as well as 95, 98, and 99.",
+   "source": "https://m3.material.io/styles/color/system/how-the-system-works"
+  },
+  {
+   "text": "the algorithm assigns the color tone primary40 to the primary role and the tone primary100 to the on primary role.",
+   "source": "https://m3.material.io/styles/color/system/how-the-system-works"
+  },
+  {
+   "text": "Medium contrast: Provides a minimum contrast ratio of 3:1 … High contrast: … with a 7:1 contrast ratio",
+   "source": "https://m3.material.io/styles/color/system/how-the-system-works"
+  },
+  {
+   "text": "On – Roles starting with this term indicate a color for text or icons on top of its paired parent color.",
+   "source": "https://m3.material.io/styles/color/roles"
+  },
+  {
+   "text": "These color pairs provide an accessible minimum 3:1 contrast.",
+   "source": "https://m3.material.io/styles/color/roles"
+  },
+  {
+   "text": "Don’t use the outline color for dividers since they have different contrast requirements. Instead, use outline variant.",
+   "source": "https://m3.material.io/styles/color/roles"
+  },
+  {
+   "text": "Fixed colors don't change based on light or dark theme, so they're likely to cause contrast issues.",
+   "source": "https://m3.material.io/styles/color/roles"
+  },
+  {
+   "text": "Error is an example of a static color (it doesn't change even in dynamic color schemes).",
+   "source": "https://m3.material.io/styles/color/roles"
+  },
+  {
+   "text": "Updated the default light theme surface from tone 99 to tone 98 … increasing [neutral chroma] from 4 to 6",
+   "source": "https://m3.material.io/styles/color/system/overview"
+  },
+  {
+   "text": "Surface at elevation +1 becomes Surface Container Low … Surface Variant becomes Surface Container Highest",
+   "source": "https://m3.material.io/blog/tone-based-surface-color-m3"
+  },
+  {
+   "text": "Secondary, neutral variant, and neutral colors match primary in hue but are progressively less chromatic in that order.",
+   "source": "https://m3.material.io/styles/color/advanced/adjust-existing-colors"
+  },
+  {
+   "text": "Don’t harmonize colors whose appearance should stay absolutely consistent, such as brand colors.",
+   "source": "https://m3.material.io/styles/color/advanced/adjust-existing-colors"
+  },
+  {
+   "text": "button containers, should meet a contrast ratio of 3:1 between their container color and the color of their background",
+   "source": "https://m3.material.io/foundations/designing/color-contrast"
+  },
+  {
+   "text": "All tokens have a corresponding --md-sys-color-on-<token> for content color with accessible contrast.",
+   "source": "https://raw.githubusercontent.com/material-components/material-web/main/docs/theming/color.md"
+  },
+  {
+   "text": "Whether these two roles should stay on the same side of the \"awkward zone\" (T50-59).",
+   "source": "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/tone_delta_pair.ts"
+  },
+  {
+   "text": "case Variant.TONAL_SPOT: return TonalPalette.fromHueAndChroma(sourceColorHct.hue, 36.0); … neutral … 6.0 … neutralVariant … 8.0",
+   "source": "https://raw.githubusercontent.com/material-foundation/material-color-utilities/main/typescript/dynamiccolor/dynamic_scheme.ts"
+  },
+  {
+   "text": "The recommended dark theme surface color is #121212.",
+   "source": "https://m2.material.io/design/color/dark-theme.html"
+  },
+  {
+   "text": "A dark theme should avoid using saturated colors, as they don't pass WCAG's accessibility standard of at least 4.5:1",
+   "source": "https://m2.material.io/design/color/dark-theme.html"
+  },
+  {
+   "text": "Whenever possible, system tokens should point to reference tokens rather than static values.",
+   "source": "https://m3.material.io/foundations/design-tokens/overview"
+  },
+  {
+   "text": "(L1 + 0.05) / (L2 + 0.05)",
+   "source": "https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio"
+  }
+ ],
+ "confidence": "Высокая по числам: таблица «роль → тон» для светлой и тёмной, кривые контраста, chroma палитр, формула контраста и пороги ΔT сняты с исходников material-color-utilities и токенов material-web/MDC-Android и перепроверены собственным пересчётом (ΔT 40 → ≥ 3.17, ΔT 50 → ≥ 4.48, зона 50–59). Высокая по документации ролей, поверхностей, семантики и брендового вывода — текст официальных страниц m3.material.io, хотя снят через рендер-прокси (сайт без JavaScript не отдаёт содержимое); формулировки сверены с кодом. Средняя: on-*-container = тон 30 в светлой (изменение августа 2024 есть в overview и в коде MCU, но таблицы MDC-Android и material-web v0_192 ещё показывают 10 — обе версии названы); тезис о снижении насыщенности в тёмной теме взят из спеки 2025 и из M2 — в спеке 2021 хрома у обеих тем одна; правило 38%/12% для disabled в M3 подтверждено только через M2. Не проверено: страница apply-colors (пустой ответ) и точная страница dynamic/user-generated-source. Рекомендации forStorefront3 и чек-лист — моя экстраполяция правил M3 на поля brandTheme админки (brandPrimary, brandLight, cta, pageBackground, surfaceSecondary, textPrimary, sale, accent, border, darkPageBackground, darkSurfaceRaised), сама вчерашняя палитра не аудировалась."
+}

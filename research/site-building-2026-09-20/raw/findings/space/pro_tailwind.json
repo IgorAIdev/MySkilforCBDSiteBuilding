@@ -1,0 +1,353 @@
+{
+ "system": "Tailwind CSS v4 (tailwindlabs/tailwindcss, packages/tailwindcss/theme.css + src/utilities.ts; практика — @tailwindcss/typography и соглашение секций Tailwind UI)",
+ "sourcesRead": [
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/theme.css — 510 строк, скачан целиком (curl); блок spacing/breakpoint/container/radius — строки 325–404, deprecated-блок 503–510",
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/utilities.ts — spacingUtility (535–583), container (1165–1175), DEFAULT_SPACING_SUGGESTIONS (34–80), порядок themeKeys у padding/margin/gap/w/max-w/inset/flex-basis",
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/utils/infer-data-type.ts — isValidSpacingMultiplier = isMultipleOf(value, 0.25)",
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/utilities.test.ts — снимок компиляции именованного шага --spacing-big",
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/compat/default-theme.ts — именованная шкала v3 (spacing: px, 0, 0.5…96)",
+  "https://tailwindcss.com/docs/theme",
+  "https://tailwindcss.com/docs/padding",
+  "https://tailwindcss.com/docs/container",
+  "https://tailwindcss.com/docs/responsive-design",
+  "https://tailwindcss.com/docs/functions-and-directives",
+  "https://tailwindcss.com/docs/styling-with-utility-classes",
+  "https://tailwindcss.com/docs/adding-custom-styles",
+  "https://tailwindcss.com/docs/upgrade-guide",
+  "https://tailwindcss.com/blog/tailwindcss-v4",
+  "https://github.com/tailwindlabs/tailwindcss/discussions/13323 — «Spacing utilities to px instead of rem by default», ответ adamwathan",
+  "https://github.com/tailwindlabs/tailwindcss/discussions/8378 — «Switch from px to rem for responsive variants?»",
+  "https://github.com/tailwindlabs/tailwindcss/discussions/15894 — почему брейкпойнты в rem в v4 (ответ wongjn отсылает к #8378 и PR #13469)",
+  "https://github.com/tailwindlabs/tailwindcss/pull/13469 — переход брейкпойнтов по умолчанию на rem",
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss-typography/main/src/styles.js — 1641 строка, прочитаны helpers rem/em и блоки sm/base",
+  "https://raw.githubusercontent.com/tailwindlabs/tailwindcss-typography/main/README.md",
+  "GitHub code search (20.09.2026): \"py-24 sm:py-32\" \"mx-auto max-w-7xl px-6 lg:px-8\" — 29 952 файла; образцы: joschan21/bookbuddy src/app/page.tsx, RummerLab/jodierummer app/page.tsx",
+  "Проект: packages/ui/src/tokens/primitives.css (--space-1…18, --layout-*), packages/ui/src/tokens/scale.test.ts, apps/storefront/src/token-layer.test.ts, apps/storefront/tools/check-css.mjs, apps/storefront/tools/kit-config.mjs, apps/storefront/kit.config.json, apps/storefront3/app/globals.css, apps/storefront3/package.json, apps/storefront3/CLAUDE.md"
+ ],
+ "sourcesFailed": [
+  "https://tailwindcss.com/plus/ui-blocks/marketing/sections/feature-sections — отдал страницу входа; код секций Tailwind UI не прочитан. Соглашение py-24 sm:py-32 / max-w-7xl px-6 lg:px-8 подтверждено только распространённостью в чужих репозиториях (29 952 файла), а не файлом Tailwind Labs",
+  "GitHub code search внутри repo:tailwindlabs/tailwindcss.com по тем же классам — 0 результатов (репозиторий не проиндексирован или классы там другие); gh CLI на машине нет, gh api не запускался",
+  "https://tailwindcss.com/docs/theme не объясняет выбор rem — причина снята из обсуждений #8378/#13323 и PR #13469, где реплики команды пересказаны инструментом чтения страницы: дословность цитат оттуда средняя, сокращения отмечены многоточием",
+  "Шаблоны Tailwind Plus (Spotlight, Salient и т.д.) закрыты — токены секционного воздуха «профессионалов Tailwind» в первоисточнике не видны"
+ ],
+ "unit": "rem почти на всё: база шкалы --spacing: 0.25rem (=4px при корне 16), брейкпойнты 40–96rem, контейнеры 16–80rem, радиусы 0.125–2rem, кегли 0.75–8rem. px — только у побега p-px (1px), у теней/блюра (--blur-xs: 4px) и перспективы. Почему rem: (1) шкала и брейкпойнты масштабируются с настройкой размера шрифта браузера — text-only zoom, WCAG 1.4.4 (обсуждение #8378 → PR #13469: брейкпойнты переведены в rem, «consistent with the spacing and type scales»); (2) в одной единице обязаны быть все брейкпойнты, иначе медиазапросы сортируются в неверном порядке (docs/responsive-design); (3) Adam Wathan в #13323: «правильной» единицы для mt-4 нет, это зависит от контекста (отступ между абзацами — про читаемость, значит rem; поле под сайдбар обязано быть в той же единице, что его width), поэтому rem оставлен как менее плохой дефолт, а переопределение — одна строка @theme { --spacing: 4px } или 1px. Следствие rem-базы: шаг ступени 0.25 × 0.25rem = 1px, дробные шаги (0.5, 1.5, 2.5, 3.5) — часть шкалы.",
+ "scale": {
+  "base": "--spacing: 0.25rem (theme.css:325) — единственный токен отступов в теме по умолчанию; ни одного --spacing-N там нет",
+  "generator": "линейная сетка от одной базы: p-N → padding: calc(var(--spacing) * N); N — любое число, кратное 0.25 (isValidSpacingMultiplier = isMultipleOf(value, 0.25)); отрицательные -mt-N → calc(var(--spacing) * -N); дроби 1/2 → 50%; побеги: p-px = 1px, p-[117px], p-(--var). Именованный шаг --spacing-<имя> подхватывается раньше числа (theme.resolve по ['--padding','--spacing']). Список из 34 подсказок редактора (DEFAULT_SPACING_SUGGESTIONS) — это прежняя именованная шкала v3 (compat/default-theme.ts)",
+  "steps": [
+   {
+    "name": "px",
+    "value": "1px (статика, вне формулы)"
+   },
+   {
+    "name": "0.5",
+    "value": "0.125rem = 2px"
+   },
+   {
+    "name": "1",
+    "value": "0.25rem = 4px"
+   },
+   {
+    "name": "1.5",
+    "value": "0.375rem = 6px"
+   },
+   {
+    "name": "2",
+    "value": "0.5rem = 8px"
+   },
+   {
+    "name": "2.5",
+    "value": "0.625rem = 10px"
+   },
+   {
+    "name": "3",
+    "value": "0.75rem = 12px"
+   },
+   {
+    "name": "3.5",
+    "value": "0.875rem = 14px"
+   },
+   {
+    "name": "4",
+    "value": "1rem = 16px"
+   },
+   {
+    "name": "5",
+    "value": "1.25rem = 20px"
+   },
+   {
+    "name": "6",
+    "value": "1.5rem = 24px"
+   },
+   {
+    "name": "7",
+    "value": "1.75rem = 28px"
+   },
+   {
+    "name": "8",
+    "value": "2rem = 32px"
+   },
+   {
+    "name": "9",
+    "value": "2.25rem = 36px"
+   },
+   {
+    "name": "10",
+    "value": "2.5rem = 40px"
+   },
+   {
+    "name": "11",
+    "value": "2.75rem = 44px"
+   },
+   {
+    "name": "12",
+    "value": "3rem = 48px"
+   },
+   {
+    "name": "14",
+    "value": "3.5rem = 56px"
+   },
+   {
+    "name": "16",
+    "value": "4rem = 64px"
+   },
+   {
+    "name": "20",
+    "value": "5rem = 80px"
+   },
+   {
+    "name": "24",
+    "value": "6rem = 96px"
+   },
+   {
+    "name": "28",
+    "value": "7rem = 112px"
+   },
+   {
+    "name": "32",
+    "value": "8rem = 128px"
+   },
+   {
+    "name": "36",
+    "value": "9rem = 144px"
+   },
+   {
+    "name": "40",
+    "value": "10rem = 160px"
+   },
+   {
+    "name": "44",
+    "value": "11rem = 176px"
+   },
+   {
+    "name": "48",
+    "value": "12rem = 192px"
+   },
+   {
+    "name": "52",
+    "value": "13rem = 208px"
+   },
+   {
+    "name": "56",
+    "value": "14rem = 224px"
+   },
+   {
+    "name": "60",
+    "value": "15rem = 240px"
+   },
+   {
+    "name": "64",
+    "value": "16rem = 256px"
+   },
+   {
+    "name": "72",
+    "value": "18rem = 288px"
+   },
+   {
+    "name": "80",
+    "value": "20rem = 320px"
+   },
+   {
+    "name": "96",
+    "value": "24rem = 384px"
+   }
+  ],
+  "notes": "Имя ступени = множитель базы, а не порядковый номер: 4 значит 4×4px. Между 12 и 16 шаг 2 (14), выше 16 — шаг 4, выше 64 — 8: плотно там, где отступы внутри узлов, редко там, где ширины. В v4 список подсказок ни к чему не обязывает: mt-17, pr-29, w-17 собираются так же (blog v4). Хвост 20…96 нужен в основном утилитам ширин/высот (w-*, h-*, max-h-*), которые читают ту же шкалу. Соседние шкалы в theme.css заданы отдельно и списком, не формулой: --radius-xs…4xl (0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.5, 2rem), --text-xs…9xl с вычисленной строкой (--text-base--line-height: calc(1.5 / 1)), --breakpoint-sm…2xl (40, 48, 64, 80, 96rem), --container-3xs…7xl (16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64, 72, 80rem)."
+ },
+ "roles": {
+  "hasSemanticLayer": false,
+  "vocabulary": [
+   "--spacing — база (единственный токен)",
+   "--spacing-<имя> — именованный шаг того же пространства имён; слот есть, значений по умолчанию нет (utilities.test.ts: --spacing-big: 100rem → .mx-big)",
+   "--padding-*, --margin-*, --gap-*, --inset-*, --width-*, --height-*, --flex-basis-* — пространства имён отдельных свойств, разрешаются раньше --spacing (utilities.ts, themeKeys)",
+   "--container-3xs…7xl — ширины блоков и пороги контейнерных запросов (@sm: … @7xl:)",
+   "--breakpoint-sm…2xl — пороги окна (sm: … 2xl:)",
+   "--radius-xs…4xl, --text-xs…9xl — свои t-shirt-шкалы, не выведенные из --spacing",
+   "--spacing(N) — функция в своём CSS: margin: --spacing(4) → calc(var(--spacing) * 4)"
+  ],
+  "examples": [
+   "@theme { --spacing: 0.25rem; --spacing-big: 100rem; } → .-mx-big { margin-inline: calc(var(--spacing-big) * -1); } (utilities.test.ts)",
+   "@layer components { .card { padding: --spacing(6); border-radius: var(--radius-lg); } } (docs/adding-custom-styles)",
+   ".btn-primary { padding-inline: --spacing(5); padding-block: --spacing(2); } (docs/styling-with-utility-classes)",
+   "@utility container { margin-inline: auto; padding-inline: 2rem; } (docs/upgrade-guide)",
+   "Секция Tailwind UI: <section class=\"py-24 sm:py-32\"><div class=\"mx-auto max-w-7xl px-6 lg:px-8\"> — воздух 96→128, гуттер 24→32, колонка 80rem (29 952 файла на GitHub)"
+  ],
+  "notes": "Роли для отступов система не поставляет и не предписывает: в theme.css нет ни --spacing-section, ни --spacing-page, ни «compact/comfortable». Философия Tailwind — сырая шкала прямо в разметке, ограничение в том, что удобно писать только ступень («Designing with constraints»). Роль появляется двумя путями: (а) компонент/шаблон-партиал повторяет набор ступеней (docs: «create a component … or a template partial»), (б) именованный токен в пространстве свойства (--padding-card) или в --spacing-<имя>, которое утилита подхватывает как p-card. Это ровно противоположно палитре Tailwind, где семантика (--color-primary: var(--color-red-500) в @theme inline) — тоже дело проекта, но там хотя бы есть образец в документации. Для отступов образца нет — только механизм."
+ },
+ "density": "Один множитель на всё — переопределение --spacing: @theme { --spacing: 4px } (docs/theme) или 1px (docs/padding). Никаких платформенных шкал (compact/cozy/spacious, touch/pointer) в системе нет. Поскольку утилиты компилируются в calc(var(--spacing) * N) и переменная живёт в :root во время выполнения («reference any value you need at run-time using just CSS»), плотность поддерева меняется переопределением --spacing на любом элементе — это свойство скомпилированного вывода, документацией как приём плотности не описано (вывод из кода, не из документа). Второй механизм плотности — только у прозы: @tailwindcss/typography даёт пять размеров prose-sm/base/lg/xl/2xl (14/16/18/20/24px), и все внутренние отступы считаются в em от кегля (em(px, base)), поэтому смена размера меняет и воздух.",
+ "fluid": "В самой системе clamp() нет ни у одного токена: --spacing, --text-*, --container-*, --breakpoint-* — фиксированные rem. Изменение с шириной делается парами по брейкпойнтам, mobile-first: без приставки — телефон, sm:/md:/lg: — надстройка («Don't use sm: to target mobile devices»); max-* и диапазоны md:max-lg: есть, но как исключение. Контейнерные запросы — в ядре: @container на родителе, @sm:…@7xl: по --container-* (16–80rem), @max-md:, именованные @container/main. Плавное значение возможно только произвольным значением p-[clamp(…)] или в своём CSS через --spacing(): py-[calc(--spacing(4)-1px)]. Практика Tailwind UI: py-24 sm:py-32 (96→128), px-6 lg:px-8 (24→32), mt-16 sm:mt-20 lg:mt-24 — ступени шкалы на двух-трёх ширинах, а не рампа. Проза: em от кегля, кегль переключается prose-lg на брейкпойнте.",
+ "layout": "container — только ширина: width: 100% и на каждом --breakpoint-* (по возрастанию) @media (width >= bp) { max-width: bp } — то есть лестница 40/48/64/80/96rem (640/768/1024/1280/1536px); центровки и полей нет намеренно, они добавляются проектом один раз через @utility container { margin-inline: auto; padding-inline: 2rem } или классами mx-auto px-4. Ширины содержимого — отдельная шкала --container-3xs…7xl (16–80rem), её читают max-w-*, w-*, min-w-*, flex-basis (themeKeys ['--max-width','--spacing','--container']); max-w-7xl = 80rem = 1280 — де-факто колонка страниц Tailwind UI. Ширина текста — 65ch (--max-width-prose в deprecated-блоке; в typography «baked in max-width»). Гуттеры — та же шкала: px-6 lg:px-8 (24→32). Ритм секций — py-24 sm:py-32 (96→128) снаружи, внутри mt-16 sm:mt-20 lg:mt-24 и сетки gap-x-8 gap-y-16. Сетка — grid-cols-N с любым N (динамические значения v4), зазоры gap-* из шкалы. Отбивки соседей: space-y-* переписан на .space-y-4 > :not(:last-child) { margin-bottom } и сам Tailwind советует вместо него flex flex-col gap-4.",
+ "enforcement": "Линтера у Tailwind нет; держится тремя вещами. (1) Формат токена: утилита существует только для того, что объявлено в @theme (docs/theme: «Theme variables aren't just CSS variables — they also instruct Tailwind to create new utility classes»); --*: initial или --spacing-*: initial убирают всё лишнее; неизвестный класс молча не генерируется. (2) Проверка значения в компиляторе: голое число принимается только кратным 0.25 (isValidSpacingMultiplier), иначе класса нет; брейкпойнты сортируются по единице, смешение единиц ломает порядок — об этом предупреждает документация, а не машина. (3) Тесты самого репозитория: utilities.test.ts (31 596 строк) снимками закрепляет, во что компилируется каждая утилита, включая именованные шаги (--spacing-big). Побег p-[117px] собирается всегда — Tailwind полагается на то, что побег виден в разметке и его можно найти grep-ом, а не на запрет. Подсказки редактора (DEFAULT_SPACING_SUGGESTIONS) — «мягкая» шкала: они показывают 34 ступени, хотя система примет любую.",
+ "principles": [
+  {
+   "principle": "Одна база — все ступени выводятся из неё, а имя ступени равно множителю базы.",
+   "evidence": "theme.css:325 — --spacing: 0.25rem, единственный токен; docs/padding — p-<number> → padding: calc(var(--spacing) * <number>); blog v4 — скомпилированные .mt-8 { margin-top: calc(var(--spacing) * 8) }, .w-17, .pr-29",
+   "forStorefront3": "Имена у нас уже такие: --space-4: 16px, --space-6: 24px, --space-12: 48px, --space-2-5: 10px — число в имени и есть множитель четырёх. Меняется только правая часть: в packages/ui/src/tokens/primitives.css объявить --space-unit: 4px и --space-N: calc(var(--space-unit) * N); переименовывать нечего, компоненты не трогаются. Сторож рядом со scale.test.ts: читает primitives.css, для каждого --space-N проверяет «N × unit», и падает на «--space-14: 60px» или на ступени, записанной числом мимо формулы."
+  },
+  {
+   "principle": "Шаг шкалы — кратное четверти базы; ниже него — единица «px» и явный, видимый в коде побег.",
+   "evidence": "infer-data-type.ts — isValidSpacingMultiplier: isMultipleOf(value, 0.25); utilities.ts — статика p-px = 1px; docs/adding-custom-styles — «once in a while you need to break out of those constraints to get things pixel-perfect», p-[117px], p-(--my-var)",
+   "forStorefront3": "У проекта порог уже назван: check-css.mjs, SPACING_FLOOR = 8 — меньше 8 это оптическая доводка, от 8 — только var(--space-…). Побег — calc(var(--space-6) - 1px) или число с комментарием-замером (как --layout-hero-content-top: 112px), и он ищется grep-ом. Пробел в стороже: у apps/storefront3 нет ни tools/, ни kit.config.json, ни скрипта check:css в package.json — pnpm check:kit (-r --if-present) его не видит вовсе. Первый шаг слоя отступов — apps/storefront3/kit.config.json со scale.space = \"space\", tokens → ../../packages/ui/src/tokens/index.css, styles → [\"app\",\"components\"], и \"check:css\": \"node ../storefront/tools/check-css.mjs\" (или вынести tools в пакет — правило трёх: это третья витрина)."
+  },
+  {
+   "principle": "Ширины — своя шкала, не отступы: колонки, пороги окна и контейнера не выводятся из базы отступов.",
+   "evidence": "theme.css — --container-3xs…7xl (16–80rem) и --breakpoint-sm…2xl (40–96rem) заданы списком, не calc; utilities.ts — max-w читает ['--max-width','--spacing','--container'], container-утилита собирает max-width из --breakpoint-*; docs/responsive-design — таблица @3xs…@7xl для @container",
+   "forStorefront3": "Семейство --layout-* (canvas 1440, content 1296, column, aside-min 380, gutter-page) — ровно это, и оно остаётся отдельным: ни одна ширина не пишется как calc(var(--space-unit) * N), а ни одна ступень --space-* не стоит в width/max-width (кроме gap и полей внутри). Ширина текста — 65ch, а не ступень. Сторож в scale-тесте: --layout-* не ссылается на --space-unit; в CSS витрины max-width/inline-size: var(--space-…) — ошибка. Пороги @container — из своего реестра, как seams.ts для окна (CLAUDE.md, 1а: «@container сюда не входит: его число — ширина блока»), то есть второй реестр container-seams.ts с именем и причиной у каждого."
+  },
+  {
+   "principle": "Контейнер — только ширина; поле и центровка добавляются проектом один раз, одним правилом.",
+   "evidence": "utilities.ts container: width: 100% + @media (width >= bp) { max-width: bp }; docs/container — «does not center itself automatically and does not have any built-in horizontal padding»; docs/upgrade-guide — @utility container { margin-inline: auto; padding-inline: 2rem; }",
+   "forStorefront3": "Колонка одна и уже есть в @cbdshop/ui: --layout-column = min(1296, 100% − 2·gutter), гуттер --layout-gutter-page (72 на 1440, 16 ниже 860). storefront3 объявляет одну обёртку (.column { inline-size: var(--layout-column); margin-inline: auto }) и ни одна страница не пишет свой padding-inline числом или свой max-width. Лестницу max-width на каждом брейкпойнте не воспроизводить — у нас это «ступень на неназванной ширине». Сторож — тот же check:css (padding-inline числом ≥8 вне токенов) плюс grep-тест «max-width со значением из --layout-content встречается в одном модуле»."
+  },
+  {
+   "principle": "Телефон — базовое объявление, широкий экран — надстройка, а не наоборот.",
+   "evidence": "docs/responsive-design — «Tailwind uses a mobile-first breakpoint system… unprefixed utilities take effect on all screen sizes», «Don't use sm: to target mobile devices», «Use unprefixed utilities to target mobile, and override them at larger breakpoints»",
+   "forStorefront3": "Совпадает с CLAUDE.md «Сначала 375». Для собственного CSS третьей витрины: значение токена по умолчанию — число телефона (нижний конец clamp), широкое — верхний конец рампы или @media (min-width: <шов из seams.ts>). @media (max-width…) в apps/storefront3 не пишется: у него телефон оказывается исключением. Сторож — seams.test.ts уже держит реестр швов; добавить в тест storefront3 регулярное выражение «max-width в медиазапросе = ошибка» (исключение — только запись через реестр, если владелец решит иначе и это запишут в DECISIONS.md)."
+  },
+  {
+   "principle": "У шкалы, швов и рамп одна единица — иначе порядок правил и парные размеры расходятся молча.",
+   "evidence": "docs/responsive-design — «always use the same unit for defining your breakpoints or the generated utilities may be sorted in an unexpected order»; PR #13469 — брейкпойнты переведены в rem, «consistent with the spacing and type scales»; #13323 adamwathan — сайдбар по width и padding под него обязаны быть в одной единице",
+   "forStorefront3": "Единица проекта — px, и это не по незнанию: числа сняты с Figma в px, seams.ts хранит px, test:phone и test:wide меряют CSS-px, clamp-полы — px. Tailwind выбрал rem ради text-only zoom (WCAG 1.4.4); у нас px значит, что увеличение шрифта в браузере не сдвигает швы раскладки — это цена, и её надо назвать в DECISIONS.md записью «Отступы третьей витрины в px, как макет и швы», а не оставить умолчанием. Сторож: в scale-тесте все --space-*, --layout-*, --pad-*, --air-* — в одной единице; rem внутри этих семейств — красный; исключения (em у трекинга и прозы) названы поимённо."
+  },
+  {
+   "principle": "Роли отступов система не поставляет — их создаёт компонент, и только там, где расстояние повторяется.",
+   "evidence": "theme.css — нет ни --spacing-section, ни --spacing-page; utilities.test.ts — именованный шаг --spacing-big подхватывается как mx-big; docs/styling-with-utility-classes — «create a component … or a template partial»; @layer components .card { padding: --spacing(6) }",
+   "forStorefront3": "Отличие от палитры — осознанное: примитив --space-N компонентам читать МОЖНО (token-layer.test.ts на отступы не распространяется, и Tailwind делает так же), а роль заводится по правилу трёх и в своём семействе имён: поля узла — --pad-<узел>-<ступень> (образец уже есть: --control-pad-sm/md/lg, --cart-button-pad-*), воздух между блоками — --air-band, --air-band-gap, --air-rail-start/end (сейчас --layout-band-pad и --layout-rail-pad-* — семантика та же, семейство «layout» смешивает ширины и ритм; разводить ли имена — вопрос владельцу, механика не меняется). Сторож: роль ссылается на ступень — var(--space-…) или clamp между ступенями — а не на голое число; тест читает primitives.css и падает на --pad-…: 18px."
+  },
+  {
+   "principle": "Воздух между секциями — те же ступени шкалы на двух ширинах, а не третья шкала.",
+   "evidence": "theme.css — токенов секционного ритма нет; практика Tailwind UI (29 952 файла на GitHub): section py-24 sm:py-32 (96→128px), внутри mx-auto max-w-7xl px-6 lg:px-8 (24→32), mt-16 sm:mt-20 lg:mt-24; docs/theme — «Designing with constraints»",
+   "forStorefront3": "Проект пошёл дальше Tailwind — рампа вместо пары: --layout-band-pad: clamp(48px, 6.1vw, 88px). Принцип переносится в концы рампы: они обязаны быть ступенями — clamp(var(--space-12), 6.1vw, var(--space-22)), и если ступени 22 (88) в шкале нет, заводится ступень, а не число в рампе (так уже сделали с --space-14: 56 — «её просят пятеро»). Наклон (6.1vw) — единственное число, которому шкала не предписана. Сторож: check-css уже пропускает «vw + var(--space-» как верную запись; добавить обратную проверку для семейств --air-*/--pad-*: внутри clamp() нет px, кроме слагаемого при vw."
+  },
+  {
+   "principle": "Длинный текст дышит в em от кегля, а не в ступенях шкалы, и у него своя ширина строки.",
+   "evidence": "tailwindcss-typography/src/styles.js — const em = (px, base) => `${round(px / base)}em`; base: p { margin-top: em(20,16) }, h2 { margin-top: em(48,24), margin-bottom: em(24,24) }; README — «Each size modifier comes with a baked in max-width designed to keep the content as readable as possible»; theme.css — --max-width-prose: 65ch",
+   "forStorefront3": "Статьи блога, политики, описания товаров — один узел прозы (образец Prose в @cbdshop/ui, если его ещё нет — завести там, а не в витрине): p { margin-block: 1.25em }, h2 { margin-block: 2em 1em }, h3 { 1.6em 0.6em }, max-inline-size: 65ch; кегль прозы — из шкалы кеглей, воздух следует за ним сам. Сторож по образцу scale.test.ts («трекинг — долей кегля»): в модуле прозы margin/padding только в em; var(--space-…) там — ошибка, потому что при смене кегля шкала не поедет."
+  },
+  {
+   "principle": "Токен живёт в рантайме как CSS-переменная — поэтому плотность и ответ на настройку владельца стоят одну строку.",
+   "evidence": "blog v4 — «takes all of your design tokens and makes them available as CSS variables by default… reference any value you need at run-time using just CSS»; скомпилированный .mt-8 { margin-top: calc(var(--spacing) * 8) }; docs/theme — @theme { --spacing: 4px }",
+   "forStorefront3": "--space-unit объявлена один раз на :root; переопределение на поддереве меняет плотность всего под ним без второго словаря ступеней (в Tailwind это свойство вывода, не документированный приём — использовать только с записью в DECISIONS.md). Регулятор плотности в админке (группа brandTheme, как цвета) — возможен как одно число инлайн-стилем на <html>, но заводится только когда за ним стоит решение владельца (CLAUDE.md, «Поле без последствий не заводится»). Сторож: css-tokens.test.ts-подобная проверка на storefront3 — читаемая переменная объявлена, --space-unit объявлена ровно один раз."
+  },
+  {
+   "principle": "У каждой ступени есть имя; безымянной «по умолчанию» ступени нет.",
+   "evidence": "docs/upgrade-guide — шкалы переименованы «to ensure every utility has a named value»: rounded → rounded-sm, shadow → shadow-sm, blur → blur-sm; theme.css 503–510 — безымянные --radius: 0.25rem, --shadow, --blur вынесены в deprecated-блок",
+   "forStorefront3": "Ни --space без номера, ни --radius без ступени, ни --pad-card без размера, если у узла есть два размера. В проекте это уже так (--radius-base — имя, не пропуск), правило только закрепляется: scale-тест падает на объявлении семейства без суффикса ступени (--space:, --radius:, --air:)."
+  }
+ ],
+ "doNotCopy": [
+  "rem как единица шкалы и швов. Макет в px, seams.ts в px, test:phone/test:wide меряют CSS-px; смена единицы — переписывание всей системы разом, а не «профессиональнее». Решение остаться в px записать с ценой (text-only zoom не двигает швы).",
+  "База 0.25rem с шагом 1px (кратное 0.25 → 0.5, 1.5, 2.5, 3.5). Наша сетка 4px, ниже 8 — доводка (check-css SPACING_FLOOR); дробные ступени вроде --space-2-5 не плодить, а держать как исключение с причиной.",
+  "Хвост шкалы до 96 (384px). У Tailwind он нужен утилитам ширин и высот, читающим ту же шкалу; у нас ширины — --layout-*, и ступени выше 18–22 без просителя не заводятся (правило «56 здесь потому, что её просят пятеро»).",
+  "Утилитарные классы в разметке (py-24 sm:py-32). У проекта CSS-модули и composes; берётся принцип «две ступени, а не третья шкала», а не форма записи.",
+  "Пара по брейкпойнту вместо рампы. Владелец решил «между 861 и 1440 сжимается» — clamp с концами-ступенями; Tailwind рамп не даёт вовсе, и его практика тут беднее нашей.",
+  "Лестница container: max-width на каждом брейкпойнте (640/768/1024/1280/1536). У нас одна колонка min(1296, 100% − 2·gutter); лестница — это «ступень на неназванной ширине».",
+  "space-y-* (margin на соседей). Сам Tailwind в v4 советует flex-col + gap; у нас gap и так правило.",
+  "Отсутствие сторожа. У Tailwind неизвестный класс молча не генерируется, а p-[117px] собирается всегда — правило держит привычка. У нас правило держит check:css, и его у storefront3 пока нет — это и есть первая работа.",
+  "@theme как второй словарь. У Tailwind токен обязан быть в @theme, чтобы существовала утилита; у нас :root в primitives.css — второго места объявления не заводить (CLAUDE.md: «появилось второе место — ошибка архитектуры»).",
+  "Именованный шаг в том же пространстве, что и числа (--spacing-big рядом с --spacing). У нас роль — своё семейство (--pad-*, --air-*), чтобы сторож отличал роль от ступени по имени."
+ ],
+ "quotes": [
+  {
+   "text": "--spacing: 0.25rem;",
+   "source": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/theme.css (строка 325)"
+  },
+  {
+   "text": "p-<number> → padding: calc(var(--spacing) * <number>);",
+   "source": "https://tailwindcss.com/docs/padding"
+  },
+  {
+   "text": "Even spacing utilities like px-*, mt-*, w-*, h-*, and more are now dynamically derived from a single spacing scale variable",
+   "source": "https://tailwindcss.com/blog/tailwindcss-v4"
+  },
+  {
+   "text": "export function isValidSpacingMultiplier(value: any) { return isMultipleOf(value, 0.25) }",
+   "source": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/utils/infer-data-type.ts"
+  },
+  {
+   "text": "Theme variables aren't just CSS variables — they also instruct Tailwind to create new utility classes",
+   "source": "https://tailwindcss.com/docs/theme"
+  },
+  {
+   "text": "makes them available as CSS variables by default, so you can reference any value you need at run-time using just CSS",
+   "source": "https://tailwindcss.com/blog/tailwindcss-v4"
+  },
+  {
+   "text": "Tailwind's container does not center itself automatically and does not have any built-in horizontal padding.",
+   "source": "https://tailwindcss.com/docs/container"
+  },
+  {
+   "text": "@utility container { margin-inline: auto; padding-inline: 2rem; }",
+   "source": "https://tailwindcss.com/docs/upgrade-guide"
+  },
+  {
+   "text": "always use the same unit for defining your breakpoints or the generated utilities may be sorted in an unexpected order",
+   "source": "https://tailwindcss.com/docs/responsive-design"
+  },
+  {
+   "text": "Don't use sm: to target mobile devices",
+   "source": "https://tailwindcss.com/docs/responsive-design"
+  },
+  {
+   "text": "Designing with constraints — using inline styles, every value is a magic number.",
+   "source": "https://tailwindcss.com/docs/styling-with-utility-classes"
+  },
+  {
+   "text": "once in a while you need to break out of those constraints to get things pixel-perfect",
+   "source": "https://tailwindcss.com/docs/adding-custom-styles"
+  },
+  {
+   "text": "there's not really one 'right' unit to use for a utility like mt-4 because… it's sort of context-dependent.",
+   "source": "adamwathan, https://github.com/tailwindlabs/tailwindcss/discussions/13323 (пересказ инструментом чтения)"
+  },
+  {
+   "text": "pixel-values instead of rem-values for media queries often results in a poor experience for people who use text-only zoom",
+   "source": "MichaelAllenWarner, https://github.com/tailwindlabs/tailwindcss/discussions/8378"
+  },
+  {
+   "text": "it's consistent with the spacing and type scales.",
+   "source": "https://github.com/tailwindlabs/tailwindcss/pull/13469 (описание PR о переводе брейкпойнтов в rem)"
+  },
+  {
+   "text": "--spacing-big: 100rem → .-mx-big { margin-inline: calc(var(--spacing-big) * -1); }",
+   "source": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/src/utilities.test.ts"
+  },
+  {
+   "text": ".space-y-4 > :not(:last-child) { margin-bottom: 1rem; }",
+   "source": "https://tailwindcss.com/docs/upgrade-guide"
+  },
+  {
+   "text": "const em = (px, base) => `${round(px / base)}em`",
+   "source": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss-typography/main/src/styles.js"
+  },
+  {
+   "text": "Each size modifier comes with a baked in max-width designed to keep the content as readable as possible",
+   "source": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss-typography/main/README.md"
+  },
+  {
+   "text": "--container-3xs: 16rem; … --container-7xl: 80rem;",
+   "source": "https://raw.githubusercontent.com/tailwindlabs/tailwindcss/main/packages/tailwindcss/theme.css (строки 333–345)"
+  }
+ ],
+ "confidence": "Высокая по механизму: формула calc(var(--spacing) * N), правило кратности 0.25, порядок разрешения имён, устройство container, значения breakpoint/container/radius сняты с самих файлов репозитория (theme.css, utilities.ts, infer-data-type.ts, utilities.test.ts, compat/default-theme.ts) и подтверждены документацией. Средняя по «почему rem»: причина взята из обсуждений #8378/#13323 и PR #13469, где реплики команды пересказаны инструментом чтения страницы — цитаты могут быть сокращены (отмечено многоточием), но смысл сходится в трёх независимых источниках. Средняя по практике секционного воздуха: исходники Tailwind UI закрыты, соглашение py-24 sm:py-32 / max-w-7xl px-6 lg:px-8 подтверждено распространённостью (29 952 файла на GitHub), а не файлом Tailwind Labs. Вывод «переопределение --spacing на поддереве меняет плотность» — из скомпилированного CSS, документацией как приём не описан."
+}

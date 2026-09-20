@@ -1,0 +1,22 @@
+declare const _default: {
+    "--palette-hue": string;
+    "--palette-hue-rotate-by": string;
+    "--palette-chroma": string;
+    "--color-1": string;
+    "--color-2": string;
+    "--color-3": string;
+    "--color-4": string;
+    "--color-5": string;
+    "--color-6": string;
+    "--color-7": string;
+    "--color-8": string;
+    "--color-9": string;
+    "--color-10": string;
+    "--color-11": string;
+    "--color-12": string;
+    "--color-13": string;
+    "--color-14": string;
+    "--color-15": string;
+    "--color-16": string;
+};
+export default _default;

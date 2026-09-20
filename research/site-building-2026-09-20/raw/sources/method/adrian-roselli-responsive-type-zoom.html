@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+
+	<title>Responsive Type and Zoom — Adrian Roselli</title>
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link rel="shortcut icon" href="/wp-content/themes/AAR/favicon.png">
+	<link rel="pingback" href="/xmlrpc.php">
+	<link rel="alternate" type="application/rss+xml" title="RSS" href="https://adrianroselli.com/feed">
+	<style>
+	/* cabin-regular - latin */
+	@font-face {
+		font-family: 'Cabin';
+		font-style: normal;
+		font-weight: 400;
+		src: local('Cabin'), local('Cabin-Regular'),
+			url('/wp-content/themes/AAR/fonts/cabin-v14-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+			url('/wp-content/themes/AAR/fonts/cabin-v14-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+		font-display: swap;
+	}
+	/* cabin-italic - latin */
+	@font-face {
+		font-family: 'Cabin';
+		font-style: italic;
+		font-weight: 400;
+		src: local('Cabin Italic'), local('Cabin-Italic'),
+			url('/wp-content/themes/AAR/fonts/cabin-v14-latin-italic.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+			url('/wp-content/themes/AAR/fonts/cabin-v14-latin-italic.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+		font-display: swap;
+	}
+	/* cabin-700 - latin */
+	@font-face {
+		font-family: 'Cabin';
+		font-style: normal;
+		font-weight: 700;
+		src: local('Cabin Bold'), local('Cabin-Bold'),
+			url('/wp-content/themes/AAR/fonts/cabin-v14-latin-700.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
+			url('/wp-content/themes/AAR/fonts/cabin-v14-latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+		font-display: swap;
+	}
+	</style>
+<!-- Cookie:  -->
+<!-- Theme: Unset -->
+	<style id="CSSUnset" media="all">
+	:root { --page-bg: #efefef; --page-bg-rgb: 239,239,239; --detail-color: #006c6c; --nav-color: #009191; --text-color: #000; --text-color-rgb: 0,0,0; }
+	@media (prefers-color-scheme: dark) {
+		:root { --page-bg: #000; --page-bg-rgb: 0,0,0; --detail-color: #009191; --nav-color: #009191; --text-color: #efefef; --text-color-rgb: 239,239,239; }
+	}
+	</style>
+	<style id="CSSDark" media="none">
+		:root { --page-bg: #000; --page-bg-rgb: 0,0,0; --detail-color: #009191; --nav-color: #009191; --text-color: #efefef; --text-color-rgb: 239,239,239; }
+	</style>
+	<style id="CSSLight" media="none">
+		:root { --page-bg: #efefef; --page-bg-rgb: 239,239,239; --detail-color: #006c6c; --nav-color: #009191; --text-color: #000; --text-color-rgb: 0,0,0; }
+	</style>
+
+	<!-- 9.17.1 -->
+	<link rel="stylesheet" href="/wp-content/themes/AAR/style.css?d=20250715">
+
+	<style>
+	@media print {header::before{content: url(http://chart.apis.google.com/chart?chs=120x120&cht=qr&chl=http%3A%2F%2Fadrianroselli.com/2019/12/responsive-type-and-zoom.html);position:absolute;top:-.25in;right:-.25in;}}
+	</style>
+
+	<script src="/wp-content/themes/AAR/highlight.min.js" async></script>
+	<style>
+	/* a11y-dark.min.css */
+	.hljs-comment,.hljs-quote{color:#d4d0ab}.hljs-variable,.hljs-template-variable,.hljs-tag,.hljs-name,.hljs-selector-id,.hljs-selector-class,.hljs-regexp,.hljs-deletion{color:#ffa07a}.hljs-number,.hljs-built_in,.hljs-builtin-name,.hljs-literal,.hljs-type,.hljs-params,.hljs-meta,.hljs-link{color:#f5ab35}.hljs-attribute{color:#ffd700}.hljs-string,.hljs-symbol,.hljs-bullet,.hljs-addition{color:#abe338}.hljs-title,.hljs-section{color:#00e0e0}.hljs-keyword,.hljs-selector-tag{color:#dcc6e0}.hljs{display:block;overflow-x:auto;background:#2b2b2b;color:#f8f8f2;padding:.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:bold}@media screen and (-ms-high-contrast:active), screen and (forced-colors: active){.hljs-addition,.hljs-attribute,.hljs-built_in,.hljs-builtin-name,.hljs-bullet,.hljs-comment,.hljs-link,.hljs-literal,.hljs-meta,.hljs-number,.hljs-params,.hljs-string,.hljs-symbol,.hljs-type,.hljs-quote{color:highlight}.hljs-keyword,.hljs-selector-tag{font-weight:bold}}
+	.hljs{background:transparent;padding:0}
+	@media print{pre .hljs,pre .hljs *{color:#000}}
+	</style>
+
+	<!-- <link rel="prev" title="Web Development Advent Calendars for 2019" href="https://adrianroselli.com/2019/12/web-development-advent-calendars-for-2019.html"> -->
+	<!-- <link rel="next" title="Showing File Types in Links" href="https://adrianroselli.com/2019/12/showing-file-types-in-links.html"> -->
+	<link rel="canonical" href="http://adrianroselli.com/2019/12/responsive-type-and-zoom.html">
+
+	<!-- Opengraph, Fediverse, MechaHitler's CSAM-generatiing platform, etc. -->
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Responsive Type and Zoom">
+	<meta property="og:url" content="https://adrianroselli.com/2019/12/responsive-type-and-zoom.html">
+	<meta property="og:description" content="Typography that responds to viewport width (&#8216;fluid&#8217; or &#8216;responsive&#8217; typography) can be useful when you want to ensure text does not get clipped or spill out of some design elements. Carousels, widget controls, or my Venn diagram are some examples. I say viewport width because I rarely see responsive type&hellip;">
+	<meta property="article:published_time" content="2019-12-06T12:46:52-05:00">
+	<meta property="article:modified_time" content="2025-10-20T21:54:52-04:00">
+	<meta property="og:site_name" content="Adrian Roselli">
+	<meta property="og:image" content="https://adrianroselli.com/wp-content/uploads/2019/12/type_responsive-static_thumb-300x300.png">
+	<meta property="og:image:width" content="300">
+	<meta property="og:image:height" content="300">
+	<meta property="og:image:alt" content="">
+	<meta property="og:locale" content="en_US">
+	<meta name="twitter:card" content="summary">
+	<meta name="fediverse:creator" content="@aardrian@toot.cafe">
+	<meta property="article:author" content="Adrian Roselli">
+	<!-- / Opengraph, Fediverse, MechaHitler's CSAM-generatiing platform, etc. -->
+	<meta name="author" content="Adrian Roselli">
+	<meta name="citation_author" content="Adrian Roselli">
+	<meta name="creator" content="Adrian Roselli">
+	<meta name="contact" content="https://adrianroselli.com/contact">
+	<!-- Because Page Speed Insights and probably Google are little punks that can't parse the Opengraph version -->
+	<meta name="description" content="Typography that responds to viewport width (&#8216;fluid&#8217; or &#8216;responsive&#8217; typography) can be useful when you want to ensure text does not get clipped or spill out of some design elements. Carousels, widget controls, or my Venn diagram are some examples. I say viewport width because I rarely see responsive type&hellip;">
+	<!-- / Because Page Speed Insights and probably Google are little punks that can't parse the Opengraph version -->
+	<meta name="twitter:dnt" content="on">
+	<!-- https://adrianroselli.com/2019/12/responsive-type-and-zoom.html -->
+	<!-- /2019/12/responsive-type-and-zoom.html -->
+
+	
+	<!-- <meta name="monetization" content="$ilp.gatehub.net/597263724"> -->
+</head>
+<body id="Unset">
+
+<!-- header -->
+<header role="banner">
+		<a href="#Skip" accesskey="s">Skip to content.</a>
+
+		<!-- nav -->
+		<div id="NavWrapper">
+			<nav role="navigation" id="PrimaryNav">
+				<ul>
+					<li><a href="/posts" id="mnu2095">Blog</a>
+<button type="button" id="btnSubblog" aria-controls="Subblog" aria-expanded="false" aria-labelledby="mnu2095"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" focusable="false" width="1em" height="1em" aria-hidden="true"><path d="M70.3 13.8L40 66.3 9.7 13.8z"/></svg></button>
+			<ul id="Subblog">
+	<li><a href="/tag/accessibility" id="mnu5358">Accessibility</a></li>
+	<li><a href="/tag/pattern" id="mnu8668">Patterns</a></li>
+	<li><a href="/tag/print" id="mnu5366">Print Styles</a></li>
+	<li><a href="/tag/tables" id="mnu6954">Tables</a></li>
+	<li><a href="/tag/slides" id="mnu5360">Talk Slides</a></li>
+	<li><a href="/tag/ux" id="mnu5359">User Experience</a></li>
+	<li><a href="/tag/ariabuse" id="mnu9687">ARIA Misuse</a></li>
+	<li><a href="/tag/overlay" id="mnu14069">Overlays</a></li>
+</ul>
+</li>
+<li><a href="/bio" id="mnu1976">Bio</a></li>
+<li><a href="/books" id="mnu1990">Books</a></li>
+<li><a href="/contact" id="mnu1973">Contact</a></li>
+				</ul>
+				<form method="get" id="searchform" class="searchform" action="https://adrianroselli.com/" role="search" autocomplete="off" novalidate>
+				<label for="s" class="visually-hidden">Search for:</label>
+				<input type="text" value="" name="s" id="s" enterkeyhint="search">
+				<button id="searchsubmit">
+					<span class="visually-hidden">Search</span>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" focusable="false" aria-hidden="true" width="1em" height="1em"><path d="M73.37 62.76a39 39 0 10-10.61 10.61L85.2 95.8a7.5 7.5 0 0010.6-10.6zM41 65a24 24 0 1124-24 24 24 0 01-24 24z"/></svg>
+				</button>
+			</form>
+			</nav>
+		</div>
+		<!-- / nav -->
+
+		<div id="Brand">
+			<a href="/" accesskey="1" class="logotype">
+				<strong>Adrian Roselli</strong><br>
+				<span>Viral Monetization Optimization AGI</span>
+			</a>
+		</div>
+</header>
+<!-- / header -->
+
+
+
+<!-- #Content -->
+<div class="post">
+			<main role="main">
+
+		
+		<h1 id="Skip" tabindex="-1">Responsive Type and Zoom</h1>
+		<aside role="note">
+		
+		Updated <time datetime="2025-10-20T21:54:52-04:00">October 20, 2025</time>, originally posted <time datetime="2019-12-06T12:46:52-05:00">December 6, 2019</time>; <a href="#Comments" class="noprint">24 Comments</a>
+		</aside>
+        <!-- https://twitter.com/aardrian/status/1202248510973906944 -->
+<!-- https://web.archive.org/web/20120527121439/http://elliotjaystocks.com/blog/has-adaptive-design-failed-of-course-it-bloody-hasnt/, IE11 window size to 1697px, print preview -->
+
+<p>
+Typography that responds to viewport width (&#8216;fluid&#8217; or &#8216;responsive&#8217; typography) can be useful when you want to ensure text does not get clipped or spill out of some design elements. <a href="http://shouldiuseacarousel.com/">Carousels</a>, widget controls, or my <a href="/2018/12/a-css-venn-diagram.html">Venn diagram</a> are some examples.
+</p>
+
+<p>
+I say viewport <em>width</em> because I rarely see responsive type consider the viewport height or the printed page. Not considering height can bw problematic for users holding their phone in landscape mode while trying to navigate pages with cookie consents and email form sign-ups. Not considering print can make for reams of <a href="/2013/11/print-styles-are-media-queries.html">wasted paper</a>.
+</p>
+
+<h2 id="Compare">Responsive vs. Static</h2>
+
+<p>
+The alternative approach is to just use static text sizing, ignoring the size of the viewport.
+</p>
+
+<p>
+To demonstrate the difference I forked a five-year-old Codepen that had just been updated last week, <a href="https://codepen.io/aardrian/pen/XWJmjrN">Precision responsive typography</a> and started zooming the page, capturing screen shots along the way.
+</p>
+
+<p>
+Then
+<a href="https://codepen.io/aardrian/pen/NWPPJRo">I duplicated the pen</a>, removing all the responsive sizing styles, ensuring the text started at the same size in an un-zoomed window. Then I zoomed and screen-shat it.
+</p>
+
+<h3 id="Screens">Screens</h3>
+
+<p>
+All screen shots were captured in Windows 10 / Firefox 72.0b1, but the effect is the same across browsers.
+</p>
+
+
+<figure class="two">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/type_responsive_no-zoom_firefox-scaled.png" alt="The text in the screen shot is the same as the following image." width="2560" height="1570">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/type_static_no-zoom_firefox-scaled.png" alt="The text in the screen shot is the same as the previous image." width="2560" height="1570">
+ <figcaption>The first/left image is the responsive type example with no zoom. The second image is the same HTML, but no responsive type, with no zoom. The text is the same size in both.</figcaption>
+</figure>
+
+
+<figure class="two">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/type_responsive_200-zoom_firefox-scaled.png" alt="The text in this screen shot is smaller than the following image." width="2560" height="1570">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/type_static_200-zoom_firefox-scaled.png" alt="The text in the screen shot is larger than the previous image." width="2560" height="1570">
+ <figcaption>The first/left image is the responsive type example at 200% zoom. The second image is the same HTML, but no responsive type, at 200% zoom. The size difference is apparent, but not overwhelming.</figcaption>
+</figure>
+
+
+<figure class="two">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/type_responsive_300-zoom_firefox-scaled.png" alt="The text in this screen shot is significantly smaller than the following image." width="2560" height="1570">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/type_static_300-zoom_firefox-scaled.png" alt="The text in the screen shot is significantly larger than the previous image." width="2560" height="1570">
+ <figcaption>The first/left image is the responsive type example at 300% zoom. The second image is the same HTML, but no responsive type, at 300% zoom. Firefox users cannot zoom any more, which means the text cannot get any larger for them. The text cannot get to truly 200% its original size.</figcaption>
+</figure>
+
+<p>
+While Firefox limits zoom to 300%, Chrome goes higher and at 400% zoom the user of the responsive type page can finally get the text to almost 200% of its original size.
+</p>
+
+<h3 id="Code">Code</h3>
+
+
+<details>
+ <summary>For comparison, I have embedded the two different CSS blocks within this poorly-styled <code>details</code>/<code>summary</code> thinger…</summary>
+ <p>
+ The original SCSS (comments stripped):
+ </p>
+ <pre><code>$min_width: 400;
+$max_width: 800;
+$min_font: 12;
+$max_font: 24; 
+
+:root { font-size: #{$min_font}px; }
+
+@media (min-width: #{$min_width}px) and (max-width: #{$max_width}px){
+  :root { 
+    font-size: calc( #{$min_font}px + (#{$max_font} - #{$min_font}) * ( (100vw - #{$min_width}px) / ( #{$max_width} - #{$min_width}) ));
+  }
+}
+@media (min-width: #{$max_width}px){
+   :root { 
+     font-size: #{$max_font}px;
+   }
+}</code></pre>
+ <p>
+ The entirety of the text sizing CSS in my pen:
+ </p>
+ <pre><code>:root {
+  font-size: 150%;
+}</code></pre>
+</details>
+
+
+
+<h2 id="Matters">Why It Matters</h2>
+
+<p>
+I have worked with users who scale text to this large. Some of them do it because they surf on their TV from their couch. Some do it when reading a recipe off their phone in the kitchen. Some do it when they need to present on a wall to a room full of a people. Some of them just have poor vision.
+</p>
+
+<p>
+When people zoom a page, it is typically because they want the text to be bigger. When we anchor the text to the viewport size, even with a (fractional) multiplier, we can take away their ability to do that. It can be as much a <a href="/2015/10/dont-disable-zoom.html">barrier as disabling zoom</a>. If a user cannot get the text to 200% of the original size, you may also be looking at a <a href="https://www.w3.org/WAI/WCAG21/quickref/?showtechniques=144#resize-text">WCAG 1.4.4 Resize text (AA)</a> problem — check out <a href="https://www.w3.org/WAI/WCAG21/Techniques/failures/F94.html"><cite>Failure of Success Criterion 1.4.4 due to incorrect use of viewport units to resize text</cite></a>.
+</p>
+
+<p>
+I want to be clear — I am not picking on the specific example above. That example is only demonstrating what developers <em>can</em> do, not what they <em>should</em> do. There may be completely valid reasons to use these techniques and the example I borrowed shows one method to do that.
+</p>
+
+
+
+<h2 id="What">What to Do</h2>
+
+<p>
+Identify <em>why</em> you want responsive type. Is it based on user request? Surveys? Research? Or is it just that you or your team think it looks better? Or you want to try out this technique? The answers may tell you if you should even move ahead with responsive type.
+</p>
+
+<p>
+Consider not setting a base font size. Maybe use the following rule (or similar or nothing) to inherit the font size from the browser, which may have been explicitly chosen by the user:
+</p>
+
+<pre><code>:root {
+   font-size: 100%;
+}</code></pre>
+
+<p>
+Then only set subsequent text size values using <code>%</code>, <code>em</code>, or <code>rem</code> units, avoiding values below <code>100%</code>, <code>1em</code>, or <code>1rem</code> (unless scaling down in something already scaled up).
+</p>
+
+<p>
+Be careful when using <code>vw</code> or <code>vh</code> units. Then be careful if using <code>calc()</code>. Be even more careful when using <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/min"><code>min()</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/max"><code>max()</code></a>, or <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/clamp"><code>clamp()</code></a> (see <a href="https://www.w3.org/TR/css-values-4/#calc-notation">CSS Values and Units Module Level 4</a> for the Working Draft spec language).
+</p>
+
+<p>
+If you are going to use responsive typography techniques anyway, you must test it by zooming. Zoom across devices, across browsers, across viewport sizes (<a href="/2000/07/real-world-browser-size-stats-part-ii.html">not everyone surfs full-screen</a>), and across viewport orientations.
+</p>
+
+<p>
+Also, don&#8217;t forget print styles. Consider print units in <code>pt</code>, and print to PDF to confirm it works without wasting paper.
+</p>
+
+
+
+<h2 id="Update01">Update: 7 January 2020</h2>
+
+<p>
+New York Times has an <a href="https://www.nytimes.com/interactive/2019/12/23/style/y2k-bug-millennials.html">experimental interactive piece</a> that demonstrates some of what I discuss above. Zooming out from a page should not make the text larger than zooming in.
+</p>
+
+<figure class="three">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/nyt-y2k_text-size-80.jpg" alt="At 80% zoom; about five words fit per line." width="1758" height="1609">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/nyt-y2k_text-size-110.jpg" alt="At 110% zoom; about seven words fit per line." width="1758" height="1609">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/nyt-y2k_text-size-133.jpg" alt="At 133% zoom; about six words fit per line." width="1758" height="1609">
+ <figcaption>The text is largest when at 80% zoom (first image), then much smaller at 110% zoom (middle image), then a bit larger at 133% zoom (last image).</figcaption>
+</figure>
+
+
+
+<h2 id="Update02">Update: 20 May 2020</h2>
+
+<p>
+Scaling text by using the browser preferences to change the default text size will not affect any text on a page that is set in <code>px</code> units.
+</p>
+
+<p>
+To say it a different way, if you set your text in <code>px</code>, then it will not scale when a user explicitly chooses a larger or smaller default size. You <code>px</code>-based text will stay the same size, laughing at your user.
+</p>
+
+<p>
+Obviously full-page zoom overrides it, but many users still opt for a larger default size to avoid having to scale every site. So don&#8217;t set your text in <code>px</code>.
+</p>
+
+
+
+<h2 id="Update03">Update: 26 September 2020</h2>
+
+<p>
+Apparently I need to keep saying this. The following is becoming my default comment on articles that <a href="https://css-tricks.com/how-do-you-do-max-font-size-in-css/" rel="nofollow noreferrer">keep</a> <a href="https://css-tricks.com/accessible-font-sizing-explained/" rel="nofollow noreferrer">appearing</a> <a href="https://css-tricks.com/simplified-fluid-typography/" rel="nofollow noreferrer">without</a> <a href="https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/" rel="nofollow noreferrer">cautions</a>.
+</p>
+
+<p>
+Please be careful with maximum text size, particularly on sites/pages that face the general public or employees. If you prevent the text from scaling up 200%, then that is a <a href="https://www.w3.org/WAI/WCAG21/Understanding/resize-text.html">WCAG SC 1.4.4</a> failure at Level AA. <a href="https://www.w3.org/WAI/WCAG21/Techniques/failures/F94.html">Viewport units have their own call-out</a> as a major risk in WCAG.
+</p>
+
+<p>
+No matter what technique you use, be sure that the page text can be zoomed at least 200%. And yes, I have written about <a href="/2019/12/responsive-type-and-zoom.html">responsive type and zoom</a>, and have cautioned against <code>min()</code>, <code>max()</code>, and <code>clamp()</code>.
+</p>
+
+
+
+<h2 id="Update04">Update: 29 September 2020</h2>
+
+<p>
+This in response to a <a href="https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/#comment-1763312">specific request</a> on the post <cite><a href="https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/">Linearly Scale font-size with CSS clamp() Based on the Viewport</a></cite>. I referenced a <a href="https://codepen.io/pprg1996/pen/yLONLPv/">simpler example</a> from the post <a href="https://css-tricks.com/linearly-scale-font-size-with-css-clamp-based-on-the-viewport/#comment-1763339">in my comment</a>, but figured I would use the final example here to be sure I caught all the affordances in the code.
+</p>
+
+<p class="codepen" data-height="265" data-theme-id="light" data-default-tab="result" data-user="pprg1996" data-slug-hash="xxVVKPZ" style="height: 265px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;" data-pen-title="Fluid typography example">
+  <span>See the Pen <a href="https://codepen.io/pprg1996/pen/xxVVKPZ">
+  Fluid typography example</a> by Pedro Rodriguez (<a href="https://codepen.io/pprg1996">@pprg1996</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+<p>
+I made a video showing that as I zoom to 200%, the text stops scaling at about the 150% point.
+</p>
+
+<figure>
+ <video preload="metadata" controls="" poster="">
+  <source src="/wp-content/uploads/2019/12/responsive-type-example.mp4" type="video/mp4">
+  Sorry, your browser doesn’t support embedded videos, but don’t worry, you can <a href="/wp-content/uploads/2019/12/responsive-type-example.mp4">download it</a>.
+ </video>
+</figure>
+
+<p>
+Here I compare the original text, the page scaled to 200%, and then how the text should look if it was actually made it to 200%.
+</p>
+
+<figure class="three">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/responsive-type-example_100.jpg" alt="Unzoomed, about 7 lines of text fit in the window." width="2403" height="1807">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/responsive-type-example_200-zoom.jpg" alt="At 200% zoom, about 4 lines of text fit in the window." width="2403" height="1807">
+ <img loading="lazy" src="/wp-content/uploads/2019/12/responsive-type-example_200-actual.jpg" alt="When the text is actually scaled to 200%, maybe one line would fit in the window." width="2403" height="1807">
+</figure>
+
+<p>
+Here I show the <code>&lt;h1&gt;</code> at its initial size, when the page is zoomed to 200%, and when the text is actually 200% the size of the initial text. I aligned them on the baseline to make the difference between them more obvious.
+</p>
+
+<figure>
+ <img loading="lazy" src="/wp-content/uploads/2019/12/responsive-type-example_comparison.jpg" alt="The zoomed text is maybe 25% taller, with the actual 200% take showing how much different they are." width="2403" height="735">
+</figure>
+
+<p>
+Similarly, even a <a href="https://cdpn.io/pprg1996/debug/yLONLPv/bZrQWERpdGak">simple demo</a> taken out of context can be a problem. Your text should never get smaller when the user zooms, and it certainly should not be smaller at 300% zoom.
+</p>
+
+<figure>
+ <video preload="metadata" controls="" poster="">
+  <source src="/wp-content/uploads/2019/12/responsive-type-example_02.mp4" type="video/mp4">
+  Sorry, your browser doesn’t support embedded videos, but don’t worry, you can <a href="/wp-content/uploads/2019/12/responsive-type-example_02.mp4">download it</a>.
+ </video>
+</figure>
+
+
+
+<h2 id="Update05">Update: 17 October 2020</h2>
+
+<p>
+Over at dev.to, Google&#8217;s developer support blog, Una Kravets posted <cite><a href="https://web.dev/min-max-clamp/">min(), max(), and clamp(): three logical CSS functions to use today</a></cite> where she walks through how each of those CSS functions works and shows some examples.
+</p>
+
+<p>
+There is a <a href="https://web.dev/min-max-clamp/#fluid-typography">fluid typography example</a> she borrowed from elsewhere that shows how text can scale and adjust to the viewport, using only the style declaration <code>font-size: clamp(1.5rem, 5vw, 3rem)</code>. A video shows it in action.
+</p>
+
+<p>
+If you have read this far, you may have spotted something that can cause a problem here. It&#8217;s not the use of <code>clamp()</code>, since the upper limit, <code>3rem</code>, is twice the size of the starting <code>1.5rem</code>. It&#8217;s the use of <code>vw</code> units. For some users, the text can never get large enough to bump up against the <code>3rem</code>.
+</p>
+
+<p>
+I made a video to demonstrate it in action, but you can <a href="https://codepen.io/una/pen/ExyYXaN">visit the original demo</a> to try it yourself. Remember that Firefox can only zoom to 300%.
+</p>
+
+<figure>
+ <video preload="metadata" controls="" poster="">
+  <source src="/wp-content/uploads/2019/12/una-dev-clamp.mp4" type="video/mp4">
+  Sorry, your browser doesn’t support embedded videos, but don’t worry, you can <a href="/wp-content/uploads/2019/12/una-dev-clamp.mp4">download it</a>.
+ </video>
+ <figcaption>This is a 1,024 pixel window in width, though I kept the height short and it has no impact on the demo. The text starts at 64px tall, at 200% zoom has only increased to 68px in height (a 6.25% increase), and at 300% zoom has only increased to 96px in height (a 150% increase).</figcaption>
+</figure>
+
+<p>
+If you use this code as-is, you have guaranteed a WCAG failure.
+</p>
+
+<p>
+I <a href="https://github.com/GoogleChrome/web.dev/pull/4080">filed a pull request</a> (which they merged on 21-Oct) with a brief explanation:
+</p>
+
+<blockquote>
+ <p>
+ When you use <code>vw</code> units or limit how large text can get with <code>clamp()</code>, there is a chance a user may be unable to scale the text to 200% of its original size. If that happens, it is WCAG failure under <a href="https://www.w3.org/WAI/WCAG21/quickref/?showtechniques=144#resize-text">1.4.4 Resize text (AA)</a> so be certain to <a href="https://adrianroselli.com/2019/12/responsive-type-and-zoom.html">test the results with zoom</a>.
+ </p>
+</blockquote>
+
+<p>
+…before <a href="https://github.com/GoogleChrome/web.dev/pull/4112/files">merging another PR</a> that removed the links. So, shrug emoji?
+</p>
+
+
+<!-- https://deploy-preview-4080--web-dev-staging.netlify.app/min-max-clamp/ -->
+
+
+
+
+
+
+<h2 id="Update06">Update: 27 September 2022</h2>
+
+<p>
+I completely failed to link to W3C issues that may or may not have some impacts here:
+</p>
+
+<ul>
+ <li><a href="https://github.com/w3c/wcag/issues/1671">#1671 Can large headings be exempt from Success Criterion 1.4.4 Resize text?</a>, filed against WCAG by Šime Vidas on 8 March 2021;</li>
+ <li><a href="https://github.com/w3c/csswg-drafts/issues/6869">#6869 Browser zoom unit for accessibility [css-values-and-units]</a>, filed against CSS by Scott Kellum on 8 December 2021.</li>
+</ul>
+
+<p>
+Not a lot of movement recently, but it is instructional to see the challenges and goals outlined by all parties.
+</p>
+
+
+
+
+
+
+<h2 id="Update07">Update: 17 November 2023</h2>
+
+<p>
+I kinda like this:
+</p>
+
+<blockquote>
+ <p>
+ Mudford cites Adrian Roselli, who appears to be <a href="https://adrianroselli.com/2019/12/responsive-type-and-zoom.html">the core source</a> of the other warnings:
+ </p>
+ <footer><cite><a href="https://www.smashingmagazine.com/2023/11/addressing-accessibility-concerns-fluid-type/">Addressing Accessibility Concerns With Using Fluid Type</a> by Maxwell Barvian at Smashing Magazine</cite></footer>
+</blockquote>
+
+<p>
+That may very well be true. I did not find others citing the very real (and easy to prove) WCAG failures developers were suddenly pushing into their projects. That was a little depressing, frankly (considering how easy it is to prove). I spent a lot of time grumping about this online, too. So yay me.
+</p>
+
+<p>
+Anyway, Maxwell does the thing I did not — he tried to plot the curves and do the math to give developers guidance on how to write their CSS functions to create WCAG-conformant fluid type. I have not tested the assertions, but I definitely appreciate the effort.
+</p>
+
+<p>
+It only took four years!
+</p>
+
+
+
+
+
+
+<h2 id="Update08">Update: 3 April 2025</h2>
+
+<p>
+This video may look familiar:
+</p>
+
+<figure>
+ <video preload="metadata" controls="" poster="">
+  <source src="/wp-content/uploads/2019/12/CSSWG-issue-2528_text-fit-space-zoom.mp4" type="video/mp4">
+  Sorry, your browser doesn’t support embedded videos, but don’t worry, you can <a href="/wp-content/uploads/2019/12/CSSWG-issue-2528_text-fit-space-zoom.mp4">download it</a>.
+ </video>
+ <figcaption>A string of text in a browser window reads “This text fits to the available space.” It does not wrap to a second line. The user zooms the page and surrounding text gets larger, but not this text. It never changes size, becoming smaller and smaller relative to surrounding text.</figcaption>
+</figure>
+
+<p>
+I have videos in this post showing the same behavior with other responsive type techniques. But this technique is new. It&#8217;s meant to ensure a piece of text always fits the width of its parent. Wrapping does not seem to be an option.
+</p>
+
+<p>
+Patrick Lauke posted this video as a <a href="https://github.com/w3c/csswg-drafts/issues/2528#issuecomment-2770261671">comment on [css-fonts-4] Feature for making text always fit the width of its parent #2528</a>. He demonstrated that encoding this behavior into the CSS specification will create an almost guaranteed WCAG failure every time it is used. Unfortunately, the first response by a W3C CSS Working Group member was to say that <q>WCAG should revise this SC</q> which, unfortunately, seems to ignore the <a href="https://www.w3.org/TR/html-design-principles/#priority-of-constituencies">W3C Priority of Constituencies</a> at the very minimum.
+</p>
+
+
+
+
+
+
+<h2 id="Update09">Update: 20 October 2025</h2>
+
+<p>
+Miriam Suzanne has been running at responsive type for a few months now, with a series of five posts (and a sixth about units in general) ending with <a href="https://www.oddbird.net/2025/08/26/type-visual/"><cite>Visualizing Responsive Typography</cite></a>. None of them gives a definitive, absolute, copy-pasta-ready set of styles for responsive type that&#8217;s guaranteed not to trigger a 1.4.4 violation. Because this stuff is hard, as that series demonstrates.
+</p>
+
+<p>
+Meanwhile, last week Matthias Ott posted <a href="https://matthiasott.com/notes/compressed-fluid-typography"><cite>Com­pressed Flu­id Typography</cite></a>, which is another effort at trying to solve this and <em>not</em> fail WCAG. He acknowledges that in the post. What we are seeing is that there are many ways to detonate a cat but so far none leave the cat alive. 
+</p>
+		<footer>
+						<h2>Tags</h2>
+
+			<p>
+			<a href="/tag/accessibility" rel="tag">accessibility</a>, <a href="/tag/css" rel="tag">css</a>, <a href="/tag/design" rel="tag">design</a>, <a href="/tag/usability" rel="tag">usability</a>, <a href="/tag/ux" rel="tag">UX</a>			</p>
+
+			<h2>Other Posts</h2>
+
+      <div class="prevnextpost">
+  			<p>
+			<a href="/2019/12/web-development-advent-calendars-for-2019.html" rel="prev" data-bg="/wp-content/uploads/2019/11/2019_advent_1000-150x150.jpg" style="background-image:url(/wp-content/uploads/2019/11/2019_advent_1000-150x150.jpg)">Earlier post: <cite>Web Development Advent Calendars for 2019</cite></a>
+			</p>
+  			<p>
+			<a href="/2019/12/showing-file-types-in-links.html" rel="next" data-bg="/wp-content/uploads/2019/12/file-types_thumb-150x150.png" style="background-image:url(/wp-content/uploads/2019/12/file-types_thumb-150x150.png)">More recent post: <cite>Showing File Types in Links</cite></a>
+			</p>      </div>
+
+		</footer>
+									
+		
+		<article id="Comments">
+
+			<h2>24 Comments</h2>
+
+
+			
+			<div>
+
+				<blockquote class="comment even thread-even depth-1 parent" id="comment-188569">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=188569#respond' data-commentid="188569" data-postid="8962" data-belowelement="-188569" data-respondelement="respond" data-replyto="Reply to Mark Goho" aria-label='Reply to Mark Goho'>Reply</a>
+						</header>
+
+
+					<p>Hey Adrian, I&#8217;m working on a design system that&#8217;s using a vw plus rem scaling <code>font-size: calc(1rem + 0.2vw)</code> and it seems to be responding just fine to both browser zoom and font-size settings in the browser config.</p>
+<p>Have I not explored all the scenarios in which this kind of responsive type would break or do you think this solution is okay?</p>
+
+
+					</div>
+					<footer>
+						<cite>Mark Goho</cite>;
+						<time datetime="2020-02-03T11:35:30-05:00">3 February 2020 at 11:35 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-188569" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor odd alt depth-2" id="comment-188571">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-188569" class="noprint">Mark Goho</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=188571#respond' data-commentid="188571" data-postid="8962" data-belowelement="-188571" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p>Mark, I think <code>0.2vw</code> is such a small number that it might not matter. But be aware that for a user who zooms, the <code>vw</code> value in your <code>calc()</code> will not change with zoom. But since the <code>rem</code> is the major value it may not be a big deal except in very wide windows.</p>
+<p>As always, test those edge cases so you at least know what happens.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2020-02-03T11:48:25-05:00">3 February 2020 at 11:48 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-188571" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment even thread-odd thread-alt depth-1" id="comment-212428">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=212428#respond' data-commentid="212428" data-postid="8962" data-belowelement="-212428" data-respondelement="respond" data-replyto="Reply to ahwei" aria-label='Reply to ahwei'>Reply</a>
+						</header>
+
+
+					<p>I couldn&#8217;t replicate the zoom discrepancy between <a href="https://cdpn.io/aardrian/debug/XWJmjrN" rel="nofollow ugc">https://cdpn.io/aardrian/debug/XWJmjrN</a> and <a href="https://cdpn.io/aardrian/debug/NWPPJRo" rel="nofollow ugc">https://cdpn.io/aardrian/debug/NWPPJRo</a> . Both looks the same at 500% in firefox. What am I missing? Thanks for this post.</p>
+
+
+					</div>
+					<footer>
+						<cite>ahwei</cite>;
+						<time datetime="2021-02-19T06:44:38-05:00">19 February 2021 at 6:44 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-212428" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment odd alt thread-even depth-1" id="comment-212429">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=212429#respond' data-commentid="212429" data-postid="8962" data-belowelement="-212429" data-respondelement="respond" data-replyto="Reply to ahwei" aria-label='Reply to ahwei'>Reply</a>
+						</header>
+
+
+					<p>Oh sorry I see it now if I view it in the &#8216;Responsive design mode&#8217;. Cool. Thanks!</p>
+
+
+					</div>
+					<footer>
+						<cite>ahwei</cite>;
+						<time datetime="2021-02-19T06:47:09-05:00">19 February 2021 at 6:47 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-212429" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment even thread-odd thread-alt depth-1 parent" id="comment-224059">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=224059#respond' data-commentid="224059" data-postid="8962" data-belowelement="-224059" data-respondelement="respond" data-replyto="Reply to benton328@gmail.com" aria-label='Reply to benton328@gmail.com'>Reply</a>
+						</header>
+
+
+					<p>Hey Adrian, I think I might have a solution that respects zoom while resulting in the same effect. </p>
+<p>Basically I&#8217;m using javascript to multiply the root font size by some value which is clamped at a min or max. So it respects both a users font size and zoom. Of course it affects all elements that use REM, but that tends to be what I want. </p>
+<p>What do you think?</p>
+
+
+					</div>
+					<footer>
+						<cite>benton328@gmail.com</cite>;
+						<time datetime="2021-10-18T20:30:57-04:00">18 October 2021 at 8:30 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-224059" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor odd alt depth-2" id="comment-224063">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-224059" class="noprint">benton328@gmail.com</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=224063#respond' data-commentid="224063" data-postid="8962" data-belowelement="-224063" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p>I think if it never prevents a user from getting the text to 200% <em>and</em> it does not spin their fans into oblivion, then sure.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2021-10-18T21:27:54-04:00">18 October 2021 at 9:27 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-224063" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment even thread-even depth-1 parent" id="comment-226450">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=226450#respond' data-commentid="226450" data-postid="8962" data-belowelement="-226450" data-respondelement="respond" data-replyto="Reply to Jonathan Douglas Holden" aria-label='Reply to Jonathan Douglas Holden'>Reply</a>
+						</header>
+
+
+					<p>Hey Adrian, you say &#8220;Then only set subsequent text size values using %, em, or rem units, avoiding values below 100%, 1em, or 1rem (unless scaling down in something already scaled up).&#8221; What&#8217;s the problem with setting a small font to 0.875rem (the equivalent of 14px, I believe)? It will still scale, if the users needs to make it bigger through the browser font settings. In fact in the Comments section on this blog, you use both 80% and 0.8rem, which seems a perfectly reasonable use case&#8230;</p>
+
+
+					</div>
+					<footer>
+						<cite>Jonathan Douglas Holden</cite>;
+						<time datetime="2021-12-14T02:51:45-05:00">14 December 2021 at 2:51 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-226450" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor odd alt depth-2 parent" id="comment-226840">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-226450" class="noprint">Jonathan Douglas Holden</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=226840#respond' data-commentid="226840" data-postid="8962" data-belowelement="-226840" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p><a href="#What" rel="nofollow ugc">That statement</a> was in the context of setting the base font size to 100%, which keys off the user&#8217;s own settings / preferences.</p>
+<p>You are suggesting setting the base font size smaller, using my comments section (which is set to 80% the size of the base size of the rest of the content) as justification.</p>
+<p>You don&#8217;t note that my content size is 130%, or computed as 20.8px. That means my 80%-size comments are 16.64px in a default browser set-up, or still larger than the user&#8217;s default font size (104% of default).</p>
+<p>So, to answer your question, I suggest you do not do that. Look at the computed values in the dev tools, not the CSS declarations.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2021-12-27T08:45:38-05:00">27 December 2021 at 8:45 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-226840" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment even depth-3" id="comment-226843">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-226840" class="noprint">Adrian Roselli</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=226843#respond' data-commentid="226843" data-postid="8962" data-belowelement="-226843" data-respondelement="respond" data-replyto="Reply to Jonathan Douglas Holden" aria-label='Reply to Jonathan Douglas Holden'>Reply</a>
+						</header>
+
+
+					<p>Aha! I wasn&#8217;t suggesting setting the base font to 80%, just noting that you do use 80%. What I didn&#8217;t check, as you say, is that the content font size is 130%. So that makes sense. You&#8217;re right, I should have checked the computed values! Thanks once again for your time.</p>
+
+
+					</div>
+					<footer>
+						<cite>Jonathan Douglas Holden</cite>;
+						<time datetime="2021-12-27T12:31:04-05:00">27 December 2021 at 12:31 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-226843" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment odd alt thread-odd thread-alt depth-1 parent" id="comment-236712">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=236712#respond' data-commentid="236712" data-postid="8962" data-belowelement="-236712" data-respondelement="respond" data-replyto="Reply to Nathan" aria-label='Reply to Nathan'>Reply</a>
+						</header>
+
+
+					<p>Hi Adrian,<br />
+I&#8217;m still trying to unpick the mechanics of WHY this happens. Is it only when you have a prefferred value entirely in vw (because vw doesn&#8217;t change)?</p>
+<p>Can I ask if this (<a href="https://royalfig.github.io/fluid-typography-calculator/" rel="nofollow ugc">https://royalfig.github.io/fluid-typography-calculator/</a>) has solved around the issue or is there still a risk?</p>
+
+
+					</div>
+					<footer>
+						<cite>Nathan</cite>;
+						<time datetime="2022-07-25T13:05:41-04:00">25 July 2022 at 1:05 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-236712" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor even depth-2 parent" id="comment-236717">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-236712" class="noprint">Nathan</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=236717#respond' data-commentid="236717" data-postid="8962" data-belowelement="-236717" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p>Nathan, There is a WCAG failure that describes the issue with viewport units alone:  <a href="https://www.w3.org/WAI/WCAG21/Techniques/failures/F94.html" rel="nofollow ugc"><cite>Failure of Success Criterion 1.4.4 due to incorrect use of viewport units to resize text</cite></a>.</p>
+<p>As for the tool you linked, I don&#8217;t know without breaking it apart. However, note how when the slider at the bottom hits a viewport width of 1,950px, the base font stops getting bigger (it anchors at 20px). That comes from the &#8220;Max Font Size&#8221; set above, which at 1.25rem means a user may not be able to zoom it enough for their needs.</p>
+<p>The simplest answer, IMO, is to never set a maximum font size (so do not use <code>clamp()</code>) or, if you only care about minimum WCAG conformance, never set the maximum font size to a value below twice the base font size.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2022-07-25T15:19:51-04:00">25 July 2022 at 3:19 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-236717" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment odd alt depth-3 parent" id="comment-240505">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-236717" class="noprint">Adrian Roselli</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=240505#respond' data-commentid="240505" data-postid="8962" data-belowelement="-240505" data-respondelement="respond" data-replyto="Reply to Nathan" aria-label='Reply to Nathan'>Reply</a>
+						</header>
+
+
+					<p>If it helps, I have done some extra mathematical analysis of this and have found the following&#8230;.</p>
+<p>Even when not applying a max, you cna hit a &#8220;200% not possible&#8221; violation. The three biggest variables in this outcome are: </p>
+<p>(a) the steepness of the change (i.e. if a linear growth &#8211; the steeper the growth, the more likely 200% can&#8217;t be achieved)</p>
+<p>(b) the max zoom of browsers (e.g. if sometimes you need to go to 300% to hit 200% text growth &#8211; eventually some browsers won&#8217;t be able to deliver the zoom scale needed.</p>
+<p>(c) the worst case viewport width (on a growth curve from 2.625rem at 320px to 3.325rem at 1440px viewport and then larger to maintain linear growth beyond that, even at 300% zoom the 200% text increase is not possible on a 3840 screen. Whilst it is likely that a 4k screen is already upscaled, its not guaranteed.</p>
+<p>So, since we don&#8217;t control screen sizes or browser zoom levels etc, there will always be a risk with responsive text and the only way around it is to avoid it or, when your growth curve hits a snag, add a breakpoint to go back to a value that avoids vw, etc.</p>
+
+
+					</div>
+					<footer>
+						<cite>Nathan</cite>;
+						<time datetime="2022-09-14T06:18:38-04:00">14 September 2022 at 6:18 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-240505" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor even depth-4 parent" id="comment-240642">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-240505" class="noprint">Nathan</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=240642#respond' data-commentid="240642" data-postid="8962" data-belowelement="-240642" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p>This is indeed interesting info. At the very least, having something to identify where the growth curve flatlines so you can add a breakpoint is handy.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2022-09-16T14:47:18-04:00">16 September 2022 at 2:47 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-240642" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment odd alt depth-5" id="comment-241897">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-240642" class="noprint">Adrian Roselli</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=241897#respond' data-commentid="241897" data-postid="8962" data-belowelement="-241897" data-respondelement="respond" data-replyto="Reply to Nathan" aria-label='Reply to Nathan'>Reply</a>
+						</header>
+
+
+					<p>A few extra developments. After running a bunch of maths and creating a &#8220;Fluid Type&#8221; calculator in Excel to try and protect the upper bound, I also have the thoughr that can&#8217;t techniques be combined to meet the accessibility criteria?</p>
+<p>Say for example your zoom topped out at 194% (never reaching the magic 200%). If the user also changes their browser settings to enlarge text then that would bump it over the 200% (assuming em/rem units are involved).</p>
+<p>Thoughts?</p>
+
+
+					</div>
+					<footer>
+						<cite>Nathan</cite>;
+						<time datetime="2022-10-13T10:21:11-04:00">13 October 2022 at 10:21 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-241897" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment even thread-even depth-1 parent" id="comment-261190">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=261190#respond' data-commentid="261190" data-postid="8962" data-belowelement="-261190" data-respondelement="respond" data-replyto="Reply to Jonathan" aria-label='Reply to Jonathan'>Reply</a>
+						</header>
+
+
+					<p>Is this no longer an issue? Chrome on Android, Samsung browser, and Safari both seem to be zooming without breaking the layout now when viewport units are used.</p>
+
+
+					</div>
+					<footer>
+						<cite>Jonathan</cite>;
+						<time datetime="2023-08-04T11:42:25-04:00">4 August 2023 at 11:42 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-261190" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor odd alt depth-2" id="comment-261841">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-261190" class="noprint">Jonathan</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=261841#respond' data-commentid="261841" data-postid="8962" data-belowelement="-261841" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p>Jonathan, this post deals with desktop browsers, though I could have been more explicit in the post instead of relying on the screen shots to convey that. You have cited mobile browsers where zooming (pinch/spread) is a very different model. Those are analogous to desktop browsers that also use pinch-zoom (via touch screen or track pad).</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2023-08-07T12:33:21-04:00">7 August 2023 at 12:33 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-261841" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment even thread-odd thread-alt depth-1" id="comment-288155">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=288155#respond' data-commentid="288155" data-postid="8962" data-belowelement="-288155" data-respondelement="respond" data-replyto="Reply to Nuno Vasco Saltão Da Costa" aria-label='Reply to Nuno Vasco Saltão Da Costa'>Reply</a>
+						</header>
+
+
+					<p>There&#8217;s strain to the eye if you have to read all the monitor, despite font size&#8230; that should be accounted for through the usage of columns and not zoom alone.</p>
+
+
+					</div>
+					<footer>
+						<cite>Nuno Vasco Saltão Da Costa</cite>;
+						<time datetime="2024-04-30T05:58:57-04:00">30 April 2024 at 5:58 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-288155" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment odd alt thread-even depth-1 parent" id="comment-320904">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=320904#respond' data-commentid="320904" data-postid="8962" data-belowelement="-320904" data-respondelement="respond" data-replyto="Reply to MakhBeth" aria-label='Reply to MakhBeth'>Reply</a>
+						</header>
+
+
+					<p>Thanks, Adrian, for highlighting this.<br />
+Reading the WCAG 1.4.4 it seems that:<br />
+&#8220;Content satisfies the Success Criterion if it can be scaled up to 200% using at least one text scaling mechanism supported by user agents.&#8221;<br />
+So, zoom alone is not sufficient to pass the test, but it is not true that if you fail the zoom (cmd/ctrl +), you don&#8217;t pass the 1.4.4 test, at least for what I read from the specs. Am I wrong?<br />
+This is also important for media queries that change the font size of an element based on the viewport, or for rem/em based media-query.</p>
+
+
+					</div>
+					<footer>
+						<cite>MakhBeth</cite>;
+						<time datetime="2024-11-28T12:30:26-05:00">28 November 2024 at 12:30 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-320904" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor even depth-2" id="comment-321232">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-320904" class="noprint">MakhBeth</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=321232#respond' data-commentid="321232" data-postid="8962" data-belowelement="-321232" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<p>MakhBeth, zoom alone <em>can</em> be sufficient for WCAG. However, if the user cannot use other methods (such as zoom) and relies on scaling text via <kbd>ctrl</kbd> + <kbd>+</kbd>, then the user has a problem. And arguably a case to make.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2024-12-01T11:21:52-05:00">1 December 2024 at 11:21 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-321232" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment odd alt thread-odd thread-alt depth-1 parent" id="comment-345544">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=345544#respond' data-commentid="345544" data-postid="8962" data-belowelement="-345544" data-respondelement="respond" data-replyto="Reply to Sonia" aria-label='Reply to Sonia'>Reply</a>
+						</header>
+
+
+					<p>There&#8217;s something I have a lot of difficulties to understand and check correctly, it&#8217;s the difference between the fluid problems and using media-queries to change the size. </p>
+<p>It says here ( <a href="https://www.w3.org/WAI/WCAG21/Techniques/failures/F94.html" rel="nofollow ugc">https://www.w3.org/WAI/WCAG21/Techniques/failures/F94.html</a> ) &#8220;If media queries were used to adjust the size of text or unit of measure at different screen sizes, it may not be a failure of Resize Text.&#8221;</p>
+<p>And the site itself has different media queries that decrease the title size for smaller viewports. At 400% the h1 is 1.5rem, at 250% to 300% the h1 is 2rem, and at min 60em it&#8217;s 2.375rem.  So it&#8217;s never twice the default size and at some point it&#8217;s not getting bigger.</p>
+<p>What&#8217;s the difference between decreasing/increasing the size with media queries  and using clamp ? If I set a lot of media-queries isn&#8217;t the result the same ?</p>
+
+
+					</div>
+					<footer>
+						<cite>Sonia</cite>;
+						<time datetime="2025-04-23T10:01:34-04:00">23 April 2025 at 10:01 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-345544" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment byuser comment-author-adrian-roselli bypostauthor even depth-2" id="comment-346237">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-345544" class="noprint">Sonia</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=346237#respond' data-commentid="346237" data-postid="8962" data-belowelement="-346237" data-respondelement="respond" data-replyto="Reply to Adrian Roselli" aria-label='Reply to Adrian Roselli'>Reply</a>
+						</header>
+
+
+					<blockquote><p>
+ At 400% the h1 is 1.5rem, at 250% to 300% the h1 is 2rem, and at min 60em it’s 2.375rem.
+</p></blockquote>
+<p>Width media queries (which is what I assume you are using) want length units that map to specific values. If they work with percentages (eg: <code>@media (min-width: 250%)</code>), then that is something I&#8217;ve just learned but also never needed and never seen in the wild?</p>
+<p>Meanwhile, <code>clamp()</code> sets an upper and lower bound for sizing (with a preferred in the middle). You could use <code>clamp()</code> instead of media queries for text sizing.</p>
+<blockquote><p>
+What’s the difference between decreasing/increasing the size with media queries and using clamp ? If I set a lot of media-queries isn’t the result the same ?
+</p></blockquote>
+<p>This post isn&#8217;t about you as the author setting a lot of sizes. This post is about you as the author not preventing the <em>user</em> from zooming regardless of your method for creating responsive type.</p>
+
+
+					</div>
+					<footer>
+						<cite><a href='https://adrianroselli.com/' rel='external nofollow ugc' class='url'>Adrian Roselli</a></cite>;
+						<time datetime="2025-04-24T14:50:14-04:00">24 April 2025 at 2:50 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-346237" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+			<div>
+
+				<blockquote class="comment odd alt thread-even depth-1 parent" id="comment-348071">
+					<div>
+						<header>
+						
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=348071#respond' data-commentid="348071" data-postid="8962" data-belowelement="-348071" data-respondelement="respond" data-replyto="Reply to Sonia" aria-label='Reply to Sonia'>Reply</a>
+						</header>
+
+
+					<p>Sorry it wasn&#8217;t clear at all, the percentage was the browser zoom with ctrl+/- ^^&#8221;<br />
+If I zoom, the media query for smaller viewport is applied, so smaller font size.</p>
+<p>I don&#8217;t want to prevent the user from zooming, that&#8217;s why I try to understand the difference and what not to do, but my brain doesn&#8217;t seem to click on how a media query don&#8217;t prevent the user from zooming when clamp do (other than the case when a text visibly get smaller when you zoom, but that could happen to with a weird media query) .</p>
+
+
+					</div>
+					<footer>
+						<cite>Sonia</cite>;
+						<time datetime="2025-04-28T10:51:49-04:00">28 April 2025 at 10:51 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-348071" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment even depth-2 parent" id="comment-348249">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-348071" class="noprint">Sonia</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=348249#respond' data-commentid="348249" data-postid="8962" data-belowelement="-348249" data-respondelement="respond" data-replyto="Reply to Brandon" aria-label='Reply to Brandon'>Reply</a>
+						</header>
+
+
+					<p>This is my understanding:<br />
+&#8211; When zooming in using browser zoom, two things are happening. Firstly, the viewport is decreasing in size. For example, my normal width is 1920px. Doing a 110% zoom brings it to 1745px. Secondly, the actual browser is zooming in (i.e. one css pixel takes up more space on the screen).<br />
+&#8211; If you zoom in enough, you may even start hitting your mobile breakpoints (e.g. collapsing some side menu) because your viewport width has decreased that far in size.<br />
+&#8211; Case 1: Font size doesn&#8217;t scale with vw. Browser zoom doesn&#8217;t affect font size at all so it still takes up the same number of pixels but the pixels themselves become larger, resulting in the text getting larger.<br />
+&#8211; Case 2: Font size does scale with vw. Browser zoom causes viewport size to decrease resulting in calculated font size to decrease. At the same time, the pixels themselves become larger, resulting in the text getting larger. The overall neutralizing effect is that browser zoom does not appear to work in making the font size larger.<br />
+&#8211; This effect is not reliant on clamp or setting a max/min font size. By opting into responsive text size that scales with viewport size, decreasing viewport size must necessarily cause the calculated font size to decrease, thus neutralizing the browser zoom in effect.<br />
+&#8211; In fact, by having a min clamp, you can mitigate this effect a bit. Let&#8217;s say I clamp my minimum font size to 16px. Once I zoom in sufficiently far, any further viewport size decreases will no longer affect my font size which is capped at 16px. After this point, the zoom will behave exactly the same as a nonresponsive text page where font size is set to 16px. The same logic applies for max clamp helping mitigate the neutralizing effects of zooming out.</p>
+<p>Hope that helps.</p>
+
+
+					</div>
+					<footer>
+						<cite>Brandon</cite>;
+						<time datetime="2025-04-28T19:00:28-04:00">28 April 2025 at 7:00 pm</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-348249" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+
+			<div>
+
+				<blockquote class="comment odd alt depth-3" id="comment-348396">
+					<div>
+						<header>
+						In response to <a href="/2019/12/responsive-type-and-zoom.html#comment-348249" class="noprint">Brandon</a>.
+						
+						<a rel='nofollow' class='comment-reply-link' href='https://adrianroselli.com/2019/12/responsive-type-and-zoom.html?replytocom=348396#respond' data-commentid="348396" data-postid="8962" data-belowelement="-348396" data-respondelement="respond" data-replyto="Reply to Brandon" aria-label='Reply to Brandon'>Reply</a>
+						</header>
+
+
+					<p>To elaborate just a little bit more, I think in most reasonable cases, the aforementioned neutralizing effect is actually minimal and unnoticeable.</p>
+<p>In the most extreme case, you can have something like font-size: 3vw. On an 800px wide viewport, the computed font size is 24px. When zooming in to 200%, the viewport shrinks to 400px, the font size becomes 12px, the pixels becomes 2x as wide, and so the end result is the text stays perfectly unchanged throughout the entire zoom.</p>
+<p>Actually, if you look at the Responsive vs. Static example codepen at the top of this article, this is exactly what it&#8217;s doing! Shrinking the viewport by half (from 800px -&gt; 400px) results in the font size exactly shrinking by half (from 24 -&gt; 12px). That&#8217;s why the 200% and 300% screenshots show no change. The CSS additionally does clamping (any width above 800px is capped at 24px) so the first screenshot which is at a width &gt; 800px is captured at 24px font size and most of the zoom towards 200% has no decreasing font size so there is a noticeable zoom between the 100% and 200% screenshots, thanks to the clamp.</p>
+<p>In the real world, I think very few sites would have it set up so their font sizes shrink at exactly the same rate as their viewport (or even close). For example, <a href="https://utopia.fyi/type/calculator" rel="nofollow ugc">https://utopia.fyi/type/calculator</a>, the default is 18px at 320px wide viewport and 20px at 1240px (and every size between is linearly interpolated). The font size decreases by a mere 10% for a 387.5% zoom which would slow down the rate of zoom imperceptibly until a clamp point is hit at which point the rate of zoom jumps back up to normal (also imperceptibly). The site itself uses the font size linear interpolation system it&#8217;s describing and I don&#8217;t perceive the zoom to be any slower or jarring compared to other sites.</p>
+<p>If I&#8217;m using static breakpoints with set font sizes compared to linear interpolation, the same math applies. Say normal font size is 24px but at 400px wide viewport and below, it jumps to 12px. If starting at 800px and then slowly zooming to 200%, you would see the zoom take effect at normal speed but when reaching exactly 200%, the text will suddenly shrink back to the size at which you started zooming. Most sites use static breakpoints but never run into issues like this because at its core, the craziness is just a function of jumping an entire 12px in font size after only 400px of viewport width decrease.</p>
+
+
+					</div>
+					<footer>
+						<cite>Brandon</cite>;
+						<time datetime="2025-04-29T01:22:09-04:00">29 April 2025 at 1:22 am</time>.
+						<a href="/2019/12/responsive-type-and-zoom.html#comment-348396" class="noprint">Permalink</a>
+					</footer>
+
+				</blockquote>
+
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+</div><!-- #comment-## -->
+
+<!-- .comment-list -->
+
+		
+		
+
+
+
+
+	<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title">Leave a Comment or Response <small><a rel="nofollow" id="cancel-comment-reply-link" href="/2019/12/responsive-type-and-zoom.html#respond" style="display:none;">Cancel response</a></small></h3><form action="https://adrianroselli.com/wp-comments-post.php" method="post" id="" class="comment-form"><p><label for="comment">Comment:</label> <textarea id="comment" name="comment" required></textarea></p><ul><li>The form doesn’t support Markdown.</li><li>This form allows limited HTML.</li><li>Allowed HTML elements are <code>&lt;a href&gt;</code>, <code>&lt;blockquote&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;del&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;ins&gt;</code>, <code>&lt;q&gt;</code>, <code>&lt;strong&gt;</code>, and maybe some others. WordPress is fickle and randomly blocks or allows some.</li> <li>If you want to include HTML <em>examples</em> in your comment, then HTML encode them. E.g. <code>&lt;code&gt;&amp;lt;div&amp;gt;&lt;/code&gt;</code> (you can copy and paste that chunk).</li></ul><p class="comment-form-author"><label for="author">Name <span class="required" aria-hidden="true">*</span></label> <input id="author" name="author" type="text" value="" size="30" maxlength="245" required="required" /></p>
+<p class="comment-form-email"><label for="email">Email <span class="required" aria-hidden="true">*</span></label> <input id="email" name="email" type="text" value="" size="30" maxlength="100" required="required" /></p>
+<p class="comment-form-url"><label for="url">Website</label> <input id="url" name="url" type="text" value="" size="30" maxlength="200" /></p>
+<p class="form-submit"><input name="" type="submit" id="" class="" value="Post Comment" /> <input type='hidden' name='comment_post_ID' value='8962' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+</p><p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="01c6360a52" /></p><p style="display: none !important;" class="akismet-fields-container" data-prefix="ak_"><label>&#916;<textarea name="ak_hp_textarea" cols="45" rows="8" maxlength="100"></textarea></label><input type="hidden" id="ak_js_1" name="ak_js" value="216"/><script type="text/javascript">
+document.getElementById( "ak_js_1" ).setAttribute( "value", ( new Date() ).getTime() );
+</script>
+</p></form>	</div><!-- #respond -->
+	
+		</article><!-- #comments -->
+	</main>
+		
+
+
+	<aside role="complementary">
+
+
+
+
+
+
+
+
+	</aside>
+
+</div>
+<!-- / #Content -->
+
+<script type="text/javascript">
+function fixPre() {
+  // get all <pre> elements
+  var allPre = document.querySelectorAll('main pre');
+  for (var i = 0; i < allPre.length; i++) {
+    var thisPre = allPre[i];
+    var firstChild = thisPre.firstChild.nodeName;
+    // If there is no child <code>, add one
+    if (firstChild != 'CODE') {
+      // Create a <code> element
+      var code = document.createElement('code');
+      // Get the content out of the <pre>
+      var preContent = thisPre.textContent;
+      // Write it into the new node
+      code.textContent = preContent;
+      thisPre.textContent = '';
+      // Append the <code> to the <pre>
+      thisPre.appendChild(code);
+    }
+  }
+}
+fixPre();
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<!-- footer -->
+<footer role="contentinfo">
+
+  <ul>
+   <li><a href="/site-map" id="mnu4298">Site Map</a></li>
+<li><a href="/accessibility-statement" id="mnu2116">Accessibility</a></li>
+<li><a href="/2025/12/my-use-of-ai-on-this-site.html" id="mnu43774">LLM Statement</a></li>
+<li><a href="/feed" id="mnu6278">RSS</a></li>
+   <li><a href="https://toot.cafe/@aardrian" rel="me">Mastodon</a></li>
+  </ul>
+
+<!-- hide until JS fires; hide if WHCM active -->
+  <div aria-labelledby="ThemeLbl" role="group" id="ThemeSwitcher">
+      <span id="ThemeLbl">Theme</span>:
+      <span id="ThemeButtons" hidden>
+        <button type="button" data-name="Light" aria-pressed="false" id="ThemeLight" aria-labelledby="ThemeLight ThemeLbl" onclick="toggleTheme(this.id);">Light</button>
+        <button type="button" data-name="Dark" aria-pressed="false" id="ThemeDark" aria-labelledby="ThemeDark ThemeLbl" onclick="toggleTheme(this.id);">Dark</button>
+        <button type="button" data-name="Unset" aria-pressed="true" id="ThemeUnset" aria-labelledby="ThemeUnset ThemeLbl" onclick="toggleTheme(this.id);">Unset</button>
+      </span>
+      <span id="ThemeLinks">
+        <a href="?Theme=Light" class="false" id="ThemeLinkLight" aria-labelledby="ThemeLinkLight ThemeLbl">Light</a>
+        <a href="?Theme=Dark" class="false" id="ThemeLinkDark" aria-labelledby="ThemeLinkDark ThemeLbl">Dark</a>
+        <a href="?Theme=Unset" class="true" id="ThemeLinkUnset" aria-labelledby="ThemeLinkUnset ThemeLbl">Unset</a>
+      </span>
+  </div>
+
+	<p>
+	&copy; 1999&ndash;2026 Adrian Roselli
+	</p>
+
+</footer>
+<!-- / footer -->
+
+<script>
+// Theme Switcher
+// 11-Jul-2020
+document.getElementById("ThemeButtons").removeAttribute("hidden");
+document.getElementById("ThemeLinks").setAttribute("hidden","");
+
+function unsetAllThemeBtns() {
+  var themBtns = document.querySelectorAll("footer[role=contentinfo] button[aria-pressed]");
+  for (var i = 0; i < themBtns.length; i++) {
+    themBtns[i].setAttribute("aria-pressed", "false");
+  }
+  var styleBlocks = document.querySelectorAll("style[id^=CSS]");
+  for (var i = 0; i < themBtns.length; i++) {
+    styleBlocks[i].setAttribute("media", "none");
+  }
+}
+
+function toggleTheme(btnID) {
+  unsetAllThemeBtns();
+  // Get the button that triggered this
+  var theButton = document.getElementById(btnID);
+  theButton.setAttribute("aria-pressed", "true");
+  // Add a class to the body
+  var thisBody = document.querySelector("body");
+  // var idVal = theButton.innerText;
+  //   Swapped from the innerText because of auto-translation
+  var idVal = theButton.getAttribute("data-name");
+  // thisBody.setAttribute("id",theButton.innerText);
+  thisBody.setAttribute("id",idVal);
+  // Enable the appropriate style block
+  var idStyleVal = "CSS" + idVal;
+  var styleBlock = document.getElementById(idStyleVal);
+  styleBlock.setAttribute("media", "all");
+  setCookie("Theme",idVal);
+}
+
+function setCookie(name, value) {
+  // Enter number of days the cookie should persist
+  var expDays = 30;
+  var exp = new Date(); 
+  exp.setTime(exp.getTime() + (expDays*24*60*60*1000));
+  expirationDate = exp.toGMTString();
+  // Set cookie with name and value provided
+  // in function call and date from above
+  document.cookie = name + "=" + escape(value)
+  document.cookie += "; expires=" + exp.toGMTString();
+}
+</script>
+
+
+<script>
+// NEW NAVIGATION LOGIC
+// 20-JAN-2020
+
+
+// save some elements
+// using Array slice to convert NodeLists to Arrays, for ease of use later
+var pNav = document.getElementById("PrimaryNav");
+var buttons = Array.prototype.slice.call(pNav.querySelectorAll('button[aria-controls]'));
+var subMenus = Array.prototype.slice.call(pNav.querySelectorAll('button[aria-controls] + ul, button[aria-controls] + div'));
+
+function openSubNav(buttonEl) {
+  var navId = buttonEl.getAttribute('aria-controls');
+  var navEl = document.getElementById(navId);
+  
+  if (navEl) {
+    buttonEl.setAttribute("aria-expanded", "true");
+    // buttonEl.setAttribute("aria-label", "Hide");
+    // navEl.style.display = "block";
+  }
+}
+
+function closeSubNav(buttonEl) {
+  var navId = buttonEl.getAttribute('aria-controls');
+  var navEl = document.getElementById(navId);
+  
+  if (navEl) {
+    buttonEl.setAttribute("aria-expanded", "false");
+    // buttonEl.setAttribute("aria-label", "Show");
+    // navEl.style.display = "none";
+  }
+}
+
+function closeAllSubNavs() {
+  buttons.forEach(function(button) {
+    closeSubNav(button);
+  });
+}
+
+// event handlers
+function handleButtonClick(event) {
+  var button = this;
+  var isOpen = button.getAttribute('aria-expanded') === 'true';
+  if (isOpen) {
+    closeSubNav(button);
+  } else {
+    closeAllSubNavs();
+    openSubNav(button);
+  }
+}
+
+function handleButtonKeyDown(event) {
+  if (event.key === 'Escape' || event.key === 'Esc') {
+    closeSubNav(this);
+  }
+}
+
+function handleNavKeyDown(event) {
+  if (event.key === 'Escape' || event.key === 'Esc') {
+    var button = document.querySelector('button[aria-controls=' + this.id + ']');
+    closeSubNav(button);
+    button.focus();
+  }
+}
+
+function handleNavFocusOut(event) {
+  var navContainsFocus = this.contains(event.relatedTarget);
+  if (!navContainsFocus) {
+    var button = this.querySelector('button[aria-controls]');
+    button && closeSubNav(button);
+  }
+}
+
+// attach event listeners
+buttons.forEach(function(button) {
+  button.addEventListener('click', handleButtonClick);
+  button.addEventListener('keydown', handleButtonKeyDown);
+});
+
+subMenus.forEach(function(subMenu) {
+  subMenu.addEventListener('keydown', handleNavKeyDown);
+});
+
+// attach focusout listener to the parent of both the disclosure button and the menu
+var subNavContainers = Array.prototype.slice.call(document.querySelectorAll('#PrimaryNav > ul > li'));
+subNavContainers.forEach(function(navContainer) {
+  navContainer.addEventListener('focusout', handleNavFocusOut);
+});
+
+</script>
+
+
+
+<script type="text/javascript">
+var hasPrintLinksRun = false;
+
+function getLinks() {
+  try {
+    // See if this already ran
+    if (hasPrintLinksRun == false) {
+      // Get all the links
+      var links = document.querySelectorAll("main > *:not(footer) a:not(.comment-reply-link):not(.url):not(.comment-edit-link):not(.noprint):not(#cancel-comment-reply-link)[href]");
+
+      // Create emtpy arrays for later population.
+      var linkHrefs = [];
+      var linkNums = [];
+
+      // If there is already a links box, remove it.
+      var node = document.getElementById("LinkContainer");
+      if (node) {
+        if (node.parentNode) {
+          node.parentNode.removeChild(node);
+        }
+      }
+
+      // Define the links container.
+      var mainRegion = document.querySelector("main");
+      var aside = document.createElement("aside");
+      aside.id = "LinkContainer";
+
+      // Define its heading.
+      var h2 = document.createElement("h2");
+      h2.innerText = "Links in This Page";
+
+      // Define the list container.
+      var orderedlist = document.createElement("ol");
+      orderedlist.id = "LinkList";
+
+      // Insert the new elements.
+      mainRegion.appendChild(aside);
+      var LinkContainer = document.getElementById("LinkContainer");
+      LinkContainer.appendChild(h2);
+      LinkContainer.appendChild(orderedlist);
+
+      // Loop through the links
+      for (var i = 0; i < links.length; i++) {
+        // Create the superscript footnote reference
+        var noteNum = document.createElement("sup");
+        noteNum.setAttribute("class", "footnote");
+        noteNum.innerText = i + 1;
+
+        // Add it as a following sibling to the link
+        links[i].parentNode.insertBefore(noteNum, links[i].nextSibling);
+
+        // Get each link and replace the URL scheme identifier
+        //var url = links[i].href.substr(links[i].href.indexOf('://')+3);
+        var schemeMatch = /^mailto:|(https?|ftp):\/\//;
+        var url = links[i].href.replace(schemeMatch, "");
+
+        // Add a list item for each link.
+        var li = document.createElement("li");
+        li.innerText = url;
+        document.getElementById("LinkList").appendChild(li);
+      }
+
+      // Add a class to the body to undo default link print styles
+      var thisBody = document.querySelector("body");
+      // thisBody.setAttribute("class", "linklist");
+      thisBody.classList.add("linklist");
+
+      // Done
+      hasPrintLinksRun = true;
+      console.log("print links added? " + hasPrintLinksRun);
+    } else {
+      console.log("print links added? " + hasPrintLinksRun);
+    }
+  } catch (e) {
+    console.log("getLinks(): " + e);
+  }
+}
+
+// getLinks();
+
+window.addEventListener("beforeprint", function(event) { getLinks(); });
+// window.onbeforeprint = function(event) { getLinks(); };
+// var mediaQueryList = window.matchMedia('print');
+// mediaQueryList.addListener(function(mql) {
+//   if(mql.matches) {
+//     console.log('webkit equivalent of onbeforeprint');
+//     getLinks();
+//   }
+// });
+
+function headingAnchors() {
+  try {
+    var allHns = document.querySelectorAll(
+      "main > h2[id], main > h3[id], main > h4[id], main > h5[id], main > h6[id]"
+    );
+    // Loop through the links
+    for (var i = 0; i < allHns.length; i++) {
+      var emptyTextNode = document.createTextNode(" ");
+      // Create anchor link
+      var anchorLink = document.createElement("a");
+      var spanHidden = document.createElement("span");
+      var span = document.createElement("span");
+      anchorLink.href = "#" + allHns[i].id;
+      anchorLink.setAttribute("class", "noprint");
+      spanHidden.setAttribute("aria-hidden", "true");
+      spanHidden.innerText = "#";
+      span.innerText = "anchor";
+      // Add the spans to the link
+      anchorLink.appendChild(spanHidden);
+      anchorLink.appendChild(span);
+      // Add it as a child to the heading
+      allHns[i].appendChild(emptyTextNode);
+      allHns[i].appendChild(anchorLink);
+    }
+  } catch (e) {
+    console.log("headingAnchors(): " + e);
+  }
+}
+headingAnchors();
+
+</script>
+
+
+<script>
+class YouTubeVimeoEmbed extends HTMLElement {
+	// https://github.com/aardrian/youtube-vimeo-embed
+	constructor() {
+		super();
+	}
+	connectedCallback() {
+		var iframe = document.createElement('iframe');
+		var theLink = this.querySelector('a');
+		var vidPoster = this.getAttribute('data-poster');
+		var vidSlug;
+		var vidPreSlug = theLink.getAttribute('href').split('/')[3];
+		var vidQueryString = '';
+		var vidQueryCheck = vidPreSlug.indexOf('?');
+		if (vidQueryCheck == -1) {
+			vidSlug = vidPreSlug;
+		} else {
+			vidSlug = vidPreSlug.substring(0,vidQueryCheck);
+			vidQueryString = '&'+vidPreSlug.substring(vidQueryCheck+1);
+		}
+		if (theLink.getAttribute('href').substring(8,13) == 'youtu') {
+			var isYouTube = 1;
+		} else {
+			var isYouTube = 0;
+		}
+		iframe.setAttribute('title',theLink.textContent);
+		iframe.setAttribute('allow','autoplay');
+		iframe.setAttribute('allowfullscreen','');
+		iframe.setAttribute('loading','lazy');
+		if (isYouTube) {
+			iframe.setAttribute('src','https://www.youtube-nocookie.com/embed/'+vidSlug);
+			var vidLink = 'https://www.youtube-nocookie.com/embed/'+vidSlug+'?autoplay=1'+vidQueryString;
+			if (vidPoster) {
+				var bgImg = vidPoster;
+			} else {
+				var bgImg = 'https://i3.ytimg.com/vi/'+vidSlug+'/hqdefault.jpg';
+			}
+		} else {
+			iframe.setAttribute('src','https://vimeo.com/'+vidSlug);
+			var vidLink = 'https://player.vimeo.com/video/'+vidSlug+'?autoplay=1&dnt=1'+vidQueryString;
+			if (vidPoster) {
+			  var bgImg = vidPoster;
+			} else {
+			  var bgImg = 'https://vumbnail.com/'+vidSlug+'.jpg';
+			}
+		}
+		if (this.getAttribute('data-ratio')) {
+			iframe.setAttribute('style','aspect-ratio:'+this.getAttribute('data-ratio')+';width:100%;');
+		} else {
+			iframe.setAttribute('style','aspect-ratio:16/9;width:100%;');
+		}
+		iframe.setAttribute('srcdoc','<style>body{background-image:url('+bgImg+');background-repeat:no-repeat;background-size:cover;background-position:center center;display:grid;place-items:center;min-height:97dvh;overflow:hidden;}a{display:block;width:96px;height:96px;overflow:hidden;}a:focus{outline:none;}a:focus circle,a:hover circle{fill:#000;}a:focus circle:first-child + circle,a:hover circle:first-child + circle{stroke-dasharray:.4,.4;}a:focus polygon,a:hover polygon{stroke:#fff;stroke-width:.75;}</style><a href="'+vidLink+'"><svg viewBox="0 0 16 16" width="96" height="96" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="50%" cy="50%" r="7.75" fill="none" stroke="#000" stroke-width=".5"/><circle cx="50%" cy="50%" r="7.25" fill="none" stroke="#fff" stroke-width=".5"/><circle cx="50%" cy="50%" r="7" fill="#0009"/><polygon points="12, 8 6, 4.5 6, 11.5" fill="#fff" stroke-linejoin="round"></polygon></svg>Play</a>');
+		this.appendChild(iframe);
+	}
+}
+customElements.define('youtube-vimeo-embed', YouTubeVimeoEmbed);
+
+</script>
+
+
+</body>
+</html>

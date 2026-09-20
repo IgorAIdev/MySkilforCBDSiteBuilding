@@ -49,6 +49,7 @@ test('новый сайт: всё разложено, команды допис�
   }
   assert.ok(!existsSync(join(dir, 'templates')), 'заготовки — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'selftest')), 'самопроверка набора — не содержимое проекта')
+  assert.ok(!existsSync(join(dir, 'research')), 'исследования набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, '.github/workflows/kit.yml')), 'CI набора — не CI проекта')
   const s = scriptsOf(dir)
   assert.equal(s.dev, 'next dev', 'свои команды остаются')
