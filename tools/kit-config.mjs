@@ -37,6 +37,8 @@
 
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { DEFAULT_SEAMS, auditSeamsShape } from './seams.mjs'
+import { LAYOUT } from './thresholds.mjs'
 
 export const ROOT = new URL('..', import.meta.url).pathname
 
@@ -68,8 +70,8 @@ const DEFAULTS = {
   /** семьи красок ЯРУСА ЗНАЧЕНИЙ: их зовут по оттенку, и узлам они
    *  запрещены — узел берёт роль (И205). У каждого проекта свои. */
   hues: ['sage', 'cyan', 'amber'],
-  /** разрешённые швы раскладки */
-  breakpoints: [1080, 820, 560],
+  /** швы раскладки — реестр: ширина, имя, что меняется, почему (tools/seams.mjs) */
+  seams: DEFAULT_SEAMS,
   /** склады: единственные места, которым разрешена память браузера */
   stores: ['lib/shop.ts', 'lib/studio/store.ts', 'lib/studio/presets.ts',
     'lib/studio/boot.ts', 'app/[lang]/layout.tsx'],
@@ -87,8 +89,19 @@ function load() {
     process.exit(1)
   }
   const cfg = { ...DEFAULTS, ...own, scale: { ...DEFAULTS.scale, ...(own.scale ?? {}) } }
-  for (const k of ['code', 'styles', 'controls', 'exempt', 'floating', 'breakpoints']) {
+  /* Список чисел `breakpoints` — старая форма: ширины без имени и причины.
+     Читается — проверки по файлам обязаны работать и на таком проекте, —
+     но записи без причины шаг 8 в `npm run stage` не пропускает: шов должен
+     быть решением (tools/seams.mjs). Реестр `seams` спрашивается по форме
+     сразу: он и есть заявление о решениях. */
+  const legacy = Boolean(own.breakpoints) && !own.seams
+  if (legacy) cfg.seams = own.breakpoints.map((at) => ({ at, name: '', turns: '', why: '' }))
+  for (const k of ['code', 'styles', 'controls', 'exempt', 'floating', 'seams']) {
     if (!Array.isArray(cfg[k])) { console.error(`kit.config.json: «${k}» должен быть списком`); process.exit(1) }
+  }
+  if (!legacy) {
+    const shape = auditSeamsShape(cfg.seams, LAYOUT.seams)
+    if (shape.length) { console.error(`kit.config.json, швы:\n  ${shape.join('\n  ')}`); process.exit(1) }
   }
   return cfg
 }
@@ -109,7 +122,9 @@ export const PRIMITIVES = CONFIG.primitives
 export const CONTROLS = CONFIG.controls
 export const EXEMPT = CONFIG.exempt
 export const FLOATING = CONFIG.floating
-export const BREAKPOINTS = CONFIG.breakpoints
+/** Реестр швов и те же ширины списком — для медиазапросов и концов рамп. */
+export const SEAMS = CONFIG.seams
+export const BREAKPOINTS = SEAMS.map((s) => s.at)
 export const HUES = CONFIG.hues ?? []
 export const STORES = CONFIG.stores ?? []
 export const ALIASES = CONFIG.aliases ?? {}

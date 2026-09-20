@@ -90,7 +90,7 @@ test('поле — в rem, зазор между целями — свой то�
 })
 
 test('примитивы раскладки на месте', () => {
-  for (const name of ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned']) {
+  for (const name of ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned', 'sidebar', 'grid', 'sheet', 'menu', 'frame']) {
     assert.ok(new RegExp(`^\\.${name}\\b`, 'm').test(primitives), `нет примитива ${name}`)
   }
 })
@@ -896,5 +896,64 @@ test('строитель палитры показывает работу тем
     const c = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), '--check', образец],
       { encoding: 'utf8', cwd: корень })
     assert.equal(c.status, 0, c.stderr || c.stdout)
+  }
+})
+
+/* И227: шов — решение с именем и причиной, читаемое в обе стороны; свип
+   встаёт на каждый шов и на пиксель над ним — ступенька живёт там. */
+test('реестр швов: имя и причина у каждого, читатель у каждого, свип встаёт на шов и пиксель над ним', async () => {
+  const { SEAMS } = await import('../tools/kit-config.mjs')
+  const { auditSeamsShape, deadSeams, seamsIn, sweepWidths } = await import('../tools/seams.mjs')
+  const { LAYOUT } = await import('../tools/thresholds.mjs')
+  assert.deepEqual(auditSeamsShape(SEAMS, LAYOUT.seams), [], 'реестр набора не по форме')
+  assert.ok(SEAMS.length <= LAYOUT.seams, 'швов больше порога')
+  const why = 'причина не короче сорока знаков — замер, макет или решение, не «так вышло»'
+  assert.ok(auditSeamsShape([{ at: 900, name: 'x', turns: 'y', why: 'так вышло' }], 3).some((b) => /сорока/.test(b)), 'короткая причина прошла')
+  assert.ok(auditSeamsShape([{ at: 900, name: 'a', turns: 't', why }, { at: 900, name: 'b', turns: 't', why }], 3).some((b) => /дважды/.test(b)), 'двойная ширина прошла')
+  assert.ok(auditSeamsShape(SEAMS, 2).some((b) => /не больше 2/.test(b)), 'порог числа швов не спрашивается')
+  /* Читатель — медиазапрос ±1 или конец рампы; контейнерный запрос — не читатель. */
+  const sheets = [{ rel: 'styles/x.css', css: '@media (max-width:819px){.a{display:none}} @container (max-width:1079px){.b{display:none}}' }]
+  assert.deepEqual(deadSeams([{ at: 820, name: 'т' }], sheets), [])
+  assert.equal(deadSeams([{ at: 1080, name: 'м' }], sheets).length, 1, 'контейнерный запрос засчитан читателем шва')
+  assert.deepEqual(deadSeams([{ at: 1080, name: 'м' }], sheets, [560, 1080]), [])
+  const files = ['styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css']
+  const ends = Object.values(JSON.parse(read('styles/scale.json'))).flatMap((s) => (s as { ширины: number[] }).ширины)
+  assert.deepEqual(deadSeams(SEAMS, files.map((f) => ({ rel: f, css: read(f) })), ends), [], 'в наборе есть шов без читателя')
+  const widths = sweepWidths(LAYOUT, SEAMS)
+  for (const s of SEAMS) assert.ok(widths.includes(s.at) && widths.includes(s.at + 1), `свип не встаёт на шов ${s.at} и пиксель над ним`)
+  for (const x of LAYOUT.extra) assert.ok(widths.includes(x), `свип пропускает сложенный экран ${x}`)
+  assert.equal(widths[0], LAYOUT.reflow, 'свип начинается не с перетока')
+  assert.deepEqual(seamsIn('@container (max-width:788px){}'), [])
+})
+
+test('холст и край из строителя: край растёт в коридоре, холст не уже верхнего шва; кадр с потолком из порогов', async () => {
+  const { resolve, auditScale } = await import('../tools/scale.mjs')
+  const { LAYOUT } = await import('../tools/thresholds.mjs')
+  assert.ok(declared('--wrap') && declared('--gut'), 'строитель не выпустил --wrap / --gut')
+  assert.ok(!/^\s*--gut\s*:/m.test(tokens) && !/^\s*--wrap\s*:/m.test(tokens), 'край или холст набраны рукой в tokens.css')
+  const base = { ширины: [560, 1080], тело: [16, 18], отношение: [1.125, 1.2], размер: { base: 0 }, ритм: { 3: 0.75, 5: 1.5, 7: 2.5 }, поле: {}, воздух: {}, зазор: {} }
+  const r = resolve({ ...base, холст: 1520, край: ['3', '5'] })
+  assert.equal(r.холст, 1520)
+  assert.deepEqual(r.край.pair, [12, 28])
+  const rules = (set: object): string[] => auditScale(set).map((f: { rule: string }) => f.rule)
+  assert.ok(rules({ ...base, холст: 1520, край: ['3', '7'] }).includes('край растёт в коридоре'), `12 → 44 (×3.7) прошло коридор ×${LAYOUT.edgeGrowth.join('…')}`)
+  assert.ok(!rules({ ...base, холст: 1520, край: ['3', '5'] }).includes('край растёт в коридоре'), '12 → 28 не прошло коридор')
+  assert.ok(rules({ ...base, холст: 1000, край: ['3', '5'] }).includes('холст не уже верхнего шва'))
+  assert.throws(() => resolve({ ...base, край: ['3', '9'] }), /ступень ритма 9/)
+  /* Кадр: пропорция ручкой, потолок от малого окна из порогов, контейнер. */
+  const m = primitives.replace(/\/\*[\s\S]*?\*\//g, '').match(/\.frame\{([^}]*)\}/)
+  assert.ok(m, 'примитива frame нет')
+  assert.match(m![1]!, /aspect-ratio:var\(--frame\)/)
+  assert.match(m![1]!, new RegExp(`max-block-size:var\\(--frame-cap, ${LAYOUT.frameCap}svh\\)`), 'потолок кадра не из порогов LAYOUT.frameCap')
+  assert.match(m![1]!, /container-type:inline-size/)
+})
+
+test('пороги раскладки читаются инструментами, а не лежат про запас', () => {
+  for (const [file, key] of [
+    ['tools/sweep.mjs', 'sweepWidths(LAYOUT'], ['tools/sweep.mjs', 'LAYOUT.jump'], ['tools/sweep.mjs', 'LAYOUT.crop'],
+    ['tools/check-craft.mjs', 'LAYOUT.shortWindow'], ['tools/scale.mjs', 'LAYOUT.edgeGrowth'],
+    ['tools/stages.mjs', 'LAYOUT.seams'], ['tools/kit-config.mjs', 'LAYOUT.seams'],
+  ]) {
+    assert.ok(read(file!).includes(key!), `${file} не читает ${key}`)
   }
 })

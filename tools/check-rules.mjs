@@ -55,6 +55,8 @@ import { resolve as resolveScale } from './scale.mjs'
 import { CONCEPTS, HOOKS, REQUIRED, parse as parseName } from './names.mjs'
 import { AXES, scan as scanAxes } from './axes.mjs'
 import * as THR from './thresholds.mjs'
+import { SEAMS } from './kit-config.mjs'
+import { sweepWidths } from './seams.mjs'
 import { SCRIPTS } from '../scripts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -80,6 +82,7 @@ const TABLES = {
   '.claude/skills/scale/SKILL.md': ['scale'],
   '.claude/skills/craft/references/names.md': ['names'],
   '.claude/skills/craft/references/axes.md': ['axes'],
+  '.claude/skills/craft/references/layout.md': ['layout'],
   ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
@@ -287,6 +290,35 @@ const axesFacts = () => {
   rows.push(`| признаки вне реестра | — | ${unknown.length ? unknown.map((u) => `\`@media${u.query}\``).join(', ') : 'нет'} | — |`)
   return rows.join('\n')
 }
+/* Раскладка — из кода (И227): реестр швов с причинами, примитивы и их
+   ручки из самого файла примитивов, ширины свипа, пороги слоя, холст и край
+   первого набора. */
+const PRIMITIVES = ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned', 'sidebar', 'grid', 'sheet', 'menu', 'frame']
+const layoutFacts = () => {
+  const rows = ['| Факт | Значение | Откуда |', '| --- | --- | --- |']
+  rows.push(`| швы | ${SEAMS.length} из ${THR.LAYOUT.seams} разрешённых: ${SEAMS.map((s) => `**${s.at}** «${s.name}» — ${s.turns}`).join(' · ')} | \`tools/seams.mjs\`; у проекта — \`kit.config.json\`, ключ \`seams\` |`)
+  const prim = has('styles/primitives.module.css') ? read('styles/primitives.module.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
+  const handles = PRIMITIVES.map((n) => {
+    const set = new Set()
+    const own = new RegExp(`(^|[\\s(,>~+])\\.${n}(?![\\w-])`)
+    for (const rule of prim.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      if (!rule[1].split(',').some((s) => own.test(s.trim()))) continue
+      for (const d of rule[2].matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) set.add(d[1])
+      for (const d of rule[2].matchAll(/var\((--[a-z][a-z0-9-]*)\s*,/g)) set.add(d[1])
+    }
+    return [n, [...set].filter((h) => parseName(h)?.tier === 'node').sort()]
+  })
+  rows.push(`| примитивы и ручки | ${handles.length}: ${handles.map(([n, hs]) => `\`${n}\`${hs.length ? ` (${hs.map((h) => `\`${h}\``).join(', ')})` : ''}`).join(' · ')} | \`styles/primitives.module.css\` |`)
+  if (has('styles/scale.json')) {
+    const first = Object.values(JSON.parse(read('styles/scale.json')))[0]
+    const r = resolveScale(first)
+    if (r.край) rows.push(`| холст и край (первый набор) | холст ${r.холст}px → \`--wrap\`; край ступени ${r.край.steps.join(' → ')}: ${r.край.pair.join(' → ')}px (×${(r.край.pair[1] / r.край.pair[0]).toFixed(2)}, коридор ×${THR.LAYOUT.edgeGrowth.join('…')}) → \`--gut\` | \`styles/scale.json\`, выпуск в \`styles/scale.css\` |`)
+  }
+  const widths = sweepWidths(THR.LAYOUT, SEAMS)
+  rows.push(`| ширины свипа | ${widths.length}: сетка ${THR.LAYOUT.sweep.join('…')} шагом ${THR.LAYOUT.step}, каждый шов и пиксель над ним, сложенные экраны ${THR.LAYOUT.extra.join(', ')} | \`sweepWidths()\` в \`tools/seams.mjs\` |`)
+  rows.push(`| пороги слоя | переток ${THR.LAYOUT.reflow}, низкое окно ${THR.LAYOUT.shortWindow}, ступенька размера от ${THR.LAYOUT.jump}px, кадр держит ≥ ${Math.round(THR.LAYOUT.crop * 100)} % снимка, потолок кадра ${THR.LAYOUT.frameCap}svh | \`LAYOUT\` в \`tools/thresholds.mjs\` |`)
+  return rows.join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
@@ -295,6 +327,7 @@ const GEN = {
   scale: scaleFacts(),
   names: namesFacts(),
   axes: axesFacts(),
+  layout: layoutFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)

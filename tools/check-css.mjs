@@ -23,7 +23,8 @@ import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
 import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
-  BREAKPOINTS, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
+  BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
+import { deadSeams } from './seams.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/css-baseline.json')
@@ -368,6 +369,40 @@ for (const path of files) {
     if (w >= 200 && !BREAKPOINTS.some((b) => Math.abs(b - w) <= 1)) {
       add('breakpoint', `${at(m.index)}  ${m[0]}`)
     }
+  }
+
+  /* Две семьи о том же медиазапросе (слой 8, И227).
+   *
+   * УЗЕЛ МЕРЯЕТ ОКНО. Правило 6 говорит: компонент меряет свой контейнер, а
+   * не окно — и до 20.09.2026 не имело семьи. Замер cbdshop.bg: 146 запросов
+   * по ширине окна внутри `components/*.module.css`. Карточка, спросившая
+   * окно, в узкой боковой колонке на широком экране получает «широкий» вид
+   * (MDN: «the card can be reused … without needing to know where it will
+   * be placed»; web.dev: макро-раскладка — медиазапрос, микро — контейнер).
+   * Решение уровня страницы живёт в стилях страницы и в токенах — им окно
+   * мерить положено.
+   *
+   * СТУПЕНЬКА РАЗМЕРА НА ШВЕ. Правило 3: шов ставится там, где меняется
+   * СМЫСЛ раскладки; «меняется величина — это шкала». Блок медиазапроса, в
+   * котором нет ни одного свойства раскладки, а только кегль, поле, зазор,
+   * ширина, — та самая ступенька, которую рампа не дописала (cbdshop: 23
+   * таких блока из 173). Переменные (`--x:`) не считаются: переобъявить
+   * роль на шве — законный способ сказать «здесь линия одна». */
+  const LAYOUT_PROP = /^(display|grid-template[a-z-]*|grid-area|grid-column|grid-row|grid-auto[a-z-]*|flex-direction|flex-wrap|flex-basis|flex-flow|flex|order|position|inset[a-z-]*|top|left|right|bottom|visibility|place-[a-z]+|align-[a-z]+|justify-[a-z]+|overflow[a-z-]*|columns|column-count|container[a-z-]*|float|content|transform|translate|rotate|scale|clip-path|pointer-events|z-index|list-style[a-z-]*|writing-mode|direction|white-space|text-wrap|object-fit|object-position|scroll[a-z-]*|touch-action|cursor|appearance)$/
+  const SIZE_PROP = /^(font-size|line-height|letter-spacing|padding[a-z-]*|margin[a-z-]*|gap|row-gap|column-gap|inline-size|block-size|width|height|min-inline-size|max-inline-size|min-width|max-width|min-block-size|max-block-size|min-height|max-height|border-radius|border[a-z-]*width|inset-[a-z]+|font-weight)$/
+  for (const m of css.matchAll(/@media[^{]*\((?:min|max)-width:\s*\d+px\)[^{]*\{/g)) {
+    if (inContainer(m.index)) continue
+    if (rel.endsWith('.module.css') && inDirs(rel, COMPONENT_DIRS)) {
+      add('nodeWindow', `${at(m.index)}  ${m[0].replace(/\s+/g, ' ').trim().slice(0, 48)} — узел меряет окно`)
+    }
+    let depth = 1, i = m.index + m[0].length
+    const from = i
+    while (i < css.length && depth) { if (css[i] === '{') depth++; else if (css[i] === '}') depth--; i++ }
+    const body = css.slice(from, i - 1)
+    const props = [...body.matchAll(/(?:^|[;{])\s*([a-z-]+)\s*:/g)].map((d) => d[1])
+    if (!props.length || props.some((p) => LAYOUT_PROP.test(p))) continue
+    const sizes = props.filter((p) => SIZE_PROP.test(p))
+    if (sizes.length) add('seamStep', `${at(m.index)}  ${m[0].replace(/\s+/g, ' ').trim().slice(0, 40)} меняет только ${[...new Set(sizes)].slice(0, 3).join(', ')} — величина, не смысл`)
   }
 
   /* Верхний слой браузера вместо номеров.
@@ -1259,6 +1294,34 @@ for (const path of files) {
     for (const m of css.matchAll(/\[data-theme[^\]]*\]\s*\{([^}]*)\}/g)) {
       if (/--[a-z][a-z0-9-]*\s*:/.test(m[1])) add('axisTheme', `${at(m.index)}  переменная под [data-theme]`)
     }
+  }
+
+  /* Швы в обе стороны (слой 8, И227). Семья `breakpoint` выше ловит ширину
+   * в CSS, которой нет в реестре; эта — запись реестра, которую не читает ни
+   * один медиазапрос и ни один конец рампы. Реестр без читателя — та же
+   * «цифра без причины», только с другой стороны: cbdshop.bg держал 1080 и
+   * 560 списком, а в CSS их читали только концы рамп. Концы рамп — тоже
+   * решение о ширине, они считаются. */
+  /* Пока файлов стилей нет вовсе, решать нечего — проверка молчит нулём,
+     как check:port без packages/ (И168): реестр набора на пустом проекте —
+     не долг. */
+  if (sheets.length) {
+    let ends = []
+    try { ends = Object.values(JSON.parse(readFileSync(join(ROOT, 'styles/scale.json'), 'utf8'))).flatMap((s) => s.ширины ?? []) } catch { ends = [] }
+    for (const line of deadSeams(SEAMS, sheets, ends)) add('deadSeam', `tools/seams.mjs  ${line}`)
+  }
+
+  /* Единицы окна (слой 8, И227). `100vw` считается без полосы прокрутки
+   * только если её нет: на десктопе с классической полосой блок в 100vw
+   * шире страницы и рождает горизонтальную прокрутку; `100vh` на телефоне
+   * равен большому окну (lvh) — низ под адресной строкой. Ширина «во всю
+   * страницу» — 100 %; высота шторки — `dvh`; потолок кадра — `svh`.
+   * `container-type: size` схлопывает узел без назначенной высоты в ноль
+   * (спецификация: «intrinsic sizes … determined as if the element had no
+   * content») — узлу нужен `inline-size`. */
+  for (const { rel, css, at } of sheets) {
+    for (const m of css.matchAll(/\b100(vw|vh|lvw|lvh)\b/g)) add('fullVw', `${at(m.index)}  100${m[1]}`)
+    for (const m of css.matchAll(/container-type\s*:\s*size\b/g)) add('sizeContain', `${at(m.index)}  container-type: size`)
   }
 
   /* Размер органа — роль, не число (слой 7, И226). Высота в px на узле —

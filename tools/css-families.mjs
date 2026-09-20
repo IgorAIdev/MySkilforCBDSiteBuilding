@@ -26,6 +26,7 @@ export const CSS_FAMILIES = [
   'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio', 'typeGuess', 'hueDirect',
   'nameGrammar', 'stepDirect', 'deadName', 'tierUp',
   'axisUnknown', 'axisTheme', 'axisScope', 'axisHover', 'ctrlSize',
+  'deadSeam', 'nodeWindow', 'seamStep', 'fullVw', 'sizeContain',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -88,4 +89,9 @@ export const CSS_LABELS = {
   axisScope: 'по указателю или наведению меняется раскладка или видимость — это эвристика об устройстве, ей меняют цель и отклик, не содержимое',
   axisHover: ':hover вне @media (hover: hover) — на телефоне залипает после касания',
   ctrlSize: 'высота органа числом в узле — размеров три, и все три роли (--ctrl-h-sm / --ctrl-h / --ctrl-h-lg); «small input и small button — один small»',
+  deadSeam: 'шов в реестре (tools/seams.mjs) не читает ни один медиазапрос и ни один конец рампы — запись без решения (правило 3, в обе стороны)',
+  nodeWindow: 'узел (components/*.module.css) меряет окно медиазапросом, а не свой контейнер — в узкой колонке на широком экране он получит «широкий» вид (правило 6)',
+  seamStep: 'ступенька размера на шве: в медиазапросе меняется только величина (кегль, поле, зазор), а не смысл раскладки — это шкала, не шов (правило 3)',
+  fullVw: '100vw шире страницы на полосу прокрутки, 100vh на телефоне выше видимого: ширина «во всю страницу» — 100 %, высота шторки — dvh, потолок кадра — svh',
+  sizeContain: 'container-type: size — контейнер не умеет брать высоту у содержимого и схлопывается в ноль; узлу нужен inline-size',
 }
