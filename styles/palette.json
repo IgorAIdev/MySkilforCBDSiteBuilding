@@ -1,6 +1,22 @@
 {
-  "Мек остров": {
-    "light": { "paper": "#FFFFFF", "ink": "#231F18", "accent": "#0C3A46", "error": "#B3261E", "sale": "#6A4CA8", "warn": "#F76B15", "ok": "#30A46C" },
-    "dark": { "paper": "#141310", "ink": "#EFECE7", "accent": "#2E7C8F", "error": "#E5484D", "sale": "#6A4CA8", "warn": "#F76B15", "ok": "#30A46C" }
+  "Латунь на угле": {
+    "light": {
+      "paper": "#FCFBF9",
+      "ink": "#1F1E1C",
+      "accent": "#9A7B3F",
+      "error": "#B3261E",
+      "sale": "#6A4CA8",
+      "warn": "#F76B15",
+      "ok": "#30A46C"
+    },
+    "dark": {
+      "paper": "#121110",
+      "ink": "#EDEBE8",
+      "accent": "#B8955A",
+      "error": "#E5484D",
+      "sale": "#6A4CA8",
+      "warn": "#F76B15",
+      "ok": "#30A46C"
+    }
   }
 }
