@@ -26,6 +26,15 @@ const own = load('styles/palette.json')
 const samples = load('templates/palette.json')
 /* Свой набор — первым: он стоит на сайте, остальные рядом для сравнения. */
 const sets = { ...own, ...Object.fromEntries(Object.entries(samples).filter(([n]) => !(n in own))) }
+/* У набора, чью скидку заказчик назвал сам, рядом встаёт тот же набор с
+   выведенной скидкой: выбор показывается глазами, а не описанием. */
+for (const [имя, набор] of Object.entries({ ...sets })) {
+  if (!набор.light?.sale) continue
+  sets[`${имя} · скидка выведенная`] = {
+    light: { ...набор.light, sale: undefined },
+    dark: { ...набор.dark, sale: undefined },
+  }
+}
 const names = Object.keys(sets)
 if (!names.length) {
   console.error('✗ Ни styles/palette.json, ни templates/palette.json — показывать нечего.')
@@ -85,6 +94,10 @@ const html = `<!doctype html>
 <style>
 ${css}
 :root{ color-scheme: light dark; --edge:#e6e2db }
+/* Кнопки темы были мёртвыми: light-dark() слушает color-scheme, а не
+   признак на документе. Заказчик нажал «Светлая» и ничего не произошло. */
+:root[data-theme="light"]{ color-scheme: light }
+:root[data-theme="dark"]{ color-scheme: dark }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){ --edge:#2f2b26 } }
 :root[data-theme="dark"]{ --edge:#2f2b26 }
 *{box-sizing:border-box;margin:0}
