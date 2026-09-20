@@ -315,9 +315,9 @@ test('палитра выпускается в CSS, и выпущенное сх
   writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
     'проба': {
       light: { paper: '#FFFFFF', ink: '#231F18', accent: '#0C3A46', error: '#B3261E',
-        sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' },
+        sale: '#6A4CA8', warn: '#F76B15', ok: '#30A46C' },
       dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D',
-        sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' },
+        sale: '#6A4CA8', warn: '#F76B15', ok: '#30A46C' },
     },
   }))
   const tool = new URL('../tools/palette-css.mjs', import.meta.url).pathname
@@ -421,7 +421,7 @@ test('палитра: пять красок сигналов меряются п
       light: { paper: '#FFFFFF', ink: '#231F18', accent: '#0C3A46', error: '#B3261E',
         sale: '#0E3E4A', warn: '#F76B15', ok: '#30A46C' },
       dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D',
-        sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' },
+        sale: '#6A4CA8', warn: '#F76B15', ok: '#30A46C' },
     },
   }))
   const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })

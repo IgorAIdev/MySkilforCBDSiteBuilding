@@ -28,7 +28,7 @@ import { auditPalette } from './palette.mjs'
  * стороны. Настоящий набор живёт в приложении, `styles/palette.json`:
  * переносимый набор не знает и не должен знать, какого цвета чужая марка.
  */
-const SIGNALS = { error: '#B3261E', sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' }
+const SIGNALS = { error: '#B3261E', sale: '#6A4CA8', warn: '#F76B15', ok: '#30A46C' }
 const SELFTEST = {
   'тёплая марка': {
     light: { paper: '#FDFCF8', ink: '#2A2622', accent: '#B07A2E', ...SIGNALS },
