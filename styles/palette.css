@@ -46,6 +46,10 @@
   --ok-9: light-dark(#30A46C, #30A46C);
   --ok-11: light-dark(#007145, #77C397);
   --on-ok-9: light-dark(#111111, #111111);
+  --info-2: light-dark(#F5FAFF, #111923);
+  --info-9: light-dark(#0090FF, #0090FF);
+  --info-11: light-dark(#0064B3, #76B8FF);
+  --on-info-9: light-dark(#111111, #111111);
   --line: light-dark(#DAD9D6, #3F3931);
   --border: light-dark(#8F8C88, #756C5E);
   --ring: light-dark(#9A7B3F, #745D36);
@@ -94,6 +98,10 @@
   --ok-9: light-dark(#30A46C, #30A46C);
   --ok-11: light-dark(#007145, #77C397);
   --on-ok-9: light-dark(#111111, #111111);
+  --info-2: light-dark(#F5FAFF, #111923);
+  --info-9: light-dark(#0090FF, #0090FF);
+  --info-11: light-dark(#0064B3, #76B8FF);
+  --on-info-9: light-dark(#111111, #111111);
   --line: light-dark(#DAD9D6, #3F3931);
   --border: light-dark(#8F8C88, #756C5E);
   --ring: light-dark(#9A7B3F, #745D36);

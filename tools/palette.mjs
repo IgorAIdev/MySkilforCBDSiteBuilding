@@ -388,7 +388,7 @@ export function firstReaching(row, against, need, from) {
  *  Лестницы поверхностей у статусных красок нет намеренно: у плашки три
  *  работы — тихий фон, заливка и текст, — и ступени 3–8 ей негде применить.
  *  Заводить их значит заводить места, где правда разойдётся. */
-export const STATUS = ['error', 'sale', 'warn', 'ok']
+export const STATUS = ['error', 'sale', 'warn', 'ok', 'info']
 const STATUS_STEPS = [1, 8, 10] /* тихая плашка, заливка, текст */
 
 /**
@@ -434,9 +434,10 @@ export const SIGNAL_NAMES = {
   sale: 'плашка скидки',
   warn: 'оранжевый «мало осталось»',
   ok: 'зелёный «в наличии»',
+  info: 'синий «просто сведение»',
 }
 
-const short = { accent: 'a', error: 'e', sale: 'sale', warn: 'warn', ok: 'ok' }
+const short = { accent: 'a', error: 'e', sale: 'sale', warn: 'warn', ok: 'ok', info: 'info' }
 
 /** Все краски одного набора в одной теме, готовые к печати в CSS.
  *
@@ -480,10 +481,40 @@ export function roles(rawSet, mode) {
  *  Цена — четыре десятка строк на набор, и она платится один раз при выпуске;
  *  цена обратного — переключатель, который работает во все стороны, кроме
  *  одной. */
+/* Синий эталона — краска сведения. Не выводится из марки, как скидка:
+ * скидка — СОСЕДКА марки и обязана быть из её мира, а сведение обязано
+ * быть узнаваемым само по себе, и во всех разобранных наборах оно синее
+ * (Carbon `info`, Spectrum `informative`, Polaris `info`). Radix пишет
+ * прямо, что синий несёт два смысла сразу: «If you map `blue` to
+ * "accent", you might also need `blue` to communicate "info"» — значит у
+ * набора с синей маркой сведению нужна СВОЯ краска, а не марка. Поэтому
+ * синий тут постоянный, как оранжевый «мало осталось» и зелёный «в
+ * наличии», и только если он подошёл ближе 25 ΔE к чему-то из набора,
+ * поворачивается тем же ходом, что и скидка. */
+const INFO = '#0090FF'
+
+export function infoFrom(others = []) {
+  const [L, C, h] = oklch(INFO)
+  const paint = (turn) => toHex(clampChroma([L, C, (h + turn) % 360]).map((v) => v * 255))
+  for (let turn = 0; turn <= 300; turn += 30) {
+    const hex = turn === 0 ? INFO : paint(turn)
+    if (others.every((other) => difference(hex, other) >= NEED.brandApart)) return hex
+  }
+  return INFO
+}
+
 /** Набор, у которого скидка названа заказчиком, остаётся как есть; набор
- *  без скидки получает её выведенной из марки. */
-export const withSale = (set) =>
-  set.sale ? set : { ...set, sale: saleFrom(set.accent, [set.error, set.warn, set.ok, set.accent].filter(Boolean)) }
+ *  без скидки получает её выведенной из марки, а сведение — синим эталона.
+ *
+ *  Заведено 20.09.2026 вопросом заказчика «восемь не нужно?»: сообщение о
+ *  факте — «доставка 3–5 дней», «закон ЕС: до 0,2 % ТГК» — красилось либо
+ *  успехом (зелёный врёт: ничего не удалось), либо вниманием (оранжевый
+ *  врёт: ничего не случилось). */
+export const withSale = (set) => {
+  const sale = set.sale || saleFrom(set.accent, [set.error, set.warn, set.ok, set.accent].filter(Boolean))
+  const info = set.info || infoFrom([set.accent, set.error, set.warn, set.ok, sale].filter(Boolean))
+  return { ...set, sale, info }
+}
 
 export function toCss(sets, { generator = 'tools/palette-css.mjs' } = {}) {
   const names = Object.keys(sets)
