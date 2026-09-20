@@ -141,6 +141,7 @@ const FILES = [
   'tools/scale-css.mjs',
   'tools/check-scale.mjs',
   'tools/scale-stand.mjs',
+  'tools/control-stand.mjs',
   'docs/rules.md',
   'docs/start.md',
 ]

@@ -31,7 +31,7 @@
  */
 
 import { PREFIX, BREAKPOINTS } from './kit-config.mjs'
-import { RHYTHM, AIR, TARGET, TEXT, TYPE } from './thresholds.mjs'
+import { RHYTHM, AIR, TARGET, TEXT, TYPE, CONTROL } from './thresholds.mjs'
 
 /** Корень браузера. Поле пишется в rem (правило «поле растёт с буквами»),
  *  а считается в тех же пикселях, что и всё остальное: делить на 16
@@ -226,6 +226,16 @@ const block = (sets, name, indent = '  ') => {
   for (const [name, pair] of Object.entries(r.размер)) {
     put(`--ctrl-fs-${name}`, `${num(pair[1])}px`, 'надпись органа — не течёт')
   }
+  /* Размер органа (слой 7, И226): три высоты из порогов CONTROL, своя семья,
+     не ступень ритма. Под пальцем — те же имена, значения в блоке
+     @media (pointer: coarse) ниже (coarse()). Текущий размер — `--ctrl-h` и
+     `--ctrl-fs`; атрибут data-size="sm|lg" переобъявляет их (base.css). */
+  const [sm, md, lg] = CONTROL.heights.fine
+  put('--ctrl-h-sm', `${num(sm)}px`, 'орган малый: фишка, сегмент')
+  put('--ctrl-h', `${num(md)}px`, 'орган средний: кнопка, поле, лоток — текущий размер')
+  put('--ctrl-h-lg', `${num(lg)}px`, 'орган крупный: кнопка покупки, счётчик, строка меню')
+  put('--ctrl-target', `${num(CONTROL.target.fine)}px`, 'цель у знака мельче органа (WCAG 2.5.8)')
+  put('--ctrl-fs', `var(--ctrl-fs-${CONTROL.text[1]})`, 'надпись текущего размера')
   const roles = roleBlock(sets, name, indent)
   return roles ? `${lines.join('\n')}
 
@@ -237,8 +247,11 @@ ${roles}` : lines.join('\n')
  *  пальцем одним именем, и всё про палец у набора живёт в этом запросе. */
 const coarse = (set, sel) => {
   const pairs = Object.entries(set.зазор ?? {}).filter(([, p]) => isPair(p) && p[1] !== p[0])
-  if (!pairs.length) return ''
-  const body = pairs.map(([name, p]) => `--gap-${name}:${num(p[1])}px`).join('; ')
+  const [sm, md, lg] = CONTROL.heights.coarse
+  const body = [
+    ...pairs.map(([name, p]) => `--gap-${name}:${num(p[1])}px`),
+    `--ctrl-h-sm:${num(sm)}px`, `--ctrl-h:${num(md)}px`, `--ctrl-h-lg:${num(lg)}px`, `--ctrl-target:${num(CONTROL.target.coarse)}px`,
+  ].join('; ')
   return `\n@media (pointer:coarse){ ${sel}{ ${body} } }\n`
 }
 
@@ -483,6 +496,7 @@ export const builtNames = (sets) => {
     for (const name of Object.keys(r.воздух)) names.add(`--air-${name}`)
     for (const name of Object.keys(r.зазор)) names.add(`--gap-${name}`)
     for (const name of Object.keys(r.размер)) names.add(`--ctrl-fs-${name}`)
+    for (const name of ['--ctrl-h-sm', '--ctrl-h', '--ctrl-h-lg', '--ctrl-target', '--ctrl-fs']) names.add(name)
   }
   for (const setName of Object.keys(sets)) {
     for (const [role, r] of Object.entries(rolesOf(sets, setName))) {

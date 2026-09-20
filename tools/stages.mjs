@@ -283,8 +283,15 @@ export const STAGES = [
         },
         'шрифт витрины показан заказчику отрисованным на её же тексте и назван',
         { reviewed: '20.09.2026', rule: 'И222: лестница по отношению 1.125 / 1.2; межстрочье по Butterick и Spectrum', show: 'https://claude.ai/artifact/YZS2JiNiEXKdz2FA3wUtMC — кадр «Роли текста»' }),
-      step(7, 'Размер узлов', 'высота кнопки и поля от кегля и поля; под пальцем 44; размер — роль, не число', 'craft',
-        () => tokensSrc().includes('--ctrl-h') && /\.tap\b/.test(primitivesSrc()) ? null : 'высота органа (--ctrl-h) или запас под палец (.tap) не заведены'),
+      step(7, 'Размер узлов', 'три размера — малый, средний, крупный — ролями из порогов; под пальцем ступень выше; орган считает всё от высоты', 'scale',
+        () => {
+          const l = ladder()
+          if (!/--ctrl-h-sm\s*:/.test(l) || !/--ctrl-h-lg\s*:/.test(l)) return 'трёх размеров органа нет (--ctrl-h-sm / --ctrl-h / --ctrl-h-lg в styles/scale.css)'
+          if (!/pointer\s*:\s*coarse[^{]*\{[^}]*--ctrl-h/.test(l)) return 'под пальцем высоты не растут (@media (pointer: coarse) в styles/scale.css)'
+          if (!/\.tap\b/.test(primitivesSrc())) return 'запаса под палец нет (.tap)'
+          return null
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И226: три размера из порогов, под пальцем ступень выше, орган считает от высоты', show: 'https://claude.ai/artifact/Cs5sbn6y5H6jdbSTfmsLYm — стенд размеров органов, три размера на одной карточке' }),
       step(8, 'Раскладка', 'одиннадцать примитивов, три шва в реестре, компонент меряет контейнер, число колонок вычисляется', 'craft',
         () => {
           const pr = primitivesSrc()

@@ -1261,6 +1261,21 @@ for (const path of files) {
     }
   }
 
+  /* Размер органа — роль, не число (слой 7, И226). Высота в px на узле —
+   * «маленькая кнопка» и «маленькое поле» разного маленького (Curtis).
+   * Волосок 1px и знак (svg) — не орган. */
+  for (const { rel, css, at } of sheets) {
+    if (EXEMPT.includes(rel) || rel === LADDER || rel === TOKENS) continue
+    for (const m of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      const sel = m[1].trim()
+      if (/svg|::before|::after|img|picture|video|hr\b|\.sr|visually/.test(sel)) continue
+      for (const d of m[2].matchAll(/(?:^|;)\s*(height|min-height|block-size|min-block-size)\s*:\s*(\d+(?:\.\d+)?)px/g)) {
+        if (Number(d[2]) <= 1) continue
+        add('ctrlSize', `${at(m.index)}  ${sel.slice(0, 40)} ${d[1]}:${d[2]}px — возьмите --ctrl-h-*`)
+      }
+    }
+  }
+
   /* Роль текста, набранная наполовину.
    *
    * Роль — это пять фактов: размер, межстрочье, вес, разрядка, мера. Когда

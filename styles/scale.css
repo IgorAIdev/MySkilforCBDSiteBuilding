@@ -39,6 +39,11 @@
   --ctrl-fs-base: 18px;                            /* надпись органа — не течёт */
   --ctrl-fs-h3: 31px;                              /* надпись органа — не течёт */
   --ctrl-fs-h2: 37.5px;                            /* надпись органа — не течёт */
+  --ctrl-h-sm: 32px;                               /* орган малый: фишка, сегмент */
+  --ctrl-h: 40px;                                  /* орган средний: кнопка, поле, лоток — текущий размер */
+  --ctrl-h-lg: 48px;                               /* орган крупный: кнопка покупки, счётчик, строка меню */
+  --ctrl-target: 24px;                             /* цель у знака мельче органа (WCAG 2.5.8) */
+  --ctrl-fs: var(--ctrl-fs-sm);                    /* надпись текущего размера */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
@@ -78,7 +83,7 @@
   --eyebrow-track: .01em;
 }
 
-@media (pointer:coarse){ :root{ --gap-targets:16px } }
+@media (pointer:coarse){ :root{ --gap-targets:16px; --ctrl-h-sm:44px; --ctrl-h:48px; --ctrl-h-lg:56px; --ctrl-target:44px } }
 
 [data-scale="Нынешний"]{
   --fs-xs: clamp(12.5px, 10.88px + .29vw, 14px);   /* подпись, надзаголовок */
@@ -114,6 +119,11 @@
   --ctrl-fs-base: 18px;                            /* надпись органа — не течёт */
   --ctrl-fs-h3: 31px;                              /* надпись органа — не течёт */
   --ctrl-fs-h2: 37.5px;                            /* надпись органа — не течёт */
+  --ctrl-h-sm: 32px;                               /* орган малый: фишка, сегмент */
+  --ctrl-h: 40px;                                  /* орган средний: кнопка, поле, лоток — текущий размер */
+  --ctrl-h-lg: 48px;                               /* орган крупный: кнопка покупки, счётчик, строка меню */
+  --ctrl-target: 24px;                             /* цель у знака мельче органа (WCAG 2.5.8) */
+  --ctrl-fs: var(--ctrl-fs-sm);                    /* надпись текущего размера */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
@@ -153,7 +163,7 @@
   --eyebrow-track: .01em;
 }
 
-@media (pointer:coarse){ [data-scale="Нынешний"]{ --gap-targets:16px } }
+@media (pointer:coarse){ [data-scale="Нынешний"]{ --gap-targets:16px; --ctrl-h-sm:44px; --ctrl-h:48px; --ctrl-h-lg:56px; --ctrl-target:44px } }
 
 [data-scale="Тесный"]{
   --fs-xs: clamp(12.5px, 11.42px + .19vw, 13.5px); /* подпись, надзаголовок */
@@ -189,6 +199,11 @@
   --ctrl-fs-base: 17px;                            /* надпись органа — не течёт */
   --ctrl-fs-h3: 29.5px;                            /* надпись органа — не течёт */
   --ctrl-fs-h2: 35.5px;                            /* надпись органа — не течёт */
+  --ctrl-h-sm: 32px;                               /* орган малый: фишка, сегмент */
+  --ctrl-h: 40px;                                  /* орган средний: кнопка, поле, лоток — текущий размер */
+  --ctrl-h-lg: 48px;                               /* орган крупный: кнопка покупки, счётчик, строка меню */
+  --ctrl-target: 24px;                             /* цель у знака мельче органа (WCAG 2.5.8) */
+  --ctrl-fs: var(--ctrl-fs-sm);                    /* надпись текущего размера */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
@@ -228,7 +243,7 @@
   --eyebrow-track: .01em;
 }
 
-@media (pointer:coarse){ [data-scale="Тесный"]{ --gap-targets:16px } }
+@media (pointer:coarse){ [data-scale="Тесный"]{ --gap-targets:16px; --ctrl-h-sm:44px; --ctrl-h:48px; --ctrl-h-lg:56px; --ctrl-target:44px } }
 
 [data-scale="Просторный"]{
   --fs-xs: clamp(12px, 9.85px + .38vw, 14px);      /* подпись, надзаголовок */
@@ -264,6 +279,11 @@
   --ctrl-fs-base: 20px;                            /* надпись органа — не течёт */
   --ctrl-fs-h3: 39px;                              /* надпись органа — не течёт */
   --ctrl-fs-h2: 49px;                              /* надпись органа — не течёт */
+  --ctrl-h-sm: 32px;                               /* орган малый: фишка, сегмент */
+  --ctrl-h: 40px;                                  /* орган средний: кнопка, поле, лоток — текущий размер */
+  --ctrl-h-lg: 48px;                               /* орган крупный: кнопка покупки, счётчик, строка меню */
+  --ctrl-target: 24px;                             /* цель у знака мельче органа (WCAG 2.5.8) */
+  --ctrl-fs: var(--ctrl-fs-sm);                    /* надпись текущего размера */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
@@ -303,7 +323,7 @@
   --eyebrow-track: .01em;
 }
 
-@media (pointer:coarse){ [data-scale="Просторный"]{ --gap-targets:16px } }
+@media (pointer:coarse){ [data-scale="Просторный"]{ --gap-targets:16px; --ctrl-h-sm:44px; --ctrl-h:48px; --ctrl-h-lg:56px; --ctrl-target:44px } }
 
 [data-scale="Тихий"]{
   --fs-xs: clamp(12.5px, 10.88px + .29vw, 14px);   /* подпись, надзаголовок */
@@ -339,6 +359,11 @@
   --ctrl-fs-base: 18px;                            /* надпись органа — не течёт */
   --ctrl-fs-h3: 31px;                              /* надпись органа — не течёт */
   --ctrl-fs-h2: 37.5px;                            /* надпись органа — не течёт */
+  --ctrl-h-sm: 32px;                               /* орган малый: фишка, сегмент */
+  --ctrl-h: 40px;                                  /* орган средний: кнопка, поле, лоток — текущий размер */
+  --ctrl-h-lg: 48px;                               /* орган крупный: кнопка покупки, счётчик, строка меню */
+  --ctrl-target: 24px;                             /* цель у знака мельче органа (WCAG 2.5.8) */
+  --ctrl-fs: var(--ctrl-fs-sm);                    /* надпись текущего размера */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
@@ -378,4 +403,4 @@
   --eyebrow-track: .01em;
 }
 
-@media (pointer:coarse){ [data-scale="Тихий"]{ --gap-targets:16px } }
+@media (pointer:coarse){ [data-scale="Тихий"]{ --gap-targets:16px; --ctrl-h-sm:44px; --ctrl-h:48px; --ctrl-h-lg:56px; --ctrl-target:44px } }

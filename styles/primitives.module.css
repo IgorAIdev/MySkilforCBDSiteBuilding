@@ -530,7 +530,7 @@
 @media (pointer:coarse){
   .tap::after{
     content:'';position:absolute;left:50%;top:50%;translate:-50% -50%;
-    width:max(100%, var(--tap, 44px));height:max(100%, var(--tap, 44px))
+    width:max(100%, var(--tap, var(--ctrl-target)));height:max(100%, var(--tap, var(--ctrl-target)))
   }
 }
 
@@ -616,7 +616,7 @@
    Доля 0.43 — та же оптика, что у счётчика: у мелкой пилюли плечо
    ограничено снизу боковыми пробелами самого шрифта, у крупной растёт. */
 .tray{
-  --tray-h:42px;
+  --tray-h:var(--ctrl-h);
   --tray-pad:3px;
   /* Собственная высота органа: остаток лотка за вычетом его полей. */
   --tray-cell:calc(var(--tray-h) - var(--tray-pad) * 2);
@@ -784,7 +784,6 @@
    38: на планшете вся полоса над полкой («Фильтр», «Сбросить», «Карточки»,
    «Таблица») была ниже нормы, и семья `coarse` это показала. Ручка одна и
    считается обратно: 44 у ячейки плюс два поля жёлоба. */
-@media (pointer:coarse){ .tray{--tray-h:calc(44px + var(--tray-pad) * 2)} }
 
 /* ── ЛОТОК ЛИСТОМ ────────────────────────────────────────────────────────
    Одна одежда, и она не «тема», а другой РОД предмета: в лотке не двое, а
@@ -838,11 +837,11 @@
 /* ── chips ────────────────────────────────────────────────────────────── */
 .chip{
   display:inline-flex;align-items:center;gap:6px;
-  height:28px;padding:0 11px;border-radius:var(--r-pill);
+  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-pill);
   background:var(--plate-quiet);
   font-size:var(--ctrl-fs-sm);font-weight:500;color:var(--ink-soft)
 }
-.chipLab{background:var(--pop-tint);color:var(--pop-ink);font-weight:600;font-size:var(--ctrl-fs-xs);height:26px;padding:0 10px}
+.chipLab{background:var(--pop-tint);color:var(--pop-ink);font-weight:600;font-size:var(--ctrl-fs-xs);height:calc(var(--ctrl-h-sm) - 2 * var(--sp-1));padding:0 calc(var(--ctrl-h-sm) * .35)}
 .chipLab svg{width:13px;height:13px;fill:none;stroke:currentColor}
 
 /* ── fields ───────────────────────────────────────────────────────────── */
@@ -876,12 +875,12 @@
      жёлоб снимает и поле: кружок тогда равен росту, и сорока четырёх хватает
      ровно сорока четырёх. */
   display:flex;align-items:center;flex:none;
-  height:var(--qty-h,54px);
+  height:var(--qty-h, var(--ctrl-h-lg));
   /* Умолчание стоит В МЕСТЕ ИСПОЛЬЗОВАНИЯ, а не отдельным объявлением:
      объявленное на самом счётчике свойство побеждает всё, что ему назначает
      место, — и ручка перестаёт быть ручкой. Проверено замером: с объявлением
      `--qty-pad:0` из корзины не доезжало вовсе. */
-  padding:var(--qty-pad, calc(var(--qty-h,54px) * .074));
+  padding:var(--qty-pad, calc(var(--qty-h, var(--ctrl-h-lg)) * .074));
   background:var(--qty-bg,var(--ctrl));border-radius:var(--r-pill)
 }
 .qty button{
@@ -893,14 +892,14 @@
 .qty button:active{color:var(--ink);background:var(--surface);box-shadow:var(--sh-1)}
 .qty button:active{transform:scale(.92)}
 .qty button svg{
-  width:calc(var(--qty-h,54px) * .33);height:calc(var(--qty-h,54px) * .33);
+  width:calc(var(--qty-h, var(--ctrl-h-lg)) * .33);height:calc(var(--qty-h, var(--ctrl-h-lg)) * .33);
   fill:none;stroke:currentColor
 }
 .qty input,.qty b{
   height:100%;text-align:center;border:0;background:none;outline:0;
   font-size:var(--qty-fs,var(--ctrl-fs-base));font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)
 }
-.qty input{width:calc(var(--qty-h,54px) * .74)}
+.qty input{width:calc(var(--qty-h, var(--ctrl-h-lg)) * .74)}
 /* Своё кольцо фокуса. Браузерное снято строкой выше (`outline:0`) — вместе с
    ним пропадало и место, куда ты вошёл клавиатурой: счётчик стоит посреди
    ряда покупки, и «где я» там не праздный вопрос. Кольцо внутреннее, чтобы
@@ -926,8 +925,7 @@
      вышел сорока четырьмя, росту нужно сорок четыре плюс два поля. При
      умолчании поля это те самые 52, при снятом жёлобе — ровно 44. Пока
      число стояло рукой, снять жёлоб и не вытянуть пилюлю было нельзя. */
-  .qty{height:max(var(--qty-h,54px), calc(44px + 2 * var(--qty-pad, calc(var(--qty-h,54px) * .074))))}
-  .qty input{min-width:44px}
+  .qty input{min-width:var(--ctrl-target)}
 
   /* ЦЕЛЬ ПАЛЬЦА, ВЫНЕСЕННАЯ НАРУЖУ. Второй способ дать пальцу его сорок
      четыре — не растить орган, а положить запас ВОКРУГ рисунка. Тогда
@@ -945,7 +943,7 @@
 
      Пол при этом снимается: его работу делает запас, и оставить оба значило
      бы растить орган ради цели, которая у него уже есть. */
-  .qty[data-hit='out']{height:var(--qty-h,54px)}
+  .qty[data-hit='out']{height:var(--qty-h, var(--ctrl-h-lg))}
   /* Общий пол в сорок четыре, который база даёт всякому полю ввода, здесь
      снимается: поле числа выше своей пилюли торчало бы на семь пикселей
      вверх и вниз. Снимается не молча — оговорка объявлена у самого поля
@@ -953,7 +951,7 @@
      у них запас полный. */
   .qty[data-hit='out'] input{min-width:24px;min-block-size:0}
   .qty[data-hit='out'] button::after{
-    content:'';position:absolute;inline-size:44px;block-size:44px;
+    content:'';position:absolute;inline-size:var(--ctrl-target);block-size:var(--ctrl-target);
     inset-block-start:50%;translate:0 -50%
   }
   .qty[data-hit='out'] > button:first-child::after{inset-inline-end:0}
@@ -961,12 +959,12 @@
 }
 /* Запас лежит на кнопке, значит кнопка — его система координат. */
 .qty[data-hit='out'] button{position:relative}
-.qty b{display:grid;place-items:center;min-width:calc(var(--qty-h,54px) * .7)}
+.qty b{display:grid;place-items:center;min-width:calc(var(--qty-h, var(--ctrl-h-lg)) * .7)}
 
 /* ── a segmented control ──────────────────────────────────────────────── */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .seg button{
-  height:30px;padding:0 11px;border-radius:var(--r-pill);background:var(--plate-quiet);
+  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-pill);background:var(--plate-quiet);
   font-size:var(--ctrl-fs-sm);color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
@@ -1029,15 +1027,15 @@
    выверен у тихой кнопки (`--quiet-on`, styles/tokens.css) и держит порог
    видимости на обеих темах. */
 .more{
-  display:inline-flex;align-items:center;gap:calc(var(--chip-h) * .3);flex:none;
-  padding:5px 5px 5px calc(var(--chip-h) * .4);border-radius:var(--r-pill);
+  display:inline-flex;align-items:center;gap:calc(var(--ctrl-h) * .25);flex:none;
+  block-size:var(--ctrl-h);padding:0 calc(var(--ctrl-h) * .125) 0 calc(var(--ctrl-h) * .4);border-radius:var(--r-pill);
   background:var(--surface);
   font-size:var(--more-fs,var(--ctrl-fs-sm));font-weight:600;color:var(--pop-ink-hover);
   transition:background var(--hover-t) var(--ease)
 }
 @media (hover:hover){ .more:hover{background:color-mix(in oklab, var(--surface), var(--ink) 16%)} }
 .more:active{background:color-mix(in oklab, var(--surface), var(--ink) 16%)}
-.more svg{width:28px;height:28px;padding:7px;border-radius:50%;background:var(--pop-tint);fill:none;stroke:var(--pop-ink);transition:transform var(--hover-t) var(--ease)}
+.more svg{width:calc(var(--ctrl-h) * .7);height:calc(var(--ctrl-h) * .7);padding:calc(var(--ctrl-h) * .175);border-radius:50%;background:var(--pop-tint);fill:none;stroke:var(--pop-ink);transition:transform var(--hover-t) var(--ease)}
 @media (hover:hover){ .more:hover svg{transform:translateX(var(--nudge))} }
 .more:active svg{transform:translateX(var(--nudge))}
 
@@ -1077,14 +1075,10 @@
    становятся столбиком. Ровно то, ради чего брейкпоинт и разрешён
    (правило 3). Четыре числа, стоявшие рядом, ушли в шкалу, а две ступени
    размера — в лестницу: они меняли не смысл, а величину. */
-/* Пальцу — сорок четыре. Условие тут не ширина окна, а устройство ввода. */
-@media (pointer:coarse){
-  .more{min-height:44px}
-  .skip{min-height:44px;align-items:center;display:inline-flex}
-  .input{min-height:44px}
-  select.input{min-height:44px}
-  .seg button{min-height:44px}
-}
+/* Под пальцем орган не поднимает себя сам: роль размера растёт в
+   @media (pointer: coarse) у строителя шкал — 44 / 48 / 56 (И226). */
+.skip{min-block-size:var(--ctrl-h);align-items:center;display:inline-flex}
+.input,select.input{min-block-size:var(--ctrl-h)}
 
 /* ── метки на кадре ───────────────────────────────────────────────────────
    Скидка и избранное стоят на снимке в двух местах сайта: на карточке полки и
@@ -1140,7 +1134,7 @@
 
 .cut{
   position:absolute;top:10px;left:10px;z-index:2;
-  height:26px;padding:0 10px;border-radius:var(--r-pill);
+  block-size:calc(var(--ctrl-h-sm) * .8);padding:0 10px;border-radius:var(--r-pill);
   display:inline-flex;align-items:center;
   background:var(--sale-fill);color:var(--on-sale);
   font-size:var(--ctrl-fs-xs);font-weight:800;font-variant-numeric:tabular-nums
@@ -1177,7 +1171,7 @@
    правило вида стоит ниже и побеждало. Замерено, а не прочитано. */
 .qty{
   background:var(--qty-bg,var(--ctrl));
-  padding:var(--qty-pad, calc(var(--qty-h,54px) * .074));
+  padding:var(--qty-pad, calc(var(--qty-h, var(--ctrl-h-lg)) * .074));
   gap:0
 }
 .qty button{box-shadow:none}

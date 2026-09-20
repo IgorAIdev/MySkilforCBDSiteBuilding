@@ -58,7 +58,7 @@ export const MODIFIERS = new Set([
   'size', 'lead', 'weight', 'track', 'measure', 'max', 'slope', 'gap', 'pad', 'air', 'h', 'w', 'min', 'fs', 'b',
   't', 'edge', 'head', 'inset', 'gut', 'stuck', 'look', 'fold', 'btn', 'top', 'mark', 'stack', 'targets', 'row',
   'grid', 'band', 'block', 'group', 'lede', 'note', 'cell', 'in', 'off', 'act', 'fit', 'side', 'above', 'at', 'bias',
-  'uri', 'lift', 'select', 'search', 'plate', 'bleed', 'hand', 'cap', 'slope',
+  'uri', 'lift', 'select', 'search', 'plate', 'bleed', 'hand', 'cap', 'slope', 'md', 'lg', 'target',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',
@@ -79,7 +79,7 @@ const ROLE = [
   { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/tokens.css' },
   { rx: /^--(ease|hover-t|rise|nudge)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
   { rx: /^--layer-[a-z]+$/, family: 'слой', by: 'styles/tokens.css' },
-  { rx: /^--(ctrl-h|chan-(h|mark|gap)|chip-h|tab-h|dock(-btn)?|edge-b)$/, family: 'геометрия органа', by: 'styles/tokens.css' },
+  { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-b)$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
   { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css' },
   { rx: /^--(wrap|gut(-base)?|page-(line|gut)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
 ]
