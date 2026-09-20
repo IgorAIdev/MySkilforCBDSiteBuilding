@@ -79,8 +79,8 @@ body{background:var(--page);color:var(--ink);font:var(--body-weight) var(--body-
 h2{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
 .lede{font-size:var(--lede-size);line-height:var(--lede-lead);color:var(--ink-soft);max-inline-size:58ch}
 .shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:var(--air-row)}
-.card{background:var(--n-2,#fafafa);border:1px solid var(--line,#e5e5e5);border-radius:14px;padding:var(--pad-card);display:flex;flex-direction:column;gap:var(--air-group)}
-.shot{aspect-ratio:4/3;max-block-size:220px;border-radius:10px;background:var(--a-3,#eef3f5)}
+.card{background:var(--plate);border:1px solid var(--rule);border-radius:14px;padding:var(--pad-card);display:flex;flex-direction:column;gap:var(--air-group)}
+.shot{aspect-ratio:4/3;max-block-size:220px;border-radius:10px;background:var(--pop-tint)}
 .in{display:flex;flex-direction:column;gap:var(--air-row)}
 .nm{font-size:var(--body-size);font-weight:600}
 .sub{font-size:var(--note-size);color:var(--ink-soft)}
