@@ -50,6 +50,8 @@ import { CSS_FAMILIES, CSS_LABELS } from './css-families.mjs'
 import { CRAFT_FAMILIES, CRAFT_LABELS } from './craft-families.mjs'
 import { CODE_FAMILIES, CODE_LABELS } from './code-families.mjs'
 import { CHECKS } from './checks.mjs'
+import { roles, STATUS, SIGNAL_NAMES } from './palette.mjs'
+import { SCRIPTS } from '../scripts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const read = (p) => readFileSync(join(ROOT, p), 'utf8')
@@ -66,6 +68,12 @@ const LEDGER = 'docs/rules.md'
 const TABLES = {
   '.claude/skills/craft/references/checks.md': ['css', 'craft'],
   '.claude/skills/code/SKILL.md': ['code'],
+  /* Факты о палитре — сколько красок называет заказчик, сколько семей,
+     сколько выпускается, какие наборы и команды — собираются из кода в
+     закон palette и в README набора (И219). README у проекта нет — там
+     таблица только в законе. */
+  '.claude/skills/palette/SKILL.md': ['palette'],
+  ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
    скилл. Число обязано быть одним — иначе новый проект получает восемь
@@ -183,10 +191,45 @@ const table = (fams, labels, head) => [
   `| Семья | ${head} |`, '| --- | --- |',
   ...fams.map((k) => `| \`${k}\` | ${labels[k] ?? '—'} |`),
 ].join('\n')
+/* Первый набор, который есть под рукой: образец-стартовый у набора, свой
+   `styles/palette.json` у проекта. Из него считается, сколько красок
+   называется рукой и сколько выпускается. */
+const paletteSeed = () => {
+  for (const f of ['templates/palette-starter.json', 'styles/palette.json']) {
+    if (!has(f)) continue
+    const sets = JSON.parse(read(f))
+    const first = Object.values(sets)[0]
+    if (first?.light) return { file: f, set: first }
+  }
+  return null
+}
+/* Рукой обязательны те ключи, которых строитель не выводит сам: всё, что
+   не сигнал. Сигналы в файле — право набора, не обязанность (И216). */
+const handKeys = (set) => Object.keys(set.light).filter((k) => !STATUS.includes(k))
+const HAND_COUNT = paletteSeed() ? handKeys(paletteSeed().set).length : null
+const paletteFacts = () => {
+  const seed = paletteSeed()
+  if (!seed) return '| Факт | Значение |\n| --- | --- |\n| набора нет | ни templates/palette-starter.json, ни styles/palette.json |'
+  const hand = handKeys(seed.set)
+  const emitted = Object.keys(roles(seed.set.light, 'light')).length
+  const samples = has('templates/palette.json') ? Object.keys(JSON.parse(read('templates/palette.json'))) : []
+  const own = has('styles/palette.json') ? Object.keys(JSON.parse(read('styles/palette.json'))) : []
+  const cmds = Object.keys(SCRIPTS).filter((k) => /palette/.test(k))
+  return [
+    '| Факт | Значение | Откуда |', '| --- | --- | --- |',
+    `| краски, которые называет заказчик, на тему | ${hand.length}: ${hand.join(', ')}; по желанию — ${STATUS.join(', ')} | \`${seed.file}\`, \`tools/palette.mjs\` |`,
+    `| семей смысла | ${2 + STATUS.length}: нейтраль, марка, ${STATUS.map((k) => SIGNAL_NAMES[k]).join(', ')} | \`tools/palette.mjs\`, STATUS |`,
+    `| переменных выпускается на тему | ${emitted} | \`roles()\` в \`tools/palette.mjs\` |`,
+    `| наборов-образцов | ${samples.length ? `${samples.length}: ${samples.join(' · ')}` : 'нет (образцы живут в наборе)'} | \`templates/palette.json\` |`,
+    `| на сайте сейчас | ${own.join(' · ') || '—'} | \`styles/palette.json\` |`,
+    `| команды | ${cmds.map((c) => `\`${c}\``).join(' · ')} | \`scripts.mjs\` |`,
+  ].join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
   code: table(CODE_FAMILIES, CODE_LABELS, 'Что ловит'),
+  palette: paletteFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)
@@ -289,6 +332,23 @@ for (const dir of SKILL_DIRS) {
     const cited = [...part.matchAll(/`([A-Za-z_$][\w$]*|--[a-z][\w-]*)`/g)].map((m) => m[1])
     if (!cited.some((n) => names.has(n))) {
       bad.push(`${f}, раздел «${title}»: не называет ни функции ${code[0]}, ни переменной ${code[1] ?? ''} — формула не этой темы или без строки в коде`)
+    }
+  }
+}
+
+/* ── 11 · число о наборе в тексте не расходится с кодом ──────────────────
+   Заказчик (И219) открыл README и прочёл «задаёшь семь красок» через день
+   после того, как строитель стал просить три: текст жил памятью, а не
+   кодом. Таблица фактов выше собирается из кода; здесь ловится число,
+   которое кто-то всё-таки набрал словом. Реестр правил — история, его не
+   трогаем. */
+const NUMBER_WORDS = { две: 2, два: 2, три: 3, трёх: 3, трех: 3, четыре: 4, четырёх: 4, пять: 5, пяти: 5, шесть: 6, шести: 6, семь: 7, семи: 7, восемь: 8, восьми: 8 }
+if (HAND_COUNT !== null) {
+  const prose = [...skillFiles, ...(has('README.md') ? ['README.md'] : [])]
+  for (const f of prose) {
+    for (const m of read(f).matchAll(/(две|два|три|трёх|трех|четыре|четырёх|пять|пяти|шесть|шести|семь|семи|восемь|восьми)\s+крас(?:ки|ок|ками)\s+на\s+тему/gi)) {
+      const n = NUMBER_WORDS[m[1].toLowerCase()]
+      if (n !== HAND_COUNT) bad.push(`${f}: «${m[0]}» — а строитель просит ${HAND_COUNT}; число набрано словом и отстало от кода`)
     }
   }
 }
