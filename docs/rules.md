@@ -6497,3 +6497,36 @@ rhythmguard знак в знак — числа не наши и не прошл
 **Чем меряется.** `check:css`: четыре семьи на нуле; `check:scale`: ступень
 без просителя; `check:rules`: реестр имён печатается из кода в
 `craft/references/names.md`; тесты набора — разбор имени и обратный ход.
+
+## И225 · Оси называются до значений, и у каждой записано, что она меняет
+
+Слой 2 — оси — значился сделанным: тема через `light-dark()`, палец через
+`pointer: coarse`. Замер 20.09.2026 против первоисточников (Spectrum
+Platform scale и Theming, React Spectrum Provider, Carbon themes, MDN,
+css-color-adjust, W3C qa-lang-why, Chromium hyphenation-patterns):
+
+- языка как оси не было вовсе — ни `overflow-wrap`, ни `hyphens`, ни
+  `quotes`, ни `text-size-adjust` — при четырёх языках магазина, у одного
+  из которых (румынского) в Chromium нет словаря переноса;
+- контраста не было — ни `prefers-contrast`, ни `forced-colors`: в режиме
+  принудительных цветов лист без обводки сливается с полом;
+- скроллбар красился рукой (`scrollbar-color`) вопреки `color-scheme`,
+  который красит его сам и в обеих темах;
+- реестра осей не было; медиазапрос по признаку вне списка никто не ловил.
+
+**Как писать.** Реестр `tools/axes.mjs`: шесть осей — тема, указатель,
+ширина, язык, движение, контраст, — у каждой чем включается, что меняется,
+что не меняется, откуда. Четыре семьи в `check:css`: `axisUnknown`
+(медиазапрос по признаку вне реестра), `axisTheme` (переменная под
+`[data-theme]` или `prefers-color-scheme`), `axisScope` (раскладка или
+видимость под указателем), `axisHover` (`:hover` вне `(hover: hover)`).
+Язык: `overflow-wrap: anywhere`, `hyphens: auto` как улучшение, `quotes:
+auto`, `text-size-adjust`. Контраст: `prefers-contrast: more` усиливает
+роли, `forced-colors: active` даёт обводки, `outline`, `currentColor`.
+Реестр печатается из кода в `craft/references/axes.md`.
+
+**Дефект.** 20.09.2026, при пересмотре подэтапа 2 по слову заказчика.
+
+**Чем меряется.** `check:css`: четыре семьи на нуле; шаг 2 в `npm run
+stage` красен без языка, контраста, движения и реестра; `check:rules`:
+реестр осей собран из кода.

@@ -70,7 +70,7 @@ if (/\.(ts|tsx|js|jsx|mjs)$/.test(rel) && inDir(...CODE_DIRS)) {
    скилл с кодом. Число, набранное словом и отставшее, краснеет здесь, а не
    в глазах заказчика. */
 if (has('tools/check-rules.mjs') &&
-    (/^tools\/(palette|scale|names)[\w-]*\.mjs$/.test(rel) || rel === 'scripts.mjs' || rel === 'styles/palette.json' ||
+    (/^tools\/(palette|scale|names|axes)[\w-]*\.mjs$/.test(rel) || rel === 'scripts.mjs' || rel === 'styles/palette.json' ||
      rel === 'styles/scale.json' || rel === 'tools/thresholds.mjs' ||
      /^templates\/palette[\w-]*\.json$/.test(rel) || /^\.claude\/skills\/(palette|scale)\//.test(rel))) {
   runs.push(['check:rules --tables', 'node', ['tools/check-rules.mjs', '--tables']])

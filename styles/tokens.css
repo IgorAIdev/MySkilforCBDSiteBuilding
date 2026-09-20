@@ -89,7 +89,6 @@
   --ink:         var(--n-12);  /* основной текст, знак на контроле */
   --ink-soft:    var(--n-11);  /* приглушённый текст: подпись, счёт */
   --plate-quiet: var(--n-3);   /* тихая плашка: фишка, сегмент, код */
-  --thumb:       var(--n-6);   /* бегунок прокрутки */
   --tick-edge:   var(--border);   /* рамка галочки и точки выбора — замером, ≥ 3:1 */
 
   /* cyan-12 had two jobs and could only flip one way. As a deep surface it
