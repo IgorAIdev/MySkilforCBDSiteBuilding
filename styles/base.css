@@ -128,7 +128,9 @@ body{
   font-variant-numeric:tabular-nums;
   background:var(--page);
   color:var(--sage-12);
-  font-size:var(--body-size, var(--fs-base)); line-height:var(--body-lead,1.45);
+  /* Роль «body» целиком: и размер, и межстрочье — из неё. Запасные числа
+     здесь означали бы второй источник: правишь роль, а земля держит своё. */
+  font-size:var(--body-size); line-height:var(--body-lead);
   /* which face is set is an attribute on <html>, so the whole page swaps at
      once and nothing has to know which component it is in */
   font-family:var(--face);

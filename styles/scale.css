@@ -13,6 +13,7 @@
   --fs-xl: clamp(19px, 16.85px + .38vw, 21px);
   --fs-2xl: clamp(22px, 18.77px + .58vw, 25px);
   --fs-h3: clamp(24px, 18.62px + .96vw, 29px);
+  --fs-h2: clamp(26px, 17.38px + 1.54vw, 34px);
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри контрола */
   --sp-3: clamp(10px, 7.85px + .38vw, 12px);       /* между строк группы */
@@ -34,6 +35,45 @@
   --air-group: var(--sp-5);                        /* между группами внутри части */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+
+  --hero-lead: 1.1;
+  --hero-weight: 700;
+  --hero-track: -.04em;
+  --pagehead-size: var(--fs-page);
+  --pagehead-lead: 1.1;
+  --pagehead-weight: 700;
+  --pagehead-track: -.03em;
+  --h2-size: var(--fs-h2);
+  --h2-lead: 1.15;
+  --h2-weight: 600;
+  --h2-track: -.025em;
+  --h3-size: var(--fs-h3);
+  --h3-lead: 1.2;
+  --h3-weight: 600;
+  --h3-track: -.02em;
+  --intro-size: var(--fs-lead);
+  --intro-lead: 1.4;
+  --intro-weight: 400;
+  --intro-track: 0;
+  --lede-size: var(--fs-base);
+  --lede-lead: 1.5;
+  --lede-weight: 400;
+  --lede-track: 0;
+  --lede-measure: var(--measure-lede);
+  --body-size: var(--fs-base);
+  --body-lead: 1.45;
+  --body-weight: 400;
+  --body-track: 0;
+  --body-measure: var(--measure);
+  --note-size: var(--fs-xs);
+  --note-lead: 1.45;
+  --note-weight: 400;
+  --note-track: 0;
+  --note-measure: var(--measure-note);
+  --eyebrow-size: var(--fs-xs);
+  --eyebrow-lead: 1.35;
+  --eyebrow-weight: 600;
+  --eyebrow-track: .01em;
 }
 
 @media (pointer:coarse){ :root{ --gap-targets:16px } }
@@ -46,6 +86,7 @@
   --fs-xl: clamp(19px, 16.85px + .38vw, 21px);
   --fs-2xl: clamp(22px, 18.77px + .58vw, 25px);
   --fs-h3: clamp(24px, 18.62px + .96vw, 29px);
+  --fs-h2: clamp(26px, 17.38px + 1.54vw, 34px);
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри контрола */
   --sp-3: clamp(10px, 7.85px + .38vw, 12px);       /* между строк группы */
@@ -67,6 +108,45 @@
   --air-group: var(--sp-5);                        /* между группами внутри части */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+
+  --hero-lead: 1.1;
+  --hero-weight: 700;
+  --hero-track: -.04em;
+  --pagehead-size: var(--fs-page);
+  --pagehead-lead: 1.1;
+  --pagehead-weight: 700;
+  --pagehead-track: -.03em;
+  --h2-size: var(--fs-h2);
+  --h2-lead: 1.15;
+  --h2-weight: 600;
+  --h2-track: -.025em;
+  --h3-size: var(--fs-h3);
+  --h3-lead: 1.2;
+  --h3-weight: 600;
+  --h3-track: -.02em;
+  --intro-size: var(--fs-lead);
+  --intro-lead: 1.4;
+  --intro-weight: 400;
+  --intro-track: 0;
+  --lede-size: var(--fs-base);
+  --lede-lead: 1.5;
+  --lede-weight: 400;
+  --lede-track: 0;
+  --lede-measure: var(--measure-lede);
+  --body-size: var(--fs-base);
+  --body-lead: 1.45;
+  --body-weight: 400;
+  --body-track: 0;
+  --body-measure: var(--measure);
+  --note-size: var(--fs-xs);
+  --note-lead: 1.45;
+  --note-weight: 400;
+  --note-track: 0;
+  --note-measure: var(--measure-note);
+  --eyebrow-size: var(--fs-xs);
+  --eyebrow-lead: 1.35;
+  --eyebrow-weight: 600;
+  --eyebrow-track: .01em;
 }
 
 @media (pointer:coarse){ [data-scale="Нынешний"]{ --gap-targets:16px } }
@@ -79,6 +159,7 @@
   --fs-xl: clamp(18px, 15.85px + .38vw, 20px);
   --fs-2xl: clamp(21px, 17.77px + .58vw, 24px);
   --fs-h3: clamp(23px, 17.62px + .96vw, 28px);
+  --fs-h2: clamp(25px, 17.46px + 1.35vw, 32px);
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: clamp(10px, 8.92px + .19vw, 11px);
@@ -100,6 +181,45 @@
   --air-group: var(--sp-5);
   --air-row: var(--sp-4);
   --gap-targets: 8px;
+
+  --hero-lead: 1.1;
+  --hero-weight: 700;
+  --hero-track: -.04em;
+  --pagehead-size: var(--fs-page);
+  --pagehead-lead: 1.1;
+  --pagehead-weight: 700;
+  --pagehead-track: -.03em;
+  --h2-size: var(--fs-h2);
+  --h2-lead: 1.15;
+  --h2-weight: 600;
+  --h2-track: -.025em;
+  --h3-size: var(--fs-h3);
+  --h3-lead: 1.2;
+  --h3-weight: 600;
+  --h3-track: -.02em;
+  --intro-size: var(--fs-lead);
+  --intro-lead: 1.4;
+  --intro-weight: 400;
+  --intro-track: 0;
+  --lede-size: var(--fs-base);
+  --lede-lead: 1.5;
+  --lede-weight: 400;
+  --lede-track: 0;
+  --lede-measure: var(--measure-lede);
+  --body-size: var(--fs-base);
+  --body-lead: 1.45;
+  --body-weight: 400;
+  --body-track: 0;
+  --body-measure: var(--measure);
+  --note-size: var(--fs-xs);
+  --note-lead: 1.45;
+  --note-weight: 400;
+  --note-track: 0;
+  --note-measure: var(--measure-note);
+  --eyebrow-size: var(--fs-xs);
+  --eyebrow-lead: 1.35;
+  --eyebrow-weight: 600;
+  --eyebrow-track: .01em;
 }
 
 @media (pointer:coarse){ [data-scale="Тесный"]{ --gap-targets:16px } }
@@ -112,6 +232,7 @@
   --fs-xl: clamp(20px, 16.77px + .58vw, 23px);
   --fs-2xl: clamp(23px, 17.62px + .96vw, 28px);
   --fs-h3: clamp(26px, 18.46px + 1.35vw, 33px);
+  --fs-h2: clamp(29px, 17.15px + 2.12vw, 40px);
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: clamp(10px, 7.85px + .38vw, 12px);
@@ -133,6 +254,45 @@
   --air-group: var(--sp-5);
   --air-row: var(--sp-4);
   --gap-targets: 8px;
+
+  --hero-lead: 1.1;
+  --hero-weight: 700;
+  --hero-track: -.04em;
+  --pagehead-size: var(--fs-page);
+  --pagehead-lead: 1.1;
+  --pagehead-weight: 700;
+  --pagehead-track: -.03em;
+  --h2-size: var(--fs-h2);
+  --h2-lead: 1.15;
+  --h2-weight: 600;
+  --h2-track: -.025em;
+  --h3-size: var(--fs-h3);
+  --h3-lead: 1.2;
+  --h3-weight: 600;
+  --h3-track: -.02em;
+  --intro-size: var(--fs-lead);
+  --intro-lead: 1.4;
+  --intro-weight: 400;
+  --intro-track: 0;
+  --lede-size: var(--fs-base);
+  --lede-lead: 1.5;
+  --lede-weight: 400;
+  --lede-track: 0;
+  --lede-measure: var(--measure-lede);
+  --body-size: var(--fs-base);
+  --body-lead: 1.45;
+  --body-weight: 400;
+  --body-track: 0;
+  --body-measure: var(--measure);
+  --note-size: var(--fs-xs);
+  --note-lead: 1.45;
+  --note-weight: 400;
+  --note-track: 0;
+  --note-measure: var(--measure-note);
+  --eyebrow-size: var(--fs-xs);
+  --eyebrow-lead: 1.35;
+  --eyebrow-weight: 600;
+  --eyebrow-track: .01em;
 }
 
 @media (pointer:coarse){ [data-scale="Просторный"]{ --gap-targets:16px } }

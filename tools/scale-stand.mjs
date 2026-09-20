@@ -38,6 +38,12 @@ if (!scaleCss) {
   process.exit(1)
 }
 const paletteCss = read('styles/palette.css')
+/* Файл шкал тоже вставляется: кривые, которые роль БЕРЁТ, объявлены там —
+   заголовок первого экрана и заголовок страницы считают свой контейнер
+   (`cqi`), а меры строки зависят от языка. Без него роль ссылается в пустоту
+   и молча схлопывается до кегля тела — и стенд врёт ровно о том, ради чего
+   он собран. */
+const tokensCss = read('styles/tokens.css')
 
 /* ── витрина в кадре ──────────────────────────────────────────────────────
    Нарочно НЕ полоски и не образцы: полоска не показывает, как ступень
@@ -63,6 +69,7 @@ const PREVIEW = `<!doctype html>
 <html lang="bg"><head><meta charset="utf-8">
 <style>
 ${paletteCss}
+${tokensCss}
 ${scaleCss}
 *{box-sizing:border-box;margin:0}
 body{background:var(--n-1,#fff);color:var(--n-12,#222);font:400 var(--fs-base)/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
@@ -115,6 +122,57 @@ ${card('Капки за сън', '30 ml', '59,00 лв.')}
   </main>
 </body></html>`
 
+/* ── второй кадр: роли текста ─────────────────────────────────────────────
+   Роль — пять фактов, и показывать её надо всеми пятью сразу. Заодно здесь
+   стоит пара «было / стало» для заголовка страницы: до 21.09.2026 у него не
+   было межстрочья вовсе, и он наследовал 1.45 от тела — на 42-м кегле это 61
+   пиксель между строками при каноне 46. Словами это незаметно, глазами —
+   сразу. */
+const ROW = (role, label, sample, cls = '') => `
+      <section class="role">
+        <p class="tag">${label} · <code>--${role}-*</code></p>
+        <div class="sample ${cls}">${sample}</div>
+      </section>`
+
+const PREVIEW_TYPE = `<!doctype html>
+<html lang="bg"><head><meta charset="utf-8">
+<style>
+${paletteCss}
+${tokensCss}
+${scaleCss}
+*{box-sizing:border-box;margin:0}
+body{background:var(--n-1,#fff);color:var(--n-12,#222);font:var(--body-weight) var(--body-size)/var(--body-lead) system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.page{padding:var(--pad-sheet);display:flex;flex-direction:column;gap:var(--air-band);container-type:inline-size}
+.role{display:flex;flex-direction:column;gap:var(--sp-2)}
+.tag{font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);color:var(--n-11,#777)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.hero{font-size:var(--fs-h1);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
+.pagehead{max-inline-size:20ch;font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:pretty}
+.was{max-inline-size:20ch;font-size:var(--pagehead-size);line-height:var(--body-lead);font-weight:var(--pagehead-weight);letter-spacing:-.03em;text-wrap:pretty}
+.h2{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
+.h3{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
+.intro{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);color:var(--n-11,#666)}
+.lede{font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);max-inline-size:var(--lede-measure);color:var(--n-11,#666)}
+.body{font-size:var(--body-size);line-height:var(--body-lead);font-weight:var(--body-weight);max-inline-size:var(--body-measure)}
+.note{font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);max-inline-size:var(--note-measure);color:var(--n-11,#666)}
+.eyebrow{font-size:var(--eyebrow-size);line-height:var(--eyebrow-lead);font-weight:var(--eyebrow-weight);letter-spacing:var(--eyebrow-track);color:var(--n-11,#666)}
+.pair{border-inline-start:3px solid var(--warn-9,#f76b15);padding-inline-start:var(--sp-3)}
+</style></head>
+<body>
+  <main class="page">
+${ROW('eyebrow', 'надзаголовок', 'CBD масла', 'eyebrow')}
+${ROW('hero', 'витринный заголовок', 'Студено пресовано масло', 'hero')}
+${ROW('pagehead', 'заголовок страницы — как стало', 'Условия за доставка и връщане', 'pagehead')}
+${ROW('pagehead', 'он же до 21.09.2026: межстрочья не было — наследовал 1.45 от тела', 'Условия за доставка и връщане', 'was pair')}
+${ROW('h2', 'заголовок раздела', 'Как избираме концентрацията', 'h2')}
+${ROW('h3', 'подзаголовок', 'Пълен спектър или изолат', 'h3')}
+${ROW('intro', 'подводка страницы', 'Изпращаме до всяко населено място в страната за един до три работни дни.', 'intro')}
+${ROW('lede', 'подводка раздела', 'Съдържанието на CBD е посочено за флакон от 10 ml, а не за доза.', 'lede')}
+${ROW('body', 'тело', 'Маслото се приема под езика и се задържа около минута. Започнете с най-ниската концентрация и увеличавайте постепенно. Хранителна добавка — не заменя разнообразното хранене.', 'body')}
+${ROW('note', 'подпись', 'Цената е за 10 ml. Не е лекарствен продукт.', 'note')}
+  </main>
+</body></html>`
+
 /* ── таблица чисел: она идёт РЯДОМ с картинкой, а не вместо неё ──────────── */
 const rows = (name) => {
   const r = resolveSet(sets[name])
@@ -145,8 +203,8 @@ const html = `<!doctype html>
   .panel{background:var(--card);border:1px solid var(--edge);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
   .line{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
   .lab{font-size:13px;color:var(--dim);min-width:74px}
-  button.set,button.w{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--edge);background:transparent;color:inherit;font-size:14.5px;cursor:pointer}
-  button.set[aria-pressed="true"],button.w[aria-pressed="true"]{background:var(--mark);border-color:var(--mark);color:var(--paper);font-weight:600}
+  button.set,button.w,button.v{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--edge);background:transparent;color:inherit;font-size:14.5px;cursor:pointer}
+  button.set[aria-pressed="true"],button.w[aria-pressed="true"],button.v[aria-pressed="true"]{background:var(--mark);border-color:var(--mark);color:var(--paper);font-weight:600}
   input[type=range]{flex:1;min-width:200px;accent-color:var(--mark);height:44px}
   .now{font-variant-numeric:tabular-nums;font-size:14px;color:var(--dim)}
   .now b{color:var(--ink)}
@@ -168,6 +226,10 @@ const html = `<!doctype html>
   </header>
 
   <div class="panel">
+    <div class="line"><span class="lab">Кадр</span>
+      <button class="v" type="button" data-view="shop" aria-pressed="true">Витрина</button>
+      <button class="v" type="button" data-view="type" aria-pressed="false">Роли текста</button>
+    </div>
     <div class="line"><span class="lab">Набор</span><span id="setbtns" class="line" style="gap:8px"></span></div>
     <div class="line"><span class="lab">Ширина</span><input id="w" type="range" min="320" max="1600" step="1" value="390">
       <span class="now"><b id="wnow">390</b> px</span></div>
@@ -189,7 +251,7 @@ const html = `<!doctype html>
 
 <script>
 const SETS = ${JSON.stringify(names)};
-const PREVIEW = ${JSON.stringify(PREVIEW)};
+const VIEWS = { shop: ${JSON.stringify(PREVIEW)}, type: ${JSON.stringify(PREVIEW_TYPE)} };
 const view = document.getElementById('view');
 const w = document.getElementById('w');
 const wnow = document.getElementById('wnow');
@@ -231,6 +293,13 @@ function read() {
   const body = doc.body;
   const card = doc.querySelector('.card');
   const page = doc.querySelector('.page');
+  const crown = doc.querySelector('.pagehead'), was = doc.querySelector('.was');
+  if (crown && was) {
+    live.innerHTML = 'сейчас в кадре: текст <b>' + get(body, 'fontSize') + '</b> px · ' +
+      'заголовок страницы <b>' + get(crown, 'fontSize') + '</b> px, между строками <b>' +
+      get(crown, 'lineHeight') + '</b> px — было <b>' + get(was, 'lineHeight') + '</b>';
+    return;
+  }
   live.innerHTML = 'сейчас в кадре: текст <b>' + get(body, 'fontSize') + '</b> px · ' +
     'поле карточки <b>' + get(card, 'paddingTop') + '</b> px · ' +
     'воздух между разделами <b>' + get(page, 'rowGap') + '</b> px';
@@ -239,7 +308,13 @@ w.addEventListener('input', size);
 for (const b of document.querySelectorAll('.w')) b.onclick = () => { w.value = b.dataset.w; size();
   for (const o of document.querySelectorAll('.w')) o.setAttribute('aria-pressed', String(o === b)); };
 view.addEventListener('load', () => { paint(); read(); });
-view.srcdoc = PREVIEW;
+let shown = 'shop';
+for (const b of document.querySelectorAll('.v')) b.onclick = () => {
+  shown = b.dataset.view;
+  for (const o of document.querySelectorAll('.v')) o.setAttribute('aria-pressed', String(o === b));
+  view.srcdoc = VIEWS[shown];
+};
+view.srcdoc = VIEWS[shown];
 size();
 </script>
 </body></html>`

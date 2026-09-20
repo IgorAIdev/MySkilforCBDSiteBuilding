@@ -109,7 +109,8 @@ export const resolve = (set) => {
 
 /* ── выпуск ──────────────────────────────────────────────────────────── */
 
-const block = (set, indent = '  ') => {
+const block = (sets, name, indent = '  ') => {
+  const set = sets[name]
   const r = resolve(set)
   const w = set.ширины
   const lines = []
@@ -132,10 +133,13 @@ const block = (set, indent = '  ') => {
   for (const [name, { step }] of Object.entries(r.воздух)) {
     put(`--air-${name}`, stepVar(step), set.подписи?.воздух?.[name])
   }
-  for (const [name, pair] of Object.entries(r.зазор)) {
-    put(`--gap-${name}`, `${num(pair[0])}px`, set.подписи?.зазор?.[name])
+  for (const [gap, pair] of Object.entries(r.зазор)) {
+    put(`--gap-${gap}`, `${num(pair[0])}px`, set.подписи?.зазор?.[gap])
   }
-  return lines.join('\n')
+  const roles = roleBlock(sets, name, indent)
+  return roles ? `${lines.join('\n')}
+
+${roles}` : lines.join('\n')
 }
 
 /** Зазор под пальцем — второе значение той же переменной, а не вторая
@@ -163,10 +167,10 @@ export const toCss = (sets) => {
     `   они СЧИТАНЫ по одной формуле (шкал: ${names.length}).\n\n` +
     `   Рампа каждой ступени проходит через две названные ширины: на узкой\n` +
     `   даёт свой низ, на широкой — свой верх. Концы — швы раскладки. */\n\n`
-  let out = head + `:root{\n${block(sets[names[0]])}\n}\n` + coarse(sets[names[0]], ':root')
+  let out = head + `:root{\n${block(sets, names[0])}\n}\n` + coarse(sets[names[0]], ':root')
   for (const name of names) {
     const sel = `[data-scale="${name}"]`
-    out += `\n${sel}{\n${block(sets[name])}\n}\n` + coarse(sets[name], sel)
+    out += `\n${sel}{\n${block(sets, name)}\n}\n` + coarse(sets[name], sel)
   }
   return out
 }
@@ -338,6 +342,13 @@ export const builtNames = (sets) => {
     for (const name of Object.keys(r.воздух)) names.add(`--air-${name}`)
     for (const name of Object.keys(r.зазор)) names.add(`--gap-${name}`)
   }
+  for (const setName of Object.keys(sets)) {
+    for (const [role, r] of Object.entries(rolesOf(sets, setName))) {
+      for (const part of ['lead', 'weight', 'track']) names.add(`--${role}-${part}`)
+      if (Array.isArray(r.размер) || r.размер !== `--${role}-size`) names.add(`--${role}-size`)
+      if (r.мера && r.мера !== 'нет') names.add(`--${role}-measure`)
+    }
+  }
   return names
 }
 
@@ -406,6 +417,115 @@ export const auditSheets = (sheets, sets) => {
       if (off) {
         findings.push({ rule: 'рампа мимо своих концов', got: `${rel}:${line}  ${name}: ${off}`, need: 'считать по формуле — npm run scale' })
       }
+    }
+  }
+  return findings
+}
+
+/* ── роли текста ─────────────────────────────────────────────────────────
+ *
+ * Ступень отвечает на «какого размера», но набор текста — это пять фактов,
+ * а не один: размер, межстрочье, вес, разрядка и мера строки. Пока названа
+ * одна пятая, остальные четыре набирает каждое место само — и набирает
+ * по-разному.
+ *
+ * Замер 21.09.2026 показал это ровно: два крупных заголовка в одном файле
+ * примитивов. `.ledeText h1` — межстрочье 1.1, вес 700, разрядка −.04em.
+ * `.pagehead h1` — вес 700, разрядка −.03em и НИ ОДНОГО межстрочья, то есть
+ * наследует 1.45 от тела страницы: на 42 пикселях это 61 пиксель между
+ * строками там, где канон крупного заголовка — 46. Заголовок из двух строк
+ * разваливается, и виноватого в файле не видно: там просто нечего смотреть.
+ *
+ * Поэтому роль объявляется целиком и в одном месте. Размер она БЕРЁТ —
+ * ступень шкалы или названную кривую (`--hero-size`, `--fs-page` считаются
+ * от своего контейнера, а не от окна, и остаются там, где объявлены).
+ */
+
+/** Вес, который вообще бывает у текста. 800 и выше — это счётчик на
+ *  контроле, а не роль набора. */
+export const WEIGHTS = [400, 500, 600, 700]
+/** Межстрочье заголовка: 1.1…1.25 — канон крупного кегля, он уже был
+ *  записан словами в примитиве. Выше — строки разъезжаются. */
+export const HEAD_LEAD = [1.1, 1.25]
+/** Межстрочье текста: ниже 1.35 строки склеиваются; 1.5 обязан не ломать
+ *  вёрстку (WCAG 1.4.12), и коридор держится вокруг него. */
+export const TEXT_LEAD = [1.35, 1.6]
+/** Разрядка: больше 0.05em в любую сторону — это уже не набор, а приём. */
+export const TRACK_MAX = 0.05
+
+/** Роли текста набора. Объявляет их ПЕРВЫЙ набор: межстрочье и вес — факты
+ *  типографики, а не плотности, и от «тесно/просторно» не зависят. Набор,
+ *  объявивший своё, берёт своё. */
+export const rolesOf = (sets, name) =>
+  sets[name]?.текст ?? sets[Object.keys(sets)[0]]?.текст ?? {}
+
+const roleBlock = (sets, name, indent = '  ') => {
+  const roles = rolesOf(sets, name)
+  const w = sets[name].ширины
+  const lines = []
+  for (const [role, r] of Object.entries(roles)) {
+    const size = Array.isArray(r.размер) ? ramp(r.размер, w) : `var(${r.размер})`
+    /* Роль, чей размер ЕСТЬ переменная того же имени (`hero` ← `--hero-size`),
+       своего `--hero-size` не объявляет: это ссылка на саму себя, и браузер
+       погасит её вместе со всей ролью. */
+    if (Array.isArray(r.размер) || r.размер !== `--${role}-size`) {
+      lines.push(`${indent}--${role}-size: ${size};`)
+    }
+    lines.push(`${indent}--${role}-lead: ${r.межстрочье};`)
+    lines.push(`${indent}--${role}-weight: ${r.вес};`)
+    lines.push(`${indent}--${role}-track: ${r.разрядка};`)
+    if (r.мера && r.мера !== 'нет') lines.push(`${indent}--${role}-measure: var(${r.мера});`)
+  }
+  return lines.join('\n')
+}
+
+/** Находки по ролям текста. Числа порогов — выше, каждое со своей причиной. */
+export const auditRoles = (sets, name) => {
+  const findings = []
+  const roles = rolesOf(sets, name)
+  for (const [role, r] of Object.entries(roles)) {
+    const need = (field, what) => {
+      if (r[field] === undefined || r[field] === null || r[field] === '') {
+        findings.push({ rule: 'роль текста неполна', got: `${role}: нет «${field}»`, need: what })
+        return false
+      }
+      return true
+    }
+    /* Мера спрашивается наравне с остальными, и «нет» — законный ответ:
+       заголовку меру назначают вёрсткой, а не шкалой. Незаполненной она
+       быть не может: молчание и «нет» — разные вещи. */
+    const full = ['размер', 'межстрочье', 'вес', 'разрядка', 'род', 'мера']
+      .map((f) => need(f, 'роль объявляется целиком: размер, межстрочье, вес, разрядка, род, мера'))
+      .every(Boolean)
+    if (!full) continue
+
+    if (!['заголовок', 'текст'].includes(r.род)) {
+      findings.push({ rule: 'род роли', got: `${role}: «${r.род}»`, need: 'заголовок или текст' })
+      continue
+    }
+    const head = r.род === 'заголовок'
+    const [lo, hi] = head ? HEAD_LEAD : TEXT_LEAD
+    if (r.межстрочье < lo || r.межстрочье > hi) {
+      findings.push({
+        rule: `межстрочье ${head ? 'заголовка' : 'текста'}`,
+        got: `${role}: ${r.межстрочье}`,
+        need: `${lo}…${hi}`,
+      })
+    }
+    if (!WEIGHTS.includes(r.вес)) {
+      findings.push({ rule: 'вес роли', got: `${role}: ${r.вес}`, need: WEIGHTS.join(', ') })
+    }
+    const track = Number(String(r.разрядка).replace('em', '')) || 0
+    if (Math.abs(track) > TRACK_MAX) {
+      findings.push({ rule: 'разрядка', got: `${role}: ${r.разрядка}`, need: `не больше ${TRACK_MAX}em в любую сторону` })
+    }
+    /* Сжимают КРУПНОЕ: на большом кегле буквы и так стоят просторно.
+       Разгоняют МЕЛКОЕ: подпись и надзаголовок читаются по буквам. */
+    if (track < 0 && !head) {
+      findings.push({ rule: 'разрядка сжимает текст', got: `${role}: ${r.разрядка}`, need: 'отрицательная — только у заголовка' })
+    }
+    if (track > 0 && head) {
+      findings.push({ rule: 'разрядка разгоняет заголовок', got: `${role}: ${r.разрядка}`, need: 'положительная — только у мелкого текста' })
     }
   }
   return findings
