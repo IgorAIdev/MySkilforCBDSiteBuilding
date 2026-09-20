@@ -246,6 +246,26 @@ test('палитра: схлопнувшаяся лестница — наход
   }
 })
 
+/* Файл-пример проверяется сам, а не на честное слово. В palette.md записано,
+   что прогон по нему даёт ровно одну находку («Тёплый лист», ΔE до красного);
+   до 21.09.2026 это проверялось рукой, потому что сторож смотрит в
+   styles/palette.json приложения, которого в наборе нет. */
+test('наборы-образцы: находка ровно одна, и та задокументирована', () => {
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'palette-template-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(
+    join(dir, 'styles', 'palette.json'),
+    readFileSync(new URL('../templates/palette.json', import.meta.url).pathname, 'utf8'),
+  )
+  const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
+  const report = JSON.parse(run.stdout).report as { name: string; mode: string; findings: { rule: string }[] }[]
+  assert.ok(report.length >= 14, 'наборов в файле стало меньше семи — проверять нечего')
+  const found = report.flatMap((r) => r.findings.map((f) => `${r.name} · ${r.mode} · ${f.rule}`))
+  assert.deepEqual(found, ['Тёплый лист · light · фирменный отличим от красного'],
+    'находки в файле-образце разошлись с тем, что написано в palette.md')
+})
+
 /* И191: обещание эталона дано в APCA, и WCAG его не заменяет. Набор ниже
    выбран так, что WCAG на основном тексте МОЛЧИТ (запас есть), а APCA
    показывает 71.6 при обещанных 90 — ровно тот класс дефекта, из-за
