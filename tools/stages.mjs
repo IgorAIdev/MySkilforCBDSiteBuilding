@@ -67,7 +67,12 @@ const ci = () => {
       let scripts = {}
       try { scripts = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).scripts ?? {} } catch { /* этаж без package.json */ }
       const calls = (text) => [...text.matchAll(/(?:pnpm|npm run|yarn)\s+(?:run\s+)?([\w:.-]+)/g)].map((m) => m[1])
-      const runsCss = (text) => /check:css/.test(text) || calls(text).some((name) => /check:css/.test(scripts[name] ?? ''))
+      /* Ищется и ИМЯ команды, и сам файл: процесс имеет право звать
+         храповик напрямую — `node tools/check-css.mjs`, — и это ровно то
+         же самое. Ворота, знавшие только `check:css`, краснели на своём же
+         наборе, чей CI зовёт файлом (И200). */
+      const RUNS = /check[:-]css/
+      const runsCss = (text) => RUNS.test(text) || calls(text).some((name) => RUNS.test(scripts[name] ?? ''))
       if (readdirSync(wf).some((f) => runsCss(readFileSync(join(wf, f), 'utf8')))) return true
     }
     if (existsSync(join(dir, '.git'))) break
