@@ -574,6 +574,25 @@ test('реестр имён: ярус по форме, слово по виду 
   assert.match(prim, /\.stack > \* \+ \*\{margin-block-start:var\(--stack, var\(--air-block\)\)\}/, 'stack не берёт роль воздуха по умолчанию')
 })
 
+/* И225: оси названы до значений. Язык и контраст в наборе отсутствовали,
+   скроллбар красился рукой вопреки color-scheme. */
+test('реестр осей: признак → ось; язык и контраст заведены; скроллбар не красится рукой', async () => {
+  const { axisOf, AXES } = await import('../tools/axes.mjs')
+  assert.deepEqual(Object.keys(AXES), ['theme', 'pointer', 'width', 'language', 'motion', 'contrast'])
+  assert.equal(axisOf('(pointer:coarse)'), 'pointer'); assert.equal(axisOf('(hover: hover)'), 'pointer')
+  assert.equal(axisOf('(prefers-contrast: more)'), 'contrast'); assert.equal(axisOf('(forced-colors:active)'), 'contrast')
+  assert.equal(axisOf('(max-width:820px)'), 'width'); assert.equal(axisOf('(orientation: landscape)'), null)
+  const base = readFileSync(new URL('../styles/base.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+  for (const need of ['overflow-wrap:anywhere', 'hyphens:auto', 'quotes:auto', 'text-size-adjust:100%', '@media (prefers-contrast:more)', '@media (forced-colors:active)', '@media (prefers-reduced-motion:reduce)']) {
+    assert.ok(base.includes(need), `в основании нет оси: ${need}`)
+  }
+  assert.ok(!/scrollbar-color/.test(base), 'скроллбар красится рукой — его красит color-scheme')
+  const tokens = readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+  for (const m of tokens.matchAll(/\[data-theme[^\]]*\]\s*\{([^}]*)\}/g)) {
+    assert.ok(!/--[a-z]/.test(m[1]), 'тема ставит переменную, а не только color-scheme')
+  }
+})
+
 test('ступень без просителя — находка', async () => {
   const { auditReaders } = await import('../tools/scale.mjs')
   const sets = { проба: {

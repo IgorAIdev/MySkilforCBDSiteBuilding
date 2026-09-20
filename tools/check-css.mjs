@@ -18,6 +18,7 @@ import { RHYTHM } from './thresholds.mjs'
 import { join, relative, dirname, basename } from 'node:path'
 import { CSS_FAMILIES, CSS_LABELS as NAMES, hueRx } from './css-families.mjs'
 import { parse as parseName, REQUIRED, optics, declarations, reads } from './names.mjs'
+import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
@@ -1216,6 +1217,47 @@ for (const path of files) {
         const q = parseName(m[1])
         if (q?.tier === 'value' && !allowed.has(m[1])) add('stepDirect', `${at(m.index)}  ${m[1]} — возьмите роль`)
       }
+    }
+  }
+
+  /* Оси — слой 2 (И225). Четыре семьи по реестру `tools/axes.mjs`:
+   *   axisUnknown — @media по признаку, которого в реестре нет (orientation,
+   *                 resolution, prefers-color-scheme вне списка): ось не
+   *                 названа — значит не проверяется и не показывается;
+   *   axisTheme   — `--*:` под [data-theme] или prefers-color-scheme: тема
+   *                 ставит только color-scheme, цвет живёт в light-dark()
+   *                 (next_theming, правило 1 и проверка 5);
+   *   axisScope   — под pointer / hover меняется раскладка или видимость:
+   *                 «по ним меняют размер цели и отклик, но не прячут
+   *                 содержимое и не переключают раскладку» (next_responsive,
+   *                 правило 17);
+   *   axisHover   — :hover вне @media (hover: hover): залипшая кнопка на
+   *                 телефоне (правило 16). */
+  for (const { rel, css, at } of sheets) {
+    const stack = []
+    let pending = null
+    for (const m of css.matchAll(/\{|\}|:hover\b|@media[^{]*/g)) {
+      const t = m[0]
+      if (t.startsWith('@media')) { pending = t; continue }
+      if (t === '{') { stack.push(pending ?? ''); pending = null; continue }
+      if (t === '}') { stack.pop(); continue }
+      if (!stack.some((q) => /hover\s*:\s*hover/.test(q))) add('axisHover', `${at(m.index)}  :hover вне (hover: hover)`)
+    }
+    for (const m of css.matchAll(/@media([^{]*)\{/g)) {
+      const key = axisOf(m[1])
+      let depth = 1, i = m.index + m[0].length
+      const from = i
+      while (i < css.length && depth) { if (css[i] === '{') depth++; else if (css[i] === '}') depth--; i++ }
+      const body = css.slice(from, i - 1)
+      if (!key) { add('axisUnknown', `${at(m.index)}  @media${m[1].trim().slice(0, 50)}`); continue }
+      if (key === 'theme' && /--[a-z][a-z0-9-]*\s*:/.test(body)) add('axisTheme', `${at(m.index)}  переменная под prefers-color-scheme`)
+      if (key === 'pointer') {
+        const bad = body.match(POINTER_FORBIDDEN)
+        if (bad) add('axisScope', `${at(m.index)}  ${bad[1]} под ${m[1].trim().slice(0, 30)}`)
+      }
+    }
+    for (const m of css.matchAll(/\[data-theme[^\]]*\]\s*\{([^}]*)\}/g)) {
+      if (/--[a-z][a-z0-9-]*\s*:/.test(m[1])) add('axisTheme', `${at(m.index)}  переменная под [data-theme]`)
     }
   }
 

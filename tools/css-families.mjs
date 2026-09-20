@@ -25,6 +25,7 @@ export const CSS_FAMILIES = [
   'twoOwners', 'barNoScroll', 'deadDress', 'plateGap', 'barTwice', 'groundGlue',
   'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio', 'typeGuess', 'hueDirect',
   'nameGrammar', 'stepDirect', 'deadName', 'tierUp',
+  'axisUnknown', 'axisTheme', 'axisScope', 'axisHover',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -82,4 +83,8 @@ export const CSS_LABELS = {
   stepDirect: 'узел читает ступень (--sp-6, --n-12, --fs-sm) напрямую — сырьё только для ссылок из роли (Figma, M3, Curtis)',
   deadName: 'имя объявлено, а не читает его никто в наборе и не просит список ролей — число про запас',
   tierUp: 'ссылка вверх по ярусам: сырьё читает роль, роль читает ручку узла, ручка объявлена на корне',
+  axisUnknown: 'медиазапрос по признаку, которого нет в реестре осей (tools/axes.mjs) — ось не названа, значит не проверяется',
+  axisTheme: 'переменная объявлена под [data-theme] или prefers-color-scheme — тема ставит только color-scheme, цвет живёт в light-dark()',
+  axisScope: 'по указателю или наведению меняется раскладка или видимость — это эвристика об устройстве, ей меняют цель и отклик, не содержимое',
+  axisHover: ':hover вне @media (hover: hover) — на телефоне залипает после касания',
 }

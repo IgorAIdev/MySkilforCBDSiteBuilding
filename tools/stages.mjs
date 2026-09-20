@@ -236,14 +236,19 @@ export const STAGES = [
           return miss.length ? `имён нет: ${miss.join(', ')}` : null
         }, undefined,
         { reviewed: '20.09.2026', rule: 'И224: три яруса по реестру, узел читает роль, имя по форме, имя по просителю' }),
-      step(2, 'Оси', 'тема свет/тьма, указатель палец/курсор, язык рынка — и для каждой шкалы записано, по каким осям она меняется', 'craft',
+      step(2, 'Оси', 'тема, указатель, ширина, язык, движение, контраст — реестр tools/axes.mjs: чем включается, что меняется, что нет', 'craft',
         () => {
           const all = styleFiles().map(src).join('\n')
           const miss = []
           if (!all.includes('light-dark(')) miss.push('тема (light-dark)')
           if (!/pointer\s*:\s*coarse/.test(all)) miss.push('указатель (pointer: coarse)')
+          if (!/:lang\(/.test(all) || !/quotes\s*:\s*auto/.test(all)) miss.push('язык (:lang, quotes: auto)')
+          if (!/prefers-contrast/.test(all) || !/forced-colors/.test(all)) miss.push('контраст (prefers-contrast, forced-colors)')
+          if (!/prefers-reduced-motion/.test(all)) miss.push('движение (prefers-reduced-motion)')
+          if (!has('tools/axes.mjs')) miss.push('реестра осей (tools/axes.mjs)')
           return miss.length ? `осей нет: ${miss.join(', ')}` : null
-        }),
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И225: шесть осей в реестре; язык и контраст заведены, скроллбар — color-scheme' }),
       step(3, 'Цвет', 'три краски заказчика → семь семей по двенадцать ступеней → роли → замер; показано глазами', 'palette',
         () => {
           if (!has('styles/palette.json')) return 'палитры нет (styles/palette.json)'

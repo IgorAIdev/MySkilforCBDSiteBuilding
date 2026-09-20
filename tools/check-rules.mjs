@@ -53,6 +53,7 @@ import { CHECKS } from './checks.mjs'
 import { roles, STATUS, SIGNAL_NAMES } from './palette.mjs'
 import { resolve as resolveScale } from './scale.mjs'
 import { CONCEPTS, HOOKS, REQUIRED, parse as parseName } from './names.mjs'
+import { AXES, scan as scanAxes } from './axes.mjs'
 import * as THR from './thresholds.mjs'
 import { SCRIPTS } from '../scripts.mjs'
 
@@ -78,6 +79,7 @@ const TABLES = {
   '.claude/skills/palette/SKILL.md': ['palette'],
   '.claude/skills/scale/SKILL.md': ['scale'],
   '.claude/skills/craft/references/names.md': ['names'],
+  '.claude/skills/craft/references/axes.md': ['axes'],
   ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
@@ -268,6 +270,22 @@ const namesFacts = () => {
   rows.push(`| объявлений в стилях набора | ${total}, по форме ${ok} | \`tools/names.mjs\`, \`parse()\` |`)
   return rows.join('\n')
 }
+/* Реестр осей — из кода (И225): ось, чем включается, что по ней меняется в
+   стилях набора на самом деле (разбор @media, :lang, [data-theme]). */
+const axesFacts = () => {
+  const files = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css'].filter(has)
+  const css = files.map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, '')).join('\n')
+  const { axes, unknown } = scanAxes(css)
+  const rows = ['| Ось | Чем включается | Что меняется по ней в стилях набора | Что не меняется |', '| --- | --- | --- | --- |']
+  for (const [k, ax] of Object.entries(AXES)) {
+    const a = axes[k]
+    const names = [...a.names].slice(0, 8).map((n) => `\`${n}\``).join(', ')
+    const what = k === 'theme' ? `${css.split('light-dark(').length - 1} объявлений через light-dark(); блоков ${a.blocks}${names ? `: ${names}` : ''}` : `блоков ${a.blocks}${names ? `; имена: ${names}` : ''}${a.props.size ? `; свойства: ${[...a.props].slice(0, 6).join(', ')}` : ''}`
+    rows.push(`| ${ax.name} | ${ax.how} | ${what || '—'} | ${ax.static} |`)
+  }
+  rows.push(`| признаки вне реестра | — | ${unknown.length ? unknown.map((u) => `\`@media${u.query}\``).join(', ') : 'нет'} | — |`)
+  return rows.join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
@@ -275,6 +293,7 @@ const GEN = {
   palette: paletteFacts(),
   scale: scaleFacts(),
   names: namesFacts(),
+  axes: axesFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)

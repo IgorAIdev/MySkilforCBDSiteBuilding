@@ -38,6 +38,7 @@ const FILES = [
   'tools/kit-config.mjs',
   'tools/thresholds.mjs',
   'tools/names.mjs',
+  'tools/axes.mjs',
   'tools/check-css.mjs',
   /* Храповик по коду. Едет обязательно и вместе со своим скиллом:
      `.claude/skills/code/` ссылается на него прямо, и набор без него

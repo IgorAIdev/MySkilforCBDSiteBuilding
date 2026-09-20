@@ -212,7 +212,22 @@ small,figcaption,button,summary{text-wrap:balance}
    отвечать вовсе, и это хуже некрасивой рамки. Вторую половину пары
    сторожит семья `noPress` в `check:css`. */
 html{-webkit-tap-highlight-color:transparent}
-html{scrollbar-color:var(--thumb) transparent;scrollbar-width:thin}
+/* ── ОСИ: ЯЗЫК И КОНТРАСТ (слой 2, И225) ─────────────────────────────────
+   Язык. iOS Safari в альбоме раздувает текст сам — `text-size-adjust: 100%`
+   это выключает (не Baseline, безвредно там, где не понято). Длинному слову
+   есть где переломиться: `overflow-wrap: anywhere` учитывается в min-content,
+   и ячейка не растянется (в отличие от break-word). Перенос по словарю —
+   только улучшение поверх этого: MDN — «Browsers will only hyphenate if this
+   attribute is present and the appropriate hyphenation dictionary is
+   available», а у Chromium нет словаря для румынского (hyph-ro.hyb нет ни в
+   118, ни в main на 20.09.2026). Кавычки — по языку страницы, не по рынку:
+   hr и ro „…“, it «…», en "…" — `quotes: auto` берёт их из `lang`. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+p,li,dd,figcaption,blockquote,h1,h2,h3,h4{overflow-wrap:anywhere}
+p,li,dd{hyphens:auto}
+q{quotes:auto}
+
+html{scrollbar-width:thin}
 input,textarea,select{caret-color:var(--pop-ink)}
 /* Галочка и радио остаются браузерными нарочно (клавиатура, чтец,
    промежуточное состояние — разбор у `.tick` в `styles/form.module.css`), и
@@ -250,6 +265,29 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
    системы: сам сброс его не касался, потому что прокрутка — не анимация и не
    переход. Это самый сильный вестибулярный раздражитель на странице: едет
    ВСЁ окно. */
+/* Контраст. `prefers-contrast: more` (iOS «Увеличить контраст», Windows)
+   усиливает существующие роли, а не рисует вторую тему: волосок становится
+   сплошным чернилами, приглушённые чернила — основными, вуаль тихой кнопки
+   — заливкой органа. Это цветовые роли, light-dark() внутри них продолжает
+   работать. MDN: «User has requested an interface with higher contrast
+   levels»; Baseline high 2024-11-30. */
+@media (prefers-contrast:more){
+  :root{ --rule:var(--ink); --ink-soft:var(--ink); --border:var(--ink); --quiet:var(--ctrl); --quiet-on:var(--ctrl) }
+}
+/* Принудительные цвета (Windows High Contrast): тени, заливки и градиенты
+   стираются, выживают обводки и outline; единственные имена цвета —
+   системные (Canvas, CanvasText, ButtonText, LinkText, Highlight).
+   Поэтому у листа и органа — обводка вместо тени, у знака — currentColor.
+   `forced-color-adjust: none` — только для образца цвета, никогда для
+   текста и кнопок. css-color-adjust §3.1; Edge: «If authors wish to use
+   non-system color values in forced color modes, they will need to supply
+   forced-colors-adjust: none». */
+@media (forced-colors:active){
+  [data-plate],dialog,[popover],button,input,select,textarea{border:1px solid CanvasText}
+  button,[role='button']{forced-color-adjust:auto}
+  svg{fill:currentColor}
+  :focus-visible{outline:2px solid Highlight}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.01ms !important;
