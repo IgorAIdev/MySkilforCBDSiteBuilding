@@ -40,7 +40,7 @@ WCAG 2.2, Vercel Web Interface Guidelines, Baymard (открытые стать�
 StatCounter (устройства и ширины по Румынии и Хорватии, август 2026), ICU
 (`Intl` проверен исполнением в Node).
 
-Не собралось: вывод палитры из цвета бренда (перезапущен, §7); OKLCH, APCA против WCAG, тёмная
+Не собралось: OKLCH, APCA против WCAG, тёмная
 тема как отдельная система (агенты не собрали ответ по схеме; темы покрыты
 соседями — Tailwind в OKLCH, генератор Radix, таблицы Material, правила тем).
 
@@ -331,9 +331,10 @@ Glossier; `raw/findings/space/pro_luxury-measured.json`). УМЕРЕННО — �
 
 ## 4. Перепроверка палитры — чек-лист
 
-По Material 3 (`material-color-utilities`, токены) и Radix Colors (файлы
-`light.ts` / `dark.ts`, генератор, пересчёт APCA); вывод из цвета бренда —
-перезапущен (§7). Пункт — как проверить машиной — порог.
+По Material 3 (`material-color-utilities`, токены), Radix Colors (файлы
+`light.ts` / `dark.ts`, генератор, пересчёт APCA), CSS Color 4, APCA
+(Myndex), Refactoring UI, Baymard и NN/g. Пункт — как проверить машиной —
+порог.
 
 **Устройство (СИЛЬНО — обе системы):**
 
@@ -568,10 +569,9 @@ Glossier; `raw/findings/space/pro_luxury-measured.json`). УМЕРЕННО — �
    очередь; закон ЕС — в `CORRECTIONS.md` очередью на компоненты цены и
    подвала.
 
-## 7. Что досчитывается
+## 7. Что не досчитано
 
-Вывод палитры из цвета бренда (§4) — агент перезапущен; результат ляжет в
-`raw/findings/colour/` и сюда. Не собрались и не перезапускались ради лимита: OKLCH и CSS Color 4/5, APCA
+Все запланированные темы получены, кроме четырёх. Не собрались и не перезапускались ради лимита: OKLCH и CSS Color 4/5, APCA
 против WCAG, тёмная тема отдельно, единицы и доступность — покрыты соседними
 ответами и снимком (`raw/sources/oklab/`, `apca/`, `w3c/css-color-*`,
 `method/josh-comeau-pixels-a11y.html`, `material/m2-dark-theme.html`).
