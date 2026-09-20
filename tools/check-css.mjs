@@ -1029,6 +1029,99 @@ for (const path of files) {
   }
 }
 
+/* ── шкала и её рампы: три семьи, читающие сам файл токенов ───────────────
+   Файл шкал стоит в EXEMPT: числа в px внутри clamp() — его работа. Но три
+   правила ниже — именно о нём, и потому читаются здесь, мимо исключения.
+   `at` и `add` свои: цикл выше этот файл не открывает. */
+{
+  const sheets = files.map((path) => {
+    const rel = relative(ROOT, path)
+    const css = strip(readFileSync(path, 'utf8'))
+    return { rel, css, at: (index) => `${rel}:${css.slice(0, index).split('\n').length}` }
+  })
+  const seen = new Set()
+  const add = (fam, line) => { if (!seen.has(fam + line)) { seen.add(fam + line); found[fam].push(line) } }
+
+  /* Рампа обязана иметь px/rem-слагаемое.
+
+     `clamp(17.5px, 3.4cqi, 21px)` растёт только с шириной: при зуме 200%
+     ширина в CSS-пикселях вдвое меньше, и размер уезжает на пол — текст не
+     увеличивается, это провал WCAG 1.4.4 (техника F94). Utopia пишет
+     середину как `rem + vw` ровно поэтому: rem-слагаемое — единственное, что
+     растёт при зуме. Голый `vw` вдобавок не проходит через названные точки:
+     у соседней витрины `clamp(48px, 6.1vw, 88px)` стоял на полу до 787px —
+     ступень, замаскированная под рампу (docs/layers.md, §3.1).
+     Наклон между двумя ступенями шкалы (`clamp(var(--sp-8), 4.62vw - 9.85px,
+     var(--sp-9))`) слагаемое имеет; чистая ссылка на ступень — не рампа. */
+  for (const { css, at } of sheets) {
+    for (const m of css.matchAll(/clamp\(([^()]*(?:\([^()]*\)[^()]*)*)\)/g)) {
+      const parts = m[1].split(',')
+      if (parts.length !== 3) continue
+      const mid = parts[1].replace(/var\([^()]*\)/g, ' ')
+      if (!/\d(vw|vi|vh|cqi|cqw|cqb|cqmin|cqmax)\b/.test(mid)) continue
+      if (/\d(px|rem|em)\b/.test(mid)) continue
+      add('bareVw', `${at(m.index)}  ${m[0].slice(0, 48)}`)
+    }
+  }
+
+  const tokens = sheets.find((one) => one.rel === TOKENS)
+  if (tokens) {
+    const { css, at } = tokens
+
+    /* Поле рядом с текстом — в rem.
+
+       Роль `--pad-*` лежит вокруг содержимого предмета, то есть вокруг букв.
+       Объявленная в px или ступенью px-шкалы, она не растёт, когда покупатель
+       поднял шрифт в настройках телефона: буквы крупнее, коробка та же —
+       тесно становится тому, кому нужно просторнее (WCAG 1.4.4; решение
+       заказчика 20.09.2026, docs/layers.md, §3.5). Воздух (`--air-*`) и зазор
+       между целями (`--gap-*`) с текстом не связаны и остаются в px. */
+    for (const m of css.matchAll(/(?:^|[;{])\s*(--pad-[\w-]+)\s*:\s*([^;}]+)/g)) {
+      const value = m[2]
+      if (/^\s*var\(--pad-[\w-]+\)\s*$/.test(value)) continue
+      const bare = value.replace(/var\([^()]*\)/g, ' ')
+      if (/\dpx\b/.test(bare) || /var\(--sp-\d/.test(value)) {
+        add('padPx', `${at(m.index)}  ${m[1]}: ${value.trim().slice(0, 40)}`)
+      }
+    }
+
+    /* Воздух между разделами — не меньше трёх полей карточки.
+
+       Замер семи живых магазинов 20.09.2026 (docs/layers.md, §3.3):
+       промежуток между полосами страницы к полю внутри карточки держится
+       3–5 : 1 (Muji 2.6→3.5, Glossier 5). Ниже трёх предметы и промежутки
+       одного размера — глаз не отличает «внутри» от «между», и ритма нет. У
+       набора было 2.7 : 1. Сравниваются оба конца рампы: телефон и монитор. */
+    const declOf = (name) => {
+      const hit = css.match(new RegExp('(?:^|[;{])\\s*' + name + '\\s*:\\s*([^;}]+)'))
+      return hit ? hit[1].trim() : null
+    }
+    const toPx = (text) => {
+      const n = text.match(/(-?[\d.]+)(px|rem)\b/)
+      return n ? Number(n[1]) * (n[2] === 'rem' ? 16 : 1) : null
+    }
+    const endsOf = (value, depth = 0) => {
+      if (!value || depth > 4) return null
+      const alias = value.match(/^var\((--[\w-]+)\)$/)
+      if (alias) return endsOf(declOf(alias[1]), depth + 1)
+      const ramp = value.match(/^clamp\(([^,]+),.*,([^,]+)\)$/)
+      if (ramp) {
+        const lo = toPx(ramp[1]), hi = toPx(ramp[2])
+        return lo !== null && hi !== null ? [lo, hi] : null
+      }
+      const one = toPx(value)
+      return one !== null ? [one, one] : null
+    }
+    const air = endsOf(declOf('--air-page')), pad = endsOf(declOf('--pad-card'))
+    if (air && pad && pad[0] > 0 && pad[1] > 0) {
+      const lo = air[0] / pad[0], hi = air[1] / pad[1]
+      if (lo < 3 || hi < 3) {
+        add('airRatio', `${at(css.indexOf('--air-page'))}  --air-page : --pad-card = ${lo.toFixed(2)} на телефоне, ${hi.toFixed(2)} на мониторе (норма ≥ 3)`)
+      }
+    }
+  }
+}
+
 /* ── контрол, нарисованный дважды ──────────────────────────────────────────
    Правило 10: одна вещь, которую нажимают, описана ОДИН раз. Рисунок знака
    живёт в `components/Icons.tsx`, его устройство и ответ на руку — в

@@ -65,6 +65,21 @@ test('ритм объявлен ступенями, а не числами на 
   }
 })
 
+test('поле — в rem, зазор между целями — свой токен и под пальцем вдвое больше', () => {
+  /* И186: поле лежит вокруг букв и растёт вместе со шрифтом, который
+     покупатель поднял в телефоне; px этого не умеет. */
+  for (const name of ['--pad-sheet', '--pad-card', '--pad-inner']) {
+    const m = tokens.match(new RegExp(`^\\s*${name}\\s*:\\s*([^;]+);`, 'm'))
+    assert.ok(m, `в шкале нет поля ${name}`)
+    assert.ok(/rem\b/.test(m![1]!) && !/\dpx\b/.test(m![1]!.replace(/var\([^)]*\)/g, '')),
+      `${name} объявлено не в rem: ${m![1]!.trim()}`)
+  }
+  /* И188: цель под палец — ещё не ряд целей; зазор — свой токен. */
+  assert.ok(declared('--gap-targets'), 'нет токена --gap-targets')
+  const coarse = tokens.match(/@media\s*\(pointer\s*:\s*coarse\)\s*\{\s*:root\s*\{([^}]*)\}/)
+  assert.ok(coarse && /--gap-targets\s*:/.test(coarse[1]!), 'под пальцем у --gap-targets нет своего значения')
+})
+
 test('примитивы раскладки на месте', () => {
   for (const name of ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned']) {
     assert.ok(new RegExp(`^\\.${name}\\b`, 'm').test(primitives), `нет примитива ${name}`)

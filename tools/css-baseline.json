@@ -26,5 +26,8 @@
   "plateGap": 1,
   "barTwice": 0,
   "groundGlue": 0,
-  "important": 0
+  "important": 0,
+  "bareVw": 1,
+  "padPx": 0,
+  "airRatio": 0
 }
