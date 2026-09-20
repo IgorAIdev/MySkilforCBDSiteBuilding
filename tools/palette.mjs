@@ -12,7 +12,7 @@
  * `palette-css.mjs` (выпуск `styles/palette.css`, из которого собран сайт)
  * и тесты набора.
  *
- * Разбор, числа и источники — `.claude/skills/craft/references/palette.md`.
+ * Разбор, числа и источники — `.claude/skills/palette/references/palette.md`.
  * Закон — `SKILL.md`, «Палитра — это шкала из двенадцати ступеней».
  */
 

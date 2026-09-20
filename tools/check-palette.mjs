@@ -10,7 +10,7 @@
  * обязаны считать ОДНИМ кодом, иначе зелёный отчёт перестанет говорить
  * что-либо о том, чем сайт покрашен.
  *
- * Разбор, числа и источники — `.claude/skills/craft/references/palette.md`.
+ * Разбор, числа и источники — `.claude/skills/palette/references/palette.md`.
  * Закон — `SKILL.md`, «Палитра — это шкала из двенадцати ступеней».
  *
  * Запуск: node tools/check-palette.mjs [--json]
