@@ -245,3 +245,32 @@ test('палитра: схлопнувшаяся лестница — наход
     assert.ok(found.includes('фирменная лестница не схлопывается'), `${mode}: лестница схлопнулась, а сторож молчит`)
   }
 })
+
+/* И191: обещание эталона дано в APCA, и WCAG его не заменяет. Набор ниже
+   выбран так, что WCAG на основном тексте МОЛЧИТ (запас есть), а APCA
+   показывает 71.6 при обещанных 90 — ровно тот класс дефекта, из-за
+   которого вторая метрика и заведена. */
+test('палитра: APCA ловит то, о чём WCAG молчит', () => {
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'palette-apca-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
+    'чернила без запаса': {
+      light: { paper: '#FFFFFF', ink: '#6E6E6E', accent: '#5F6B34', error: '#B3261E' },
+      dark: { paper: '#111111', ink: '#EEEEEE', accent: '#5F6B34', error: '#F2B8B5' },
+    },
+  }))
+  const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
+  assert.equal(run.status, 1)
+  const light = JSON.parse(run.stdout).report
+    .find((r: { mode: string }) => r.mode === 'light') as { findings: { rule: string; got: number }[] }
+  const named = light.findings.map((f) => f.rule)
+  assert.ok(
+    !named.includes('основной текст на карточке'),
+    'набор подобран так, что WCAG на основном тексте молчит — иначе тест не про APCA',
+  )
+  assert.ok(
+    named.includes('основной текст держит обещание эталона'),
+    'APCA ниже обещанных 90, а сторож молчит — вторая метрика не работает',
+  )
+})
