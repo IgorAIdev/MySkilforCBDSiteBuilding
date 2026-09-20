@@ -445,7 +445,7 @@ const short = { accent: 'a', error: 'e', sale: 'sale', warn: 'warn', ok: 'ok', i
  *  заливке, наведение, нажатие, граница и кольцо фокуса не хранятся: каждое
  *  из них однажды было записано рукой и однажды разошлось с правдой. */
 export function roles(rawSet, mode) {
-  const set = withSale(rawSet)
+  const set = withSale(rawSet, mode)
   const n = scale(set.paper, set.ink, null, mode)
   const out = {}
   n.forEach((hex, i) => { out[`--n-${i + 1}`] = hex })
@@ -481,6 +481,26 @@ export function roles(rawSet, mode) {
  *  Цена — четыре десятка строк на набор, и она платится один раз при выпуске;
  *  цена обратного — переключатель, который работает во все стороны, кроме
  *  одной. */
+/* Три сигнала, которые ни от набора, ни от марки не зависят: красный
+ * «нет в наличии», оранжевый «мало осталось», зелёный «в наличии». Их
+ * узнают не по набору, а по цвету вообще: зелёная кнопка «в наличии»
+ * зелёная и в аптечном наборе, и в оливковом.
+ *
+ * До 20.09.2026 они стояли записанными в КАЖДОМ наборе — семь наборов по
+ * два значения, сорок две записи на шесть чисел. Заказчик спросил, сколько
+ * красок названо рукой, счёт по файлу показал: по-настоящему рукой
+ * называются ТРИ — бумага, чернила, марка; остальные три переписаны
+ * одинаково семь раз (И216).
+ *
+ * Набор по-прежнему может назвать свои: аптека с фирменным красным вправе
+ * отодвинуть «нет в наличии». Названное живёт, неназванное берётся отсюда.
+ */
+const FIXED = {
+  error: { light: '#B3261E', dark: '#E5484D' },
+  warn: { light: '#F76B15', dark: '#F76B15' },
+  ok: { light: '#30A46C', dark: '#30A46C' },
+}
+
 /* Синий эталона — краска сведения. Не выводится из марки, как скидка:
  * скидка — СОСЕДКА марки и обязана быть из её мира, а сведение обязано
  * быть узнаваемым само по себе, и во всех разобранных наборах оно синее
@@ -510,10 +530,12 @@ export function infoFrom(others = []) {
  *  факте — «доставка 3–5 дней», «закон ЕС: до 0,2 % ТГК» — красилось либо
  *  успехом (зелёный врёт: ничего не удалось), либо вниманием (оранжевый
  *  врёт: ничего не случилось). */
-export const withSale = (set) => {
-  const sale = set.sale || saleFrom(set.accent, [set.error, set.warn, set.ok, set.accent].filter(Boolean))
-  const info = set.info || infoFrom([set.accent, set.error, set.warn, set.ok, sale].filter(Boolean))
-  return { ...set, sale, info }
+export const withSale = (set, mode = 'light') => {
+  const full = { ...set }
+  for (const [job, краски] of Object.entries(FIXED)) full[job] = set[job] || краски[mode]
+  full.sale = set.sale || saleFrom(full.accent, [full.error, full.warn, full.ok, full.accent].filter(Boolean))
+  full.info = set.info || infoFrom([full.accent, full.error, full.warn, full.ok, full.sale].filter(Boolean))
+  return full
 }
 
 export function toCss(sets, { generator = 'tools/palette-css.mjs' } = {}) {
@@ -535,7 +557,11 @@ export function toCss(sets, { generator = 'tools/palette-css.mjs' } = {}) {
 
 /* ── Замер ───────────────────────────────────────────────────────────── */
 
-export function auditPalette(seed, mode) {
+export function auditPalette(rawSeed, mode) {
+  /* Мерится то, чем сайт покрашен, а не то, что записано в файле: выведенные
+     краски — такие же краски, и пропускать их мимо замера значит мерить
+     половину. */
+  const seed = withSale(rawSeed, mode)
   const n = scale(seed.paper, seed.ink, null, mode)
   const a = scale(seed.paper, seed.ink, seed.accent, mode, n[1])
   const pressed = press(a, mode)
