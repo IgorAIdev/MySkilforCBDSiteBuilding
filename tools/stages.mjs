@@ -192,11 +192,95 @@ const seams = () => {
   return [...found].sort((a, b) => b - a)
 }
 
+
+/* ── шаги внутри этапа ─────────────────────────────────────────────────
+   Этап — ворота; ШАГИ — что за чем внутри него. Порядок слоёв снят с
+   первоисточников (docs/layers.md, §2: граф зависимостей пакетов, направление
+   ссылок токенов, порядок подключения к живому проекту, порядок слоёв CSS —
+   четыре независимых признака, и они сходятся). У шага — предикат по файлам
+   (`✓` / `✗ причина`), а где решает заказчик — пункт, отмечаемый в
+   docs/gate.md. Заведено 20.09.2026 по слову заказчика: «эти шаги понять,
+   прописать, чтоб понять, какие шаги последующие и предыдущие». */
+const tokensSrc = () => src(TOKENS ?? 'styles/tokens.css')
+const primitivesSrc = () => src(PRIMITIVES ?? 'styles/primitives.module.css')
+const scaleJson = () => json(LADDER?.replace(/\.css$/, '.json') ?? 'styles/scale.json') ?? json('styles/scale.json')
+const step = (layer, name, what, skill, done, owner) => ({ layer, name, what, skill, done, owner })
+
 export const STAGES = [
   {
     n: 0, name: 'Основание',
     builds: 'три шкалы (цвет, размер, ритм), одиннадцать примитивов раскладки (ворота спрашивают пять), три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
     skills: ['palette', 'craft', 'code', 'stages'],
+    steps: [
+      step(0, 'Пороги и характер', 'что нельзя нарушать ни одним слоем (контраст 4.5 / 3, цель 44, три шва, телефон первым) и характер витрины словами', 'stages',
+        () => has('docs/decisions.md') ? null : 'нет docs/decisions.md — характер витрины и решения заказчика негде записать',
+        'характер витрины назван заказчиком словами и записан в docs/decisions.md'),
+      step(1, 'Имена и ярусы', 'сырьё → ступень → роль → узел; шкалы --fs/--sp, роли --air/--pad/--gap, ступени цвета', 'craft',
+        () => {
+          const l = ladder()
+          const miss = []
+          if (!l.includes(PREFIX.font)) miss.push('размер')
+          if (!l.includes(PREFIX.space)) miss.push('ритм')
+          if (!/--(air|pad|gap)-/.test(l)) miss.push('роли ритма --air/--pad/--gap')
+          if (!/--n-1\b/.test(src('styles/palette.css'))) miss.push('ступени цвета (styles/palette.css)')
+          return miss.length ? `имён нет: ${miss.join(', ')}` : null
+        }),
+      step(2, 'Оси', 'тема свет/тьма, указатель палец/курсор, язык рынка — и для каждой шкалы записано, по каким осям она меняется', 'craft',
+        () => {
+          const all = styleFiles().map(src).join('\n')
+          const miss = []
+          if (!all.includes('light-dark(')) miss.push('тема (light-dark)')
+          if (!/pointer\s*:\s*coarse/.test(all)) miss.push('указатель (pointer: coarse)')
+          return miss.length ? `осей нет: ${miss.join(', ')}` : null
+        }),
+      step(3, 'Цвет', 'три краски заказчика → семь семей по двенадцать ступеней → роли → замер; показано глазами', 'palette',
+        () => {
+          if (!has('styles/palette.json')) return 'палитры нет (styles/palette.json)'
+          return src('styles/palette.json').includes('Стартовый') ? 'палитра стартовая — спросить у заказчика фирменный цвет' : null
+        },
+        'набор цвета показан заказчику отрисованным — не кодами, а кнопкой, которую он нажал'),
+      step(4, 'База: кегль тела и клетка', 'два кегля тела (телефон / макет) и клетка 4 — от них считаются и текст, и воздух', 'craft',
+        () => {
+          const f = Object.values(scaleJson() ?? {})[0]
+          if (!f) return 'нет styles/scale.json — кегль тела и клетка не записаны'
+          return f.размер?.base?.length === 2 && f.ритм?.['1'] ? null : 'в шкале нет двух кеглей тела (телефон / макет) или клетки (ритм 1)'
+        }),
+      step(5, 'Пространство', 'одна линейка ритма; роли по работе: поле внутри (rem), воздух между (px), зазор в ряду (под палец); рампы по формуле; выпуск и замер', 'craft',
+        () => {
+          const l = ladder()
+          const miss = ['--pad-', '--air-', '--gap-'].filter((x) => !l.includes(x))
+          if (miss.length) return `ролей ритма нет: ${miss.join(' ')}`
+          return script('check:scale') ? null : 'проверки шкал нет (check:scale)'
+        },
+        'набор ритма (тесный / нынешний / просторный) показан заказчику на стенде и назван словом'),
+      step(6, 'Типографика', 'роли текста пятью фактами (размер, межстрочье, вес, разрядка, мера); текучие заголовки; шрифт витрины', 'craft',
+        () => {
+          const t = Object.values(scaleJson() ?? {})[0]?.текст
+          if (!t) return 'ролей текста нет (styles/scale.json → текст)'
+          const bad = Object.entries(t).filter(([, r]) => !(r.размер && r.межстрочье && r.вес))
+          return bad.length ? `роли текста без пяти фактов: ${bad.map(([k]) => k).join(', ')}` : null
+        },
+        'шрифт витрины показан заказчику отрисованным на её же тексте и назван'),
+      step(7, 'Размер узлов', 'высота кнопки и поля от кегля и поля; под пальцем 44; размер — роль, не число', 'craft',
+        () => tokensSrc().includes('--ctrl-h') && /\.tap\b/.test(primitivesSrc()) ? null : 'высота органа (--ctrl-h) или запас под палец (.tap) не заведены'),
+      step(8, 'Раскладка', 'одиннадцать примитивов, три шва в реестре, компонент меряет контейнер, число колонок вычисляется', 'craft',
+        () => {
+          const pr = primitivesSrc()
+          const missing = ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned', 'sidebar', 'grid', 'sheet', 'menu'].filter((c) => !new RegExp(`\\.${c}\\b`).test(pr))
+          if (missing.length) return `примитивов нет: ${missing.join(', ')}`
+          return BREAKPOINTS.length === 3 ? null : `швов ${BREAKPOINTS.length}, а не три`
+        }),
+      step(9, 'Форма', 'радиусы одной ручкой, лестница теней по высоте, толщина линии — у ступени смысл', 'craft',
+        () => /--r-pill/.test(tokensSrc()) && /--sh-1/.test(tokensSrc()) ? null : 'радиусов (--r-*) или лестницы теней (--sh-*) нет'),
+      step(10, 'Состояния и движение', 'один ответ на наведение, нажатие, фокус, недоступное; движение токеном; reduced-motion', 'craft',
+        () => /--hover-t/.test(tokensSrc()) && /--a-press/.test(src('styles/palette.css')) ? null : 'ответа на указатель (--hover-t) или ступени нажатия (--a-press) нет'),
+      step(11, 'Знаки и картинки', 'один лист знаков, одна толщина штриха в пикселях экрана, имя у безмолвного; снимки — механизм нарезки, сами снимки от заказчика', 'craft',
+        () => has('components/Icons.tsx') || has('components/icons') || has('styles/icons.css') ? null : 'листа знаков нет (components/Icons.tsx) — заводится в проекте, знаки не рисуются по месту'),
+      step(12, 'Слова', 'голос, словарь терминов на языках рынка, глагол на кнопке, ошибка у поля с шагом, пустой экран с шагом', 'shop',
+        () => has('docs/words.md') ? null : 'словаря слов нет (docs/words.md) — заводится в проекте вместе с первым текстом'),
+      step(13, 'Утилиты и исключения', 'ярлыки на одну задачу из шкалы; исключение — состояние атрибутом, не новый класс', 'craft',
+        () => /\.(muted|eyebrow)\b/.test(primitivesSrc()) ? null : 'утилит из шкалы нет (.muted, .eyebrow в примитивах)'),
+    ],
     checks: ['typecheck', 'check:css', 'check:scale', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -287,6 +371,16 @@ export const STAGES = [
     n: 1, name: 'Каркас',
     builds: 'адреса и дерево маршрутов, язык адресом (/bg, /en), данные одной таблицей в lib/, карта сайта и robots как МЕХАНИЗМ, один факт о товаре — одно место.',
     skills: ['code', 'craft', 'shop', 'stages'],
+    steps: [
+      step(14, 'Адреса', 'дерево маршрутов — единственный список страниц; динамические сегменты из данных', 'code',
+        () => has('tools/routes.mjs') ? null : 'дерева маршрутов нет (tools/routes.mjs)'),
+      step(14, 'Язык адресом', 'язык — часть адреса (/bg, /en), не состояние браузера; все языки в дереве', 'shop',
+        () => has('tools/routes.mjs') && /lang|locale|язык/i.test(src('tools/routes.mjs')) ? null : 'языки не в дереве маршрутов'),
+      step(14, 'Данные одной таблицей', 'каждый факт о товаре живёт в одном месте (lib/), витрина спрашивает', 'shop',
+        () => has(LIB) ? null : `нет ${LIB}/ — фактам негде жить в одном месте`),
+      step(14, 'Карта сайта и robots как механизм', 'из дерева маршрутов, а не рукой', 'code',
+        () => (has('app/sitemap.ts') || has('public/sitemap.xml')) && (has('app/robots.ts') || has('public/robots.txt')) ? null : 'карты сайта или robots нет как механизма'),
+    ],
     checks: ['typecheck', 'check:tokens', 'check:port', 'check:open', 'build:site', 'check:urls', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -317,6 +411,14 @@ export const STAGES = [
     n: 2, name: 'Вёрстка',
     builds: 'блоки и страницы, отзывчивость по ширинам, обе темы, вкус и движение. Компонент меряет контейнер, а не окно; число колонок вычисляется.',
     skills: ['craft', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'impeccable', 'improve-animations', 'redesign-skill', 'stages'],
+    steps: [
+      step(14, 'Узлы', 'атомы → молекулы → организмы: кнопка, поле → карточка, счётчик, поиск → шапка, сетка, полоса покупки; без сырых значений, все состояния, оба указателя, обе темы', 'craft',
+        () => has('components') ? null : 'нет components/ — узлов ещё нет'),
+      step(15, 'Шаблоны', 'скелет каждой страницы с заглушками; пропорция снимка и предел длины — в проверках', 'craft'),
+      step(16, 'Страницы по воронке', 'главная и раздел → список товаров с фильтром → страница товара → корзина → оформление (Baymard); «плохие» данные: корзина 1/10, полка 0/6/40, без фото, длинное название', 'shop'),
+      step(16, 'Обе темы и все ширины', 'свип 320…1600 без переполнения; всё, что открывается, снято открытым в обеих темах', 'craft',
+        () => script('sweep') || has('tools/sweep.mjs') ? null : 'свипа нет (tools/sweep.mjs)'),
+    ],
     checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -351,6 +453,11 @@ export const STAGES = [
     n: 3, name: 'Поведение',
     builds: 'корзина, фильтры, формы, состояния (пусто, ошибка, ожидание), склады памяти браузера, панель настроек. Функция обновления состояния чиста; компонент помнит одно.',
     skills: ['code', 'shop', 'craft', 'systematic-debugging', 'test-driven-development', 'stages'],
+    steps: [
+      step(17, 'Поведение с падающего теста', 'корзина, фильтры в адресе, формы с ошибкой у поля, состояния пусто / ошибка / ожидание — каждое начинается с красного теста', 'code',
+        () => script('test') ? null : 'тестов нет (test) — красный тест писать нечем'),
+      step(17, 'Склады памяти браузера', 'localStorage и cookie — через один склад, компонент помнит одно', 'code'),
+    ],
     checks: ['typecheck', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -389,6 +496,15 @@ export const STAGES = [
     n: 4, name: 'Наполнение',
     builds: 'настоящие тексты, снимки с подписями, реквизиты фирмы, каналы связи, отзывы — от заказчика. Флаги настоящести переключаются в true; заглушки уходят с витрины.',
     skills: ['stages', 'shop', 'craft'],
+    steps: [
+      step(16, 'Настоящее от заказчика', 'тексты, снимки с подписями, реквизиты, каналы связи, отзывы; флаги настоящести в true, заглушек ноль', 'shop',
+        () => {
+          const flags = realFlags()
+          if (!flags.length) return `флагов настоящести нет (${LIB}/*: export const ЧТО_IS_REAL) — образцы не отмечены, наполнение не заведено`
+          const off = flags.filter((f) => !f.on)
+          return off.length ? `флаги не в true: ${off.map((f) => f.name).join(', ')}` : null
+        }),
+    ],
     checks: ['test', 'check:tokens', 'check:port', 'build:site', 'check:craft', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -430,6 +546,11 @@ export const STAGES = [
     n: 5, name: 'Сдача',
     builds: 'то, что включают только на настоящем: карта сайта и robots открыты поиску, разметка товара с ценой и наличием, бюджет веса, скорость, доступность, внешний аудит по проду.',
     skills: ['stages', 'shop', 'craft', 'palette', 'code', 'verification-before-completion'],
+    steps: [
+      step(18, 'Открыто поиску', 'карта сайта и robots открыты, разметка товара с ценой и наличием; check:seo на нуле', 'shop'),
+      step(18, 'Вес, скорость, доступность', 'бюджет веса, Core Web Vitals, доступность в check:craft на нуле, PageSpeed и Rich Results глазом', 'craft'),
+      step(18, 'Перенос', 'переносимый слой встаёт на другой движок: Shopify, WordPress, Medusa; поломки переносимости на нуле', 'craft'),
+    ],
     checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
@@ -494,6 +615,9 @@ export const STAGES = [
     n: 6, name: 'Жизнь',
     builds: 'сайт показан людям: Search Console, замер после каждого выката, слежение за тем, что разметка и адреса не уехали, новые тексты по спросу.',
     skills: ['stages', 'shop', 'craft', 'code'],
+    steps: [
+      step(19, 'Жизнь', 'Search Console, замер после каждого выката, слежение за адресами и разметкой, новые тексты по спросу; версия у слепка, переименование псевдонимом со сроком', 'stages'),
+    ],
     checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [],

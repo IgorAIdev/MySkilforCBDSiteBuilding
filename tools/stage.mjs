@@ -36,6 +36,19 @@ function brief(stage, { full = false } = {}) {
   console.log(`  Кто работает: ${stage.skills.join(', ')}`)
   console.log(`  Перед сдачей, в этом порядке: ${stage.checks.map((c) => `npm run ${c}`).join(' · ')}`)
 
+  /* Шаги этапа — что за чем: ✓ по файлам, ✗ с причиной, · без предиката
+     (по чтению), □ решает заказчик (отмечается в docs/gate.md). Порядок —
+     слои первоисточников, docs/layers.md, §2. */
+  if (stage.steps?.length) {
+    console.log('\n  Шаги этапа — что за чем (слои docs/layers.md, §2):')
+    for (const st of stage.steps) {
+      const msg = st.done ? st.done() : undefined
+      const ch = msg === undefined ? '·' : msg === null ? '✓' : '✗'
+      line(ch, `${st.layer}. ${st.name} — ${st.what} [${st.skill}]${msg ? `: ${msg}` : ''}`)
+      if (st.owner) line(confirmed(st.owner) ? '✓' : '□', `   ${st.owner}   ${confirmed(st.owner) ? '(подтверждено — docs/gate.md)' : '(РЕШАЕТ ЗАКАЗЧИК)'}`)
+    }
+  }
+
   const problems = gateProblems(stage)
   const next = STAGES.find((s) => s.n === stage.n + 1)
   console.log(`\n  Ворота${next ? ` (чтобы перейти к ${title(next)})` : ''}:`)
