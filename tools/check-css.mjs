@@ -14,6 +14,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
+import { RHYTHM } from './thresholds.mjs'
 import { join, relative, dirname, basename } from 'node:path'
 import { CSS_FAMILIES, CSS_LABELS as NAMES, hueRx } from './css-families.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
@@ -45,7 +46,7 @@ const LAYER_VAR = new RegExp(`var\\(${RX.layer}`)
 
 /* Меньше 8px — оптическая доводка под скруглением штриха, а не ритм: шкалой
    такое не описывается, и запрещать его смысла нет. */
-const SPACING_FLOOR = 8
+const SPACING_FLOOR = RHYTHM.floor
 
 const files = []
 for (const dir of DIRS) walk(join(ROOT, dir))

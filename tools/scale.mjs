@@ -31,6 +31,7 @@
  */
 
 import { PREFIX, BREAKPOINTS } from './kit-config.mjs'
+import { RHYTHM, AIR, TARGET, TEXT, TYPE } from './thresholds.mjs'
 
 /** Корень браузера. Поле пишется в rem (правило «поле растёт с буквами»),
  *  а считается в тех же пикселях, что и всё остальное: делить на 16
@@ -82,26 +83,97 @@ export const at = ([min, max], [wMin, wMax], width) => {
  *
  * Ключи по-русски, и это не украшение: файл открывает владелец, а не
  * машина. «воздух → между разделами» он прочтёт, `air.page` — нет.
+ *
+ * Набор пишется ФОРМУЛОЙ, а не таблицей чисел (И221). Владелец называет:
+ *   тело       — два кегля тела: телефон и макет (слой 4 — база);
+ *   отношение  — два отношения лестницы размера: телефон и макет;
+ *   размер     — имя ступени → показатель степени (base = 0, h2 = 4, xs = −2);
+ *   ритм       — имя ступени → множитель тела (Utopia: 0.25 … 6), ступень
+ *                округляется к клетке: 2 до 16, 4 до 64, дальше 8 (Tailwind 4);
+ *   поле       — роль → имя ступени ритма (одна ступень, в rem);
+ *   воздух     — роль → [ступень на телефоне, ступень на макете]: пара «через
+ *                ступень» (Utopia), так воздух растёт быстрее текста, как у
+ *                живых люкс-магазинов (×1.33…1.5 при росте тела ×1.1);
+ *   зазор      — роль → [под курсором, под пальцем].
+ * Пара чисел [низ, верх] на любом из этих мест тоже читается — так набор
+ * писался до И221, и так удобно ПРОБОВАТЬ число, — но клетка и коридоры
+ * спрашиваются с неё так же.
  */
 
 /** Ступень ритма по её имени в наборе: `"10"` → `var(--sp-10)`. */
 const stepVar = (n) => `var(${PREFIX.space}${n})`
 
+/** Округление к клетке ритма: 2 до 16, 4 до 64, дальше 8. Клетка —
+ *  ступенчатая, как у Tailwind 4: шагов больше у базы, меньше вдали. */
+export const snap = (px) => {
+  const cell = RHYTHM.cell(px)
+  return Math.round(px / cell) * cell
+}
+
+/** Половина пикселя — предел, до которого кегль имеет смысл писать. */
+const half = (px) => Math.round(px * 2) / 2
+
+const isPair = (v) => Array.isArray(v) && v.length === 2 && v.every((x) => typeof x === 'number')
+
+/** Ступень размера: показатель степени → пара по двум отношениям.
+ *  Отрицательные ступени считаются телефонным отношением на обоих концах:
+ *  с бóльшим отношением макета мелкий текст на макете выходил бы МЕЛЬЧЕ,
+ *  чем на телефоне (у Utopia это известная оговорка), а лестница обязана
+ *  расти вместе с телом на обоих концах. */
+const sizeStep = (body, ratio, n) => {
+  const [r0, r1] = n < 0 ? [ratio[0], ratio[0]] : ratio
+  return [half(body[0] * r0 ** n), half(body[1] * r1 ** n)]
+}
+
+/** Ступень ритма: множитель тела → пара на клетке. Ступень, чей телефонный
+ *  конец не выше пола (8), — оптика и внутренность органа: она не течёт
+ *  (CLAUDE.md, правило 2: геометрия контрола не течёт). */
+const rhythmStep = (body, k) => {
+  const lo = snap(body[0] * k)
+  if (lo <= RHYTHM.floor) return [lo, lo]
+  return [lo, snap(body[1] * k)]
+}
+
 /** Развёрнутый набор: каждое имя → пара чисел (низ, верх) в пикселях.
  *  Одна таблица на выпуск, на замер и на стенд — чтобы стенд показывал
  *  ровно то, что выпущено. */
 export const resolve = (set) => {
-  const out = { ширины: set.ширины, размер: {}, ритм: {}, поле: {}, воздух: {}, зазор: {} }
-  for (const [name, pair] of Object.entries(set.размер ?? {})) out.размер[name] = pair
-  for (const [name, pair] of Object.entries(set.ритм ?? {})) out.ритм[name] = pair
-  for (const [name, pair] of Object.entries(set.поле ?? {})) out.поле[name] = pair
-  /* Воздух не заводит своих чисел: он ССЫЛАЕТСЯ на ступень ритма. Вторая
+  const out = {
+    ширины: set.ширины, тело: set.тело, отношение: set.отношение,
+    размер: {}, ритм: {}, поле: {}, воздух: {}, зазор: {},
+  }
+  const body = isPair(set.тело) ? set.тело : null
+  for (const [name, v] of Object.entries(set.размер ?? {})) {
+    if (isPair(v)) out.размер[name] = v
+    else if (typeof v === 'number') {
+      if (!body || !isPair(set.отношение)) throw new Error(`размер «${name}» задан показателем, а тела или отношения в наборе нет`)
+      out.размер[name] = sizeStep(body, set.отношение, v)
+    } else throw new Error(`размер «${name}»: показатель степени или пара [низ, верх]`)
+  }
+  for (const [name, v] of Object.entries(set.ритм ?? {})) {
+    if (isPair(v)) out.ритм[name] = v
+    else if (typeof v === 'number') {
+      if (!body) throw new Error(`ритм «${name}» задан множителем, а тела в наборе нет`)
+      out.ритм[name] = rhythmStep(body, v)
+    } else throw new Error(`ритм «${name}»: множитель тела или пара [низ, верх]`)
+  }
+  /* Поле — одна ступень ритма: «одна ступень — полям, через ступень —
+     воздуху» (Utopia, docs/layers.md §3.4). */
+  for (const [name, v] of Object.entries(set.поле ?? {})) {
+    if (isPair(v)) { out.поле[name] = v; continue }
+    const pair = out.ритм[String(v)]
+    if (!pair) throw new Error(`поле «${name}» просит ступень ритма ${v}, которой в наборе нет`)
+    out.поле[name] = Object.assign([pair[0], pair[1]], { step: String(v) })
+  }
+  /* Воздух не заводит своих чисел: он ССЫЛАЕТСЯ на ступени ритма. Вторая
      шкала чисел для воздуха — путь, который Carbon прошёл (`layout-01…07`)
-     и отменил обратно в единую: «do not use in new work». */
-  for (const [name, step] of Object.entries(set.воздух ?? {})) {
-    const pair = out.ритм[String(step)]
-    if (!pair) throw new Error(`воздух «${name}» просит ступень ритма ${step}, которой в наборе нет`)
-    out.воздух[name] = { step: String(step), pair }
+     и отменил обратно в единую: «do not use in new work». Пара ступеней —
+     низ одной на телефоне, верх другой на макете. */
+  for (const [name, v] of Object.entries(set.воздух ?? {})) {
+    const [a, b] = Array.isArray(v) ? v.map(String) : [String(v), String(v)]
+    const pa = out.ритм[a], pb = out.ритм[b]
+    if (!pa || !pb) throw new Error(`воздух «${name}» просит ступень ритма ${!pa ? a : b}, которой в наборе нет`)
+    out.воздух[name] = { step: a, steps: [a, b], pair: [pa[0], pb[1]] }
   }
   for (const [name, pair] of Object.entries(set.зазор ?? {})) out.зазор[name] = pair
   return out
@@ -128,10 +200,14 @@ const block = (sets, name, indent = '  ') => {
      Comeau). Воздух и зазор с текстом не связаны и растут только с шириной
      — они в px. Семья `padPx` не пускает поле обратно. */
   for (const [name, pair] of Object.entries(r.поле)) {
-    put(`--pad-${name}`, ramp(pair, w, 'rem'), set.подписи?.поле?.[name])
+    put(`--pad-${name}`, ramp([pair[0], pair[1]], w, 'rem'), set.подписи?.поле?.[name])
   }
-  for (const [name, { step }] of Object.entries(r.воздух)) {
-    put(`--air-${name}`, stepVar(step), set.подписи?.воздух?.[name])
+  /* Воздух одной ступени — ссылка на неё; пара ступеней — рампа от низа
+     первой к верху второй, и это по-прежнему не своё число. */
+  for (const [name, { steps, pair }] of Object.entries(r.воздух)) {
+    const why = set.подписи?.воздух?.[name]
+    const value = steps[0] === steps[1] ? stepVar(steps[0]) : ramp(pair, w)
+    put(`--air-${name}`, value, steps[0] === steps[1] ? why : `${why ? `${why} — ` : ''}ступени ${steps[0]} → ${steps[1]}`)
   }
   for (const [gap, pair] of Object.entries(r.зазор)) {
     put(`--gap-${gap}`, `${num(pair[0])}px`, set.подписи?.зазор?.[gap])
@@ -185,25 +261,25 @@ export const toCss = (sets) => {
 /** Порог различимости соседних ступеней. Тот же, что у семьи `nearStep` в
  *  `check:css`, и по той же причине: ниже 8% разница в 13 и 14 пикселей не
  *  видна никому, включая того, кто её ставил. */
-export const NEAR = 1.08
+export const NEAR = RHYTHM.near
 /** Разброс одной ступени. Utopia роняет ступень, когда верх больше низа в
  *  2.5 раза: выше этого рампа при зуме 200% упирается в потолок раньше,
  *  чем текст вырастет вдвое (WCAG 1.4.4). */
-export const SPREAD = 2.5
+export const SPREAD = RHYTHM.spread
 /** Воздух между разделами к полю карточки. Замер семи живых люкс-магазинов
  *  20.09.2026: Muji 2.6…3.5 : 1, Glossier 5 : 1 (docs/layers.md, §3.3).
  *  Ниже трёх предметы и промежутки одного размера — ритма нет. */
-export const AIR_TO_PAD = 3
+export const AIR_TO_PAD = AIR.toPad
 /** Насколько роль растёт от телефона к макету. Тот же замер: ×1.33…1.5 у
  *  всех семи. Спрашивается с воздуха — он и держит «дорогой» вид. */
-export const GROWTH = [1.33, 1.5]
+export const GROWTH = AIR.growth
 /** Поле не бывает нулём: предмет, содержимое которого лежит на его
  *  собственном крае, — не предмет, а обрыв. Ниже 8 — доводка, не ступень. */
-export const PAD_FLOOR = 8
+export const PAD_FLOOR = RHYTHM.floor
 /** Зазор между соседними целями под пальцем. WCAG 2.2 «Target Size
  *  (Minimum)» засчитывает цель меньше 24 только при таком же просвете;
  *  Primer держит 16. */
-export const TAP_GAP = 16
+export const TAP_GAP = TARGET.gap.coarse
 
 const ladder = (pairs, kind, findings) => {
   const names = Object.keys(pairs)
@@ -250,9 +326,51 @@ export const auditScale = (set) => {
     }
   }
 
-  const r = resolve(set)
+  let r
+  try { r = resolve(set) } catch (e) {
+    findings.push({ rule: 'набор читается', got: e.message, need: 'см. заголовок tools/scale.mjs' })
+    return findings
+  }
+  /* Основание (слой 4): два кегля тела и отношение лестницы — в коридоре.
+     Ниже малой секунды ступени неразличимы, выше квинты между телом и
+     заголовком не помещается подзаголовок. */
+  if (isPair(set.отношение)) {
+    for (const [i, ratio] of set.отношение.entries()) {
+      if (ratio < TYPE.ratio[0] || ratio > TYPE.ratio[1]) {
+        findings.push({ rule: 'отношение лестницы', got: `${i ? 'макет' : 'телефон'}: ${ratio}`, need: `${TYPE.ratio[0]}…${TYPE.ratio[1]}` })
+      }
+    }
+  }
   ladder(r.размер, 'размера', findings)
   ladder(r.ритм, 'ритма', findings)
+
+  for (const [kind, table] of [['размера', r.размер], ['ритма', r.ритм], ['поля', r.поле]]) {
+    for (const [name, [min, max]] of Object.entries(table)) {
+      if (max < min) {
+        findings.push({ rule: `верх не ниже низа (${kind})`, got: `${name}: ${min} → ${max}px`, need: 'на макете не меньше, чем на телефоне' })
+      }
+    }
+  }
+  /* Нижний конец каждой ступени — телефонный размер по нормам (scales.md,
+     «Нижний конец шкалы — это телефонный размер, и он по нормам»). */
+  for (const [name, floor] of Object.entries(TYPE.floor)) {
+    const pair = r.размер[name]
+    if (pair && pair[0] < floor) {
+      findings.push({ rule: 'нижний конец по нормам', got: `${name}: ${pair[0]}px на телефоне`, need: `не меньше ${floor}px` })
+    }
+  }
+  if (r.размер.h2 && r.размер.base && r.размер.h2[0] / r.размер.base[0] < TYPE.headContrast) {
+    findings.push({ rule: 'заголовок к телу', got: `${r.размер.h2[0]} : ${r.размер.base[0]} = ${(r.размер.h2[0] / r.размер.base[0]).toFixed(2)} : 1 на телефоне`, need: `не меньше ${TYPE.headContrast} : 1` })
+  }
+  /* Клетка: концы ступени ритма лежат на клетке — 2 до 16, 4 до 64, дальше 8.
+     Почти все числа семи люкс-магазинов кратны 4, большинство — 8. */
+  for (const [name, pair] of Object.entries(r.ритм)) {
+    for (const [i, px] of pair.entries()) {
+      if (px !== snap(px)) {
+        findings.push({ rule: 'клетка ритма', got: `${name}: ${px}px (${i ? 'макет' : 'телефон'})`, need: `на клетке ${RHYTHM.cell(px)} — ${snap(px)}px` })
+      }
+    }
+  }
 
   for (const [kind, table] of [['размера', r.размер], ['ритма', r.ритм], ['поля', r.поле]]) {
     for (const [name, [min, max]] of Object.entries(table)) {
@@ -301,12 +419,19 @@ export const auditScale = (set) => {
         })
       }
     }
-    const growth = air.pair[1] / air.pair[0]
-    if (growth < GROWTH[0] || growth > GROWTH[1]) {
+  }
+  /* Рост спрашивается с КАЖДОГО воздуха, взятого парой ступеней: это те роли,
+     что держат «дорогой» вид, и у живых магазинов все они растут в одном
+     коридоре. Воздух одной ступени растёт с текстом — с него не спрашивается. */
+  for (const [name, { steps, pair }] of Object.entries(r.воздух)) {
+    if (steps[0] === steps[1]) continue
+    const growth = pair[1] / pair[0]
+    const [lo, hi] = name === 'page' || name === 'страница' ? GROWTH.page : GROWTH.other
+    if (growth < lo || growth > hi) {
       findings.push({
         rule: 'воздух растёт в коридоре',
-        got: `${air.pair[0]} → ${air.pair[1]}px (×${growth.toFixed(2)})`,
-        need: `×${GROWTH[0]}…${GROWTH[1]} — замер живых магазинов`,
+        got: `${name}: ${pair[0]} → ${pair[1]}px (×${growth.toFixed(2)}, ступени ${steps[0]} → ${steps[1]})`,
+        need: `×${lo}…${hi} — ${lo === GROWTH.page[0] ? 'замер воздуха между разделами у живых магазинов' : 'от роста текста до самого широкого замеренного расстояния'}`,
       })
     }
   }
@@ -422,6 +547,42 @@ export const auditSheets = (sheets, sets) => {
   return findings
 }
 
+/**
+ * Ступень — по просителю. Ступень, которую не читает ни роль набора, ни один
+ * файл стилей, — не ступень, а число про запас: у Radix девять ступеней
+ * ритма потому, что девять просят, у Tailwind 4 в теме ни одного `--spacing-N`
+ * (docs/layers.md, §3.2). Так жил `--sp-11`: выпускался, не читался никем и
+ * промахивался мимо своего конца — и никто не видел.
+ */
+export const auditReaders = (sheets, sets) => {
+  const findings = []
+  const first = Object.values(sets)[0]
+  if (!first) return findings
+  const r = resolve(first)
+  const css = sheets.map((s) => s.css).join('\n')
+  /* Просители собираются по ВСЕМ наборам: ступени у них общие, и ступень,
+     которую просит воздух хотя бы одного набора, живая. */
+  const asked = new Set()
+  for (const name of Object.keys(sets)) {
+    const rs = resolve(sets[name])
+    for (const p of Object.values(rs.поле)) if (p.step) asked.add(`${PREFIX.space}${p.step}`)
+    for (const a of Object.values(rs.воздух)) for (const st of a.steps) asked.add(`${PREFIX.space}${st}`)
+    for (const role of Object.values(rolesOf(sets, name))) {
+      if (typeof role.размер === 'string') asked.add(role.размер)
+    }
+  }
+  const names = [
+    ...Object.keys(r.размер).map((n) => `${PREFIX.font}${n}`),
+    ...Object.keys(r.ритм).map((n) => `${PREFIX.space}${n}`),
+  ]
+  for (const name of names) {
+    if (asked.has(name)) continue
+    if (new RegExp(`var\\(${name}[,)]`).test(css)) continue
+    findings.push({ rule: 'ступень без просителя', got: name, need: 'ступень заводится там, где её просит роль или файл стилей — уберите из styles/scale.json или назовите просителя' })
+  }
+  return findings
+}
+
 /* ── роли текста ─────────────────────────────────────────────────────────
  *
  * Ступень отвечает на «какого размера», но набор текста — это пять фактов,
@@ -443,15 +604,15 @@ export const auditSheets = (sheets, sets) => {
 
 /** Вес, который вообще бывает у текста. 800 и выше — это счётчик на
  *  контроле, а не роль набора. */
-export const WEIGHTS = [400, 500, 600, 700]
+export const WEIGHTS = TEXT.weights
 /** Межстрочье заголовка: 1.1…1.25 — канон крупного кегля, он уже был
  *  записан словами в примитиве. Выше — строки разъезжаются. */
-export const HEAD_LEAD = [1.1, 1.25]
+export const HEAD_LEAD = TEXT.headLead
 /** Межстрочье текста: ниже 1.35 строки склеиваются; 1.5 обязан не ломать
  *  вёрстку (WCAG 1.4.12), и коридор держится вокруг него. */
-export const TEXT_LEAD = [1.35, 1.6]
+export const TEXT_LEAD = TEXT.textLead
 /** Разрядка: больше 0.05em в любую сторону — это уже не набор, а приём. */
-export const TRACK_MAX = 0.05
+export const TRACK_MAX = TEXT.trackMax
 
 /** Роли текста набора. Объявляет их ПЕРВЫЙ набор: межстрочье и вес — факты
  *  типографики, а не плотности, и от «тесно/просторно» не зависят. Набор,
