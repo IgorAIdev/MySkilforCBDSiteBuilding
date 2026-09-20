@@ -13,6 +13,8 @@
     "check:scale": "node tools/check-scale.mjs && node tools/scale-css.mjs --check",
     "scale:stand": "node tools/scale-stand.mjs",
     "check:palette": "node tools/check-palette.mjs && node tools/palette-css.mjs --check",
-    "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs"
+    "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs",
+    "palette:stand": "node tools/palette-stand.mjs",
+    "pro:check": "node tools/pro-check.mjs"
   }
 }

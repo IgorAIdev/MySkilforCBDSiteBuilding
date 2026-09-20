@@ -33,6 +33,8 @@ export const SCRIPTS = {
   scale: 'node tools/scale-css.mjs',
   'check:scale': 'node tools/check-scale.mjs && node tools/scale-css.mjs --check',
   'scale:stand': 'node tools/scale-stand.mjs',
+  'palette:stand': 'node tools/palette-stand.mjs',
+  'pro:check': 'node tools/pro-check.mjs',
   'check:all': 'node tools/check-all.mjs',
   checks: 'node tools/checks.mjs',
   'check:lint': 'node tools/check-lint.mjs',
