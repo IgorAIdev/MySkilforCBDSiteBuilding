@@ -52,4 +52,5 @@ if (process.argv.includes('--check')) {
 
 writeFileSync(TO, css)
 console.log(`Выпущено: styles/palette.css · ${names.length} ${names.length === 1 ? 'набор' : 'набора(ов)'} · ${names.join(', ')}`)
-console.log(`Первый набор стоит на корне; остальные — под [data-palette="имя"].`)
+console.log(`На корне стоит «${names[0]}» — им сайт и покрашен по умолчанию.`)
+console.log(`Сменить: признак data-palette на документе. Имя есть у каждого набора, включая первый.`)
