@@ -22,6 +22,7 @@ import { emptyCodeBaseline } from './code-families.mjs'
 import { emptyCssBaseline } from './css-families.mjs'
 import { emptyPortBaseline } from './port-families.mjs'
 import { emptyCraftBaseline } from './craft-families.mjs'
+import { toCss } from './palette.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const OUT = resolve(process.argv[2] ?? join(ROOT, 'kit'))
@@ -119,6 +120,16 @@ const FILES = [
   'styles/base.css',
   'styles/tokens.css',
   'styles/primitives.module.css',
+  /* Палитра: математика, слепок эталона, выпуск и замер.
+     Не ехала вовсе, а команда `check:palette` в реестре стояла — то есть в
+     каждом новом проекте она была в списке и падала на ненайденном файле.
+     Правило шкалы при этом было записано, сторож считал двадцать правил, а
+     покрасить сайт этим было нечем: заказчик назвал это «нихуя не
+     работает» (И192). */
+  'tools/palette.mjs',
+  'tools/palette-profile.json',
+  'tools/palette-css.mjs',
+  'tools/check-palette.mjs',
   'docs/rules.md',
   'docs/start.md',
 ]
@@ -210,6 +221,21 @@ writeFileSync(join(OUT, 'tools/seo-baseline.json'),
                    og: 0, ld: 0, alt: 0, sample: 0, robots: 0 }, null, 2) + '\n')
 writeFileSync(join(OUT, 'tools/craft-baseline.json'),
   JSON.stringify(emptyCraftBaseline(), null, 2) + '\n')
+
+/* Краски — данные ПРОЕКТА, а не набора: у нового сайта своя марка. Поэтому
+   набор кладёт их один раз и больше не трогает, а `styles/palette.css`
+   выпускает заново всегда — он собран машиной и своего в нём нет.
+
+   Кладётся набор по умолчанию, а не пустой файл: пустой означал бы, что
+   новый сайт с первого дня стоит без цвета и ждёт, пока кто-то вспомнит
+   про палитру. Семь образцов для выбора едут рядом, в `templates/`. */
+mkdirSync(join(OUT, 'styles'), { recursive: true })
+if (!existsSync(join(OUT, 'styles/palette.json'))) put('styles/palette.json')
+put('templates/palette.json')
+writeFileSync(
+  join(OUT, 'styles/palette.css'),
+  toCss(JSON.parse(readFileSync(join(OUT, 'styles/palette.json'), 'utf8'))),
+)
 
 /* Пары «образец на листе набора — тот же предмет в магазине» — данные ПРОЕКТА,
    а не набора: у нового проекта нет ни листа, ни витрины. Уезжает пустой

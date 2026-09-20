@@ -22,6 +22,11 @@ export const SCRIPTS = {
   'check:css': 'node tools/check-css.mjs',
   'check:code': 'node tools/check-code.mjs',
   'check:port': 'node tools/check-port.mjs',
+  /* Палитра: выпуск и замер. Команда замера стояла в реестре `checks.mjs`,
+     а в проекте её не было ни в скриптах, ни файлом — то есть каждый новый
+     сайт получал её в подсказках и не мог запустить (И192). */
+  palette: 'node tools/palette-css.mjs',
+  'check:palette': 'node tools/check-palette.mjs && node tools/palette-css.mjs --check',
   'check:all': 'node tools/check-all.mjs',
   checks: 'node tools/checks.mjs',
   'check:lint': 'node tools/check-lint.mjs',
