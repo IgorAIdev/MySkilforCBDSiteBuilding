@@ -65,6 +65,9 @@ const DEFAULTS = {
   floating: ['components/TabBar.module.css', 'components/Toast.module.css', 'components/Helper.module.css'],
   /** имена шкал: `--fs-*`, `--sp-*`, `--layer-*` */
   scale: { font: 'fs', space: 'sp', layer: 'layer' },
+  /** семьи красок ЯРУСА ЗНАЧЕНИЙ: их зовут по оттенку, и узлам они
+   *  запрещены — узел берёт роль (И205). У каждого проекта свои. */
+  hues: ['sage', 'cyan', 'amber'],
   /** разрешённые швы раскладки */
   breakpoints: [1080, 820, 560],
   /** склады: единственные места, которым разрешена память браузера */
@@ -107,6 +110,7 @@ export const CONTROLS = CONFIG.controls
 export const EXEMPT = CONFIG.exempt
 export const FLOATING = CONFIG.floating
 export const BREAKPOINTS = CONFIG.breakpoints
+export const HUES = CONFIG.hues ?? []
 export const STORES = CONFIG.stores ?? []
 export const ALIASES = CONFIG.aliases ?? {}
 

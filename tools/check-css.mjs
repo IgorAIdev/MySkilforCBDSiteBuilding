@@ -15,12 +15,12 @@
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, relative, dirname, basename } from 'node:path'
-import { CSS_FAMILIES, CSS_LABELS as NAMES } from './css-families.mjs'
+import { CSS_FAMILIES, CSS_LABELS as NAMES, hueRx } from './css-families.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
 import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
-  BREAKPOINTS, PREFIX, RX, ALIASES, LADDER } from './kit-config.mjs'
+  BREAKPOINTS, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
 
 const ROOT = new URL('..', import.meta.url).pathname
 const BASELINE = join(ROOT, 'tools/css-baseline.json')
@@ -1121,6 +1121,62 @@ for (const path of files) {
       if (lo < 3 || hi < 3) {
         add('airRatio', `${at(css.indexOf('--air-page'))}  --air-page : --pad-card = ${lo.toFixed(2)} на телефоне, ${hi.toFixed(2)} на мониторе (норма ≥ 3)`)
       }
+    }
+  }
+
+  /* Узел берёт роль, а не оттенок.
+   *
+   * Три яруса, ссылки в одну сторону (docs/layers.md, §4): hex — только в
+   * файле палитры; роли ссылаются на палитру; узлы — только на роли. Имя
+   * по оттенку (--sage-12) — ярус ЗНАЧЕНИЙ, и это не дефект сам по себе:
+   * так его называют все. Дефект — когда к нему тянется узел, минуя роль:
+   * тогда один вопрос решается в двух местах и они расходятся молча.
+   *
+   * Цена показана 21.09.2026: плашка скидки стояла `background:
+   * var(--amber-9)`, заказчик выбрал скидке фиалку, она легла в палитру
+   * ролью `--sale-9` — и до плашки не дошла (И205). Пятьдесят пять мест
+   * перевели на роли, а сторожа не завели: следующий узел снова возьмёт
+   * оттенок, и никто не заметит.
+   *
+   * Семьи яруса значений — `kit.config.json`, ключ `hues`: у каждого
+   * проекта свои имена, и помнить их проверке нельзя. */
+  if (HUES.length) {
+    const hue = hueRx(HUES)
+    for (const { rel, css, at } of sheets) {
+      if (EXEMPT.includes(rel) || rel === LADDER) continue
+      for (const m of css.matchAll(hue)) {
+        add("hueDirect", `${at(m.index)}  ${m[0].replace("var(", "").trim()}… — возьмите роль`)
+      }
+    }
+  }
+
+  /* Роль текста, набранная наполовину.
+   *
+   * Роль — это пять фактов: размер, межстрочье, вес, разрядка, мера. Когда
+   * названа одна пятая, остальные набирает каждое место само — и набирает
+   * по-разному. Замер 21.09.2026: два крупных заголовка в одном файле
+   * примитивов, `.ledeText h1` и `.pagehead h1`, разошлись разрядкой
+   * (−.04 против −.03), а у второго межстрочья не было вовсе — он наследовал
+   * 1.45 от тела страницы, то есть 61 пиксель между строками на 42-м кегле
+   * при каноне 46.
+   *
+   * Спрашивается с правила, которое БЕРЁТ размер из шкалы или роли: там, где
+   * размер взят, остальное обязано быть взято тоже. Запасное число внутри
+   * `var(--body-lead, 1.45)` — такой же второй источник: правишь роль, а
+   * земля держит своё.
+   *
+   * Вес НЕ спрашивается: жирность у контролов — их собственное дело, и она
+   * стоит в двух десятках мест, не имеющих отношения к набору текста. */
+    const fromScale = /font-size\s*:[^;}]*var\(\s*--(?:fs-|[\w-]+-size)/
+    const literalLead = /(line-height|letter-spacing)\s*:\s*(?:-?[\d.]+|var\([^)]*,\s*-?[\d.]+(?:em|rem|px|%)?\s*\))/
+    for (const { rel, css, at } of sheets) {
+    if (EXEMPT.includes(rel)) continue
+    for (const rule of css.matchAll(/([^{}]*){([^}]*)}/g)) {
+      const body = rule[2]
+      if (!fromScale.test(body)) continue
+      const hit = literalLead.exec(body)
+      if (!hit) continue
+      add('typeGuess', `${at(rule.index)}  ${rule[1].trim().slice(0, 40)}: ${hit[0].trim()}`)
     }
   }
 }

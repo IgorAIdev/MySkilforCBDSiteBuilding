@@ -19,7 +19,7 @@
 
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { auditScale, auditSheets } from './scale.mjs'
+import { auditScale, auditSheets, auditRoles } from './scale.mjs'
 import { STYLE_DIRS, LADDER } from './kit-config.mjs'
 
 /*
@@ -97,7 +97,9 @@ const stray = sheets.length ? auditSheets(sheets, sets) : []
 if (stray.length) bad += 1
 
 for (const [name, set] of Object.entries(sets)) {
-  const findings = auditScale(set)
+  /* Роли текста спрашиваются по всему файлу: набор, не объявивший своих,
+     берёт их у первого — и замер обязан видеть ровно то, что выпуск. */
+  const findings = [...auditScale(set), ...auditRoles(sets, name)]
   if (findings.length) bad += 1
   report.push({ name, findings })
 }

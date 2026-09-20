@@ -36,7 +36,7 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, LADDER } from './kit-config.mjs'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, LADDER, STYLE_DIRS } from './kit-config.mjs'
 
 export const ROOT = new URL('..', import.meta.url).pathname
 
@@ -152,6 +152,38 @@ const clean = (baseline, families) => {
 /** Где лежит лестница: выпущенное строителем плюс файл шкал, склеенные. */
 const ladder = () => [LADDER, TOKENS].filter(Boolean).map((p) => src(p)).join('\n')
 
+/** Все файлы стилей проекта — по папкам из kit.config.json. */
+const styleFiles = () => {
+  const out = []
+  const walk = (dir) => {
+    if (!existsSync(dir)) return
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry)
+      if (statSync(full).isDirectory()) { walk(full); continue }
+      /* ROOT приходит из URL и кончается косой чертой: срез «длина + 1»
+         съедал первую букву пути, и файл потом не читался вовсе — проверка
+         молчала нулём на подложенном шве. Поймано обратным ходом. */
+      if (entry.endsWith('.css')) out.push(full.slice(ROOT.replace(/\/$/, '').length + 1))
+    }
+  }
+  for (const d of STYLE_DIRS) walk(join(ROOT, d))
+  return out
+}
+
+/** Ширины, на которых раскладка меняет СМЫСЛ. Контейнерные запросы сюда не
+ *  входят: компонент меряет свою коробку, а не окно (запрет 6). */
+export const seamsIn = (css) => {
+  const found = new Set()
+  for (const m of css.matchAll(/@media[^{]*?\((?:max|min)-width\s*:\s*(\d+)px/g)) found.add(Number(m[1]))
+  return [...found].sort((a, b) => b - a)
+}
+
+const seams = () => {
+  const found = new Set()
+  for (const f of styleFiles()) for (const w of seamsIn(src(f))) found.add(w)
+  return [...found].sort((a, b) => b - a)
+}
+
 export const STAGES = [
   {
     n: 0, name: 'Основание',
@@ -182,6 +214,24 @@ export const STAGES = [
            непереносимого просто не накапливается. */
         () => script('check:port') && has('tools/port-baseline.json') ? null : 'храповика по переносимости нет (check:port + tools/port-baseline.json)',
         () => ci() ? null : 'проверки не валят сборку сами — в .github/workflows/ нет процесса, который зовёт check:css',
+        /* Два пункта ниже до 21.09.2026 стояли в списке «глазом» — и
+           смотреть их было нечем, кроме как открыть файл и посчитать. Их
+           обещали заказчику как «смотрю я», а он ответил: «я не знаю,
+           принимать это или нет… только на тебя полагаться могу» (И206).
+           Глаз, который можно заменить счётом, заменяется счётом (И208). */
+        () => {
+          const stray = seams().filter((w) => !BREAKPOINTS.includes(w))
+          if (stray.length) return `швы вне списка: ${stray.join(', ')} — разрешены ${BREAKPOINTS.join(', ')}`
+          const law = src('CLAUDE.md')
+          const unnamed = BREAKPOINTS.filter((w) => !law.includes(String(w)))
+          return unnamed.length ? `шов ${unnamed.join(', ')} не назван в CLAUDE.md — число без причины` : null
+        },
+        () => {
+          if (!has('tools/css-baseline.json')) return null
+          let n = 0
+          try { n = JSON.parse(src('tools/css-baseline.json')).hueDirect ?? 0 } catch { return null }
+          return n ? `узлы зовут краску по оттенку в ${n} местах — узел берёт роль (храповик hueDirect)` : null
+        },
         /* Палитра — первое, что спрашивают у заказчика, и первое, что сессия
            забывает: до 21.09.2026 шага «спроси фирменный цвет» не было нигде,
            кроме моей памяти (И199). Теперь он всплывает в брифинге каждой
@@ -198,8 +248,9 @@ export const STAGES = [
            решения исполнителя, и спрашивать о них заказчика значит
            перекладывать свою работу (И206). */
         mine: [
-          `швов раскладки ровно ${BREAKPOINTS.length} — ${BREAKPOINTS.join(', ')} — и каждый назван в CLAUDE.md`,
-          'роли цвета названы по работе (--page, --ink, --accent), а не по оттенку',
+          /* Швы и имена ролей цвета отсюда ушли: их теперь считает машина
+             (выше, И208). В списке остаётся то, чего счётом не заменить. */
+          'палитра и шкалы отрисованы и просмотрены на обеих темах',
         ],
         /* решает заказчик: как выглядит витрина, что на ней написано,
            чьи снимки и реквизиты. Только это и печатается ему. */
