@@ -33,6 +33,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
+import { toCss } from './tools/palette.mjs'
 
 const SRC = resolve(new URL('.', import.meta.url).pathname)
 const args = process.argv.slice(2)
@@ -156,6 +157,15 @@ if (MODE === 'new') {
          сессии, то есть нигде. */
       mkdirSync(join(OUT, 'styles'), { recursive: true })
       cpSync(join(SRC, 'templates/palette-starter.json'), join(OUT, name))
+      /* И выпустить из них CSS тем же кодом, что считает проверка: иначе
+         `styles/palette.css` приезжает выпущенным из красок ЧУЖОГО магазина
+         и отстаёт от того, что лежит рядом в json. Сторож это ловит сразу —
+         «выпущенный styles/palette.css отстал от красок», — и правильно
+         делает: краски и выпуск обязаны сходиться с первой минуты. */
+      writeFileSync(
+        join(OUT, 'styles/palette.css'),
+        toCss(JSON.parse(readFileSync(join(SRC, 'templates/palette-starter.json'), 'utf8'))),
+      )
     } else if (existsSync(join(SRC, name))) {
       cpSync(join(SRC, name), join(OUT, name), { recursive: true })
     }
