@@ -158,6 +158,7 @@ npm run check:palette
 | Коротко, как закон | [`craft/SKILL.md`](.claude/skills/craft/SKILL.md), «Палитра — это шкала из двенадцати ступеней» |
 | Семь готовых наборов | [`templates/palette.json`](templates/palette.json) |
 | Роли цвета, тёмная тема, разделители | [`color.md`](.claude/skills/craft/references/color.md) |
+| Сколько красок нужно витрине и на что, список ролей по элементам | [`roles.md`](.claude/skills/craft/references/roles.md) |
 
 ## Откуда родом правила
 
