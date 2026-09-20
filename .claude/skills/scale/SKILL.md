@@ -260,7 +260,7 @@ https://claude.ai/artifact/YZS2JiNiEXKdz2FA3wUtMC (пересобирается 
 этапов, `show` у слоёв 5 и 6, и в `references/sets.md`). Размеры органов —
 `npm run control:stand`: три размера кнопки, поля, фишки и счётчика на
 одной карточке, переключатель «курсор / палец» с теми же числами, что в
-`@media (pointer: coarse)`.
+`@media (pointer: coarse)`. Опубликован: https://claude.ai/artifact/Cs5sbn6y5H6jdbSTfmsLYm
 
 ## Шаг 10 · Записать и увезти
 

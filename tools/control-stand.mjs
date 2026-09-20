@@ -121,7 +121,7 @@ body{background:var(--page);color:var(--ink);padding:var(--pad-card)}
 [data-size="sm"] .ctl{--h:var(--ctrl-h-sm);font-size:var(--ctrl-fs-xs)}
 [data-size="lg"] .ctl{--h:var(--ctrl-h-lg);font-size:var(--ctrl-fs-base)}
 .btn{border:0;border-radius:var(--r-pill);background:var(--pop);color:var(--on-pop);font-weight:600}
-.btn:hover{background:var(--pop-hover)}
+@media (hover:hover){ .btn:hover{background:var(--pop-hover)} }
 .btn-2{border-radius:var(--r-pill);background:var(--ctrl);border-color:var(--rule)}
 .field{display:block;background:var(--field);inline-size:100%}
 .chip{border-radius:var(--r-pill)}
