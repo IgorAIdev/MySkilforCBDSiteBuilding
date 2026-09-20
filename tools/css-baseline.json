@@ -31,5 +31,6 @@
   "bareVw": 1,
   "padPx": 0,
   "airRatio": 0,
-  "typeGuess": 0
+  "typeGuess": 0,
+  "hueDirect": 0
 }

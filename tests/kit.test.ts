@@ -616,3 +616,29 @@ test('роли выпускаются целиком и берут размер,
   assert.match(css, /--body-measure: var\(--measure\);/, 'у тела нет меры строки')
   assert.ok(!/--h2-measure/.test(css), 'заголовку назначена мера, которой у него нет')
 })
+
+/* И208: пункт ворот, который можно посчитать, не стоит в списке «глазом».
+   Два таких было: «швов ровно три» и «роли цвета названы по работе». Замер
+   руками умирает вместе с сессией — следующая начнёт с того же вопроса. */
+
+test('ворота считают швы сами: окно — шов, коробка — нет', async () => {
+  const { seamsIn } = await import('../tools/stages.mjs')
+  assert.deepEqual(seamsIn('@media (max-width:820px){ .x{color:red} }'), [820])
+  /* Контейнерный запрос швом не считается: компонент меряет свою коробку,
+     а не окно (запрет 6). До этого правила его считали бы четвёртым швом. */
+  assert.deepEqual(seamsIn('@container (max-width:788px){ .y{color:red} }'), [])
+  /* Запросы не про ширину — не швы вовсе. */
+  assert.deepEqual(seamsIn('@media (hover:hover){ .z{color:red} }'), [])
+  assert.deepEqual(seamsIn('@media (max-width:900px){}@media (min-width:560px){}'), [900, 560])
+})
+
+test('узел, зовущий краску по оттенку, — находка', async () => {
+  const { hueRx } = await import('../tools/css-families.mjs')
+  const hits = (css: string): string[] => [...css.matchAll(hueRx(['sage', 'cyan', 'amber']))].map((m) => m[0])
+  assert.deepEqual(hits('.a{color:var(--ink)}'), [], 'узел, взявший роль, объявлен дефектом')
+  assert.deepEqual(hits('.a{color:var(--sage-12);background:var(--amber-3)}').length, 2,
+    'узел взял краску по оттенку, а сторож молчит')
+  /* Ярус значений объявляет себя сам — в файле шкал, и это законно; файл
+     стоит в EXEMPT, сюда он не попадает. */
+  assert.deepEqual(hits('.b{color:var(--sale-9)}'), [], 'роль палитры принята за оттенок')
+})

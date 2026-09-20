@@ -23,7 +23,7 @@ export const CSS_FAMILIES = [
   'zIndex', 'focusGone', 'noPress', 'liftOnPress', 'stickyCap', 'scrollBleed', 'railY',
   'colLadder', 'proseCols', 'twiceDrawn', 'deadEffect', 'tapGrows', 'dressLayout',
   'twoOwners', 'barNoScroll', 'deadDress', 'plateGap', 'barTwice', 'groundGlue',
-  'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio', 'typeGuess',
+  'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio', 'typeGuess', 'hueDirect',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -37,6 +37,11 @@ export const emptyCssBaseline = () =>
  *  `check:rules --tables`). Пока подпись жила в проверке, а таблица в
  *  скилле набиралась рукой, они разошлись: в заголовке стояло
  *  «четырнадцать» при восемнадцати семьях. */
+/** Выражение «узел зовёт краску по оттенку»: `var(--sage-12)`. Семьи
+ *  яруса значений приходят из `kit.config.json` — у каждого проекта свои
+ *  имена, и помнить их проверке нельзя. */
+export const hueRx = (hues) => new RegExp(String.raw`var\(\s*--(${hues.join('|')})-\d+`, 'g')
+
 export const CSS_LABELS = {
   fontPx: 'font-size в px (правило 1: размер из шкалы --fs-*)',
   spacingPx: 'отступ в px (правило 2: ритм из шкалы --sp-*)',
@@ -71,4 +76,5 @@ export const CSS_LABELS = {
   padPx: 'поле рядом с текстом в px: буквы выросли по настройке телефона, поле — нет (правило 2, роли --pad-*)',
   airRatio: 'воздух страницы к полю карточки меньше 3 : 1 — предметы и промежутки одного размера, ритма нет (замер люкс-магазинов)',
   typeGuess: 'роль текста набрана наполовину: размер из шкалы, а межстрочье или разрядка — числом на месте',
+  hueDirect: 'узел зовёт краску по оттенку (--sage-12) мимо роли — ярус значений ему не виден (правило трёх ярусов)',
 }
