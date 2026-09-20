@@ -73,6 +73,20 @@ test('новый сайт: всё разложено, команды допис�
   assert.match(pal.stdout, /Палитра в норме/, 'замер прошёл мимо красок проекта')
   assert.equal(spawnSync(process.execPath, [join(dir, 'tools/palette-css.mjs'), '--check'],
     { cwd: dir }).status, 0, 'выпущенный styles/palette.css отстал от красок')
+  /* И199: то же самое для шкал. Новый сайт получает правило «размер из
+     шкалы, ритм из шкалы» — и обязан получить вместе с ним то, чем шкалу
+     меняют: числа, строитель, замер и команда. Без этого правило снова
+     ссылается в пустоту, а ступени набираются рукой. */
+  for (const f of ['tools/scale.mjs', 'tools/scale-css.mjs', 'tools/check-scale.mjs',
+    'tools/scale-stand.mjs', 'styles/scale.json', 'styles/scale.css']) {
+    assert.ok(existsSync(join(dir, f)), `шкалы не доехали: ${f}`)
+  }
+  assert.equal(s.scale, 'node tools/scale-css.mjs', 'команды выпуска шкал нет')
+  const sc = check(dir, 'check-scale.mjs')
+  assert.equal(sc.status, 0, `шкалы нового сайта:\n${sc.stdout}${sc.stderr}`)
+  assert.match(sc.stdout, /Шкалы в норме/, 'замер прошёл мимо чисел проекта')
+  assert.equal(spawnSync(process.execPath, [join(dir, 'tools/scale-css.mjs'), '--check'],
+    { cwd: dir }).status, 0, 'выпущенный styles/scale.css отстал от чисел')
   rmSync(dir, { recursive: true, force: true })
 })
 
