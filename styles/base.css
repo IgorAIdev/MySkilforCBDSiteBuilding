@@ -127,7 +127,7 @@ a,button,summary,label,input,select,textarea,[role="button"],[role="tab"]{touch-
 body{
   font-variant-numeric:tabular-nums;
   background:var(--page);
-  color:var(--sage-12);
+  color:var(--ink);
   /* Роль «body» целиком: и размер, и межстрочье — из неё. Запасные числа
      здесь означали бы второй источник: правишь роль, а земля держит своё. */
   font-size:var(--body-size); line-height:var(--body-lead);
@@ -165,7 +165,7 @@ h1,h2,h3{font-family:var(--face-head,var(--face))}
    Для h1 это выяснили раньше (см. примитив `lede`), и правило там же:
    одна причина — одна правка, а не две разные для соседних уровней. */
 h2,h3{text-wrap:pretty}
-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;background:var(--sage-3);padding:1px 6px;border-radius:var(--r-xs)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;background:var(--plate-quiet);padding:1px 6px;border-radius:var(--r-xs)}
 /* Два режима переноса, и они про разное.
 
    `pretty` — для бегущего текста: он правит ПОСЛЕДНЮЮ строку, не давая ей
@@ -193,7 +193,7 @@ small,figcaption,button,summary{text-wrap:balance}
 /* The browser's own surfaces — selection, caret, focus ring, scrollbar,
    underline offset. By default they belong to no design system at all; here
    they are painted from the palette. */
-::selection{background:var(--cyan-4);color:var(--cyan-12)}
+::selection{background:var(--live-4);color:var(--live-12)}
 /* Кольцо фокуса — ЗАМЕР, а не ступень по номеру: у эталона седьмая
    («UI element border and focus rings») даёт 1.49 на карточке при
    требуемых WCAG трёх. `--ring` — первая ступень фирменного ряда, которая
@@ -211,8 +211,8 @@ small,figcaption,button,summary{text-wrap:balance}
    отвечать вовсе, и это хуже некрасивой рамки. Вторую половину пары
    сторожит семья `noPress` в `check:css`. */
 html{-webkit-tap-highlight-color:transparent}
-html{scrollbar-color:var(--sage-6) transparent;scrollbar-width:thin}
-input,textarea,select{caret-color:var(--cyan-11)}
+html{scrollbar-color:var(--thumb) transparent;scrollbar-width:thin}
+input,textarea,select{caret-color:var(--live-11)}
 /* Галочка и радио остаются браузерными нарочно (клавиатура, чтец,
    промежуточное состояние — разбор у `.tick` в `styles/form.module.css`), и
    красит их сайт только цветом: `accent-color` в четырёх местах
@@ -222,7 +222,7 @@ input,textarea,select{caret-color:var(--cyan-11)}
    заказчик прислал снимок кассы, где ряд квадратиков читался пустым рядом
    без единого квадрата. Рамка одна, здесь, а не в каждом из четырёх мест:
    у всех четырёх один и тот же квадрат, только своего размера. */
-input[type='checkbox'],input[type='radio']{border:1.5px solid var(--sage-8)}
+input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
 
 /* Движение по просьбе человека, а не по решению вёрстки.
    Разбор трёх уровней и вторая половина правила (`behavior:'smooth'`,
@@ -383,8 +383,8 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--sage-8)}
   --cyan-11:oklch(from var(--accent-solid) 0.80 0.11 h);
   --cyan-4:oklch(from var(--accent-solid) 0.32 0.045 h);
   --cyan-3:oklch(from var(--accent-solid) 0.27 0.04 h);
-  --hover-ink:var(--cyan-11);
-  --hover-ink-2:var(--cyan-12);
+  --hover-ink:var(--live-11);
+  --hover-ink-2:var(--live-12);
 }
 
 /* ── ЛИСТ — ЭТО ТОЖЕ ПОЛ ──────────────────────────────────────────────────
