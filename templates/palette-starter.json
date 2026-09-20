@@ -1,0 +1,6 @@
+{
+  "Стартовый — заменить": {
+    "light": { "paper": "#FCFCFD", "ink": "#1A1D20", "accent": "#4F6270", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark":  { "paper": "#101214", "ink": "#E8EAEC", "accent": "#7D93A3", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  }
+}
