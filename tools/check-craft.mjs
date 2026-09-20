@@ -57,7 +57,7 @@
 const { chromium } = await import(
   process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
 import { readFileSync, writeFileSync } from 'node:fs'
-import { CONTRAST, TARGET } from './thresholds.mjs'
+import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
 import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
@@ -141,7 +141,7 @@ const BASELINE = new URL('./craft-baseline.json', import.meta.url).pathname
 /* Низкое окно, в котором меряется приклеенное: ноутбук 1366×768 за вычетом
    полосы браузера. Обычный замер идёт в 900 по высоте, и колонка, которая в
    900 помещается, на ноутбуке уходит за край — так и было с галереей товара. */
-const SHORT_H = 657
+const SHORT_H = LAYOUT.shortWindow
 const ROOT = new URL('..', import.meta.url).pathname
 
 /** Что меряется в самой странице. Одной функцией, потому что она уезжает

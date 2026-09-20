@@ -8,7 +8,8 @@
  * а разбор того, как проект набрал 180 медиазапросов.
  *
  * Свип превращает «не вижу промежуточные ширины» в то, на что можно
- * смотреть: каждая ширина от 320 до 1600 с шагом 40, PNG в .sweep/, плюс
+ * смотреть: ширины из `sweepWidths` — сетка 320…1600 шагом 40, швы и
+ * пиксель над каждым, сложенные экраны (tools/seams.mjs), PNG в .sweep/, плюс
  * два автоматических диагноза — горизонтальное переполнение и скачки высоты
  * между соседними ширинами.
  *
@@ -23,6 +24,9 @@
 const { chromium } = await import(
   process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
 import { mkdirSync, rmSync } from 'node:fs'
+import { LAYOUT } from './thresholds.mjs'
+import { SEAMS } from './kit-config.mjs'
+import { sweepWidths } from './seams.mjs'
 
 const args = process.argv.slice(2)
 /* Умолчание — болгарская главная: у корня своего содержимого нет, он
@@ -31,7 +35,10 @@ const path = args.find((a) => a.startsWith('/')) ?? '/bg'
 const fold = args.includes('--fold')
 const base = process.env.SITE ?? 'http://localhost:8099'
 
-const FROM = 320, TO = 1600, STEP = 40
+/* Ширины — из порогов и реестра швов (И227): сетка шагом 40 от 320 (переток,
+   WCAG 1.4.10) до 1600, плюс каждый шов и пиксель над ним — ступенька живёт
+   на 820 / 821, и на сетке её нет, — плюс сложенные внутренние экраны. */
+const WIDTHS = sweepWidths(LAYOUT, SEAMS)
 const HEIGHT = 900
 /* Скачок высоты больше пятой части при шаге в 40px — это не «макет плавно
    подстроился», это что-то схлопнулось или выросло. Смотреть глазами. */
@@ -41,11 +48,11 @@ const JUMP = 0.2
    3.4px на шаг свипа в 40px. Вдвое больше — не течение, а ступенька: так
    заголовок магазина прыгал 45 → 56 там, где ряд складывался в столбик, и
    заказчик показал это снимком. Ступенька размера — дефект всегда. */
-const FS_JUMP = 6
+const FS_JUMP = LAYOUT.jump
 /* Снимок под `object-fit:cover` теряет то, что не влезло в пропорцию кадра.
    Треть — обычная цена кадрирования; больше половины — кадр стал лентой:
    950×300 под снимком 1100×1200 оставляли 31% снимка. */
-const CROP_KEEP = 0.45
+const CROP_KEEP = LAYOUT.crop
 
 const out = new URL('../.sweep', import.meta.url).pathname
 rmSync(out, { recursive: true, force: true })
@@ -55,7 +62,7 @@ const browser = await chromium.launch()
 const page = await browser.newPage()
 const rows = []
 
-for (let w = FROM; w <= TO; w += STEP) {
+for (const w of WIDTHS) {
   await page.setViewportSize({ width: w, height: HEIGHT })
   await page.goto(base + path, { waitUntil: 'networkidle' })
   /* Ширина читается после верстания, а не сразу после goto: шрифты меняют
@@ -206,7 +213,7 @@ for (let i = 1; i < rows.length; i++) {
   }
 }
 
-console.log(`\n${rows.length} ширин, ${FROM}…${TO}px, снимки в .sweep/\n`)
+console.log(`\n${rows.length} ширин, ${LAYOUT.sweep[0]}…${LAYOUT.sweep[1]}px (швы ${SEAMS.map((s) => s.at).join(", ")} и пиксель над ними, сложенные экраны), снимки в .sweep/\n`)
 
 if (overflow.length) {
   console.log('✗ Горизонтальное переполнение — страницу можно утащить вбок:')

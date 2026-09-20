@@ -36,7 +36,9 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
-import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, LADDER, STYLE_DIRS } from './kit-config.mjs'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
+import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
+import { LAYOUT } from './thresholds.mjs'
 
 export const ROOT = new URL('..', import.meta.url).pathname
 
@@ -180,11 +182,9 @@ export const confirmed = (text) =>
     .split('\n')
     .some((l) => l.trim().startsWith('- [x]') && l.includes(text))
 
-export const seamsIn = (css) => {
-  const found = new Set()
-  for (const m of css.matchAll(/@media[^{]*?\((?:max|min)-width\s*:\s*(\d+)px/g)) found.add(Number(m[1]))
-  return [...found].sort((a, b) => b - a)
-}
+/* Ширины из медиазапросов считает реестр швов (tools/seams.mjs); здесь имя
+   оставлено, потому что его читают тесты. */
+export { seamsIn }
 
 const seams = () => {
   const found = new Set()
@@ -214,7 +214,7 @@ const step = (layer, name, what, skill, done, owner, meta = {}) => ({ layer, nam
 export const STAGES = [
   {
     n: 0, name: 'Основание',
-    builds: 'три шкалы (цвет, размер, ритм), одиннадцать примитивов раскладки (ворота спрашивают пять), три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
+    builds: 'три шкалы (цвет, размер, ритм), двенадцать примитивов раскладки (ворота спрашивают пять), три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
     skills: ['palette', 'scale', 'craft', 'code', 'stages'],
     steps: [
       step(0, 'Пороги и характер', 'что нельзя нарушать ни одним слоем (контраст 4.5 / 3, цель 44, три шва, телефон первым) и характер витрины словами', 'stages',
@@ -292,13 +292,21 @@ export const STAGES = [
           return null
         }, undefined,
         { reviewed: '20.09.2026', rule: 'И226: три размера из порогов, под пальцем ступень выше, орган считает от высоты', show: 'https://claude.ai/artifact/Cs5sbn6y5H6jdbSTfmsLYm — стенд размеров органов, три размера на одной карточке' }),
-      step(8, 'Раскладка', 'одиннадцать примитивов, три шва в реестре, компонент меряет контейнер, число колонок вычисляется', 'craft',
+      step(8, 'Раскладка', 'двенадцать примитивов, швы в реестре с именем и причиной и читателем у каждого, край и холст из строителя, кадр с потолком, узел меряет контейнер, число колонок вычисляется', 'craft',
         () => {
           const pr = primitivesSrc()
-          const missing = ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned', 'sidebar', 'grid', 'sheet', 'menu'].filter((c) => !new RegExp(`\\.${c}\\b`).test(pr))
+          const missing = ['stack', 'cluster', 'switcher', 'rail', 'prose', 'lede', 'pinned', 'sidebar', 'grid', 'sheet', 'menu', 'frame'].filter((c) => !new RegExp(`\\.${c}\\b`).test(pr))
           if (missing.length) return `примитивов нет: ${missing.join(', ')}`
-          return BREAKPOINTS.length === 3 ? null : `швов ${BREAKPOINTS.length}, а не три`
-        }),
+          const shape = auditSeamsShape(SEAMS, LAYOUT.seams)
+          if (shape.length) return shape[0]
+          const ends = has('styles/scale.json') ? Object.values(JSON.parse(src('styles/scale.json'))).flatMap((s) => s.ширины ?? []) : []
+          const dead = deadSeams(SEAMS, styleFiles().map((f) => ({ rel: f, css: src(f) })), ends)
+          if (dead.length) return dead[0]
+          if (!/--wrap\s*:/.test(ladder()) || !/--gut\s*:/.test(ladder())) return 'холст и край страницы (--wrap, --gut) не выпускает строитель шкал (styles/scale.css)'
+          if (!/\.frame\b[^{]*\{[^}]*max-block-size/.test(pr)) return 'у кадра (.frame) нет потолка — пропорция без потолка займёт экран'
+          return null
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И227: шов — решение с именем и причиной, читаемое в обе стороны; край и холст из строителя; кадр с потолком; узел меряет контейнер', show: 'https://claude.ai/artifact/JK79gLPyohX2YdhXhzovPV — стенд раскладки: швы на линейке, коробка страницы, двенадцать примитивов, кадр' }),
       step(9, 'Форма', 'радиусы одной ручкой, лестница теней по высоте, толщина линии — у ступени смысл', 'craft',
         () => /--r-pill/.test(tokensSrc()) && /--sh-1/.test(tokensSrc()) ? null : 'радиусов (--r-*) или лестницы теней (--sh-*) нет'),
       step(10, 'Состояния и движение', 'один ответ на наведение, нажатие, фокус, недоступное; движение токеном; reduced-motion', 'craft',
@@ -341,8 +349,8 @@ export const STAGES = [
            принимать это или нет… только на тебя полагаться могу» (И206).
            Глаз, который можно заменить счётом, заменяется счётом (И208). */
         () => {
-          const stray = seams().filter((w) => !BREAKPOINTS.includes(w))
-          if (stray.length) return `швы вне списка: ${stray.join(', ')} — разрешены ${BREAKPOINTS.join(', ')}`
+          const stray = seams().filter((w) => !BREAKPOINTS.some((b) => Math.abs(b - w) <= 1))
+          if (stray.length) return `швы вне реестра: ${stray.join(', ')} — записаны ${BREAKPOINTS.join(', ')} (tools/seams.mjs)`
           const law = src('CLAUDE.md')
           const unnamed = BREAKPOINTS.filter((w) => !law.includes(String(w)))
           return unnamed.length ? `шов ${unnamed.join(', ')} не назван в CLAUDE.md — число без причины` : null

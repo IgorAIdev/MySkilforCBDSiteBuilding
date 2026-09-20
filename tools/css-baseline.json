@@ -18,7 +18,7 @@
   "proseCols": 0,
   "twiceDrawn": 2,
   "deadEffect": 0,
-  "tapGrows": 1,
+  "tapGrows": 0,
   "dressLayout": 0,
   "twoOwners": 0,
   "barNoScroll": 0,
@@ -40,5 +40,11 @@
   "axisUnknown": 0,
   "axisTheme": 0,
   "axisScope": 0,
-  "axisHover": 0
+  "axisHover": 0,
+  "ctrlSize": 0,
+  "deadSeam": 0,
+  "nodeWindow": 0,
+  "seamStep": 0,
+  "fullVw": 0,
+  "sizeContain": 0
 }

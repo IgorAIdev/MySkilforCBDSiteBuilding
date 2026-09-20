@@ -31,7 +31,7 @@
  */
 
 import { PREFIX, BREAKPOINTS } from './kit-config.mjs'
-import { RHYTHM, AIR, TARGET, TEXT, TYPE, CONTROL } from './thresholds.mjs'
+import { RHYTHM, AIR, TARGET, TEXT, TYPE, CONTROL, LAYOUT } from './thresholds.mjs'
 
 /** Корень браузера. Поле пишется в rem (правило «поле растёт с буквами»),
  *  а считается в тех же пикселях, что и всё остальное: делить на 16
@@ -94,7 +94,14 @@ export const at = ([min, max], [wMin, wMax], width) => {
  *   воздух     — роль → [ступень на телефоне, ступень на макете]: пара «через
  *                ступень» (Utopia), так воздух растёт быстрее текста, как у
  *                живых люкс-магазинов (×1.33…1.5 при росте тела ×1.1);
- *   зазор      — роль → [под курсором, под пальцем].
+ *   зазор      — роль → [под курсором, под пальцем];
+ *   холст      — ширина коробки страницы в px (`--wrap`): Utopia — max
+ *                viewport конфигурации, cbdshop `--layout-canvas` (слой 8);
+ *   край       — [ступень на телефоне, ступень на макете] → `--gut`, поле
+ *                от края окна до страницы: отдельная роль от зазора сетки
+ *                (Carbon: «margins … fixed … even when columns are fluid»),
+ *                растёт не больше LAYOUT.edgeGrowth (люкс ×1…1.75,
+ *                Atlassian ×2, Utopia ×2.2).
  * Пара чисел [низ, верх] на любом из этих мест тоже читается — так набор
  * писался до И221, и так удобно ПРОБОВАТЬ число, — но клетка и коридоры
  * спрашиваются с неё так же.
@@ -183,6 +190,19 @@ export const resolve = (set) => {
     if (!pair) throw new Error(`зазор «${name}» просит ступень ритма ${v}, которой в наборе нет`)
     out.зазор[name] = Object.assign([pair[0], pair[1]], { step: String(v) })
   }
+  /* Холст и край — раскладка (слой 8, И227): числа коробки страницы тоже
+     из набора, а не рукой в tokens.css. Край — пара ступеней, как воздух:
+     он лежит между окном и предметом, с текстом не связан, в px. */
+  if (set.холст !== undefined) {
+    if (typeof set.холст !== 'number') throw new Error('холст — ширина коробки страницы числом в px')
+    out.холст = set.холст
+  }
+  if (set.край !== undefined) {
+    const [a, b] = Array.isArray(set.край) ? set.край.map(String) : [String(set.край), String(set.край)]
+    const pa = out.ритм[a], pb = out.ритм[b]
+    if (!pa || !pb) throw new Error(`край просит ступень ритма ${!pa ? a : b}, которой в наборе нет`)
+    out.край = { steps: [a, b], pair: [pa[0], pb[1]] }
+  }
   return out
 }
 
@@ -218,6 +238,13 @@ const block = (sets, name, indent = '  ') => {
   }
   for (const [gap, pair] of Object.entries(r.зазор)) {
     put(`--gap-${gap}`, pair.step ? ramp([pair[0], pair[1]], w) : `${num(pair[0])}px`, set.подписи?.зазор?.[gap])
+  }
+  /* Коробка страницы (слой 8): холст и край — роли раскладки из набора.
+     `.wrap` берёт меньшее из холста и окна за вычетом двух краёв. */
+  if (r.холст !== undefined) put('--wrap', `${num(r.холст)}px`, 'холст: ширина коробки страницы')
+  if (r.край) {
+    const { steps, pair } = r.край
+    put('--gut', steps[0] === steps[1] ? stepVar(steps[0]) : ramp(pair, w), `край страницы: от окна до предмета — ступени ${steps[0]} → ${steps[1]}`)
   }
   /* Лестница управления: надпись органа не течёт с окном — пункт меню это
      мишень, а не абзац (scales.md, «Надпись контрола живёт в шкале
@@ -474,6 +501,26 @@ export const auditScale = (set) => {
     }
   }
 
+  /* Коробка страницы (слой 8). Холст не уже верхнего шва — иначе верх рамп
+     недостижим: страница кончилась раньше, чем шкала дошла до макета. Край
+     растёт в своём коридоре: люкс держит его почти постоянным, системы — до
+     ×2.2; выше — край съедает телефон или пустует на макете. */
+  if (r.холст !== undefined && r.холст < w[1]) {
+    findings.push({ rule: 'холст не уже верхнего шва', got: `${r.холст}px`, need: `не меньше ${w[1]}px` })
+  }
+  if (r.край) {
+    const { steps, pair } = r.край
+    const growth = pair[1] / pair[0]
+    const [lo, hi] = LAYOUT.edgeGrowth
+    if (growth < lo || growth > hi) {
+      findings.push({
+        rule: 'край растёт в коридоре',
+        got: `${pair[0]} → ${pair[1]}px (×${growth.toFixed(2)}, ступени ${steps[0]} → ${steps[1]})`,
+        need: `×${lo}…${hi} — люкс держит край почти постоянным (Diptyque 12 / 12, Byredo ×1.75), Atlassian 16 → 32, Utopia 18 → 40`,
+      })
+    }
+  }
+
   return findings
 }
 
@@ -497,6 +544,8 @@ export const builtNames = (sets) => {
     for (const name of Object.keys(r.зазор)) names.add(`--gap-${name}`)
     for (const name of Object.keys(r.размер)) names.add(`--ctrl-fs-${name}`)
     for (const name of ['--ctrl-h-sm', '--ctrl-h', '--ctrl-h-lg', '--ctrl-target', '--ctrl-fs']) names.add(name)
+    if (r.холст !== undefined) names.add('--wrap')
+    if (r.край) names.add('--gut')
   }
   for (const setName of Object.keys(sets)) {
     for (const [role, r] of Object.entries(rolesOf(sets, setName))) {
@@ -599,6 +648,7 @@ export const auditReaders = (sheets, sets) => {
     for (const p of Object.values(rs.поле)) if (p.step) asked.add(`${PREFIX.space}${p.step}`)
     for (const a of Object.values(rs.воздух)) for (const st of a.steps) asked.add(`${PREFIX.space}${st}`)
     for (const g of Object.values(rs.зазор)) if (g.step) asked.add(`${PREFIX.space}${g.step}`)
+    if (rs.край) for (const st of rs.край.steps) asked.add(`${PREFIX.space}${st}`)
     for (const role of Object.values(rolesOf(sets, name))) {
       if (typeof role.размер === 'string') asked.add(role.размер)
     }

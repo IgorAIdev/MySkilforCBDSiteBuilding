@@ -229,7 +229,12 @@ p,li,dd,figcaption,blockquote,h1,h2,h3,h4{overflow-wrap:anywhere}
 p,li,dd{hyphens:auto}
 q{quotes:auto}
 
-html{scrollbar-width:thin}
+/* Место под полосу прокрутки занято всегда: на десктопе с классической
+   полосой длинная страница иначе прыгает влево на пиксели полосы, когда
+   она появляется (web.dev; Baseline с 12.2024). На накладных полосах —
+   телефон, mac по умолчанию — ничего не делает, это и есть запасной путь.
+   Отсюда же: `100vw` шире страницы на полосу — семья `fullVw`. */
+html{scrollbar-width:thin;scrollbar-gutter:stable}
 input,textarea,select{caret-color:var(--pop-ink)}
 /* Галочка и радио остаются браузерными нарочно (клавиатура, чтец,
    промежуточное состояние — разбор у `.tick` в `styles/form.module.css`), и
