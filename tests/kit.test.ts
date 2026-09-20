@@ -21,7 +21,9 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const read = (p: string): string => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
@@ -214,5 +216,32 @@ test('семьи проверок названы в одном месте', () =
     const src = read(`tools/${check}`)
     assert.ok(!/const NAMES = \{/.test(src), `tools/${check} держит свою таблицу подписей — вторая копия реестра`)
     assert.ok(/_LABELS as NAMES/.test(src), `tools/${check} не ввозит подписи из tools/${list}`)
+  }
+})
+
+/* И189, И190: сторож палитры меряет ход лестницы и красную шкалу. Набор,
+   у которого краска светлее контролов, должен покраснеть в обеих темах;
+   образцы самопроверки — пройти. */
+test('палитра: схлопнувшаяся лестница — находка, образцы проходят', () => {
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const clean = spawnSync(process.execPath, [tool, '--json'], { encoding: 'utf8' })
+  const ok = JSON.parse(clean.stdout)
+  assert.equal(clean.status, 0, 'образцы самопроверки должны проходить')
+  assert.ok(ok.report.every((r: { findings: unknown[] }) => r.findings.length === 0))
+
+  const dir = mkdtempSync(join(tmpdir(), 'palette-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
+    'краска светлее контролов': {
+      light: { paper: '#FFFFFF', ink: '#222222', accent: '#F3EEDC', error: '#B3261E' },
+      dark: { paper: '#111111', ink: '#EEEEEE', accent: '#F7F7F2', error: '#E5484D' },
+    },
+  }))
+  const bad = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
+  assert.equal(bad.status, 1)
+  const rules = JSON.parse(bad.stdout).report.map((r: { mode: string; findings: { rule: string }[] }) =>
+    [r.mode, r.findings.map((f) => f.rule)])
+  for (const [mode, found] of rules) {
+    assert.ok(found.includes('фирменная лестница не схлопывается'), `${mode}: лестница схлопнулась, а сторож молчит`)
   }
 })
