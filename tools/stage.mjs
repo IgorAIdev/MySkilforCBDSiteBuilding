@@ -23,7 +23,7 @@
  */
 
 import { relative } from 'node:path'
-import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, ROOT } from './stages.mjs'
+import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, ROOT, confirmed } from './stages.mjs'
 
 const arg = (f) => process.argv.includes(f)
 
@@ -41,8 +41,8 @@ function brief(stage, { full = false } = {}) {
   console.log(`\n  Ворота${next ? ` (чтобы перейти к ${title(next)})` : ''}:`)
   for (const p of problems) line('✗', p)
   if (!problems.length && stage.gate.machine.length) line('✓', 'всё, что меряется, держится')
-  for (const h of stage.gate.human.mine) line('□', `${h}   (смотрю я)`)
-  for (const h of stage.gate.human.owner) line('□', `${h}   (РЕШАЕТ ЗАКАЗЧИК)`)
+  for (const h of stage.gate.human.mine) line(confirmed(h) ? '✓' : '□', `${h}   ${confirmed(h) ? '(посмотрел — docs/gate.md)' : '(смотрю я)'}`)
+  for (const h of stage.gate.human.owner) line(confirmed(h) ? '✓' : '□', `${h}   ${confirmed(h) ? '(подтверждено — docs/gate.md)' : '(РЕШАЕТ ЗАКАЗЧИК)'}`)
 
   if (stage.parked.length) {
     console.log('\n  Просыпается на этом этапе:')
@@ -93,7 +93,11 @@ if (arg('--gate')) {
     }
   }
   const now = gateProblems(stage)
-  console.log(`· ${title(stage)} — текущий; до перехода: ${now.length ? now.length + ' пункт(а) машиной' : 'машиной всё'}${stage.gate.human.mine.length ? ` + ${stage.gate.human.mine.length} смотрю я` : ''}${stage.gate.human.owner.length ? ` + ${stage.gate.human.owner.length} решает заказчик` : ''}`)
+  /* В счёт идёт неподтверждённое: то, что записано в docs/gate.md, уже
+     посмотрено — и спрашивать это заново значит спрашивать дважды (И209). */
+  const mine = stage.gate.human.mine.filter((h) => !confirmed(h))
+  const owner = stage.gate.human.owner.filter((h) => !confirmed(h))
+  console.log(`· ${title(stage)} — текущий; до перехода: ${now.length ? now.length + ' пункт(а) машиной' : 'машиной всё'}${mine.length ? ` + ${mine.length} смотрю я` : ''}${owner.length ? ` + ${owner.length} решает заказчик` : ''}${!mine.length && !owner.length && !now.length ? ' — ворота пройдены' : ''}`)
   for (const p of PLATFORM) if (p.awake()) {
     console.log(`⚠ проснулся скилл платформы: ${p.name}\n    ${p.take}`)
   }

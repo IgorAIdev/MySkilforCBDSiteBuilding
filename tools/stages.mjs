@@ -172,6 +172,14 @@ const styleFiles = () => {
 
 /** Ширины, на которых раскладка меняет СМЫСЛ. Контейнерные запросы сюда не
  *  входят: компонент меряет свою коробку, а не окно (запрет 6). */
+/** Пункт ворот, отмеченный в `docs/gate.md`: строка «- [x] …», в которой
+ *  стоит текст пункта целиком. Переписали пункт — подтверждение лапается,
+ *  и это верно: другой вопрос требует другого ответа (И209). */
+export const confirmed = (text) =>
+  src('docs/gate.md')
+    .split('\n')
+    .some((l) => l.trim().startsWith('- [x]') && l.includes(text))
+
 export const seamsIn = (css) => {
   const found = new Set()
   for (const m of css.matchAll(/@media[^{]*?\((?:max|min)-width\s*:\s*(\d+)px/g)) found.add(Number(m[1]))
@@ -187,7 +195,7 @@ const seams = () => {
 export const STAGES = [
   {
     n: 0, name: 'Основание',
-    builds: 'три шкалы (цвет, размер, ритм), пять примитивов раскладки, три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
+    builds: 'три шкалы (цвет, размер, ритм), одиннадцать примитивов раскладки (ворота спрашивают пять), три брейкпоинта, правила в CLAUDE.md и проверки-храповики — с первого коммита, до первого блока.',
     skills: ['craft', 'code', 'stages'],
     checks: ['typecheck', 'check:css', 'check:scale', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
     gate: {
