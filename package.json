@@ -8,7 +8,8 @@
     "check:css": "node tools/check-css.mjs",
     "check:code": "node tools/check-code.mjs",
     "check:port": "node tools/check-port.mjs",
-    "check:palette": "node tools/check-palette.mjs",
+    "palette": "node tools/palette-css.mjs",
+    "check:palette": "node tools/check-palette.mjs && node tools/palette-css.mjs --check",
     "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs"
   }
 }
