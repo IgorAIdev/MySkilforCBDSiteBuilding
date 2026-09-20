@@ -64,6 +64,17 @@ if (/\.(ts|tsx|js|jsx|mjs)$/.test(rel) && inDir(...CODE_DIRS)) {
   if (has('tools/check-lint.mjs') && has('node_modules/.bin/oxlint')) runs.push(['check:lint', 'node', ['tools/check-lint.mjs']])
   if (inDir(LIB) && scripts.test && has('tests') && has('node_modules')) runs.push(['test', 'npm', ['test', '--silent']])
 }
+/* Скилл держит себя актуальным сам (И219): правка того, из чего собираются
+   факты о палитре — строителя, списка команд, красок набора, образцов или
+   самого закона palette, — пересобирает таблицы фактов и тут же сверяет
+   скилл с кодом. Число, набранное словом и отставшее, краснеет здесь, а не
+   в глазах заказчика. */
+if (has('tools/check-rules.mjs') &&
+    (/^tools\/palette[\w-]*\.mjs$/.test(rel) || rel === 'scripts.mjs' || rel === 'styles/palette.json' ||
+     /^templates\/palette[\w-]*\.json$/.test(rel) || /^\.claude\/skills\/palette\//.test(rel))) {
+  runs.push(['check:rules --tables', 'node', ['tools/check-rules.mjs', '--tables']])
+  runs.push(['check:rules', 'node', ['tools/check-rules.mjs']])
+}
 if (!runs.length) process.exit(0)
 
 const failed = []
