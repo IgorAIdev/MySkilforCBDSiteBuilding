@@ -1,0 +1,121 @@
+/**
+ * Адреса: обещанное открывается, открытое обещано.
+ *
+ * Заведено по дефекту соседнего магазина, и он самый дорогой из всех
+ * записанных: у товара переводился адрес, а карта сайта продолжала клеить
+ * `/en/` + болгарский путь. Восемьдесят четыре адреса из карты отвечали «не
+ * найдено», ровно столько же настоящих английских страниц в карту не
+ * попадало вовсе, а `hreflang` называл несуществующего двойника — то есть
+ * сообщал поисковику, что английской версии нет.
+ *
+ * Заметить это глазами невозможно: обе половины выглядят правдоподобно,
+ * страницы открываются, карта отдаётся. Видно только обходом.
+ *
+ * Поэтому проверка двусторонняя, и обе стороны обязательны:
+ *
+ *   1. ОБЕЩАННОЕ ОТКРЫВАЕТСЯ. Каждый адрес из карты сайта, каждый
+ *      `canonical` и каждый `hreflang` в собранных страницах — существует
+ *      файлом. Указать на адрес, которого нет, хуже, чем не указать ни на
+ *      что: поисковик сходит по нему один раз и перестанет верить остальным.
+ *
+ *   2. ОТКРЫТОЕ ОБЕЩАНО РОВНО ОДИН РАЗ. Каждая собранная страница либо стоит
+ *      в карте сайта, либо прямо сказала о себе `noindex`. Молчание — это не
+ *      «страница не для поиска», это страница, которую поиск найдёт и
+ *      проиндексирует, не спросив. Корзина в выдаче — ровно этот случай.
+ *
+ * Ходит по `out/`, браузера не требует, идёт секунду. Место — сразу после
+ * `build:site`, в том числе в CI.
+ *
+ *   npm run build:site && node tools/check-urls.mjs
+ */
+
+import { all } from './routes.mjs'
+/* Страницы — из `out/` или с живого сервера (`SITE=`): один источник на
+   обе проверки поиска, разбор в `tools/pages.mjs` (И174). Что значит
+   «страница есть» — файл на диске или ответ 200 — решает он же. */
+import { loadSite } from './pages.mjs'
+
+const site = await loadSite({ routes: all() })
+const pages = site.pages
+const exists = site.exists
+
+const SITE = (site.sitemap.match(/<loc>([^<]*)<\/loc>/)?.[1] ?? '').replace(/\/[^/]*$/, '')
+/* Свой адрес — и записанный полностью (так пишутся карта сайта и canonical),
+   и записанный от корня (так пишутся ссылки в тексте). Чужой — не наш, и не
+   нам его проверять. Раньше принимался только первый вид, поэтому обычные
+   ссылки не проверялись вовсе: `local()` отвечал «не наш» на каждую. */
+const local = (href) => {
+  if (href.startsWith(SITE)) return href.slice(SITE.length) || '/'
+  if (href.startsWith('//') || /^[a-z]+:/i.test(href)) return null
+  if (href.startsWith('/')) return href.split(/[?#]/)[0] || '/'
+  return null
+}
+
+/* ── карта сайта ────────────────────────────────────────────────────────── */
+const promised = [...site.sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1])
+
+const broken = []
+const seen = new Map()
+for (const href of promised) {
+  const url = local(href)
+  if (url === null) continue
+  if (!(await exists(url))) broken.push(`карта сайта → ${url} — такой страницы нет`)
+  seen.set(url, (seen.get(url) ?? 0) + 1)
+}
+for (const [url, n] of seen) {
+  if (n > 1) broken.push(`карта сайта обещает ${url} ${n} раза — двойник`)
+}
+
+/* ── ссылки внутри страниц: canonical, hreflang И ОБЫЧНЫЕ ───────────────── */
+const silent = []
+for (const [url, html] of [...pages].sort()) {
+  for (const m of html.matchAll(/<link rel="(canonical|alternate)"[^>]*href="([^"]+)"/g)) {
+    const to = local(m[2])
+    if (to !== null && !(await exists(to))) {
+      broken.push(`${url} → ${m[1]} ${to} — такой страницы нет`)
+    }
+  }
+
+  /* Обычная ссылка в тексте страницы — та, по которой ходит покупатель.
+     Прежде проверялись только `canonical` и `hreflang`, то есть обещания
+     ПОИСКУ, а обещания человеку не проверялись вовсе. На этом и проехала
+     ссылка «За нас» в шапке: адрес есть, страницы нет, и вся цепочка была
+     зелёной.
+
+     Считается один раз на страницу и на адрес: одна и та же битая ссылка в
+     шапке ста двадцати страниц — это одна правка, а не сто находок. */
+  const hrefs = new Set()
+  for (const m of html.matchAll(/<a\s[^>]*href="([^"#?][^"]*)"/g)) hrefs.add(m[1])
+  for (const href of hrefs) {
+    const to = local(href)
+    if (to === null || (await exists(to))) continue
+    const line = `ссылка → ${to} — такой страницы нет`
+    if (!broken.includes(line)) broken.push(line)
+  }
+
+  /* Открытое обещано. Служебные листы самого фреймворка (`_not-found`,
+     `404`) адресами не являются — их отдаёт нгинкс по коду ответа. */
+  if (/^\/(404|_not-found)$/.test(url)) continue
+  if (seen.has(url)) continue
+  if (/<meta name="robots"[^>]*noindex/i.test(html)) continue
+  silent.push(url)
+}
+
+let failed = false
+if (broken.length) {
+  failed = true
+  console.error(`\n✗ Обещан адрес, которого нет: ${broken.length}`)
+  for (const b of broken.slice(0, 20)) console.error(`    ${b}`)
+  if (broken.length > 20) console.error(`    …и ещё ${broken.length - 20}`)
+  console.error('\n  Указать на адрес, которого нет, хуже, чем не указать ни на что.')
+}
+if (silent.length) {
+  failed = true
+  console.error(`\n✗ Страница ни в карте сайта, ни с noindex: ${silent.length}`)
+  for (const s of silent) console.error(`    ${s}`)
+  console.error('\n  Молчание не убирает страницу из выдачи. Либо в карту, либо')
+  console.error("  сказать о себе: `robots: { index: false }` в метаданных страницы.")
+}
+if (failed) process.exit(1)
+
+console.log(`· адреса сходятся: обещано ${seen.size}, собрано ${pages.size}, мёртвых ссылок нет`)

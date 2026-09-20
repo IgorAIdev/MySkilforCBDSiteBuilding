@@ -34,18 +34,33 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync
 import { join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
+import { toCss as ritmToCss } from './tools/scale.mjs'
 
 const SRC = resolve(new URL('.', import.meta.url).pathname)
 const args = process.argv.slice(2)
 const flags = new Set(args.filter((a) => a.startsWith('--')))
-const target = args.find((a) => !a.startsWith('--'))
+/* Папка проекта — первый свободный довод, НЕ считая значения ключа
+   `--palette "Имя"`: имя набора выглядит как путь, и ставщик однажды принял
+   «Латунь на угле» за папку назначения (И213). */
+const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
 const MODE = flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
+/* Набор цвета, выбранный заказчиком, — ключом при постановке:
+   `node install.mjs --palette "Латунь на угле" ../мой-сайт`.
+   Без ключа новый сайт получает серый стартовый и напоминание спросить
+   фирменный цвет (И199). С ключом — названный набор из образцов набора,
+   потому что выбор УЖЕ сделан, и заставлять делать его заново значит
+   терять то, за что заказчик уже заплатил своим временем (И213). */
+const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith('--'))
+/* То же для ритма: `--scale "Просторный"`. Набор ритма — такой же выбор
+   заказчика, сделанный глазами на стенде, и теряться при постановке он не
+   должен ровно по той же причине (И213). */
+const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --update, --audit, --force.`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --update, --audit, --force, --palette "Имя", --scale "Имя".`)
     process.exit(1)
   }
 }
@@ -156,21 +171,48 @@ if (MODE === 'new') {
          (И199). До 21.09.2026 шага «спроси цвет» не было нигде, кроме памяти
          сессии, то есть нигде. */
       mkdirSync(join(OUT, 'styles'), { recursive: true })
-      cpSync(join(SRC, 'templates/palette-starter.json'), join(OUT, name))
+      const образцы = JSON.parse(readFileSync(join(SRC, 'templates/palette.json'), 'utf8'))
+      if (PALETTE && !образцы[PALETTE]) {
+        console.error(`Набора «${PALETTE}» нет среди образцов. Есть: ${Object.keys(образцы).join(', ')}`)
+        process.exit(1)
+      }
+      const краски = PALETTE
+        ? { [PALETTE]: образцы[PALETTE] }
+        : JSON.parse(readFileSync(join(SRC, 'templates/palette-starter.json'), 'utf8'))
+      writeFileSync(join(OUT, name), JSON.stringify(краски, null, 2) + '\n')
       /* И выпустить из них CSS тем же кодом, что считает проверка: иначе
          `styles/palette.css` приезжает выпущенным из красок ЧУЖОГО магазина
          и отстаёт от того, что лежит рядом в json. Сторож это ловит сразу —
          «выпущенный styles/palette.css отстал от красок», — и правильно
          делает: краски и выпуск обязаны сходиться с первой минуты. */
-      writeFileSync(
-        join(OUT, 'styles/palette.css'),
-        toCss(JSON.parse(readFileSync(join(SRC, 'templates/palette-starter.json'), 'utf8'))),
-      )
+      writeFileSync(join(OUT, 'styles/palette.css'), toCss(краски))
     } else if (existsSync(join(SRC, name))) {
       cpSync(join(SRC, name), join(OUT, name), { recursive: true })
     }
     moved.push(name)
   }
+  /* Выбранный набор ритма — первым в файле: на корне стоит первый, им сайт
+     и размечен (И198). Остальные остаются рядом, чтобы было чем сравнить. */
+  if (SCALE) {
+    const путь = join(OUT, 'styles/scale.json')
+    const наборы = JSON.parse(readFileSync(путь, 'utf8'))
+    if (!наборы[SCALE]) {
+      console.error(`Набора ритма «${SCALE}» нет. Есть: ${Object.keys(наборы).join(', ')}`)
+      process.exit(1)
+    }
+    const переставленные = {
+      [SCALE]: наборы[SCALE],
+      ...Object.fromEntries(Object.entries(наборы).filter(([n]) => n !== SCALE)),
+    }
+    writeFileSync(путь, JSON.stringify(переставленные, null, 2) + '\n')
+    /* И тут же выпустить: json переставлен — значит на корне другой набор,
+       а `styles/scale.css` остался выпущенным из прежнего порядка и отстал
+       от того, что лежит рядом. Ровно тот же шов, что у красок выше, и
+       ловится он тем же сторожем `scale-css.mjs --check`. Поймано своим
+       тестом до первой постановки. */
+    writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(переставленные))
+  }
+
   /* Всё остальное содержимое набора, о чём выше не сказано, — тоже его. */
   for (const name of readdirSync(SRC)) {
     if (MINE.has(name) || name === '.claude' || name === 'tools' || name === 'install.mjs' ||

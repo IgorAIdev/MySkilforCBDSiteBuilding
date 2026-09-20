@@ -1,0 +1,67 @@
+# Проверки, которые не требуют, чтобы о них помнили.
+#
+# Быстрые идут на каждый PR и не нуждаются ни в чём, кроме node.
+# Две тяжёлые — по отрисованной странице — поднимают браузер и сам сайт;
+# они медленнее, поэтому стоят отдельным заданием и не блокируют первое.
+name: check
+
+# Минуты GitHub на закрытом репозитории — деньги заказчика: 2000 в месяц,
+# каждый запуск с округлением вверх до минуты. Поэтому запуск только на PR
+# (влитие в `main` не запускает ничего — PR уже проверен на слитом дереве),
+# новый пуш отменяет незаконченный прогон старого, а правка одних `docs/`
+# прогона не запускает. Тяжёлое задание с браузером — по той же причине
+# только по PR и с отменой устаревшего.
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - '**.png'
+
+concurrency:
+  group: check-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run check:css
+      - run: npm run check:code
+      - run: npm run check:port
+      - run: npm run check:lint
+      - run: npm test
+      - run: npm run check:stage
+      # До сборки: обе пишут в `.next`, и последней должна заканчиваться
+      # сборка. Часть проверок фреймворк делает только в разработке — сайт
+      # может собираться и падать в `dev`, а отрисованные проверки этого не
+      # увидят: они ходят по собранному.
+      - run: npm run check:open
+      - run: npm run build
+      # После сборки: читает собранное.
+      - run: npm run check:urls
+      - run: npm run check:seo
+
+  rendered:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22', cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      # Сервер свой, из набора, и это не придирка. Он обязан уметь чистые
+      # адреса (`/product` — это `product.html`): `python3 -m http.server`
+      # их не умеет и отдаёт листинг каталога, а `serve` из npm вдобавок
+      # умирает от нехватки дескрипторов посреди длинного прогона. И в том
+      # и в другом случае проверка мерит не то и молча зеленеет.
+      - run: npm run serve &
+      - run: npx wait-on http://localhost:8099 -t 30000
+      - run: npm run check:craft
+      - run: npm run sweep
