@@ -34,6 +34,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync
 import { join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
+import { toCss as ritmToCss } from './tools/scale.mjs'
 
 const SRC = resolve(new URL('.', import.meta.url).pathname)
 const args = process.argv.slice(2)
@@ -41,7 +42,7 @@ const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
    `--palette "Имя"`: имя набора выглядит как путь, и ставщик однажды принял
    «Латунь на угле» за папку назначения (И213). */
-const target = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--palette')
+const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
 const MODE = flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
@@ -52,10 +53,14 @@ const FORCE = flags.has('--force')
    потому что выбор УЖЕ сделан, и заставлять делать его заново значит
    терять то, за что заказчик уже заплатил своим временем (И213). */
 const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith('--'))
+/* То же для ритма: `--scale "Просторный"`. Набор ритма — такой же выбор
+   заказчика, сделанный глазами на стенде, и теряться при постановке он не
+   должен ровно по той же причине (И213). */
+const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --update, --audit, --force, --palette "Имя".`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --update, --audit, --force, --palette "Имя", --scale "Имя".`)
     process.exit(1)
   }
 }
@@ -186,6 +191,28 @@ if (MODE === 'new') {
     }
     moved.push(name)
   }
+  /* Выбранный набор ритма — первым в файле: на корне стоит первый, им сайт
+     и размечен (И198). Остальные остаются рядом, чтобы было чем сравнить. */
+  if (SCALE) {
+    const путь = join(OUT, 'styles/scale.json')
+    const наборы = JSON.parse(readFileSync(путь, 'utf8'))
+    if (!наборы[SCALE]) {
+      console.error(`Набора ритма «${SCALE}» нет. Есть: ${Object.keys(наборы).join(', ')}`)
+      process.exit(1)
+    }
+    const переставленные = {
+      [SCALE]: наборы[SCALE],
+      ...Object.fromEntries(Object.entries(наборы).filter(([n]) => n !== SCALE)),
+    }
+    writeFileSync(путь, JSON.stringify(переставленные, null, 2) + '\n')
+    /* И тут же выпустить: json переставлен — значит на корне другой набор,
+       а `styles/scale.css` остался выпущенным из прежнего порядка и отстал
+       от того, что лежит рядом. Ровно тот же шов, что у красок выше, и
+       ловится он тем же сторожем `scale-css.mjs --check`. Поймано своим
+       тестом до первой постановки. */
+    writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(переставленные))
+  }
+
   /* Всё остальное содержимое набора, о чём выше не сказано, — тоже его. */
   for (const name of readdirSync(SRC)) {
     if (MINE.has(name) || name === '.claude' || name === 'tools' || name === 'install.mjs' ||

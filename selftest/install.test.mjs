@@ -193,3 +193,40 @@ test('без ключа новый сайт получает стартовый 
     'новый сайт начался с чужой марки')
   rmSync(dir, { recursive: true, force: true })
 })
+
+/* И213, вторая половина: набор РИТМА — такой же выбор глазами на стенде, и
+   теряться при постановке он не должен по той же причине, что и цвет. */
+test('--scale "Имя": выбранный набор ритма стоит на корне, остальные рядом', () => {
+  const dir = fresh('scale-named')
+  const r = install(dir, '--scale', 'Просторный')
+  assert.equal(r.status, 0, r.stderr)
+  const ритм = Object.keys(JSON.parse(readFileSync(join(dir, 'styles/scale.json'), 'utf8')))
+  assert.equal(ритм[0], 'Просторный', 'на корне стоит не выбранный набор')
+  assert.ok(ритм.length > 1, 'остальные наборы выброшены — сравнить не с чем')
+  /* Выпущенное сходится со шкалой с первой минуты — тем же кодом, что мерит. */
+  assert.equal(spawnSync(process.execPath, [join(dir, 'tools/scale-css.mjs'), '--check'],
+    { cwd: dir }).status, 0, 'выпущенный styles/scale.css отстал от выбранного ритма')
+  assert.equal(check(dir, 'check-scale.mjs').status, 0, 'выбранный ритм не проходит замер')
+  rmSync(dir, { recursive: true, force: true })
+})
+
+test('--scale с неизвестным именем: отказ со списком', () => {
+  const dir = fresh('scale-unknown')
+  const r = install(dir, '--scale', 'Такого нет')
+  assert.notEqual(r.status, 0, 'неизвестный набор ритма принят молча')
+  assert.match(r.stderr, /Есть:/, 'отказ не назвал, из чего выбирать')
+  rmSync(dir, { recursive: true, force: true })
+})
+
+/* Оба ключа разом: папку назначения ставщик ищет как довод, перед которым
+   НЕ стоит ключ с именем. Без этого «Просторный» уезжал в путь (И213). */
+test('--palette и --scale вместе: папка назначения не путается с именами', () => {
+  const dir = fresh('choice-both')
+  const r = install(dir, '--palette', 'Латунь на угле', '--scale', 'Просторный')
+  assert.equal(r.status, 0, r.stderr)
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(join(dir, 'styles/palette.json'), 'utf8'))),
+    ['Латунь на угле'])
+  assert.equal(Object.keys(JSON.parse(readFileSync(join(dir, 'styles/scale.json'), 'utf8')))[0],
+    'Просторный')
+  rmSync(dir, { recursive: true, force: true })
+})
