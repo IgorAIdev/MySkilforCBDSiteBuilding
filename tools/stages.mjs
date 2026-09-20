@@ -67,7 +67,12 @@ const ci = () => {
       let scripts = {}
       try { scripts = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).scripts ?? {} } catch { /* этаж без package.json */ }
       const calls = (text) => [...text.matchAll(/(?:pnpm|npm run|yarn)\s+(?:run\s+)?([\w:.-]+)/g)].map((m) => m[1])
-      const runsCss = (text) => /check:css/.test(text) || calls(text).some((name) => /check:css/.test(scripts[name] ?? ''))
+      /* Ищется и ИМЯ команды, и сам файл: процесс имеет право звать
+         храповик напрямую — `node tools/check-css.mjs`, — и это ровно то
+         же самое. Ворота, знавшие только `check:css`, краснели на своём же
+         наборе, чей CI зовёт файлом (И200). */
+      const RUNS = /check[:-]css/
+      const runsCss = (text) => RUNS.test(text) || calls(text).some((name) => RUNS.test(scripts[name] ?? ''))
       if (readdirSync(wf).some((f) => runsCss(readFileSync(join(wf, f), 'utf8')))) return true
     }
     if (existsSync(join(dir, '.git'))) break
@@ -159,7 +164,7 @@ export const STAGES = [
         /* Лестница может лежать в двух местах: выпущенной строителем
            (`styles/scale.css`) или набранной в файле шкал. Ворота
            спрашивают ОБА — иначе переезд, который сам набор и сделал,
-           закрывает пройденные ворота (И199). */
+           закрывает пройденные ворота (И202). */
         () => ladder().includes(PREFIX.font) ? null : `шкалы размера ${PREFIX.font}* нет ни в ${LADDER}, ни в ${TOKENS ?? 'файле шкал (не назван в kit.config.json)'} — правило 1 ссылается в пустоту`,
         () => ladder().includes(PREFIX.space) ? null : `шкалы ритма ${PREFIX.space}* нет ни в ${LADDER}, ни в ${TOKENS ?? 'файле шкал (не назван в kit.config.json)'} — правило 2 ссылается в пустоту`,
         () => {
@@ -177,10 +182,21 @@ export const STAGES = [
            непереносимого просто не накапливается. */
         () => script('check:port') && has('tools/port-baseline.json') ? null : 'храповика по переносимости нет (check:port + tools/port-baseline.json)',
         () => ci() ? null : 'проверки не валят сборку сами — в .github/workflows/ нет процесса, который зовёт check:css',
+        /* Палитра — первое, что спрашивают у заказчика, и первое, что сессия
+           забывает: до 21.09.2026 шага «спроси фирменный цвет» не было нигде,
+           кроме моей памяти (И199). Теперь он всплывает в брифинге каждой
+           сессии, пока цвет не назван. */
+        () => {
+          if (!has('styles/palette.json')) return 'палитры нет (styles/palette.json) — спросить у заказчика фирменный цвет и завести набор'
+          return src('styles/palette.json').includes('Стартовый')
+            ? 'палитра осталась стартовой — спросить у заказчика фирменный цвет и заменить «Стартовый — заменить»'
+            : null
+        },
       ],
       human: [
         `швов раскладки ровно ${BREAKPOINTS.length} — ${BREAKPOINTS.join(', ')} — и каждый назван в CLAUDE.md`,
         'роли цвета названы по работе (--page, --ink, --accent), а не по оттенку',
+        'набор цвета показан заказчику отрисованным — не кодами, а кнопкой, которую он нажал',
       ],
     },
     parked: [

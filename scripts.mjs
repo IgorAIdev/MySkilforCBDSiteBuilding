@@ -28,7 +28,7 @@ export const SCRIPTS = {
   palette: 'node tools/palette-css.mjs',
   'check:palette': 'node tools/check-palette.mjs && node tools/palette-css.mjs --check',
   /* Шкалы: выпуск, замер и стенд. То же устройство, что у палитры, и по той
-     же причине (И199): числа шкал стояли в tokens.css набранными рукой, а
+     же причине (И202): числа шкал стояли в tokens.css набранными рукой, а
      формула к ним — словами в комментарии рядом. */
   scale: 'node tools/scale-css.mjs',
   'check:scale': 'node tools/check-scale.mjs && node tools/scale-css.mjs --check',

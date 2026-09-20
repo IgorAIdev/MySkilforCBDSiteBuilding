@@ -33,6 +33,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
+import { toCss } from './tools/palette.mjs'
 
 const SRC = resolve(new URL('.', import.meta.url).pathname)
 const args = process.argv.slice(2)
@@ -63,7 +64,7 @@ const MINE = new Set(['.git', '.gitignore', 'node_modules', 'README.md', 'packag
 /** Принадлежит ПРОЕКТУ, как только в нём появилось: правила, шкалы, тесты,
  *  линтер, рабочий процесс. Набор пишет их один раз — новому сайту. */
 const PROJECT_OWNED = ['CLAUDE.md', 'docs', 'styles', 'tests', '.oxlintrc.json',
-  '.github/workflows/check.yml']
+  '.github/workflows/check.yml', 'styles/palette.json']
 
 /** Свои четыре скилла — то, ради чего набор существует. Остальные в
  *  `.claude/skills/` — чужие, о вкусе и процессе; на чужой сайт для аудита
@@ -145,6 +146,26 @@ if (MODE === 'new') {
     if (name === '.github/workflows/check.yml') {
       mkdirSync(join(OUT, '.github/workflows'), { recursive: true })
       cpSync(join(SRC, 'templates/check.yml'), join(OUT, name))
+    } else if (name === 'styles/palette.json') {
+      /* Новый сайт с первой минуты стоит на шкале — но НЕ на красках чужого
+         магазина. Палитра набора едет вместе со `styles/`, и без этой строки
+         новый сайт получал бы «Мек остров» целиком: чужую марку под чужим
+         именем, и никто бы не спросил. Стартовый набор нарочно серый и
+         назван «Стартовый — заменить»: ворота этапа 0 ищут это слово и
+         напоминают спросить у заказчика фирменный цвет, пока он не назван
+         (И199). До 21.09.2026 шага «спроси цвет» не было нигде, кроме памяти
+         сессии, то есть нигде. */
+      mkdirSync(join(OUT, 'styles'), { recursive: true })
+      cpSync(join(SRC, 'templates/palette-starter.json'), join(OUT, name))
+      /* И выпустить из них CSS тем же кодом, что считает проверка: иначе
+         `styles/palette.css` приезжает выпущенным из красок ЧУЖОГО магазина
+         и отстаёт от того, что лежит рядом в json. Сторож это ловит сразу —
+         «выпущенный styles/palette.css отстал от красок», — и правильно
+         делает: краски и выпуск обязаны сходиться с первой минуты. */
+      writeFileSync(
+        join(OUT, 'styles/palette.css'),
+        toCss(JSON.parse(readFileSync(join(SRC, 'templates/palette-starter.json'), 'utf8'))),
+      )
     } else if (existsSync(join(SRC, name))) {
       cpSync(join(SRC, name), join(OUT, name), { recursive: true })
     }
