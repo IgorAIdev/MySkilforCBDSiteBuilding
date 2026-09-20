@@ -192,7 +192,12 @@ small,figcaption,button,summary{text-wrap:balance}
    underline offset. By default they belong to no design system at all; here
    they are painted from the palette. */
 ::selection{background:var(--cyan-4);color:var(--cyan-12)}
-:focus-visible{outline:2px solid var(--cyan-9);outline-offset:3px}
+/* Кольцо фокуса — ЗАМЕР, а не ступень по номеру: у эталона седьмая
+   («UI element border and focus rings») даёт 1.49 на карточке при
+   требуемых WCAG трёх. `--ring` — первая ступень фирменного ряда, которая
+   порог берёт, и на каждом наборе она своя (palette.md, «Граница бралась
+   по номеру ступени»). */
+:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
 
 /* Серая рамка, которую Android рисует поверх нажатой ссылки и держит ещё
    долю секунды после того, как палец ушёл, — это отклик БРАУЗЕРА за

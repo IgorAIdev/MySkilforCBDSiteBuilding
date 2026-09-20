@@ -223,7 +223,7 @@ test('семьи проверок названы в одном месте', () =
    у которого краска светлее контролов, должен покраснеть в обеих темах;
    образцы самопроверки — пройти. */
 test('палитра: схлопнувшаяся лестница — находка, образцы проходят', () => {
-  const tool = new URL('../palette/check.mjs', import.meta.url).pathname
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
   const clean = spawnSync(process.execPath, [tool, '--json'], { encoding: 'utf8' })
   const ok = JSON.parse(clean.stdout)
   assert.equal(clean.status, 0, 'образцы самопроверки должны проходить')
@@ -251,19 +251,22 @@ test('палитра: схлопнувшаяся лестница — наход
    до 21.09.2026 это проверялось рукой, потому что сторож смотрит в
    styles/palette.json приложения, которого в наборе нет. */
 test('наборы-образцы: находка ровно одна, и та задокументирована', () => {
-  const tool = new URL('../palette/check.mjs', import.meta.url).pathname
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
   const dir = mkdtempSync(join(tmpdir(), 'palette-template-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(
     join(dir, 'styles', 'palette.json'),
-    readFileSync(new URL('../palette/sets.json', import.meta.url).pathname, 'utf8'),
+    readFileSync(new URL('../templates/palette.json', import.meta.url).pathname, 'utf8'),
   )
   const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
   const report = JSON.parse(run.stdout).report as { name: string; mode: string; findings: { rule: string }[] }[]
   assert.ok(report.length >= 14, 'наборов в файле стало меньше семи — проверять нечего')
   const found = report.flatMap((r) => r.findings.map((f) => `${r.name} · ${r.mode} · ${f.rule}`))
-  assert.deepEqual(found, ['Тёплый лист · light · фирменный отличим от красного'],
-    'находки в файле-образце разошлись с тем, что написано в palette.md')
+  assert.deepEqual(
+    found,
+    ['Тёплый лист · light · фирменный и красный «нет в наличии» — разные краски'],
+    'находки в файле-образце разошлись с тем, что написано в palette.md',
+  )
 })
 
 /* И191: обещание эталона дано в APCA, и WCAG его не заменяет. Набор ниже
@@ -271,7 +274,7 @@ test('наборы-образцы: находка ровно одна, и та �
    показывает 71.6 при обещанных 90 — ровно тот класс дефекта, из-за
    которого вторая метрика и заведена. */
 test('палитра: APCA ловит то, о чём WCAG молчит', () => {
-  const tool = new URL('../palette/check.mjs', import.meta.url).pathname
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
   const dir = mkdtempSync(join(tmpdir(), 'palette-apca-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
@@ -293,4 +296,165 @@ test('палитра: APCA ловит то, о чём WCAG молчит', () => 
     named.includes('основной текст держит обещание эталона'),
     'APCA ниже обещанных 90, а сторож молчит — вторая метрика не работает',
   )
+})
+
+/* И192: правило шкалы было записано, сторож считал двадцать правил — а
+   покрасить сайт этим было нечем. Строитель считал двенадцать ступеней
+   внутри проверки и выбрасывал, `check-palette.mjs` в проект не ехал
+   вовсе, команды `palette` не существовало. Заказчик назвал это «нихуя не
+   работает». Ниже — сторожа на каждое из трёх мест. */
+
+test('палитра выпускается в CSS, и выпущенное сходится с красками', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'palette-css-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
+    'проба': {
+      light: { paper: '#FFFFFF', ink: '#231F18', accent: '#0C3A46', error: '#B3261E',
+        sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' },
+      dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D',
+        sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' },
+    },
+  }))
+  const tool = new URL('../tools/palette-css.mjs', import.meta.url).pathname
+  const made = spawnSync(process.execPath, [tool], { cwd: dir, encoding: 'utf8' })
+  assert.equal(made.status, 0, made.stderr)
+
+  const css = readFileSync(join(dir, 'styles', 'palette.css'), 'utf8')
+  /* Краски заказчика стоят там, где обещаны, а не рядом: до 21.09.2026
+     первая ступень считалась из профиля, и белая бумага выходила #FDFDFD. */
+  assert.match(css, /--n-1: light-dark\(#FFFFFF, #141310\);/, 'первая ступень — бумага как есть')
+  assert.match(css, /--n-12: light-dark\(#231F18, #EFECE7\);/, 'двенадцатая — чернила как есть')
+  assert.match(css, /--a-9: light-dark\(#0C3A46, #2E7C8F\);/, 'девятая — фирменный как есть')
+  /* Считаемое — считается, а не хранится. */
+  for (const name of ['--on-a-9', '--a-press', '--border', '--ring', '--line',
+    '--sale-9', '--on-sale-9', '--warn-9', '--ok-9', '--e-9']) {
+    assert.ok(css.includes(`${name}: light-dark(`), `в выпущенной палитре нет ${name}`)
+  }
+
+  /* Каждый набор стоит под своим именем — первый в том числе. Без этого
+     переключатель не может к первому вернуться, а кружок с его краской в
+     ленте выбора показывает тот набор, который сейчас включён (И198). */
+  assert.match(css, /\[data-palette="проба"\]\{/, 'первый набор стоит только на корне')
+
+  /* Отставший файл — находка. Иначе краски правят, а сайт красится старым. */
+  assert.equal(spawnSync(process.execPath, [tool, '--check'], { cwd: dir }).status, 0)
+  writeFileSync(join(dir, 'styles', 'palette.css'), '/* правка руками */\n')
+  assert.equal(spawnSync(process.execPath, [tool, '--check'], { cwd: dir }).status, 1,
+    'выпущенный файл разошёлся с красками, а проверка молчит')
+})
+
+test('шкалы набора без красок — находка, а не зелёная самопроверка', () => {
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'palette-none-'))
+  mkdirSync(join(dir, 'styles'))
+  /* Чужой сайт со своими стилями: наших шкал нет — и спрашивать с него наш
+     файл красок нечестно, проверка остаётся самопроверкой. */
+  assert.equal(spawnSync(process.execPath, [tool], { cwd: dir }).status, 0)
+  /* Шкалы набора стоят, красок нет — красить нечем, и это надо сказать. */
+  writeFileSync(join(dir, 'styles', 'tokens.css'), ':root{--fs-1:1rem}\n')
+  const bare = spawnSync(process.execPath, [tool], { cwd: dir, encoding: 'utf8' })
+  assert.equal(bare.status, 1, 'набор стоит, красок нет, а проверка зелёная')
+  assert.match(bare.stderr, /palette\.json/, 'проверка не назвала, чего не хватает')
+})
+
+/* И192: середина лестницы обесцвечивалась. Ступени 1–8 клались прямой от
+   бумаги к краске, а прямая в sRGB между почти-серыми концами проходит
+   через серое: у сине-зелёной марки шестая ступень держала 20% насыщенности
+   заливки там, где эталон той же породы держит 52–58%. Середина лестницы —
+   это ВСЕ поверхности магазина разом (карточка, плитка, контрол,
+   разделитель), и тёплая марка давала серый сайт.
+
+   Норма читается из слепка эталона, а не назначена: шестая ступень обязана
+   держать хотя бы четыре пятых той доли, которую держит ближайшая по тону
+   порода. Прямая даёт треть от неё и краснеет — проверено обратным ходом. */
+test('палитра: середина лестницы держит тон марки', async () => {
+  const { nearestFamily, oklch } = await import('../tools/palette.mjs')
+  const profile = JSON.parse(read('tools/palette-profile.json'))
+  const chroma = (hex: string): number => {
+    const n = Number.parseInt(hex.slice(1), 16)
+    const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+      .map((v) => (v / 255 <= 0.04045 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4))
+    const f = (t: number): number => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116)
+    const x = f((0.4124 * c[0] + 0.3576 * c[1] + 0.1805 * c[2]) / 0.95047)
+    const y = f(0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2])
+    const z = f((0.0193 * c[0] + 0.1192 * c[1] + 0.9505 * c[2]) / 1.08883)
+    return Math.hypot(500 * (x - y), 200 * (y - z))
+  }
+  const accent = '#0C3A46'
+  const dir = mkdtempSync(join(tmpdir(), 'palette-hue-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
+    'холодная марка': {
+      light: { paper: '#FFFFFF', ink: '#231F18', accent, error: '#B3261E' },
+      dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D' },
+    },
+  }))
+  spawnSync(process.execPath, [new URL('../tools/palette-css.mjs', import.meta.url).pathname],
+    { cwd: dir })
+  const css = readFileSync(join(dir, 'styles', 'palette.css'), 'utf8')
+  const step = (name: string): string =>
+    new RegExp(`${name}: light-dark\\((#[0-9A-F]{6})`).exec(css)![1]
+
+  const family = nearestFamily(oklch(accent)[2], false, 'light')
+  const arc = profile.scales[family].light.chroma
+  const want = (arc[5] / arc[8]) * 0.8
+  const got = chroma(step('--a-6')) / chroma(step('--a-9'))
+  assert.ok(got >= want,
+    `шестая ступень фирменного ряда обесцветилась: ${(got * 100).toFixed(0)}% ` +
+    `от насыщенности заливки при ${(want * 100).toFixed(0)}% по породе «${family}»`)
+})
+
+/* Скидка, «мало осталось» и «в наличии» появились 21.09.2026 по вопросу
+   заказчика: «есть же плашка скидки — она какого цвета?». Краска была у
+   двух состояний из пяти, и обе только текстом. */
+test('палитра: пять красок сигналов меряются попарно', () => {
+  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const dir = mkdtempSync(join(tmpdir(), 'palette-signals-'))
+  mkdirSync(join(dir, 'styles'))
+  writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
+    'скидка цвета марки': {
+      light: { paper: '#FFFFFF', ink: '#231F18', accent: '#0C3A46', error: '#B3261E',
+        sale: '#0E3E4A', warn: '#F76B15', ok: '#30A46C' },
+      dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D',
+        sale: '#D6409F', warn: '#F76B15', ok: '#30A46C' },
+    },
+  }))
+  const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
+  assert.equal(run.status, 1, 'плашка скидки цвета кнопки покупки, а сторож молчит')
+  const light = JSON.parse(run.stdout).report
+    .find((r: { mode: string }) => r.mode === 'light') as { findings: { rule: string }[] }
+  assert.ok(
+    light.findings.some((f) => f.rule.includes('фирменный и плашка скидки')),
+    `сторож не назвал совпадение марки и скидки: ${light.findings.map((f) => f.rule).join(', ')}`,
+  )
+})
+
+/* Шкалы набора читают палитру переменной, а не числом. Переменная, которой
+   в выпущенной палитре нет, — это цвет, которого на странице не будет:
+   var() без значения не красит ничем, и увидит это только глаз.
+
+   Имена палитры узнаются по форме, а не по списку: ступень — это ряд и
+   номер (`--a-10`), знак на заливке — `--on-<ряд>-9`, и три роли замера
+   стоят своими словами. Список пришлось бы держать в двух местах. */
+const PALETTE_NAME =
+  /^--(?:(?:n|a|e|sale|warn|ok)-(?:\d{1,2}|press)|on-(?:a|e|sale|warn|ok)-9|line|border|ring)$/
+
+test('шкалы читают палитру, и палитра даёт всё, о чём они просят', () => {
+  const palette = new Set(
+    Array.from(read('styles/palette.css').matchAll(/^\s*(--[\w-]+)\s*:/gm), (m) => m[1]),
+  )
+  assert.ok(palette.size > 30, 'выпущенная палитра почти пуста — красить нечем')
+
+  const asked = new Set<string>()
+  for (const file of ['styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css']) {
+    for (const m of read(file).matchAll(/var\(\s*(--[\w-]+)/g)) {
+      if (PALETTE_NAME.test(m[1])) asked.add(m[1])
+    }
+  }
+  /* Их было ноль: закон о шкале жил отдельно от красок сайта, и это и есть
+     «правила записаны, а работать нечем» (И192). */
+  assert.ok(asked.size >= 8, `шкалы читают у палитры только ${asked.size} красок — цвет вернулся числами`)
+
+  const lost = [...asked].filter((name) => !palette.has(name)).sort()
+  assert.deepEqual(lost, [], 'шкалы просят у палитры краску, которой она не выпускает')
 })

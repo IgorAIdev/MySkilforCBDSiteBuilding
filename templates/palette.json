@@ -1,0 +1,30 @@
+{
+  "Аптека": {
+    "light": { "paper": "#FEFCF5", "ink": "#24352B", "accent": "#B79339", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#0C1510", "ink": "#EDECE9", "accent": "#B79339", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  },
+  "Олива": {
+    "light": { "paper": "#FCFDF7", "ink": "#22271A", "accent": "#5F6B34", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#11140D", "ink": "#ECECEA", "accent": "#5F6B34", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  },
+  "Мек остров": {
+    "light": { "paper": "#FFFFFF", "ink": "#231F18", "accent": "#0C3A46", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#141310", "ink": "#EFECE7", "accent": "#2E7C8F", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  },
+  "Тёплый лист": {
+    "light": { "paper": "#FFFCF6", "ink": "#241E17", "accent": "#A34627", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#15120E", "ink": "#EDECEA", "accent": "#A34627", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  },
+  "Ледяной шалфей": {
+    "light": { "paper": "#FAFCFB", "ink": "#1B2422", "accent": "#4E8C7A", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#0D1211", "ink": "#E9EDEC", "accent": "#5FA391", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  },
+  "Аптечный синий": {
+    "light": { "paper": "#FBFCFE", "ink": "#1A1F2B", "accent": "#3A6EA5", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#0E1116", "ink": "#E8EBF0", "accent": "#5B90C7", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  },
+  "Латунь на угле": {
+    "light": { "paper": "#FCFBF9", "ink": "#1F1E1C", "accent": "#9A7B3F", "error": "#B3261E", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" },
+    "dark": { "paper": "#121110", "ink": "#EDEBE8", "accent": "#B8955A", "error": "#E5484D", "sale": "#D6409F", "warn": "#F76B15", "ok": "#30A46C" }
+  }
+}

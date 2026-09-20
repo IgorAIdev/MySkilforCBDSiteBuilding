@@ -58,6 +58,21 @@ test('новый сайт: всё разложено, команды допис�
     const c = check(dir, t)
     assert.equal(c.status, 0, `${t} на пустом проекте:\n${c.stdout}${c.stderr}`)
   }
+  /* И192: палитра не ехала вовсе — ни инструменты, ни краски, ни команда, —
+     а `check:palette` в реестре подсказок стояла. То есть новый сайт видел
+     её в списке и не мог запустить, а покрасить себя по шкале не мог тем
+     более. Проверяется весь путь: файлы на месте, краски на месте,
+     выпущенный CSS не отстал, замер зелёный. */
+  for (const f of ['tools/palette.mjs', 'tools/palette-profile.json', 'tools/palette-css.mjs',
+    'tools/check-palette.mjs', 'styles/palette.json', 'styles/palette.css']) {
+    assert.ok(existsSync(join(dir, f)), `палитра не доехала: ${f}`)
+  }
+  assert.equal(s.palette, 'node tools/palette-css.mjs', 'команды выпуска палитры нет')
+  const pal = check(dir, 'check-palette.mjs')
+  assert.equal(pal.status, 0, `палитра нового сайта:\n${pal.stdout}${pal.stderr}`)
+  assert.match(pal.stdout, /Палитра в норме/, 'замер прошёл мимо красок проекта')
+  assert.equal(spawnSync(process.execPath, [join(dir, 'tools/palette-css.mjs'), '--check'],
+    { cwd: dir }).status, 0, 'выпущенный styles/palette.css отстал от красок')
   rmSync(dir, { recursive: true, force: true })
 })
 
