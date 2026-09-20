@@ -44,7 +44,7 @@ const declared = (name: string): boolean =>
   new RegExp(`^\\s*${name}\\s*:`, 'm').test(tokens + '\n' + ladderCss)
 
 test('шкала размера объявлена и течёт', () => {
-  for (const name of ['--fs-xs', '--fs-sm', '--fs-base', '--fs-lead', '--fs-h3', '--fs-h2', '--fs-h1']) {
+  for (const name of ['--fs-xs', '--fs-sm', '--fs-base', '--intro-size', '--fs-h3', '--fs-h2', '--hero-size']) {
     assert.ok(declared(name), `в шкале нет ступени ${name}`)
   }
   /* Течёт — значит clamp(): размер меняется вместе с шириной окна, а не
@@ -59,10 +59,12 @@ test('шкала управления объявлена и НЕ течёт', ()
      контрола не уменьшается вместе с окном: пункт меню — мишень для
      пальца, а не абзац. Полоса «Free delivery over €50» на телефоне
      стекала до 12.5px, и заказчик нашёл это глазом. */
-  for (const name of ['--fs-ui-2xs', '--fs-ui-xs', '--fs-ui-sm', '--fs-ui-base', '--fs-ui-xl', '--fs-ui-2xl']) {
+  /* С 20.09.2026 лестницу управления выпускает строитель: верхний конец
+     каждой ступени размера, в px, ролью --ctrl-fs-* (И224). */
+  for (const name of ['--ctrl-fs-xs', '--ctrl-fs-sm', '--ctrl-fs-base', '--ctrl-fs-h3', '--ctrl-fs-h2']) {
     assert.ok(declared(name), `в шкале управления нет ступени ${name}`)
   }
-  const ui = tokens.slice(tokens.indexOf('--fs-ui-2xs'), tokens.indexOf('--fs-ui-2xl'))
+  const ui = ladderCss.slice(ladderCss.indexOf('--ctrl-fs-xs'), ladderCss.indexOf('--ctrl-fs-h2'))
   assert.ok(!ui.includes('clamp('), 'шкала управления течёт — а она не должна')
 })
 
@@ -546,6 +548,32 @@ test('набор по формуле: ступени от тела, на кле�
   assert.ok(auditScale(small).some((f: { rule: string }) => f.rule === 'нижний конец по нормам'), 'тело 15 на телефоне принято')
 })
 
+/* И224: имя живёт по форме, по ярусу и по просителю. Ручка примитива `stack`
+   и стек шрифтов на корне носили одно имя, и отступ примитива был нулём;
+   узлы читали оттенок `--live-11` мимо роли, потому что семья hueDirect
+   знала не все оттенки. Реестр разбирает имя и называет ярус; на нём стоят
+   четыре семьи check:css. */
+test('реестр имён: ярус по форме, слово по виду — не имя, ручка не на корне', async () => {
+  const { parse, REQUIRED } = await import('../tools/names.mjs')
+  const tier = (n: string) => parse(n)?.tier ?? null
+  assert.equal(tier('--n-12'), 'value'); assert.equal(tier('--sp-4'), 'value'); assert.equal(tier('--fs-base'), 'value')
+  assert.equal(tier('--ink-soft'), 'role'); assert.equal(tier('--pad-card'), 'role'); assert.equal(tier('--body-lead'), 'role')
+  assert.equal(tier('--on-pop'), 'role'); assert.equal(tier('--hover-ctrl'), 'role'); assert.equal(tier('--ctrl-fs-sm'), 'role')
+  assert.equal(tier('--stack'), 'node'); assert.equal(tier('--grid-gap'), 'node'); assert.equal(tier('--cols-min'), 'node')
+  for (const bad of ['--sage-12', '--live-11', '--cyan-3', '--btnBgHov', '--hero-frame-h', '--cap-shadow', '--n']) {
+    assert.equal(parse(bad), null, `имя по виду или не по форме принято: ${bad}`)
+  }
+  assert.ok(REQUIRED['--sale-fill'] && REQUIRED['--scrim'], 'роли по элементам не в списке обязательных')
+  /* Ручка примитива на корне — тот самый --stack: в tokens.css её быть не должно. */
+  const root = readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+  for (const m of root.matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) {
+    assert.notEqual(tier(m[1]), 'node', `ручка примитива объявлена на корне: ${m[1]}`)
+  }
+  /* Примитив stack берёт роль, а не число и не ступень. */
+  const prim = readFileSync(new URL('../styles/primitives.module.css', import.meta.url), 'utf8')
+  assert.match(prim, /\.stack > \* \+ \*\{margin-block-start:var\(--stack, var\(--air-block\)\)\}/, 'stack не берёт роль воздуха по умолчанию')
+})
+
 test('ступень без просителя — находка', async () => {
   const { auditReaders } = await import('../tools/scale.mjs')
   const sets = { проба: {
@@ -657,7 +685,7 @@ test('роли выпускаются целиком и берут размер,
   }
   /* Размер роль БЕРЁТ: своя рампа у роли означала бы вторую шкалу. */
   assert.match(css, /--body-size: var\(--fs-base\);/, 'тело завело свой размер вместо ступени')
-  assert.match(css, /--pagehead-size: var\(--fs-page\);/, 'заголовок страницы потерял свою кривую')
+  assert.ok(!/--pagehead-size:/.test(css), 'заголовок страницы потерял свою кривую')
   /* Роль, чьё имя совпадает с именем кривой, себя не переобъявляет: это
      ссылка на саму себя, и браузер погасит её вместе со всей ролью. */
   assert.ok(!/--hero-size:\s*var\(--hero-size\)/.test(css), 'роль сослалась сама на себя')

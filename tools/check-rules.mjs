@@ -52,6 +52,7 @@ import { CODE_FAMILIES, CODE_LABELS } from './code-families.mjs'
 import { CHECKS } from './checks.mjs'
 import { roles, STATUS, SIGNAL_NAMES } from './palette.mjs'
 import { resolve as resolveScale } from './scale.mjs'
+import { CONCEPTS, HOOKS, REQUIRED, parse as parseName } from './names.mjs'
 import * as THR from './thresholds.mjs'
 import { SCRIPTS } from '../scripts.mjs'
 
@@ -76,6 +77,7 @@ const TABLES = {
      таблица только в законе. */
   '.claude/skills/palette/SKILL.md': ['palette'],
   '.claude/skills/scale/SKILL.md': ['scale'],
+  '.claude/skills/craft/references/names.md': ['names'],
   ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
@@ -249,12 +251,30 @@ const scaleFacts = () => {
     `| команды | ${cmds.map((c) => `\`${c}\``).join(' · ')} | \`scripts.mjs\` |`,
   ].join('\n')
 }
+/* Реестр имён — из кода (И224): понятия по группам, ручки, обязательные
+   роли, и сколько объявленных имён в стилях разбирается. */
+const namesFacts = () => {
+  const rows = ['| Группа | Понятия | Ярус |', '| --- | --- | --- |']
+  for (const [g, words] of Object.entries(CONCEPTS)) rows.push(`| ${g} | ${words.map((w) => `\`--${w}\``).join(', ')} | роль |`)
+  rows.push(`| ручки примитивов | ${HOOKS.map((w) => `\`--${w}-*\``).join(', ')} | узел |`)
+  rows.push(`| сырьё | \`--n-N\`, \`--a-N\`, \`--e-N\`, \`--sale-N\`, \`--warn-N\`, \`--ok-N\`, \`--info-N\`, \`--on-*-N\`, \`--sp-N\`, \`--fs-*\` | сырьё |`)
+  rows.push(`| обязательные роли | ${Object.keys(REQUIRED).map((k) => `\`${k}\``).join(', ')} | роль |`)
+  const files = ['styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/palette.css', 'styles/scale.css'].filter(has)
+  let total = 0, ok = 0
+  for (const f of files) {
+    const css = read(f).replace(/\/\*[\s\S]*?\*\//g, '')
+    for (const m of css.matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) { total++; if (parseName(m[1])) ok++ }
+  }
+  rows.push(`| объявлений в стилях набора | ${total}, по форме ${ok} | \`tools/names.mjs\`, \`parse()\` |`)
+  return rows.join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
   code: table(CODE_FAMILIES, CODE_LABELS, 'Что ловит'),
   palette: paletteFacts(),
   scale: scaleFacts(),
+  names: namesFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)

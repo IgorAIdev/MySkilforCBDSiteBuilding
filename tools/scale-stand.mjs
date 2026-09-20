@@ -72,28 +72,28 @@ ${paletteCss}
 ${tokensCss}
 ${scaleCss}
 *{box-sizing:border-box;margin:0}
-body{background:var(--n-1,#fff);color:var(--n-12,#222);font:400 var(--fs-base)/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{background:var(--page);color:var(--ink);font:var(--body-weight) var(--body-size)/var(--body-lead) system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:var(--body-track);-webkit-font-smoothing:antialiased}
 .page{padding-block:var(--air-page);display:flex;flex-direction:column;gap:var(--air-page)}
 .wrap{inline-size:min(1160px,100% - var(--pad-sheet) * 2);margin-inline:auto}
 .band{display:flex;flex-direction:column;gap:var(--air-head)}
-h2{font-size:var(--fs-2xl);line-height:1.15;font-weight:600;letter-spacing:-.02em}
-.lede{font-size:var(--fs-sm);color:var(--n-11,#666);max-inline-size:58ch}
+h2{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
+.lede{font-size:var(--lede-size);line-height:var(--lede-lead);color:var(--n-11,#666);max-inline-size:58ch}
 .shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:var(--air-row)}
 .card{background:var(--n-2,#fafafa);border:1px solid var(--line,#e5e5e5);border-radius:14px;padding:var(--pad-card);display:flex;flex-direction:column;gap:var(--air-group)}
 .shot{aspect-ratio:4/3;max-block-size:220px;border-radius:10px;background:var(--a-3,#eef3f5)}
 .in{display:flex;flex-direction:column;gap:var(--air-row)}
-.nm{font-size:var(--fs-sm);font-weight:600}
-.sub{font-size:var(--fs-2xs);color:var(--n-11,#666)}
+.nm{font-size:var(--body-size);font-weight:600}
+.sub{font-size:var(--note-size);color:var(--n-11,#666)}
 .row{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap}
-.price{font-size:var(--fs-xl);font-weight:600}
-.badge{font-size:var(--fs-2xs);padding:2px 8px;border-radius:999px;background:var(--warn-2,#fff4ec);color:var(--warn-11,#a34400)}
+.price{font-size:var(--h3-size);font-weight:600}
+.badge{font-size:var(--ctrl-fs-xs);padding:2px 8px;border-radius:999px;background:var(--warn-tint);color:var(--warn)}
 .buy{display:flex;align-items:center;gap:var(--gap-targets);flex-wrap:wrap}
 .count{display:flex;align-items:center;gap:var(--gap-targets)}
-.count button{min-inline-size:44px;min-block-size:44px;border:1px solid var(--border,#bbb);background:transparent;color:inherit;border-radius:10px;font-size:var(--fs-base);cursor:pointer}
-.count span{min-inline-size:2ch;text-align:center;font-size:var(--fs-sm)}
-.go{flex:1;min-block-size:44px;padding-inline:var(--pad-inner);border:0;border-radius:10px;background:var(--a-9,#0c3a46);color:var(--on-a-9,#fff);font-size:var(--fs-sm);font-weight:600;cursor:pointer}
+.count button{min-inline-size:44px;min-block-size:44px;border:1px solid var(--border);background:transparent;color:inherit;border-radius:var(--r-xs);font-size:var(--ctrl-fs-base);cursor:pointer}
+.count span{min-inline-size:2ch;text-align:center;font-size:var(--ctrl-fs-sm)}
+.go{flex:1;min-block-size:44px;padding-inline:var(--pad-inner);border:0;border-radius:var(--r-xs);background:var(--pop);color:var(--on-pop);font-size:var(--ctrl-fs-sm);font-weight:600;cursor:pointer}
 .go[disabled]{opacity:.45}
-.note{font-size:var(--fs-2xs);color:var(--n-11,#666)}
+.note{font-size:var(--note-size);line-height:var(--note-lead);color:var(--n-11,#666)}
 </style></head>
 <body>
   <main class="page">
@@ -146,15 +146,15 @@ body{background:var(--n-1,#fff);color:var(--n-12,#222);font:var(--body-weight) v
 .role{display:flex;flex-direction:column;gap:var(--sp-2)}
 .tag{font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);color:var(--n-11,#777)}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-.hero{font-size:var(--fs-h1);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
+.hero{font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
 .pagehead{max-inline-size:20ch;font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:pretty}
 .was{max-inline-size:20ch;font-size:var(--pagehead-size);line-height:var(--body-lead);font-weight:var(--pagehead-weight);letter-spacing:-.03em;text-wrap:pretty}
 .h2{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
 .h3{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
-.intro{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);color:var(--n-11,#666)}
-.lede{font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);max-inline-size:var(--lede-measure);color:var(--n-11,#666)}
-.body{font-size:var(--body-size);line-height:var(--body-lead);font-weight:var(--body-weight);max-inline-size:var(--body-measure)}
-.note{font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);max-inline-size:var(--note-measure);color:var(--n-11,#666)}
+.intro{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--n-11,#666)}
+.lede{font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);letter-spacing:var(--lede-track);max-inline-size:var(--lede-measure);color:var(--n-11,#666)}
+.body{font-size:var(--body-size);line-height:var(--body-lead);font-weight:var(--body-weight);letter-spacing:var(--body-track);max-inline-size:var(--body-measure)}
+.note{font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);letter-spacing:var(--note-track);max-inline-size:var(--note-measure);color:var(--n-11,#666)}
 .eyebrow{font-size:var(--eyebrow-size);line-height:var(--eyebrow-lead);font-weight:var(--eyebrow-weight);letter-spacing:var(--eyebrow-track);color:var(--n-11,#666)}
 .pair{border-inline-start:3px solid var(--warn-9,#f76b15);padding-inline-start:var(--sp-3)}
 </style></head>

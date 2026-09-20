@@ -24,6 +24,7 @@ export const CSS_FAMILIES = [
   'colLadder', 'proseCols', 'twiceDrawn', 'deadEffect', 'tapGrows', 'dressLayout',
   'twoOwners', 'barNoScroll', 'deadDress', 'plateGap', 'barTwice', 'groundGlue',
   'important', 'takenTwice', 'bareVw', 'padPx', 'airRatio', 'typeGuess', 'hueDirect',
+  'nameGrammar', 'stepDirect', 'deadName', 'tierUp',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -77,4 +78,8 @@ export const CSS_LABELS = {
   airRatio: 'воздух страницы к полю карточки меньше 3 : 1 — предметы и промежутки одного размера, ритма нет (замер люкс-магазинов)',
   typeGuess: 'роль текста набрана наполовину: размер из шкалы, а межстрочье или разрядка — числом на месте',
   hueDirect: 'узел зовёт краску по оттенку (--sage-12) мимо роли — ярус значений ему не виден (правило трёх ярусов)',
+  nameGrammar: 'имя не по форме: понятие не из реестра или уточнение не из списка (tools/names.mjs) — через месяц его никто не найдёт',
+  stepDirect: 'узел читает ступень (--sp-6, --n-12, --fs-sm) напрямую — сырьё только для ссылок из роли (Figma, M3, Curtis)',
+  deadName: 'имя объявлено, а не читает его никто в наборе и не просит список ролей — число про запас',
+  tierUp: 'ссылка вверх по ярусам: сырьё читает роль, роль читает ручку узла, ручка объявлена на корне',
 }

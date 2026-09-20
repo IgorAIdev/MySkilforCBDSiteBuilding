@@ -32,11 +32,17 @@
   --air-group: clamp(24px, 11.08px + 2.31vw, 36px); /* между группами внутри части — ступени 5 → 6 */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+  --gap-row: clamp(12px, 9.85px + .38vw, 14px);    /* между вещами в ряду: фишки, пилюли, крошки */
+  --gap-grid: clamp(16px, 11.69px + .77vw, 20px);  /* между карточками в сетке и в ленте */
+  --ctrl-fs-xs: 14px;                              /* надпись органа — не течёт */
+  --ctrl-fs-sm: 16px;                              /* надпись органа — не течёт */
+  --ctrl-fs-base: 18px;                            /* надпись органа — не течёт */
+  --ctrl-fs-h3: 31px;                              /* надпись органа — не течёт */
+  --ctrl-fs-h2: 37.5px;                            /* надпись органа — не течёт */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
   --hero-track: -.04em;
-  --pagehead-size: var(--fs-page);
   --pagehead-lead: 1.1;
   --pagehead-weight: 700;
   --pagehead-track: -.03em;
@@ -48,7 +54,6 @@
   --h3-lead: 1.2;
   --h3-weight: 600;
   --h3-track: -.02em;
-  --intro-size: var(--fs-lead);
   --intro-lead: 1.4;
   --intro-weight: 400;
   --intro-track: 0;
@@ -102,11 +107,17 @@
   --air-group: clamp(24px, 11.08px + 2.31vw, 36px); /* между группами внутри части — ступени 5 → 6 */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+  --gap-row: clamp(12px, 9.85px + .38vw, 14px);    /* между вещами в ряду: фишки, пилюли, крошки */
+  --gap-grid: clamp(16px, 11.69px + .77vw, 20px);  /* между карточками в сетке и в ленте */
+  --ctrl-fs-xs: 14px;                              /* надпись органа — не течёт */
+  --ctrl-fs-sm: 16px;                              /* надпись органа — не течёт */
+  --ctrl-fs-base: 18px;                            /* надпись органа — не течёт */
+  --ctrl-fs-h3: 31px;                              /* надпись органа — не течёт */
+  --ctrl-fs-h2: 37.5px;                            /* надпись органа — не течёт */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
   --hero-track: -.04em;
-  --pagehead-size: var(--fs-page);
   --pagehead-lead: 1.1;
   --pagehead-weight: 700;
   --pagehead-track: -.03em;
@@ -118,7 +129,6 @@
   --h3-lead: 1.2;
   --h3-weight: 600;
   --h3-track: -.02em;
-  --intro-size: var(--fs-lead);
   --intro-lead: 1.4;
   --intro-weight: 400;
   --intro-track: 0;
@@ -172,11 +182,17 @@
   --air-group: clamp(24px, 11.08px + 2.31vw, 36px); /* между группами внутри части — ступени 5 → 6 */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+  --gap-row: 12px;                                 /* между вещами в ряду: фишки, пилюли, крошки */
+  --gap-grid: 16px;                                /* между карточками в сетке и в ленте */
+  --ctrl-fs-xs: 13.5px;                            /* надпись органа — не течёт */
+  --ctrl-fs-sm: 15px;                              /* надпись органа — не течёт */
+  --ctrl-fs-base: 17px;                            /* надпись органа — не течёт */
+  --ctrl-fs-h3: 29.5px;                            /* надпись органа — не течёт */
+  --ctrl-fs-h2: 35.5px;                            /* надпись органа — не течёт */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
   --hero-track: -.04em;
-  --pagehead-size: var(--fs-page);
   --pagehead-lead: 1.1;
   --pagehead-weight: 700;
   --pagehead-track: -.03em;
@@ -188,7 +204,6 @@
   --h3-lead: 1.2;
   --h3-weight: 600;
   --h3-track: -.02em;
-  --intro-size: var(--fs-lead);
   --intro-lead: 1.4;
   --intro-weight: 400;
   --intro-track: 0;
@@ -242,11 +257,17 @@
   --air-group: clamp(24px, 6.77px + 3.08vw, 40px); /* между группами внутри части — ступени 5 → 6 */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+  --gap-row: clamp(12px, 7.69px + .77vw, 16px);    /* между вещами в ряду: фишки, пилюли, крошки */
+  --gap-grid: clamp(16px, 11.69px + .77vw, 20px);  /* между карточками в сетке и в ленте */
+  --ctrl-fs-xs: 14px;                              /* надпись органа — не течёт */
+  --ctrl-fs-sm: 16.5px;                            /* надпись органа — не течёт */
+  --ctrl-fs-base: 20px;                            /* надпись органа — не течёт */
+  --ctrl-fs-h3: 39px;                              /* надпись органа — не течёт */
+  --ctrl-fs-h2: 49px;                              /* надпись органа — не течёт */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
   --hero-track: -.04em;
-  --pagehead-size: var(--fs-page);
   --pagehead-lead: 1.1;
   --pagehead-weight: 700;
   --pagehead-track: -.03em;
@@ -258,7 +279,6 @@
   --h3-lead: 1.2;
   --h3-weight: 600;
   --h3-track: -.02em;
-  --intro-size: var(--fs-lead);
   --intro-lead: 1.4;
   --intro-weight: 400;
   --intro-track: 0;
@@ -312,11 +332,17 @@
   --air-group: clamp(24px, 11.08px + 2.31vw, 36px); /* между группами внутри части — ступени 5 → 6 */
   --air-row: var(--sp-4);                          /* между строками одной группы */
   --gap-targets: 8px;                              /* между соседними целями в ряду */
+  --gap-row: clamp(12px, 9.85px + .38vw, 14px);    /* между вещами в ряду: фишки, пилюли, крошки */
+  --gap-grid: clamp(16px, 11.69px + .77vw, 20px);  /* между карточками в сетке и в ленте */
+  --ctrl-fs-xs: 14px;                              /* надпись органа — не течёт */
+  --ctrl-fs-sm: 16px;                              /* надпись органа — не течёт */
+  --ctrl-fs-base: 18px;                            /* надпись органа — не течёт */
+  --ctrl-fs-h3: 31px;                              /* надпись органа — не течёт */
+  --ctrl-fs-h2: 37.5px;                            /* надпись органа — не течёт */
 
   --hero-lead: 1.1;
   --hero-weight: 700;
   --hero-track: -.04em;
-  --pagehead-size: var(--fs-page);
   --pagehead-lead: 1.1;
   --pagehead-weight: 700;
   --pagehead-track: -.03em;
@@ -328,7 +354,6 @@
   --h3-lead: 1.2;
   --h3-weight: 600;
   --h3-track: -.02em;
-  --intro-size: var(--fs-lead);
   --intro-lead: 1.4;
   --intro-weight: 400;
   --intro-track: 0;

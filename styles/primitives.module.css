@@ -48,7 +48,6 @@
      а не зазор окна, иначе она либо не дотянется до края листа, либо
      проедет его насквозь. Ручка объявлена здесь и переопределяется ниже —
      общее умолчание для всех: `--gut`. */
-  --rail-bleed:var(--gut);
 }
 
 /* Sheet — ЛИСТ, десятый примитив: предмет, у которого есть свой пол.
@@ -100,12 +99,12 @@
      он пишет следующей строкой, и она сильнее по порядку. */
   --page-line:0px;
   /* Воздух СВЕРХУ у листа тот же, что и поле, — и он же есть то самое, что
-     раздел ставит себе сам (`.section` ниже читает `--air-above`). Две
+     раздел ставит себе сам (`.section` ниже читает `--section-air`). Две
      записи одного числа здесь не спорят и спорить не могут: `.section`
      спрашивает ручку, а ручку объявляет лист. Пока лист объявлял своё поле
      набивкой, а раздел — своей, выигрывал тот, кто ниже в файле, и поле
      листа зависело от порядка строк в чужом файле. */
-  --air-above:var(--sheet-air, var(--sheet-pad, var(--pad-sheet)));
+  --section-air:var(--sheet-air, var(--sheet-pad, var(--pad-sheet)));
   padding-inline:var(--sheet-pad, var(--pad-sheet));
   padding-block:var(--sheet-air, var(--sheet-pad, var(--pad-sheet)));
   border-radius:var(--sheet-r, var(--r-sheet));
@@ -114,7 +113,6 @@
      она либо не доезжала до края листа, либо переезжала его насквозь.
      Заказчик увидел ровно первое на стене Инстаграма: «даже соседнее
      изображение справа не выглядывает». Разбор — docs/rules.md, И139. */
-  --rail-bleed:var(--sheet-pad, var(--pad-sheet));
 }
 
 /* ЛИСТ В ЛИСТЕ — ступенью ниже, как и угол.
@@ -181,12 +179,12 @@
    каждому элементу: у первого сверху ничего не остаётся, и блок не тащит
    за собой чужой воздух, когда его переставят выше. */
 .stack{display:flow-root}
-.stack > * + *{margin-block-start:var(--stack, var(--sp-6))}
+.stack > * + *{margin-block-start:var(--stack, var(--air-block))}
 
 /* Cluster — строка, которая переносится. Пилюли, теги, ряд кнопок, шапка
    раздела. Перенос здесь не аварийный режим, а обычная работа: заранее
    неизвестно ни сколько элементов положат, ни какой длины будут слова. */
-.cluster{display:flex;flex-wrap:wrap;align-items:center;gap:var(--cluster, var(--sp-3))}
+.cluster{display:flex;flex-wrap:wrap;align-items:center;gap:var(--cluster, var(--gap-row))}
 
 /* Switcher — две колонки, становящиеся одной без единого медиазапроса.
    Это и есть ответ на «мёртвую зону 700–1050»: там ломалось не потому, что
@@ -216,7 +214,7 @@
    промежуток между изображениями и звёздочками». */
 .switcher{
   display:flex;flex-wrap:wrap;
-  gap:var(--switch-gap-stack, var(--switch-gap, var(--sp-6))) var(--switch-gap, var(--sp-6));
+  gap:var(--switch-gap-stack, var(--switch-gap, var(--air-block))) var(--switch-gap, var(--air-block));
 }
 .switcher > *{flex-grow:1;flex-basis:calc((var(--switch-at, 640px) - 100%) * 999)}
 /* Доля, если колонки неравные: `--bias` кратен единице второй колонки. */
@@ -272,10 +270,10 @@
      складывается ряд на 877 окна, где поля ещё десктопные. */
   --lede-at:789px;
   --lede-bias:1.18;
-  --lede-gap:var(--sp-8);
-  --lede-air:var(--sp-9) var(--sp-8);
-  --lede-stack:var(--sp-5);
-  --lede-fold:var(--sp-6)
+  --lede-gap:var(--air-band);
+  --lede-air:var(--air-page) var(--air-band);
+  --lede-stack:var(--air-group);
+  --lede-fold:var(--air-block)
 }
 .lede{
   display:flex;flex-wrap:wrap;align-items:center;
@@ -307,7 +305,7 @@
   /* Ручка — потолок поверх кривой, `min()`, а не запасное значение внутри
      токена: токен объявлен на `:root`, и ручку, поставленную ниже, он не
      видит (см. `--hero-max` в tokens.css). */
-  font-size:min(var(--lede-fs, var(--fs-h1)), var(--hero-fold));
+  font-size:min(var(--lede-fs, var(--hero-size)), var(--hero-fold));
   /* Роль «hero» целиком: межстрочье, вес и разрядка — из неё, а не числами
      здесь. Канон крупного заголовка (1.1…1.25) теперь сторожит замер. */
   line-height:var(--hero-lead);font-weight:var(--hero-weight);
@@ -316,9 +314,9 @@
      склеенным термином оставляет одинокое слово посреди заголовка. */
   text-wrap:pretty
 }
-.ledeText h1 em{font-style:normal;color:var(--live-11)}
+.ledeText h1 em{font-style:normal;color:var(--pop-ink)}
 .ledeText p{
-  font-size:var(--intro-size);line-height:var(--intro-lead);color:var(--ink-soft);
+  font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);
   max-inline-size:var(--measure-lede);text-wrap:pretty
 }
 
@@ -349,11 +347,6 @@
   /* Шов между текстом и кадром в сложенном виде. Полем, а не `row-gap`:
      см. выше — у столбика швы разной величины. */
   .lede > :last-child{margin-block-start:var(--lede-fold)}
-  /* Подпись на кадре в столбике — на своём полу: сложенный кадр вдвое шире
-     кадра по ту сторону шва, и подпись, меряющая кадр, прыгала бы на шве
-     так же, как прыгал заголовок. Ставится детям: сам контейнер своё
-     правило не получает. */
-  .lede > *{--caption-cap:22px}
 }
 
 /* Растворение текстовой колонки — для блока, чей ХВОСТ в столбике обязан
@@ -385,7 +378,7 @@
    Отступ по вертикали с равным отрицательным полем — чтобы кольцо фокуса
    и тень не срезались обрезкой прокрутки, не сдвигая при этом ритм. */
 .rail{
-  display:flex;flex-wrap:nowrap;gap:var(--rail-gap, var(--sp-4));
+  display:flex;flex-wrap:nowrap;gap:var(--rail-gap, var(--gap-grid));
   /* Вертикаль закрыта: одна ось `auto` делает вторую такой же, и полоса
      начинает ездить вверх-вниз, стоит содержимому перерасти ячейку. */
   overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
@@ -421,8 +414,8 @@
    из-за которого просвет считался по шестнадцати, а расставлялся по
    четырнадцати). */
 .grid{
-  --grid-gap:var(--sp-4);
-  --n:3;
+  --grid-gap:var(--gap-grid);
+  --cols:3;
   --cell-min:240px;
   /* Пол ряда: МЕНЬШЕ этого числа ячеек в ряду не бывает никогда. Два —
      потому что ряд из одной ячейки перестаёт быть рядом: карточка во всю
@@ -432,9 +425,9 @@
      карточки на ширину может поместиться».
 
      Блоку, которому одна колонка ВЕРНА (длинный текст в ячейке), достаточно
-     написать --n-min:1 — и это будет решение, объявленное вслух, а не
+     написать --cols-min:1 — и это будет решение, объявленное вслух, а не
      медиазапрос, переписывающий дорожку примитива за его спиной. */
-  --n-min:2;
+  --cols-min:2;
   display:grid;
   gap:var(--grid-gap);
   /* Дорожка берёт БОЛЬШЕЕ из пола ячейки и доли ряда на --n, но не больше
@@ -446,8 +439,8 @@
      не одна. */
   grid-template-columns:repeat(auto-fill, minmax(
     min(
-      max(var(--cell-min), calc((100% - (var(--n) - 1) * var(--grid-gap)) / var(--n))),
-      calc((100% - (var(--n-min) - 1) * var(--grid-gap)) / var(--n-min))
+      max(var(--cell-min), calc((100% - (var(--cols) - 1) * var(--grid-gap)) / var(--cols))),
+      calc((100% - (var(--cols-min) - 1) * var(--grid-gap)) / var(--cols-min))
     ), 1fr))
 }
 
@@ -477,7 +470,7 @@
    раскладку нельзя. */
 .sidebar{
   display:flex;flex-wrap:wrap;align-items:var(--side-align, flex-start);
-  gap:var(--side-gap, var(--sp-8));
+  gap:var(--side-gap, var(--air-band));
   container-type:inline-size
 }
 /* Гибкая колонка: основа ноль, растёт заведомо сильнее узкой и просит
@@ -556,10 +549,10 @@
    ездит редко, но правило одно на весь код, а исключение, сделанное «тут же
    мелочь», через месяц стоит в двадцати местах. */
 .skip{
-  position:absolute;left:50%;top:var(--sp-3);z-index:var(--layer-skip);
+  position:absolute;left:50%;top:var(--air-row);z-index:var(--layer-skip);
   transform:translate(-50%, -200%);
-  background:var(--pop);color:var(--on-pop);padding:var(--sp-3) var(--sp-5);border-radius:var(--r-pill);
-  font-size:var(--fs-sm);font-weight:600;transition:transform var(--hover-t) var(--ease)
+  background:var(--pop);color:var(--on-pop);padding:var(--pad-inner) var(--pad-card);border-radius:var(--r-pill);
+  font-size:var(--ctrl-fs-sm);font-weight:600;transition:transform var(--hover-t) var(--ease)
 }
 .skip:focus-visible{transform:translate(-50%, 0)}
 
@@ -602,7 +595,7 @@
    список товаров, у панели фильтров — вся панель. Что сжимать внутри
    потолка, решает блок; что потолок есть, решает примитив. */
 .pinned{
-  --pin-fit:calc(100dvh - var(--pin-top, var(--anchor-top)) - var(--pin-air, var(--sp-6)));
+  --pin-fit:calc(100dvh - var(--pin-top, var(--anchor-top)) - var(--pin-air, var(--air-block)));
   position:var(--pin-pos, sticky);
   top:var(--pin-top, var(--anchor-top));
   max-block-size:var(--pin-max, var(--pin-fit))
@@ -657,7 +650,7 @@
   display:inline-flex;align-items:center;gap:8px;min-width:0;
   block-size:var(--tray-cell);padding-inline:calc(var(--tray-cell) * .43);
   border-radius:var(--r-pill);white-space:nowrap;
-  font-size:var(--fs-sm);color:var(--ink-soft)
+  font-size:var(--ctrl-fs-sm);color:var(--ink-soft)
 }
 /* В лотке живут органы ТРЁХ родов, и одеваются они по роду, а не по месту.
    Заказчик увидел это на витрине тремя скринами за один вечер: «Reset»
@@ -809,7 +802,7 @@
    «мы их не используем, удаляй их — и из кода тоже, а не только со страницы
    дизайн-системы». Невыбранная одежда не едет покупателю (И92) и вдобавок
    молча ломается при правке соседней строки. */
-.tray[data-tray='plate']{--tray-pad:0px;background:none;gap:var(--sp-3)}
+.tray[data-tray='plate']{--tray-pad:0px;background:none;gap:var(--gap-row)}
 .tray[data-tray='plate'] > *{
   background:var(--plate);color:var(--on-plate);
   padding-inline:calc(var(--tray-cell) * .36);
@@ -847,9 +840,9 @@
   display:inline-flex;align-items:center;gap:6px;
   height:28px;padding:0 11px;border-radius:var(--r-pill);
   background:var(--plate-quiet);
-  font-size:var(--fs-sm);font-weight:500;color:var(--ink-soft)
+  font-size:var(--ctrl-fs-sm);font-weight:500;color:var(--ink-soft)
 }
-.chipLab{background:var(--live-3);color:var(--live-11);font-weight:600;font-size:var(--fs-xs);height:26px;padding:0 10px}
+.chipLab{background:var(--pop-tint);color:var(--pop-ink);font-weight:600;font-size:var(--ctrl-fs-xs);height:26px;padding:0 10px}
 .chipLab svg{width:13px;height:13px;fill:none;stroke:currentColor}
 
 /* ── fields ───────────────────────────────────────────────────────────── */
@@ -905,7 +898,7 @@
 }
 .qty input,.qty b{
   height:100%;text-align:center;border:0;background:none;outline:0;
-  font-size:var(--qty-fs,var(--fs-ui-base));font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)
+  font-size:var(--qty-fs,var(--ctrl-fs-base));font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)
 }
 .qty input{width:calc(var(--qty-h,54px) * .74)}
 /* Своё кольцо фокуса. Браузерное снято строкой выше (`outline:0`) — вместе с
@@ -974,7 +967,7 @@
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .seg button{
   height:30px;padding:0 11px;border-radius:var(--r-pill);background:var(--plate-quiet);
-  font-size:var(--fs-sm);color:var(--ink-soft);
+  font-size:var(--ctrl-fs-sm);color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
 @media (hover:hover){ .seg button:hover{background:var(--hover-ctrl);color:var(--ink)} }
@@ -988,14 +981,14 @@
    820 (72 → 48 на одном пикселе ширины). */
 /* Воздух НАД разделом — роль, а не ступень по месту: `--air-page` между
    разделами страницы, `--air-band` между полками внутри раздела (tokens.css).
-   Ручка `--air-above` есть у тех разделов, которые лежат на своём полу: там
+   Ручка `--section-air` есть у тех разделов, которые лежат на своём полу: там
    это уже не воздух снаружи, а поле листа, и объявляет его лист.
 
    `padding-block-start`, а не сокращение `padding-block: X 0`: сокращение
    писало и нижнее поле нулём и тем самым спорило с листом, у которого поле
    круговое. Разбор сокращений — references/cascade.md. */
-.section{padding-block-start:var(--air-above, var(--air-page))}
-.sectionTight{padding-block-start:var(--air-above, var(--air-band))}
+.section{padding-block-start:var(--section-air, var(--air-page))}
+.sectionTight{padding-block-start:var(--section-air, var(--air-band))}
 /* Заголовок и пояснение стоят ОДИН ПОД ДРУГИМ по левой линии.
    Прежде их разносило по краям (`justify-content:space-between`), и на
    широком экране между ними оставалось полэкрана пустоты: пояснение висело
@@ -1026,7 +1019,7 @@
 }
 .sectionHead p{
   color:var(--ink-soft);max-width:var(--measure-lede);
-  font-size:var(--lede-size);line-height:var(--lede-lead);
+  font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);letter-spacing:var(--lede-track);
   min-inline-size:0
 }
 
@@ -1036,15 +1029,15 @@
    выверен у тихой кнопки (`--quiet-on`, styles/tokens.css) и держит порог
    видимости на обеих темах. */
 .more{
-  display:inline-flex;align-items:center;gap:var(--sp-3);flex:none;
-  padding:5px 5px 5px var(--sp-4);border-radius:var(--r-pill);
+  display:inline-flex;align-items:center;gap:calc(var(--chip-h) * .3);flex:none;
+  padding:5px 5px 5px calc(var(--chip-h) * .4);border-radius:var(--r-pill);
   background:var(--surface);
-  font-size:var(--more-fs,var(--fs-ui-sm));font-weight:600;color:var(--live-12);
+  font-size:var(--more-fs,var(--ctrl-fs-sm));font-weight:600;color:var(--pop-ink-hover);
   transition:background var(--hover-t) var(--ease)
 }
 @media (hover:hover){ .more:hover{background:color-mix(in oklab, var(--surface), var(--ink) 16%)} }
 .more:active{background:color-mix(in oklab, var(--surface), var(--ink) 16%)}
-.more svg{width:28px;height:28px;padding:7px;border-radius:50%;background:var(--live-3);fill:none;stroke:var(--live-11);transition:transform var(--hover-t) var(--ease)}
+.more svg{width:28px;height:28px;padding:7px;border-radius:50%;background:var(--pop-tint);fill:none;stroke:var(--pop-ink);transition:transform var(--hover-t) var(--ease)}
 @media (hover:hover){ .more:hover svg{transform:translateX(var(--nudge))} }
 .more:active svg{transform:translateX(var(--nudge))}
 
@@ -1066,17 +1059,17 @@
 /* Коробка объявлена, потому что заголовок внутри берёт ступень `--fs-page`,
    а та меряет `cqi` — свою коробку, а не окно (см. tokens.css). Без этой
    строки ступень молча вернулась бы к ширине окна. */
-.pagehead{padding-bottom:var(--sp-7);container-type:inline-size}
+.pagehead{padding-bottom:var(--air-head);container-type:inline-size}
 .pagehead h1{
   font-size:var(--pagehead-size);line-height:var(--pagehead-lead);
   font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track)
 }
 /* Строка под именем страницы — тот же лид, что у первого экрана и у
-   документов, и кегль у неё тот же: `--fs-lead`. Стоял основной текст, то
+   документов, и кегль у неё тот же: `--intro-size`. Стоял основной текст, то
    есть роль была набрана размером соседней роли. */
 .pagehead p{
   color:var(--ink-soft);margin-top:var(--sp-2);
-  font-size:var(--intro-size);line-height:var(--intro-lead);max-width:var(--measure)
+  font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);max-width:var(--measure)
 }
 
 /* Осталась одна вещь, которая здесь и должна остаться: шапка раздела
@@ -1126,7 +1119,7 @@
      от того, на чём он лежит (семья `sunk` в отрисованной проверке). Та же
      причина, по которой кромку носят плитки галереи товара. */
   box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
-  font-size:var(--fs-ui-sm);font-weight:500;
+  font-size:var(--ctrl-fs-sm);font-weight:500;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
              transform calc(var(--hover-t) * .6) var(--ease)
 }
@@ -1149,8 +1142,8 @@
   position:absolute;top:10px;left:10px;z-index:2;
   height:26px;padding:0 10px;border-radius:var(--r-pill);
   display:inline-flex;align-items:center;
-  background:var(--sale-9);color:var(--on-sale-9);
-  font-size:var(--fs-xs);font-weight:800;font-variant-numeric:tabular-nums
+  background:var(--sale-fill);color:var(--on-sale);
+  font-size:var(--ctrl-fs-xs);font-weight:800;font-variant-numeric:tabular-nums
 }
 
 /* Вид и место — врозь. На карте товара сердце стоит дважды: на снимке и в
@@ -1267,10 +1260,10 @@
    `pointer-events:none` только отменяет нажатие — разбор в docs/rules.md,
    И114. */
 .chan[data-empty='true']{pointer-events:none}
-.chan b{display:block;font-size:var(--fs-ui-base);font-weight:600}
+.chan b{display:block;font-size:var(--ctrl-fs-base);font-weight:600}
 .chan small{
   display:block;margin-block-start:1px;
-  font-size:var(--fs-ui-xs);color:var(--ink-soft);font-variant-numeric:tabular-nums
+  font-size:var(--ctrl-fs-xs);color:var(--ink-soft);font-variant-numeric:tabular-nums
 }
 /* Марка ростом с иконку строки, а не с подпись: мессенджер узнают по цвету
    раньше, чем по форме, и на 17px он не узнаётся вовсе. Кружка под маркой
