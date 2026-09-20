@@ -41,12 +41,28 @@ function brief(stage, { full = false } = {}) {
      слои первоисточников, docs/layers.md, §2. */
   if (stage.steps?.length) {
     console.log('\n  Шаги этапа — что за чем (слои docs/layers.md, §2):')
+    const tally = { reviewed: 0, unreviewed: 0, missing: 0, owner: 0 }
     for (const st of stage.steps) {
       const msg = st.done ? st.done() : undefined
-      const ch = msg === undefined ? '·' : msg === null ? '✓' : '✗'
-      line(ch, `${st.layer}. ${st.name} — ${st.what} [${st.skill}]${msg ? `: ${msg}` : ''}`)
+      const ok = msg === null
+      /* Три состояния слоя, и «есть» — не «сделано»: сделан слой, пересмотренный
+         против исследования, с датой и правилом (И223). */
+      const ch = msg === undefined ? '·' : ok ? (st.reviewed ? '✓' : '○') : '✗'
+      const state = ok
+        ? (st.reviewed ? `пересмотрено ${st.reviewed} — ${st.rule}` : 'есть, против исследования не пересмотрено')
+        : msg === undefined ? 'предиката нет — читается глазами' : msg
+      line(ch, `${st.layer}. ${st.name} — ${st.what} [${st.skill}]`)
+      line(' ', `   ${state}`)
+      if (st.show) line(' ', `   показано: ${st.show}`)
       if (st.owner) line(confirmed(st.owner) ? '✓' : '□', `   ${st.owner}   ${confirmed(st.owner) ? '(подтверждено — docs/gate.md)' : '(РЕШАЕТ ЗАКАЗЧИК)'}`)
+      if (ok && st.reviewed) tally.reviewed++
+      else if (ok) tally.unreviewed++
+      else if (msg !== undefined) tally.missing++
+      if (st.owner && !confirmed(st.owner)) tally.owner++
     }
+    const next = stage.steps.find((st) => { const m = st.done ? st.done() : undefined; return m === null && !st.reviewed })
+    console.log(`\n  Итог по слоям: пересмотрено ${tally.reviewed} · есть, не пересмотрено ${tally.unreviewed} · не начато ${tally.missing} · ждёт заказчика ${tally.owner}`)
+    if (next) console.log(`  Следующий подэтап: ${next.layer}. ${next.name} — пересмотреть против исследования (docs/layers.md, §2; пороги — tools/thresholds.mjs)`)
   }
 
   const problems = gateProblems(stage)

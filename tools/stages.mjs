@@ -204,7 +204,12 @@ const seams = () => {
 const tokensSrc = () => src(TOKENS ?? 'styles/tokens.css')
 const primitivesSrc = () => src(PRIMITIVES ?? 'styles/primitives.module.css')
 const scaleJson = () => json(LADDER?.replace(/\.css$/, '.json') ?? 'styles/scale.json') ?? json('styles/scale.json')
-const step = (layer, name, what, skill, done, owner) => ({ layer, name, what, skill, done, owner })
+/* Слой считается СДЕЛАННЫМ не тогда, когда файлы на месте, а когда он
+   пересмотрен против исследования — с датой и правилом, которым куплен
+   (И223). Без `reviewed` предикат ✓ значит «есть, против исследования не
+   пересмотрено»: так стояли слои 7–10, снятые с cbdin. `show` — где слой
+   показан глазами (стенд, артефакт). */
+const step = (layer, name, what, skill, done, owner, meta = {}) => ({ layer, name, what, skill, done, owner, ...meta })
 
 export const STAGES = [
   {
@@ -217,7 +222,8 @@ export const STAGES = [
           if (!has('tools/thresholds.mjs')) return 'порогов в одном месте нет (tools/thresholds.mjs)'
           return has('docs/decisions.md') ? null : 'нет docs/decisions.md — характер витрины и решения заказчика негде записать'
         },
-        'характер витрины назван заказчиком словами и записан в docs/decisions.md'),
+        'характер витрины назван заказчиком словами и записан в docs/decisions.md',
+        { reviewed: '20.09.2026', rule: 'И221: пороги в одном файле с источником у каждого' }),
       step(1, 'Имена и ярусы', 'сырьё → ступень → роль → узел; шкалы --fs/--sp, роли --air/--pad/--gap, ступени цвета', 'craft',
         () => {
           const l = ladder()
@@ -241,7 +247,8 @@ export const STAGES = [
           if (!has('styles/palette.json')) return 'палитры нет (styles/palette.json)'
           return src('styles/palette.json').includes('Стартовый') ? 'палитра стартовая — спросить у заказчика фирменный цвет' : null
         },
-        'набор цвета показан заказчику отрисованным — не кодами, а кнопкой, которую он нажал'),
+        'набор цвета показан заказчику отрисованным — не кодами, а кнопкой, которую он нажал',
+        { reviewed: '20.09.2026', rule: 'И216, И219: три краски, остальное считает строитель; факты из кода', show: 'https://claude.ai/artifact/YFkJRbiGNH8gvm3KxvgoNH — строитель палитры глазами' }),
       step(4, 'База: кегль тела и клетка', 'два кегля тела (телефон / макет) и отношение лестницы — от них считаются и текст, и воздух', 'scale',
         () => {
           const f = Object.values(scaleJson() ?? {})[0]
@@ -249,7 +256,8 @@ export const STAGES = [
           if (!(Array.isArray(f.тело) && f.тело.length === 2)) return 'в наборе нет двух кеглей тела (телефон / макет) — ключ «тело»'
           if (!(Array.isArray(f.отношение) && f.отношение.length === 2)) return 'в наборе нет двух отношений лестницы — ключ «отношение»'
           return has('tools/thresholds.mjs') ? null : 'порогов в одном месте нет (tools/thresholds.mjs)'
-        }),
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И222: тело и отношение, не таблица чисел прошлого проекта' }),
       step(5, 'Пространство', 'одна линейка ритма на клетке; роли по работе: поле внутри (rem), воздух между (px, парой ступеней), зазор в ряду (под палец); выпуск и замер', 'scale',
         () => {
           const l = ladder()
@@ -257,7 +265,8 @@ export const STAGES = [
           if (miss.length) return `ролей ритма нет: ${miss.join(' ')}`
           return script('check:scale') ? null : 'проверки шкал нет (check:scale)'
         },
-        'набор ритма (тесный / нынешний / просторный / тихий) показан заказчику на стенде и назван словом'),
+        'набор ритма (тесный / нынешний / просторный / тихий) показан заказчику на стенде и назван словом',
+        { reviewed: '20.09.2026', rule: 'И222: ритм множителями тела на клетке, воздух парой ступеней, проситель у каждой ступени', show: 'https://claude.ai/artifact/YZS2JiNiEXKdz2FA3wUtMC — стенд шкал, четыре набора' }),
       step(6, 'Типографика', 'роли текста пятью фактами (размер, межстрочье, вес, разрядка, мера); текучие заголовки; шрифт витрины', 'scale',
         () => {
           const t = Object.values(scaleJson() ?? {})[0]?.текст
@@ -265,7 +274,8 @@ export const STAGES = [
           const bad = Object.entries(t).filter(([, r]) => !(r.размер && r.межстрочье && r.вес))
           return bad.length ? `роли текста без пяти фактов: ${bad.map(([k]) => k).join(', ')}` : null
         },
-        'шрифт витрины показан заказчику отрисованным на её же тексте и назван'),
+        'шрифт витрины показан заказчику отрисованным на её же тексте и назван',
+        { reviewed: '20.09.2026', rule: 'И222: лестница по отношению 1.125 / 1.2; межстрочье по Butterick и Spectrum', show: 'https://claude.ai/artifact/YZS2JiNiEXKdz2FA3wUtMC — кадр «Роли текста»' }),
       step(7, 'Размер узлов', 'высота кнопки и поля от кегля и поля; под пальцем 44; размер — роль, не число', 'craft',
         () => tokensSrc().includes('--ctrl-h') && /\.tap\b/.test(primitivesSrc()) ? null : 'высота органа (--ctrl-h) или запас под палец (.tap) не заведены'),
       step(8, 'Раскладка', 'одиннадцать примитивов, три шва в реестре, компонент меряет контейнер, число колонок вычисляется', 'craft',
