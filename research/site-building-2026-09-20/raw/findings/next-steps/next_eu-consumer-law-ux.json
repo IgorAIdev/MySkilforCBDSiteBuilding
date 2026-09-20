@@ -1,0 +1,302 @@
+{
+ "topic": "Закон ЕС в интерфейсе третьей витрины (apps/storefront3, Румыния/cbdin.ro/RON + Хорватия/cbdshop.hr/EUR): цена и скидка (Omnibus), НДС в цене, cookie-согласие, возраст для CBD, возврат/доставка, национальные требования RO и HR",
+ "sourcesRead": [
+  "https://eur-lex.europa.eu/eli/dir/2019/2161/oj — Omnibus-директива, ст.2(1), правило 30 дней",
+  "https://eur-lex.europa.eu/eli/dir/1998/6/oj — Price Indication Directive, цена за единицу измерения",
+  "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32011L0083 — Consumer Rights Directive, ст.6, 8(2), 16",
+  "https://eur-lex.europa.eu/eli/reg/2024/3228/oj — Регламент об отмене ODR-платформы, ст.1",
+  "https://www.iubenda.com/en/blog/discontinuation-of-the-european-online-dispute-resolution-odr-platform/ — сроки закрытия ODR",
+  "https://www.h1-design.hr/izmjene-zakona-o-zastiti-potrosaca-2026/ — поправки ZZP Хорватии 2026",
+  "https://webstranica.hr/blog/zakon-o-zastiti-potrosaca-2026/ — перепроверка поправок ZZP 2026",
+  "https://www.zakon.hr/z/193/zakon-o-zastiti-potrosaca — сводный текст ZZP Хорватии",
+  "https://www.juridice.ro/824963/anpc-dezvolta-sistemul-sal-potrivit-cadrului-european-actual.html — обновление SAL/SOL Румынии 2026",
+  "https://www.edpb.europa.eu/documents/guideline/guidelines-052020-consent-under-regulation-2016679_en — согласие GDPR (через поиск, страница найдена)",
+  "https://taxfoundation.org/data/all/eu/value-added-tax-vat-rates-europe/ — ставки НДС ЕС 2026",
+  "https://www.fiscal-requirements.com/news/2652 — конец двойного отображения цен в Хорватии",
+  "https://gpsr-online.com/general-product-safety-regulation/chapter-3/section-2/article-19/ — GPSR ст.19 (через поиск)",
+  "https://essentiapura.com/is-cbd-legal-in-croatia/ — статус CBD Хорватия",
+  "https://hempking.eu/en/croatia-and-hemp-law-cbd-and-thc/ — THC-порог Хорватия",
+  "https://validsoftware.ro/ce-verifica-anpc-pe-un-magazin-online-in-2026/ — что проверяет ANPC в 2026"
+ ],
+ "sourcesFailed": [
+  "https://www.twobirds.com/en/insights/2025/global/the-end-of-the-european-online-dispute-resolution-platform (402 Payment Required)",
+  "https://www.edpb.europa.eu/system/files/2022-03/edpb_03-2022_guidelines_on_deceptive_design_patterns_in_social_media_platform_interfaces_en.pdf (404)",
+  "https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-032022-dark-patterns-social-media-platform_en (404)",
+  "https://www.edpb.europa.eu/system/files/2022-03/edpb_03-2022_guidelines_on_dark_patterns_in_social_media_platform_interfaces_en.pdf (скачался, но как повреждённый бинарник — прочитать текст не удалось)",
+  "https://anpc.ro/ (503)",
+  "https://anpc.ro/comunicat-sal/ (503)",
+  "https://anpc.ro/anpcftp/legislatie/Ordonanta%20nr.%2021(r2)%20din%201992.html (503)",
+  "https://legislatie.just.ro/Public/DetaliiDocument/2175 (502, официальный текст OG 21/1992 Румынии)",
+  "https://narodne-novine.nn.hr/clanci/sluzbeni/2026_06_59_728.html (503, официальный текст поправки ZZP Хорватии 2026 — оригинал Народных новин недоступен, использованы только вторичные юридические блоги)"
+ ],
+ "whichStep": "Это готовится ДО слоя «страницы магазина» (ценник, карточка товара, корзина/оформление, подвал, шторка cookie-согласия, ворота возраста CBD) — именно тем шагом, который следующим по плану владельца после типографики и раскладки. Без этого свода компонент ценника придётся переделывать: правило Omnibus (цена-скидка + «самая низкая цена за 30 дней») должно быть частью самого компонента бейджа скидки с рождения, а не приклеено потом — так же, как и место под НДС/доставку, кнопку заказа, unit-цену масел. Ошибка компонента здесь стоит штрафа: Румыния (ANPC) — 2 000–100 000 лей за нарушение; Хорватия (ZZP) — до 50 000 евро за нарушение по новым поправкам 2026 года. Отдельно: c 20.07.2025 платформа ODR ЕС закрыта — типовые чек-листы «обязательная ссылка на ec.europa.eu/consumers/odr» в интернете устарели, и если собирать подвал по старому образцу, туда попадёт мёртвая ссылка.",
+ "rules": [
+  {
+   "rule": "Объявление скидки обязано показывать «прежнюю цену» = самую низкую цену продавца за последние 30 дней до снижения. Это правило самой директивы (не рекомендация), действует во всех странах ЕС с 28.05.2022.",
+   "numbers": "не короче 30 дней; для товаров младше 30 дней на рынке — весь период продажи; для скоропортящихся — страна вправе разрешить более короткий срок",
+   "evidence": "Directive 2019/2161 (Omnibus), ст.2(1), вставляет ст.6a в Directive 98/6/EC: «The prior price means the lowest price applied by the trader during a period of time not shorter than 30 days prior to the application of the price reduction» (eur-lex.europa.eu/eli/dir/2019/2161/oj)",
+   "forStorefront3": "Бейдж скидки (компонент «ценник») не может существовать без второй строки — «самая низкая цена за 30 дней: X». Обе валюты (RON, EUR) требуют отдельного хранения истории цены за 30 дней в движке, а не расчёта на лету от текущей; для RO и HR это одна и та же логика компонента, разный только формат числа."
+  },
+  {
+   "rule": "Цена за единицу измерения (унит-прайс) обязательна для товаров, продаваемых по объёму/весу, и должна стоять рядом с продажной ценой в любой рекламе/на любой странице, где показана цена.",
+   "numbers": "на кг, л, м², м³ либо другая единица, «широко и обычно используемая» на рынке (для масел ЕС-практика — на 100 мл или на 10 мл); Art.5 разрешает странам-членам исключения, если унит-цена «не была бы полезна» или «создавала бы путаницу»",
+   "evidence": "Directive 98/6/EC, ст.2(b): «the final price...for one kilogramme, one litre...or a different single unit of quantity which is widely and customarily used»; ст.3(4): «Any advertisement which mentions the selling price...shall also indicate the unit price» (eur-lex.europa.eu/eli/dir/1998/6/oj)",
+   "forStorefront3": "Карточка товара для масел/концентратов CBD обязана печатать цену за 10 мл или 100 мл рядом с ценой за флакон — на телефоне (375px) это отдельная строка под ценой, не мелкий текст в описании внизу. Нужен токен формата числа на языковую версию (запятая/точка, RON/EUR)."
+  },
+  {
+   "rule": "До оформления заказа покупателю обязаны показать итоговую цену включая НДС и все известные дополнительные сборы (доставка), либо явно сказать, что доставка будет рассчитана дальше.",
+   "numbers": "нет числового порога — требование качественное: «total price inclusive of taxes»",
+   "evidence": "Directive 2011/83/EU (CRD), ст.6(1)(e): «the total price of the goods or services inclusive of taxes... as well as, where applicable, all additional freight, delivery or postal charges» (eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32011L0083)",
+   "forStorefront3": "Ценник товара печатает цену уже с НДС (21% RO / 25% HR — см. отдельное правило), а не «+ НДС при оплате»: сюрприз-строка в конце оформления — нарушение. Место под строку доставки (или «доставка на следующем шаге») резервируется в стилях страницы корзины заранее — это тот же принцип «страница ждёт ответа занимает место», уже записан для CLS в общем CLAUDE.md."
+  },
+  {
+   "rule": "Перед покупкой продавец обязан назвать себя: торговое имя, географический адрес, способ связи (в т.ч. email).",
+   "numbers": "нет числа — перечень обязательных полей ст.6(1)(a)-(c)",
+   "evidence": "CRD ст.6(1)(a): «the identity of the trader, such as his trading name»; ст.6(1)(c) требует географический адрес и электронную почту (в тексте директивы)",
+   "forStorefront3": "Подвал (footer) — не единственное место: по GPSR (см. отдельное правило) те же данные обязаны быть и на карточке товара / в оффере, не только внизу страницы."
+  },
+  {
+   "rule": "Кнопка, запускающая платный заказ, обязана носить единственно допустимую формулировку — «заказ с обязательством оплаты» или равнозначную недвусмысленную фразу; иначе покупатель не связан заказом вовсе.",
+   "numbers": "нет числа — императивная норма с санкцией «недействительности» при нарушении",
+   "evidence": "CRD ст.8(2): «the button or similar function shall be labelled in an easily legible manner only with the words 'order with obligation to pay' or a corresponding unambiguous formulation» (eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32011L0083)",
+   "forStorefront3": "Компонент «кнопка отправки заказа» получает свой обязательный текст на каждый из 4 языков (hr/en/it/ro) отдельной строкой в content/<язык>.ts — просто «Оплатить» или «Купить» не подходит юридически, нужна фраза именно про обязательство платить (напр. хорв. «Naruči uz obavezu plaćanja», рум. «Comandă cu obligație de plată»). На 375px кнопка не должна обрезать фразу — прямое пересечение с правилом CLAUDE.md о переносе текста в блоке."
+  },
+  {
+   "rule": "14-дневное право отказа от договора действует по умолчанию, но НЕ действует для запечатанных товаров, распечатанных после доставки по причине гигиены/здоровья, и для товаров с коротким сроком годности.",
+   "numbers": "14 дней с момента получения товара",
+   "evidence": "CRD ст.16(e): «the supply of sealed goods which are not suitable for return due to health protection or hygiene reasons and were unsealed after delivery»; ст.16(d): «the supply of goods which are liable to deteriorate or expire rapidly»",
+   "forStorefront3": "На карточке масла/капсул/бальзама CBD нужен явный флаг «запечатанный товар — при вскрытии упаковки право возврата теряется» (это здоровье/гигиена-исключение), и он должен появляться и в тексте страницы возврата, и рядом с самой кнопкой заказа."
+  },
+  {
+   "rule": "Согласие на cookies: кнопки «принять всё» и «отклонить всё» обязаны быть на одном уровне баннера, с равным зрительным весом и равным числом кликов; заранее проставленных галочек не бывает; отозвать согласие так же легко, как дать.",
+   "numbers": "1 клик = 1 клик (не «принять — 1 клик, отклонить — 3 клика через настройки»)",
+   "evidence": "Обобщение практики EDPB Guidelines 03/2022 (Dark patterns) и 05/2020 (Consent) — по вторичным источникам, поскольку сам PDF EDPB не открылся (см. sourcesFailed)",
+   "forStorefront3": "Шторка cookie-согласия — девятое окно в списке `<dialog>`-окон CLAUDE.md — технически она должна встать туда же: `showModal()`, а не самодельный слой с z-index. Кнопка «отклонить» не может быть серой ссылкой под яркой зелёной «принять» — тот же компонент кнопки (`pressable`), тот же размер."
+  },
+  {
+   "rule": "Платформа ODR Евросоюза закрыта: последняя жалоба принята 20.03.2025, платформа и данные удалены к 20.07.2025. Регламент 524/2013 отменён.",
+   "numbers": "дата отмены: 20 июля 2025 (Regulation (EU) 2024/3228, ст.1)",
+   "evidence": "«Regulation (EU) No 524/2013 is repealed with effect from 20 July 2025» — eur-lex.europa.eu/eli/reg/2024/3228/oj, ст.1 (первоисточник, прочитан напрямую)",
+   "forStorefront3": "НЕ класть в подвал ссылку ec.europa.eu/consumers/odr — она мертва. Вместо неё — контакт для споров и (для Румынии) актуальный SAL-баннер."
+  },
+  {
+   "rule": "Румыния: на первой странице магазина и в меню обязателен баннер/пиктограмма SAL (250×50 px) со ссылкой на reclamatiisal.anpc.ro. Пиктограмма SOL с мая 2026 больше не требуется.",
+   "numbers": "250×50 px; штраф 2 000–100 000 лей за отсутствие; действует с 19.05.2026 (приказ ANPC №270/2026, изменивший приказ №449/2022)",
+   "evidence": "рум. «referințele la platforma SOL au fost eliminate, iar sistemul național de informare și acces privind soluționarea alternativă a litigiilor a fost actualizat» — juridice.ro/824963 (официальная страница anpc.ro/comunicat-sal/ не открылась)",
+   "forStorefront3": "Компонент подвала для домена cbdin.ro получает только SAL-пиктограмму с новой ссылкой — размер жёстко 250×50, не «примерно»."
+  },
+  {
+   "rule": "Румыния: стандартная ставка НДС — 21% (повышена с 19% в августе 2025); сниженные ставки объединены в 11%.",
+   "numbers": "21% стандартная, 11% сниженная (было 5% и 9% раздельно)",
+   "evidence": "«Romania has increased its standard rate from 19 to 21 percent in August 2025 and consolidated its 5 and 9 percent brackets into a single 11 percent reduced rate» — taxfoundation.org/data/all/eu/value-added-tax-vat-rates-europe/",
+   "forStorefront3": "Ставка НДС — не константа в коде компонента цены, а параметр сайта/страны: 21% для cbdin.ro, 25% для cbdshop.hr. Хардкод одной ставки на оба домена — ошибка первого дня."
+  },
+  {
+   "rule": "Хорватия: с 19.06.2026 в интерфейсе интернет-магазина обязана быть онлайн-функция одностороннего расторжения договора — не спрятанная в условиях использования или мелким шрифтом.",
+   "numbers": "эффективная дата: 19.06.2026; штраф до 50 000 евро",
+   "evidence": "хорв. «gumb s jasnim natpisom ('Raskid ugovora' ili slično) — ne sakriven u uvjetima korištenja ili sitnim slovima» (h1-design.hr, независимо подтверждено webstranica.hr; официальный текст narodne-novine.nn.hr не открылся)",
+   "forStorefront3": "Личный кабинет/страница заказа получает отдельную кнопку «Raskid ugovora» с онлайн-формой и мгновенным подтверждением — это НОВОЕ требование сверх обычных 14 дней CRD, и его надо заложить в модель данных заказа заранее."
+  },
+  {
+   "rule": "Хорватия: правило «скидка = не ниже самой низкой цены за 30 дней» уже действует с 28.05.2022 (транспозиция Omnibus в Zakon o zaštiti potrošača, NN 19/22) — это НЕ новость 2026 года, это базовая работающая норма.",
+   "numbers": "действует с 28.05.2022; 30 дней — тот же порог, что и в EU-директиве",
+   "evidence": "«merchants are obligated in every price reduction announcement... to display both the reduced price and the lowest price they applied for that product in the last 30 days» — rrif.hr / kb.luceed.hr (пересказ закона NN 19/22)",
+   "forStorefront3": "Компонент бейджа скидки для cbdshop.hr собирается по той же логике, что и для cbdin.ro — один общий узел дизайн-системы на обе страны. Встреченные даты «17 ноября» / «17 июня 2026» какого-то позднейшего уточнения расходятся в источниках — сама норма уже действует, но перед сборкой стоит свериться с narodne-novine.hr."
+  },
+  {
+   "rule": "Хорватия: стандартная ставка НДС 25%; валюта — евро с 01.01.2023, обязательное двойное отображение цен (HRK/EUR) закончилось 31.12.2023.",
+   "numbers": "НДС 25% стандартная, 13% и 5% сниженные; двойные цены не нужны с 01.01.2024",
+   "evidence": "«From January 1st, 2024, prices on receipts, invoices, and in both online and physical stores only display prices of goods and services in euros» — fiscal-requirements.com/news/2652",
+   "forStorefront3": "cbdshop.hr не нуждается в логике двойной валюты — только EUR; для Румынии (RON) нужна отдельная валютная логика — два разных пути форматирования, не один общий."
+  },
+  {
+   "rule": "Возрастного порога именно для CBD, закреплённого отдельным законом, в Румынии и Хорватии (и в целом по ЕС) не найдено — это отраслевая практика/самоограничение продавца, а не статутная норма, в отличие от энергетиков (в Хорватии закон о запрете продажи энергетиков несовершеннолетним действует с 01.06.2026).",
+   "numbers": "порог 18+ встречается только как добровольная политика ритейлеров; статьи закона, вводящей его именно для CBD, не найдено ни для RO, ни для HR",
+   "evidence": "«there is currently no explicit statutory minimum age in UK law for the purchase of lawful cannabinoid products such as cannabidiol (CBD)» — общий паттерн ЕС, подтверждён отсутствием статьи закона в проверенных материалах по Хорватии (essentiapura.com/is-cbd-legal-in-croatia/, hempking.eu)",
+   "forStorefront3": "Ворота возраста для CBD-магазина — это решение владельца о риск-менеджменте, а не юридическое обязательство с конкретной статьёй закона, как это принято для health claims в CLAUDE.md. Компонент технически стоит делать — общий узел `<dialog>` с подтверждением 18+ — но текст честный: «магазин продаёт товары 18+ по своей политике», а не «по закону №…». Перепроверить у местного юриста перед финальным текстом."
+  },
+  {
+   "rule": "Товары CBD для проглатывания (масла, капсулы, съедобное) юридически считаются Novel Food в ЕС, и на 2026 год НЕ имеют завершённого одобрения; топики/косметика под Novel Food не подпадают, регулируются Cosmetics Regulation 1223/2009.",
+   "numbers": "THC-порог практически в обеих странах — 0,2%; >200 заявок на Novel Food в ЕС, 17 на экспертизе EFSA, ни одна не одобрена полностью; в феврале 2026 EFSA установила временный безопасный уровень только для добавок с чистотой CBD ≥98%",
+   "evidence": "«CBD products such as oils, topicals, and gummies face a 'novel food' classification... anything not widely consumed before 1997 needs special authorization»; THC Хорватия: «The 2019 amendment to the Anti-Drug Law established this threshold» — hempking.eu/en/croatia-and-hemp-law-cbd-and-thc/",
+   "forStorefront3": "Каталожная модель CBD-товаров должна с начала различать проглатываемое и топик — отдельное поле в товаре движка, влияющее на текст о законности на карточке — архитектурное решение, которое стоит принять до сборки каталога."
+  },
+  {
+   "rule": "По GPSR (действует с 13.12.2024) продавец обязан явно указывать в самом ОФФЕРЕ (на странице/в карточке товара, не только в подвале) имя/адрес/email производителя или ответственного лица в ЕС.",
+   "numbers": "действует с 13.12.2024; требование — «shall clearly and visibly indicate», без числового порога",
+   "evidence": "«the offer of those products shall clearly and visibly indicate at least...name, registered trade name or registered trade mark of the manufacturer, as well as the postal and electronic address at which they can be contacted» — GPSR ст.19, через gpsr-online.com (вторичный источник, прямой EUR-Lex текст ст.19 получить не удалось)",
+   "forStorefront3": "Считать, что «продавец в подвале» закрывает это требование — ошибка. Компонент карточки товара должен нести свой блок «о производителе/ответственном лице в ЕС», отдельно от общего подвала."
+  }
+ ],
+ "mechanisms": [
+  {
+   "name": "<dialog> + showModal()",
+   "what": "Родной модальный слой браузера — верхний слой, без z-index, со своим ::backdrop, Escape и возвратом фокуса",
+   "support2026": "Baseline widely available с 2022 года (Chrome 37+/Firefox 98+/Safari 15.4+); запасной путь не нужен для целевых браузеров сайта на CBD-рынке ЕС",
+   "whenToUse": "Cookie-шторка согласия, ворота возраста 18+ и (для Хорватии с июня 2026) подтверждение «Raskid ugovora» — все три по духу CLAUDE.md уже обязаны идти этим же путём, что и остальные 9 окон витрины"
+  },
+  {
+   "name": "Intl.NumberFormat({style:'currency', currency, minimumFractionDigits})",
+   "what": "Локализованное форматирование цены с валютой без ручной сборки строки",
+   "support2026": "Baseline widely available, поддержка валют RON и EUR полная во всех современных движках",
+   "whenToUse": "Компонент ценника: cbdin.ro — RON с румынским разделителем, cbdshop.hr — EUR с хорватским/итальянским/английским форматированием; нельзя один и тот же шаблон строки на оба домена"
+  },
+  {
+   "name": "JSON-LD schema.org Product/Offer + UnitPriceSpecification",
+   "what": "Структурные данные, в которых цена, НДС и unit-цена размещены машиночитаемо",
+   "support2026": "Не браузерный API — читается поисковыми роботами и AI-системами; универсально поддерживается, если сам JSON-LD синтаксически верен",
+   "whenToUse": "Пересекается с правилом CLAUDE.md про JSON-LD нужного типа — сюда же добавляется машиночитаемая версия «прежней цены за 30 дней» и unit-цены"
+  }
+ ],
+ "checks": [
+  {
+   "check": "У каждого бейджа скидки на странице рядом есть текст «самая низкая цена за 30 дней: X», и X не совпадает с текущей ценой",
+   "how": "Скрипт обходит все товарные карточки собранной витрины, ищет узел бейджа скидки и требует соседний узел с меткой 30-дневной ценой",
+   "tool": "новый тест в стиле pnpm --filter storefront3 test:price, тем же методом, что live-обход остальных проверок"
+  },
+  {
+   "check": "Итоговая цена на кнопке заказа = цена товаров + НДС, без дополнительного шага «+НДС» в чекауте",
+   "how": "Сравнение отображаемого числа на карточке и на первом экране оформления с расчётным",
+   "tool": "unit/integration-тест на движке цены, а не в CSS"
+  },
+  {
+   "check": "Текст кнопки отправки заказа на каждом из 4 языков входит в список разрешённых формулировок «заказ с обязательством оплаты»",
+   "how": "Снап-тест сверяет textContent кнопки на каждой языковой версии checkout со словарём content/<язык>.ts",
+   "tool": "jest/vitest snapshot + список допустимых строк как источник истины"
+  },
+  {
+   "check": "Ни один файл репозитория не содержит ссылку на ec.europa.eu/consumers/odr",
+   "how": "grep по кодовой базе и по собранным HTML-страницам собранной витрины",
+   "tool": "подобный сторож scripts/doc-links.test.ts, добавить строку-запрет в тот же реестр или отдельный тест"
+  },
+  {
+   "check": "На домене cbdin.ro в подвале и в меню присутствует пиктограмма SAL 250×50 со ссылкой на reclamatiisal.anpc.ro; пиктограммы SOL нигде нет",
+   "how": "Живой обход проверяет наличие <img>/<a> нужного размера и href именно на RO-сборке, и фейлит при обнаружении старого SOL-варианта",
+   "tool": "расширение test:smoke/live специально для RO-домена storefront3"
+  },
+  {
+   "check": "Cookie-баннер не ставит ни одного необязательного cookie/localStorage-ключа до клика «принять», и кнопки «принять»/«отклонить» имеют одинаковый размер и позицию",
+   "how": "Автоматический обход: открыть страницу в чистом контексте браузера, проверить document.cookie/storage до клика, сравнить computed size/order обеих кнопок",
+   "tool": "playwright-тест в связке с test:overlay или отдельный test:consent"
+  },
+  {
+   "check": "Ставка НДС равна значению из конфигурации сайта (21% RO, 25% HR), а не захардкожена в компоненте",
+   "how": "Юнит-тест дергает функцию расчёта цены с обоими сайтами из фикстуры",
+   "tool": "vitest на packages/ui или lib/pricing"
+  },
+  {
+   "check": "Карточка товара (не только подвал) содержит блок с именем/адресом/email продавца или ответственного лица в ЕС",
+   "how": "DOM-проверка на собранной странице товара — наличие обязательного блока рядом с офером",
+   "tool": "расширение test:dev (36-страничного обхода) или отдельная товарная проверка"
+  }
+ ],
+ "vocabulary": [
+  {
+   "term": "Omnibus-директива (Directive (EU) 2019/2161)",
+   "plain": "Общий пакет правок нескольких старых директив о защите потребителей — она и добавила правило «скидка = не выше самой низкой цены за 30 дней»",
+   "example": "Бейдж «-30%» на масле CBD обязан показывать рядом цену, ниже которой товар не продавался последние 30 дней"
+  },
+  {
+   "term": "PID (Price Indication Directive, 98/6/EC)",
+   "plain": "Старая директива про то, что рядом с ценой товара всегда должна быть цена за стандартную единицу (литр, кг, 100 мл)",
+   "example": "Флакон масла 10 мл за 45 € обязан показывать рядом «450 €/100мл»"
+  },
+  {
+   "term": "CRD (Consumer Rights Directive, 2011/83/EU)",
+   "plain": "Основной свод правил дистанционной торговли в ЕС: что сказать покупателю до заказа, как назвать кнопку, когда есть право на отказ",
+   "example": "Кнопка оформления не может называться просто «Оформить» — нужна фраза про обязательство оплаты"
+  },
+  {
+   "term": "GPSR (General Product Safety Regulation, 2023/988)",
+   "plain": "Новый (с декабря 2024) регламент безопасности товаров — требует показывать данные о производителе/ответственном лице прямо на карточке товара",
+   "example": "На странице масла CBD должен быть блок «Производитель / ответственное лицо в ЕС» с адресом и email"
+  },
+  {
+   "term": "ODR / ADR",
+   "plain": "ODR — общеевропейская онлайн-платформа для споров покупатель-продавец, закрыта 20.07.2025; ADR — общий термин для внесудебного разрешения споров, который остаётся живым принципом",
+   "example": "Ссылку на ec.europa.eu/consumers/odr в подвал больше не ставят — она не работает"
+  },
+  {
+   "term": "SAL / SOL (Румыния)",
+   "plain": "SAL — румынская национальная система альтернативного разрешения споров (осталась и обновлена); SOL — была локальным названием для ссылки на ODR-платформу, теперь убрана",
+   "example": "На cbdin.ro в подвале — только пиктограмма SAL со ссылкой на reclamatiisal.anpc.ro"
+  },
+  {
+   "term": "ZZP (Zakon o zaštiti potrošača)",
+   "plain": "Хорватский закон о защите потребителей — национальная транспозиция европейских директив плюс хорватские добавки (напр. кнопка отказа в один клик с июня 2026)",
+   "example": "На cbdshop.hr с 19.06.2026 в кабинете покупателя нужна кнопка «Raskid ugovora»"
+  },
+  {
+   "term": "EDPB",
+   "plain": "Европейский совет по защите данных — орган, чьи гайдлайны формируют практику «как должен выглядеть правильный cookie-баннер»",
+   "example": "Кнопки «принять» и «отклонить» cookie должны быть одного размера и на одном экране"
+  },
+  {
+   "term": "dark pattern / обманный узор",
+   "plain": "Дизайн-приём, который подталкивает пользователя к невыгодному для него решению",
+   "example": "Перекрасить кнопку «отклонить cookies» в цвет фона — типичный dark pattern"
+  },
+  {
+   "term": "hygiene-исключение (ст. 16(e) CRD)",
+   "plain": "Причина, по которой распечатанный товар нельзя вернуть — только если это прямо написано у товара на странице до покупки",
+   "example": "Открытый флакон масла CBD — возврат невозможен, если это написано на карточке"
+  },
+  {
+   "term": "Novel Food",
+   "plain": "Категория ЕС для «новой» пищи (в т.ч. проглатываемого CBD) — требует отдельного разрешения Еврокомиссии, которого пока ни у кого нет",
+   "example": "Капсулы CBD юридически висят в подвешенном статусе иначе, чем крем CBD для кожи"
+  },
+  {
+   "term": "unit-цена",
+   "plain": "Цена за стандартный объём/вес (100 мл, кг), которая должна стоять рядом с обычной ценой товара",
+   "example": "«45 € (450 €/100мл)» — обе цифры на одной карточке"
+  }
+ ],
+ "antiPatterns": [
+  "Показать «-20%» без второй цифры «самая низкая цена за последние 30 дней» рядом — самое частое нарушение Omnibus в реальных магазинах",
+  "Ссылка на ec.europa.eu/consumers/odr в подвале — платформа закрыта с 20.07.2025, ссылка мертва",
+  "Пиктограмма SOL в подвале румынского магазина — устарела с мая 2026, теперь только SAL",
+  "Кнопка cookie «Отклонить» — серая мелкая ссылка под большой цветной кнопкой «Принять» — классический dark pattern",
+  "Показ цены без НДС на витрине и добавление НДС отдельной строкой только в самом чекауте — «сюрприз в конце»",
+  "Один и тот же текст кнопки заказа на всех языках без проверки, что на каждом языке в нём есть юридически нужный смысл «обязательство оплаты»",
+  "Считать, что подвал сайта закрывает обязанность GPSR показывать данные производителя — GPSR требует это ещё и на самой карточке товара",
+  "Полагать, что для Хорватии всё ещё нужна двойная цена в HRK и EUR — обязательство закончилось 31.12.2023",
+  "Указывать конкретный «возрастной закон о CBD» на экране ворот возраста, которого по факту не существует ни в Румынии, ни в Хорватии",
+  "Не различать в каталоге проглатываемый CBD (Novel Food) и топик/косметику CBD (обычный косметический регламент)"
+ ],
+ "quotes": [
+  {
+   "text": "The prior price means the lowest price applied by the trader...not shorter than 30 days prior to the reduction",
+   "source": "https://eur-lex.europa.eu/eli/dir/2019/2161/oj (Art.2(1), ст.6a Dir 98/6/EC)"
+  },
+  {
+   "text": "labelled in an easily legible manner only with the words 'order with obligation to pay'",
+   "source": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32011L0083 (CRD Art.8(2))"
+  },
+  {
+   "text": "sealed goods not suitable for return due to health protection or hygiene reasons, unsealed after delivery",
+   "source": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32011L0083 (CRD Art.16(e))"
+  },
+  {
+   "text": "offer of those products shall clearly and visibly indicate the name, postal and electronic address",
+   "source": "GPSR Art.19, через gpsr-online.com/general-product-safety-regulation/chapter-3/section-2/article-19/"
+  },
+  {
+   "text": "Regulation (EU) No 524/2013 is repealed with effect from 20 July 2025.",
+   "source": "https://eur-lex.europa.eu/eli/reg/2024/3228/oj (Art.1)"
+  },
+  {
+   "text": "referințele la platforma SOL au fost eliminate, iar sistemul național SAL a fost actualizat",
+   "source": "https://www.juridice.ro/824963/anpc-dezvolta-sistemul-sal-potrivit-cadrului-european-actual.html"
+  },
+  {
+   "text": "gumb s jasnim natpisom ('Raskid ugovora' ili slično) — ne sakriven u uvjetima korištenja",
+   "source": "https://www.h1-design.hr/izmjene-zakona-o-zastiti-potrosaca-2026/ (вторичный источник, официальный текст не открылся)"
+  },
+  {
+   "text": "the final price...for one kilogramme, one litre...or a different single unit of quantity widely and customarily used",
+   "source": "https://eur-lex.europa.eu/eli/dir/1998/6/oj (PID Art.2(b))"
+  }
+ ],
+ "confidence": "Высокая для норм уровня ЕС (Omnibus/PID/CRD/GPSR-отмена ODR) — тексты прочитаны напрямую на eur-lex.europa.eu и цитаты сверены. Средняя для национальных деталей Румынии (SAL/SOL-обновление 2026, ставка НДС 21%) — источники качественные (юридические блоги, налоговые агрегаторы), но официальные anpc.ro и legislatie.just.ro были недоступны (503/502) весь заход, поэтому перед стройкой стоит один раз перепроверить их напрямую. Средняя-низкая для деталей поправки Хорватии 2026 года (кнопка «Raskid ugovora», точная дата вступления в силу) — официальный текст narodne-novine.nn.hr не открылся (503), опирался на два независимых, но вторичных источника, которые разошлись в одной из дат (30-дневное правило само по себе подтверждено с 2022 года из третьего независимого источника — это высокая уверенность). Низкая для «возраста CBD» — это не столько недостаток источников, сколько содержательный вывод «специального закона не существует», который стоит перепроверить у местного юриста перед тем, как писать текст на экране ворот возраста как факт закона, а не как политику магазина."
+}
