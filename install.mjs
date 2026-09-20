@@ -58,12 +58,12 @@ if (OUT === SRC) {
  *  исследования — снимки чужих первоисточников и ответы агентов, из которых
  *  выведены правила; проекту нужны правила, а не 25 МБ их оснований. */
 const MINE = new Set(['.git', '.gitignore', 'node_modules', 'README.md', 'package.json',
-  'package-lock.json', '.github', 'templates', 'selftest', 'research'])
+  'package-lock.json', '.github', 'templates', 'selftest', 'research', 'palette'])
 
 /** Принадлежит ПРОЕКТУ, как только в нём появилось: правила, шкалы, тесты,
  *  линтер, рабочий процесс. Набор пишет их один раз — новому сайту. */
 const PROJECT_OWNED = ['CLAUDE.md', 'docs', 'styles', 'tests', '.oxlintrc.json',
-  '.github/workflows/check.yml']
+  '.github/workflows/check.yml', 'styles/palette.json']
 
 /** Свои четыре скилла — то, ради чего набор существует. Остальные в
  *  `.claude/skills/` — чужие, о вкусе и процессе; на чужой сайт для аудита
@@ -145,6 +145,14 @@ if (MODE === 'new') {
     if (name === '.github/workflows/check.yml') {
       mkdirSync(join(OUT, '.github/workflows'), { recursive: true })
       cpSync(join(SRC, 'templates/check.yml'), join(OUT, name))
+    } else if (name === 'styles/palette.json') {
+      /* Новый сайт с первой минуты стоит на шкале, а не на случайных красках.
+         Набор нарочно назван «Стартовый — заменить»: ворота этапа 0 ищут это
+         слово и напоминают спросить у заказчика фирменный цвет, пока он не
+         назван (И196). До 21.09.2026 палитра в новый проект не ехала вовсе —
+         шаг «спроси цвет» держался на памяти сессии, то есть ни на чём. */
+      mkdirSync(join(OUT, 'styles'), { recursive: true })
+      cpSync(join(SRC, 'palette/starter.json'), join(OUT, name))
     } else if (existsSync(join(SRC, name))) {
       cpSync(join(SRC, name), join(OUT, name), { recursive: true })
     }

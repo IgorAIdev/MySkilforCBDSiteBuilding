@@ -223,7 +223,7 @@ test('семьи проверок названы в одном месте', () =
    у которого краска светлее контролов, должен покраснеть в обеих темах;
    образцы самопроверки — пройти. */
 test('палитра: схлопнувшаяся лестница — находка, образцы проходят', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = new URL('../palette/check.mjs', import.meta.url).pathname
   const clean = spawnSync(process.execPath, [tool, '--json'], { encoding: 'utf8' })
   const ok = JSON.parse(clean.stdout)
   assert.equal(clean.status, 0, 'образцы самопроверки должны проходить')
@@ -251,12 +251,12 @@ test('палитра: схлопнувшаяся лестница — наход
    до 21.09.2026 это проверялось рукой, потому что сторож смотрит в
    styles/palette.json приложения, которого в наборе нет. */
 test('наборы-образцы: находка ровно одна, и та задокументирована', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = new URL('../palette/check.mjs', import.meta.url).pathname
   const dir = mkdtempSync(join(tmpdir(), 'palette-template-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(
     join(dir, 'styles', 'palette.json'),
-    readFileSync(new URL('../templates/palette.json', import.meta.url).pathname, 'utf8'),
+    readFileSync(new URL('../palette/sets.json', import.meta.url).pathname, 'utf8'),
   )
   const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
   const report = JSON.parse(run.stdout).report as { name: string; mode: string; findings: { rule: string }[] }[]
@@ -271,7 +271,7 @@ test('наборы-образцы: находка ровно одна, и та �
    показывает 71.6 при обещанных 90 — ровно тот класс дефекта, из-за
    которого вторая метрика и заведена. */
 test('палитра: APCA ловит то, о чём WCAG молчит', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = new URL('../palette/check.mjs', import.meta.url).pathname
   const dir = mkdtempSync(join(tmpdir(), 'palette-apca-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({

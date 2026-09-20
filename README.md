@@ -93,8 +93,8 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
 | `.claude/skills/` — остальное | вкус (`taste-skill`, `emil-design-eng`), движение (`improve-animations`), стиль (`minimalist`, `brutalist`, `soft`), придирчивый разбор (`impeccable`), `redesign`, `brandkit`, `output` — с лицензиями |
 | `CLAUDE.md` | те же правила словами — читаются раньше кода каждой сессией |
 | `install.mjs` | раскладывает набор в проект и дописывает скрипты |
-| `templates/palette.json` | **готовый набор цвета для копирования** в `styles/palette.json` проекта: четыре краски на тему, остальные тридцать считаются |
-| `tools/check-palette.mjs` | **палитра по шкале**: состояния кнопки, пороги контраста, граница и кольцо фокуса, фирменный против красного |
+| `palette/` | **весь цвет набора в одной папке**: строитель, двадцать правил, прогон, семь наборов-образцов и стартовый набор для нового сайта. Карта — `palette/README.md` |
+| `palette/check.mjs` | **палитра по шкале**: состояния кнопки, пороги контраста, граница и кольцо фокуса, фирменный против красного |
 | `styles/base.css` | сброс, земля страницы, режимы переноса, кольцо фокуса |
 | `styles/tokens.css` | шкала размеров, шкала ритма, роли цвета, резервы под полосы |
 | `styles/primitives.module.css` | одиннадцать примитивов раскладки плюс общие контролы |
@@ -129,7 +129,7 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
 |---|---|
 | Сколько красок в палитре и что каждая делает | [`.claude/skills/craft/references/palette.md`](.claude/skills/craft/references/palette.md) |
 | Коротко, как правило | [`.claude/skills/craft/SKILL.md`](.claude/skills/craft/SKILL.md), раздел «Палитра — это шкала из двенадцати ступеней» |
-| Готовый набор, чтобы скопировать | [`templates/palette.json`](templates/palette.json) |
+| Готовый набор, чтобы скопировать | [`palette/sets.json`](palette/sets.json) · карта папки [`palette/README.md`](palette/README.md) |
 | Роли цвета, тёмная тема, разделители | [`.claude/skills/craft/references/color.md`](.claude/skills/craft/references/color.md) |
 
 Коротко: палитра — не набор красок, а **шкала из двенадцати ступеней** на
