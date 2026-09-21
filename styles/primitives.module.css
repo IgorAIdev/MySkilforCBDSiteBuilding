@@ -580,7 +580,7 @@
   position:absolute;left:50%;top:var(--air-row);z-index:var(--layer-skip);
   transform:translate(-50%, -200%);
   background:var(--pop);color:var(--on-pop);padding:var(--pad-inner) var(--pad-card);border-radius:var(--r-ctrl);
-  font-size:var(--ctrl-fs-sm);font-weight:600;transition:transform var(--hover-t) var(--ease)
+  font-size:var(--ctrl-fs-sm);font-weight:600;transition:transform var(--open-t) var(--ease)
 }
 .skip:focus-visible{transform:translate(-50%, 0)}
 
@@ -758,7 +758,7 @@
 .tray > [data-act]:not(:disabled):active{background:var(--quiet-on)}
 .tray > :where(button, a){
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
-              box-shadow var(--hover-t) var(--ease),transform var(--hover-t) var(--ease)
+              box-shadow var(--hover-t) var(--ease),transform var(--press-t) var(--ease)
 }
 /* Выключенная половина под рукой. Правило было всегда — и молчало: шаг
    `--hover-ctrl` это 5% чернил, то есть 1.12 против жёлоба при пороге
@@ -804,7 +804,7 @@
 /* Выключенный орган стоит на месте и молчит: по нему видно, есть ли чему
    работать. Отклика у него нет — орган, который отвечает и не делает,
    хуже неподвижного. */
-.tray > :disabled{opacity:.45;cursor:default}
+.tray > :disabled{opacity:var(--state-off);cursor:default}
 /* Пальцу — сорок четыре: лоток растёт целиком, а не поштучно, иначе органы
    в нём разъедутся по высоте. */
 /* Пальцу сорок четыре нужны у САМОГО органа, а не у жёлоба вокруг него.
@@ -914,7 +914,7 @@
 .qty button{
   height:100%;aspect-ratio:1;width:auto;border-radius:50%;
   display:grid;place-items:center;color:var(--ink-soft);
-  transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),box-shadow var(--hover-t) var(--ease),transform var(--hover-t) var(--ease)
+  transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),box-shadow var(--hover-t) var(--ease),transform var(--press-t) var(--ease)
 }
 @media (hover:hover){ .qty button:hover{color:var(--ink);background:var(--surface);box-shadow:var(--sh-raised)} }
 .qty button:active{color:var(--ink);background:var(--surface);box-shadow:var(--sh-raised)}
@@ -997,7 +997,7 @@
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
 @media (hover:hover){ .seg button:hover{background:var(--hover-ctrl);color:var(--ink)} }
-.seg button:active{background:var(--hover-ctrl);color:var(--ink)}
+.seg button:active{background:var(--press-ctrl);color:var(--ink)}
 .seg button[aria-pressed="true"]{background:var(--pop);color:var(--on-pop);font-weight:600}
 
 /* ── sections ─────────────────────────────────────────────────────────── */
@@ -1143,7 +1143,7 @@
   box-shadow:inset 0 0 0 var(--line-w) color-mix(in srgb, var(--ink) 10%, transparent);
   font-size:var(--ctrl-fs-sm);font-weight:500;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
-             transform calc(var(--hover-t) * .6) var(--ease)
+             transform var(--press-t) var(--ease)
 }
 /* Знак рисуется ШТРИХОМ — как все знаки сайта. Без этих двух строк браузер
    заливает путь по умолчанию, и крестик из двух линий пропадает вовсе: в
@@ -1157,7 +1157,7 @@
    цвет фирмы, а сам крестик — он и есть действие. */
 @media (hover:hover){ .chip:hover{background:var(--hover-ctrl)} }
 @media (hover:hover){ .chip:hover svg{color:var(--ink)} }
-.chip:active{background:var(--hover-ctrl);transform:scale(.97)}
+.chip:active{background:var(--press-ctrl);transform:scale(.97)}
 .chip:active svg{color:var(--ink)}
 
 .cut{
@@ -1274,7 +1274,7 @@
   transition:background var(--hover-t) var(--ease)
 }
 @media (hover:hover){ .chan:hover{background:var(--hover-row)} }
-.chan:active{background:var(--hover-row)}
+.chan:active{background:var(--press-row)}
 /* Канал без настоящего адреса — строка стоит, нажатие нет (И86). Гашение
    цветом всего ряда (И111) снято по слову заказчика: пока все каналы сайта
    без исключения — заготовка, приглушение читалось не как «это не

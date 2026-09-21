@@ -14,7 +14,7 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { RHYTHM } from './thresholds.mjs'
+import { RHYTHM, MOTION, STATE } from './thresholds.mjs'
 import { join, relative, dirname, basename } from 'node:path'
 import { CSS_FAMILIES, CSS_LABELS as NAMES, hueRx } from './css-families.mjs'
 import { parse as parseName, REQUIRED, optics, declarations, reads } from './names.mjs'
@@ -1324,6 +1324,52 @@ for (const path of files) {
   for (const { rel, css, at } of sheets) {
     for (const m of css.matchAll(/\b100(vw|vh|lvw|lvh)\b/g)) add('fullVw', `${at(m.index)}  100${m[1]}`)
     for (const m of css.matchAll(/container-type\s*:\s*size\b/g)) add('sizeContain', `${at(m.index)}  container-type: size`)
+  }
+
+  /* Движение и состояния (слой 10, И229).
+   *
+   * Длительность числом в узле — движение, подобранное под один блок:
+   * cbdin набрал 11 находок семьи `motion`, и ни одна не была ролью. Три
+   * роли по работе — `--press-t`, `--hover-t`, `--open-t` — и две кривые;
+   * число миллисекунд вне файла ролей и основания (там живёт блок
+   * `prefers-reduced-motion` с .01ms) — семья `msLiteral`. Сами роли
+   * спрашиваются с коридоров MOTION (Atlassian 50…150 / 150…400, Carbon до
+   * 700, M3 — не больше шести) — `motionOut`; вуали состояния и выключенное —
+   * с STATE (M3 8 / 10 / 16 %, замер тихой кнопки 4…5 %) — `stateOut`. */
+  for (const { rel, css, at } of sheets) {
+    if (EXEMPT.includes(rel) || rel === LADDER || rel === TOKENS || rel === BASE) continue
+    for (const m of css.matchAll(/(?<![-a-z])(?:transition|animation)(?:-duration|-delay)?\s*:\s*([^;}]+)/g)) {
+      const v = m[1].replace(/var\([^)]*\)/g, '').replace(/cubic-bezier\([^)]*\)/g, '')
+      const d = v.match(/(?:^|[\s,])(\d*\.?\d+)(m?s)\b/)
+      if (d && Number(d[1]) > 0) add('msLiteral', `${at(m.index)}  ${d[1]}${d[2]} — возьмите --press-t / --hover-t / --open-t`)
+    }
+  }
+  {
+    const tokens = sheets.find((s) => s.rel === TOKENS)
+    if (tokens) {
+      const { css, at } = tokens
+      const ms = (name) => {
+        const m = css.match(new RegExp(`(?:^|[;{])\\s*${name}\\s*:\\s*([\\d.]+)(m?s)\\b`))
+        return m ? { ms: m[2] === 's' ? Number(m[1]) * 1000 : Number(m[1]), i: m.index } : null
+      }
+      for (const [name, [lo, hi]] of [['--press-t', MOTION.press], ['--hover-t', MOTION.hover], ['--open-t', MOTION.open]]) {
+        const d = ms(name)
+        if (!d) { add('motionOut', `${TOKENS}  нет роли ${name}`); continue }
+        if (d.ms < lo || d.ms > hi) add('motionOut', `${at(d.i)}  ${name}: ${d.ms}ms вне ${lo}…${hi}`)
+        if (d.ms > MOTION.max) add('motionOut', `${at(d.i)}  ${name}: ${d.ms}ms дольше ${MOTION.max} — ожидание, не переход`)
+      }
+      const durations = [...css.matchAll(/(?:^|[;{])\s*(--[a-z-]+-t)\s*:\s*[\d.]+m?s\b/g)].map((m) => m[1])
+      if (durations.length > MOTION.tokens) add('motionOut', `${TOKENS}  длительностей ${durations.length}, не больше ${MOTION.tokens}: ${durations.join(', ')}`)
+      const pct = (name) => { const m = css.match(new RegExp(`(?:^|[;{])\\s*${name}\\s*:\\s*([\\d.]+)%`)); return m ? { v: Number(m[1]) / 100, i: m.index } : null }
+      for (const [name, [lo, hi]] of [['--state-hover', STATE.hover], ['--state-press', STATE.press]]) {
+        const p = pct(name)
+        if (!p) { add('stateOut', `${TOKENS}  нет роли ${name}`); continue }
+        if (p.v < lo || p.v > hi) add('stateOut', `${at(p.i)}  ${name}: ${Math.round(p.v * 100)}% вне ${lo * 100}…${hi * 100}%`)
+      }
+      const off = css.match(/(?:^|[;{])\s*--state-off\s*:\s*([\d.]+)/)
+      if (!off) add('stateOut', `${TOKENS}  нет роли --state-off`)
+      else if (Number(off[1]) < STATE.off[0] || Number(off[1]) > STATE.off[1]) add('stateOut', `${at(off.index)}  --state-off: ${off[1]} вне ${STATE.off.join('…')}`)
+    }
   }
 
   /* Форма (слой 9, И228): радиус, линия и тень — роли, не числа.

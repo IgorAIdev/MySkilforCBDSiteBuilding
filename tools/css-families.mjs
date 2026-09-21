@@ -28,6 +28,7 @@ export const CSS_FAMILIES = [
   'axisUnknown', 'axisTheme', 'axisScope', 'axisHover', 'ctrlSize',
   'deadSeam', 'nodeWindow', 'seamStep', 'fullVw', 'sizeContain',
   'radiusPx', 'shadowPx', 'linePx', 'popRadius',
+  'msLiteral', 'motionOut', 'stateOut',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
@@ -99,4 +100,7 @@ export const CSS_LABELS = {
   shadowPx: 'тень числом в узле — тень подобрана на глаз под блок; роли по работе: --sh-raised / --sh-lift / --sh-overlay / --sh-in',
   linePx: 'толщина линии или кольца числом — линия не масштабируется и не выбирается по месту: --line-w, --ring-w, --ring-off',
   popRadius: 'полный круг (--r-pop) вне дома контролов — главное действие одно, его выделение размывается',
+  msLiteral: 'длительность числом в узле — движение берётся ролью по работе: --press-t (нажатие), --hover-t (под рукой), --open-t (раскрытие)',
+  motionOut: 'роль движения вне коридора порогов (MOTION): нажатие 50…150, смена и раскрытие 150…400, дольше 700 — ожидание; длительностей не больше шести',
+  stateOut: 'вуаль состояния или непрозрачность выключенного вне коридора порогов (STATE): наведение 4…8 %, нажатие 8…16 %, выключенное 0.38…0.5',
 }

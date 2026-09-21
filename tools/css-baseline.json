@@ -50,5 +50,8 @@
   "radiusPx": 0,
   "shadowPx": 0,
   "linePx": 0,
-  "popRadius": 0
+  "popRadius": 0,
+  "msLiteral": 0,
+  "motionOut": 0,
+  "stateOut": 0
 }

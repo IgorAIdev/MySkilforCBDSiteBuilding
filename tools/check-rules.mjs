@@ -84,6 +84,7 @@ const TABLES = {
   '.claude/skills/craft/references/axes.md': ['axes'],
   '.claude/skills/craft/references/layout.md': ['layout'],
   '.claude/skills/craft/references/shape.md': ['shape'],
+  '.claude/skills/craft/references/states.md': ['states'],
   ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
@@ -340,6 +341,21 @@ const shapeFacts = () => {
   rows.push(`| кто читает радиусы | \`--r-ctrl\` — ${ctrl.length} мест; \`--r-pop\` — ${pop.length ? pop.length + ' мест' : 'никто в наборе: главное действие придёт с магазином (REQUIRED)'} | \`styles/base.css\`, \`styles/primitives.module.css\` |`)
   return rows.join('\n')
 }
+/* Состояния и движение — из кода (И229): длительности и кривые с коридорами,
+   вуали состояния, выключенное, что нажимаемое получает в основании. */
+const statesFacts = () => {
+  const rows = ['| Факт | Значение | Откуда |', '| --- | --- | --- |']
+  const tokens = has('styles/tokens.css') ? read('styles/tokens.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
+  const val = (name) => tokens.match(new RegExp(`(?:^|[;{])\\s*${name}\\s*:\\s*([^;}]+)`))?.[1].trim() ?? '—'
+  rows.push(`| длительности | \`--press-t\` ${val('--press-t')} (коридор ${THR.MOTION.press.join('…')}), \`--hover-t\` ${val('--hover-t')} (${THR.MOTION.hover.join('…')}), \`--open-t\` ${val('--open-t')} (${THR.MOTION.open.join('…')}); не больше ${THR.MOTION.tokens}, дольше ${THR.MOTION.max} — ожидание | \`styles/tokens.css\`, \`MOTION\` в \`tools/thresholds.mjs\` |`)
+  rows.push(`| кривые | вход \`--ease\` ${val('--ease')}; уход \`--ease-exit\` ${val('--ease-exit')} | \`styles/tokens.css\` |`)
+  rows.push(`| вуали состояния | наведение \`--state-hover\` ${val('--state-hover')} (коридор ${THR.STATE.hover.map((x) => x * 100).join('…')} %), нажатие \`--state-press\` ${val('--state-press')} (${THR.STATE.press.map((x) => x * 100).join('…')} %); роли \`--hover-row\`, \`--hover-ctrl\`, \`--press-row\`, \`--press-ctrl\` на корне, палубе, листе | \`STATE\` в \`tools/thresholds.mjs\` |`)
+  rows.push(`| выключенное | \`--state-off\` ${val('--state-off')} (коридор ${THR.STATE.off.join('…')}) и второй признак словом | \`styles/tokens.css\` |`)
+  rows.push(`| фокус | кольцо \`--ring-w\` ${THR.SHAPE.ring.width}px, отступ ${THR.SHAPE.ring.offset}px, краска \`--ring\` замером ≥ 3 : 1 | \`styles/base.css\`, \`palette\` |`)
+  const base = has('styles/base.css') ? read('styles/base.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
+  rows.push(`| нажимаемое в основании | ${/touch-action\s*:\s*manipulation/.test(base) ? 'touch-action: manipulation' : 'нет touch-action'}; ${/prefers-reduced-motion\s*:\s*reduce/.test(base) ? 'prefers-reduced-motion гасит переходы' : 'нет reduced-motion'}; ${/interpolate-size/.test(base) ? 'interpolate-size под no-preference' : 'нет interpolate-size'} | \`styles/base.css\` |`)
+  return rows.join('\n')
+}
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
@@ -350,6 +366,7 @@ const GEN = {
   axes: axesFacts(),
   layout: layoutFacts(),
   shape: shapeFacts(),
+  states: statesFacts(),
 }
 const withTables = (file, text, keys) => keys.reduce((t, key) => {
   const re = new RegExp(`<!-- families:${key} -->[\\s\\S]*?<!-- /families:${key} -->`)

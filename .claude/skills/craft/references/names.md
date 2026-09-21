@@ -83,14 +83,15 @@ is»; Curtis (Purposeful vs Aesthetic) — перекраска марки пе�
 | text | `--hero`, `--pagehead`, `--h2`, `--h3`, `--intro`, `--lede`, `--body`, `--note`, `--eyebrow`, `--measure`, `--face`, `--fs`, `--page` | роль |
 | shape | `--r` | роль |
 | depth | `--sh` | роль |
-| motion | `--ease`, `--rise`, `--nudge` | роль |
+| motion | `--ease`, `--rise`, `--nudge`, `--open` | роль |
+| state | `--state` | роль |
 | layer | `--layer` | роль |
 | control | `--ctrl`, `--chan`, `--chip`, `--tab`, `--dock`, `--edge` | роль |
 | layout | `--wrap`, `--gut`, `--head`, `--anchor`, `--float`, `--chrome`, `--tile` | роль |
 | ручки примитивов | `--stack-*`, `--cluster-*`, `--switch-*`, `--rail-*`, `--section-*`, `--sheet-*`, `--lede-*`, `--hero-*`, `--grid-*`, `--cols-*`, `--cell-*`, `--pin-*`, `--tray-*`, `--leaf-*`, `--chip-*`, `--qty-*`, `--more-*`, `--chan-*`, `--side-*`, `--prose-*`, `--pinned-*`, `--sidebar-*`, `--frame-*` | узел |
 | сырьё | `--n-N`, `--a-N`, `--e-N`, `--sale-N`, `--warn-N`, `--ok-N`, `--info-N`, `--on-*-N`, `--sp-N`, `--fs-*` | сырьё |
-| обязательные роли | `--bad`, `--bad-fill`, `--on-bad`, `--bad-tint`, `--bad-line`, `--ok`, `--ok-fill`, `--on-ok`, `--ok-tint`, `--warn`, `--warn-fill`, `--on-warn`, `--warn-tint`, `--sale`, `--sale-fill`, `--on-sale`, `--sale-tint`, `--pop-press`, `--r-pop`, `--plate-2`, `--rule`, `--field`, `--scrim`, `--layer-helper`, `--layer-toast` | роль |
-| объявлений в стилях набора | 732, по форме 732 | `tools/names.mjs`, `parse()` |
+| обязательные роли | `--bad`, `--bad-fill`, `--on-bad`, `--bad-tint`, `--bad-line`, `--ok`, `--ok-fill`, `--on-ok`, `--ok-tint`, `--warn`, `--warn-fill`, `--on-warn`, `--warn-tint`, `--sale`, `--sale-fill`, `--on-sale`, `--sale-tint`, `--pop-press`, `--r-pop`, `--ease-exit`, `--plate-2`, `--rule`, `--field`, `--scrim`, `--layer-helper`, `--layer-toast` | роль |
+| объявлений в стилях набора | 744, по форме 744 | `tools/names.mjs`, `parse()` |
 <!-- /families:names -->
 
 ## Роли, обязанные существовать

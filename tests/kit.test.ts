@@ -990,3 +990,32 @@ test('форма: радиусы из набора и лестницы, полн
   }
   assert.ok(sets['Тихий'].радиус.ctrl < sets['Нынешний'].радиус.ctrl, 'тихий люкс не острее')
 })
+
+/* И229: движение и состояния — роли по работе в коридорах порогов. */
+test('движение и состояния: три длительности и две кривые в коридорах, вуали долей чернил, нажатие глубже наведения, нажимаемое без задержки', async () => {
+  const { MOTION, STATE } = await import('../tools/thresholds.mjs')
+  const bare = tokens.replace(/\/\*[\s\S]*?\*\//g, '')
+  const ms = (name: string): number => Number(bare.match(new RegExp(`^\\s*${name}\\s*:\\s*([\\d.]+)ms`, 'm'))?.[1] ?? NaN)
+  for (const [name, [lo, hi]] of [['--press-t', MOTION.press], ['--hover-t', MOTION.hover], ['--open-t', MOTION.open]] as Array<[string, number[]]>) {
+    const v = ms(name)
+    assert.ok(v >= lo! && v <= hi!, `${name} ${v}ms вне ${lo}…${hi}`)
+  }
+  assert.ok(ms('--press-t') < ms('--hover-t'), 'ответ на нажатие не быстрее смены под рукой')
+  assert.ok(/^\s*--ease\s*:/m.test(bare) && /^\s*--ease-exit\s*:/m.test(bare), 'двух кривых нет')
+  const pct = (name: string): number => Number(bare.match(new RegExp(`^\\s*${name}\\s*:\\s*([\\d.]+)%`, 'm'))?.[1] ?? NaN) / 100
+  assert.ok(pct('--state-hover') >= STATE.hover[0]! && pct('--state-hover') <= STATE.hover[1]!, 'вуаль наведения вне коридора')
+  assert.ok(pct('--state-press') >= STATE.press[0]! && pct('--state-press') <= STATE.press[1]!, 'вуаль нажатия вне коридора')
+  assert.ok(pct('--state-press') > pct('--state-hover'), 'нажатие не глубже наведения')
+  const off = Number(bare.match(/^\s*--state-off\s*:\s*([\d.]+)/m)?.[1])
+  assert.ok(off >= STATE.off[0]! && off <= STATE.off[1]!, 'выключенное вне коридора')
+  for (const name of ['--press-row', '--press-ctrl', '--hover-row', '--hover-ctrl']) assert.ok(new RegExp(`^\\s*${name}\\s*:`, 'm').test(bare), `нет роли ${name}`)
+  /* Нажатие тихого органа читает вуаль нажатия, а не наведения; длительность — ролью. */
+  const prim = primitives.replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.ok(!/:active\{[^}]*var\(--hover-(row|ctrl)\)/.test(prim), 'нажатие копирует вуаль наведения')
+  assert.ok(!/(?:transition|animation)[a-z-]*\s*:[^;}]*\d+m?s\b/.test(prim), 'длительность числом в примитивах')
+  assert.ok(!/opacity\s*:\s*\.45/.test(prim), 'выключенное числом')
+  const base = read('styles/base.css').replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.match(base, /touch-action\s*:\s*manipulation/, 'нажимаемое ждёт двойного тапа')
+  assert.match(base, /prefers-reduced-motion\s*:\s*reduce/, 'нет reduced-motion')
+  assert.match(base, /prefers-reduced-motion\s*:\s*no-preference[^}]*interpolate-size/, 'interpolate-size не под no-preference')
+})

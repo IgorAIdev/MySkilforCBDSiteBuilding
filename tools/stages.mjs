@@ -320,9 +320,21 @@ export const STAGES = [
           if (/--r-pill|--round\b|--sh-[123]\b/.test(bare)) return 'старые имена формы (--r-pill, --round, --sh-1…3) ещё читаются'
           return null
         }, undefined,
-        { reviewed: '20.09.2026', rule: 'И228: радиус, линия и тень — роли со смыслом; полный круг — только главное действие; линия не течёт; глубина в тёмной — светлотой' }),
-      step(10, 'Состояния и движение', 'один ответ на наведение, нажатие, фокус, недоступное; движение токеном; reduced-motion', 'craft',
-        () => /--hover-t/.test(tokensSrc()) && /--a-press/.test(src('styles/palette.css')) ? null : 'ответа на указатель (--hover-t) или ступени нажатия (--a-press) нет'),
+        { reviewed: '20.09.2026', rule: 'И228: радиус, линия и тень — роли со смыслом; полный круг — только главное действие; линия не течёт; глубина в тёмной — светлотой', show: 'https://claude.ai/artifact/LdEFzep2Lv19yydG8nPnUK — стенд формы: радиусы четырёх наборов, «круг или угол», четыре роли тени, линия и кольцо' }),
+      step(10, 'Состояния и движение', 'три длительности и две кривые по работе; вуаль наведения и нажатия долей чернил, выключенное ролью; фокус кольцом 3 : 1; нажимаемое без задержки; reduced-motion', 'craft',
+        () => {
+          const tk = tokensSrc().replace(/\/\*[\s\S]*?\*\//g, '')
+          for (const name of ['--press-t', '--hover-t', '--open-t', '--ease', '--ease-exit', '--state-hover', '--state-press', '--state-off', '--press-row', '--press-ctrl']) {
+            if (!new RegExp(`${name}\\s*:`).test(tk)) return `нет роли ${name} (styles/tokens.css)`
+          }
+          if (!/--a-press/.test(src('styles/palette.css'))) return 'ступени нажатия (--a-press) нет в палитре'
+          const b = src('styles/base.css')
+          if (!/touch-action\s*:\s*manipulation/.test(b)) return 'нажимаемое ждёт двойного тапа: нет touch-action: manipulation (styles/base.css)'
+          if (!/prefers-reduced-motion\s*:\s*reduce/.test(b)) return 'нет блока prefers-reduced-motion (styles/base.css)'
+          if (!/:focus-visible\s*\{[^}]*outline\s*:\s*var\(--ring-w\)/.test(b)) return 'кольцо фокуса не ролью (--ring-w) (styles/base.css)'
+          return null
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И229: три длительности и две кривые по работе, вуали состояния долей чернил в коридоре, выключенное ролью, нажимаемое отвечает сразу' }),
       step(11, 'Знаки и картинки', 'один лист знаков, одна толщина штриха в пикселях экрана, имя у безмолвного; снимки — механизм нарезки, сами снимки от заказчика', 'craft',
         () => has('components/Icons.tsx') || has('components/icons') || has('styles/icons.css') ? null : 'листа знаков нет (components/Icons.tsx) — заводится в проекте, знаки не рисуются по месту'),
       step(12, 'Слова', 'голос, словарь терминов на языках рынка, глагол на кнопке, ошибка у поля с шагом, пустой экран с шагом', 'shop',

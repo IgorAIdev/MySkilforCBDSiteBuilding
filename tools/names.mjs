@@ -47,7 +47,8 @@ export const CONCEPTS = {
   text: ['hero', 'pagehead', 'h2', 'h3', 'intro', 'lede', 'body', 'note', 'eyebrow', 'measure', 'face', 'fs', 'page'],
   shape: ['r'],
   depth: ['sh'],
-  motion: ['ease', 'rise', 'nudge'],
+  motion: ['ease', 'rise', 'nudge', 'open'],
+  state: ['state'],
   layer: ['layer'],
   control: ['ctrl', 'chan', 'chip', 'tab', 'dock', 'edge'],
   layout: ['wrap', 'gut', 'head', 'anchor', 'float', 'chrome', 'tile'],
@@ -59,7 +60,7 @@ export const MODIFIERS = new Set([
   't', 'edge', 'head', 'inset', 'gut', 'stuck', 'look', 'fold', 'btn', 'top', 'mark', 'stack', 'targets', 'row',
   'grid', 'band', 'block', 'group', 'lede', 'note', 'cell', 'in', 'off', 'act', 'fit', 'side', 'above', 'at', 'bias',
   'uri', 'lift', 'select', 'search', 'plate', 'bleed', 'hand', 'cap', 'slope', 'md', 'lg', 'target',
-  'ctrl', 'pop', 'raised', 'overlay', 'strong',
+  'ctrl', 'pop', 'raised', 'overlay', 'strong', 'exit',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',
@@ -112,6 +113,7 @@ export const REQUIRED = {
   '--sale': 'текст скидки', '--sale-fill': 'плашка «−20 %»', '--on-sale': 'знак на плашке', '--sale-tint': 'тихая полоса скидки',
   '--pop-press': 'кнопка покупки под пальцем (roles.md, «Заливки»)',
   '--r-pop': 'полный круг главного действия — кнопка покупки, придёт с магазином (shape.md; Spectrum)',
+  '--ease-exit': 'кривая ухода всплывающего (ease-in) — шторка и меню придут с магазином (states.md; Atlassian)',
   '--plate-2': 'утопленное: кадр снимка, подвал карточки, жёлоб лотка (roles.md, «Поверхности»)',
   '--rule': 'разделитель — волосок между строками (roles.md, «Линии»)', '--field': 'поле ввода: почта, промокод, поиск (roles.md, «Поверхности»)', '--scrim': 'затемнение под окном и шторкой (roles.md, «Подъём и постоянные»)',
   '--layer-helper': 'слой кружка помощника (FLOATING)', '--layer-toast': 'слой всплывающего сообщения (FLOATING)',

@@ -214,6 +214,14 @@ small,figcaption,button,summary{text-wrap:balance}
    отвечать вовсе, и это хуже некрасивой рамки. Вторую половину пары
    сторожит семья `noPress` в `check:css`. */
 html{-webkit-tap-highlight-color:transparent}
+/* Нажимаемое отвечает сразу: `touch-action: manipulation` снимает ожидание
+   двойного тапа (300 мс) у всего, что нажимают, — один раз здесь, а не на
+   отдельных кнопках (next_behaviour: «признак нажимаемого… в общем
+   pressable»). Пан и пинч остаются. */
+button,[role='button'],a,input,select,textarea,summary,label{touch-action:manipulation}
+/* Раскрытие к height:auto (вопрос, описание) идёт плавно там, где движение
+   не отключено; без поддержки — просто без плавности (next_responsive). */
+@media (prefers-reduced-motion:no-preference){ :root{interpolate-size:allow-keywords} }
 /* ── ОСИ: ЯЗЫК И КОНТРАСТ (слой 2, И225) ─────────────────────────────────
    Язык. iOS Safari в альбоме раздувает текст сам — `text-size-adjust: 100%`
    это выключает (не Baseline, безвредно там, где не понято). Длинному слову
@@ -340,6 +348,7 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      фона. Заказчик нашёл это глазом на витрине. */
   --surface:var(--chrome-hover);
   --hover-ctrl:color-mix(in srgb, var(--chrome-fg) 18%, transparent);
+  --press-ctrl:color-mix(in srgb, var(--chrome-fg) 30%, transparent);
 
   /* И ещё четыре роли, которые СОСТАВЛЕНЫ из чернил на корне и потому сами
      за полом не пойдут: `var()` внутри объявления своей переменной
@@ -355,6 +364,7 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --quiet:color-mix(in srgb, var(--chrome-fg) 12%, transparent);
   --quiet-on:color-mix(in srgb, var(--chrome-fg) 22%, transparent);
   --hover-row:color-mix(in srgb, var(--chrome-fg) 8%, transparent);
+  --press-row:color-mix(in srgb, var(--chrome-fg) 14%, transparent);
 
   /* Пятая роль той же породы — тень (`--sh-raised`/`--sh-lift`/`--sh-overlay`), и она не
      просто светлая по тёмному, а НЕВИДИМАЯ: в светлой теме её кольцо и слои
@@ -474,8 +484,10 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --rule:color-mix(in oklab, var(--on-plate) 16%, transparent);
   --quiet:color-mix(in srgb, var(--on-plate) 8%, transparent);
   --quiet-on:color-mix(in srgb, var(--on-plate) 16%, transparent);
-  --hover-row:color-mix(in oklab, var(--plate), var(--on-plate) 4%);
-  --hover-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) 5%);
+  --hover-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-hover));
+  --hover-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) var(--state-hover));
+  --press-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-press));
+  --press-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) var(--state-press));
 
   /* Пара состояния. На светлом полу контрол ТОНЕТ в фирменном цвете, на
      тёмном — зажигается. Лист светел всегда, значит пара у него всегда
