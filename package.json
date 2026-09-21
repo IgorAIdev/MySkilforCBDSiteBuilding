@@ -14,6 +14,7 @@
     "scale:stand": "node tools/scale-stand.mjs",
     "control:stand": "node tools/control-stand.mjs",
     "layout:stand": "node tools/layout-stand.mjs",
+    "shape:stand": "node tools/shape-stand.mjs",
     "check:palette": "node tools/check-palette.mjs && node tools/palette-css.mjs --check",
     "test": "node tools/check-test.mjs && node --test selftest/*.test.mjs",
     "palette:stand": "node tools/palette-stand.mjs",

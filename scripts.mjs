@@ -35,6 +35,7 @@ export const SCRIPTS = {
   'scale:stand': 'node tools/scale-stand.mjs',
   'control:stand': 'node tools/control-stand.mjs',
   'layout:stand': 'node tools/layout-stand.mjs',
+  'shape:stand': 'node tools/shape-stand.mjs',
   'palette:stand': 'node tools/palette-stand.mjs',
   'palette:sheet': 'node tools/palette-sheet.mjs',
   'palette:builder': 'node tools/palette-builder.mjs',

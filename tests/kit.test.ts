@@ -957,3 +957,65 @@ test('пороги раскладки читаются инструментам�
     assert.ok(read(file!).includes(key!), `${file} не читает ${key}`)
   }
 })
+
+/* И228: форма — роли со смыслом. Радиусы из лестницы и по узлу, полный круг
+   только у главного действия, линия не течёт, тени по работе. */
+test('форма: радиусы из набора и лестницы, полный круг только главному действию, линия из порогов, тени по работе', async () => {
+  const { SHAPE } = await import('../tools/thresholds.mjs')
+  const { resolve, auditScale } = await import('../tools/scale.mjs')
+  for (const name of ['--r-xs', '--r-ctrl', '--r-card', '--r-sheet', '--r-pop', '--line-w', '--ring-w', '--ring-off']) {
+    assert.ok(declared(name), `строитель не выпустил ${name}`)
+  }
+  assert.match(ladderCss, /--r-pop: 999px;/, 'полный круг не 999px')
+  assert.match(ladderCss, new RegExp(`--line-w: ${SHAPE.line.hair}px;`))
+  assert.match(ladderCss, new RegExp(`--ring-w: ${SHAPE.ring.width}px;`))
+  for (const name of ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']) {
+    assert.ok(new RegExp(`^\\s*${name}\\s*:`, 'm').test(tokens), `тени без роли ${name}`)
+  }
+  const styles = tokens + '\n' + primitives + '\n' + read('styles/base.css')
+  assert.ok(!/--r-pill|--round\b|--sh-[123]\b/.test(styles.replace(/\/\*[\s\S]*?\*\//g, '')), 'старые имена формы ещё в стилях')
+  assert.ok(!/var\(--r-pop[,)]/.test(primitives), 'полный круг читает примитив, а не дом контролов')
+  /* Лестница и вложенность — аудит набора. */
+  const base = { ширины: [560, 1080], тело: [16, 18], отношение: [1.125, 1.2], размер: { base: 0 }, ритм: { 4: 1 }, поле: {}, воздух: {}, зазор: {} }
+  const rules = (set: object): string[] => auditScale(set).map((f: { rule: string }) => f.rule)
+  assert.ok(rules({ ...base, радиус: { xs: 10, ctrl: 8, card: 24, sheet: 28 } }).includes('радиус из лестницы'), '10px прошёл лестницу')
+  assert.ok(rules({ ...base, радиус: { xs: 8, ctrl: 24, card: 8, sheet: 28 } }).includes('радиусы вложены'), 'орган круглее карточки прошёл')
+  assert.ok(!rules({ ...base, радиус: { xs: 8, ctrl: 8, card: 24, sheet: 28 } }).some((r) => /радиус/.test(r)))
+  assert.deepEqual(resolve({ ...base, радиус: { ctrl: 4 } }).радиус, { ctrl: 4 })
+  assert.throws(() => resolve({ ...base, радиус: { ctrl: '8' } }), /число/)
+  /* Каждый набор — по лестнице, и «Тихий» острее «Нынешнего». */
+  const sets = JSON.parse(read('styles/scale.json'))
+  for (const [name, s] of Object.entries(sets) as Array<[string, { радиус: Record<string, number> }]>) {
+    for (const [k, v] of Object.entries(s.радиус)) assert.ok(SHAPE.radii.includes(v), `${name}: радиус ${k} ${v} вне лестницы`)
+  }
+  assert.ok(sets['Тихий'].радиус.ctrl < sets['Нынешний'].радиус.ctrl, 'тихий люкс не острее')
+})
+
+/* И229: движение и состояния — роли по работе в коридорах порогов. */
+test('движение и состояния: три длительности и две кривые в коридорах, вуали долей чернил, нажатие глубже наведения, нажимаемое без задержки', async () => {
+  const { MOTION, STATE } = await import('../tools/thresholds.mjs')
+  const bare = tokens.replace(/\/\*[\s\S]*?\*\//g, '')
+  const ms = (name: string): number => Number(bare.match(new RegExp(`^\\s*${name}\\s*:\\s*([\\d.]+)ms`, 'm'))?.[1] ?? NaN)
+  for (const [name, [lo, hi]] of [['--press-t', MOTION.press], ['--hover-t', MOTION.hover], ['--open-t', MOTION.open]] as Array<[string, number[]]>) {
+    const v = ms(name)
+    assert.ok(v >= lo! && v <= hi!, `${name} ${v}ms вне ${lo}…${hi}`)
+  }
+  assert.ok(ms('--press-t') < ms('--hover-t'), 'ответ на нажатие не быстрее смены под рукой')
+  assert.ok(/^\s*--ease\s*:/m.test(bare) && /^\s*--ease-exit\s*:/m.test(bare), 'двух кривых нет')
+  const pct = (name: string): number => Number(bare.match(new RegExp(`^\\s*${name}\\s*:\\s*([\\d.]+)%`, 'm'))?.[1] ?? NaN) / 100
+  assert.ok(pct('--state-hover') >= STATE.hover[0]! && pct('--state-hover') <= STATE.hover[1]!, 'вуаль наведения вне коридора')
+  assert.ok(pct('--state-press') >= STATE.press[0]! && pct('--state-press') <= STATE.press[1]!, 'вуаль нажатия вне коридора')
+  assert.ok(pct('--state-press') > pct('--state-hover'), 'нажатие не глубже наведения')
+  const off = Number(bare.match(/^\s*--state-off\s*:\s*([\d.]+)/m)?.[1])
+  assert.ok(off >= STATE.off[0]! && off <= STATE.off[1]!, 'выключенное вне коридора')
+  for (const name of ['--press-row', '--press-ctrl', '--hover-row', '--hover-ctrl']) assert.ok(new RegExp(`^\\s*${name}\\s*:`, 'm').test(bare), `нет роли ${name}`)
+  /* Нажатие тихого органа читает вуаль нажатия, а не наведения; длительность — ролью. */
+  const prim = primitives.replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.ok(!/:active\{[^}]*var\(--hover-(row|ctrl)\)/.test(prim), 'нажатие копирует вуаль наведения')
+  assert.ok(!/(?:transition|animation)[a-z-]*\s*:[^;}]*\d+m?s\b/.test(prim), 'длительность числом в примитивах')
+  assert.ok(!/opacity\s*:\s*\.45/.test(prim), 'выключенное числом')
+  const base = read('styles/base.css').replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.match(base, /touch-action\s*:\s*manipulation/, 'нажимаемое ждёт двойного тапа')
+  assert.match(base, /prefers-reduced-motion\s*:\s*reduce/, 'нет reduced-motion')
+  assert.match(base, /prefers-reduced-motion\s*:\s*no-preference[^}]*interpolate-size/, 'interpolate-size не под no-preference')
+})

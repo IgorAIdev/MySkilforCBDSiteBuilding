@@ -202,7 +202,7 @@ small,figcaption,button,summary{text-wrap:balance}
    требуемых WCAG трёх. `--ring` — первая ступень фирменного ряда, которая
    порог берёт, и на каждом наборе она своя (palette.md, «Граница бралась
    по номеру ступени»). */
-:focus-visible{outline:2px solid var(--ring);outline-offset:3px}
+:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
 
 /* Серая рамка, которую Android рисует поверх нажатой ссылки и держит ещё
    долю секунды после того, как палец ушёл, — это отклик БРАУЗЕРА за
@@ -214,6 +214,14 @@ small,figcaption,button,summary{text-wrap:balance}
    отвечать вовсе, и это хуже некрасивой рамки. Вторую половину пары
    сторожит семья `noPress` в `check:css`. */
 html{-webkit-tap-highlight-color:transparent}
+/* Нажимаемое отвечает сразу: `touch-action: manipulation` снимает ожидание
+   двойного тапа (300 мс) у всего, что нажимают, — один раз здесь, а не на
+   отдельных кнопках (next_behaviour: «признак нажимаемого… в общем
+   pressable»). Пан и пинч остаются. */
+button,[role='button'],a,input,select,textarea,summary,label{touch-action:manipulation}
+/* Раскрытие к height:auto (вопрос, описание) идёт плавно там, где движение
+   не отключено; без поддержки — просто без плавности (next_responsive). */
+@media (prefers-reduced-motion:no-preference){ :root{interpolate-size:allow-keywords} }
 /* ── ОСИ: ЯЗЫК И КОНТРАСТ (слой 2, И225) ─────────────────────────────────
    Язык. iOS Safari в альбоме раздувает текст сам — `text-size-adjust: 100%`
    это выключает (не Baseline, безвредно там, где не понято). Длинному слову
@@ -245,7 +253,7 @@ input,textarea,select{caret-color:var(--pop-ink)}
    заказчик прислал снимок кассы, где ряд квадратиков читался пустым рядом
    без единого квадрата. Рамка одна, здесь, а не в каждом из четырёх мест:
    у всех четырёх один и тот же квадрат, только своего размера. */
-input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
+input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick-edge)}
 
 /* Движение по просьбе человека, а не по решению вёрстки.
    Разбор трёх уровней и вторая половина правила (`behavior:'smooth'`,
@@ -290,10 +298,10 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
    non-system color values in forced color modes, they will need to supply
    forced-colors-adjust: none». */
 @media (forced-colors:active){
-  [data-plate],dialog,[popover],button,input,select,textarea{border:1px solid CanvasText}
+  [data-plate],dialog,[popover],button,input,select,textarea{border:var(--line-w) solid CanvasText}
   button,[role='button']{forced-color-adjust:auto}
   svg{fill:currentColor}
-  :focus-visible{outline:2px solid Highlight}
+  :focus-visible{outline:var(--ring-w) solid Highlight}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{
@@ -340,6 +348,7 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
      фона. Заказчик нашёл это глазом на витрине. */
   --surface:var(--chrome-hover);
   --hover-ctrl:color-mix(in srgb, var(--chrome-fg) 18%, transparent);
+  --press-ctrl:color-mix(in srgb, var(--chrome-fg) 30%, transparent);
 
   /* И ещё четыре роли, которые СОСТАВЛЕНЫ из чернил на корне и потому сами
      за полом не пойдут: `var()` внутри объявления своей переменной
@@ -355,15 +364,16 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
   --quiet:color-mix(in srgb, var(--chrome-fg) 12%, transparent);
   --quiet-on:color-mix(in srgb, var(--chrome-fg) 22%, transparent);
   --hover-row:color-mix(in srgb, var(--chrome-fg) 8%, transparent);
+  --press-row:color-mix(in srgb, var(--chrome-fg) 14%, transparent);
 
-  /* Пятая роль той же породы — тень (`--sh-1`/`--sh-2`/`--sh-3`), и она не
+  /* Пятая роль той же породы — тень (`--sh-raised`/`--sh-lift`/`--sh-overlay`), и она не
      просто светлая по тёмному, а НЕВИДИМАЯ: в светлой теме её кольцо и слои
      подмешаны из `--accent-solid` (5–20%), а `--accent-solid` светлой темы —
      `#0C3A46`, то же самое число, что и `--chrome-bg`, то есть краска ЭТОЙ
      ПАЛУБЫ. Тень цвета своего пола не отбрасывает тень — она сливается с ним
      по построению, а не по случайности. В тёмной теме тень и так собрана из
      чёрного, поэтому там пилюля видна; в светлой — нет, хотя рисуется тем же
-     `box-shadow:var(--sh-1)`. Заказчик нашёл это глазом на пилюлях героя.
+     `box-shadow:var(--sh-raised)`. Заказчик нашёл это глазом на пилюлях героя.
 
      Правка не подбирает новый цвет, а берёт готовый: слои теней и так были
      рассчитаны для тёмного пола — это ровно та половина `light-dark()`,
@@ -375,8 +385,8 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
   --sh-far-3:rgba(0,0,0,.75);
 
   /* И96/И100 переопределяли ингредиенты, а не саму тень — и `--sh-1`/
-     `--sh-2`/`--sh-3` эти четыре строки выше не трогали вовсе. `var()`
-     внутри `--sh-1` (styles/tokens.css) раскрывается ТАМ, ГДЕ `--sh-1`
+     `--sh-lift`/`--sh-overlay` эти четыре строки выше не трогали вовсе. `var()`
+     внутри `--sh-1` (styles/tokens.css) раскрывается ТАМ, ГДЕ `--sh-raised`
      ОБЪЯВЛЕНА, — на корне, — и вниз наследуется уже готовая, замешанная на
      корневых ингредиентах строка. Переопределить `--sh-ring` на палубе не
      значит переопределить `--sh-1`: она как была посчитана из корневых
@@ -386,9 +396,10 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
      пилюле — уже поправленный, а `box-shadow` — всё ещё старый, слитый с
      полом. Держит эту же тень и `[data-plate]` ниже — тем же приёмом и по
      той же причине. */
-  --sh-1: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-2: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-3: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
+  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
+  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-in:inset 0 1px 2px color-mix(in oklab, var(--chrome-fg) 18%, transparent);
 
   /* Та же пара, но для СОСТОЯНИЯ, и это второй раз, когда роль оказалась
      переопределена наполовину. Покой пилюли починили выше — под указателем
@@ -473,8 +484,10 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
   --rule:color-mix(in oklab, var(--on-plate) 16%, transparent);
   --quiet:color-mix(in srgb, var(--on-plate) 8%, transparent);
   --quiet-on:color-mix(in srgb, var(--on-plate) 16%, transparent);
-  --hover-row:color-mix(in oklab, var(--plate), var(--on-plate) 4%);
-  --hover-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) 5%);
+  --hover-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-hover));
+  --hover-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) var(--state-hover));
+  --press-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-press));
+  --press-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) var(--state-press));
 
   /* Пара состояния. На светлом полу контрол ТОНЕТ в фирменном цвете, на
      тёмном — зажигается. Лист светел всегда, значит пара у него всегда
@@ -497,11 +510,12 @@ input[type='checkbox'],input[type='radio']{border:1.5px solid var(--tick-edge)}
   --sh-far-2:light-dark(color-mix(in srgb, var(--accent-solid) 55%, transparent), rgba(0,0,0,.68));
   --sh-far-3:light-dark(color-mix(in srgb, var(--accent-solid) 70%, transparent), rgba(0,0,0,.75));
 
-  /* Та же вторая половина, что и на палубе выше: `--sh-1`/`--sh-2`/`--sh-3`
+  /* Та же вторая половина, что и на палубе выше: `--sh-raised`/`--sh-lift`/`--sh-overlay`
      сами по себе не листовые и не палубные — они замешаны из ингредиентов
      ТАМ, ГДЕ ОБЪЯВЛЕНЫ, и лист обязан пересчитать и их, а не только четыре
      ингредиента над ними. */
-  --sh-1: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-2: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-3: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
+  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
+  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-in:inset 0 1px 2px color-mix(in oklab, var(--on-plate) 14%, transparent);
 }

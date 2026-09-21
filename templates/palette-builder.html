@@ -375,15 +375,25 @@ const CONTROL = {
   text: ['xs', 'sm', 'base'],
 }
 
-/** Движение (слой 10): Carbon `duration-fast-01` 70 мс … `slow-02` 700 мс;
- *  Atlassian: отклик на ввод 50…150 мс, переходы 150…400 мс. Не больше шести
- *  длительностей (M3: {fast, default, slow} × {spatial, effects}). */
-const MOTION = { press: [50, 150], transition: [150, 400], max: 700, tokens: 6 }
+/** Движение (слой 10). Три длительности по работе — ответ на нажатие,
+ *  смена под рукой (цвет, тень), раскрытие всплывающего — и две кривые:
+ *  вход ease-out, уход ease-in (Atlassian: «interactions 50–150 ms,
+ *  transitions 150–400 ms», «ease-out на ввод, ease-in на уход»; Carbon
+ *  `duration-fast-01` 70 … `slow-02` 700; M3 {fast, default, slow} ×
+ *  {spatial, effects} — не больше шести). Дольше 700 — не переход, а
+ *  ожидание. Двигаются только `transform` и `opacity` (Vercel WIG); смена
+ *  темы не анимируется (next_theming); отклик на нажатие — INP ≤ 200 мс. */
+const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700, tokens: 6, curves: 2 }
 
-/** Состояния (слой 10): слой состояния M3 — наведение 8 %, фокус 10 %,
- *  нажатие 10 %, перетаскивание 16 %; кольцо фокуса 2px и не ниже 3 : 1
- *  (Spectrum, WCAG 2.2). */
-const STATE = { hover: 0.08, focus: 0.1, press: 0.1, drag: 0.16, ring: 2 }
+/** Состояния (слой 10). Вуаль наведения и нажатия — доля чернил поверх
+ *  поверхности: M3 слой состояния 8 % наведение, 10 % фокус и нажатие, 16 %
+ *  перетаскивание; замер тихой кнопки набора — 1.16 : 1 на листе при 4…5 %
+ *  (palette, «Тихий голос»), отсюда коридор наведения 4…8 %, нажатия — вдвое
+ *  дальше (Carbon: hover полступени, active две). Выключенное — 38 %
+ *  содержимого (M3), но не ниже Lc 30 (APCA) и не ниже 3 : 1 для «нет в
+ *  наличии» (замечание проекта к M3): коридор 0.38…0.5 непрозрачности.
+ *  Кольцо фокуса 2px и не ниже 3 : 1 (Spectrum, WCAG 2.2 1.4.11 / 2.4.13). */
+const STATE = { hover: [0.04, 0.08], press: [0.08, 0.16], off: [0.38, 0.5], focus: 0.1, drag: 0.16, ring: 2 }
 
 /** Знаки (слой 11): Carbon 16 / 20 / 24 / 32, Spectrum 18 на десктопе / 22 под
  *  пальцем, M3 24 при цели 48; цель у знака без текста — не меньше 44
@@ -419,6 +429,25 @@ const LAYOUT = {
   crop: 0.45,
   edgeGrowth: [1, 2.5],
   frameCap: 60,
+}
+/** Форма (слой 9). Радиусы — из лестницы: M3 «size-based scale with ten
+ *  styles» 0 / 4 / 8 / 12 / 16 / 20 / 28 / 32 / 48 / full, Carbon 2 / 4 / 8 /
+ *  16 / 24; витрина берёт себе три-четыре ступени и записывает, какой узел
+ *  какую (M3, «готов, когда»). Полный круг — только главное действие
+ *  (Spectrum: «Full rounding … meant to draw attention to calls to action»).
+ *  Линия не масштабируется (Spectrum: «border width remains the same for
+ *  desktop scale and mobile scale»): 1 — поле, разделитель, тег; 2 — главная
+ *  кнопка, фокус (WCAG 2.4.13: кольцо не тоньше 2px). Теней — три роли по
+ *  работе (Atlassian raised / overlay; Refactoring UI: небольшой набор, один
+ *  источник света), и тень — только у всплывающего и у того, что зовут
+ *  нажать (Spectrum: «Shadows are reserved for transient components that
+ *  appear elevated and are dismissible»; M3: «protect element, call to
+ *  action»). Глубина в тёмной теме — светлотой, не тенью (Carbon, Atlassian). */
+const SHAPE = {
+  radii: [0, 2, 4, 8, 12, 16, 20, 24, 28, 32, 48],
+  line: { hair: 1, strong: 2 },
+  ring: { width: STATE.ring, offset: 3 },
+  shadows: ['raised', 'lift', 'overlay', 'in'],
 }
 
 /*

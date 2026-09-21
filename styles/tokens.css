@@ -330,9 +330,31 @@
      Полоска в поле — метка состояния (открытый вопрос, текущий язык), а не
      ответ на курсор. Нажатие — правило шапки: предмет проседает до .96,
      слово уходит на шаг глубже. */
+  /* Три длительности по работе (И229): `--press-t` — ответ на нажатие
+     (Atlassian 50…150, INP ≤ 200: палец должен увидеть ответ сразу),
+     `--hover-t` — смена под рукой: цвет, тень (150…400), `--open-t` —
+     раскрытие всплывающего: меню, шторка, вопрос (150…400). Кривые две:
+     `--ease` — вход (ease-out), `--ease-exit` — уход (ease-in). Число
+     миллисекунд в узле — семья `msLiteral`; роль вне коридора —
+     `motionOut`. Двигаются transform и opacity; фон и чернила — только у
+     органа под рукой, смена темы не анимируется. */
+  --press-t:120ms;
   --hover-t:200ms;
-  --hover-row:color-mix(in oklab, var(--surface), var(--ink) 4%);
-  --hover-ctrl:color-mix(in oklab, var(--ctrl), var(--ink) 5%);
+  --open-t:280ms;
+  /* Вуаль состояния — доля чернил поверх поверхности (M3: слой состояния
+     того же цвета, что содержимое; наведение 8 %, нажатие 10 %; у нас
+     замером 4…5 % на тихой кнопке — коридор STATE.hover). Выключенное —
+     `--state-off`: непрозрачность 0.45 (M3 38 %, но не ниже Lc 30, и «нет
+     в наличии» обязано читаться — второй признак: слово, не только серый). */
+  --state-hover:5%;
+  --state-press:9%;
+  --state-off:.45;
+  --hover-row:color-mix(in oklab, var(--surface), var(--ink) var(--state-hover));
+  --hover-ctrl:color-mix(in oklab, var(--ctrl), var(--ink) var(--state-hover));
+  /* Нажатие тихого органа — вдвое глубже наведения, той же вуалью (Carbon:
+     hover полступени, active две): ответ «вглубь», а не копия наведения. */
+  --press-row:color-mix(in oklab, var(--surface), var(--ink) var(--state-press));
+  --press-ctrl:color-mix(in oklab, var(--ctrl), var(--ink) var(--state-press));
   /* Наведение и нажатие сплошной заливки — СОСЕДНИЕ СТУПЕНИ, а не доля
      собственного цвета кнопки.
      Доля здесь и стояла: десять процентов в сторону знака, то есть В
@@ -453,15 +475,11 @@
   --ok-fill:  var(--ok-9);
   --on-ok:    var(--on-ok-9);
 
-  /* One dial over the whole radius family: the five keep their proportions
-     to each other, so «rounder» and «sharper» are one answer rather than
-     five that have to be kept in step. A pill stays a pill — it is a shape,
-     not a radius. */
-  --round:1;
-  --r-pill:999px;
-  --r-sheet:calc(28px * var(--round));
-  --r-card:calc(24px * var(--round));
-  --r-xs:calc(10px * var(--round));
+  /* Радиусы с 20.09.2026 выпускает строитель шкал из ключа `радиус` набора
+     (`--r-xs`, `--r-ctrl`, `--r-card`, `--r-sheet`; `--r-pop` — полный круг
+     главного действия), линию и кольцо — из порогов SHAPE (`--line-w`,
+     `--ring-w`, `--ring-off`). Прежняя ручка `--round` и пилюля на каждом
+     органе сняты: полный круг — только у главного действия (И228). */
 
   /* Shadows carry the cyan-12 hue, never grey. On a dark ground a shadow is
      nearly invisible, so depth comes from a hairline of light as well.
@@ -488,13 +506,18 @@
   --sh-far-1: light-dark(color-mix(in srgb, var(--accent-solid) 40%, transparent), rgba(0,0,0,.60));
   --sh-far-2: light-dark(color-mix(in srgb, var(--accent-solid) 55%, transparent), rgba(0,0,0,.68));
   --sh-far-3: light-dark(color-mix(in srgb, var(--accent-solid) 70%, transparent), rgba(0,0,0,.75));
-  --sh-1: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-2: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-3: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
+  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
+  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  /* Роли тени — по работе, не по номеру (И228): raised — предмет над полом
+     в покое; lift — подъём под рукой; overlay — всплывающее и закрываемое
+     (Spectrum: «Shadows are reserved for transient components»); in —
+     вдавленное. Геометрия одна, источник света один (Refactoring UI). */
+  --sh-in: inset 0 1px 2px color-mix(in oklab, var(--ink) 18%, transparent);
   /* Одна манера первичной пилюли. При наведении фон делает шаг к
      собственному мастилу, и пилюля стоит на тени своего же цвета — и то и
      другое смешано из акцента, поэтому «Accent» в панели тянет за собой
-     каждую первичную кнопку сайта. Две ступени тени, как --sh-1/--sh-2. */
+     каждую первичную кнопку сайта. Две ступени тени, как --sh-raised/--sh-lift. */
 
   /* Тень под подписью на фотографии — держит контраст букв БЕЗ вуали
      (И128 в docs/rules.md). Общая для вида плитки `shadow`
@@ -512,6 +535,7 @@
      порядком, что и у прочих решённых значений (И90). */
 
   --ease:cubic-bezier(.32,.72,0,1);
+  --ease-exit:cubic-bezier(.4,0,1,1);
 
   /* Холст (`--wrap`) и край страницы (`--gut`) с 20.09.2026 выпускает
      строитель шкал из `styles/scale.json` (ключи `холст`, `край`): край —

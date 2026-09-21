@@ -120,16 +120,16 @@ body{background:var(--page);color:var(--ink);padding:var(--pad-card)}
   border:1px solid var(--border);border-radius:var(--r-xs);background:transparent;color:inherit;white-space:nowrap}
 [data-size="sm"] .ctl{--h:var(--ctrl-h-sm);font-size:var(--ctrl-fs-xs)}
 [data-size="lg"] .ctl{--h:var(--ctrl-h-lg);font-size:var(--ctrl-fs-base)}
-.btn{border:0;border-radius:var(--r-pill);background:var(--pop);color:var(--on-pop);font-weight:600}
+.btn{border:0;border-radius:var(--r-pop);background:var(--pop);color:var(--on-pop);font-weight:600}
 @media (hover:hover){ .btn:hover{background:var(--pop-hover)} }
-.btn-2{border-radius:var(--r-pill);background:var(--ctrl);border-color:var(--rule)}
+.btn-2{border-radius:var(--r-ctrl);background:var(--ctrl);border-color:var(--rule)}
 .field{display:block;background:var(--field);inline-size:100%}
-.chip{border-radius:var(--r-pill)}
+.chip{border-radius:var(--r-ctrl)}
 .chip[aria-pressed="true"]{background:var(--pop-tint);color:var(--pop-ink);border-color:var(--pop)}
 .count{padding-inline:0;overflow:hidden}
 .count .step{block-size:100%;inline-size:var(--h);font-size:inherit;background:var(--ctrl);border:0;color:inherit;display:grid;place-items:center}
 .count .num{inline-size:calc(var(--h) * .9);text-align:center}
-.sale{background:var(--sale-fill);color:var(--on-sale);border:0;border-radius:var(--r-pill);font-weight:600}
+.sale{background:var(--sale-fill);color:var(--on-sale);border:0;border-radius:var(--r-ctrl);font-weight:600}
 :focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
 /* Запас нажатия — ТОЛЬКО под пальцем, и только там, где орган мельче

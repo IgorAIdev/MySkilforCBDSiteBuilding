@@ -144,6 +144,7 @@ const FILES = [
   'tools/scale-stand.mjs',
   'tools/control-stand.mjs',
   'tools/layout-stand.mjs',
+  'tools/shape-stand.mjs',
   'docs/rules.md',
   'docs/start.md',
 ]
