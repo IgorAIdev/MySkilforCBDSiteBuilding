@@ -1326,6 +1326,66 @@ for (const path of files) {
     for (const m of css.matchAll(/container-type\s*:\s*size\b/g)) add('sizeContain', `${at(m.index)}  container-type: size`)
   }
 
+  /* Утилиты и исключения (слой 13, И230).
+   *
+   * Исключение — ПОМЕТКА на существующем предмете, а не второй класс и не
+   * клон: CUBE — «состояния через атрибут», «не должно variate a block to
+   * the point where it isn't recognisable anymore». У набора это уже
+   * заведено (`data-size`, `data-tray`, `data-ground`), и у атрибута есть
+   * второе достоинство: вес `.chip[data-chip='lab']` (0,2,0) бьёт голый
+   * `.chip` (0,1,0) при любом порядке файлов — поэтому слоёв каскада
+   * (`@layer`) набор не заводит вовсе (docs/decisions.md).
+   *
+   * `dressClass`: класс, чьё имя начинается с имени другого класса, все
+   * свойства которого уже есть у базы И который ПЕРЕОДЕВАЕТ её — то есть
+   * переобъявляет не меньше половины её собственных свойств (`.chipLab`
+   * шесть из десяти у `.chip`, `.sectionTight` единственное у `.section`).
+   * ЧАСТЬ предмета свои свойства приносит (`.sectionHead`, `.ledeText`,
+   * `.chanMark`) либо задевает базу краем: `.ledeSpill` внутри
+   * контейнерного запроса объявляет один `display: contents` из шести
+   * свойств `.lede` — это растворяющаяся обёртка, а не вторая одежда.
+   *
+   * `stateClass`: состояние именем класса (`.is-open`, `.active`,
+   * `.disabled`) — вспомогательная техника его не видит, и порядок файлов
+   * снова решает, кто победит.
+   *
+   * `dressGrown`: вариант объявил свойств больше, чем сам предмет, — блок
+   * перестал быть узнаваемым, и это уже новый блок, а не исключение. */
+  const STATE_NAME = /^(?:is|has)[-A-Z]|^(?:active|open|opened|closed|selected|current|disabled|checked|loading|busy|error|invalid|hidden|shown|expanded|collapsed|dragging|pressed)$/
+  for (const { rel, css, at } of sheets) {
+    if (EXEMPT.includes(rel)) continue
+    const own = new Map()
+    const where = new Map()
+    for (const rule of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      const m = /^\.([A-Za-z][\w-]*)$/.exec(rule[1].trim())
+      if (!m) continue
+      const set = own.get(m[1]) ?? new Set()
+      for (const d of rule[2].matchAll(/(?:^|[;{])\s*([a-z-]+)\s*:/g)) set.add(d[1])
+      own.set(m[1], set)
+      if (!where.has(m[1])) where.set(m[1], rule.index)
+    }
+    for (const [name, props] of own) {
+      if (STATE_NAME.test(name)) {
+        add('stateClass', `${at(where.get(name))}  .${name} — состояние классом, нужен атрибут`)
+        continue
+      }
+      if (!props.size) continue
+      for (const [base, baseProps] of own) {
+        if (base === name || base.length < 3 || !name.toLowerCase().startsWith(base.toLowerCase())) continue
+        if (![...props].every((p) => baseProps.has(p))) continue
+        if (props.size * 2 < baseProps.size) continue
+        add('dressClass', `${at(where.get(name))}  .${name} — вариант .${base} вторым классом: атрибут или ручка`)
+        break
+      }
+    }
+    for (const rule of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      const m = /^\.([A-Za-z][\w-]*)\[[^\]]+\]$/.exec(rule[1].trim())
+      if (!m || !own.has(m[1])) continue
+      const n = [...rule[2].matchAll(/(?:^|[;{])\s*([a-z-]+)\s*:/g)].length
+      if (n > own.get(m[1]).size) add('dressGrown', `${at(rule.index)}  ${rule[1].trim().slice(0, 40)} — свойств ${n} против ${own.get(m[1]).size} у базы`)
+    }
+  }
+
   /* Движение и состояния (слой 10, И229).
    *
    * Длительность числом в узле — движение, подобранное под один блок:
