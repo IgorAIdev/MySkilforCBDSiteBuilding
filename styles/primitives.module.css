@@ -863,14 +863,12 @@
    нет, врёт молча. */
 
 /* ── chips ────────────────────────────────────────────────────────────── */
-.chip{
-  display:inline-flex;align-items:center;gap:6px;
-  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);
-  background:var(--plate-quiet);
-  font-size:var(--ctrl-fs-sm);font-weight:500;color:var(--ink-soft)
-}
-.chipLab{background:var(--pop-tint);color:var(--pop-ink);font-weight:600;font-size:var(--ctrl-fs-xs);height:calc(var(--ctrl-h-sm) - 2 * var(--sp-1));padding:0 calc(var(--ctrl-h-sm) * .35)}
-.chipLab svg{width:13px;height:13px;fill:none;stroke:currentColor}
+/* Пилюля описана ОДИН раз — ниже, в разделе органов (запрет 10). Здесь
+   стоял её второй портрет: своя заливка, свой просвет и своя высота
+   `height`, которую нижний блок всё равно перебивал логическим
+   `block-size`, — то есть половина написанного не действовала вовсе.
+   Метка (`data-chip="lab"`) уехала туда же атрибутом: это та же пилюля в
+   другой одежде, а не второй класс (И230). */
 
 /* ── fields ───────────────────────────────────────────────────────────── */
 /* Поле ввода переехало в свой модуль — `styles/form.module.css`: оно там не
@@ -1014,7 +1012,9 @@
    писало и нижнее поле нулём и тем самым спорило с листом, у которого поле
    круговое. Разбор сокращений — references/cascade.md. */
 .section{padding-block-start:var(--section-air, var(--air-page))}
-.sectionTight{padding-block-start:var(--section-air, var(--air-band))}
+/* Плотная секция — не второй класс, а ПОМЕТКА на той же секции: у неё уже
+   есть ручка `--section-air`, и атрибут её переобъявляет (И230). */
+.section[data-air='band']{--section-air:var(--air-band)}
 /* Заголовок и пояснение стоят ОДИН ПОД ДРУГИМ по левой линии.
    Прежде их разносило по краям (`justify-content:space-between`), и на
    широком экране между ними оставалось полэкрана пустоты: пояснение висело
@@ -1131,9 +1131,8 @@
    пикселей на телефоне, и промах по ней снимает не тот фильтр, а соседний.
    Крестик остаётся знаком того, что нажатие снимает, а не второй кнопкой. */
 .chip{
-  --chip-h:34px;
-  display:inline-flex;align-items:center;gap:calc(var(--chip-h) * .21);
-  block-size:var(--chip-h);padding-inline:calc(var(--chip-h) * .38);
+  display:inline-flex;align-items:center;gap:calc(var(--ctrl-h-sm) * .21);
+  block-size:var(--ctrl-h-sm);padding-inline:calc(var(--ctrl-h-sm) * .38);
   border-radius:var(--r-ctrl);white-space:nowrap;
   background:var(--ctrl);color:var(--ink);
   /* Кромка, а не только заливка. Пилюля стоит на ПОЛУ СТРАНИЦЫ, а ступень
@@ -1149,7 +1148,7 @@
    заливает путь по умолчанию, и крестик из двух линий пропадает вовсе: в
    заливке у линии нулевая площадь. */
 .chip svg{
-  inline-size:calc(var(--chip-h) * .34);block-size:calc(var(--chip-h) * .34);
+  inline-size:calc(var(--ctrl-h-sm) * .34);block-size:calc(var(--ctrl-h-sm) * .34);
   flex:none;fill:none;stroke:currentColor;
   color:var(--ink-soft);transition:color var(--hover-t) var(--ease)
 }
@@ -1159,6 +1158,18 @@
 @media (hover:hover){ .chip:hover svg{color:var(--ink)} }
 .chip:active{background:var(--press-ctrl);transform:scale(.97)}
 .chip:active svg{color:var(--ink)}
+/* МЕТКА — та же пилюля, одетая иначе: не «сними меня», а «вот что это».
+   Поэтому атрибут на том же узле, а не второй класс: вес `.chip[data-chip]`
+   (0,2,0) бьёт голый `.chip` при любом порядке кусков сборки, и предмет
+   остаётся одним (И230). Ростом метка на ступень оптики ниже пилюли —
+   она не мишень, её не нажимают. */
+.chip[data-chip='lab']{
+  background:var(--pop-tint);color:var(--pop-ink);
+  block-size:calc(var(--ctrl-h-sm) - 2 * var(--sp-1));
+  padding-inline:calc(var(--ctrl-h-sm) * .35);
+  box-shadow:none;font-size:var(--ctrl-fs-xs);font-weight:600
+}
+.chip[data-chip='lab'] svg{color:inherit}
 
 .cut{
   position:absolute;top:10px;left:10px;z-index:2;

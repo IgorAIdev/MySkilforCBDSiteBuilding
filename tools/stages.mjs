@@ -339,8 +339,18 @@ export const STAGES = [
         () => has('components/Icons.tsx') || has('components/icons') || has('styles/icons.css') ? null : 'листа знаков нет (components/Icons.tsx) — заводится в проекте, знаки не рисуются по месту'),
       step(12, 'Слова', 'голос, словарь терминов на языках рынка, глагол на кнопке, ошибка у поля с шагом, пустой экран с шагом', 'shop',
         () => has('docs/words.md') ? null : 'словаря слов нет (docs/words.md) — заводится в проекте вместе с первым текстом'),
-      step(13, 'Утилиты и исключения', 'ярлыки на одну задачу из шкалы; исключение — состояние атрибутом, не новый класс', 'craft',
-        () => /\.(muted|eyebrow)\b/.test(primitivesSrc()) ? null : 'утилит из шкалы нет (.muted, .eyebrow в примитивах)'),
+      step(13, 'Утилиты и исключения', 'ярлык на одну работу берёт роль; исключение — пометка атрибутом на том же предмете, не второй класс и не клон; слоёв каскада нет — решает вес', 'craft',
+        () => {
+          const pr = primitivesSrc()
+          const missing = ['muted', 'eyebrow', 'said', 'tap', 'flush'].filter((c) => !new RegExp(`\\.${c}\\b`).test(pr))
+          if (missing.length) return `утилит нет: ${missing.join(', ')}`
+          const bare = pr.replace(/\/\*[\s\S]*?\*\//g, '')
+          if (/^\.chipLab|^\.sectionTight/m.test(bare)) return 'вариант предмета объявлен вторым классом — нужен атрибут (семья dressClass)'
+          if (!/\.chip\[data-chip=/.test(bare) || !/\.section\[data-air=/.test(bare)) return 'вариантов атрибутом нет (.chip[data-chip], .section[data-air])'
+          if ((bare.match(/^\.chip\{/gm) ?? []).length > 1) return 'пилюля нарисована дважды — один предмет, одно место (запрет 10)'
+          return null
+        }, undefined,
+        { reviewed: '20.09.2026', rule: 'И230: утилита делает одну работу и берёт роль; исключение — пометка атрибутом на том же узле; слоёв каскада набор не заводит — решает вес' }),
     ],
     checks: ['typecheck', 'check:css', 'check:scale', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:rules', 'check:stage'],
     gate: {

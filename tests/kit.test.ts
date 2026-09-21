@@ -1019,3 +1019,24 @@ test('движение и состояния: три длительности и
   assert.match(base, /prefers-reduced-motion\s*:\s*reduce/, 'нет reduced-motion')
   assert.match(base, /prefers-reduced-motion\s*:\s*no-preference[^}]*interpolate-size/, 'interpolate-size не под no-preference')
 })
+
+/* И230: утилита — одна работа и роль; исключение — пометка атрибутом. */
+test('утилиты и исключения: ярлыки на месте, вариант атрибутом, предмет описан один раз', () => {
+  const bare = primitives.replace(/\/\*[\s\S]*?\*\//g, '')
+  for (const u of ['muted', 'eyebrow', 'said', 'tap', 'flush']) {
+    assert.ok(new RegExp(`^\\.${u}\\b`, 'm').test(bare), `нет утилиты .${u}`)
+  }
+  /* Вариант — пометка на том же узле, а не второй класс. */
+  assert.ok(!/^\.chipLab|^\.sectionTight/m.test(bare), 'вариант объявлен вторым классом')
+  assert.match(bare, /\.chip\[data-chip='lab'\]/, 'метка не атрибутом')
+  assert.match(bare, /\.section\[data-air='band'\]/, 'плотная секция не атрибутом')
+  /* Пилюля описана ОДИН раз, и высота у неё ролью, а не числом. */
+  assert.equal((bare.match(/^\.chip\{/gm) ?? []).length, 1, 'пилюля нарисована дважды')
+  assert.ok(!/--chip-h\s*:\s*\d/.test(bare), 'высота пилюли числом')
+  assert.match(bare, /\.chip\{[^}]*block-size:var\(--ctrl-h-sm\)/, 'пилюля не берёт роль размера')
+  /* Состояния — атрибутами и ARIA, классов состояния в наборе нет. */
+  assert.ok(!/^\.(is[-A-Z]|has[-A-Z]|active|open|selected|disabled|loading|error)\b/m.test(bare), 'состояние классом')
+  /* Слоёв каскада набор не заводит — решает вес (И230). */
+  const styles = [bare, tokens, read('styles/base.css')].join('\n').replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.ok(!/@layer\b/.test(styles), 'заведён @layer — набор решает весом, не слоями')
+})
