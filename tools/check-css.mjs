@@ -1326,6 +1326,34 @@ for (const path of files) {
     for (const m of css.matchAll(/container-type\s*:\s*size\b/g)) add('sizeContain', `${at(m.index)}  container-type: size`)
   }
 
+  /* Имя без объявления (И231).
+   *
+   * `var(--x)` без запасного значения, когда `--x` не объявлен нигде в
+   * стилях набора, делает НЕДЕЙСТВИТЕЛЬНОЙ всю запись, а не только себя:
+   * `font-family: var(--face)` при `--face: var(--f-plex), var(--face-stack)`
+   * и необъявленном `--f-plex` падает не на стек рядом, а на унаследованное,
+   * то есть на умолчание браузера. Замер 21.09.2026: страница на чистых
+   * стилях набора садилась на Times New Roman — при том, что строка рядом
+   * обещала обратное. В файле дефекта не видно: обе переменные выглядят
+   * верными, и стенды маскировали его собственным `font-family`.
+   *
+   * Ручка примитива, которую ставит узел или код, объявляется не в стилях —
+   * поэтому спрашивается только имя БЕЗ запасного значения: у ручки оно
+   * есть всегда (`var(--tap, var(--ctrl-target))`). */
+  {
+    const declared = new Set()
+    for (const { css } of sheets) {
+      for (const d of css.matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) declared.add(d[1])
+    }
+    for (const { rel, css, at } of sheets) {
+      if (EXEMPT.includes(rel) && rel !== TOKENS && rel !== LADDER) continue
+      for (const m of css.matchAll(/var\(\s*(--[a-z][a-z0-9-]*)\s*\)/g)) {
+        if (declared.has(m[1])) continue
+        add('varMissing', `${at(m.index)}  ${m[1]} — читается, не объявлен, запасного значения нет`)
+      }
+    }
+  }
+
   /* Утилиты и исключения (слой 13, И230).
    *
    * Исключение — ПОМЕТКА на существующем предмете, а не второй класс и не

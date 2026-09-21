@@ -1040,3 +1040,19 @@ test('утилиты и исключения: ярлыки на месте, ва
   const styles = [bare, tokens, read('styles/base.css')].join('\n').replace(/\/\*[\s\S]*?\*\//g, '')
   assert.ok(!/@layer\b/.test(styles), 'заведён @layer — набор решает весом, не слоями')
 })
+
+/* И231: имя без объявления рушит всю запись — набор стоит на системном шрифте. */
+test('шрифт: в наборе своего нет, --face разрешается в системный стек, имён без объявления нет', () => {
+  const files = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css']
+  const texts = files.map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, ''))
+  const declared = new Set<string>()
+  for (const css of texts) for (const m of css.matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) declared.add(m[1]!)
+  const missing: string[] = []
+  for (const css of texts) for (const m of css.matchAll(/var\(\s*(--[a-z][a-z0-9-]*)\s*\)/g)) {
+    if (!declared.has(m[1]!)) missing.push(m[1]!)
+  }
+  assert.deepEqual([...new Set(missing)], [], 'имя читается без запасного значения и без объявления')
+  const bare = tokens.replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.match(bare, /--face:\s*var\(--face-stack\)/, 'набор не стоит на системном стеке')
+  assert.ok(!/--face:\s*var\(--f-[a-z]+\)/.test(bare), 'набор называет шрифт, которого у него нет')
+})

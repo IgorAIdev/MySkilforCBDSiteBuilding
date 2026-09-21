@@ -542,12 +542,24 @@
      пара ступеней ритма, рампа между швами, рост в коридоре LAYOUT.edgeGrowth
      (И227). Прежняя рукописная рампа 12 → 44 (×3.7) стояла здесь; люкс
      держит край почти постоянным, системы растят до ×2.2. */
-  /* The face: IBM Plex Sans, chosen and settled. The fallback stack is named
-     so a slow font never lands the page on Times. */
-  /* `--face-stack`, не `--stack`: под именем --stack живёт ручка примитива
+  /* Шрифт витрины. В наборе его НЕТ и быть не может: шрифт называет
+     заказчик, посмотрев на свой же текст (стенд `face:stand`, шаг 6
+     основания). Набор стоит на системном стеке, а проект, когда шрифт
+     назван, переобъявляет `--face` ОДНОЙ строкой вместе со своим запасным
+     списком: `--face: var(--f-plex), var(--face-stack)`.
+
+     Стояла эта строка прямо здесь — и `--f-plex` не объявлял никто. `var()`
+     без запасного значения делает всю переменную недействительной, а
+     `font-family: var(--face)` тогда падает не на стек, а на унаследованное,
+     то есть на умолчание браузера. Замер на чистых стилях набора:
+     `getComputedStyle(body).fontFamily === "Times New Roman"` — ровно то,
+     чего прежний комментарий обещал не допустить (И231). Семья
+     `varMissing` больше такого не пропустит.
+
+     `--face-stack`, не `--stack`: под именем --stack живёт ручка примитива
      stack, и стек шрифтов на корне делал его отступ нулём (И224). */
   --face-stack: ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --face: var(--f-plex), var(--face-stack);
+  --face: var(--face-stack);
   /* The headings can be set in a second face, and by default are not: one
      face is a decision, two is a system, and both are choices the panel
      offers rather than something a component decides. */
