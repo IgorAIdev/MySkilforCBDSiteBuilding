@@ -23,7 +23,7 @@
  */
 
 import { relative } from 'node:path'
-import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, ROOT, confirmed } from './stages.mjs'
+import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, stepProblems, transitionProblems, ROOT, confirmed } from './stages.mjs'
 
 const arg = (f) => process.argv.includes(f)
 
@@ -66,10 +66,15 @@ function brief(stage, { full = false } = {}) {
   }
 
   const problems = gateProblems(stage)
+  const unfinished = stepProblems(stage)
   const next = STAGES.find((s) => s.n === stage.n + 1)
-  console.log(`\n  Ворота${next ? ` (чтобы перейти к ${title(next)})` : ''}:`)
+  console.log('\n  Машинный храповик (держится после каждой правки):')
   for (const p of problems) line('✗', p)
   if (!problems.length && stage.gate.machine.length) line('✓', 'всё, что меряется, держится')
+
+  console.log(`\n  Условия перехода${next ? ` к ${title(next)}` : ''}:`)
+  for (const p of unfinished) line('✗', p)
+  if (!unfinished.length) line('✓', 'все измеримые шаги этапа на месте')
   for (const h of stage.gate.human.mine) line(confirmed(h) ? '✓' : '□', `${h}   ${confirmed(h) ? '(посмотрел — docs/gate.md)' : '(смотрю я)'}`)
   for (const h of stage.gate.human.owner) line(confirmed(h) ? '✓' : '□', `${h}   ${confirmed(h) ? '(подтверждено — docs/gate.md)' : '(РЕШАЕТ ЗАКАЗЧИК)'}`)
 
@@ -112,7 +117,7 @@ if (!stage) {
 if (arg('--gate')) {
   let failed = false
   for (const s of STAGES.filter((s) => s.n < stage.n)) {
-    const problems = gateProblems(s)
+    const problems = transitionProblems(s)
     if (problems.length) {
       failed = true
       console.error(`\n✗ ${title(s)} — пройденные ворота не держатся:`)
@@ -121,7 +126,7 @@ if (arg('--gate')) {
       console.log(`✓ ${title(s)} держится`)
     }
   }
-  const now = gateProblems(stage)
+  const now = transitionProblems(stage)
   /* В счёт идёт неподтверждённое: то, что записано в docs/gate.md, уже
      посмотрено — и спрашивать это заново значит спрашивать дважды (И209). */
   const mine = stage.gate.human.mine.filter((h) => !confirmed(h))
@@ -143,8 +148,8 @@ brief(stage)
 
 const passed = STAGES.filter((s) => s.n < stage.n)
 if (passed.length) {
-  const broken = passed.filter((s) => gateProblems(s).length)
-  console.log(`\n  Пройдено: ${passed.map((s) => `${title(s)} ${gateProblems(s).length ? '✗' : '✓'}`).join(', ')}`)
+  const broken = passed.filter((s) => transitionProblems(s).length)
+  console.log(`\n  Пройдено: ${passed.map((s) => `${title(s)} ${transitionProblems(s).length ? '✗' : '✓'}`).join(', ')}`)
   if (broken.length) console.log('  ✗ пройденные ворота не держатся — npm run check:stage покажет, что именно')
 }
 

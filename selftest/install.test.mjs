@@ -45,6 +45,7 @@ test('новый сайт: всё разложено, команды допис�
   assert.equal(r.status, 0, r.stderr)
   for (const f of ['AGENTS.md', '.agents/skills/site-building/SKILL.md', '.claude/skills/site-building/SKILL.md',
     '.agents/skills/site-building/references/production.md', '.claude/skills/site-building/references/production.md',
+    '.agents/skills/site-building/references/reuse.md', '.claude/skills/site-building/references/reuse.md',
     'CLAUDE.md', 'tools/check-css.mjs', 'tools/kit-config.mjs', 'styles/tokens.css',
     '.claude/skills/craft/SKILL.md', '.claude/skills/taste-skill/SKILL.md', '.claude/settings.json',
     '.github/workflows/check.yml', 'docs/rules.md', 'install.mjs', 'scripts.mjs']) {

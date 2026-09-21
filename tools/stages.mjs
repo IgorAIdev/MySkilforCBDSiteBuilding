@@ -36,7 +36,7 @@
 
 import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join, dirname, relative } from 'node:path'
 import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
@@ -156,17 +156,16 @@ const clean = (baseline, families) => {
 const ladder = () => [LADDER, TOKENS].filter(Boolean).map((p) => src(p)).join('\n')
 
 /** Все файлы стилей проекта — по папкам из kit.config.json. */
-const styleFiles = () => {
+export const styleFiles = () => {
   const out = []
   const walk = (dir) => {
     if (!existsSync(dir)) return
     for (const entry of readdirSync(dir)) {
       const full = join(dir, entry)
       if (statSync(full).isDirectory()) { walk(full); continue }
-      /* ROOT приходит из URL и кончается косой чертой: срез «длина + 1»
-         съедал первую букву пути, и файл потом не читался вовсе — проверка
-         молчала нулём на подложенном шве. Поймано обратным ходом. */
-      if (entry.endsWith('.css')) out.push(full.slice(ROOT.replace(/\/$/, '').length + 1))
+      /* Не вычислять относительный путь срезом: завершающий разделитель
+         ROOT отличается на Windows и POSIX. */
+      if (entry.endsWith('.css')) out.push(relative(ROOT, full).replace(/\\/g, '/'))
     }
   }
   for (const d of STYLE_DIRS) walk(join(ROOT, d))
@@ -783,4 +782,23 @@ export function gateProblems(stage) {
     if (r) out.push(r)
   }
   return out
+}
+
+/** Измеримые шаги внутри этапа. В отличие от храповика, это условия первого
+ * перехода, а не только защита того, что уже было сделано. */
+export function stepProblems(stage) {
+  const out = []
+  for (const step of stage.steps ?? []) {
+    if (!step.done) continue
+    let result
+    try { result = step.done() } catch (e) { result = `предикат упал: ${e.message}` }
+    if (result) out.push(`слой ${step.layer} «${step.name}»: ${result}`)
+  }
+  return out
+}
+
+/** Полный список проверяемых условий для перехода. Человеческие подтверждения
+ * хранятся отдельно: автомат не выдаёт их за выполненные. */
+export function transitionProblems(stage) {
+  return [...gateProblems(stage), ...stepProblems(stage)]
 }
