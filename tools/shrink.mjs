@@ -24,10 +24,11 @@
  *   node tools/shrink.mjs
  */
 
+import { fileURLToPath } from 'node:url'
 import { readdirSync, statSync, mkdirSync, existsSync, writeFileSync } from 'node:fs'
 import { join, extname, relative, dirname } from 'node:path'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const PUB = join(ROOT, 'public')
 const OUT = join(PUB, '_r')
 const LIST = join(ROOT, 'lib', 'shots.ts')

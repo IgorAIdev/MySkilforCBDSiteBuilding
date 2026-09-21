@@ -35,12 +35,13 @@
  * закон набора, и настраивать его — значит выключать.
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { DEFAULT_SEAMS, auditSeamsShape } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
 
-export const ROOT = new URL('..', import.meta.url).pathname
+export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 const DEFAULTS = {
   /** где TypeScript и React; `lib` среди них — данные, `pages` — страницы */

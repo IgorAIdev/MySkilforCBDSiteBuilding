@@ -39,6 +39,7 @@
  *   node tools/check-seo.mjs --list [семья] показать сами находки
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, existsSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { LOCALES, DEFAULT_LANG, all } from './routes.mjs'
@@ -46,7 +47,7 @@ import { LOCALES, DEFAULT_LANG, all } from './routes.mjs'
    обе проверки поиска, разбор в `tools/pages.mjs` (И174). */
 import { loadSite } from './pages.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const BASELINE = join(ROOT, 'tools/seo-baseline.json')
 
 const site = await loadSite({ routes: all() })

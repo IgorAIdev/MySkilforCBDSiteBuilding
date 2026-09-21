@@ -34,13 +34,14 @@
  * названо «нет», а не «не нужно».
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
 
-export const ROOT = new URL('..', import.meta.url).pathname
+export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /* ── что видит предикат ────────────────────────────────────────────────── */
 

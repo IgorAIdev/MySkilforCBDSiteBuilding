@@ -15,6 +15,7 @@
  * настоящий и чинится своим темпом; там нечему копиться.
  */
 
+import { fileURLToPath } from 'node:url'
 import { mkdirSync, copyFileSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -25,7 +26,7 @@ import { emptyCraftBaseline } from './craft-families.mjs'
 import { toCss } from './palette.mjs'
 import { toCss as scaleCss } from './scale.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const OUT = resolve(process.argv[2] ?? join(ROOT, 'kit'))
 
 /** Что переезжает. Список короткий намеренно: всё, что тут есть, должно

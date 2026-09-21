@@ -24,12 +24,13 @@
  * Проверка, которая молчит о непроверенном, читается как «всё хорошо».
  */
 
+import { fileURLToPath } from 'node:url'
 import { spawn, spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import { STAGES, currentStage } from './stages.mjs'
 import { nameOf } from './checks.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const args = process.argv.slice(2)
 const FINAL = args.includes('--final')
 const FAST = args.includes('--fast')

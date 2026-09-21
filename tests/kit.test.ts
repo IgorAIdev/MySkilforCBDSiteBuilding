@@ -19,6 +19,7 @@
  *   npm test
  */
 
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
@@ -174,7 +175,7 @@ test('инструменты в tools/ разбираются', () => {
   const files = readdirSync(dir).filter((f) => f.endsWith('.mjs'))
   assert.ok(files.length > 10, 'инструменты не нашлись')
   for (const file of files) {
-    const r = spawnSync(process.execPath, ['--check', new URL(file, dir).pathname], { encoding: 'utf8' })
+    const r = spawnSync(process.execPath, ['--check', fileURLToPath(new URL(file, dir))], { encoding: 'utf8' })
     assert.equal(r.status, 0, `tools/${file} не разбирается:\n${r.stderr}`)
   }
 })
@@ -230,7 +231,7 @@ test('семьи проверок названы в одном месте', () =
    у которого краска светлее контролов, должен покраснеть в обеих темах;
    образцы самопроверки — пройти. */
 test('палитра: схлопнувшаяся лестница — находка, образцы проходят', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/check-palette.mjs', import.meta.url))
   const clean = spawnSync(process.execPath, [tool, '--json'], { encoding: 'utf8' })
   const ok = JSON.parse(clean.stdout)
   assert.equal(clean.status, 0, 'образцы самопроверки должны проходить')
@@ -262,12 +263,12 @@ test('палитра: схлопнувшаяся лестница — наход
    постоянные уехали в строитель (И216), у набора появилось право назвать
    СВОЙ красный, и находка закрылась: образцы чисты. */
 test('наборы-образцы: находок нет', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/check-palette.mjs', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'palette-template-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(
     join(dir, 'styles', 'palette.json'),
-    readFileSync(new URL('../templates/palette.json', import.meta.url).pathname, 'utf8'),
+    readFileSync(fileURLToPath(new URL('../templates/palette.json', import.meta.url)), 'utf8'),
   )
   const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
   const report = JSON.parse(run.stdout).report as { name: string; mode: string; findings: { rule: string }[] }[]
@@ -281,7 +282,7 @@ test('наборы-образцы: находок нет', () => {
    показывает 71.6 при обещанных 90 — ровно тот класс дефекта, из-за
    которого вторая метрика и заведена. */
 test('палитра: APCA ловит то, о чём WCAG молчит', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/check-palette.mjs', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'palette-apca-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
@@ -322,7 +323,7 @@ test('палитра выпускается в CSS, и выпущенное сх
         sale: '#6A4CA8', warn: '#F76B15', ok: '#30A46C' },
     },
   }))
-  const tool = new URL('../tools/palette-css.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/palette-css.mjs', import.meta.url))
   const made = spawnSync(process.execPath, [tool], { cwd: dir, encoding: 'utf8' })
   assert.equal(made.status, 0, made.stderr)
 
@@ -351,7 +352,7 @@ test('палитра выпускается в CSS, и выпущенное сх
 })
 
 test('шкалы набора без красок — находка, а не зелёная самопроверка', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/check-palette.mjs', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'palette-none-'))
   mkdirSync(join(dir, 'styles'))
   /* Чужой сайт со своими стилями: наших шкал нет — и спрашивать с него наш
@@ -396,7 +397,7 @@ test('палитра: середина лестницы держит тон ма
       dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D' },
     },
   }))
-  spawnSync(process.execPath, [new URL('../tools/palette-css.mjs', import.meta.url).pathname],
+  spawnSync(process.execPath, [fileURLToPath(new URL('../tools/palette-css.mjs', import.meta.url))],
     { cwd: dir })
   const css = readFileSync(join(dir, 'styles', 'palette.css'), 'utf8')
   const step = (name: string): string =>
@@ -415,7 +416,7 @@ test('палитра: середина лестницы держит тон ма
    заказчика: «есть же плашка скидки — она какого цвета?». Краска была у
    двух состояний из пяти, и обе только текстом. */
 test('палитра: пять красок сигналов меряются попарно', () => {
-  const tool = new URL('../tools/check-palette.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/check-palette.mjs', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'palette-signals-'))
   mkdirSync(join(dir, 'styles'))
   writeFileSync(join(dir, 'styles', 'palette.json'), JSON.stringify({
@@ -644,7 +645,7 @@ test('шкалы выпускаются в CSS, и выпущенное сход
       'зазор': { targets: [8, 16] },
     },
   }))
-  const tool = new URL('../tools/scale-css.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/scale-css.mjs', import.meta.url))
   const made = spawnSync(process.execPath, [tool], { cwd: dir, encoding: 'utf8' })
   assert.equal(made.status, 0, made.stderr)
 
@@ -676,7 +677,7 @@ test('число на имени строителя — находка, а ро�
 })
 
 test('шкалы набора без чисел — находка, а не зелёная самопроверка', () => {
-  const tool = new URL('../tools/check-scale.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/check-scale.mjs', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'scale-none-'))
   mkdirSync(join(dir, 'styles'))
   /* Чужой сайт со своими стилями: наших шкал нет — спрашивать с него наш
@@ -811,7 +812,7 @@ test('стенд цвета переключает тему свойством, 
       dark: { paper: '#141310', ink: '#EFECE7', accent: '#2E7C8F', error: '#E5484D', warn: '#F76B15', ok: '#30A46C' },
     },
   }))
-  const tool = new URL('../tools/palette-stand.mjs', import.meta.url).pathname
+  const tool = fileURLToPath(new URL('../tools/palette-stand.mjs', import.meta.url))
   const made = spawnSync(process.execPath, [tool, join(dir, 'стенд.html')], { cwd: dir, encoding: 'utf8' })
   assert.equal(made.status, 0, made.stderr)
   const html = readFileSync(join(dir, 'стенд.html'), 'utf8')
@@ -827,7 +828,7 @@ test('стенд цвета переключает тему свойством, 
    выпущенное, и это сторожится счётом, а не обещанием: добавится краска —
    тест упадёт, пока она не встанет на лист. */
 test('лист палитры показывает каждую выпущенную краску, а не часть', () => {
-  const корень = new URL('..', import.meta.url).pathname
+  const корень = fileURLToPath(new URL('..', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'sheet-'))
   const out = join(dir, 'лист.html')
   const r = spawnSync(process.execPath, [join(корень, 'tools/palette-sheet.mjs'), out],
@@ -849,7 +850,7 @@ test('лист палитры показывает каждую выпущенн
    постоянная опять расползлась по файлам. */
 test('образцы называют рукой три краски, а постоянные берут из строителя', () => {
   const образцы = JSON.parse(
-    readFileSync(new URL('../templates/palette.json', import.meta.url).pathname, 'utf8'))
+    readFileSync(fileURLToPath(new URL('../templates/palette.json', import.meta.url)), 'utf8'))
   const лишние: string[] = []
   for (const [имя, набор] of Object.entries<Record<string, Record<string, string>>>(образцы)) {
     for (const тема of ['light', 'dark']) {
@@ -867,7 +868,7 @@ test('образцы называют рукой три краски, а пос�
    функции `palette.mjs`, слепок пород и каждый набор — и не находит
    ввоза из node, который в браузере не запустится. */
 test('строитель палитры показывает работу тем же кодом, что красит сайт', () => {
-  const корень = new URL('..', import.meta.url).pathname
+  const корень = fileURLToPath(new URL('..', import.meta.url))
   const dir = mkdtempSync(join(tmpdir(), 'builder-'))
   const out = join(dir, 'строитель.html')
   const r = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), out],

@@ -56,6 +56,7 @@
 
 const { chromium } = await import(
   process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
+import { fileURLToPath } from 'node:url'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
 import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
@@ -137,12 +138,12 @@ const DARK_WIDTHS = [390, 1200]
    где вёрстка, растящая цель по `max-width`, отдаёт курсорный размер
    пальцу. */
 const COARSE_WIDTHS = [768, 1024]
-const BASELINE = new URL('./craft-baseline.json', import.meta.url).pathname
+const BASELINE = fileURLToPath(new URL('./craft-baseline.json', import.meta.url))
 /* Низкое окно, в котором меряется приклеенное: ноутбук 1366×768 за вычетом
    полосы браузера. Обычный замер идёт в 900 по высоте, и колонка, которая в
    900 помещается, на ноутбуке уходит за край — так и было с галереей товара. */
 const SHORT_H = LAYOUT.shortWindow
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /** Что меряется в самой странице. Одной функцией, потому что она уезжает
  *  в браузер целиком и ничего оттуда не импортирует. */

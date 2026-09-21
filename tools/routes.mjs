@@ -30,10 +30,11 @@
  * проверку, а не проходит тихо (см. `assertData`).
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 /* Файла может не быть вовсе: набор переезжает в новый проект, где `lib/`
    ещё пуст. Пустая строка тут значит «данных нет», и это не поломка — а вот
    данные, которые ЕСТЬ и не разобрались, поломка (см. ниже). */

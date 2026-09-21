@@ -20,7 +20,14 @@ concurrency:
 
 jobs:
   self:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +35,7 @@ jobs:
         with: { node-version: '24' }
       # Замок: проверка не живёт без правила, правило — без дефекта.
       - run: node tools/check-rules.mjs
+      - run: node tools/pro-check.mjs
       # Инструменты на самом наборе: у него есть только `styles/`, и всё
       # обязано молчать нулём — иначе новый проект начинается красным.
       - run: node tools/check-css.mjs

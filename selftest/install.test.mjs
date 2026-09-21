@@ -8,6 +8,7 @@
  *   И170 — заготовка CI лежит там, где её не исполняют.
  */
 
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs'
@@ -15,12 +16,12 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
 
-const KIT = new URL('..', import.meta.url).pathname
+const KIT = fileURLToPath(new URL('..', import.meta.url))
 const run = (args, cwd) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' })
 const install = (dir, ...flags) => run([join(KIT, 'install.mjs'), ...flags, dir], KIT)
 const check = (dir, tool) => run([join(dir, 'tools', tool)], dir)
 const fresh = (name) => {
-  const dir = mkdtempSync(join(tmpdir(), `kit-${name}-`))
+  const dir = mkdtempSync(join(tmpdir(), `kit-${name}-тест с пробелом-`))
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, private: true, scripts: { dev: 'next dev' } }, null, 2))
   return dir
 }
@@ -42,7 +43,8 @@ test('новый сайт: всё разложено, команды допис�
   const dir = fresh('new')
   const r = install(dir)
   assert.equal(r.status, 0, r.stderr)
-  for (const f of ['CLAUDE.md', 'tools/check-css.mjs', 'tools/kit-config.mjs', 'styles/tokens.css',
+  for (const f of ['AGENTS.md', '.agents/skills/site-building/SKILL.md', '.claude/skills/site-building/SKILL.md',
+    'CLAUDE.md', 'tools/check-css.mjs', 'tools/kit-config.mjs', 'styles/tokens.css',
     '.claude/skills/craft/SKILL.md', '.claude/skills/taste-skill/SKILL.md', '.claude/settings.json',
     '.github/workflows/check.yml', 'docs/rules.md', 'install.mjs', 'scripts.mjs']) {
     assert.ok(existsSync(join(dir, f)), `нет ${f}`)
@@ -50,6 +52,12 @@ test('новый сайт: всё разложено, команды допис�
   assert.ok(!existsSync(join(dir, 'templates')), 'заготовки — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'selftest')), 'самопроверка набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'research')), 'исследования набора — не содержимое проекта')
+  assert.ok(!existsSync(join(dir, 'pro')), 'реестр ссылок без снимков не едет в проект')
+  assert.ok(!existsSync(join(dir, 'mood-stand.html')), 'локальный стенд не едет в проект')
+  assert.doesNotMatch(readFileSync(join(dir, 'docs/gate.md'), 'utf8'), /^- \[x\]/m,
+    'новый сайт не наследует подтверждения владельца')
+  assert.doesNotMatch(readFileSync(join(dir, 'docs/decisions.md'), 'utf8'), /CBD_ecommerce_eu|Ровный магазин|Латунь на угле/,
+    'новый сайт не наследует бизнес-решения другого сайта')
   assert.ok(!existsSync(join(dir, '.github/workflows/kit.yml')), 'CI набора — не CI проекта')
   const s = scriptsOf(dir)
   assert.equal(s.dev, 'next dev', 'свои команды остаются')
@@ -183,6 +191,7 @@ test('--palette с неизвестным именем: отказ со спис
   const r = install(dir, '--palette', 'Такого нет')
   assert.notEqual(r.status, 0, 'неизвестный набор принят молча')
   assert.match(r.stderr, /Есть:/, 'отказ не назвал, из чего выбирать')
+  assert.ok(!existsSync(join(dir, 'tools')), 'ошибочный выбор не оставляет частичную установку')
   rmSync(dir, { recursive: true, force: true })
 })
 
@@ -215,6 +224,7 @@ test('--scale с неизвестным именем: отказ со списк
   const r = install(dir, '--scale', 'Такого нет')
   assert.notEqual(r.status, 0, 'неизвестный набор ритма принят молча')
   assert.match(r.stderr, /Есть:/, 'отказ не назвал, из чего выбирать')
+  assert.ok(!existsSync(join(dir, 'tools')), 'ошибочный выбор не оставляет частичную установку')
   rmSync(dir, { recursive: true, force: true })
 })
 

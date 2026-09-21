@@ -22,6 +22,7 @@
  * заканчиваться сборка.
  */
 
+import { fileURLToPath } from 'node:url'
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:net'
 import { all, sample } from './routes.mjs'
@@ -58,7 +59,7 @@ if (!built) {
      сервер жить: проверка тогда не завершается вовсе, а выглядит как
      «долго идёт». Полчаса ушло ровно на это. */
   dev = spawn('npx', ['next', 'dev', '--port', String(PORT)], {
-    cwd: new URL('..', import.meta.url).pathname,
+    cwd: fileURLToPath(new URL('..', import.meta.url)),
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: true,
     env: { ...process.env, BROWSER: 'none' },

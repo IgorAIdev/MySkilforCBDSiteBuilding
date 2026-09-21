@@ -88,7 +88,7 @@ if (own) {
       const full = path.join(dir, entry)
       if (statSync(full).isDirectory()) { walk(full); continue }
       if (!entry.endsWith('.css')) continue
-      const rel = path.relative(process.cwd(), full)
+      const rel = path.relative(process.cwd(), full).replace(/\\/g, '/')
       if (rel === LADDER) continue
       sheets.push({ rel, css: readFileSync(full, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '') })
     }

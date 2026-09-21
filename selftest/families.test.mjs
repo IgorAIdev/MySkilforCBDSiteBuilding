@@ -3,6 +3,7 @@
  * папке на время теста, проверка на нём, обратный ход.
  */
 
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync } from 'node:fs'
@@ -10,7 +11,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
 
-const KIT = new URL('..', import.meta.url).pathname
+const KIT = fileURLToPath(new URL('..', import.meta.url))
 
 const project = (files) => {
   const dir = mkdtempSync(join(tmpdir(), 'kit-fam-'))

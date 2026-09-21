@@ -36,19 +36,20 @@
  *   node tools/check-lint.mjs --update     записать текущие числа как базу
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { relative } from 'node:path'
 import { CODE_DIRS as DIRS } from './kit-config.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
-const BASELINE = new URL('./lint-baseline.json', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
+const BASELINE = fileURLToPath(new URL('./lint-baseline.json', import.meta.url))
 
 /* В проекте, куда набор только что лёг, кода ещё нет ни строки. Проверка,
    красная с первого дня, живёт ровно до первого «давай пока отключим» —
    поэтому «папок ещё нет» это честный ноль, а не сбой. Ноль файлов при
    существующей папке — уже сбой, и он ниже. */
-const here = DIRS.filter((d) => existsSync(new URL(`../${d}`, import.meta.url).pathname))
+const here = DIRS.filter((d) => existsSync(fileURLToPath(new URL(`../${d}`, import.meta.url))))
 if (!here.length) {
   console.log(`· линтер: проверять пока нечего — нет ни ${DIRS.join(', ни ')}`)
   process.exit(0)

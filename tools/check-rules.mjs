@@ -60,7 +60,7 @@ import { sweepWidths } from './seams.mjs'
 import { SCRIPTS } from '../scripts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const read = (p) => readFileSync(join(ROOT, p), 'utf8')
+const read = (p) => readFileSync(join(ROOT, p), 'utf8').replace(/\r\n/g, '\n')
 const has = (p) => existsSync(join(ROOT, p))
 
 /* Скиллы набора: у каждого закон в SKILL.md и, где есть, разбор в references/.

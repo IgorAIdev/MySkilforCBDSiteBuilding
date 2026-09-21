@@ -7,6 +7,7 @@
  * перестали существовать на серверной сборке.
  */
 
+import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
@@ -15,7 +16,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
-const KIT = new URL('..', import.meta.url).pathname
+const KIT = fileURLToPath(new URL('..', import.meta.url))
 
 const serve = (broken = false) => new Promise((resolve) => {
   const server = createServer((req, res) => {

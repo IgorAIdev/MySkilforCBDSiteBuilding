@@ -20,10 +20,11 @@
  *   node tools/pro-check.mjs [--json]
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 
-const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '')
+const ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/\/$/, '')
 const SNAP = path.join(ROOT, 'research/site-building-2026-09-20/raw/sources')
 const FILE = path.join(ROOT, 'pro/основание.json')
 
@@ -70,6 +71,6 @@ if (process.argv.includes('--json')) {
   for (const f of findings) console.error(`    ${f}`)
   console.error(`\nПроверено ссылок: ${checked}, не подтвердилось: ${findings.length}`)
 } else {
-  console.log(`Каждое число основания подтверждено первоисточником. Ссылок проверено: ${checked}.`)
+  console.log(`Файлы и цитаты в реестре найдены. Ссылок проверено: ${checked}. Обоснованность выводов и полнота покрытия чисел этой проверкой не оцениваются.`)
 }
 process.exit(findings.length ? 1 : 0)

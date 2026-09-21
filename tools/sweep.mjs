@@ -23,6 +23,7 @@
 /* Playwright стоит в системе, а не в проекте — как и в tools/shade.mjs. */
 const { chromium } = await import(
   process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
+import { fileURLToPath } from 'node:url'
 import { mkdirSync, rmSync } from 'node:fs'
 import { LAYOUT } from './thresholds.mjs'
 import { SEAMS } from './kit-config.mjs'
@@ -54,7 +55,7 @@ const FS_JUMP = LAYOUT.jump
    950×300 под снимком 1100×1200 оставляли 31% снимка. */
 const CROP_KEEP = LAYOUT.crop
 
-const out = new URL('../.sweep', import.meta.url).pathname
+const out = fileURLToPath(new URL('../.sweep', import.meta.url))
 rmSync(out, { recursive: true, force: true })
 mkdirSync(out, { recursive: true })
 

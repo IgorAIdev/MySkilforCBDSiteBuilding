@@ -39,12 +39,13 @@
  *   node tools/check-port.mjs --update     записать текущие числа как базу
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { PORT_FAMILIES, emptyPortBaseline } from './port-families.mjs'
 import { CODE_DIRS, BLOCK_DIRS, COMPONENT_DIRS, STYLE_DIRS, LIB, TOKENS } from './kit-config.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const BASELINE = join(ROOT, 'tools/port-baseline.json')
 
 /* Три слоя, и разница между ними — вся суть проверки.
