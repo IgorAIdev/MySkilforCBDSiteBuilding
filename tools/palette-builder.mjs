@@ -52,11 +52,11 @@ if (!Object.keys(sets).length) {
 
 /* Строитель в браузер: тот же файл, без ввоза и без вывоза. */
 let builder = readFileSync(path.join(HERE, 'palette.mjs'), 'utf8')
-builder = builder.replace("import { readFileSync } from 'node:fs'\n", '')
+builder = builder.replace(/import \{ readFileSync \} from 'node:fs'\r?\n/, '')
 /* Пороги — тот же файл, что читают проверки: в браузер он едет целиком,
    а ввоз строителя из него снимается (И221). */
-builder = readFileSync(path.join(HERE, 'thresholds.mjs'), 'utf8') + '\n' + builder.replace("import { CONTRAST, COLOUR } from './thresholds.mjs'\n", '')
-builder = builder.replace(/let cache = null\nconst FAMILIES = \(\) => \{[\s\S]*?\n\}\n/, 'const FAMILIES = () => PROFILE_JSON.scales\n')
+builder = readFileSync(path.join(HERE, 'thresholds.mjs'), 'utf8') + '\n' + builder.replace(/import \{ CONTRAST, COLOUR \} from '\.\/thresholds\.mjs'\r?\n/, '')
+builder = builder.replace(/let cache = null\r?\nconst FAMILIES = \(\) => \{[\s\S]*?\r?\n\}\r?\n/, 'const FAMILIES = () => PROFILE_JSON.scales\n')
 if (!builder.includes('PROFILE_JSON.scales')) {
   console.error('✗ В palette.mjs не нашёлся загрузчик слепка пород — страница не соберётся честно.')
   process.exit(1)
