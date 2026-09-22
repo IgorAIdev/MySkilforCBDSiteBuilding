@@ -22,13 +22,27 @@
       "status": "selected-files-vendored"
     },
     {
-      "sha": "5f9bcac2f07ba3d2b360483ed9e0c2588335b26b",
-      "date": "2026-09-21T20:20:17Z",
+      "sha": "93111ff435e2deb81923bc9025310b9c7f61d485",
+      "date": "2026-09-18T18:46:37Z",
       "repo": "payloadcms/payload",
       "archived": false,
-      "branch": "main",
+      "branch": "v3.90.1",
       "license": "MIT",
-      "status": "source-patterns-reviewed"
+      "status": "source-patterns-reviewed",
+      "reviewedPaths": [
+        "templates/website/src/blocks/RenderBlocks.tsx",
+        "templates/website/src/collections/Pages/hooks/revalidatePage.ts",
+        "templates/website/src/app/(frontend)/next/preview/route.ts",
+        "templates/website/src/utilities/generateMeta.ts",
+        "templates/website/src/collections/Media.ts",
+        "templates/website/src/components/PayloadRedirects/index.tsx",
+        "packages/plugin-seo/src/defaults.ts",
+        "packages/plugin-redirects/src/redirectTypes.ts",
+        "packages/live-preview/src/isDocumentEvent.ts",
+        "packages/payload/src/utilities/slugify.ts",
+        "docs/versions/drafts.mdx",
+        "docs/configuration/localization.mdx"
+      ]
     },
     {
       "sha": "cccf0a72ec1b88a4e00ea3cffad4d30b35aaf7e7",
@@ -36,8 +50,8 @@
       "repo": "vendure-ecommerce/vendure",
       "archived": false,
       "branch": "master",
-      "license": "NOASSERTION",
-      "status": "candidate-metadata-reviewed"
+      "license": "GPL-3.0 or Vendure Commercial License (LICENSE.md)",
+      "status": "license-reviewed-api-contract-only"
     },
     {
       "sha": "449f42df3abd2193ad3e740287dc0bcf044b2bfb",
@@ -140,6 +154,32 @@
       "branch": "master",
       "license": "NOASSERTION",
       "status": "candidate-metadata-reviewed"
+    },
+    {
+      "sha": "7d06ae00e09684512ad13ef45077f06de838dc3d",
+      "date": "2026-08-19T13:25:43Z",
+      "repo": "vendurehq/nextjs-starter-vendure",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "adapted-files-and-patterns",
+      "reviewedPaths": [
+        "src/platform/vendure/api.ts",
+        "src/platform/vendure/auth-token.ts",
+        "src/platform/vendure/channel.ts",
+        "src/features/products/product-options.ts",
+        "src/features/products/graphql.ts",
+        "src/features/search/search-helpers.ts",
+        "src/features/cart/routes/actions.ts",
+        "src/features/checkout/routes/actions.ts",
+        "src/features/checkout/routes/page.tsx",
+        "src/features/currency/currency-server.ts",
+        "src/platform/revalidation/handler.ts",
+        "tests/architecture/boundaries.test.mjs",
+        "tests/i18n/messages.test.mjs",
+        ".upgrades/changes/improve-storefront-performance.md",
+        "LICENSE"
+      ]
     }
   ],
   "files": [
@@ -309,8 +349,8 @@
       "commit": "d871b32233642be3a7afa556009d5956bb655c12",
       "upstreamPath": "apps/storefront/src/lib/util/product-option-filters.ts",
       "license": "MIT",
-      "changes": "ESM extraction; consistent repeated/comma parsing, trim/deduplication across input formats.",
-      "sha256": "ae73f32956ded8993f0d817be255158765bcffdeb2e9c826b847a21c7606179c",
+      "changes": "ESM extraction; consistent repeated/comma parsing, trim/deduplication across input formats. Rejects unawaited Promise searchParams (Next 15+).",
+      "sha256": "342aad5e7036f1900a4497ad67152c1f87500c56de64e710d5c494d32886e853",
       "licenseFile": "assets/commerce/MEDUSA-LICENSE.md"
     },
     {
@@ -342,6 +382,26 @@
       "changes": "Unmodified license text.",
       "sha256": "770a61c897d73cdeb53ff2a367d537a80eccf57b31f81e4a5fe951fecc40c632",
       "licenseFile": "assets/commerce/MEDUSA-LICENSE.md"
+    },
+    {
+      "local": "assets/vendure/VENDURE-STARTER-LICENSE.md",
+      "repo": "vendurehq/nextjs-starter-vendure",
+      "commit": "7d06ae00e09684512ad13ef45077f06de838dc3d",
+      "upstreamPath": "LICENSE",
+      "license": "MIT",
+      "licenseFile": "assets/vendure/VENDURE-STARTER-LICENSE.md",
+      "changes": "Unmodified",
+      "sha256": "aa532736dbbb7db60536dab3354bd6c8ed1e69dd5efe157e29e236bed0626e4f"
+    },
+    {
+      "local": "assets/vendure/product.mjs",
+      "repo": "vendurehq/nextjs-starter-vendure",
+      "commit": "7d06ae00e09684512ad13ef45077f06de838dc3d",
+      "upstreamPath": "src/features/products/product-options.ts",
+      "license": "MIT",
+      "licenseFile": "assets/vendure/VENDURE-STARTER-LICENSE.md",
+      "changes": "getDisplayOptionGroups ported to plain ESM with input validation; toSelection (mapping to the neutral variant-selection contract) is original.",
+      "sha256": "b303e410a144615500e717ca578350a51140b683661eb687b17030dbc2f653e9"
     }
   ],
   "localFiles": [
@@ -353,7 +413,7 @@
     {
       "local": "assets/commerce/mutation-lane.mjs",
       "description": "Original local utility/configuration; not copied from Saleor.",
-      "sha256": "c9ec345da37de435d56c7581dc781a92abadf4990b06d943174308995de18bfc"
+      "sha256": "eb479a49fc65b06c8645f80577612e29f4a0abadfd8546e589a0949c5d7b60c0"
     },
     {
       "local": "assets/quality/lighthouserc.cjs",
@@ -409,6 +469,31 @@
       "local": "assets/studio/engine/palette-profile.json",
       "sha256": "b035500c6154a6bbba47be54b62764637b87d8db7b4db29b5e9721e22e86ab7e",
       "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
+    },
+    {
+      "local": "assets/vendure/request.mjs",
+      "description": "Original SiteBuildingSkill Vendure adapter helper; Shop API names follow Vendure documentation, checked against vendurehq/nextjs-starter-vendure@7d06ae0.",
+      "sha256": "f74ab993fc827d28252dfe6bac02b6b90a3d869502be583dc96b1c7851691c27"
+    },
+    {
+      "local": "assets/vendure/result.mjs",
+      "description": "Original SiteBuildingSkill Vendure adapter helper; Shop API names follow Vendure documentation, checked against vendurehq/nextjs-starter-vendure@7d06ae0.",
+      "sha256": "54d8a02db9f65678803ad4b711915a113ecc7d9fe76279263500f0b31dd1174b"
+    },
+    {
+      "local": "assets/vendure/money.mjs",
+      "description": "Original SiteBuildingSkill Vendure adapter helper; Shop API names follow Vendure documentation, checked against vendurehq/nextjs-starter-vendure@7d06ae0.",
+      "sha256": "06bc3edb46a180d5ad6654665b3190565208544dc2e189d987897f10f4c88358"
+    },
+    {
+      "local": "assets/vendure/search.mjs",
+      "description": "Original SiteBuildingSkill Vendure adapter helper; Shop API names follow Vendure documentation, checked against vendurehq/nextjs-starter-vendure@7d06ae0.",
+      "sha256": "c127d9c38aa08f9384e68eaac7ee00dae99302752cfe9ddf9f94f544babd2d88"
+    },
+    {
+      "local": "assets/vendure/asset.mjs",
+      "description": "Original SiteBuildingSkill Vendure adapter helper; Shop API names follow Vendure documentation, checked against vendurehq/nextjs-starter-vendure@7d06ae0.",
+      "sha256": "d1896ea0fb067183ecefedd4805a430d14e93744494c0fbe537bc3439ef2bb77"
     }
   ]
 }

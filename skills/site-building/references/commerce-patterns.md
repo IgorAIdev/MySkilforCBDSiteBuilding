@@ -49,10 +49,12 @@ Optimistic отображение не подтверждает новый ит�
 Локальный таймаут записи означает неизвестный результат, а не доказанный отказ;
 перед повтором сверить backend. Не делать автоматический повтор неидемпотентного действия.
 
-[mutation-lane.mjs](../assets/commerce/mutation-lane.mjs) — наш небольшой ресурс
-для ограничения параллельных записей и обязательного снятия pending через finally.
-Это не распределённая блокировка: другие вкладки и устройства требуют контракта
-backend. Ошибка остаётся видимой; вернуть кнопку недостаточно без сообщения.
+[mutation-lane.mjs](../assets/commerce/mutation-lane.mjs) — наш небольшой ресурс:
+пока запись идёт, вторая ОТКЛОНЯЕТСЯ (не ставится в очередь) — контрол выключен
+и показывает ожидание; `timeoutMs` прерывает зависшую запись и освобождает полосу
+с исходом «неизвестно» — корзина перечитывается до любого повтора; `subscribe`
+даёт перерисовку (`useSyncExternalStore`). Это не распределённая блокировка:
+другие вкладки и устройства требуют контракта backend. Ошибка остаётся видимой; вернуть кнопку недостаточно без сообщения.
 При необходимости параллельного редактирования вводить очередь намерений и тесты
 ревизий вместо удаления защиты. Network read и commerce mutation имеют разные правила повтора.
 
@@ -61,6 +63,12 @@ backend. Ошибка остаётся видимой; вернуть кнопк
 после refresh. Не объявлять заказ оплаченным по redirect/query-параметру.
 
 ## Пагинация и кэш — Hydrogen + Paper
+
+Vendure и Payload листают номерами страниц (`take/skip`, `page/limit`):
+для них — `pageVariables` из [search.mjs](../assets/vendure/search.mjs), мусорный
+номер — 404. Курсоры ниже — для источников с курсорами (Shopify и подобные).
+Кэш витрины на Next 16 — теги и `'use cache'`, раздел «Кэш» в [vendure.md](vendure.md);
+HTTP-директивы ниже — для ответов собственных маршрутов.
 
 [pagination.mjs](../assets/commerce/pagination.mjs) извлечён из Hydrogen:
 cursor+direction и namespace для нескольких списков. Добавлены проверки размера,
@@ -115,6 +123,12 @@ backend не отправляются в browser storage, логи и докум
   `get-product-price.ts`, `modules/products/components/product-actions/index.tsx`.
 - Paper: `src/checkout/lib/payment/integrated-gateways.ts`, `payment-gateways.ts`,
   `src/lib/cache-manifest.ts`, README и LICENSE.
+- Vendure Next.js starter: `src/platform/vendure/{api,auth-token,channel}.ts`,
+  `src/features/products/product-options.ts`, `search/search-helpers.ts`,
+  `cart/routes/actions.ts`, `checkout/routes/{page.tsx,actions.ts}`,
+  `platform/revalidation/handler.ts` — разбор и названные ошибки в [vendure.md](vendure.md).
+- Payload v3.90.1: `templates/website` (блоки, предпросмотр, сброс кэша, SEO,
+  переадресации, медиа) и плагины — разбор в [payload.md](payload.md).
 
 Извлечения и собственные защитные расширения покрываются тестами набора.
 Перед интеграцией — [контракт ресурсов](../assets/commerce/INTEGRATION.md).

@@ -22,7 +22,7 @@
  * заканчиваться сборка.
  */
 
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { createServer } from 'node:net'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
@@ -56,6 +56,23 @@ const built = process.argv.includes('--built')
 const urls = all()
 
 let dev = null
+
+/** Убить сервер вместе со всем, что он под собой поднял.
+ *
+ *  Объявлено ДО запуска: ветка «не поднялся» зовёт его первой, и объявление
+ *  ниже роняло проверку `ReferenceError: Cannot access 'stop' before
+ *  initialization` вместо отчёта о причине (И240). На Windows отрицательного
+ *  pid группы нет — дерево гасит `taskkill /T`. */
+const stop = () => {
+  if (!dev || dev.exitCode !== null) return
+  if (process.platform === 'win32') {
+    spawnSync('taskkill', ['/pid', String(dev.pid), '/T', '/F'], { stdio: 'ignore' })
+    return
+  }
+  try { process.kill(-dev.pid, 'SIGTERM') } catch { dev.kill('SIGTERM') }
+}
+process.on('exit', stop)
+
 if (!built) {
   /* Своей группой процессов — и убивать её целиком. `next dev` поднимает
      под собой ещё один процесс, и SIGTERM одному лишь родителю оставляет
@@ -66,6 +83,7 @@ if (!built) {
     cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: true,
+    windowsHide: true,
     env: { ...process.env, BROWSER: 'none' },
   })
   const log = []
@@ -82,19 +100,15 @@ if (!built) {
     up = await fetch(BASE, { redirect: 'manual' }).then(() => true, () => false)
   }
   if (!up) {
-    console.error(`\n✗ next dev не поднялся за 90 секунд на ${BASE}.`)
+    console.error(dev.exitCode !== null
+      ? `\n✗ next dev завершился с кодом ${dev.exitCode}, не ответив на ${BASE}.`
+      : `\n✗ next dev не поднялся за 90 секунд на ${BASE}.`)
     console.error(log.join('').split('\n').slice(-20).map((l) => `    ${l}`).join('\n'))
     stop()
     process.exit(1)
   }
 }
 
-/** Убить сервер вместе со всем, что он под собой поднял. */
-const stop = () => {
-  if (!dev) return
-  try { process.kill(-dev.pid, 'SIGTERM') } catch { dev.kill('SIGTERM') }
-}
-process.on('exit', stop)
 
 const bad = []
 

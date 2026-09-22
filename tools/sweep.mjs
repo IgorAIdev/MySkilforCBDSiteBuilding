@@ -20,10 +20,8 @@
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
 
-const playwright = process.env.PLAYWRIGHT
-  ? await import(process.env.PLAYWRIGHT)
-  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
-const { chromium } = playwright
+import { loadPlaywright } from './browser.mjs'
+const { chromium } = await loadPlaywright()
 import { mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { LAYOUT } from './thresholds.mjs'

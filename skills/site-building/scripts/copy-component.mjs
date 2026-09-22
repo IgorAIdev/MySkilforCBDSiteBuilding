@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { checkResources, skillRoot, within } from './check-resources.mjs'
 
 export function copyComponent(name, destination, root = skillRoot) {
-  const valid = new Set(['button', 'dropdown-menu', 'navigation-menu', 'icons', 'commerce', 'quality'])
+  const valid = new Set(['button', 'dropdown-menu', 'navigation-menu', 'icons', 'commerce', 'vendure', 'quality'])
   if (!valid.has(name)) throw new Error(`Choose: ${[...valid].join(', ')}`)
   if (!destination) throw new Error('Destination is required')
   const out = resolve(destination)
@@ -14,7 +14,7 @@ export function copyComponent(name, destination, root = skillRoot) {
   const report = checkResources(root)
   if (report.errors.length) throw new Error(report.errors.join('\n'))
   const manifest = JSON.parse(readFileSync(join(root, 'upstream.json'), 'utf8'))
-  const whole = ['icons', 'commerce', 'quality'].includes(name)
+  const whole = ['icons', 'commerce', 'vendure', 'quality'].includes(name)
   const prefix = name === 'icons' ? 'assets/icons/lucide/' : whole ? `assets/${name}/` : 'assets/components/shadcn/'
   const selected = [...manifest.files, ...manifest.localFiles].filter(entry =>
     entry.local.startsWith(prefix) && (whole ||
@@ -22,7 +22,7 @@ export function copyComponent(name, destination, root = skillRoot) {
   if (!selected.length) throw new Error('No matching resources')
   // Read/validate all inputs before creating the destination. Never overwrite.
   const inputs = selected.map(entry => ({ entry, source: within(root, entry.local) }))
-  const guidePath = ['commerce', 'quality'].includes(name) ? `assets/${name}/INTEGRATION.md` : 'assets/components/INTEGRATION.md'
+  const guidePath = ['commerce', 'vendure', 'quality'].includes(name) ? `assets/${name}/INTEGRATION.md` : 'assets/components/INTEGRATION.md'
   const guide = readFileSync(join(root, guidePath), 'utf8')
     .replace('../../upstream.json', 'component-source.json')
   mkdirSync(out, { recursive: true })

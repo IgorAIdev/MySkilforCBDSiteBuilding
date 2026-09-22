@@ -37,7 +37,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, execSync } from 'node:child_process'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { CODE_DIRS as DIRS } from './kit-config.mjs'
@@ -58,14 +58,20 @@ if (!here.length) {
 let out = ''
 let err = ''
 try {
-  out = execFileSync('npx', ['oxlint', '--format=json', ...here], {
-    cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
-  })
+  /* На Windows `npx` — это `npx.cmd`, и Node без оболочки его не запускает:
+     `spawnSync npx ENOENT` глотался ниже и печатался как «линтер не отдал
+     разбираемый отчёт» без причины (И240). Имена папок здесь — из конфига;
+     на Windows строка команды собирается с кавычками и идёт в оболочку. */
+  const args = ['oxlint', '--format=json', ...here]
+  const opts = { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 * 1024 }
+  out = process.platform === 'win32'
+    ? execSync(['npx', ...args.map((a) => `"${a}"`)].join(' '), opts)
+    : execFileSync('npx', args, opts)
 } catch (e) {
   /* oxlint выходит ненулевым, когда нашёл ошибки, — это не сбой запуска, а
      его ответ. Сбой запуска виден по тому, что отчёта нет. */
   out = e.stdout ?? ''
-  err = e.stderr ?? ''
+  err = (e.stderr ?? '') || (e.stdout ? '' : `${e.code ?? ''} ${e.message ?? ''}`)
 }
 
 /* ── падение линтера — это НЕ «ноль замечаний» ────────────────────────────

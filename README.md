@@ -308,7 +308,7 @@ https://github.com/IgorAIdev/SiteBuildingSkill» — он склонирует �
 ## Обновить набор в проекте, который его уже поставил
 
 ```
-git clone --depth 1 https://github.com/IgorAIdev/MySkilforCBDSiteBuilding.git /tmp/kit && node /tmp/kit/install.mjs --update . && rm -rf /tmp/kit
+git clone --depth 1 https://github.com/IgorAIdev/SiteBuildingSkill.git /tmp/kit && node /tmp/kit/install.mjs --update . && rm -rf /tmp/kit
 ```
 
 `--update` обновляет проверки и скиллы и **не трогает** базы храповиков,

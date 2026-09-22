@@ -41,12 +41,10 @@
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
 
-const playwright = process.env.PLAYWRIGHT
-  ? await import(process.env.PLAYWRIGHT)
-  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
-const { chromium } = playwright
+import { loadPlaywright, loadSharp } from './browser.mjs'
+const { chromium } = await loadPlaywright()
+const sharp = await loadSharp()
 import { writeFileSync } from 'node:fs'
-import sharp from 'sharp'
 
 const URL = process.env.URL ?? 'http://localhost:8099/'
 const EDGE = 0.35   // the band a tile falls back to, as a share of its height

@@ -305,11 +305,11 @@ if (!existsSync(join(OUT, 'README.md'))) writeFileSync(join(OUT, 'README.md'), `
 Из папки проекта, одной строкой:
 
 \`\`\`
-git clone --depth 1 https://github.com/IgorAIdev/MySkilforCBDSiteBuilding.git /tmp/kit && node /tmp/kit/install.mjs . && rm -rf /tmp/kit
+git clone --depth 1 https://github.com/IgorAIdev/SiteBuildingSkill.git /tmp/kit && node /tmp/kit/install.mjs . && rm -rf /tmp/kit
 \`\`\`
 
 Агенту достаточно сказать словами: «установи набор из
-https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонирует и
+https://github.com/IgorAIdev/SiteBuildingSkill» — он склонирует и
 разложит сам. Помнить надо адрес, а не команду.
 
 **Клонировать этот репозиторий как папку нового сайта нельзя.**

@@ -54,17 +54,15 @@
  * PLAYWRIGHT.
  */
 
-const playwright = process.env.PLAYWRIGHT
-  ? await import(process.env.PLAYWRIGHT)
-  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
-const { chromium } = playwright
+import { loadPlaywright, loadSharp } from './browser.mjs'
+const { chromium } = await loadPlaywright()
+const sharp = await loadSharp()
 import { readFileSync, writeFileSync } from 'node:fs'
 import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
 import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import sharp from 'sharp'
 import { sample, isNative } from './routes.mjs'
 
 /** Контраст по WCAG — та же формула, что и в странице; здесь она нужна
