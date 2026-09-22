@@ -29,7 +29,7 @@ test('counts follow the plural rules of the language', () => {
 })
 
 test('Romanian uses comma-below ș ț, never cedilla ş ţ', () => {
-  assert.doesNotMatch(JSON.stringify(RO), /[ŞşŢţ]/)
+  assert.doesNotMatch(JSON.stringify(RO), /[\u015E\u015F\u0162\u0163]/)
 })
 
 test('the storefront words dictionary is well-formed', () => {
