@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { stripVTControlCharacters } from 'node:util'
 import { chromium } from 'playwright'
 
 const root = fileURLToPath(new URL('.', import.meta.url))
@@ -17,7 +18,7 @@ try {
   let ready = false
   for (let i = 0; i < 100; i++) {
     if (server.exitCode !== null) throw new Error(logs)
-    try { if (logs.includes(base) && (await fetch(base)).ok) { ready = true; break } } catch {}
+    try { if (stripVTControlCharacters(logs).includes(base) && (await fetch(base)).ok) { ready = true; break } } catch {}
     await new Promise(r => setTimeout(r, 100))
   }
   assert.ok(ready, logs)
