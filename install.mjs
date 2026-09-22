@@ -285,7 +285,7 @@ if (MODE === 'new') {
     moved.push(name)
   }
   // Acceptance and business decisions belong to the new site, not the kit.
-  for (const name of ['decisions', 'gate', 'open']) {
+  for (const name of ['decisions', 'gate', 'open', 'words']) {
     copy(join(SRC, `templates/project-${name}.md`), join(OUT, `docs/${name}.md`))
   }
   /* Выбранный набор ритма — первым в файле: на корне стоит первый, им сайт

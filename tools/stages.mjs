@@ -40,6 +40,7 @@ import { join, dirname, relative } from 'node:path'
 import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS, CONTROLS } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
+import { auditWords } from './words.mjs'
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -349,7 +350,13 @@ export const STAGES = [
         undefined,
         { reviewed: '22.09.2026', rule: 'И249: один лист знаков из Lucide с закреплённым SHA; штрих в пикселях экрана атрибутом на каждой фигуре — `<use>` не пускает селекторы страницы; толщина одна на 16 / 24 / 48' }),
       step(12, 'Слова', 'голос, словарь терминов на языках рынка, глагол на кнопке, ошибка у поля с шагом, пустой экран с шагом', 'shop',
-        () => has('docs/words.md') ? null : 'словаря слов нет (docs/words.md) — заводится в проекте вместе с первым текстом'),
+        () => {
+          if (!has('docs/words.md')) return 'словаря слов нет (docs/words.md) — образец: templates/project-words.md'
+          const found = auditWords(src('docs/words.md'))
+          return found.length ? `словарь слов: ${found[0]}${found.length > 1 ? ` (и ещё ${found.length - 1})` : ''}` : null
+        },
+        undefined,
+        { reviewed: '22.09.2026', rule: 'И250: словарь — голос, глоссарий, глагол на кнопке, ошибка и пустой экран с шагом; меряется устройство и румынские ș ț, формулировки утверждает заказчик' }),
       step(13, 'Утилиты и исключения', 'ярлык на одну работу берёт роль; исключение — пометка атрибутом на том же предмете, не второй класс и не клон; слоёв каскада нет — решает вес', 'craft',
         () => {
           const pr = primitivesSrc()
