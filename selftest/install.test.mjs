@@ -14,8 +14,9 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
-const KIT = new URL('..', import.meta.url).pathname
+const KIT = fileURLToPath(new URL('..', import.meta.url))
 const run = (args, cwd) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' })
 const install = (dir, ...flags) => run([join(KIT, 'install.mjs'), ...flags, dir], KIT)
 const check = (dir, tool) => run([join(dir, 'tools', tool)], dir)

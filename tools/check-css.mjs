@@ -16,6 +16,7 @@
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { RHYTHM, MOTION, STATE } from './thresholds.mjs'
 import { join, relative, dirname, basename } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { CSS_FAMILIES, CSS_LABELS as NAMES, hueRx } from './css-families.mjs'
 import { parse as parseName, REQUIRED, optics, declarations, reads } from './names.mjs'
 import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
@@ -26,7 +27,7 @@ import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
   BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
 import { deadSeams } from './seams.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const BASELINE = join(ROOT, 'tools/css-baseline.json')
 
 /* EXEMPT: шкала объявляется в пикселях внутри clamp() — это её работа, а не

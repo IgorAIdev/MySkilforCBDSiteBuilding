@@ -32,11 +32,12 @@
 
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
 import { toCss as ritmToCss } from './tools/scale.mjs'
 
-const SRC = resolve(new URL('.', import.meta.url).pathname)
+const SRC = resolve(fileURLToPath(new URL('.', import.meta.url)))
 const args = process.argv.slice(2)
 const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
@@ -89,7 +90,7 @@ const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
 /** Команды, которые нужны аудиту: проверки и этапы. `lint`, `test`,
  *  `typecheck`, `images` у чужого проекта свои — их не трогаем. */
 const AUDIT_SCRIPTS = Object.fromEntries(Object.entries(SCRIPTS)
-  .filter(([k]) => /^check:|^checks$|^stage$|^sweep$|^serve$/.test(k)))
+  .filter(([k]) => /^check:|^checks$|^stage$|^sweep$|^serve$|^palette$|^scale$/.test(k)))
 
 const rel = (p) => p.slice(OUT.length + 1)
 const has = (p) => existsSync(join(OUT, p))
@@ -137,6 +138,19 @@ const isBaseline = (p) => /^tools\/[\w-]+-baseline\.json$/.test(p)
    долгом — его собственные, иначе долг «прощён» и первый же прогон зелёный
    на том, что вчера было красным. */
 copyDir('tools', MODE === 'new' ? () => false : isBaseline)
+
+/* Обновление не трогает проектные документы, но отсутствующий документ не
+   является проектным: без него скилл ссылается в пустоту, а check:rules
+   нечего читать. Существующий файл остаётся нетронутым. */
+if (MODE === 'update') {
+  for (const relPath of ['docs/layers.md', 'docs/rules.md']) {
+    if (has(relPath)) continue
+    const dest = join(OUT, relPath)
+    mkdirSync(join(dest, '..'), { recursive: true })
+    cpSync(join(SRC, relPath), dest)
+    moved.push(relPath)
+  }
+}
 
 /* Скиллы: новому сайту и обновлению — все, с лицензиями; аудиту — четыре. */
 if (MODE === 'audit') {
@@ -226,7 +240,7 @@ if (MODE === 'new') {
    как набор. Пишется с соглашениями набора, чтобы было что править;
    существующий не трогается. */
 if (MODE === 'audit' && !has('kit.config.json')) {
-  const { CONFIG } = await import(join(SRC, 'tools/kit-config.mjs'))
+  const { CONFIG } = await import(pathToFileURL(join(SRC, 'tools/kit-config.mjs')).href)
   writeFileSync(join(OUT, 'kit.config.json'), JSON.stringify(CONFIG, null, 2) + '\n')
   moved.push('kit.config.json')
 }
@@ -291,6 +305,6 @@ if (MODE === 'audit') {
   console.log('  строка «Этап производства: **5 · Сдача**» в CLAUDE.md проекта → npm run check:stage — какие ворота не держатся')
 } else {
   console.log('  npm run stage — что кладётся первым и что прогнать')
-  console.log('  npm i -D sharp wait-on && npx playwright install chromium')
+  console.log('  npm i -D playwright sharp wait-on && npx playwright install chromium')
   if (MODE === 'new') console.log('  и прочитать docs/start.md — он про порядок, в котором начинать')
 }

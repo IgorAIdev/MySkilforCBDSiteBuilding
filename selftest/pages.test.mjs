@@ -14,8 +14,9 @@ import { spawn } from 'node:child_process'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 
-const KIT = new URL('..', import.meta.url).pathname
+const KIT = fileURLToPath(new URL('..', import.meta.url))
 
 const serve = (broken = false) => new Promise((resolve) => {
   const server = createServer((req, res) => {

@@ -31,12 +31,13 @@
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { basename, join, relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
 /* Где код, где стили, с каких папок спрашивают — `kit.config.json` проекта
    или соглашения набора (И168). */
 import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS, ALIASES, STORES } from './kit-config.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const BASELINE = join(ROOT, 'tools/code-baseline.json')
 
 /* Файлы ДАННЫХ, а не кода. Длина у них — не сложность: словарь на 644 строки

@@ -24,7 +24,11 @@
 
 import { spawn } from 'node:child_process'
 import { createServer } from 'node:net'
+import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 import { all, sample } from './routes.mjs'
+
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /** СВОБОДНЫЙ порт, а не один и тот же навсегда.
  *
@@ -57,8 +61,9 @@ if (!built) {
      под собой ещё один процесс, и SIGTERM одному лишь родителю оставляет
      сервер жить: проверка тогда не завершается вовсе, а выглядит как
      «долго идёт». Полчаса ушло ровно на это. */
-  dev = spawn('npx', ['next', 'dev', '--port', String(PORT)], {
-    cwd: new URL('..', import.meta.url).pathname,
+  const nextBin = join(ROOT, 'node_modules', 'next', 'dist', 'bin', 'next')
+  dev = spawn(process.execPath, [nextBin, 'dev', '--port', String(PORT)], {
+    cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: true,
     env: { ...process.env, BROWSER: 'none' },

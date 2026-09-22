@@ -32,14 +32,16 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 /* Файла может не быть вовсе: набор переезжает в новый проект, где `lib/`
    ещё пуст. Пустая строка тут значит «данных нет», и это не поломка — а вот
    данные, которые ЕСТЬ и не разобрались, поломка (см. ниже). */
 const src = (p) => existsSync(join(ROOT, p)) ? readFileSync(join(ROOT, p), 'utf8') : ''
 
 const locale = src('lib/locale.ts')
+const site = src('lib/site.server.ts')
 const catalogue = src('lib/products.ts')
 /* Марки лежат своим файлом, и разбираются они отдельно от каталога нарочно:
    регулярка полок ищет `slug:` по всему тексту, и марка, положенная рядом с
@@ -47,11 +49,24 @@ const catalogue = src('lib/products.ts')
 const brands = src('lib/brands.ts')
 
 /** Языки. Язык — это адрес: `/bg/...` и `/en/...`, по маршруту на язык. */
-export const LOCALES = [...(locale.match(/LOCALES\s*=\s*\[([^\]]*)\]/)?.[1] ?? '')
+const staticLocales = [...(locale.match(/LOCALES\s*=\s*\[([^\]]*)\]/)?.[1] ?? '')
   .matchAll(/'([a-z-]+)'/g)].map((m) => m[1])
+const envLocales = (process.env.SITE_LOCALES ?? '')
+  .split(',').map((one) => one.trim().toLowerCase().split('-')[0]).filter(Boolean)
+const siteLocales = (site.match(/SITE_LOCALES\s*\?\?\s*'([^']+)'/)?.[1] ?? '')
+  .split(',').map((one) => one.trim().toLowerCase().split('-')[0]).filter(Boolean)
+export const LOCALES = [...new Set(
+  envLocales.length ? envLocales : staticLocales.length ? staticLocales : siteLocales,
+)]
 
 export const DEFAULT_LANG =
-  locale.match(/DEFAULT_LANG[^=]*=\s*'([a-z-]+)'/)?.[1] ?? LOCALES[0]
+  process.env.SITE_DEFAULT_LOCALE?.toLowerCase().split('-')[0]
+  ?? locale.match(/DEFAULT_LANG[^=]*=\s*'([a-z-]+)'/)?.[1]
+  ?? site.match(/SITE_DEFAULT_LOCALE\s*\?\?\s*'([^']+)'/)?.[1]?.toLowerCase().split('-')[0]
+  ?? LOCALES[0]
+
+/* У доменной витрины главный язык живёт в корне, остальные — приставкой. */
+const LOCALE_PATHS = LOCALES.map((one) => one === DEFAULT_LANG ? '' : one)
 
 /** Документы — доставка, возврат, анализы, правовое. Читаются данными, а не
  *  разбором кода: они и лежат данными (`lib/docs.json`). Регулярка тут была
@@ -107,7 +122,7 @@ export function assertData() {
  *  сегмента `[lang]`) — родным считается всё: иначе проходы, идущие «по
  *  родному языку», молча не пошли бы никуда. */
 export const isNative = (url) =>
-  !LOCALES.length || url.split('/')[1] === DEFAULT_LANG
+  !LOCALES.length || !LOCALES.includes(url.split('/')[1]) || url.split('/')[1] === DEFAULT_LANG
 
 /** Формы маршрутов из дерева `app/**\/page.tsx`: `/[lang]`, `/[lang]/catalog`,
  *  `/[lang]/catalog/[cat]`, … Группы `(x)`, приватные `_x` и параллельные
@@ -134,6 +149,7 @@ export function shapes() {
  *  дереве; значение — все существующие величины. */
 const FILL = {
   '[lang]': () => LOCALES,
+  '[locale]': () => LOCALE_PATHS,
   '[cat]': () => CATEGORIES,
   '[id]': () => PRODUCTS.map((p) => p.id),
   '[doc]': () => DOCS.map((d) => d.slug),
@@ -152,6 +168,7 @@ const FILL = {
  *  товаре половины страницы нет, и её отсутствие тоже вёрстка. */
 const SAMPLE = {
   '[lang]': () => LOCALES,
+  '[locale]': () => LOCALE_PATHS,
   /* Марка: самая полная и самая пустая. У первой шесть полок и пятнадцать
      карточек, у второй одна полка и три — и ломается всегда вторая: блок из
      двух карточек в сетке на пять это другая раскладка, а не та же. */
@@ -209,7 +226,7 @@ const expand = (fill) => (url) => {
       console.error('  дерева не проверяется вовсе, а проверка выглядит зелёной.')
       process.exit(1)
     }
-    rows = rows.flatMap((prefix) => values.map((v) => `${prefix}/${v}`))
+    rows = rows.flatMap((prefix) => values.map((v) => `${prefix}/${v}`.replace(/\/{2,}/g, '/')))
   }
   return rows.length ? rows : ['/']
 }

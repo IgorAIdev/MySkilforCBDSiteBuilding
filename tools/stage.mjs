@@ -37,19 +37,21 @@ function brief(stage, { full = false } = {}) {
   console.log(`  Перед сдачей, в этом порядке: ${stage.checks.map((c) => `npm run ${c}`).join(' · ')}`)
 
   /* Шаги этапа — что за чем: ✓ по файлам, ✗ с причиной, · без предиката
-     (по чтению), □ решает заказчик (отмечается в docs/gate.md). Порядок —
-     слои первоисточников, docs/layers.md, §2. */
+     (по чтению), □ решает заказчик (отмечается в docs/gate.md). У слоёв
+     порядок из первоисточников (docs/layers.md, §2); каркас приложения
+     проверяется по архитектуре проекта и живым адресам. */
   if (stage.steps?.length) {
-    console.log('\n  Шаги этапа — что за чем (слои docs/layers.md, §2):')
+    console.log('\n  Шаги этапа — что за чем:')
     const tally = { reviewed: 0, unreviewed: 0, missing: 0, owner: 0 }
     for (const st of stage.steps) {
       const msg = st.done ? st.done() : undefined
       const ok = msg === null
-      /* Три состояния слоя, и «есть» — не «сделано»: сделан слой, пересмотренный
-         против исследования, с датой и правилом (И223). */
+      const basis = st.basis ?? 'исследования'
+      /* Три состояния шага, и «есть» — не «сделано»: сделан шаг,
+         пересмотренный против своего основания, с датой и правилом (И223). */
       const ch = msg === undefined ? '·' : ok ? (st.reviewed ? '✓' : '○') : '✗'
       const state = ok
-        ? (st.reviewed ? `пересмотрено ${st.reviewed} — ${st.rule}` : 'есть, против исследования не пересмотрено')
+        ? (st.reviewed ? `пересмотрено ${st.reviewed} — ${st.rule}` : `есть, против ${basis} не пересмотрено`)
         : msg === undefined ? 'предиката нет — читается глазами' : msg
       line(ch, `${st.layer}. ${st.name} — ${st.what} [${st.skill}]`)
       line(' ', `   ${state}`)
@@ -62,7 +64,7 @@ function brief(stage, { full = false } = {}) {
     }
     const next = stage.steps.find((st) => { const m = st.done ? st.done() : undefined; return m === null && !st.reviewed })
     console.log(`\n  Итог по слоям: пересмотрено ${tally.reviewed} · есть, не пересмотрено ${tally.unreviewed} · не начато ${tally.missing} · ждёт заказчика ${tally.owner}`)
-    if (next) console.log(`  Следующий подэтап: ${next.layer}. ${next.name} — пересмотреть против исследования (docs/layers.md, §2; пороги — tools/thresholds.mjs)`)
+    if (next) console.log(`  Следующий подэтап: ${next.layer}. ${next.name} — пересмотреть против ${next.basis ?? 'исследования (docs/layers.md, §2; пороги — tools/thresholds.mjs)'}`)
   }
 
   const problems = gateProblems(stage)

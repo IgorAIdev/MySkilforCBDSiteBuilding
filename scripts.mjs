@@ -19,6 +19,7 @@
 export const SCRIPTS = {
   images: 'node tools/shrink.mjs',
   typecheck: 'tsc --noEmit',
+  'build:site': 'npm run build',
   'check:css': 'node tools/check-css.mjs',
   'check:code': 'node tools/check-code.mjs',
   'check:port': 'node tools/check-port.mjs',
@@ -51,6 +52,7 @@ export const SCRIPTS = {
   'check:open': 'node tools/check-open.mjs',
   'check:urls': 'node tools/check-urls.mjs',
   'check:seo': 'node tools/check-seo.mjs',
+  'check:rules': 'node tools/check-rules.mjs',
   'check:stage': 'node tools/stage.mjs --gate',
   stage: 'node tools/stage.mjs',
   serve: 'node tools/serve.mjs',

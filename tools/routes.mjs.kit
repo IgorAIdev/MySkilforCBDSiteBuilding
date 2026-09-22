@@ -28,8 +28,9 @@
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-export const ROOT = new URL('..', import.meta.url).pathname
+export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 export const OUT = join(ROOT, 'out')
 /** Адрес живого сервера, если проверка идёт по нему. */
 export const LIVE = (process.env.SITE ?? '').replace(/\/+$/, '')

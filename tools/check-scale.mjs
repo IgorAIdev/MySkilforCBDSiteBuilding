@@ -88,7 +88,10 @@ if (own) {
       const full = path.join(dir, entry)
       if (statSync(full).isDirectory()) { walk(full); continue }
       if (!entry.endsWith('.css')) continue
-      const rel = path.relative(process.cwd(), full)
+      /* Конфиг хранит переносимые пути через `/`, а path.relative на Windows
+         возвращает `\\`. Без нормализации проверка принимала собственный
+         выпущенный styles/scale.css за рукописную таблицу чисел. */
+      const rel = path.relative(process.cwd(), full).split(path.sep).join('/')
       if (rel === LADDER) continue
       sheets.push({ rel, css: readFileSync(full, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '') })
     }

@@ -293,7 +293,7 @@ git clone --depth 1 https://github.com/IgorAIdev/MySkilforCBDSiteBuilding.git /t
 Скрипты в `package.json` дописал ставщик. Осталось одно:
 
 ```
-npm i -D sharp wait-on && npx playwright install chromium
+npm i -D playwright sharp wait-on && npx playwright install chromium
 ```
 
 Проверкам по странице нужен поднятый сайт и сервер, умеющий **чистые
@@ -310,6 +310,8 @@ npm run build && npm run serve
 ```
 
 Путь к Playwright задаётся через `PLAYWRIGHT=`, адрес сайта — через `SITE=`.
+Если пакет есть, а его Chromium не установлен, проверки могут использовать
+системный Chrome через `BROWSER_EXECUTABLE=`.
 
 ## Что работает без вашей памяти
 

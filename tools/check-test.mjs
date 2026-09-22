@@ -17,8 +17,9 @@
  */
 
 import { execFileSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 /* Вид отчёта назван явно. Он зависит от окружения — у агента один, на
    сервере сборки другой, — и разбор, написанный по тому, что видно на своей
    машине, на сервере не совпадёт ни с одной строкой. Это уже случилось с

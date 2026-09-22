@@ -26,8 +26,9 @@
 
 import { readdirSync, statSync, mkdirSync, existsSync, writeFileSync } from 'node:fs'
 import { join, extname, relative, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const PUB = join(ROOT, 'public')
 const OUT = join(PUB, '_r')
 const LIST = join(ROOT, 'lib', 'shots.ts')

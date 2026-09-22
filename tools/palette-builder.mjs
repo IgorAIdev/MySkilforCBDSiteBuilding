@@ -32,8 +32,9 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const HERE = path.dirname(new URL(import.meta.url).pathname)
+const HERE = path.dirname(fileURLToPath(import.meta.url))
 const args = process.argv.slice(2)
 const BARE = args.includes('--bare')
 const CHECK = args.includes('--check')

@@ -18,3 +18,6 @@ export const SHEET_SAMPLES = []
 
 /** Насколько можно разойтись, прежде чем это дефект. */
 export const SHEET_SLACK = 2
+
+/** Допуск складки height / width: 0.05 не прячет найденные 0.72 → 0.85. */
+export const SHEET_AR_SLACK = 0.05

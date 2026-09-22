@@ -22,8 +22,9 @@
 
 import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '')
+const ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '')
 const SNAP = path.join(ROOT, 'research/site-building-2026-09-20/raw/sources')
 const FILE = path.join(ROOT, 'pro/основание.json')
 
