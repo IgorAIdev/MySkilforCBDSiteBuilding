@@ -11,6 +11,16 @@
   --fs-base: clamp(1rem, .8656rem + .38vw, 1.125rem); /* тело */
   --fs-h3: clamp(1.4375rem, .8988rem + 1.54vw, 1.9375rem); /* подзаголовок */
   --fs-h2: clamp(1.5938rem, .7863rem + 2.31vw, 2.3438rem); /* заголовок раздела */
+  --hero-max: 3.5rem;
+  --hero-base: .125rem;
+  --hero-slope: 8;
+  --hero-size: clamp(1.625rem, .125rem + 8cqi, 3.5rem); /* герой: мерит свою колонку */
+  --pagehead-size: clamp(1.875rem, .75rem + 5cqi, 2.625rem); /* заголовок: мерит свою колонку */
+  --intro-min: 1.125rem;
+  --intro-max: 1.3125rem;
+  --intro-base: .125rem;
+  --intro-slope: 3;
+  --intro-size: clamp(1.125rem, .125rem + 3cqi, 1.3125rem); /* ввод: мерит свою колонку */
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри органа */
   --sp-3: clamp(12px, 9.85px + .38vw, 14px);       /* между строк группы */
@@ -101,6 +111,16 @@
   --fs-base: clamp(1rem, .8656rem + .38vw, 1.125rem); /* тело */
   --fs-h3: clamp(1.4375rem, .8988rem + 1.54vw, 1.9375rem); /* подзаголовок */
   --fs-h2: clamp(1.5938rem, .7863rem + 2.31vw, 2.3438rem); /* заголовок раздела */
+  --hero-max: 3.5rem;
+  --hero-base: .125rem;
+  --hero-slope: 8;
+  --hero-size: clamp(1.625rem, .125rem + 8cqi, 3.5rem); /* герой: мерит свою колонку */
+  --pagehead-size: clamp(1.875rem, .75rem + 5cqi, 2.625rem); /* заголовок: мерит свою колонку */
+  --intro-min: 1.125rem;
+  --intro-max: 1.3125rem;
+  --intro-base: .125rem;
+  --intro-slope: 3;
+  --intro-size: clamp(1.125rem, .125rem + 3cqi, 1.3125rem); /* ввод: мерит свою колонку */
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри органа */
   --sp-3: clamp(12px, 9.85px + .38vw, 14px);       /* между строк группы */
@@ -191,6 +211,16 @@
   --fs-base: clamp(1rem, .9325rem + .19vw, 1.0625rem); /* тело */
   --fs-h3: clamp(1.4375rem, 1rem + 1.25vw, 1.8438rem); /* подзаголовок */
   --fs-h2: clamp(1.5938rem, .9206rem + 1.92vw, 2.2188rem); /* заголовок раздела */
+  --hero-max: 3.5rem;
+  --hero-base: .125rem;
+  --hero-slope: 8;
+  --hero-size: clamp(1.625rem, .125rem + 8cqi, 3.5rem); /* герой: мерит свою колонку */
+  --pagehead-size: clamp(1.875rem, .75rem + 5cqi, 2.625rem); /* заголовок: мерит свою колонку */
+  --intro-min: 1.125rem;
+  --intro-max: 1.3125rem;
+  --intro-base: .125rem;
+  --intro-slope: 3;
+  --intro-size: clamp(1.125rem, .125rem + 3cqi, 1.3125rem); /* ввод: мерит свою колонку */
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри органа */
   --sp-3: 12px;                                    /* между строк группы */
@@ -281,6 +311,16 @@
   --fs-base: clamp(1.0625rem, .8606rem + .58vw, 1.25rem); /* тело */
   --fs-h3: clamp(1.8438rem, 1.2044rem + 1.83vw, 2.4375rem); /* подзаголовок */
   --fs-h2: clamp(2.2188rem, 1.31rem + 2.6vw, 3.0625rem); /* заголовок раздела */
+  --hero-max: 4rem;
+  --hero-base: .25rem;
+  --hero-slope: 8.5;
+  --hero-size: clamp(2.25rem, .25rem + 8.5cqi, 4rem); /* герой: мерит свою колонку */
+  --pagehead-size: clamp(2.375rem, .875rem + 6.5cqi, 3.375rem); /* заголовок: мерит свою колонку */
+  --intro-min: 1.25rem;
+  --intro-max: 1.4375rem;
+  --intro-base: .1875rem;
+  --intro-slope: 3;
+  --intro-size: clamp(1.25rem, .1875rem + 3cqi, 1.4375rem); /* ввод: мерит свою колонку */
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри органа */
   --sp-3: clamp(12px, 7.69px + .77vw, 16px);       /* между строк группы */
@@ -371,6 +411,16 @@
   --fs-base: clamp(1rem, .8656rem + .38vw, 1.125rem); /* тело */
   --fs-h3: clamp(1.4375rem, .8988rem + 1.54vw, 1.9375rem); /* подзаголовок */
   --fs-h2: clamp(1.5938rem, .7863rem + 2.31vw, 2.3438rem); /* заголовок раздела */
+  --hero-max: 3.5rem;
+  --hero-base: .125rem;
+  --hero-slope: 8;
+  --hero-size: clamp(1.625rem, .125rem + 8cqi, 3.5rem); /* герой: мерит свою колонку */
+  --pagehead-size: clamp(1.875rem, .75rem + 5cqi, 2.625rem); /* заголовок: мерит свою колонку */
+  --intro-min: 1.125rem;
+  --intro-max: 1.3125rem;
+  --intro-base: .125rem;
+  --intro-slope: 3;
+  --intro-size: clamp(1.125rem, .125rem + 3cqi, 1.3125rem); /* ввод: мерит свою колонку */
   --sp-1: 4px;                                     /* оптика: под скруглением */
   --sp-2: 8px;                                     /* внутри органа */
   --sp-3: clamp(12px, 9.85px + .38vw, 14px);       /* между строк группы */

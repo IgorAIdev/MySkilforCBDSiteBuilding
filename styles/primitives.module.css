@@ -318,7 +318,7 @@
 }
 .ledeText h1 em{font-style:normal;color:var(--pop-ink)}
 .ledeText p{
-  font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);
+  font-size:var(--lede-intro, var(--intro-size));line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);
   max-inline-size:var(--measure-lede);text-wrap:pretty
 }
 
@@ -343,8 +343,14 @@
      столбике заголовок выше своего. */
   .ledeText{
     --hero-fold:min(var(--hero-max),
-      calc(var(--hero-slope) / 100 * (var(--lede-at) - var(--lede-gap))
-           * var(--lede-bias) / (var(--lede-bias) + 1)))
+      calc(var(--hero-base) + var(--hero-slope) / 100 * (var(--lede-at) - var(--lede-gap))
+           * var(--lede-bias) / (var(--lede-bias) + 1)));
+    /* Вводный абзац — та же починка, что у заголовка (И243): в столбике он
+       стоит размером, который получит в миг расхождения колонок. Без неё
+       страница-доказательство сняла 21 → 17,5 px при росте окна 680 → 920. */
+    --lede-intro:clamp(var(--intro-min),
+      calc(var(--intro-base) + var(--intro-slope) / 100 * (var(--lede-at) - var(--lede-gap))
+           * var(--lede-bias) / (var(--lede-bias) + 1)), var(--intro-max))
   }
   /* Шов между текстом и кадром в сложенном виде. Полем, а не `row-gap`:
      см. выше — у столбика швы разной величины. */
