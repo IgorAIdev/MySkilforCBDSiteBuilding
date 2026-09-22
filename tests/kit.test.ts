@@ -734,9 +734,9 @@ test('роли выпускаются целиком и берут размер,
   /* Крупный текст — кривая по колонке, выпущенная строителем (И245): блок
      роли не подменяет её ступенью лестницы. */
   for (const en of ['hero', 'pagehead', 'intro']) {
-    const decl = [...css.matchAll(new RegExp(`--${en}-size:\s*([^;]+);`, 'g'))].map((m) => m[1])
+    const decl = [...css.matchAll(new RegExp(String.raw`--${en}-size:\s*([^;]+);`, 'g'))].map((m) => m[1])
     assert.ok(decl.length > 0, `у ${en} нет кривой`)
-    for (const v of decl) assert.match(v, /^clamp(.*rem.*cqi.*rem)$/, `${en} потерял свою кривую: ${v}`)
+    for (const v of decl) assert.match(v, /^clamp\([^,]+rem, [^,]+rem \+ [^,]+cqi, [^,]+rem\)$/, `${en} потерял свою кривую: ${v}`)
   }
   /* Роль, чьё имя совпадает с именем кривой, себя не переобъявляет: это
      ссылка на саму себя, и браузер погасит её вместе со всей ролью. */
