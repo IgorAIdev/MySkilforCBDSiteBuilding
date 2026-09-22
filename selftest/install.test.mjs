@@ -15,6 +15,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
 
 const KIT = fileURLToPath(new URL('..', import.meta.url))
 const run = (args, cwd) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' })
@@ -35,6 +36,20 @@ const foreign = (name) => {
   writeFileSync(join(dir, '.github/workflows/check.yml'), 'name: свой\n')
   return dir
 }
+
+test('update refuses customized managed tools before overwriting any project file', () => {
+  const dir = fresh('local-customization')
+  assert.equal(install(dir).status, 0)
+  const tool = join(dir, 'tools/scale.mjs')
+  const customized = readFileSync(tool, 'utf8') + '\n// owner-specific extension\n'
+  writeFileSync(tool, customized)
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const result = install(dir, '--update')
+  assert.notEqual(result.status, 0)
+  assert.equal(readFileSync(tool, 'utf8'), customized)
+  assert.equal(readFileSync(join(dir, 'package.json'), 'utf8'), before)
+  rmSync(dir, { recursive: true, force: true })
+})
 
 /* Проверки на новом сайте обязаны быть зелёными с первого дня: долг
    собственных стилей набора записан в его базе вёрстки (И171), а не
@@ -138,6 +153,11 @@ test('--update: базы храповиков и CLAUDE.md проекта ост
   writeFileSync(join(dir, 'CLAUDE.md'), 'Этап производства: **3 · Поведение**\n')
   writeFileSync(join(dir, 'tools/css-baseline.json'), '{"fontPx": 7}\n')
   writeFileSync(join(dir, 'tools/check-css.mjs'), '// устаревшая копия\n')
+  // Simulate an unmodified installed older release, not a local customization.
+  const recordPath = join(dir, '.site-kit-install.json')
+  const record = JSON.parse(readFileSync(recordPath, 'utf8'))
+  record.files['tools/check-css.mjs'] = createHash('sha256').update('// устаревшая копия\n').digest('hex')
+  writeFileSync(recordPath, JSON.stringify(record))
   const r = install(dir, '--update')
   assert.equal(r.status, 0, r.stderr)
   assert.equal(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), 'Этап производства: **3 · Поведение**\n', 'этап проекта не сбрасывается')

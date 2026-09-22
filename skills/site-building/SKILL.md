@@ -18,6 +18,7 @@ description: Создавать новые сайты и витрины, исп�
 | Новый сайт | [production.md](references/production.md): бриф → структура → направление → сценарии → проверка |
 | Исправить или переделать готовый сайт | [renovation.md](references/renovation.md): исходное состояние, причины дефектов, сохранение удачного, постепенная замена |
 | Выбрать дизайн в диалоге или настройках | [design-studio.md](references/design-studio.md): диалог и живые варианты, независимые настройки, подтверждение |
+| Реализовать сохранение, миграции, утверждение и чистый экспорт | [studio-runtime.md](references/studio-runtime.md): исполняемое переносимое ядро, адаптер сайта, безопасное обновление и контрольный проект |
 | Payload + Vendure, WordPress, OpenCart | [platforms.md](references/platforms.md): границы общего слоя и конкретного адаптера |
 | Готовые кнопки, меню, иконки, блоки | [reuse.md](references/reuse.md): проверенные источники, выбор поведения и ограниченное копирование |
 | Каталог, варианты, корзина, checkout, кэш | [commerce-patterns.md](references/commerce-patterns.md): принятые решения из Commerce/Hydrogen/Medusa/Paper и исполняемые ресурсы |

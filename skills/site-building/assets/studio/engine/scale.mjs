@@ -30,7 +30,8 @@
  * Разбор, числа и источники — `.claude/skills/craft/references/scale.md`.
  */
 
-import { PREFIX, BREAKPOINTS } from './kit-config.mjs'
+const PREFIX = {"font":"--fs-","space":"--sp-","layer":"--layer-"}
+const BREAKPOINTS = [1080,820,560]
 import { RHYTHM, AIR, TARGET, TEXT, TYPE, CONTROL, LAYOUT, SHAPE } from './thresholds.mjs'
 
 /** Корень браузера. Поле пишется в rem (правило «поле растёт с буквами»),

@@ -69,7 +69,7 @@ export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 
 const VALUE = [
   { rx: new RegExp(`^--${FAMS(COLOUR_FAMILIES)}-\\d{1,2}$`), family: 'ступень цвета', by: 'tools/palette.mjs' },
   { rx: new RegExp(`^--on-${FAMS(COLOUR_FAMILIES)}-\\d{1,2}$`), family: 'знак на ступени', by: 'tools/palette.mjs' },
-  { rx: /^--a-press$/, family: 'ступень нажатия', by: 'tools/palette.mjs' },
+  { rx: /^--(?:on-)?a-press$/, family: 'ступень нажатия и знак на ней', by: 'tools/palette.mjs' },
   { rx: /^--sp-\d{1,2}$/, family: 'ступень ритма', by: 'tools/scale.mjs' },
   { rx: /^--fs-(xs|sm|base|h[1-3]|2?xl|2?xs)$/, family: 'ступень размера', by: 'tools/scale.mjs' },
 ]

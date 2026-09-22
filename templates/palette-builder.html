@@ -644,7 +644,12 @@ const atStep = (wantL, chroma, hue) => {
 
 /* Знак на заливке выбирается, а не хранится: у трёх чужих наборов из трёх
    назначенный ими знак на кнопке не читался. */
-const inkOn = (bg) => (ratio('#FFFFFF', bg) >= ratio('#111111', bg) ? '#FFFFFF' : '#111111')
+const inkOn = (bg) => {
+  const preferred = ratio('#FFFFFF', bg) >= ratio('#111111', bg) ? '#FFFFFF' : '#111111'
+  // Mid-tone backgrounds can fail 4.5 with BOTH white and soft black.
+  // Pure black is limited to this measured on-colour role, never page ink.
+  return ratio(preferred, bg) >= NEED.text ? preferred : '#000000'
+}
 
 /* ── Форма лестницы ──────────────────────────────────────────────────── */
 
@@ -735,7 +740,10 @@ function scale(paper, ink, seed, mode, on = null) {
      возьмёт пол; упёрлись в краску — оставляем как есть, это уже
      настоящая находка, и её назовёт замер. */
   const stepped = (want, cap, i) => {
-    let target = cap === null ? want : behind(want, cap)
+    // A reference profile is a preference, not permission to move backwards
+    // when the owner's paper is darker/lighter than the reference paper.
+    const monotone = ahead(want, prev + dir * STEP_MIN)
+    let target = cap === null ? monotone : behind(monotone, cap)
     let hex = atStep(target, chromaAt(i), hue)
     for (let n = 0; n < 12 && dir * (lightness(hex) - prev) < STEP_MIN; n += 1) {
       const next = target + dir * 0.1
@@ -751,9 +759,13 @@ function scale(paper, ink, seed, mode, on = null) {
     if (!seed && i === 11) return ink
     if (seed && i === 8) { prev = solid; return seed }
     if (seed && i === 9) { prev = solid + gap; return atLightness(seed, toward, solid + gap) }
-    if (i < 8) return stepped(want, seed ? solid - dir * 1.5 : null, i)
+    // Reserve room for EVERY remaining pre-solid step, including sRGB
+    // quantisation. One fixed cap made the last four steps of lime identical.
+    if (i < 8) return stepped(want, seed ? solid - dir * (8 - i) * (STEP_MIN + .25) : null, i)
     if (i === 8) return stepped(want, null, i)
-    last = ahead(want, last + gap)
+    // Bright accents must leave two distinct text steps before the gamut end.
+    const endpoint = dir < 0 ? .2 + (11 - i) * .8 : 99.8 - (11 - i) * .8
+    last = behind(ahead(want, last + gap), endpoint)
     return stepped(last, null, i)
   })
   return withMutedText(row, on ?? row[1], hue, chromaAt(10), dir)
@@ -907,6 +919,8 @@ function roles(rawSet, mode) {
   a.forEach((hex, i) => { out[`--a-${i + 1}`] = hex })
   out['--on-a-9'] = inkOn(a[8])
   out['--a-press'] = press(a, mode)
+  out['--on-a-10'] = inkOn(a[9])
+  out['--on-a-press'] = inkOn(out['--a-press'])
 
   for (const job of STATUS) {
     if (!set[job]) continue
@@ -1031,13 +1045,15 @@ function auditPalette(rawSeed, mode) {
   want('приглушённый текст на карточке', ratio(n[10], n[1]), NEED.text)
   want('цена фирменным на карточке', ratio(a[10], n[1]), NEED.text)
   want('знак на кнопке покупки', ratio(inkOn(a[8]), a[8]), NEED.text)
+  want('текст кнопки при наведении', ratio(inkOn(a[9]), a[9]), NEED.text)
+  want('текст нажатой кнопки', ratio(inkOn(pressed), pressed), NEED.text)
   want('кольцо фокуса на листе', ratio(ring, n[0]), NEED.control)
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
      Красный до 20.09.2026 не мерил никто (И190), а скидка, «мало осталось»
      и «в наличии» не существовали вовсе до 21.09.2026. */
-  const jobs = { error: 'ошибки', sale: 'скидки', warn: 'предупреждения', ok: 'наличия' }
+  const jobs = { error: 'ошибки', sale: 'скидки', warn: 'предупреждения', ok: 'наличия', info: 'информации' }
   for (const job of STATUS) {
     if (!seed[job]) continue
     const row = scale(seed.paper, seed.ink, seed[job], mode, n[1])

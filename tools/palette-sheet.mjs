@@ -105,13 +105,13 @@ const рука = () => `
             Купить · 24,90 лв
             <small>--a-9 на фоне, --on-a-9 ${темы[тема]['--on-a-9']} · ${ratio(темы[тема]['--on-a-9'], темы[тема]['--a-9']).toFixed(1)}</small>
           </div>
-          <div class="кнопка" style="background:${темы[тема]['--a-10']};color:${темы[тема]['--on-a-9']}">
+          <div class="кнопка" style="background:${темы[тема]['--a-10']};color:${темы[тема]['--on-a-10']}">
             под рукой
-            <small>--a-10 ${темы[тема]['--a-10']} · наведение</small>
+            <small>--on-a-10 ${темы[тема]['--on-a-10']} · --a-10 ${темы[тема]['--a-10']} · наведение</small>
           </div>
-          <div class="кнопка" style="background:${темы[тема]['--a-press']};color:${темы[тема]['--on-a-9']}">
+          <div class="кнопка" style="background:${темы[тема]['--a-press']};color:${темы[тема]['--on-a-press']}">
             нажата
-            <small>--a-press ${темы[тема]['--a-press']} · вдвое дальше наведения</small>
+            <small>--on-a-press ${темы[тема]['--on-a-press']} · --a-press ${темы[тема]['--a-press']} · вдвое дальше наведения</small>
           </div>
         </div>
       </div>`).join('')}

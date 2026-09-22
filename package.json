@@ -4,6 +4,8 @@
   "type": "module",
   "description": "Набор вёрстки: скиллы, шкалы, примитивы и проверки-храповики. Это описание самого набора, в проекты не едет.",
   "scripts": {
+    "studio:sync": "node tools/sync-studio-assets.mjs",
+    "studio:check": "node tools/sync-studio-assets.mjs --check",
     "check:skill": "node skills/site-building/scripts/check-resources.mjs",
     "stage": "node tools/stage.mjs",
     "check:stage": "node tools/stage.mjs --gate",

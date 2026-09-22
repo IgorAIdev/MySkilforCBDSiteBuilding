@@ -16,7 +16,7 @@
  * Закон — `SKILL.md`, «Палитра — это шкала из двенадцати ступеней».
  */
 
-import { readFileSync } from 'node:fs'
+import profile from './palette-profile.json' with { type: 'json' }
 import { CONTRAST, COLOUR } from './thresholds.mjs'
 
 /* Профиль светлоты ступеней — L* эталонной шкалы `sand` пакета
@@ -201,7 +201,7 @@ let cache = null
 const FAMILIES = () => {
   if (!cache) {
     cache = JSON.parse(
-      readFileSync(new URL('palette-profile.json', import.meta.url), 'utf8'),
+      JSON.stringify(profile),
     ).scales
   }
   return cache

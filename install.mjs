@@ -31,6 +31,7 @@
  */
 
 import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
@@ -152,6 +153,31 @@ for (const [flag, value, file] of [
 
 const moved = []
 const kept = []
+const installRecord = '.site-kit-install.json'
+const normalizedHash = path => createHash('sha256').update(readFileSync(path, 'utf8').replace(/\r\n/g, '\n')).digest('hex')
+const previousFiles = has(installRecord) ? JSON.parse(readFileSync(join(OUT, installRecord), 'utf8')).files : {}
+const toolFiles = []
+const kitOnlyTools = new Set(['tools/sync-studio-assets.mjs'])
+function collectTools(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) collectTools(path)
+    else { const name = path.slice(SRC.length + 1).replace(/\\/g, '/'); if (!kitOnlyTools.has(name)) toolFiles.push(name) }
+  }
+}
+collectTools(join(SRC, 'tools'))
+if (MODE !== 'new' && !FORCE) {
+  const conflicts = toolFiles.filter(path => {
+    if (!has(path) || /-baseline\.json$/.test(path)) return false
+    const actual = normalizedHash(join(OUT, path))
+    return actual !== normalizedHash(join(SRC, path)) && actual !== previousFiles[path]
+  })
+  if (conflicts.length) {
+    console.error('Update refused before any writes: locally modified or unversioned tools:\n' + conflicts.join('\n'))
+    console.error('Merge these changes deliberately. --force is only for an explicitly approved replacement with a backup.')
+    process.exit(1)
+  }
+}
 
 /** Копия папки набора в проект. `keep` — файлы, которые в проекте уже есть
  *  и остаются его: базы храповиков при обновлении и аудите. */
@@ -160,6 +186,7 @@ function copyDir(name, keep = () => false) {
   const walk = (dir) => {
     for (const entry of readdirSync(dir)) {
       const from = join(dir, entry)
+      if (kitOnlyTools.has(from.slice(SRC.length + 1).replace(/\\/g, '/'))) continue
       const to = join(OUT, from.slice(SRC.length + 1))
       if (statSync(from).isDirectory()) { mkdirSync(to, { recursive: true }); walk(from); continue }
       if (existsSync(to) && keep(to.slice(OUT.length + 1))) { kept.push(to.slice(OUT.length + 1)); continue }
@@ -177,6 +204,7 @@ const isBaseline = (p) => /^tools\/[\w-]+-baseline\.json$/.test(p.replace(/\\/g,
    долгом — его собственные, иначе долг «прощён» и первый же прогон зелёный
    на том, что вчера было красным. */
 copyDir('tools', MODE === 'new' ? () => false : isBaseline)
+writeFileSync(join(OUT, installRecord), JSON.stringify({ version: 1, files: Object.fromEntries(toolFiles.filter(path => !isBaseline(path)).map(path => [path, normalizedHash(join(SRC, path))])) }, null, 2) + '\n')
 
 /* Обновление не трогает проектные документы, но отсутствующий документ не
    является проектным: без него скилл ссылается в пустоту, а check:rules

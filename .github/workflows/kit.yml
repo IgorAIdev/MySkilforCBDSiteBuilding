@@ -36,6 +36,7 @@ jobs:
       # Замок: проверка не живёт без правила, правило — без дефекта.
       - run: node tools/check-rules.mjs
       - run: node skills/site-building/scripts/check-resources.mjs
+      - run: node tools/sync-studio-assets.mjs --check
       - run: node tools/pro-check.mjs
       # Инструменты на самом наборе: у него есть только `styles/`, и всё
       # обязано молчать нулём — иначе новый проект начинается красным.
@@ -81,3 +82,35 @@ jobs:
           path: |
             dist/component-review
             selftest/component-preview/dist/lighthouse-reports
+
+  studio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - run: node selftest/prepare-studio-pilot.mjs "$RUNNER_TEMP/north-studio"
+      - run: npm ci --no-audit --no-fund
+        working-directory: ${{ runner.temp }}/north-studio
+      - run: npx --no-install playwright install --with-deps chromium
+        working-directory: ${{ runner.temp }}/north-studio
+      - name: Verify a separately installed studio and its clean export
+        working-directory: ${{ runner.temp }}/north-studio
+        run: |
+          node server.mjs > server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3066/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run verify
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: studio-review
+          retention-days: 7
+          path: |
+            ${{ runner.temp }}/north-studio/review
+            ${{ runner.temp }}/north-studio/server.log

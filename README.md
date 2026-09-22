@@ -3,6 +3,8 @@
 Основная локальная папка владельца: `D:/BusinessProject/SkillSiteBuilding`.
 Общий репозиторий: [IgorAIdev/SiteBuildingSkill](https://github.com/IgorAIdev/SiteBuildingSkill).
 Актуальный разбор состава и границ: [аудит 22 сентября](docs/audit-2026-09-22.md).
+Перенос настроек и экспорта: [реализация и проверки ядра](docs/portable-studio-2026-09-22.md),
+[инструкция подключения](skills/site-building/references/studio-runtime.md).
 
 Скилл предназначен для новых сайтов, исправления существующих и подготовки
 дизайна к дальнейшей разработке. Основной профиль — Payload + Vendure;
@@ -225,7 +227,7 @@ https://github.com/IgorAIdev/SiteBuildingSkill» — он склонирует �
 | --- | --- | --- |
 | краски, которые называет заказчик, на тему | 3: paper, ink, accent; по желанию — error, sale, warn, ok, info | `templates/palette-starter.json`, `tools/palette.mjs` |
 | семей смысла | 7: нейтраль, марка, красный «нет в наличии», плашка скидки, оранжевый «мало осталось», зелёный «в наличии», синий «просто сведение» | `tools/palette.mjs`, STATUS |
-| переменных выпускается на тему | 49 | `roles()` в `tools/palette.mjs` |
+| переменных выпускается на тему | 51 | `roles()` в `tools/palette.mjs` |
 | наборов-образцов | 7: Аптека · Олива · Мек остров · Тёплый лист · Ледяной шалфей · Аптечный синий · Латунь на угле | `templates/palette.json` |
 | на сайте сейчас | Латунь на угле | `styles/palette.json` |
 | команды | `palette` · `check:palette` · `palette:stand` · `palette:sheet` · `palette:builder` | `scripts.mjs` |

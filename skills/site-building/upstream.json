@@ -364,6 +364,51 @@
       "local": "assets/quality/package-fragment.json",
       "description": "Pinned tested development-only Lighthouse toolchain; merge rather than replace target package.json.",
       "sha256": "add469d2cb128e0d4e4861e6adbbeff58a0401ff7d1e7ce4244b98f43805c06c"
+    },
+    {
+      "local": "assets/studio/snapshot.mjs",
+      "sha256": "8f436edbd46f5c020e0cbc65604e10cb8b6f4ab476aa3f7cde5d2f6da43e75cb",
+      "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
+    },
+    {
+      "local": "assets/studio/store.mjs",
+      "sha256": "85a11457f6c647acd5f9fff7bfe34b107fee941328a1421e99853d4616403e8b",
+      "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
+    },
+    {
+      "local": "assets/studio/document.mjs",
+      "sha256": "1b302fa1ae9e7217c9e3c478aba65652f2b8d9bad3102610554d8a23cb03a3fc",
+      "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
+    },
+    {
+      "local": "assets/studio/handoff.mjs",
+      "sha256": "218ffdc3ae87e15d3334321863969048429712cfe721609524356d245fb93aff",
+      "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
+    },
+    {
+      "local": "assets/studio/selection.mjs",
+      "sha256": "f25e6fd7285445d9cedd2dbb3ce07d678a22096133a082124caf4a020a78f7f4",
+      "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
+    },
+    {
+      "local": "assets/studio/engine/scale.mjs",
+      "sha256": "ffe775d4d96f03926909b0d304b50141fdebc8cfdc97d8a18c1c685734c5105e",
+      "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
+    },
+    {
+      "local": "assets/studio/engine/palette.mjs",
+      "sha256": "a2501e38f141b295c15dc1474bb2eed7eabb4c39a72028302c703319c759edf9",
+      "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
+    },
+    {
+      "local": "assets/studio/engine/thresholds.mjs",
+      "sha256": "bccae2bb4f9a1b71640190be7220c356e9b9b01961664fa341e03b77a519642b",
+      "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
+    },
+    {
+      "local": "assets/studio/engine/palette-profile.json",
+      "sha256": "b035500c6154a6bbba47be54b62764637b87d8db7b4db29b5e9721e22e86ab7e",
+      "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
     }
   ]
 }
