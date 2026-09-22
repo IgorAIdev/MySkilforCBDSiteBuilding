@@ -28,6 +28,9 @@
  *   dataInView     компонент сам берёт список из данных, а не получает его
  *   moneyLiteral   валюта числом в вёрстке — на другом рынке не переедет
  *   engineInShared движок протёк в общий слой (next, react, {{ }}, <?php)
+ *   backendInView  компонент сам ходит в бекенд: SDK Vendure/Payload/GraphQL
+ *                  или адаптер сайта (lib/vendure, lib/cms, sources) — И248
+ *   moneyMath      компонент считает деньги сам (/ 100, toFixed) — И248
  *
  * Режим храповика: падает, только если нарушений стало БОЛЬШЕ. Сегодняшний
  * долг записан в `tools/port-baseline.json` и чинится в день переноса —
@@ -334,10 +337,56 @@ for (const dir of BLOCK_DIRS) {
 for (const dir of SHARED) {
   for (const rel of walk(dir, (n) => /\.(css|svg|js|mjs|html)$/.test(n))) {
     const text = read(rel)
-    for (const m of text.matchAll(/composes\s*:|from\s*'next\/|from\s*'react'|\{\{|<\?php/g)) {
+    for (const m of text.matchAll(/composes\s*:|from\s*['"](?:next\/|react['"])|require\(\s*['"](?:next\/|react['"])|\{\{|<\?php/g)) {
       found.engineInShared.push(`${rel}:${lineOf(text, m.index)}  ${m[0]} — движок в общем слое`)
     }
   }
+}
+
+/* ── 7 · backendInView ─────────────────────────────────────────────────
+ *
+ * Компонент, который сам ходит в Vendure или Payload, прибит к ним так же,
+ * как компонент, берущий список из `lib/` (dataInView), — только крепче:
+ * на другом бекенде его переписывают целиком. Страница (`pages` в конфиге)
+ * за данными ходит, компонент получает готовое (И248). Ввоз ТИПА
+ * (`import type`) — не находка: тип переезжает вместе с формой данных.
+ */
+/* Меряются только файлы ОТРИСОВКИ (.jsx/.tsx): модуль данных рядом с ними
+   (`data.ts`, `api.ts`) и есть серверный слой, ходить в бекенд — его работа.
+   Пакет узнаётся только по голому имени: `./graphql` — файл документов
+   самого сайта, а не пакет `graphql` (ложная находка прогона по стартеру
+   Vendure). Адаптер сайта — по пути `lib/…` или `sources`. */
+const BACKEND_PKG = /^(?:@vendure\/|@payloadcms\/|payload(?:\/|$)|@apollo\/client|graphql-request|urql$|@urql\/|graphql$|@medusajs\/|@shopify\/)/
+const ADAPTER = /(?:^|\/)(?:lib|sources)\/(?:vendure|payload|cms|commerce|shopify|medusa)(?:[/.]|$)|(?:^|\/)sources(?:\/|$)/
+for (const rel of COMPONENT_DIRS.flatMap((d) => walk(d, (n) => /\.[cm]?[jt]sx$/.test(n)))) {
+  if (rel.split(/[\\/]/).includes('studio')) continue
+  const code = strip(read(rel))
+  for (const m of code.matchAll(/import\s+(type\s+)?[^'"]*?from\s*['"]([^'"]+)['"]|require\(\s*['"]([^'"]+)['"]\s*\)/g)) {
+    if (m[1]) continue
+    const raw = m[2] ?? m[3]
+    const local = /^(?:\.|\/|@\/|~\/)/.test(raw)
+    const hit = local ? ADAPTER.test(raw.replace(/^(?:\.\.?\/)+/, '').replace(/^[@~]\//, '')) : BACKEND_PKG.test(raw) || ADAPTER.test(raw)
+    if (hit) found.backendInView.push(`${rel}:${lineOf(code, m.index)}  ${raw} — компонент ходит в бекенд сам; данные передаёт страница`)
+  }
+}
+
+/* ── 8 · moneyMath ─────────────────────────────────────────────────────
+ *
+ * Цена — целое в минорных единицах с точностью бекенда; делит и округляет её
+ * ОДНА функция адаптера (`formatMoney`), а не компонент. `price / 100` и
+ * `total.toFixed(2)` в компоненте ломаются на валюте без копеек, на иной
+ * точности сервера и на нуле (И248). Признак — деление на 100 или
+ * `toFixed` в строке, где названы деньги.
+ */
+const MONEY = /price|amount|total|subtotal|cost|money|цен|сумм|итог/i
+for (const rel of BLOCK_DIRS.flatMap((d) => walk(d, (n) => /\.[cm]?[jt]sx?$/.test(n)))) {
+  if (rel.split(/[\\/]/).includes('studio')) continue
+  const code = strip(read(rel))
+  code.split('\n').forEach((line, i) => {
+    if (!MONEY.test(line)) return
+    const hit = line.match(/\/\s*100\b|\.toFixed\(\s*\d\s*\)/)
+    if (hit) found.moneyMath.push(`${rel}:${i + 1}  ${hit[0]} — денежная арифметика в компоненте; делит и форматирует адаптер`)
+  })
 }
 
 /* ── счёт ─────────────────────────────────────────────────────────────── */
@@ -353,6 +402,8 @@ const NAMES = {
   dataInView: 'компонент сам берёт список из данных — на другом источнике его переписывать',
   moneyLiteral: 'валюта числом в вёрстке — другой рынок её не подхватит',
   engineInShared: 'движок протёк в общий слой — он перестал быть переносимым',
+  backendInView: 'компонент сам ходит в бекенд (Vendure, Payload, GraphQL) — на другом источнике его переписывать целиком',
+  moneyMath: 'компонент считает деньги сам — делить и форматировать цену должен адаптер',
 }
 
 if (process.argv.includes('--list')) {

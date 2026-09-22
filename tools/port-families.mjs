@@ -13,6 +13,7 @@
 export const PORT_FAMILIES = [
   'varGone', 'twoValues', 'markupDrift',
   'dataInView', 'moneyLiteral', 'engineInShared',
+  'backendInView', 'moneyMath',
 ]
 
 /** Пустая база: ноль по каждой семье. На новом проекте долга нет, и первое
