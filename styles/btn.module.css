@@ -19,18 +19,21 @@
  */
 
 .btn{
+  /* Стиль кнопки — роли `--ctrl-btn-*` из каталога (`styles/buttons.css`,
+     И252); без каталога кнопка стоит на запасных значениях — «Пилюля». */
   --btn-h:var(--ctrl-h);
   --btn-fs:var(--ctrl-fs);
-  --btn-weight:600;
-  --btn-case:none;
-  --btn-track:normal;
-  --btn-r:var(--r-ctrl);
-  --btn-bg:var(--quiet);
+  --btn-weight:var(--ctrl-btn-weight, 600);
+  --btn-case:var(--ctrl-btn-case, none);
+  --btn-track:var(--ctrl-btn-track, normal);
+  --btn-r:var(--ctrl-btn-r, var(--r-ctrl));
+  --btn-bg:var(--ctrl-btn-fill, var(--quiet));
   --btn-bg-on:var(--quiet-on);
   --btn-ink:var(--ink);
-  --btn-edge:transparent;
+  --btn-edge:var(--ctrl-btn-edge, transparent);
+  --btn-line:var(--line-w);
   --btn-sh:none;
-  --btn-press:scale(.97);
+  --btn-press:var(--ctrl-btn-press, scale(.97));
 
   display:inline-flex;align-items:center;justify-content:center;
   gap:calc(var(--btn-h) * .2);
@@ -44,7 +47,7 @@
   line-height:1.2;letter-spacing:var(--btn-track);text-transform:var(--btn-case);
   text-align:center;text-decoration:none;
   color:var(--btn-ink);background:var(--btn-bg);
-  border:var(--line-w) solid var(--btn-edge);border-radius:var(--btn-r);
+  border:var(--btn-line) solid var(--btn-edge);border-radius:var(--btn-r);
   box-shadow:var(--btn-sh);
   cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
   /* Нажимаемое отвечает сразу (И229): только нажатие и цвет, не раскладка. */
@@ -53,10 +56,13 @@
 
 /* Громкая — главное действие экрана: заливка марки и единственный полный круг. */
 .btn[data-voice='loud']{
-  --btn-bg:var(--pop);
-  --btn-bg-on:color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
-  --btn-ink:var(--on-pop);
-  --btn-r:var(--r-pop);
+  --btn-bg:var(--ctrl-btn-fill-pop, var(--pop));
+  --btn-bg-on:var(--ctrl-btn-on-pop, color-mix(in oklab, var(--pop), var(--ink) var(--state-press)));
+  --btn-ink:var(--ctrl-btn-ink-pop, var(--on-pop));
+  --btn-edge:var(--ctrl-btn-edge-pop, transparent);
+  --btn-line:var(--ctrl-btn-line-pop, var(--line-w));
+  --btn-r:var(--ctrl-btn-r-pop, var(--r-pop));
+  --btn-sh:var(--ctrl-btn-sh, none);
 }
 
 .btn[data-size='sm']{--btn-h:var(--ctrl-h-sm)}

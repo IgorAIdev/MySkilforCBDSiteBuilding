@@ -48,6 +48,8 @@ jobs:
       - run: node tools/check-palette.mjs && node tools/palette-css.mjs --check
       # Лист знаков собран из знаков набора и не отстал (И249).
       - run: node tools/icons.mjs --check
+      # Каталог кнопок: замер на палитре набора и выпуск не отстал (И252).
+      - run: node tools/buttons.mjs --check
       - run: node tools/check-code.mjs
       - run: node tools/check-port.mjs
       - run: node tools/check-test.mjs

@@ -6,6 +6,7 @@
 /mood-stand.html
 /face-stand.html
 /proof-stand.html
+/button-stand.html
 node_modules/
 dist/
 .lighthouseci/

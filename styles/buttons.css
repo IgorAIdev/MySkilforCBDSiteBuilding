@@ -1,0 +1,175 @@
+/* Собран tools/buttons.mjs из styles/buttons.json. Руками не правят.
+   Стиль — роли одной кнопки основы (styles/btn.module.css). На корне —
+   первый стиль; выбрать другой — [data-button="имя"] на документе.
+   Стилей: 9 — Пилюля · Строгий угол · Контур · Заглавные · С тенью · Тонкий люкс · Аптека · Округлый · Плотный.
+   Не выпущены — не прошли замер на палитре сайта: Мягкий тон. */
+
+:root{
+  --ctrl-btn-r: 8px;
+  --ctrl-btn-r-pop: var(--r-pop);
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: scale(.97);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="Пилюля"]{
+  --ctrl-btn-r: 8px;
+  --ctrl-btn-r-pop: var(--r-pop);
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: scale(.97);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="Строгий угол"]{
+  --ctrl-btn-r: 0px;
+  --ctrl-btn-r-pop: 0px;
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: uppercase;
+  --ctrl-btn-track: 0.04em;
+  --ctrl-btn-fill: transparent;
+  --ctrl-btn-edge: var(--edge);
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: translateY(1px);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="Контур"]{
+  --ctrl-btn-r: 8px;
+  --ctrl-btn-r-pop: 8px;
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: scale(.97);
+  --ctrl-btn-fill-pop: transparent;
+  --ctrl-btn-ink-pop: var(--pop-ink);
+  --ctrl-btn-edge-pop: var(--pop);
+  --ctrl-btn-on-pop: color-mix(in srgb, var(--pop) 14%, transparent);
+  --ctrl-btn-line-pop: 2px;
+}
+
+[data-button="Заглавные"]{
+  --ctrl-btn-r: 4px;
+  --ctrl-btn-r-pop: 4px;
+  --ctrl-btn-weight: 700;
+  --ctrl-btn-case: uppercase;
+  --ctrl-btn-track: 0.05em;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: scale(.97);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="С тенью"]{
+  --ctrl-btn-r: 12px;
+  --ctrl-btn-r-pop: 12px;
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: transparent;
+  --ctrl-btn-edge: var(--edge);
+  --ctrl-btn-sh: var(--sh-raised);
+  --ctrl-btn-press: translateY(1px);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="Тонкий люкс"]{
+  --ctrl-btn-r: 0px;
+  --ctrl-btn-r-pop: 0px;
+  --ctrl-btn-weight: 500;
+  --ctrl-btn-case: uppercase;
+  --ctrl-btn-track: 0.05em;
+  --ctrl-btn-fill: transparent;
+  --ctrl-btn-edge: var(--edge);
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: none;
+  --ctrl-btn-fill-pop: transparent;
+  --ctrl-btn-ink-pop: var(--pop-ink);
+  --ctrl-btn-edge-pop: var(--pop);
+  --ctrl-btn-on-pop: color-mix(in srgb, var(--pop) 14%, transparent);
+  --ctrl-btn-line-pop: 2px;
+}
+
+[data-button="Аптека"]{
+  --ctrl-btn-r: 8px;
+  --ctrl-btn-r-pop: 8px;
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: scale(.97);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="Округлый"]{
+  --ctrl-btn-r: 16px;
+  --ctrl-btn-r-pop: 16px;
+  --ctrl-btn-weight: 600;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: scale(.97);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}
+
+[data-button="Плотный"]{
+  --ctrl-btn-r: 4px;
+  --ctrl-btn-r-pop: 4px;
+  --ctrl-btn-weight: 700;
+  --ctrl-btn-case: none;
+  --ctrl-btn-track: normal;
+  --ctrl-btn-fill: var(--quiet);
+  --ctrl-btn-edge: transparent;
+  --ctrl-btn-sh: none;
+  --ctrl-btn-press: translateY(1px);
+  --ctrl-btn-fill-pop: var(--pop);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-on-pop: color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --ctrl-btn-line-pop: var(--line-w);
+}

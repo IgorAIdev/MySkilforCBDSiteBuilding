@@ -81,3 +81,15 @@ test('npm run palette refuses to write a set the audit rejects, and leaves the o
     assert.equal(readFileSync(join(dir, 'styles/palette.css'), 'utf8'), '/* old */\n')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test('--edge — the control edge that holds 3 : 1 on every background 1–5; --border keeps its look (И252)', () => {
+  for (const [name, set] of Object.entries(shipped)) {
+    for (const [mode, paints] of themes(set)) {
+      const r = roles(paints, mode)
+      assert.ok(r['--edge'], `${name} · ${mode}: нет --edge`)
+      const worst = Math.min(...[1, 2, 3, 4, 5].map((i) => ratio(r['--edge'], r[`--n-${i}`])))
+      assert.ok(worst >= 3, `${name} · ${mode}: --edge ${r['--edge']} даёт ${worst.toFixed(2)}`)
+      assert.ok(ratio(r['--border'], r['--n-2']) >= 3, `${name} · ${mode}: --border на поле`)
+    }
+  }
+})

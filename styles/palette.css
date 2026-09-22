@@ -54,6 +54,7 @@
   --on-info-9: light-dark(#111111, #111111);
   --line: light-dark(#DAD9D6, #3F3931);
   --border: light-dark(#8F8C88, #756C5E);
+  --edge: light-dark(#64635F, #82796C);
   --ring: light-dark(#9A7B3F, #B8955A);
 }
 
@@ -108,5 +109,6 @@
   --on-info-9: light-dark(#111111, #111111);
   --line: light-dark(#DAD9D6, #3F3931);
   --border: light-dark(#8F8C88, #756C5E);
+  --edge: light-dark(#64635F, #82796C);
   --ring: light-dark(#9A7B3F, #B8955A);
 }

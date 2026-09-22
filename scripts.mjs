@@ -34,6 +34,11 @@ export const SCRIPTS = {
   /* Лист знаков (И249): рисунок каждого знака — в одном месте, выпуск и сверка
      тем же устройством, что у палитры и шкал. */
   icons: 'node tools/icons.mjs',
+  /* Каталог стилей кнопки (И252): стиль — роли одной кнопки основы; выпуск
+     только после замера на палитре сайта, стенд — выбор глазами. */
+  buttons: 'node tools/buttons.mjs',
+  'check:buttons': 'node tools/buttons.mjs --check',
+  'button:stand': 'node tools/button-stand.mjs',
   'check:icons': 'node tools/icons.mjs --check',
   scale: 'node tools/scale-css.mjs',
   'check:scale': 'node tools/check-scale.mjs && node tools/scale-css.mjs --check',

@@ -398,7 +398,10 @@ const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700
  *  содержимого (M3), но не ниже Lc 30 (APCA) и не ниже 3 : 1 для «нет в
  *  наличии» (замечание проекта к M3): коридор 0.38…0.5 непрозрачности.
  *  Кольцо фокуса 2px и не ниже 3 : 1 (Spectrum, WCAG 2.2 1.4.11 / 2.4.13). */
-const STATE = { hover: [0.04, 0.08], press: [0.08, 0.16], off: [0.38, 0.5], focus: 0.1, drag: 0.16, ring: 2 }
+/*  Орган, закрашенный вуалью или тоном, виден на своём полу от 1.15 : 1 —
+ *  замер набора (craft, controls.md, «Кнопка: голос»): 1.10 не видно, 1.15
+ *  видно; норматива нет. Им же меряет семья `sunk` в check:craft. */
+const STATE = { hover: [0.04, 0.08], press: [0.08, 0.16], off: [0.38, 0.5], focus: 0.1, drag: 0.16, ring: 2, visible: 1.15 }
 
 /** Знаки (слой 11): Carbon 16 / 20 / 24 / 32, Spectrum 18 на десктопе / 22 под
  *  пальцем, M3 24 при цели 48; цель у знака без текста — не меньше 44
@@ -952,6 +955,11 @@ function roles(rawSet, mode) {
      кольцо опознают орган управления — и потому берутся замером. */
   out['--line'] = n[5]
   out['--border'] = firstReaching(n, n[1], NEED.control, 6)
+  /* Кромка органа, который стоит на ЛЮБОМ полу (тихая кнопка с кромкой):
+     3 : 1 на фонах 1–5. `--border` подобран к полю (ступень 2) и на светлой
+     странице даёт 2,56 — поля ввода стоят на подложке и облик не меняют;
+     органы на полу берут эту роль (И252). */
+  out['--edge'] = firstReaching(n, GROUNDS(n), NEED.control, 6)
   out['--ring'] = firstReaching(a, GROUNDS(n), NEED.control, 7)
   return out
 }
@@ -1068,6 +1076,8 @@ function auditPalette(rawSeed, mode) {
   want('текст нажатой кнопки', ratio(inkOn(pressed), pressed), NEED.text)
   want('кольцо фокуса на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(ring, bg))), NEED.control)
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
+  const edge = firstReaching(n, GROUNDS(n), NEED.control, 6)
+  want('кромка органа на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(edge, bg))), NEED.control)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
      Красный до 20.09.2026 не мерил никто (И190), а скидка, «мало осталось»

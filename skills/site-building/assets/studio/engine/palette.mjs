@@ -495,6 +495,11 @@ export function roles(rawSet, mode) {
      кольцо опознают орган управления — и потому берутся замером. */
   out['--line'] = n[5]
   out['--border'] = firstReaching(n, n[1], NEED.control, 6)
+  /* Кромка органа, который стоит на ЛЮБОМ полу (тихая кнопка с кромкой):
+     3 : 1 на фонах 1–5. `--border` подобран к полю (ступень 2) и на светлой
+     странице даёт 2,56 — поля ввода стоят на подложке и облик не меняют;
+     органы на полу берут эту роль (И252). */
+  out['--edge'] = firstReaching(n, GROUNDS(n), NEED.control, 6)
   out['--ring'] = firstReaching(a, GROUNDS(n), NEED.control, 7)
   return out
 }
@@ -611,6 +616,8 @@ export function auditPalette(rawSeed, mode) {
   want('текст нажатой кнопки', ratio(inkOn(pressed), pressed), NEED.text)
   want('кольцо фокуса на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(ring, bg))), NEED.control)
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
+  const edge = firstReaching(n, GROUNDS(n), NEED.control, 6)
+  want('кромка органа на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(edge, bg))), NEED.control)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
      Красный до 20.09.2026 не мерил никто (И190), а скидка, «мало осталось»
