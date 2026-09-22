@@ -19,7 +19,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { toCss } from './palette.mjs'
+import { toCss, auditPalette } from './palette.mjs'
 
 const FROM = path.resolve('styles/palette.json')
 const TO = path.resolve('styles/palette.css')
@@ -37,7 +37,23 @@ if (!names.length) {
   process.exit(1)
 }
 
-const css = toCss(sets)
+let css
+try { css = toCss(sets) } catch (e) {
+  console.error(`✗ ${e.message}`)
+  process.exit(1)
+}
+
+/* Выпускается только набор, прошедший замер (И246): раньше команда писала
+   палитру с кольцом фокуса 2,31 : 1 на карточке и схлопнутой лестницей,
+   а ловил это только `check:palette` — уже после записи. */
+const rejected = names.flatMap((name) => ['light', 'dark']
+  .filter((mode) => sets[name][mode])
+  .flatMap((mode) => auditPalette(sets[name][mode], mode).map((f) => `${name} · ${mode}: ${f.rule} — ${f.got}; нужно ${f.need}`)))
+if (rejected.length) {
+  console.error(`✗ Палитра не выпущена: замер нашёл ${rejected.length}. styles/palette.css не тронут.`)
+  for (const line of rejected.slice(0, 12)) console.error(`    ${line}`)
+  process.exit(1)
+}
 
 if (process.argv.includes('--check')) {
   const was = existsSync(TO) ? readFileSync(TO, 'utf8') : ''

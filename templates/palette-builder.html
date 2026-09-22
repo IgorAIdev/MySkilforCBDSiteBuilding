@@ -503,8 +503,13 @@ const NEED = { text: CONTRAST.text, control: CONTRAST.control, brandApart: COLOU
 
 /* ── Краски: перевод и замер ─────────────────────────────────────────── */
 
+/* Краска читается так, как записана (И246): `#FFF` — белый, а не `#000FFF`;
+   имя цвета, прозрачность и опечатка — отказ с именем, а не молча мусор. */
+const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
 const channels = (hex) => {
-  const n = Number.parseInt(hex.slice(1), 16)
+  if (typeof hex !== 'string' || !HEX.test(hex)) throw new Error(`Не краска: ${JSON.stringify(hex)} — нужна краска вида #RRGGBB или #RGB`)
+  const full = hex.length === 4 ? `#${[...hex.slice(1)].map((c) => c + c).join('')}` : hex
+  const n = Number.parseInt(full.slice(1), 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 const toHex = (parts) =>
@@ -530,15 +535,18 @@ const screenY = (hex) => {
   return 0.2126729 * r + 0.7151522 * g + 0.072175 * b
 }
 const softBlack = (y) => (y < 0.022 ? y + (0.022 - y) ** 1.414 : y)
+/* loClip 0.1 и deltaYmin 0.0005 — как в apca-w3 0.0.98G (И246): с 0.001 и без
+   deltaYmin почти одинаковые краски давали не ноль, а случайное число. */
 const apca = (text, bg) => {
   const yt = softBlack(screenY(text))
   const yb = softBlack(screenY(bg))
+  if (Math.abs(yb - yt) < 0.0005) return 0
   if (yb > yt) {
     const s = (yb ** 0.56 - yt ** 0.57) * 1.14
-    return Math.abs(s < 0.001 ? 0 : (s - 0.027) * 100)
+    return s < 0.1 ? 0 : Math.abs((s - 0.027) * 100)
   }
   const s = (yb ** 0.65 - yt ** 0.62) * 1.14
-  return Math.abs(s > -0.001 ? 0 : (s + 0.027) * 100)
+  return s > -0.1 ? 0 : Math.abs((s + 0.027) * 100)
 }
 const lightness = (hex) => {
   const y = luminance(hex)
@@ -834,10 +842,16 @@ function firstReaching(row, against, need, from) {
   let found = row[from]
   for (let i = from; i < row.length; i += 1) {
     found = row[i]
-    if (ratio(row[i], against) >= need) break
+    if ([against].flat().every((bg) => ratio(row[i], bg) >= need)) break
   }
   return found
 }
+
+/** Фоны, на которых стоит орган: ступени 1–5 нейтрали (у Radix 1–2 — фоны
+ *  страницы, 3–5 — фоны органов). Кольцо фокуса обязано держать 3 : 1 на
+ *  каждой: в тёмной теме карточка — ступень 4, и кольцо, подобранное против
+ *  одной первой, давало на ней 2,31 : 1 (И246). */
+const GROUNDS = (n) => n.slice(0, 5)
 
 /* ── Роли: что из лестницы чем работает ──────────────────────────────── */
 
@@ -938,7 +952,7 @@ function roles(rawSet, mode) {
      кольцо опознают орган управления — и потому берутся замером. */
   out['--line'] = n[5]
   out['--border'] = firstReaching(n, n[1], NEED.control, 6)
-  out['--ring'] = firstReaching(a, n[0], NEED.control, 7)
+  out['--ring'] = firstReaching(a, GROUNDS(n), NEED.control, 7)
   return out
 }
 
@@ -1037,7 +1051,7 @@ function auditPalette(rawSeed, mode) {
   const n = scale(seed.paper, seed.ink, null, mode)
   const a = scale(seed.paper, seed.ink, seed.accent, mode, n[1])
   const pressed = press(a, mode)
-  const ring = firstReaching(a, n[0], NEED.control, 7)
+  const ring = firstReaching(a, GROUNDS(n), NEED.control, 7)
   const bound = firstReaching(n, n[1], NEED.control, 6)
   const hover = Math.abs(lightness(a[9]) - lightness(a[8]))
   const pushed = Math.abs(lightness(pressed) - lightness(a[8]))
@@ -1052,7 +1066,7 @@ function auditPalette(rawSeed, mode) {
   want('знак на кнопке покупки', ratio(inkOn(a[8]), a[8]), NEED.text)
   want('текст кнопки при наведении', ratio(inkOn(a[9]), a[9]), NEED.text)
   want('текст нажатой кнопки', ratio(inkOn(pressed), pressed), NEED.text)
-  want('кольцо фокуса на листе', ratio(ring, n[0]), NEED.control)
+  want('кольцо фокуса на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(ring, bg))), NEED.control)
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
