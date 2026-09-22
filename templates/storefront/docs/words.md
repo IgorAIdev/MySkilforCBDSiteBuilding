@@ -74,7 +74,7 @@
 | Экран | ro | Шаг | en | hu |
 | --- | --- | --- | --- | --- |
 | пустая корзина | Coșul este gol | Vedeți uleiurile | Your cart is empty — browse the oils | A kosár üres — nézze meg az olajokat |
-| поиск без результатов | Niciun rezultat pentru „{q}" | Verificați ortografia sau vedeți toate produsele | No results for “{q}” — check the spelling or see all products | Nincs találat: „{q}" — ellenőrizze a helyesírást, vagy nézze meg az összes terméket |
+| поиск без результатов | Niciun rezultat pentru „{q}” | Verificați ortografia sau vedeți toate produsele | No results for “{q}” — check the spelling or see all products | Nincs találat: „{q}” — ellenőrizze a helyesírást, vagy nézze meg az összes terméket |
 | фильтры без результатов | Niciun produs nu corespunde filtrelor | Ștergeți unul dintre filtre | No products match these filters — clear one | Nincs a szűrőknek megfelelő termék — töröljön egy szűrőt |
 | пустая категория | Nu sunt produse în această categorie | Vedeți toate produsele | There are no products in this category — see all products | Ebben a kategóriában nincs termék — összes termék |
 | нет заказов | Nu aveți încă nicio comandă | Mergeți la magazin | No orders yet — go to the shop | Még nincs rendelése — irány a bolt |
