@@ -26,6 +26,7 @@
  *   site.exists(адрес) → Promise<boolean>
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'

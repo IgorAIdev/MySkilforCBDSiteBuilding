@@ -1,0 +1,11 @@
+# Generated text and parsers use LF on both Windows and Linux.
+*.mjs text eol=lf
+*.kit text eol=lf
+*.ts text eol=lf
+*.md text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+# Research is an immutable snapshot, including original line endings.
+research/** !text !eol

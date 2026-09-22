@@ -15,6 +15,7 @@
  * настоящий и чинится своим темпом; там нечему копиться.
  */
 
+import { fileURLToPath } from 'node:url'
 import { mkdirSync, copyFileSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'

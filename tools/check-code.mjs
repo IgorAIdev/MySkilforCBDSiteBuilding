@@ -29,14 +29,15 @@
  *   node tools/check-code.mjs --update     записать текущие числа как базу
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { basename, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs'
+import { basename, join, relative as nativeRelative } from 'node:path'
 import { CODE_FAMILIES, CODE_LABELS as NAMES, LONG_FILE, MANY_HOOKS } from './code-families.mjs'
 /* Где код, где стили, с каких папок спрашивают — `kit.config.json` проекта
    или соглашения набора (И168). */
 import { CODE_DIRS as DIRS, BLOCK_DIRS, STYLE_DIRS, ALIASES, STORES } from './kit-config.mjs'
 
+const relative = (...args) => nativeRelative(...args).split(String.fromCharCode(92)).join('/')
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const BASELINE = join(ROOT, 'tools/code-baseline.json')
 

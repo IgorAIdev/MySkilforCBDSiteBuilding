@@ -34,9 +34,9 @@
  * названо «нет», а не «не нужно».
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname, relative } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
@@ -156,7 +156,7 @@ const clean = (baseline, families) => {
 const ladder = () => [LADDER, TOKENS].filter(Boolean).map((p) => src(p)).join('\n')
 
 /** Все файлы стилей проекта — по папкам из kit.config.json. */
-const styleFiles = () => {
+export const styleFiles = () => {
   const out = []
   const walk = (dir) => {
     if (!existsSync(dir)) return
@@ -793,4 +793,23 @@ export function gateProblems(stage) {
     if (r) out.push(r)
   }
   return out
+}
+
+/** Измеримые шаги внутри этапа. В отличие от храповика, это условия первого
+ * перехода, а не только защита того, что уже было сделано. */
+export function stepProblems(stage) {
+  const out = []
+  for (const step of stage.steps ?? []) {
+    if (!step.done) continue
+    let result
+    try { result = step.done() } catch (e) { result = `предикат упал: ${e.message}` }
+    if (result) out.push(`слой ${step.layer} «${step.name}»: ${result}`)
+  }
+  return out
+}
+
+/** Полный список проверяемых условий для перехода. Человеческие подтверждения
+ * хранятся отдельно: автомат не выдаёт их за выполненные. */
+export function transitionProblems(stage) {
+  return [...gateProblems(stage), ...stepProblems(stage)]
 }

@@ -71,6 +71,6 @@ if (process.argv.includes('--json')) {
   for (const f of findings) console.error(`    ${f}`)
   console.error(`\nПроверено ссылок: ${checked}, не подтвердилось: ${findings.length}`)
 } else {
-  console.log(`Каждое число основания подтверждено первоисточником. Ссылок проверено: ${checked}.`)
+  console.log(`Файлы и цитаты в реестре найдены. Ссылок проверено: ${checked}. Обоснованность выводов и полнота покрытия чисел этой проверкой не оцениваются.`)
 }
 process.exit(findings.length ? 1 : 0)
