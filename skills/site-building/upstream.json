@@ -402,6 +402,266 @@
       "licenseFile": "assets/vendure/VENDURE-STARTER-LICENSE.md",
       "changes": "getDisplayOptionGroups ported to plain ESM with input validation; toSelection (mapping to the neutral variant-selection contract) is original.",
       "sha256": "b303e410a144615500e717ca578350a51140b683661eb687b17030dbc2f653e9"
+    },
+    {
+      "local": "assets/icons/lucide/arrow-left.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/arrow-left.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "c5f4b88076108eb1a0d95336e1aa7e7bb1419a3a92af96f6247d88cd3456f933"
+    },
+    {
+      "local": "assets/icons/lucide/arrow-right.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/arrow-right.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "288397fdb73bb4f783cf9eabb726ff47357df1d4e3f1201dd748090579f108b9"
+    },
+    {
+      "local": "assets/icons/lucide/chevron-left.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/chevron-left.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "83b0681aa38bf55e9d52a1e4b4cced624abe1fe7678ecafda133a574f1161d93"
+    },
+    {
+      "local": "assets/icons/lucide/chevron-right.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/chevron-right.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "2758143d7b2434e4aa7307dfd34405c87909ff4052f21b5f3f40d45224b4f19b"
+    },
+    {
+      "local": "assets/icons/lucide/chevron-up.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/chevron-up.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "d09f13fcbef3c493ead7e4663b5ee91804fec38d5edb5e7cc3acfbd547641cf4"
+    },
+    {
+      "local": "assets/icons/lucide/circle-check.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/circle-check.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "9711e045a5999f8a3b0782eb88e09b04e0559bc7b379dcc0a4ae645223e10345"
+    },
+    {
+      "local": "assets/icons/lucide/external-link.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/external-link.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "3891241b8c3bfc3a8a930078f26ffc5a7e9763da6d0162ace2050b28d4c1d1fe"
+    },
+    {
+      "local": "assets/icons/lucide/flask-conical.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/flask-conical.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "a2ce857c159bef4c128a6d9f0b6dcbd6504ecf1a2a670ee220efd14fd032b561"
+    },
+    {
+      "local": "assets/icons/lucide/globe.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/globe.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "82c6b8fa0b8e8d775ec9becd86f74a4e50bff7bee4c81f7362de45348504f14d"
+    },
+    {
+      "local": "assets/icons/lucide/heart.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/heart.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "70af5f30be9fcb500b852556b38dcdf8c04a4ba81fd262534fb0336bd39b3b52"
+    },
+    {
+      "local": "assets/icons/lucide/info.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/info.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "bc977a64eb96f3e9c1041ffd09a3fceb70e3e65c02b571f76064062ed31f3cb9"
+    },
+    {
+      "local": "assets/icons/lucide/leaf.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/leaf.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "ac2b65d8d35b5038c9388cd1f161e74570fce6ef6a4c3d99a6b0c2bd68e0cb28"
+    },
+    {
+      "local": "assets/icons/lucide/log-out.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/log-out.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "f24b5b45c05a3acc346af8095408f6ba197ff58ea1641a4f2cb25a9702d2c0ac"
+    },
+    {
+      "local": "assets/icons/lucide/mail.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/mail.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "3236a51d5b8ce9b0528cf2e6ad07e527bd636dded6f5a9d656072052b99caea8"
+    },
+    {
+      "local": "assets/icons/lucide/map-pin.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/map-pin.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "16f1042a62f1bda20ebab8bfc1cb79c0be285c980dea6c2c733a17902631405b"
+    },
+    {
+      "local": "assets/icons/lucide/minus.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/minus.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "a0c743ab6dbf545d8a6e19ef3874f48ede686ce68d25e231bd81f540d97b1f19"
+    },
+    {
+      "local": "assets/icons/lucide/package.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/package.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "69d6bc7650d26c4d24dd55eb22791607b982ce7637073944c256f1f61575509d"
+    },
+    {
+      "local": "assets/icons/lucide/phone.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/phone.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "bd59dd10667cbe410a69e2fbbf4d9645d08abe862c8d89082bd4f533957859a8"
+    },
+    {
+      "local": "assets/icons/lucide/plus.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/plus.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "7f6af73bf1ff6c4bca3f18351c8d1bdec6749c0c2530c4de5da85d520c21df17"
+    },
+    {
+      "local": "assets/icons/lucide/shield-check.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/shield-check.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "8d4fcdbde5bba4abb1a2f6fe53e37ceb6343a1d5449a9d88f6f97c1971d26c4e"
+    },
+    {
+      "local": "assets/icons/lucide/sliders-horizontal.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/sliders-horizontal.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "e43a00e5eb684e6cbb61083bed2528d7a3fa5f265693eb2b5f314cd432aa65f4"
+    },
+    {
+      "local": "assets/icons/lucide/star.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/star.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "c59da86b889569387db28e69ad00a89f96af22863ad9eea9aa12c4876a14338c"
+    },
+    {
+      "local": "assets/icons/lucide/trash.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/trash.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "27299f69ad7c6272be64b1b8e2d48cbd6dcf0ef0d4f92827a1affa945c91700e"
+    },
+    {
+      "local": "assets/icons/lucide/triangle-alert.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/triangle-alert.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "4866f38b8560d410f21e3226413e0b77997b6dfbb6931fadfe0a0d5aef9ffeb4"
+    },
+    {
+      "local": "assets/icons/lucide/truck.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/truck.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "1476faa56b56414ba5d5f01d15e851b8bfd79bef6c36f5855811c27590136e50"
+    },
+    {
+      "local": "assets/icons/lucide/user.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/user.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "eae3b3b2400031ddd5ec869327d127a96014e5f63aa6e06658dd5d4e90661aa8"
     }
   ],
   "localFiles": [

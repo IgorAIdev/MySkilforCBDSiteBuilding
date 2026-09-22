@@ -46,6 +46,8 @@ jobs:
       # сходится. Без этой строки расхождение palette.json и palette.css
       # доезжало до проекта незамеченным — тот же шов, что в И213.
       - run: node tools/check-palette.mjs && node tools/palette-css.mjs --check
+      # Лист знаков собран из знаков набора и не отстал (И249).
+      - run: node tools/icons.mjs --check
       - run: node tools/check-code.mjs
       - run: node tools/check-port.mjs
       - run: node tools/check-test.mjs

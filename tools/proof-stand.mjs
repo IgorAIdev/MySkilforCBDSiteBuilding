@@ -22,6 +22,9 @@ import path from 'node:path'
 
 const read = (p) => (existsSync(path.resolve(p)) ? readFileSync(path.resolve(p), 'utf8') : '')
 const need = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/btn.module.css', 'styles/form.module.css']
+const sheet = read('styles/icons.svg').replace(/<svg /, '<svg style="display:none" ')
+/** Знак из листа: рисунок — в листе, имя — на кнопке (у безмолвной). */
+const icon = (id) => `<svg aria-hidden="true"><use href="#${id}"/></svg>`
 const missing = need.filter((p) => !read(p))
 if (missing.length) {
   console.error(`✗ Нет ${missing.join(', ')} — доказывать нечем.`)
@@ -95,9 +98,12 @@ ${css}
 .foot{--cols:4;--cell-min:160px;--cols-min:1}
 .foot ul{list-style:none;padding:0;margin:0}
 .long{overflow-wrap:anywhere}
+.offer .cluster > svg{inline-size:calc(var(--ctrl-h-sm) * .6);block-size:calc(var(--ctrl-h-sm) * .6);flex:none}
+.probe svg{flex:none}
 </style>
 </head>
 <body>
+${sheet}
 <a class="skip" href="#main">Към съдържанието</a>
 <header class="wrap head">
   <div class="cluster">
@@ -106,8 +112,8 @@ ${css}
       <a href="#">Масла</a><a href="#">Капсули</a><a href="#">Козметика</a><a href="#">За домашни любимци</a><a href="#">Блог</a><a href="#">Лабораторни протоколи</a>
     </nav>
     <div class="cluster">
-      <button class="btn" data-size="sm" type="button">Търсене</button>
-      <button class="btn" data-size="sm" type="button">Количка · 2</button>
+      <button class="btn" data-size="sm" type="button" aria-label="Търсене">${icon('search')}</button>
+      <button class="btn" data-size="sm" type="button">${icon('shopping-cart')}Количка · 2</button>
     </div>
   </div>
 </header>
@@ -140,7 +146,7 @@ ${css}
         <label class="field"><span class="label">Подреди по</span>
           <select class="box pick"><option>Най-продавани</option><option>Цена: ниска към висока</option></select>
         </label>
-        <button class="btn" data-wide type="reset">Изчисти филтрите</button>
+        <button class="btn" data-wide type="reset">${icon('x')}Изчисти филтрите</button>
       </form></aside>
       <div class="grid shelf">${products.map(card).join('')}
       </div>
@@ -156,10 +162,11 @@ ${css}
         <b class="price">79,00 €</b>
         <div class="seg"><button type="button" aria-pressed="false">10 %</button><button type="button" aria-pressed="false">20 %</button><button type="button" aria-pressed="true">30 %</button></div>
         <div class="cluster">
-          <div class="qty"><button type="button" aria-label="По-малко">−</button><b>1</b><button type="button" aria-label="Повече">+</button></div>
+          <div class="qty"><button type="button" aria-label="По-малко">${icon('minus')}</button><b>1</b><button type="button" aria-label="Повече">${icon('plus')}</button></div>
           <button class="btn" data-voice="loud" data-size="lg" type="button">Добави в количката</button>
         </div>
-        <p class="muted">Доставка до офис на куриер за 1–2 работни дни. Наложен платеж.</p>
+        <p class="muted cluster">${icon('truck')}Доставка до офис на куриер за 1–2 работни дни. Наложен платеж.</p>
+        <p class="muted cluster">${icon('flask-conical')}Протокол на лабораторията за партида B-2409</p>
       </div>
     </div>
   </section>

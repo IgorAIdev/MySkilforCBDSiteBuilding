@@ -31,6 +31,10 @@ export const SCRIPTS = {
   /* Шкалы: выпуск, замер и стенд. То же устройство, что у палитры, и по той
      же причине (И202): числа шкал стояли в tokens.css набранными рукой, а
      формула к ним — словами в комментарии рядом. */
+  /* Лист знаков (И249): рисунок каждого знака — в одном месте, выпуск и сверка
+     тем же устройством, что у палитры и шкал. */
+  icons: 'node tools/icons.mjs',
+  'check:icons': 'node tools/icons.mjs --check',
   scale: 'node tools/scale-css.mjs',
   'check:scale': 'node tools/check-scale.mjs && node tools/scale-css.mjs --check',
   'scale:stand': 'node tools/scale-stand.mjs',

@@ -14,6 +14,8 @@
     "check:code": "node tools/check-code.mjs",
     "check:port": "node tools/check-port.mjs",
     "palette": "node tools/palette-css.mjs",
+    "icons": "node tools/icons.mjs",
+    "check:icons": "node tools/icons.mjs --check",
     "scale": "node tools/scale-css.mjs",
     "check:scale": "node tools/check-scale.mjs && node tools/scale-css.mjs --check",
     "scale:stand": "node tools/scale-stand.mjs",
