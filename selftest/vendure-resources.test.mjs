@@ -134,3 +134,10 @@ test('shared option groups: phantom options hidden, codes feed the neutral varia
   assert.throws(() => toSelection({ ...product, variants: [{ id: 9, options: [{ id: 'zz' }] }] }), /outside/)
   assert.throws(() => displayOptionGroups({}), /Select product/)
 })
+
+test('money: the market chooses how the currency is written — lei, not RON', () => {
+  assert.equal(formatMoney(2990, 'RON', 'ro-RO', { display: 'narrowSymbol' }), '29,90 lei')
+  assert.equal(formatMoney(2990, 'RON', 'hu-RO', { display: 'narrowSymbol' }), '29,90 lei')
+  assert.match(formatMoney(2990, 'RON', 'ro-RO'), /RON/)
+  assert.throws(() => formatMoney(1, 'RON', 'ro-RO', { display: 'emoji' }), /display/)
+})

@@ -14,11 +14,16 @@ export function toAmount(minor, { precision = 2 } = {}) {
   return minor / 10 ** precision
 }
 
-/** One formatting function for the whole storefront. */
-export function formatMoney(minor, currencyCode, locale, { precision = 2 } = {}) {
+const DISPLAY = new Set(['symbol', 'narrowSymbol', 'code', 'name'])
+
+/** One formatting function for the whole storefront. `display` is how the
+ *  market writes the currency: Romania reads "29,90 lei" (`narrowSymbol`),
+ *  not "29,90 RON". */
+export function formatMoney(minor, currencyCode, locale, { precision = 2, display = 'symbol' } = {}) {
   check(minor, precision)
   if (typeof currencyCode !== 'string' || !/^[A-Z]{3}$/.test(currencyCode)) throw new TypeError(`Invalid currency ${currencyCode}`)
-  return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode }).format(minor / 10 ** precision)
+  if (!DISPLAY.has(display)) throw new TypeError(`Invalid display ${display}: symbol, narrowSymbol, code or name`)
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: currencyCode, currencyDisplay: display }).format(minor / 10 ** precision)
 }
 
 /**
