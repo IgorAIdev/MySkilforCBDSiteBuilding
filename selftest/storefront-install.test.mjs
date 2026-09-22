@@ -31,6 +31,18 @@ test('--storefront lays the template over the foundation and copies the kit help
     assert.equal(pkg.scripts.test, 'node tools/check-test.mjs', 'тесты гоняет прогон набора')
     assert.equal(pkg.scripts.build, 'node scripts/copy-icons.mjs && next build', 'свой build шаблона остался')
     assert.match(readFileSync(join(dir, 'lib/locale.ts'), 'utf8'), /LOCALES = \['ro', 'en', 'hu'\]/)
+
+    /* Этот файл сам гоняется `node --test`, и Node метит СЕБЯ переменной
+       окружения `NODE_TEST_CONTEXT` — она наследуется дочерним процессом и
+       ломает ЕГО собственный вложенный `node --test` внутри check-test.mjs:
+       тот молча получает пустой вывод вместо тестового отчёта. Сайт,
+       установленный по-настоящему, и `npm test`, запущенный человеком в его
+       терминале, этой переменной не видят — она принадлежит только этой
+       проверке проверки. */
+    const env = { ...process.env }
+    delete env.NODE_TEST_CONTEXT
+    const tests = spawnSync(process.execPath, [join(dir, 'tools/check-test.mjs')], { cwd: dir, encoding: 'utf8', env })
+    assert.equal(tests.status, 0, `npm test нового сайта красный:\n${tests.stdout.slice(-2000)}\n${tests.stderr.slice(-1000)}`)
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
 

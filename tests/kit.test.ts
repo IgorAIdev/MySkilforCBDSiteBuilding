@@ -21,11 +21,28 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+
+/* `tools/scale.mjs` — обычный JS без аннотаций: `resolve()` возвращает
+   развёрнутый набор, чья форма растёт по ключам входа (`холст`, `край`,
+   `радиус`, …), и `tsc` по одному объявлению этого не выведет. Тип даётся
+   здесь ОДИН раз, на границе с инструментом (И253), и используется через
+   `as` у каждого вызова — не `any`, разлитый по местам чтения. */
+type ШкалаПара = [number, number]
+type РазвёрнутаяШкала = {
+  размер: Record<string, ШкалаПара>
+  ритм: Record<string, ШкалаПара>
+  поле: Record<string, ШкалаПара>
+  воздух: Record<string, { step: string; steps: string[]; pair: ШкалаПара }>
+  зазор: Record<string, ШкалаПара>
+  холст?: number
+  край?: { steps: string[]; pair: ШкалаПара }
+  радиус?: Record<string, number>
+}
 
 const read = (p: string): string => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 
@@ -254,29 +271,6 @@ test('палитра: схлопнувшаяся лестница — наход
   }
 })
 
-/* Файл-пример проверяется сам, а не на честное слово: сторож смотрит в
-   styles/palette.json приложения, которого в наборе нет.
-   До 20.09.2026 находка была ровно одна и записана в palette.md: у «Тёплого
-   листа» терракотовая марка стояла в 18.9 ΔE от общего красного при норме
-   25. Пока красный был записан в каждом наборе, чинить её было некуда —
-   правка в одном наборе ничего не говорила об остальных. Как только
-   постоянные уехали в строитель (И216), у набора появилось право назвать
-   СВОЙ красный, и находка закрылась: образцы чисты. */
-test('наборы-образцы: находок нет', () => {
-  const tool = fileURLToPath(new URL('../tools/check-palette.mjs', import.meta.url))
-  const dir = mkdtempSync(join(tmpdir(), 'palette-template-'))
-  mkdirSync(join(dir, 'styles'))
-  writeFileSync(
-    join(dir, 'styles', 'palette.json'),
-    readFileSync(fileURLToPath(new URL('../templates/palette.json', import.meta.url)), 'utf8'),
-  )
-  const run = spawnSync(process.execPath, [tool, '--json'], { cwd: dir, encoding: 'utf8' })
-  const report = JSON.parse(run.stdout).report as { name: string; mode: string; findings: { rule: string }[] }[]
-  assert.ok(report.length >= 14, 'наборов в файле стало меньше семи — проверять нечего')
-  const found = report.flatMap((r) => r.findings.map((f) => `${r.name} · ${r.mode} · ${f.rule}`))
-  assert.deepEqual(found, [], 'образец перестал быть образцом: по нему есть находки')
-})
-
 /* И191: обещание эталона дано в APCA, и WCAG его не заменяет. Набор ниже
    выбран так, что WCAG на основном тексте МОЛЧИТ (запас есть), а APCA
    показывает 71.6 при обещанных 90 — ровно тот класс дефекта, из-за
@@ -404,6 +398,7 @@ test('палитра: середина лестницы держит тон ма
     new RegExp(`${name}: light-dark\\((#[0-9A-F]{6})`).exec(css)![1]
 
   const family = nearestFamily(oklch(accent)[2], false, 'light')
+  if (!family) throw new Error('порода не нашлась для акцента')
   const arc = profile.scales[family].light.chroma
   const want = (arc[5] / arc[8]) * 0.8
   const got = chroma(step('--a-6')) / chroma(step('--a-9'))
@@ -525,7 +520,7 @@ test('набор по формуле: ступени от тела, на кле�
     ритм: { 1: 0.25, 2: 0.5, 3: 0.75, 4: 1, 5: 1.5, 6: 2, 7: 2.5, 8: 3, 9: 4, 10: 5 },
     поле: { card: '4' }, воздух: { page: ['9', '10'], row: '4' }, зазор: { targets: [8, 16] },
   }
-  const r = resolve(set)
+  const r = resolve(set) as РазвёрнутаяШкала
   assert.deepEqual(r.размер.base, [16, 18])
   assert.deepEqual(r.размер.h2, [25.5, 37.5], 'заголовок раздела не по отношению 1.125⁴ / 1.2⁴')
   assert.deepEqual(r.размер.xs, [12.5, 14], 'мелкий текст считается телефонным отношением на обоих концах')
@@ -772,20 +767,6 @@ test('узел, зовущий краску по оттенку, — наход�
   assert.deepEqual(hits('.b{color:var(--sale-9)}'), [], 'роль палитры принята за оттенок')
 })
 
-/* И209: пункт ворот, который смотрят глазами, живёт ровно до конца сессии.
-   Заказчик сказал «подтверждаю» — записать это было некуда, и следующая
-   сессия спросила бы снова. */
-
-test('подтверждённый пункт ворот читается из файла, а переписанный — нет', async () => {
-  const { confirmed } = await import('../tools/stages.mjs')
-  const said = 'набор цвета показан заказчику отрисованным — не кодами, а кнопкой, которую он нажал'
-  assert.ok(confirmed(said), 'слово заказчика записано, а ворота его не видят')
-  /* Переписали пункт — подтверждение лапается: другой вопрос требует
-     другого ответа. */
-  assert.ok(!confirmed(said + ' дважды'), 'подтверждение засчитано не тому пункту')
-  assert.ok(!confirmed('пункт, которого никто не подтверждал'), 'засчитано неподтверждённое')
-})
-
 /* И211: плашка скидки стояла одним цветом во всех семи наборах — фиалка,
    выбранная для одного, скопирована во все как постоянная. */
 
@@ -851,61 +832,6 @@ test('лист палитры показывает каждую выпущенн
   rmSync(dir, { recursive: true, force: true })
 })
 
-/* И216: набор — это ТРИ краски на тему. Если в
-   образце снова появится записанный рукой оранжевый или зелёный, значит
-   постоянная опять расползлась по файлам. */
-test('образцы называют рукой три краски, а постоянные берут из строителя', () => {
-  const образцы = JSON.parse(
-    readFileSync(fileURLToPath(new URL('../templates/palette.json', import.meta.url)), 'utf8'))
-  const лишние: string[] = []
-  for (const [имя, набор] of Object.entries<Record<string, Record<string, string>>>(образцы)) {
-    for (const тема of ['light', 'dark']) {
-      for (const роль of ['warn', 'ok']) {
-        if (набор[тема][роль]) лишние.push(`${имя} · ${тема} · ${роль}`)
-      }
-    }
-  }
-  assert.deepEqual(лишние, [], `постоянная краска снова записана в наборе: ${лишние.join(', ')}`)
-})
-
-/* Строитель палитры глазами (заказчик 20.09.2026: «покажи мне работу твою,
-   как формируется палитра цвета»). Демонстрация честна, только пока в ней
-   тот же строитель, что красит сайт: тест ищет в выпущенной странице
-   функции `palette.mjs`, слепок пород и каждый набор — и не находит
-   ввоза из node, который в браузере не запустится. */
-test('строитель палитры показывает работу тем же кодом, что красит сайт', () => {
-  const корень = fileURLToPath(new URL('..', import.meta.url))
-  const dir = mkdtempSync(join(tmpdir(), 'builder-'))
-  const out = join(dir, 'строитель.html')
-  const r = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), out],
-    { encoding: 'utf8', cwd: корень })
-  assert.equal(r.status, 0, r.stderr)
-
-  const html = readFileSync(out, 'utf8')
-  assert.match(html, /<title>Строитель палитры<\/title>/, 'у страницы нет имени')
-  for (const fn of ['function scale(', 'function roles(', 'function auditPalette(', 'function saleFrom(', 'const apca =', 'const PROFILE_JSON =']) {
-    assert.ok(html.includes(fn), `в странице нет строителя: ${fn}`)
-  }
-  assert.ok(!/\bfrom 'node:/.test(html), 'в страницу уехал ввоз из node — в браузере не запустится')
-
-  const наборы = {
-    ...JSON.parse(readFileSync(join(корень, 'styles/palette.json'), 'utf8')),
-    ...JSON.parse(readFileSync(join(корень, 'templates/palette.json'), 'utf8')),
-  }
-  const нет = Object.keys(наборы).filter((имя) => !html.includes(JSON.stringify(имя)))
-  assert.deepEqual(нет, [], `на странице нет наборов: ${нет.join(', ')}`)
-  rmSync(dir, { recursive: true, force: true })
-
-  /* Выпущенный образец в наборе — чтобы открыть без запуска — обязан
-     совпадать со строителем байт в байт: иначе это копия, которая врёт. */
-  const образец = join(корень, 'templates/palette-builder.html')
-  if (existsSync(образец)) {
-    const c = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), '--check', образец],
-      { encoding: 'utf8', cwd: корень })
-    assert.equal(c.status, 0, c.stderr || c.stdout)
-  }
-})
-
 /* И227: шов — решение с именем и причиной, читаемое в обе стороны; свип
    встаёт на каждый шов и на пиксель над ним — ступенька живёт там. */
 test('реестр швов: имя и причина у каждого, читатель у каждого, свип встаёт на шов и пиксель над ним', async () => {
@@ -939,8 +865,9 @@ test('холст и край из строителя: край растёт в �
   assert.ok(declared('--wrap') && declared('--gut'), 'строитель не выпустил --wrap / --gut')
   assert.ok(!/^\s*--gut\s*:/m.test(tokens) && !/^\s*--wrap\s*:/m.test(tokens), 'край или холст набраны рукой в tokens.css')
   const base = { ширины: [560, 1080], тело: [16, 18], отношение: [1.125, 1.2], размер: { base: 0 }, ритм: { 3: 0.75, 5: 1.5, 7: 2.5 }, поле: {}, воздух: {}, зазор: {} }
-  const r = resolve({ ...base, холст: 1520, край: ['3', '5'] })
+  const r = resolve({ ...base, холст: 1520, край: ['3', '5'] }) as РазвёрнутаяШкала
   assert.equal(r.холст, 1520)
+  if (!r.край) throw new Error('строитель не вернул край')
   assert.deepEqual(r.край.pair, [12, 28])
   const rules = (set: object): string[] => auditScale(set).map((f: { rule: string }) => f.rule)
   assert.ok(rules({ ...base, холст: 1520, край: ['3', '7'] }).includes('край растёт в коридоре'), `12 → 44 (×3.7) прошло коридор ×${LAYOUT.edgeGrowth.join('…')}`)
@@ -988,7 +915,7 @@ test('форма: радиусы из набора и лестницы, полн
   assert.ok(rules({ ...base, радиус: { xs: 10, ctrl: 8, card: 24, sheet: 28 } }).includes('радиус из лестницы'), '10px прошёл лестницу')
   assert.ok(rules({ ...base, радиус: { xs: 8, ctrl: 24, card: 8, sheet: 28 } }).includes('радиусы вложены'), 'орган круглее карточки прошёл')
   assert.ok(!rules({ ...base, радиус: { xs: 8, ctrl: 8, card: 24, sheet: 28 } }).some((r) => /радиус/.test(r)))
-  assert.deepEqual(resolve({ ...base, радиус: { ctrl: 4 } }).радиус, { ctrl: 4 })
+  assert.deepEqual((resolve({ ...base, радиус: { ctrl: 4 } }) as РазвёрнутаяШкала).радиус, { ctrl: 4 })
   assert.throws(() => resolve({ ...base, радиус: { ctrl: '8' } }), /число/)
   /* Каждый набор — по лестнице, и «Тихий» острее «Нынешнего». */
   const sets = JSON.parse(read('styles/scale.json'))

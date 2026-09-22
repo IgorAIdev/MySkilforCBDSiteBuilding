@@ -113,6 +113,14 @@ test('новый сайт: всё разложено, команды допис�
   assert.match(sc.stdout, /Шкалы в норме/, 'замер прошёл мимо чисел проекта')
   assert.equal(spawnSync(process.execPath, [join(dir, 'tools/scale-css.mjs'), '--check'],
     { cwd: dir }).status, 0, 'выпущенный styles/scale.css отстал от чисел')
+  /* И253: тест-образец набора (`tests/kit.test.ts`) едет на КАЖДЫЙ новый
+     сайт, с витриной и без, и гоняется его собственным `npm test`. Голая
+     установка обязана быть зелёной той же проверкой, что и витрина — иначе
+     регресс тут же вернётся тихо на сайте, у которого шаблона витрины нет. */
+  const env = { ...process.env }
+  delete env.NODE_TEST_CONTEXT
+  const tests = spawnSync(process.execPath, [join(dir, 'tools/check-test.mjs')], { cwd: dir, encoding: 'utf8', env })
+  assert.equal(tests.status, 0, `npm test нового сайта красный:\n${tests.stdout.slice(-2000)}\n${tests.stderr.slice(-1000)}`)
   rmSync(dir, { recursive: true, force: true })
 })
 
