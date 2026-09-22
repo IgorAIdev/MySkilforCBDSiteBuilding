@@ -1,0 +1,76 @@
+/* ═══ ПОЛЕ — тройка «подпись, ввод, строка под ним» ═══════════════════════
+ *
+ *  Заведено по дефекту 22.09.2026 (И242). `primitives.module.css` брал
+ *  `.input` и `.pick` отсюда через `composes`, `base.css` отсылал сюда за
+ *  разбором `.tick` — а файла в наборе не было: он остался в прошлом
+ *  магазине. Модуль CSS с `composes` из несуществующего файла не собирается,
+ *  и новый сайт рисовал поле заново, каждый раз своим числом.
+ *
+ *  Поле — не «инпут», а тройка: подпись, ввод, строка под ним. Ошибка —
+ *  часть устройства: строка под полем с шагом («Въведете имейл, например
+ *  name@example.com»), `aria-invalid` на вводе и `aria-describedby` на строку.
+ *
+ *  Геометрия — от высоты органа (правило 2): поле по бокам и просвет до
+ *  подписи — доли `--ctrl-h`, под пальцем она сама ступенью выше. Надпись —
+ *  `--ctrl-fs` (1rem): меньше 16px телефон увеличивает страницу при фокусе.
+ */
+
+/* Столбик одинаковых по роли строк — один просвет на всю форму (И152). */
+.rows{display:flex;flex-direction:column;gap:var(--air-row)}
+
+.field{display:flex;flex-direction:column;gap:calc(var(--ctrl-h) * .15);min-inline-size:0}
+.label{font-size:var(--ctrl-fs-sm);font-weight:600;color:var(--ink)}
+
+/* Рисунок поля — один; `select.box`, `textarea.box` и `.input` приматива
+   берут его же. */
+.box{
+  inline-size:100%;min-inline-size:0;min-block-size:var(--ctrl-h);
+  padding-inline:calc(var(--ctrl-h) * .3);
+  font:inherit;font-size:var(--ctrl-fs);line-height:1.3;color:var(--ink);
+  background:var(--field);
+  /* Граница поля — не украшение: без неё поле на листе не видно
+     (WCAG 1.4.11, 3 : 1 к соседнему цвету; меряет check:palette). */
+  border:var(--line-w) solid var(--tick-edge);border-radius:var(--r-ctrl);
+  transition:border-color var(--hover-t) var(--ease)
+}
+textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--ctrl-h) * 2.5);resize:vertical}
+.box::placeholder{color:var(--ink-soft);opacity:1}
+@media (hover:hover){ .box:not(:disabled):hover{border-color:var(--ink-soft)} }
+.box:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
+.box[aria-invalid='true']{border-color:var(--bad-line)}
+.box:disabled{opacity:var(--state-off);cursor:not-allowed}
+
+/* Список — та же коробка и своя стрелка: системную снимает `appearance`,
+   стрелку рисуют два угла тона чернил — она следует теме без картинки. */
+.pick{
+  composes:box;
+  appearance:none;cursor:pointer;
+  padding-inline-end:calc(var(--ctrl-h) * .85);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
+    linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:
+    calc(100% - var(--ctrl-h) * .42) 50%,
+    calc(100% - var(--ctrl-h) * .3) 50%;
+  background-size:calc(var(--ctrl-h) * .12) calc(var(--ctrl-h) * .12);
+  background-repeat:no-repeat
+}
+
+/* Строка под полем: подсказка или ошибка с шагом. */
+.say{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+.say[data-state='error']{color:var(--bad)}
+
+/* Галочка и радио — браузерные нарочно: клавиатура, чтец, промежуточное
+   состояние. Сайт даёт им цвет (`accent-color`), рамку (`base.css`, одна
+   строка на все места) и цель нажатия — всю строку с подписью. */
+.tick{
+  display:flex;align-items:center;gap:calc(var(--ctrl-h) * .25);
+  min-block-size:var(--ctrl-target);
+  font-size:var(--ctrl-fs-sm);color:var(--ink);cursor:pointer
+}
+.tick input{
+  flex:none;margin:0;
+  inline-size:calc(var(--ctrl-h) * .45);block-size:calc(var(--ctrl-h) * .45);
+  accent-color:var(--pop)
+}
+.tick:has(input:disabled){opacity:var(--state-off);cursor:not-allowed}

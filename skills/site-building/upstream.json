@@ -427,12 +427,12 @@
     },
     {
       "local": "assets/studio/snapshot.mjs",
-      "sha256": "8f436edbd46f5c020e0cbc65604e10cb8b6f4ab476aa3f7cde5d2f6da43e75cb",
+      "sha256": "b154830a0554d46b93a79d588c1519fb3380bf1f87d94b84aa54e36dcd3e35c3",
       "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
     },
     {
       "local": "assets/studio/store.mjs",
-      "sha256": "85a11457f6c647acd5f9fff7bfe34b107fee941328a1421e99853d4616403e8b",
+      "sha256": "009e9550798e29da732300271cd516ea2c320da536531cd3d33fbe4d75cc8a92",
       "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
     },
     {
@@ -442,7 +442,7 @@
     },
     {
       "local": "assets/studio/handoff.mjs",
-      "sha256": "218ffdc3ae87e15d3334321863969048429712cfe721609524356d245fb93aff",
+      "sha256": "5d8473255926e236bd3782efb9ab78c11e50e3439157020291ecde602028ae9c",
       "origin": "Original portable runtime extracted and generalized from the owner’s CBD studio; no third-party implementation copied."
     },
     {

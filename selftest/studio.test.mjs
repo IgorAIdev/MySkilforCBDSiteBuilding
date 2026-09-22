@@ -22,7 +22,7 @@ function fixture(saved, options = {}) {
   const events = new EventTarget()
   let broken = false
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => { if (broken) throw new Error('quota'); values.set(key, value) } }
-  const store = createStudioStore({ key: 'test', defaults, parse, check, storage: () => storage, events: () => events, ...options })
+  const store = createStudioStore({ key: 'test', defaults, parse, check, storage: () => storage, events: () => events, projectId: 'north', sourceRevision: 'fixture-v1', resolveTokens: () => tokens, ...options })
   const unsubscribe = store.subscribe(() => {})
   return { store, storage, values, events, unsubscribe, breakStorage: () => { broken = true } }
 }
@@ -73,9 +73,10 @@ test('async approval rejects a draft changed during fingerprint verification', a
 })
 test('tampering and cross-project approval are rejected', async () => {
   const record = await approval(defaults)
-  await assert.rejects(() => verifyApproval({ ...record, design: { ...defaults, size: 20 } }))
-  await assert.rejects(() => verifyApproval(record, { projectId: 'other' }))
-  await assert.rejects(() => verifyApproval(record, { sourceRevision: 'different-revision' }))
+  const full = { design: defaults, tokens, projectId: 'north', sourceRevision: 'fixture-v1' }
+  await assert.rejects(() => verifyApproval({ ...record, design: { ...defaults, size: 20 } }, full), /fingerprint/)
+  await assert.rejects(() => verifyApproval(record, { ...full, projectId: 'other' }), /another project/)
+  await assert.rejects(() => verifyApproval(record, { ...full, sourceRevision: 'different-revision' }), /another source revision/)
 })
 
 test('restored approval is invalidated when the calculation engine produces different tokens', async () => {

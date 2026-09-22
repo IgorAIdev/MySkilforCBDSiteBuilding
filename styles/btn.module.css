@@ -1,0 +1,85 @@
+/* ═══ КНОПКА — одна на весь сайт ═══════════════════════════════════════════
+ *
+ *  Заведено по дефекту 22.09.2026 (И242). `primitives.module.css` писал:
+ *  «Кнопка переехала в свой модуль — styles/btn.module.css», а модуля в наборе
+ *  не было: он остался в прошлом магазине. Закон о кнопке (craft,
+ *  references/controls.md, «Кнопка: голос — это очередь») стоял без
+ *  реализации, и каждый новый сайт рисовал кнопку заново — ровно то, от чего
+ *  закон написан (правило 10 CLAUDE.md: «Контрол живёт в одном месте»).
+ *
+ *  Три независимые вещи — атрибутами на ОДНОМ классе, а не одеждами строкой:
+ *    data-voice  loud | quiet     голос — место в очереди: громкая одна на экран
+ *    data-size   sm | md | lg     рост — роли --ctrl-h-*; под пальцем ступень выше
+ *    data-wide                    ширина — во всю строку
+ *
+ *  Одна ручка — высота `--btn-h`. Поле по бокам, просвет до знака и размер
+ *  знака — доли высоты (правило 2: геометрия контрола от его высоты); текст —
+ *  роль надписи органа. Стиль кнопки (каталог стилей, мастерская) меняет
+ *  только ручки `--btn-*` ниже, не селекторы.
+ */
+
+.btn{
+  --btn-h:var(--ctrl-h);
+  --btn-fs:var(--ctrl-fs);
+  --btn-weight:600;
+  --btn-case:none;
+  --btn-track:normal;
+  --btn-r:var(--r-ctrl);
+  --btn-bg:var(--quiet);
+  --btn-bg-on:var(--quiet-on);
+  --btn-ink:var(--ink);
+  --btn-edge:transparent;
+  --btn-sh:none;
+  --btn-press:scale(.97);
+
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:calc(var(--btn-h) * .2);
+  min-block-size:var(--btn-h);
+  padding-inline:calc(var(--btn-h) * .45);
+  /* Растёт, но не сжимается ниже надписи: обрезанная надпись хуже переноса
+     ряда (controls.md, «Кнопке разрешено расти…»). */
+  flex-shrink:0;
+  max-inline-size:100%;
+  font:inherit;font-size:var(--btn-fs);font-weight:var(--btn-weight);
+  line-height:1.2;letter-spacing:var(--btn-track);text-transform:var(--btn-case);
+  text-align:center;text-decoration:none;
+  color:var(--btn-ink);background:var(--btn-bg);
+  border:var(--line-w) solid var(--btn-edge);border-radius:var(--btn-r);
+  box-shadow:var(--btn-sh);
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+  /* Нажимаемое отвечает сразу (И229): только нажатие и цвет, не раскладка. */
+  transition:transform var(--press-t) var(--ease), background-color var(--hover-t) var(--ease);
+}
+
+/* Громкая — главное действие экрана: заливка марки и единственный полный круг. */
+.btn[data-voice='loud']{
+  --btn-bg:var(--pop);
+  --btn-bg-on:color-mix(in oklab, var(--pop), var(--ink) var(--state-press));
+  --btn-ink:var(--on-pop);
+  --btn-r:var(--r-pop);
+}
+
+.btn[data-size='sm']{--btn-h:var(--ctrl-h-sm)}
+.btn[data-size='lg']{--btn-h:var(--ctrl-h-lg)}
+.btn[data-wide]{display:flex;inline-size:100%}
+
+.btn svg{
+  inline-size:calc(var(--btn-h) * .42);block-size:calc(var(--btn-h) * .42);
+  flex:none;stroke-width:var(--icon-stroke, 1.75)
+}
+
+@media (hover:hover){
+  .btn:not(:disabled):hover{background:color-mix(in oklab, var(--btn-bg), var(--btn-ink) var(--state-hover))}
+}
+.btn:not(:disabled):active{background:var(--btn-bg-on);transform:var(--btn-press)}
+
+.btn:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
+
+/* Выключенная — ролью (И229), не своим числом; видна кромкой, не только тоном. */
+.btn:disabled,
+.btn[aria-disabled='true']{opacity:var(--state-off);cursor:not-allowed;--btn-edge:color-mix(in srgb, var(--ink) 20%, transparent)}
+
+@media (prefers-reduced-motion:reduce){
+  .btn{transition:none}
+  .btn:not(:disabled):active{transform:none}
+}

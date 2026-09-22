@@ -32,7 +32,8 @@ async function exportDesign(raw){
   mkdirSync(folder,{recursive:true})
   for(const [name,bytes]of Object.entries(output)){const path=resolve(folder,safeExportPath(name));mkdirSync(dirname(path),{recursive:true});writeFileSync(path,bytes)}
   const archive=resolve(root,'exports',id+'.tar')
-  const tar=spawnSync('tar',['-cf',archive,'-C',folder,'.'])
+  // Relative paths: GNU tar from Git for Windows reads `C:` in an absolute path as a remote host.
+  const tar=spawnSync('tar',['-cf',id+'.tar','-C',id,'.'],{cwd:resolve(root,'exports')})
   if(tar.status!==0)throw new Error('Archive failed')
   return {id:approval.id,approvedAt:approval.approvedAt,url:'/download/'+id+'.tar',folder}
 }

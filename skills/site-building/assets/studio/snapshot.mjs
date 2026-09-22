@@ -21,17 +21,31 @@ export function createVersionedParser({ version, supported, normalize }) {
     return clone(result)
   }
 }
+/* Format 2 (И244): the fingerprint also signs who approved and when, so a test
+   run cannot be relabelled as the owner's approval. Format 1 records are not
+   silently trusted — they need one new confirmation. */
+const ACTORS = ['owner-ui', 'verification']
+const signed = (record) => ({ design: record.design, tokens: record.tokens, projectId: record.projectId, sourceRevision: record.sourceRevision, actor: record.actor, approvedAt: record.approvedAt })
 export async function createApproval({ design, tokens, projectId, sourceRevision, actor, now = new Date().toISOString() }) {
-  if (!projectId || !sourceRevision || !['owner-ui', 'verification'].includes(actor) || !Number.isFinite(Date.parse(now))) throw new Error('Approval metadata is incomplete')
-  const payload = clone({ design, tokens, projectId, sourceRevision })
-  return { format: 1, id: await fingerprint(payload), approvedAt: now, actor, ...payload }
+  if (!projectId || !sourceRevision || !ACTORS.includes(actor) || !Number.isFinite(Date.parse(now))) throw new Error('Approval metadata is incomplete')
+  const record = clone({ design, tokens, projectId, sourceRevision, actor, approvedAt: now })
+  return { format: 2, id: await fingerprint(signed(record)), ...record }
 }
-export async function verifyApproval(record, { design, tokens, projectId, sourceRevision } = {}) {
-  if (!record || record.format !== 1 || !Number.isFinite(Date.parse(record.approvedAt)) || !['owner-ui', 'verification'].includes(record.actor)) throw new Error('Invalid approval record')
-  if (!record.projectId || !record.sourceRevision || record.id !== await fingerprint({ design: record.design, tokens: record.tokens, projectId: record.projectId, sourceRevision: record.sourceRevision })) throw new Error('Approval fingerprint mismatch')
-  if (design && canonical(record.design) !== canonical(design)) throw new Error('Approved design changed')
-  if (tokens && canonical(record.tokens) !== canonical(tokens)) throw new Error('Approved tokens changed')
-  if (projectId && record.projectId !== projectId) throw new Error('Approval belongs to another project')
-  if (sourceRevision && record.sourceRevision !== sourceRevision) throw new Error('Approval belongs to another source revision')
+/** Integrity of the record itself, for this project and source revision — both required. */
+export async function verifyRecord(record, { projectId, sourceRevision } = {}) {
+  for (const [name, value] of Object.entries({ projectId, sourceRevision })) if (!value) throw new Error(`Approval check needs ${name}`)
+  if (record?.format === 1) throw new Error('Approval format 1 is outdated; confirm the design again')
+  if (!record || record.format !== 2 || !Number.isFinite(Date.parse(record.approvedAt)) || !ACTORS.includes(record.actor)) throw new Error('Invalid approval record')
+  if (!record.projectId || !record.sourceRevision || record.id !== await fingerprint(signed(record))) throw new Error('Approval fingerprint mismatch')
+  if (record.projectId !== projectId) throw new Error('Approval belongs to another project')
+  if (record.sourceRevision !== sourceRevision) throw new Error('Approval belongs to another source revision')
   return clone(record)
+}
+/** Fails closed: design, tokens, project and revision are all required. */
+export async function verifyApproval(record, { design, tokens, projectId, sourceRevision } = {}) {
+  for (const [name, value] of Object.entries({ design, tokens })) if (value == null) throw new Error(`Approval check needs ${name}`)
+  const verified = await verifyRecord(record, { projectId, sourceRevision })
+  if (canonical(verified.design) !== canonical(design)) throw new Error('Approved design changed')
+  if (canonical(verified.tokens) !== canonical(tokens)) throw new Error('Approved tokens changed')
+  return verified
 }

@@ -37,7 +37,7 @@
 import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname, relative } from 'node:path'
-import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS, CONTROLS } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
 
@@ -290,6 +290,14 @@ export const STAGES = [
           if (!/--ctrl-h-sm\s*:/.test(l) || !/--ctrl-h-lg\s*:/.test(l)) return 'трёх размеров органа нет (--ctrl-h-sm / --ctrl-h / --ctrl-h-lg в styles/scale.css)'
           if (!/pointer\s*:\s*coarse[^{]*\{[^}]*--ctrl-h/.test(l)) return 'под пальцем высоты не растут (@media (pointer: coarse) в styles/scale.css)'
           if (!/\.tap\b/.test(primitivesSrc())) return 'запаса под палец нет (.tap)'
+          /* Правило об органе без самого органа (И242): примитивы брали поле
+             из form.module.css, писали «кнопка переехала в btn.module.css»,
+             а файлов не было — ворота смотрели на шкалы и молчали. */
+          const base = dirname(PRIMITIVES ?? 'styles/primitives.module.css')
+          const lost = [...new Set([...primitivesSrc().matchAll(/composes\s*:[^;]*?from\s*['"]\.\/([^'"]+)['"]/g)]
+            .map((m) => join(base, m[1]).replace(/\\/g, '/')))].filter((p) => !has(p))
+          if (lost.length) return `органы взяты из файлов, которых нет: ${lost.join(', ')} — правило без реализации`
+          if (!/--ctrl-h/.test(CONTROLS.filter(has).map(src).join('\n'))) return `ни один дом контролов (${CONTROLS.join(', ')}) не строит орган от --ctrl-h — кнопки и поля нет`
           return null
         }, undefined,
         { reviewed: '20.09.2026', rule: 'И226: три размера из порогов, под пальцем ступень выше, орган считает от высоты', show: 'https://claude.ai/artifact/Cs5sbn6y5H6jdbSTfmsLYm — стенд размеров органов, три размера на одной карточке' }),

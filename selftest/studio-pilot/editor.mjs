@@ -3,7 +3,7 @@ import { createApproval } from './core/snapshot.mjs'
 import { defaults, parse, check, designTokens, project } from './profile.mjs'
 import { renderPage, cssTokens } from './render.mjs'
 const content = await fetch('/content.json' + location.search).then(response => response.json())
-const store = createStudioStore({ key: 'north-studio-design', defaults, parse, check, projectId: project.id, resolveTokens: designTokens, storage: () => localStorage, events: () => window })
+const store = createStudioStore({ key: 'north-studio-design', defaults, parse, check, projectId: project.id, sourceRevision: project.sourceRevision, resolveTokens: designTokens, storage: () => localStorage, events: () => window })
 const panel = document.querySelector('#studio')
 panel.innerHTML = '<button id="collapse" aria-expanded="true">Свернуть настройки</button><div id="controls"><h2>Дизайн мастерской</h2><label>Основной текст <output id="bodyValue"></output><input id="bodySize" type="range" min="16" max="22" step="1"></label><label>H1 <output id="titleValue"></output><input id="headingSize" type="range" min="40" max="80" step="2"></label><div role="group" aria-label="Ширина">' + [1040,1200,1360].map(width=>'<button data-key="width" data-value="'+width+'">'+width+'</button>').join('') + '</div><div role="group" aria-label="Палитра"><button data-key="palette" data-value="forest">Лес</button><button data-key="palette" data-value="brass">Латунь</button></div><div role="group" aria-label="Композиция"><button data-key="layout" data-value="split">Две части</button><button data-key="layout" data-value="stacked">Одна колонка</button></div><button id="apply">Применить</button><button id="cancel">Отменить черновик</button><button id="approve">Подтвердить и скачать</button><p id="status" role="status"></p></div>'
 let exporting = false
@@ -34,7 +34,7 @@ document.querySelector('#approve').onclick = async () => {
     const result=await response.json()
     const record=await createApproval({design,tokens,projectId:project.id,sourceRevision:project.sourceRevision,actor:'verification',now:result.approvedAt})
     if(record.id!==result.id)throw new Error('Снимки не совпадают')
-    if(!await store.approve(record,tokens,project.id))throw new Error('Не удалось сохранить подтверждение')
+    if(!await store.approve(record))throw new Error('Не удалось сохранить подтверждение')
     const link=document.createElement('a');link.href=result.url;link.download='north-design.tar';link.click()
   }catch(error){document.querySelector('#status').textContent=error.message}
   finally{exporting=false;document.querySelector('#approve').disabled=false}

@@ -192,6 +192,10 @@ p{text-wrap:pretty}
 /* Обратная половина правила про цифры: в тексте они пропорциональные. */
 p,blockquote,figcaption{font-variant-numeric:normal}
 small,figcaption,button,summary{text-wrap:balance}
+/* Заголовок раскрывашки — цель нажатия, как кнопка: под пальцем 44, под
+   мышью 24 (роль --ctrl-target). Без этой строки вопрос в FAQ под пальцем
+   был 23 пикселя в высоту — замер страницы-доказательства (И243). */
+summary{min-block-size:var(--ctrl-target);align-content:center;cursor:pointer}
 
 /* The browser's own surfaces — selection, caret, focus ring, scrollbar,
    underline offset. By default they belong to no design system at all; here

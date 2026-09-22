@@ -1,12 +1,29 @@
 import { clone, fingerprint, verifyApproval } from './snapshot.mjs'
 
 const bytes = value => typeof value === 'string' ? new TextEncoder().encode(value) : value
+/* Export paths are compared case-insensitively: Windows and macOS treat
+   `.GIT` as `.git` and `APPROVAL.json` as `approval.json` (И244). Only plain
+   names; hidden files only from a short list of public ones; no secrets, no
+   Windows device names, no trailing dot or space. */
+const PUBLIC_DOTFILES = new Set(['.env.example', '.well-known', '.htaccess', '.nojekyll'])
+const DEVICE = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/
+const SECRET = /^(\.env.*|\.npmrc|\.git.*|node_modules|id_(rsa|dsa|ecdsa|ed25519).*|.*\.(pem|key|p12|pfx))$/
 export function safeExportPath(path) {
-  if (typeof path !== 'string' || !path || /[\\:\x00]/.test(path) || path.startsWith('/') || path.split('/').some(part => !part || part === '.' || part === '..' || ['.git', 'node_modules'].includes(part) || (part.startsWith('.env') && part !== '.env.example'))) throw new Error(`Unsafe export path: ${path}`)
+  const unsafe = () => new Error(`Unsafe export path: ${path}`)
+  if (typeof path !== 'string' || !path || path.startsWith('/')) throw unsafe()
+  for (const part of path.split('/')) {
+    const lower = part.toLowerCase()
+    if (!/^[A-Za-z0-9._-]+$/.test(part) || part === '.' || part === '..' || /[. ]$/.test(part)) throw unsafe()
+    if (DEVICE.test(lower)) throw unsafe()
+    if (PUBLIC_DOTFILES.has(lower)) continue
+    if (lower.startsWith('.') || SECRET.test(lower)) throw unsafe()
+  }
   return path
 }
 /** Adapter provides selected files and prose; the core owns identity, documents and manifest. */
 export async function createHandoff({ design, tokens, project, approval = null, files, markdown, renderPdf, manifest = {} }) {
+  if (!project?.id) throw new Error('Handoff needs project.id')
+  if (!project.sourceRevision) throw new Error('Handoff needs project.sourceRevision')
   const snapshot = clone({ design, tokens })
   if (approval) await verifyApproval(approval, { ...snapshot, projectId: project.id, sourceRevision: project.sourceRevision })
   const identity = approval?.id ?? await fingerprint({ ...snapshot, projectId: project.id, sourceRevision: project.sourceRevision })
@@ -18,7 +35,13 @@ export async function createHandoff({ design, tokens, project, approval = null, 
     ...(approval ? [`- Подтверждение: ${approval.approvedAt}; источник: ${approval.actor}.`] : ['- Финальное утверждение владельца отсутствует.']), '', markdown,
   ].join('\n')
   const output = Object.fromEntries(Object.entries(files).map(([path, value]) => [safeExportPath(path), bytes(value)]))
-  for (const reserved of ['DESIGN-SYSTEM.md', 'DESIGN-SYSTEM.pdf', 'design-snapshot.json', 'approval.json', 'export-manifest.json']) if (Object.hasOwn(output, reserved)) throw new Error(`Reserved handoff file: ${reserved}`)
+  const seen = new Map()
+  for (const path of Object.keys(output)) {
+    const lower = path.toLowerCase()
+    if (seen.has(lower)) throw new Error(`Export paths differ only in letter case: ${seen.get(lower)} / ${path}`)
+    seen.set(lower, path)
+  }
+  for (const reserved of ['DESIGN-SYSTEM.md', 'DESIGN-SYSTEM.pdf', 'design-snapshot.json', 'approval.json', 'export-manifest.json']) if (seen.has(reserved.toLowerCase())) throw new Error(`Reserved handoff file: ${reserved}`)
   output['DESIGN-SYSTEM.md'] = bytes(stamp)
   output['DESIGN-SYSTEM.pdf'] = await renderPdf(stamp)
   if (new TextDecoder().decode(output['DESIGN-SYSTEM.pdf'].slice(0, 5)) !== '%PDF-') throw new Error('Renderer did not return a PDF')
