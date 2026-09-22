@@ -73,13 +73,21 @@ const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith
 const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя".`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras', '--storefront'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя", --storefront.`)
     process.exit(1)
   }
 }
 if (OUT === SRC) {
   console.error('Целевая папка — сам набор. Укажите проект: node install.mjs ../мой-сайт')
+  process.exit(1)
+}
+
+/* Витрина — только новому сайту: шаблон ложится на пустую папку поверх
+   основы, в чужой проект он не ставится ни обновлением, ни аудитом. */
+const STOREFRONT = flags.has('--storefront')
+if (STOREFRONT && MODE !== 'new') {
+  console.error('--storefront ставит новый сайт: не смешивается с --audit, --update и --skill-only.')
   process.exit(1)
 }
 
@@ -312,6 +320,24 @@ if (MODE === 'new') {
 
   // Only the explicit runtime/project files above travel to a site.
   // Research, evidence indexes and generated local stands stay in the kit.
+}
+
+/* Шаблон витрины — поверх основы: новый сайт получает приложение Next,
+   собранное из тех же шкал, примитивов и органов, и копии помощников
+   набора — Vendure и коммерции — туда, откуда их ввозит шаблон. Шаблон
+   кладётся после основы: его docs/words.md и tests/ дополняют её, а
+   слияние команд ниже дописывает команды набора в его package.json. */
+if (STOREFRONT) {
+  copy(join(SRC, 'templates/storefront'), OUT)
+  const vendure = join(SRC, 'skills/site-building/assets/vendure')
+  for (const f of ['request.mjs', 'result.mjs', 'money.mjs', 'search.mjs', 'asset.mjs', 'product.mjs', 'INTEGRATION.md', 'VENDURE-STARTER-LICENSE.md']) {
+    copy(join(vendure, f), join(OUT, 'lib/source/vendure/core', f))
+  }
+  const commerce = join(SRC, 'skills/site-building/assets/commerce')
+  for (const f of ['variant-selection.mjs', 'mutation-lane.mjs', 'VERCEL-LICENSE.md']) {
+    copy(join(commerce, f), join(OUT, 'lib/commerce', f))
+  }
+  moved.push('шаблон витрины и помощники Vendure и коммерции')
 }
 
 /* Аудиту — конфиг путей: чужой проект лежит не там и зовёт шкалы не так,

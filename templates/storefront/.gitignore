@@ -1,0 +1,5 @@
+node_modules/
+.next/
+out/
+public/icons.svg
+.env
