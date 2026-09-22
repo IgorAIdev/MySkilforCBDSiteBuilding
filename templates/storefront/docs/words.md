@@ -1,0 +1,84 @@
+# Слова витрины
+
+Слой 12 основания: голос, словарь терминов на языках рынка, глагол на
+кнопке, ошибка у поля с шагом, пустой экран с шагом. **Слова утверждает
+заказчик** — это образец для румынского рынка (ro · en · hu), пока он не
+сказал иначе (`CLAUDE.md`, «Граница ответственности»).
+
+Устройство файла меряют ворота слоя 12 (`tools/stages.mjs`) и тест
+`tests/i18n.test.ts`: разделы на месте, у каждой ошибки и каждого пустого
+экрана есть шаг, в румынском нет седильных `ș ț` вместо `ș ț`. Слова
+интерфейса живут в `lib/i18n/{ro,en,hu}.ts`; этот файл — их словарь для
+заказчика.
+
+## Порядок работы
+
+1. Заказчик называет голос (раздел «Голос»).
+2. Термины магазина — один перевод на язык, без синонимов («Глоссарий»).
+3. Кнопки — глаголом действия, которое случится («Кнопки»).
+4. Ошибка у поля — что не так и что сделать, у того поля, где ошибка.
+5. Пустой экран — почему пусто и куда дальше.
+
+## Голос
+
+| Решение | Образец | Почему |
+| --- | --- | --- |
+| Обращение | ro — вежливое «dumneavoastră» в письмах, «Vedeți», «Alegeți» в интерфейсе; hu — «Ön» | товар рядом со здоровьем: доверие раньше дружбы |
+| Тон | спокойный, фактами; без восклицательных знаков | крик на витрине читается как реклама, а не как магазин |
+| Числа | как в данных: 10 %, 1000 mg, 29,90 lei | цифра — факт, её не округляют словами |
+| Буквы | ro — `ș ț` с запятой (U+0219, U+021B); hu — `ő ű` | седильные `ș ț` румын видит сразу |
+
+## Глоссарий
+
+| Понятие | ro | en | hu | Заметка |
+| --- | --- | --- | --- | --- |
+| корзина | coș | cart | kosár | одно слово везде: шапка, страница, письмо |
+| оформление заказа | finalizarea comenzii | checkout | pénztár | |
+| в наличии | în stoc | in stock | raktáron | |
+| нет в наличии | stoc epuizat | out of stock | elfogyott | |
+| мало осталось | stoc limitat | low stock | korlátozott készlet | |
+| партия | lot | batch | gyártási tétel | номер на этикетке = номер в протоколе |
+| протокол лаборатории | buletin de analiză | lab report | laborvizsgálati jegyzőkönyv | не «certificat»: это протокол измерения |
+| концентрация | concentrație | strength | erősség | проценты и мг — два факта, не один |
+| курьер до двери | curier la domiciliu | courier to your door | futár házhoz | |
+| постамат | easybox | parcel locker | csomagautomata | easybox — имя сети |
+| наложенный платёж | ramburs | cash on delivery | utánvét | |
+| код скидки | cod de reducere | discount code | kedvezménykód | |
+
+## Кнопки
+
+| Действие | ro | en | hu |
+| --- | --- | --- | --- |
+| положить в корзину | Adaugă în coș | Add to cart | Kosárba |
+| перейти к оформлению | Finalizează comanda | Continue to checkout | Tovább a pénztárhoz |
+| подтвердить заказ | Trimite comanda | Place order | Megrendelés elküldése |
+| применить код | Aplică | Apply | Beváltás |
+| убрать из корзины | Șterge | Remove | Eltávolítás |
+| применить фильтры | Aplică filtrele | Apply filters | Szűrők alkalmazása |
+| сбросить фильтры | Șterge filtrele | Clear filters | Szűrők törlése |
+| искать | Caută | Search | Keresés |
+
+## Ошибки у поля
+
+| Поле и случай | ro | Шаг | en | hu |
+| --- | --- | --- | --- | --- |
+| e-mail пуст | Introduceți adresa de e-mail | pentru a primi confirmarea comenzii | Enter your email to receive the order confirmation | Adja meg e-mail-címét a rendelés visszaigazolásához |
+| e-mail неполон | Adresa de e-mail pare incompletă | de exemplu nume@exemplu.ro | The email looks incomplete, e.g. name@example.com | Az e-mail-cím hiányosnak tűnik, például nev@pelda.hu |
+| телефон | Introduceți numărul de telefon | de exemplu 0722 123 456 | Enter your phone number, e.g. 0722 123 456 | Adja meg telefonszámát, például 0722 123 456 |
+| код скидки | Codul nu este valabil | verificați-l și introduceți-l fără spații | The code is not valid; check it and enter it without spaces | A kód nem érvényes; ellenőrizze, és szóközök nélkül írja be |
+| количество больше остатка | Mai sunt doar {n} buc. | micșorați cantitatea sau alegeți altă variantă | Only {n} left; lower the quantity or pick another option | Csak {n} db van; csökkentse a mennyiséget, vagy válasszon másik változatot |
+| обязательное поле | Completați câmpul | pentru a continua | Fill in this field to continue | A folytatáshoz töltse ki a mezőt |
+
+## Пустые экраны
+
+| Экран | ro | Шаг | en | hu |
+| --- | --- | --- | --- | --- |
+| пустая корзина | Coșul este gol | Vedeți uleiurile | Your cart is empty — browse the oils | A kosár üres — nézze meg az olajokat |
+| поиск без результатов | Niciun rezultat pentru „{q}" | Verificați ortografia sau vedeți toate produsele | No results for "{q}" — check the spelling or see all products | Nincs találat: „{q}" — ellenőrizze a helyesírást, vagy nézze meg az összes terméket |
+| фильтры без результатов | Niciun produs nu corespunde filtrelor | Ștergeți unul dintre filtre | No products match these filters — clear one | Nincs a szűrőknek megfelelő termék — töröljön egy szűrőt |
+| пустая категория | Nu sunt produse în această categorie | Vedeți toate produsele | There are no products in this category — see all products | Ebben a kategóriában nincs termék — összes termék |
+| нет заказов | Nu aveți încă nicio comandă | Mergeți la magazin | No orders yet — go to the shop | Még nincs rendelése — irány a bolt |
+| магазин не отвечает | Magazinul nu răspunde momentan | Încercați din nou peste un minut | The shop is not responding — try again in a minute | A bolt jelenleg nem válaszol — próbálja újra egy perc múlva |
+
+«Магазин не отвечает» — не «пусто»: источник недоступен и пустой каталог —
+разные состояния.
