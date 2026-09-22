@@ -21,7 +21,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 
 const read = (p) => (existsSync(path.resolve(p)) ? readFileSync(path.resolve(p), 'utf8') : '')
-const need = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/btn.module.css', 'styles/form.module.css']
+const need = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/btn.module.css', 'styles/form.module.css', 'styles/go.module.css']
 const sheet = read('styles/icons.svg').replace(/<svg /, '<svg style="display:none" ')
 /** Знак из листа: рисунок — в листе, имя — на кнопке (у безмолвной). */
 const icon = (id) => `<svg aria-hidden="true"><use href="#${id}"/></svg>`
@@ -132,7 +132,7 @@ ${sheet}
   </section>
 
   <section class="wrap section" id="shop">
-    <div class="sectionHead"><h2>Всички продукти</h2><p>Филтрирайте по форма и сила. Цената е с ДДС.</p></div>
+    <div class="sectionHead"><h2>Всички продукти</h2><p>Филтрирайте по форма и сила. Цената е с ДДС.</p><a class="go" href="#lab">Лабораторни протоколи${icon('arrow-right')}</a></div>
     <div class="sidebar">
       <aside class="aside"><form class="filters stack pinned" aria-label="Филтри">
         <fieldset class="rows"><legend>Форма</legend>
@@ -157,6 +157,7 @@ ${sheet}
     <div class="switcher pdp">
       <div class="frame gallery"><img src="${img('30 %', 30)}" alt="Масло 30 %" width="400" height="500"></div>
       <div class="stack offer">
+        <a class="go" data-to="back" href="#shop">${icon('arrow-left')}Назад към продуктите</a>
         <p class="eyebrow">Масла · партида B-2409</p>
         <h2 class="long">Пълноспектърно масло с CBD 30 % — Hanfsamenölextraktkonzentrat</h2>
         <b class="price">79,00 €</b>
