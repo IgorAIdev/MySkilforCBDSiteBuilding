@@ -9,7 +9,7 @@
  *                                     скиллы; базы храповиков, CLAUDE.md,
  *                                     правила и шкалы проекта — не трогает
  *   node install.mjs --audit .        чужой готовый сайт: только проверки, свои
- *                                     четыре скилла и kit.config.json; ничего
+ *                                     шесть скиллов и kit.config.json; ничего
  *                                     проектного не пишет, хуков не вешает
  *
  * Почему это отдельный скрипт, а не «склонируйте репозиторий»: набор — не
@@ -30,13 +30,26 @@
  * только сказав это словом — `--force`.
  */
 
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
 import { toCss as ritmToCss } from './tools/scale.mjs'
 
-const SRC = resolve(new URL('.', import.meta.url).pathname)
+const SRC = resolve(fileURLToPath(new URL('.', import.meta.url)))
+
+// Explicit traversal avoids native fs.cpSync failures on Unicode Windows paths
+// observed on Node 24.14.1. Every file copy either completes or throws.
+function copy(from, to) {
+  if (statSync(from).isDirectory()) {
+    mkdirSync(to, { recursive: true })
+    for (const name of readdirSync(from)) copy(join(from, name), join(to, name))
+  } else {
+    mkdirSync(join(to, '..'), { recursive: true })
+    copyFileSync(from, to)
+  }
+}
 const args = process.argv.slice(2)
 const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
@@ -44,7 +57,7 @@ const flags = new Set(args.filter((a) => a.startsWith('--')))
    «Латунь на угле» за папку назначения (И213). */
 const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
-const MODE = flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
+const MODE = flags.has('--skill-only') ? 'skill-only' : flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
 /* Набор цвета, выбранный заказчиком, — ключом при постановке:
    `node install.mjs --palette "Латунь на угле" ../мой-сайт`.
@@ -59,8 +72,8 @@ const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith
 const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette', '--scale'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --update, --audit, --force, --palette "Имя", --scale "Имя".`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя".`)
     process.exit(1)
   }
 }
@@ -69,19 +82,25 @@ if (OUT === SRC) {
   process.exit(1)
 }
 
-/** Своё, не переезжающее никуда: история, описание самого набора, его CI,
- *  его самопроверка, заготовки (они кладутся своим именем ниже) и
- *  исследования — снимки чужих первоисточников и ответы агентов, из которых
- *  выведены правила; проекту нужны правила, а не 25 МБ их оснований. */
-const MINE = new Set(['.git', '.gitignore', 'node_modules', 'README.md', 'package.json',
-  'package-lock.json', '.github', 'templates', 'selftest', 'research'])
+// A self-contained instruction bundle for any platform; no project config changes.
+if (MODE === 'skill-only') {
+  if (flags.size !== 1) {
+    console.error('--skill-only не смешивается с установкой инструментов или шкал.')
+    process.exit(1)
+  }
+  for (const agent of ['.agents', '.claude']) {
+    copy(join(SRC, 'skills/site-building'), join(OUT, agent, 'skills/site-building'))
+  }
+  console.log(`Скилл установлен в ${OUT}: .agents/skills/site-building и .claude/skills/site-building. Файлы сайта не изменены.`)
+  process.exit(0)
+}
 
 /** Принадлежит ПРОЕКТУ, как только в нём появилось: правила, шкалы, тесты,
  *  линтер, рабочий процесс. Набор пишет их один раз — новому сайту. */
-const PROJECT_OWNED = ['CLAUDE.md', 'docs', 'styles', 'tests', '.oxlintrc.json',
+const PROJECT_OWNED = ['AGENTS.md', 'CLAUDE.md', 'docs', 'styles', 'tests', '.oxlintrc.json',
   '.github/workflows/check.yml', 'styles/palette.json']
 
-/** Свои четыре скилла — то, ради чего набор существует. Остальные в
+/** Свои шесть скиллов — то, ради чего набор существует. Остальные в
  *  `.claude/skills/` — чужие, о вкусе и процессе; на чужой сайт для аудита
  *  они не едут: там могут стоять свои. */
 const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
@@ -89,7 +108,7 @@ const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
 /** Команды, которые нужны аудиту: проверки и этапы. `lint`, `test`,
  *  `typecheck`, `images` у чужого проекта свои — их не трогаем. */
 const AUDIT_SCRIPTS = Object.fromEntries(Object.entries(SCRIPTS)
-  .filter(([k]) => /^check:|^checks$|^stage$|^sweep$|^serve$/.test(k)))
+  .filter(([k]) => /^check:|^checks$|^stage$|^sweep$|^serve$|^palette$|^scale$/.test(k)))
 
 const rel = (p) => p.slice(OUT.length + 1)
 const has = (p) => existsSync(join(OUT, p))
@@ -110,6 +129,27 @@ if (MODE === 'new' && !FORCE) {
 
 /* ── раскладка ─────────────────────────────────────────────────────────── */
 
+// Validate choices before writing anything into the destination.
+if (flags.has('--audit') && flags.has('--update')) {
+  console.error('Выберите один режим: --audit или --update.')
+  process.exit(1)
+}
+for (const [flag, value, file] of [
+  ['--palette', PALETTE, 'templates/palette.json'],
+  ['--scale', SCALE, 'styles/scale.json'],
+]) {
+  if (!flags.has(flag)) continue
+  if (!value || MODE !== 'new') {
+    console.error(`${flag} требует имя и применяется только при новой установке.`)
+    process.exit(1)
+  }
+  const choices = JSON.parse(readFileSync(join(SRC, file), 'utf8'))
+  if (!Object.hasOwn(choices, value)) {
+    console.error(`Неизвестный набор «${value}». Есть: ${Object.keys(choices).join(', ')}`)
+    process.exit(1)
+  }
+}
+
 const moved = []
 const kept = []
 
@@ -124,43 +164,68 @@ function copyDir(name, keep = () => false) {
       if (statSync(from).isDirectory()) { mkdirSync(to, { recursive: true }); walk(from); continue }
       if (existsSync(to) && keep(to.slice(OUT.length + 1))) { kept.push(to.slice(OUT.length + 1)); continue }
       mkdirSync(join(to, '..'), { recursive: true })
-      cpSync(from, to)
+      copy(from, to)
     }
   }
   walk(src)
   moved.push(name)
 }
 
-const isBaseline = (p) => /^tools\/[\w-]+-baseline\.json$/.test(p)
+const isBaseline = (p) => /^tools\/[\w-]+-baseline\.json$/.test(p.replace(/\\/g, '/'))
 
 /* Инструменты едут всегда. Базы: новому сайту — нули из набора; проекту с
    долгом — его собственные, иначе долг «прощён» и первый же прогон зелёный
    на том, что вчера было красным. */
 copyDir('tools', MODE === 'new' ? () => false : isBaseline)
 
-/* Скиллы: новому сайту и обновлению — все, с лицензиями; аудиту — четыре. */
-if (MODE === 'audit') {
+/* Обновление не трогает проектные документы, но отсутствующий документ не
+   является проектным: без него скилл ссылается в пустоту, а check:rules
+   нечего читать. Существующий файл остаётся нетронутым. */
+if (MODE === 'update') {
+  for (const relPath of ['docs/layers.md', 'docs/rules.md']) {
+    if (has(relPath)) continue
+    const dest = join(OUT, relPath)
+    mkdirSync(join(dest, '..'), { recursive: true })
+    copy(join(SRC, relPath), dest)
+    moved.push(relPath)
+  }
+}
+
+/* По умолчанию только собственные предметные инструкции. Сторонний архив
+   вкуса и процесса устанавливается явно; существующие навыки не удаляются. */
+if (!flags.has('--extras') || MODE === 'audit') {
   for (const s of OWN_SKILLS) {
-    cpSync(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s), { recursive: true })
+    copy(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s))
   }
   moved.push(`.claude/skills/{${OWN_SKILLS.join(',')}}`)
 } else {
-  cpSync(join(SRC, '.claude/skills'), join(OUT, '.claude/skills'), { recursive: true })
+  copy(join(SRC, '.claude/skills'), join(OUT, '.claude/skills'))
+  moved.push('дополнительные скиллы с лицензиями')
+}
+if (MODE !== 'audit') {
   /* settings.json у проекта может быть свой — с разрешениями и своими
      хуками. Его не затираем: хуки набора ДОПИСЫВАЮТСЯ к существующим. */
   mergeHooks(join(SRC, '.claude/settings.json'), join(OUT, '.claude/settings.json'))
   moved.push('.claude')
 }
 
+// One authored entrypoint, discoverable by both supported agent layouts.
+for (const agent of ['.agents', '.claude']) {
+  copy(join(SRC, 'skills/site-building'), join(OUT, agent, 'skills/site-building'))
+}
+moved.push('site-building (Codex и Claude)')
+
 /* Пара ставщик + список команд неразделима: половина пары — сломанный ввоз. */
-for (const f of ['install.mjs', 'scripts.mjs']) { cpSync(join(SRC, f), join(OUT, f)); moved.push(f) }
+for (const f of ['install.mjs', 'scripts.mjs']) { copy(join(SRC, f), join(OUT, f)); moved.push(f) }
 
 /* Проектное — только новому сайту (или по слову --force). */
 if (MODE === 'new') {
   for (const name of PROJECT_OWNED) {
-    if (name === '.github/workflows/check.yml') {
+    if (name === 'AGENTS.md') {
+      copy(join(SRC, 'templates/AGENTS.md'), join(OUT, name))
+    } else if (name === '.github/workflows/check.yml') {
       mkdirSync(join(OUT, '.github/workflows'), { recursive: true })
-      cpSync(join(SRC, 'templates/check.yml'), join(OUT, name))
+      copy(join(SRC, 'templates/check.yml'), join(OUT, name))
     } else if (name === 'styles/palette.json') {
       /* Новый сайт с первой минуты стоит на шкале — но НЕ на красках чужого
          магазина. Палитра набора едет вместе со `styles/`, и без этой строки
@@ -187,9 +252,13 @@ if (MODE === 'new') {
          делает: краски и выпуск обязаны сходиться с первой минуты. */
       writeFileSync(join(OUT, 'styles/palette.css'), toCss(краски))
     } else if (existsSync(join(SRC, name))) {
-      cpSync(join(SRC, name), join(OUT, name), { recursive: true })
+      copy(join(SRC, name), join(OUT, name))
     }
     moved.push(name)
+  }
+  // Acceptance and business decisions belong to the new site, not the kit.
+  for (const name of ['decisions', 'gate', 'open']) {
+    copy(join(SRC, `templates/project-${name}.md`), join(OUT, `docs/${name}.md`))
   }
   /* Выбранный набор ритма — первым в файле: на корне стоит первый, им сайт
      и размечен (И198). Остальные остаются рядом, чтобы было чем сравнить. */
@@ -213,20 +282,15 @@ if (MODE === 'new') {
     writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(переставленные))
   }
 
-  /* Всё остальное содержимое набора, о чём выше не сказано, — тоже его. */
-  for (const name of readdirSync(SRC)) {
-    if (MINE.has(name) || name === '.claude' || name === 'tools' || name === 'install.mjs' ||
-        name === 'scripts.mjs' || PROJECT_OWNED.includes(name)) continue
-    cpSync(join(SRC, name), join(OUT, name), { recursive: true })
-    moved.push(name)
-  }
+  // Only the explicit runtime/project files above travel to a site.
+  // Research, evidence indexes and generated local stands stay in the kit.
 }
 
 /* Аудиту — конфиг путей: чужой проект лежит не там и зовёт шкалы не так,
    как набор. Пишется с соглашениями набора, чтобы было что править;
    существующий не трогается. */
 if (MODE === 'audit' && !has('kit.config.json')) {
-  const { CONFIG } = await import(join(SRC, 'tools/kit-config.mjs'))
+  const { CONFIG } = await import(new URL('./tools/kit-config.mjs', import.meta.url))
   writeFileSync(join(OUT, 'kit.config.json'), JSON.stringify(CONFIG, null, 2) + '\n')
   moved.push('kit.config.json')
 }
@@ -269,7 +333,7 @@ console.log(`${title}: набор разложен в ${OUT} — ${moved.join(',
 if (kept.length) console.log(`  · оставлены свои: ${kept.join(', ')} (долг проекта не прощается)`)
 if (MODE === 'new') {
   console.log('  · CLAUDE.md — правила, читаются раньше кода каждой сессией')
-  console.log('  · .claude/skills — свои craft, code, shop, stages плюс вкус, движение, стиль, процесс')
+  console.log('  · .claude/skills — шесть предметных скиллов; сторонние только с --extras')
   console.log('  · .claude/settings.json — хуки: брифинг этапа сам в начале сессии, проверка сама после правки')
   console.log('  · .github/workflows/check.yml — проверки падают сами, без чьей-либо памяти')
   console.log('  · базы храповиков на нулях — на новом проекте долга нет')
@@ -291,6 +355,6 @@ if (MODE === 'audit') {
   console.log('  строка «Этап производства: **5 · Сдача**» в CLAUDE.md проекта → npm run check:stage — какие ворота не держатся')
 } else {
   console.log('  npm run stage — что кладётся первым и что прогнать')
-  console.log('  npm i -D sharp wait-on && npx playwright install chromium')
+  console.log('  npm i -D playwright sharp wait-on && npx playwright install chromium')
   if (MODE === 'new') console.log('  и прочитать docs/start.md — он про порядок, в котором начинать')
 }

@@ -20,10 +20,12 @@
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
 
-/* Playwright стоит в системе, а не в проекте — как и в tools/shade.mjs. */
-const { chromium } = await import(
-  process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
+const playwright = process.env.PLAYWRIGHT
+  ? await import(process.env.PLAYWRIGHT)
+  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
+const { chromium } = playwright
 import { mkdirSync, rmSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { LAYOUT } from './thresholds.mjs'
 import { SEAMS } from './kit-config.mjs'
 import { sweepWidths } from './seams.mjs'
@@ -54,11 +56,13 @@ const FS_JUMP = LAYOUT.jump
    950×300 под снимком 1100×1200 оставляли 31% снимка. */
 const CROP_KEEP = LAYOUT.crop
 
-const out = new URL('../.sweep', import.meta.url).pathname
+const out = fileURLToPath(new URL('../.sweep', import.meta.url))
 rmSync(out, { recursive: true, force: true })
 mkdirSync(out, { recursive: true })
 
-const browser = await chromium.launch()
+const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE
+  ? { executablePath: process.env.BROWSER_EXECUTABLE }
+  : {})
 const page = await browser.newPage()
 const rows = []
 

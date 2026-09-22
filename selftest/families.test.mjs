@@ -9,8 +9,9 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, cpSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
-const KIT = new URL('..', import.meta.url).pathname
+const KIT = fileURLToPath(new URL('..', import.meta.url))
 
 const project = (files) => {
   const dir = mkdtempSync(join(tmpdir(), 'kit-fam-'))

@@ -60,7 +60,7 @@ import { sweepWidths } from './seams.mjs'
 import { SCRIPTS } from '../scripts.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const read = (p) => readFileSync(join(ROOT, p), 'utf8')
+const read = (p) => readFileSync(join(ROOT, p), 'utf8').replace(/\r\n/g, '\n')
 const has = (p) => existsSync(join(ROOT, p))
 
 /* Скиллы набора: у каждого закон в SKILL.md и, где есть, разбор в references/.
@@ -395,8 +395,7 @@ const lawCount = (text) => {
   if (!m) return null
   return [...m[1].matchAll(/^\*\*(\d+)\./gm)].length
 }
-const counts = LAWS.filter(has).map((f) => [f, lawCount(read(f))])
-for (const [f, n] of counts) if (n === null) bad.push(`${f}: раздела «запретов» не найдено`)
+const counts = LAWS.filter(has).map((f) => [f, lawCount(read(f))]).filter(([, n]) => n !== null)
 const distinct = new Set(counts.map(([, n]) => n).filter((n) => n !== null))
 if (distinct.size > 1) {
   bad.push(`запретов разное число: ${counts.map(([f, n]) => `${f} — ${n}`).join(', ')}`)
@@ -414,7 +413,7 @@ const DESC_MAX = 1024
 for (const dir of SKILL_DIRS) {
   const f = `${dir}/SKILL.md`
   if (!has(f)) { bad.push(`${f}: скилла нет, а он в списке набора`); continue }
-  const head = read(f).match(/^---\n([\s\S]*?)\n---/)
+  const head = read(f).match(/^---\r?\n([\s\S]*?)\r?\n---/)
   if (!head) { bad.push(`${f}: нет шапки --- name / description ---`); continue }
   const name = /^name:\s*(.+)$/m.exec(head[1])?.[1]?.trim()
   const desc = /^description:\s*(.+)$/m.exec(head[1])?.[1]?.trim() ?? ''

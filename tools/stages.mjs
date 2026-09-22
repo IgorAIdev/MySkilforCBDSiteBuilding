@@ -34,13 +34,14 @@
  * названо «нет», а не «не нужно».
  */
 
+import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join, dirname, relative } from 'node:path'
 import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
 
-export const ROOT = new URL('..', import.meta.url).pathname
+export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /* ── что видит предикат ────────────────────────────────────────────────── */
 
@@ -155,17 +156,17 @@ const clean = (baseline, families) => {
 const ladder = () => [LADDER, TOKENS].filter(Boolean).map((p) => src(p)).join('\n')
 
 /** Все файлы стилей проекта — по папкам из kit.config.json. */
-const styleFiles = () => {
+export const styleFiles = () => {
   const out = []
   const walk = (dir) => {
     if (!existsSync(dir)) return
     for (const entry of readdirSync(dir)) {
       const full = join(dir, entry)
       if (statSync(full).isDirectory()) { walk(full); continue }
-      /* ROOT приходит из URL и кончается косой чертой: срез «длина + 1»
-         съедал первую букву пути, и файл потом не читался вовсе — проверка
-         молчала нулём на подложенном шве. Поймано обратным ходом. */
-      if (entry.endsWith('.css')) out.push(full.slice(ROOT.replace(/\/$/, '').length + 1))
+      /* Относительный путь считает node:path: ручной срез ломался на Windows,
+         где ROOT кончается `\\`, а код снимал только `/` и съедал первую
+         букву имени файла. Конфиг остаётся переносимым — с `/`. */
+      if (entry.endsWith('.css')) out.push(relative(ROOT, full).split('\\').join('/'))
     }
   }
   for (const d of STYLE_DIRS) walk(join(ROOT, d))
@@ -443,14 +444,18 @@ export const STAGES = [
     builds: 'адреса и дерево маршрутов, язык адресом (/bg, /en), данные одной таблицей в lib/, карта сайта и robots как МЕХАНИЗМ, один факт о товаре — одно место.',
     skills: ['code', 'craft', 'shop', 'stages'],
     steps: [
-      step(14, 'Адреса', 'дерево маршрутов — единственный список страниц; динамические сегменты из данных', 'code',
-        () => has('tools/routes.mjs') ? null : 'дерева маршрутов нет (tools/routes.mjs)'),
-      step(14, 'Язык адресом', 'язык — часть адреса (/bg, /en), не состояние браузера; все языки в дереве', 'shop',
-        () => has('tools/routes.mjs') && /lang|locale|язык/i.test(src('tools/routes.mjs')) ? null : 'языки не в дереве маршрутов'),
-      step(14, 'Данные одной таблицей', 'каждый факт о товаре живёт в одном месте (lib/), витрина спрашивает', 'shop',
-        () => has(LIB) ? null : `нет ${LIB}/ — фактам негде жить в одном месте`),
-      step(14, 'Карта сайта и robots как механизм', 'из дерева маршрутов, а не рукой', 'code',
-        () => (has('app/sitemap.ts') || has('public/sitemap.xml')) && (has('app/robots.ts') || has('public/robots.txt')) ? null : 'карты сайта или robots нет как механизма'),
+      step('К', 'Адреса', 'дерево маршрутов — единственный список страниц; динамические сегменты из данных', 'code',
+        () => has('tools/routes.mjs') ? null : 'дерева маршрутов нет (tools/routes.mjs)', undefined,
+        { basis: 'архитектуры проекта и живых адресов' }),
+      step('К', 'Язык адресом', 'язык — часть адреса (/bg, /en), не состояние браузера; все языки в дереве', 'shop',
+        () => has('tools/routes.mjs') && /lang|locale|язык/i.test(src('tools/routes.mjs')) ? null : 'языки не в дереве маршрутов', undefined,
+        { basis: 'архитектуры проекта и живых адресов' }),
+      step('К', 'Данные одной таблицей', 'каждый факт о товаре живёт в одном месте (lib/), витрина спрашивает', 'shop',
+        () => has(LIB) ? null : `нет ${LIB}/ — фактам негде жить в одном месте`, undefined,
+        { basis: 'архитектуры проекта и источников данных' }),
+      step('К', 'Карта сайта и robots как механизм', 'из дерева маршрутов, а не рукой', 'code',
+        () => (has('app/sitemap.ts') || has('public/sitemap.xml')) && (has('app/robots.ts') || has('public/robots.txt')) ? null : 'карты сайта или robots нет как механизма', undefined,
+        { basis: 'архитектуры проекта и живых ответов сервера' }),
     ],
     checks: ['typecheck', 'check:tokens', 'check:port', 'check:open', 'build:site', 'check:urls', 'check:rules', 'check:stage'],
     gate: {
@@ -716,6 +721,12 @@ export const STAGES = [
   },
 ]
 
+/* Переносимый пакет токенов есть не у каждого сайта. Пока проект не завёл
+   свою команду, требовать её как существующую проверку нельзя (И233). */
+for (const stage of STAGES) {
+  stage.checks = stage.checks.filter((name) => name !== 'check:tokens' || script(name))
+}
+
 /**
  * Спит, пока в проекте нет механики. Это не этап, а предикат по конфигу:
  * скилл платформы ставится в день, когда описанное в нём заработало, и ни
@@ -782,4 +793,23 @@ export function gateProblems(stage) {
     if (r) out.push(r)
   }
   return out
+}
+
+/** Измеримые шаги внутри этапа. В отличие от храповика, это условия первого
+ * перехода, а не только защита того, что уже было сделано. */
+export function stepProblems(stage) {
+  const out = []
+  for (const step of stage.steps ?? []) {
+    if (!step.done) continue
+    let result
+    try { result = step.done() } catch (e) { result = `предикат упал: ${e.message}` }
+    if (result) out.push(`слой ${step.layer} «${step.name}»: ${result}`)
+  }
+  return out
+}
+
+/** Полный список проверяемых условий для перехода. Человеческие подтверждения
+ * хранятся отдельно: автомат не выдаёт их за выполненные. */
+export function transitionProblems(stage) {
+  return [...gateProblems(stage), ...stepProblems(stage)]
 }

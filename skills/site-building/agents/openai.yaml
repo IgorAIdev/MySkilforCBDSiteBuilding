@@ -1,0 +1,4 @@
+interface:
+  display_name: "Site Building"
+  short_description: "Новые сайты, редизайн, мастерская и передача дизайна"
+  default_prompt: "Используй $site-building, чтобы создать или исправить сайт, показать дизайн и проверить согласованный результат."

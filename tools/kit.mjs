@@ -17,7 +17,7 @@
 
 import { mkdirSync, copyFileSync, writeFileSync, readFileSync, existsSync, cpSync, readdirSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { emptyCodeBaseline } from './code-families.mjs'
 import { emptyCssBaseline } from './css-families.mjs'
 import { emptyPortBaseline } from './port-families.mjs'
@@ -25,7 +25,7 @@ import { emptyCraftBaseline } from './craft-families.mjs'
 import { toCss } from './palette.mjs'
 import { toCss as scaleCss } from './scale.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const OUT = resolve(process.argv[2] ?? join(ROOT, 'kit'))
 
 /** Что переезжает. Список короткий намеренно: всё, что тут есть, должно
@@ -418,7 +418,7 @@ cd путь/к/клону && git add -A && git commit -m "набор из cbdin.
 Скрипты в \`package.json\` дописал ставщик. Осталось одно:
 
 \`\`\`
-npm i -D sharp wait-on && npx playwright install chromium
+npm i -D playwright sharp wait-on && npx playwright install chromium
 \`\`\`
 
 Проверкам по странице нужен поднятый сайт и сервер, умеющий **чистые
@@ -435,6 +435,8 @@ npm run build && npm run serve
 \`\`\`
 
 Путь к Playwright задаётся через \`PLAYWRIGHT=\`, адрес сайта — через \`SITE=\`.
+Если пакет есть, а его Chromium не установлен, проверки могут использовать
+системный Chrome через \`BROWSER_EXECUTABLE=\`.
 
 ## Что работает без вашей памяти
 
@@ -498,5 +500,5 @@ if (existsSync(join(OUT, '.git'))) {
     cd ${OUT}
     git add -A && git commit -m "набор из cbdin.bg" && git push`)
 } else {
-  console.log('\nДальше: npm i -D sharp && npx playwright install chromium')
+  console.log('\nДальше: npm i -D playwright sharp wait-on && npx playwright install chromium')
 }

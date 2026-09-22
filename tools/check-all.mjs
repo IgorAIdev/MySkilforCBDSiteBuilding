@@ -25,11 +25,13 @@
  */
 
 import { spawn, spawnSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { STAGES, currentStage } from './stages.mjs'
+import { fileURLToPath } from 'node:url'
+import { STAGES, confirmed, currentStage } from './stages.mjs'
 import { nameOf } from './checks.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const args = process.argv.slice(2)
 const FINAL = args.includes('--final')
 const FAST = args.includes('--fast')
@@ -38,7 +40,18 @@ const FAST = args.includes('--fast')
 const RENDERED = new Set(['check:craft', 'sweep'])
 /** Эти читают собранный `out/`. */
 const NEEDS_BUILD = new Set(['check:urls', 'check:seo', 'check:craft', 'sweep'])
+const NEEDS_LIVE = new Set(['check:urls', 'check:seo', 'check:craft', 'sweep'])
 const PORT = 8099
+function runNpm(check) {
+  if (!/^[\w:-]+$/.test(check)) throw new Error(`Недопустимое имя проверки: ${check}`)
+  const env = { ...process.env, ...(server ? { SITE: `http://localhost:${PORT}` } : {}) }
+  if (process.platform === 'win32') {
+    return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', `npm.cmd run ${check}`], {
+      cwd: ROOT, stdio: 'inherit', shell: false, env,
+    })
+  }
+  return spawnSync('npm', ['run', check], { cwd: ROOT, stdio: 'inherit', shell: false, env })
+}
 
 const stage = FINAL ? STAGES.find((s) => s.n === 5) : currentStage()
 if (!stage) {
@@ -74,11 +87,12 @@ let server = null
 process.on('exit', () => server?.kill())
 
 async function serveIfNeeded(check) {
-  if (!RENDERED.has(check) || server || await alive()) return
+  if (!NEEDS_LIVE.has(check) || server || await alive()) return
   console.log(`   (поднимаю свой сервер на ${PORT} — отрисованным проверкам нужен отданный сайт)`)
-  server = spawn(process.execPath, [join(ROOT, 'tools/serve.mjs'), String(PORT)], {
-    cwd: ROOT, stdio: 'ignore',
-  })
+  const command = existsSync(join(ROOT, 'out'))
+    ? [join(ROOT, 'tools/serve.mjs'), String(PORT)]
+    : [join(ROOT, 'node_modules', 'next', 'dist', 'bin', 'next'), 'start', '--port', String(PORT)]
+  server = spawn(process.execPath, command, { cwd: ROOT, stdio: 'ignore' })
   for (let i = 0; i < 40; i++) {
     if (await alive()) return
     await new Promise((r) => setTimeout(r, 250))
@@ -93,7 +107,7 @@ for (const check of list) {
   await serveIfNeeded(check)
   console.log(`\n── ${check}`)
   const started = Date.now()
-  const r = spawnSync('npm', ['run', check], { cwd: ROOT, stdio: 'inherit', shell: false })
+  const r = runNpm(check)
   const ok = r.status === 0
   results.push({ check, ok, sec: Math.round((Date.now() - started) / 1000) })
   /* Дальше идти можно: проверки независимы, и заказчику нужен ПОЛНЫЙ список
@@ -126,8 +140,8 @@ if (FAST) {
 }
 
 console.log('\n━━ Машиной не проверяется — смотреть глазом:\n')
-for (const h of stage.gate.human.mine) console.log(`   □ ${h}   (смотрю я)`)
-for (const h of stage.gate.human.owner) console.log(`   □ ${h}   (РЕШАЕТ ЗАКАЗЧИК)`)
+for (const h of stage.gate.human.mine) console.log(`   ${confirmed(h) ? '✓' : '□'} ${h}   (${confirmed(h) ? 'посмотрел' : 'смотрю я'})`)
+for (const h of stage.gate.human.owner) console.log(`   ${confirmed(h) ? '✓' : '□'} ${h}   (${confirmed(h) ? 'подтверждено' : 'РЕШАЕТ ЗАКАЗЧИК'})`)
 
 if (bad.length) {
   console.error(`\n✗ Не проходит: ${bad.map((r) => r.check).join(', ')}`)

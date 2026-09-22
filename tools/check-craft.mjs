@@ -54,13 +54,16 @@
  * PLAYWRIGHT.
  */
 
-const { chromium } = await import(
-  process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
+const playwright = process.env.PLAYWRIGHT
+  ? await import(process.env.PLAYWRIGHT)
+  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
+const { chromium } = playwright
 import { readFileSync, writeFileSync } from 'node:fs'
 import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
 import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import { sample, isNative } from './routes.mjs'
 
@@ -122,7 +125,7 @@ if (!PAGES.length) {
    вставал четырьмя строками по четырнадцать знаков, а подпись кадра — по
    одному слову. Ни 1024, ни 1440 этого не показывали. Дефект живёт там, где
    не смотрели. */
-const WIDTHS = [390, 700, 900, 1024, 1200, 1440]
+const WIDTHS = [390, 700, 900, 1024, 1200, 1440, 1600]
 /* Второй язык — те же ширины по краям и одна в середине. Раскладка у него
    та же (брейкпоинты общие), меняется только длина слов, а она видна и на
    трёх ширинах. Шесть ширин на каждый язык удвоили бы проверку, ничего к
@@ -137,23 +140,23 @@ const DARK_WIDTHS = [390, 1200]
    где вёрстка, растящая цель по `max-width`, отдаёт курсорный размер
    пальцу. */
 const COARSE_WIDTHS = [768, 1024]
-const BASELINE = new URL('./craft-baseline.json', import.meta.url).pathname
+const BASELINE = fileURLToPath(new URL('./craft-baseline.json', import.meta.url))
 /* Низкое окно, в котором меряется приклеенное: ноутбук 1366×768 за вычетом
    полосы браузера. Обычный замер идёт в 900 по высоте, и колонка, которая в
    900 помещается, на ноутбуке уходит за край — так и было с галереей товара. */
 const SHORT_H = LAYOUT.shortWindow
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /** Что меряется в самой странице. Одной функцией, потому что она уезжает
  *  в браузер целиком и ничего оттуда не импортирует. */
-const measure = (phone) => {
+const measure = ({ phone, catalogue, target, contrast }) => {
   const out = { placeholder: [], measure: [], target: [], contrast: [], collision: [],
                 weight: [], jump: [], name: [], heads: [], dress: [], clip: [],
                 swipe: [], stretch: [], broken: [], spill: [], focus: [], wrap: [],
                 anchor: [], outline: [], marker: [], dark: [], ladder: [], wideCtrl: [], lopsided: [],
                 markInk: [],
                 covered: [],
-                lane: [], sunk: [], stolen: [], field: [], alone: [], twoAir: [] }
+                lane: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [] }
   const seen = new Set()
 
   const lum = (c) => {
@@ -572,7 +575,7 @@ const measure = (phone) => {
          исключений в проверке: рядом с органом видно, чем он заменяется,
          а в списке — нет. Ниже 24 не опускается никто. */
       const claim = el.getAttribute('data-tap')
-      const floor = claim ? Math.max(TARGET.floor, Number(claim) || 0) : TARGET.coarse
+      const floor = claim ? Math.max(target.floor, Number(claim) || 0) : target.coarse
       if (w < floor || h < floor) {
         out.target.push(`${name(el)} — ${Math.round(w)}×${Math.round(h)} (норма ${floor})`)
       }
@@ -617,8 +620,8 @@ const measure = (phone) => {
     const fg = rgb(cs.color)
     if (!fg || alpha(cs.color) < 0.95) continue
     const size = parseFloat(cs.fontSize)
-    const big = size >= CONTRAST.largePx || (size >= CONTRAST.largeBoldPx && Number(cs.fontWeight) >= 700)
-    const need = big ? CONTRAST.control : CONTRAST.text
+    const big = size >= contrast.largePx || (size >= contrast.largeBoldPx && Number(cs.fontWeight) >= 700)
+    const need = big ? contrast.control : contrast.text
     const g = ground(el)
     const got = ratio(fg, g)
     if (got === null) {
@@ -870,6 +873,38 @@ const measure = (phone) => {
     /* Вторая карточка начинается НИЖЕ первой — значит, ряд держит одну. */
     if (b.top < a.bottom - 1) continue
     out.alone.push(`${name(box)} — карточка ${Math.round(a.width)}px в ряду ${Math.round(box.clientWidth)}px: в ряду одна`)
+  }
+
+  /* 4c · плотность товарного каталога.
+     Это не правило всех сеток: блок объявляет договор атрибутом
+     `data-catalog-grid`. Полная полка держит четыре-пять товаров, а полка
+     рядом с постоянной боковой панелью — три-четыре и объявляет это через
+     `data-catalog-grid="with-rail"` либо предка
+     `data-catalog-layout="with-rail"`. Шесть мешают сравнивать название,
+     силу и цену; слишком мало на широкой полосе раздувает квадратный кадр
+     и всю карточку почти до высоты окна. */
+  if (innerWidth >= catalogue.desktop) {
+    for (const box of document.querySelectorAll('[data-catalog-grid]')) {
+      if (!shown(box)) continue
+      const cards = [...box.querySelectorAll('[data-product-card]')].filter(shown)
+      const withRail = box.getAttribute('data-catalog-grid') === 'with-rail' ||
+        Boolean(box.closest('[data-catalog-layout="with-rail"]'))
+      const contract = withRail ? catalogue.withRail : catalogue.full
+      if (cards.length < contract.min) continue
+      const firstTop = Math.round(cards[0].getBoundingClientRect().top)
+      const columns = cards.findIndex((card) => Math.abs(Math.round(card.getBoundingClientRect().top) - firstTop) > 1)
+      const count = columns === -1 ? cards.length : columns
+      const firstWidth = cards[0].getBoundingClientRect().width
+      const wrongCount = count < contract.min || count > contract.max
+      const tooWide = firstWidth > contract.maxCard + 1
+      if (wrongCount || tooWide) {
+        out.catalogueColumns.push(
+          `${name(box)} — ${count} в ряд, карточка ${Math.round(firstWidth)}px при ${innerWidth}px; ` +
+          `режим ${withRail ? 'с боковой панелью' : 'без боковой панели'}: ` +
+          `нужно ${contract.min}–${contract.max} и не шире ${contract.maxCard}px`,
+        )
+      }
+    }
   }
 
   /* 5 · вес снимка. Меряется в пикселях, а не в байтах: байты зависят от
@@ -1748,7 +1783,9 @@ const measure = (phone) => {
   return out
 }
 
-const browser = await chromium.launch()
+const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE
+  ? { executablePath: process.env.BROWSER_EXECUTABLE }
+  : {})
 /* Две среды, а не одна ширина. Узкое окно — это ещё не телефон: у телефона
    нет курсора, и `(pointer: coarse)` — единственный честный признак пальца.
    Вёрстка, которая растит цель нажатия под палец, обязана растить её именно
@@ -1827,7 +1864,7 @@ const found = { lane: [], placeholder: [], measure: [], target: [], contrast: []
                 anchor: [], outline: [], marker: [], sticky: [], theme: [], coarse: [], calm: [],
                 inkDip: [], markInk: [],
                 covered: [],
-                ladder: [], wideCtrl: [], lopsided: [], sunk: [], stolen: [], field: [], alone: [], twoAir: [],
+                ladder: [], wideCtrl: [], lopsided: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [],
                 twiceLift: [], sheetSize: [] }
 
 /** Открыть страницу на ширине и померить.
@@ -1939,7 +1976,12 @@ async function visit(path, w, { finger, dark = false }) {
       await browser.close()
       process.exit(1)
     }
-    const r = await page.evaluate(measure, phone)
+    const r = await page.evaluate(measure, {
+      phone,
+      catalogue: LAYOUT.catalogue,
+      target: TARGET,
+      contrast: CONTRAST,
+    })
 
     /* ── приклеенное — в НИЗКОМ окне ───────────────────────────────────────
        Приклеенный блок выше окна нельзя увидеть целиком никогда: его низ

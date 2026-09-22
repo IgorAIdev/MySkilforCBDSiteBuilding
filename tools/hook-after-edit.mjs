@@ -27,9 +27,10 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join, relative, isAbsolute } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { CODE_DIRS, BLOCK_DIRS, STYLE_DIRS, LIB, TOKENS, inDirs } from './kit-config.mjs'
 
-const ROOT = new URL('..', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 let input = ''
 try { input = readFileSync(0, 'utf8') } catch { /* stdin пуст — нечего проверять */ }

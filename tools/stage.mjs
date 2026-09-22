@@ -23,7 +23,7 @@
  */
 
 import { relative } from 'node:path'
-import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, ROOT, confirmed } from './stages.mjs'
+import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, stepProblems, transitionProblems, ROOT, confirmed } from './stages.mjs'
 
 const arg = (f) => process.argv.includes(f)
 
@@ -37,19 +37,21 @@ function brief(stage, { full = false } = {}) {
   console.log(`  Перед сдачей, в этом порядке: ${stage.checks.map((c) => `npm run ${c}`).join(' · ')}`)
 
   /* Шаги этапа — что за чем: ✓ по файлам, ✗ с причиной, · без предиката
-     (по чтению), □ решает заказчик (отмечается в docs/gate.md). Порядок —
-     слои первоисточников, docs/layers.md, §2. */
+     (по чтению), □ решает заказчик (отмечается в docs/gate.md). У слоёв
+     порядок из первоисточников (docs/layers.md, §2); каркас приложения
+     проверяется по архитектуре проекта и живым адресам. */
   if (stage.steps?.length) {
-    console.log('\n  Шаги этапа — что за чем (слои docs/layers.md, §2):')
+    console.log('\n  Шаги этапа — что за чем:')
     const tally = { reviewed: 0, unreviewed: 0, missing: 0, owner: 0 }
     for (const st of stage.steps) {
       const msg = st.done ? st.done() : undefined
       const ok = msg === null
-      /* Три состояния слоя, и «есть» — не «сделано»: сделан слой, пересмотренный
-         против исследования, с датой и правилом (И223). */
+      const basis = st.basis ?? 'исследования'
+      /* Три состояния шага, и «есть» — не «сделано»: сделан шаг,
+         пересмотренный против своего основания, с датой и правилом (И223). */
       const ch = msg === undefined ? '·' : ok ? (st.reviewed ? '✓' : '○') : '✗'
       const state = ok
-        ? (st.reviewed ? `пересмотрено ${st.reviewed} — ${st.rule}` : 'есть, против исследования не пересмотрено')
+        ? (st.reviewed ? `пересмотрено ${st.reviewed} — ${st.rule}` : `есть, против ${basis} не пересмотрено`)
         : msg === undefined ? 'предиката нет — читается глазами' : msg
       line(ch, `${st.layer}. ${st.name} — ${st.what} [${st.skill}]`)
       line(' ', `   ${state}`)
@@ -62,14 +64,19 @@ function brief(stage, { full = false } = {}) {
     }
     const next = stage.steps.find((st) => { const m = st.done ? st.done() : undefined; return m === null && !st.reviewed })
     console.log(`\n  Итог по слоям: пересмотрено ${tally.reviewed} · есть, не пересмотрено ${tally.unreviewed} · не начато ${tally.missing} · ждёт заказчика ${tally.owner}`)
-    if (next) console.log(`  Следующий подэтап: ${next.layer}. ${next.name} — пересмотреть против исследования (docs/layers.md, §2; пороги — tools/thresholds.mjs)`)
+    if (next) console.log(`  Следующий подэтап: ${next.layer}. ${next.name} — пересмотреть против ${next.basis ?? 'исследования (docs/layers.md, §2; пороги — tools/thresholds.mjs)'}`)
   }
 
   const problems = gateProblems(stage)
+  const unfinished = stepProblems(stage)
   const next = STAGES.find((s) => s.n === stage.n + 1)
-  console.log(`\n  Ворота${next ? ` (чтобы перейти к ${title(next)})` : ''}:`)
+  console.log('\n  Машинный храповик (держится после каждой правки):')
   for (const p of problems) line('✗', p)
   if (!problems.length && stage.gate.machine.length) line('✓', 'всё, что меряется, держится')
+
+  console.log(`\n  Условия перехода${next ? ` к ${title(next)}` : ''}:`)
+  for (const p of unfinished) line('✗', p)
+  if (!unfinished.length) line('✓', 'все измеримые шаги этапа на месте')
   for (const h of stage.gate.human.mine) line(confirmed(h) ? '✓' : '□', `${h}   ${confirmed(h) ? '(посмотрел — docs/gate.md)' : '(смотрю я)'}`)
   for (const h of stage.gate.human.owner) line(confirmed(h) ? '✓' : '□', `${h}   ${confirmed(h) ? '(подтверждено — docs/gate.md)' : '(РЕШАЕТ ЗАКАЗЧИК)'}`)
 
@@ -112,7 +119,7 @@ if (!stage) {
 if (arg('--gate')) {
   let failed = false
   for (const s of STAGES.filter((s) => s.n < stage.n)) {
-    const problems = gateProblems(s)
+    const problems = transitionProblems(s)
     if (problems.length) {
       failed = true
       console.error(`\n✗ ${title(s)} — пройденные ворота не держатся:`)
@@ -121,7 +128,7 @@ if (arg('--gate')) {
       console.log(`✓ ${title(s)} держится`)
     }
   }
-  const now = gateProblems(stage)
+  const now = transitionProblems(stage)
   /* В счёт идёт неподтверждённое: то, что записано в docs/gate.md, уже
      посмотрено — и спрашивать это заново значит спрашивать дважды (И209). */
   const mine = stage.gate.human.mine.filter((h) => !confirmed(h))
@@ -143,8 +150,8 @@ brief(stage)
 
 const passed = STAGES.filter((s) => s.n < stage.n)
 if (passed.length) {
-  const broken = passed.filter((s) => gateProblems(s).length)
-  console.log(`\n  Пройдено: ${passed.map((s) => `${title(s)} ${gateProblems(s).length ? '✗' : '✓'}`).join(', ')}`)
+  const broken = passed.filter((s) => transitionProblems(s).length)
+  console.log(`\n  Пройдено: ${passed.map((s) => `${title(s)} ${transitionProblems(s).length ? '✗' : '✓'}`).join(', ')}`)
   if (broken.length) console.log('  ✗ пройденные ворота не держатся — npm run check:stage покажет, что именно')
 }
 

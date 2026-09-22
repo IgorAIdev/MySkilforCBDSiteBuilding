@@ -20,7 +20,14 @@ concurrency:
 
 jobs:
   self:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +35,8 @@ jobs:
         with: { node-version: '24' }
       # Замок: проверка не живёт без правила, правило — без дефекта.
       - run: node tools/check-rules.mjs
+      - run: node skills/site-building/scripts/check-resources.mjs
+      - run: node tools/pro-check.mjs
       # Инструменты на самом наборе: у него есть только `styles/`, и всё
       # обязано молчать нулём — иначе новый проект начинается красным.
       - run: node tools/check-css.mjs
@@ -41,3 +50,34 @@ jobs:
       - run: node tools/check-test.mjs
       # Ставщик: новый сайт, обновление, аудит чужого — и что он НЕ трогает.
       - run: node --test "selftest/**/*.test.mjs"
+
+  components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: selftest/component-preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: npm run verify
+      - name: Lighthouse CI on the production component fixture
+        run: |
+          # Use the runner's installed Chrome with its supported Linux sandbox.
+          # Do not disable AppArmor or pass --no-sandbox for Lighthouse.
+          export CHROME_PATH="$(command -v google-chrome)"
+          test -n "$CHROME_PATH"
+          npm run lighthouse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: component-review
+          retention-days: 7
+          path: |
+            dist/component-review
+            selftest/component-preview/dist/lighthouse-reports

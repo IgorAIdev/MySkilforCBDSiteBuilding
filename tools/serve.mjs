@@ -21,9 +21,10 @@
 import { createServer } from 'node:http'
 import { readFile, stat } from 'node:fs/promises'
 import { join, extname, normalize } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const PORT = Number(process.argv[2] ?? 8099)
-const ROOT = join(new URL('..', import.meta.url).pathname, process.argv[3] ?? 'out')
+const ROOT = join(fileURLToPath(new URL('..', import.meta.url)), process.argv[3] ?? 'out')
 const DEFAULT_LANG = 'bg'
 
 const TYPES = {

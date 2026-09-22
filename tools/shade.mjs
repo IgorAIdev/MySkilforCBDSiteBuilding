@@ -41,19 +41,19 @@
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
 
-/* Playwright is installed globally in this environment rather than in the
-   project, so it is resolved by path instead of by name. */
-const { chromium } = await import(
-  process.env.PLAYWRIGHT ?? '/opt/node22/lib/node_modules/playwright/index.mjs')
+const playwright = process.env.PLAYWRIGHT
+  ? await import(process.env.PLAYWRIGHT)
+  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
+const { chromium } = playwright
 import { writeFileSync } from 'node:fs'
 import sharp from 'sharp'
 
 const URL = process.env.URL ?? 'http://localhost:8099/'
 const EDGE = 0.35   // the band a tile falls back to, as a share of its height
 
-const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
-})
+const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE
+  ? { executablePath: process.env.BROWSER_EXECUTABLE }
+  : {})
 /* Ширины, на которых снимается. Крайние — телефон в одну колонку и широкий
    монитор; средняя — та, где сетка стоит тремя колонками и кроп самый узкий. */
 const WIDTHS = [390, 1024, 1560]
