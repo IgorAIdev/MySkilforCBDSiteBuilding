@@ -358,7 +358,12 @@
     {
       "local": "assets/quality/lighthouserc.cjs",
       "description": "Original local utility/configuration; not copied from Saleor.",
-      "sha256": "e09370cfb314b0982b46599ee7748dade18b574df4fa5f371a96c43324194947"
+      "sha256": "0b49e2aac94f850d7163deeb547738784bb0e96fd40657bb2afff836f7b078b8"
+    },
+    {
+      "local": "assets/quality/package-fragment.json",
+      "description": "Pinned tested development-only Lighthouse toolchain; merge rather than replace target package.json.",
+      "sha256": "add469d2cb128e0d4e4861e6adbbeff58a0401ff7d1e7ce4244b98f43805c06c"
     }
   ]
 }

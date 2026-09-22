@@ -63,6 +63,10 @@ test('exported commerce functions work without repo dependencies and quality con
     assert.equal(config.ci.collect.numberOfRuns, 3)
     assert.equal(config.ci.upload.target, 'filesystem')
     assert.equal(config.ci.assert.assertions['categories:accessibility'][1].minScore, 1)
+    const deps = JSON.parse(readFileSync(join(quality, 'package-fragment.json'), 'utf8'))
+    const fixture = JSON.parse(readFileSync(new URL('./component-preview/package.json', import.meta.url), 'utf8'))
+    assert.equal(deps.devDependencies['@lhci/cli'], fixture.devDependencies['@lhci/cli'])
+    assert.deepEqual(deps.overrides, fixture.overrides)
     assert.ok(!existsSync(join(quality, 'variant-selection.mjs')))
   } finally { rmSync(temp, { recursive: true, force: true }) }
 })

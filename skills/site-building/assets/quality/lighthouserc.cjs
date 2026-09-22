@@ -23,7 +23,8 @@ module.exports = {
         'errors-in-console': 'error',
         'document-title': 'error',
         'html-has-lang': 'error',
-        'viewport': 'error',
+        // Lighthouse 13 explicitly replaces the legacy viewport audit with this insight.
+        'viewport-insight': 'error',
       },
     },
     upload: { target: 'filesystem', outputDir: './dist/lighthouse-reports' },

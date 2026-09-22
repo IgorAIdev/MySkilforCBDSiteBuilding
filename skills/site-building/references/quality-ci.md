@@ -11,9 +11,14 @@
 1. Определить репрезентативные URL: главная, список, детальная страница, основной
    пользовательский сценарий. Для checkout использовать тестовые данные, не
    реальные платежи. Не тестировать персональные страницы публичным сервисом.
-2. Добавить проверенную точную версию `@lhci/cli` в devDependencies и lockfile
-   целевого проекта; в стенде набора проверяется 0.15.1. Не переносить его старые
-   транзитивные зависимости в browser bundle. Проверять advisories и обновления.
+2. Добавить проверенные версии из [package-fragment.json](../assets/quality/package-fragment.json)
+   в package.json и обновить lockfile; не заменять package.json целиком и не
+   затирать существующие overrides. В стенде проверяются LHCI 0.15.1 и Lighthouse
+   13.5.0; overrides tmp/uuid устраняют известные старые зависимости CLI.
+   Непереопределённый LHCI 0.15.1 тянул уязвимый extract-zip; новый движок убирает
+   эту цепочку. Перед следующей установкой повторить audit и runtime-проверки:
+   сегодняшние 0 advisories не гарантируют отсутствие будущих. Всё это dev tooling,
+   не browser bundle. Другой package manager требует эквивалентной проверенной фиксации.
 3. Для static build указать SITE_AUDIT_DIST и SITE_AUDIT_URLS (localhost URL через
    запятую) и запустить `lhci autorun --config=путь/lighthouserc.cjs`.
    Для SSR заменить collect.staticDistDir на production startServerCommand,

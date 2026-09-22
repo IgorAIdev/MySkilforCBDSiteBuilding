@@ -68,12 +68,16 @@ jobs:
       - run: npm run verify
       - name: Lighthouse CI on the production component fixture
         run: |
-          export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          # Use the runner's installed Chrome with its supported Linux sandbox.
+          # Do not disable AppArmor or pass --no-sandbox for Lighthouse.
+          export CHROME_PATH="$(command -v google-chrome)"
+          test -n "$CHROME_PATH"
           npm run lighthouse
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: component-review
+          retention-days: 7
           path: |
             dist/component-review
             selftest/component-preview/dist/lighthouse-reports
