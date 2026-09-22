@@ -47,13 +47,14 @@ test('новый сайт: всё разложено, команды допис�
     '.agents/skills/site-building/references/production.md', '.claude/skills/site-building/references/production.md',
     '.agents/skills/site-building/references/reuse.md', '.claude/skills/site-building/references/reuse.md',
     'CLAUDE.md', 'tools/check-css.mjs', 'tools/kit-config.mjs', 'styles/tokens.css',
-    '.claude/skills/craft/SKILL.md', '.claude/skills/taste-skill/SKILL.md', '.claude/settings.json',
+    '.claude/skills/craft/SKILL.md', '.claude/settings.json',
     '.github/workflows/check.yml', 'docs/rules.md', 'install.mjs', 'scripts.mjs']) {
     assert.ok(existsSync(join(dir, f)), `нет ${f}`)
   }
   assert.ok(!existsSync(join(dir, 'templates')), 'заготовки — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'selftest')), 'самопроверка набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'research')), 'исследования набора — не содержимое проекта')
+  assert.ok(!existsSync(join(dir, '.claude/skills/taste-skill')), 'чужие стилевые скиллы не ставятся без --extras')
   assert.ok(!existsSync(join(dir, 'pro')), 'реестр ссылок без снимков не едет в проект')
   assert.ok(!existsSync(join(dir, 'mood-stand.html')), 'локальный стенд не едет в проект')
   assert.doesNotMatch(readFileSync(join(dir, 'docs/gate.md'), 'utf8'), /^- \[x\]/m,
@@ -241,4 +242,41 @@ test('--palette и --scale вместе: папка назначения не п
   assert.equal(Object.keys(JSON.parse(readFileSync(join(dir, 'styles/scale.json'), 'utf8')))[0],
     'Просторный')
   rmSync(dir, { recursive: true, force: true })
+})
+
+test('--skill-only: works on a PHP site without changing application files or installing tooling', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'skill-php-'))
+  try {
+    writeFileSync(join(dir, 'index.php'), '<?php echo "Existing site";')
+    writeFileSync(join(dir, 'AGENTS.md'), '# Existing rules')
+    const r = install(dir, '--skill-only')
+    assert.equal(r.status, 0, r.stderr)
+    assert.equal(readFileSync(join(dir, 'index.php'), 'utf8'), '<?php echo "Existing site";')
+    assert.equal(readFileSync(join(dir, 'AGENTS.md'), 'utf8'), '# Existing rules')
+    for (const name of ['package.json', 'styles', 'tools', 'CLAUDE.md', '.claude/settings.json']) {
+      assert.ok(!existsSync(join(dir, name)), `Unexpected application change: ${name}`)
+    }
+    for (const agent of ['.agents', '.claude']) {
+      assert.ok(existsSync(join(dir, agent, 'skills/site-building/references/platforms.md')))
+      const c = run([join(dir, agent, 'skills/site-building/scripts/check-resources.mjs')], dir)
+      assert.equal(c.status, 0, c.stdout + c.stderr)
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+test('--extras is explicit and retains upstream skill licenses; invalid modes write nothing', () => {
+  const dir = fresh('extras')
+  const invalid = fresh('invalid-mode')
+  try {
+    const r = install(dir, '--extras')
+    assert.equal(r.status, 0, r.stderr)
+    assert.ok(existsSync(join(dir, '.claude/skills/taste-skill/SKILL.md')))
+    const bad = install(invalid, '--skill-only', '--audit')
+    assert.notEqual(bad.status, 0)
+    assert.ok(!existsSync(join(invalid, '.agents')))
+    assert.ok(!existsSync(join(invalid, 'tools')))
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+    rmSync(invalid, { recursive: true, force: true })
+  }
 })

@@ -35,6 +35,7 @@ jobs:
         with: { node-version: '24' }
       # Замок: проверка не живёт без правила, правило — без дефекта.
       - run: node tools/check-rules.mjs
+      - run: node skills/site-building/scripts/check-resources.mjs
       - run: node tools/pro-check.mjs
       # Инструменты на самом наборе: у него есть только `styles/`, и всё
       # обязано молчать нулём — иначе новый проект начинается красным.
@@ -49,3 +50,30 @@ jobs:
       - run: node tools/check-test.mjs
       # Ставщик: новый сайт, обновление, аудит чужого — и что он НЕ трогает.
       - run: node --test "selftest/**/*.test.mjs"
+
+  components:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: selftest/component-preview
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: npm run verify
+      - name: Lighthouse CI on the production component fixture
+        run: |
+          export CHROME_PATH="$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")"
+          npm run lighthouse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: component-review
+          path: |
+            dist/component-review
+            selftest/component-preview/dist/lighthouse-reports

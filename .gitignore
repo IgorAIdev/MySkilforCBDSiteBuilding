@@ -5,3 +5,7 @@
 /shape-stand.html
 /mood-stand.html
 /face-stand.html
+node_modules/
+dist/
+.lighthouseci/
+/palette-stand.html

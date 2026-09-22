@@ -1,0 +1,364 @@
+{
+  "version": 1,
+  "checkedAt": "2026-09-22",
+  "hashNormalization": "UTF-8, CRLF normalized to LF",
+  "sources": [
+    {
+      "sha": "98a1fe67b439324ddc857f47fbdce056600a4329",
+      "date": "2026-09-21T09:05:58Z",
+      "repo": "shadcn-ui/ui",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "selected-files-vendored"
+    },
+    {
+      "sha": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "date": "2026-09-22T05:54:14Z",
+      "repo": "lucide-icons/lucide",
+      "archived": false,
+      "branch": "main",
+      "license": "ISC; MIT for Feather-derived icons",
+      "status": "selected-files-vendored"
+    },
+    {
+      "sha": "5f9bcac2f07ba3d2b360483ed9e0c2588335b26b",
+      "date": "2026-09-21T20:20:17Z",
+      "repo": "payloadcms/payload",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "source-patterns-reviewed"
+    },
+    {
+      "sha": "cccf0a72ec1b88a4e00ea3cffad4d30b35aaf7e7",
+      "date": "2026-09-22T00:15:12Z",
+      "repo": "vendure-ecommerce/vendure",
+      "archived": false,
+      "branch": "master",
+      "license": "NOASSERTION",
+      "status": "candidate-metadata-reviewed"
+    },
+    {
+      "sha": "449f42df3abd2193ad3e740287dc0bcf044b2bfb",
+      "date": "2026-09-21T15:16:09Z",
+      "repo": "puckeditor/puck",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "source-patterns-reviewed"
+    },
+    {
+      "sha": "f7ecd5ab16f5e1e820eb5786a1419a98a2d594ae",
+      "date": "2026-07-31T21:03:26Z",
+      "repo": "radix-ui/primitives",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "candidate-metadata-reviewed"
+    },
+    {
+      "sha": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+      "date": "2026-06-10T20:55:29Z",
+      "repo": "vercel/commerce",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "adapted-files-and-patterns",
+      "reviewedPaths": [
+        "components/product/variant-selector.tsx",
+        "components/cart/actions.ts",
+        "components/cart/cart-context.tsx",
+        "lib/utils.ts",
+        "license.md"
+      ]
+    },
+    {
+      "sha": "15cc3dfee387fd2ada3476d7f441a498e45f87e8",
+      "date": "2026-09-11T13:25:07Z",
+      "repo": "Shopify/hydrogen",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "adapted-files-and-patterns",
+      "reviewedPaths": [
+        "packages/hydrogen/src/cache/strategies.ts",
+        "packages/hydrogen/src/pagination/Pagination.ts#getPaginationVariables",
+        "packages/hydrogen/LICENSE.md"
+      ]
+    },
+    {
+      "sha": "d871b32233642be3a7afa556009d5956bb655c12",
+      "date": "2026-09-17T07:13:28Z",
+      "repo": "medusajs/dtc-starter",
+      "archived": false,
+      "branch": "main",
+      "license": "MIT",
+      "status": "adapted-files-and-patterns",
+      "reviewedPaths": [
+        "apps/storefront/src/lib/util/product-option-filters.ts",
+        "apps/storefront/src/lib/util/money.ts",
+        "apps/storefront/src/lib/util/get-product-price.ts",
+        "apps/storefront/src/modules/products/components/product-actions/index.tsx",
+        "LICENSE"
+      ]
+    },
+    {
+      "sha": "82f1bf576d20b34b3fd35f2a65c25b75dd62939a",
+      "date": "2026-09-15T09:45:16Z",
+      "repo": "saleor/storefront",
+      "archived": false,
+      "branch": "main",
+      "license": "FSL-1.1-ALv2",
+      "status": "patterns-adopted-no-fsl-code-copied",
+      "reviewedPaths": [
+        "src/checkout/lib/payment/integrated-gateways.ts",
+        "src/checkout/lib/payment-gateways.ts",
+        "src/lib/cache-manifest.ts",
+        "LICENSE"
+      ]
+    },
+    {
+      "sha": "ebee453dad3f8acacd657a62ccc65e3296afb7d0",
+      "date": "2025-06-26T00:01:33Z",
+      "repo": "GoogleChrome/lighthouse-ci",
+      "archived": false,
+      "branch": "main",
+      "license": "Apache-2.0",
+      "status": "api-integrated-and-runtime-tested",
+      "reviewedPaths": [
+        "docs/configuration.md",
+        ".lighthouserc.js",
+        "packages/cli/test/fixtures/autorun-static-dir/lighthouserc.json"
+      ]
+    },
+    {
+      "sha": "25140f7c7dfe64c72cfd1b3a254192ada40ec41b",
+      "date": "2026-09-20T10:42:50Z",
+      "repo": "opencart/opencart",
+      "archived": false,
+      "branch": "master",
+      "license": "NOASSERTION",
+      "status": "candidate-metadata-reviewed"
+    }
+  ],
+  "files": [
+    {
+      "local": "assets/components/shadcn/LICENSE.md",
+      "repo": "shadcn-ui/ui",
+      "commit": "98a1fe67b439324ddc857f47fbdce056600a4329",
+      "upstreamPath": "LICENSE.md",
+      "license": "MIT",
+      "licenseFile": "assets/components/shadcn/LICENSE.md",
+      "changes": "Unmodified",
+      "sha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f"
+    },
+    {
+      "local": "assets/components/shadcn/button.tsx",
+      "repo": "shadcn-ui/ui",
+      "commit": "98a1fe67b439324ddc857f47fbdce056600a4329",
+      "upstreamPath": "apps/v4/registry/new-york-v4/ui/button.tsx",
+      "license": "MIT",
+      "licenseFile": "assets/components/shadcn/LICENSE.md",
+      "changes": "Use sibling cn helper and explicit React client boundary. Styling remains upstream candidate; map project tokens before use.",
+      "sha256": "da1584b1d93a1da63b01a9fb787e8db811e1dab8223954408bafb34ac9302062"
+    },
+    {
+      "local": "assets/components/shadcn/dropdown-menu.tsx",
+      "repo": "shadcn-ui/ui",
+      "commit": "98a1fe67b439324ddc857f47fbdce056600a4329",
+      "upstreamPath": "apps/v4/registry/new-york-v4/ui/dropdown-menu.tsx",
+      "license": "MIT",
+      "licenseFile": "assets/components/shadcn/LICENSE.md",
+      "changes": "Use sibling cn helper and explicit React client boundary. Styling remains upstream candidate; map project tokens before use.",
+      "sha256": "4910fc0d93f356239c69107458229c26a39e646dd510b33dc53f2eff433fcc8a"
+    },
+    {
+      "local": "assets/components/shadcn/navigation-menu.tsx",
+      "repo": "shadcn-ui/ui",
+      "commit": "98a1fe67b439324ddc857f47fbdce056600a4329",
+      "upstreamPath": "apps/v4/registry/new-york-v4/ui/navigation-menu.tsx",
+      "license": "MIT",
+      "licenseFile": "assets/components/shadcn/LICENSE.md",
+      "changes": "Use sibling cn helper and explicit React client boundary. Styling remains upstream candidate; map project tokens before use.",
+      "sha256": "234b4b87c4198d5255476cdcdb2b05543a8a9aad815286ab4c9be6581e2722ff"
+    },
+    {
+      "local": "assets/icons/lucide/LICENSE",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "LICENSE",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+    },
+    {
+      "local": "assets/icons/lucide/menu.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/menu.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "af6491988ac1ba30dc5414f485bc48713e957e1edb0fbef4a0dd8691c3c21598"
+    },
+    {
+      "local": "assets/icons/lucide/x.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/x.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "4a9cdab38fbb96162e7dace28e33f4ca0e49d8963a6162abc3d4691b7d675117"
+    },
+    {
+      "local": "assets/icons/lucide/sun.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/sun.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "a3955c8b0425fcc5c9ba12d2bdd77fe53b2cd5dd05e7742a56f342e996fb2ef8"
+    },
+    {
+      "local": "assets/icons/lucide/moon.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/moon.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "205b959e940d5841f0ce1d09c933153da9d9c94130a54d5cc0c68c2af1d403da"
+    },
+    {
+      "local": "assets/icons/lucide/search.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/search.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "283d371c2e433817bb9c0c8310caa6c77fa4177c0f4f1168d9c83b97af7389dc"
+    },
+    {
+      "local": "assets/icons/lucide/chevron-down.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/chevron-down.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "66ea878e72ed3488bb3b464c39dfdccee8d1f78e560dccea40e5e12da0e87e87"
+    },
+    {
+      "local": "assets/icons/lucide/check.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/check.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "7f33acc9a77a61659531044525fc008edebe215bf4dcf1c789c8674ad3277db0"
+    },
+    {
+      "local": "assets/icons/lucide/shopping-cart.svg",
+      "repo": "lucide-icons/lucide",
+      "commit": "b0b1a4f8abcb46833d2f6f89952602ddd39c889a",
+      "upstreamPath": "icons/shopping-cart.svg",
+      "license": "ISC and MIT for Feather-derived icons",
+      "licenseFile": "assets/icons/lucide/LICENSE",
+      "changes": "Unmodified",
+      "sha256": "7cdc07053044af9e5fd24fff5e089ce97b2a39ea978933a160c4bbfebf8a167c"
+    },
+    {
+      "local": "assets/commerce/variant-selection.mjs",
+      "repo": "vercel/commerce",
+      "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+      "upstreamPath": "components/product/variant-selector.tsx",
+      "license": "MIT",
+      "changes": "Extracted backend-neutral selection and URL helpers; stable IDs, invalid/ambiguous states; no React/Next/Shopify.",
+      "sha256": "41cdd516c56540317ce2b7f54cdaf3cc8118aea87551f87e39bc67754b919505",
+      "licenseFile": "assets/commerce/VERCEL-LICENSE.md"
+    },
+    {
+      "local": "assets/commerce/pagination.mjs",
+      "repo": "Shopify/hydrogen",
+      "commit": "15cc3dfee387fd2ada3476d7f441a498e45f87e8",
+      "upstreamPath": "packages/hydrogen/src/pagination/Pagination.ts",
+      "license": "MIT",
+      "changes": "Extracted getPaginationVariables to ESM; bounds validation and scoped reset helper.",
+      "sha256": "681e3cd226fab50449eb10f3c0099b2202b3ed5696ef66f7b9e88281f058dfc9",
+      "licenseFile": "assets/commerce/SHOPIFY-LICENSE.md"
+    },
+    {
+      "local": "assets/commerce/cache-policy.mjs",
+      "repo": "Shopify/hydrogen",
+      "commit": "15cc3dfee387fd2ada3476d7f441a498e45f87e8",
+      "upstreamPath": "packages/hydrogen/src/cache/strategies.ts",
+      "license": "MIT",
+      "changes": "Adapted header mapping; public opt-in, mutations/personal no-store, directive validation, no copied fixed TTL.",
+      "sha256": "fbf8be8fde3a7756ff2b720ffba781ac1be45e89b70da134b06e76fe656f7754",
+      "licenseFile": "assets/commerce/SHOPIFY-LICENSE.md"
+    },
+    {
+      "local": "assets/commerce/option-filters.mjs",
+      "repo": "medusajs/dtc-starter",
+      "commit": "d871b32233642be3a7afa556009d5956bb655c12",
+      "upstreamPath": "apps/storefront/src/lib/util/product-option-filters.ts",
+      "license": "MIT",
+      "changes": "ESM extraction; consistent repeated/comma parsing, trim/deduplication across input formats.",
+      "sha256": "ae73f32956ded8993f0d817be255158765bcffdeb2e9c826b847a21c7606179c",
+      "licenseFile": "assets/commerce/MEDUSA-LICENSE.md"
+    },
+    {
+      "local": "assets/commerce/VERCEL-LICENSE.md",
+      "repo": "vercel/commerce",
+      "commit": "3761e52e60df9c6a316e067dbfd7032e494d3634",
+      "upstreamPath": "license.md",
+      "license": "MIT",
+      "changes": "Unmodified license text.",
+      "sha256": "ee765244e2d59f5234d474f62e0766fa0c8b99af967fdd4c0cb8dcb0c76ea224",
+      "licenseFile": "assets/commerce/VERCEL-LICENSE.md"
+    },
+    {
+      "local": "assets/commerce/SHOPIFY-LICENSE.md",
+      "repo": "Shopify/hydrogen",
+      "commit": "15cc3dfee387fd2ada3476d7f441a498e45f87e8",
+      "upstreamPath": "packages/hydrogen/LICENSE.md",
+      "license": "MIT",
+      "changes": "Unmodified license text.",
+      "sha256": "f1d90feb56b8aa52e19600b158efe60d0e157c7d95fcc7c171002b1e221c1293",
+      "licenseFile": "assets/commerce/SHOPIFY-LICENSE.md"
+    },
+    {
+      "local": "assets/commerce/MEDUSA-LICENSE.md",
+      "repo": "medusajs/dtc-starter",
+      "commit": "d871b32233642be3a7afa556009d5956bb655c12",
+      "upstreamPath": "LICENSE",
+      "license": "MIT",
+      "changes": "Unmodified license text.",
+      "sha256": "770a61c897d73cdeb53ff2a367d537a80eccf57b31f81e4a5fe951fecc40c632",
+      "licenseFile": "assets/commerce/MEDUSA-LICENSE.md"
+    }
+  ],
+  "localFiles": [
+    {
+      "local": "assets/components/shadcn/cn.ts",
+      "sha256": "52d2f4d6499a84b38e197755a32b5796e7eba6c92fa73592c179d5d9f7df70c9",
+      "origin": "Original local helper; uses clsx and tailwind-merge APIs"
+    },
+    {
+      "local": "assets/commerce/mutation-lane.mjs",
+      "description": "Original local utility/configuration; not copied from Saleor.",
+      "sha256": "c9ec345da37de435d56c7581dc781a92abadf4990b06d943174308995de18bfc"
+    },
+    {
+      "local": "assets/quality/lighthouserc.cjs",
+      "description": "Original local utility/configuration; not copied from Saleor.",
+      "sha256": "e09370cfb314b0982b46599ee7748dade18b574df4fa5f371a96c43324194947"
+    }
+  ]
+}

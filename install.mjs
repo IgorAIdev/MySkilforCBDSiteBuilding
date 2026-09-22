@@ -9,7 +9,7 @@
  *                                     скиллы; базы храповиков, CLAUDE.md,
  *                                     правила и шкалы проекта — не трогает
  *   node install.mjs --audit .        чужой готовый сайт: только проверки, свои
- *                                     четыре скилла и kit.config.json; ничего
+ *                                     шесть скиллов и kit.config.json; ничего
  *                                     проектного не пишет, хуков не вешает
  *
  * Почему это отдельный скрипт, а не «склонируйте репозиторий»: набор — не
@@ -57,7 +57,7 @@ const flags = new Set(args.filter((a) => a.startsWith('--')))
    «Латунь на угле» за папку назначения (И213). */
 const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
-const MODE = flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
+const MODE = flags.has('--skill-only') ? 'skill-only' : flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
 /* Набор цвета, выбранный заказчиком, — ключом при постановке:
    `node install.mjs --palette "Латунь на угле" ../мой-сайт`.
@@ -72,8 +72,8 @@ const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith
 const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette', '--scale'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --update, --audit, --force, --palette "Имя", --scale "Имя".`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя".`)
     process.exit(1)
   }
 }
@@ -82,12 +82,25 @@ if (OUT === SRC) {
   process.exit(1)
 }
 
+// A self-contained instruction bundle for any platform; no project config changes.
+if (MODE === 'skill-only') {
+  if (flags.size !== 1) {
+    console.error('--skill-only не смешивается с установкой инструментов или шкал.')
+    process.exit(1)
+  }
+  for (const agent of ['.agents', '.claude']) {
+    copy(join(SRC, 'skills/site-building'), join(OUT, agent, 'skills/site-building'))
+  }
+  console.log(`Скилл установлен в ${OUT}: .agents/skills/site-building и .claude/skills/site-building. Файлы сайта не изменены.`)
+  process.exit(0)
+}
+
 /** Принадлежит ПРОЕКТУ, как только в нём появилось: правила, шкалы, тесты,
  *  линтер, рабочий процесс. Набор пишет их один раз — новому сайту. */
 const PROJECT_OWNED = ['AGENTS.md', 'CLAUDE.md', 'docs', 'styles', 'tests', '.oxlintrc.json',
   '.github/workflows/check.yml', 'styles/palette.json']
 
-/** Свои четыре скилла — то, ради чего набор существует. Остальные в
+/** Свои шесть скиллов — то, ради чего набор существует. Остальные в
  *  `.claude/skills/` — чужие, о вкусе и процессе; на чужой сайт для аудита
  *  они не едут: там могут стоять свои. */
 const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
@@ -178,14 +191,18 @@ if (MODE === 'update') {
   }
 }
 
-/* Скиллы: новому сайту и обновлению — все, с лицензиями; аудиту — четыре. */
-if (MODE === 'audit') {
+/* По умолчанию только собственные предметные инструкции. Сторонний архив
+   вкуса и процесса устанавливается явно; существующие навыки не удаляются. */
+if (!flags.has('--extras') || MODE === 'audit') {
   for (const s of OWN_SKILLS) {
     copy(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s))
   }
   moved.push(`.claude/skills/{${OWN_SKILLS.join(',')}}`)
 } else {
   copy(join(SRC, '.claude/skills'), join(OUT, '.claude/skills'))
+  moved.push('дополнительные скиллы с лицензиями')
+}
+if (MODE !== 'audit') {
   /* settings.json у проекта может быть свой — с разрешениями и своими
      хуками. Его не затираем: хуки набора ДОПИСЫВАЮТСЯ к существующим. */
   mergeHooks(join(SRC, '.claude/settings.json'), join(OUT, '.claude/settings.json'))
@@ -316,7 +333,7 @@ console.log(`${title}: набор разложен в ${OUT} — ${moved.join(',
 if (kept.length) console.log(`  · оставлены свои: ${kept.join(', ')} (долг проекта не прощается)`)
 if (MODE === 'new') {
   console.log('  · CLAUDE.md — правила, читаются раньше кода каждой сессией')
-  console.log('  · .claude/skills — свои craft, code, shop, stages плюс вкус, движение, стиль, процесс')
+  console.log('  · .claude/skills — шесть предметных скиллов; сторонние только с --extras')
   console.log('  · .claude/settings.json — хуки: брифинг этапа сам в начале сессии, проверка сама после правки')
   console.log('  · .github/workflows/check.yml — проверки падают сами, без чьей-либо памяти')
   console.log('  · базы храповиков на нулях — на новом проекте долга нет')
