@@ -16,7 +16,8 @@ export type ListingQuery = { category?: string; q?: string; facets: Record<strin
 export type Listing = { items: Card[]; total: number; page: number; pages: number; facets: Facet[]; invalid: string[] }
 export type Doc = { slug: string; title: string; summary: string; sections: { heading: string; body: string }[]; table: 'delivery' | null }
 export type Block =
-  | { type: 'hero'; title: string; lede: string; cta: string }
+  /** Герой — заголовок, абзац и кнопка ПОВЕРХ широкого снимка (`image`, ≈ 16:10). */
+  | { type: 'hero'; title: string; lede: string; cta: string; image: Image }
   | { type: 'categories'; title: string }
   | { type: 'featured'; title: string; ids: string[] }
   | { type: 'lab'; title: string; body: string }

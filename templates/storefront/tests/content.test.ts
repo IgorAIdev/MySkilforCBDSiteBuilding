@@ -9,6 +9,10 @@ test('home page blocks exist in every language, in one order, and point at real 
     assert.ok(r.ok, lang)
     assert.deepEqual(r.value.blocks.map((b) => b.type), ['hero', 'categories', 'featured', 'lab', 'delivery', 'faq'])
     for (const b of r.value.blocks) if (b.type === 'featured') for (const id of b.ids) assert.ok(PRODUCTS.some((p) => p.id === id), id)
+    /* Герой лежит поверх широкого снимка — снимок у него свой, а не первая
+       карточка полки (флакон во весь экран под заголовком). */
+    const hero = r.value.blocks.find((b) => b.type === 'hero')
+    assert.ok(hero?.type === 'hero' && hero.image.width > hero.image.height, `${lang}: снимок героя широкий`)
   }
 })
 

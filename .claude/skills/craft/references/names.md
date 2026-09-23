@@ -90,8 +90,8 @@ is»; Curtis (Purposeful vs Aesthetic) — перекраска марки пе�
 | layout | `--wrap`, `--gut`, `--head`, `--anchor`, `--float`, `--chrome`, `--tile` | роль |
 | ручки примитивов | `--stack-*`, `--cluster-*`, `--switch-*`, `--rail-*`, `--section-*`, `--sheet-*`, `--lede-*`, `--hero-*`, `--grid-*`, `--cols-*`, `--cell-*`, `--pin-*`, `--tray-*`, `--leaf-*`, `--chip-*`, `--qty-*`, `--more-*`, `--chan-*`, `--side-*`, `--prose-*`, `--pinned-*`, `--sidebar-*`, `--frame-*`, `--btn-*` | узел |
 | сырьё | `--n-N`, `--a-N`, `--e-N`, `--sale-N`, `--warn-N`, `--ok-N`, `--info-N`, `--on-*-N`, `--sp-N`, `--fs-*` | сырьё |
-| обязательные роли | `--bad`, `--bad-fill`, `--on-bad`, `--bad-tint`, `--bad-line`, `--ok`, `--ok-fill`, `--on-ok`, `--ok-tint`, `--warn`, `--warn-fill`, `--on-warn`, `--warn-tint`, `--sale`, `--sale-fill`, `--on-sale`, `--sale-tint`, `--pop-press`, `--r-pop`, `--ease-exit`, `--plate-2`, `--rule`, `--field`, `--scrim`, `--layer-helper`, `--layer-toast` | роль |
-| объявлений в стилях набора | 794, по форме 794 | `tools/names.mjs`, `parse()` |
+| обязательные роли | `--bad`, `--bad-fill`, `--on-bad`, `--bad-tint`, `--bad-line`, `--ok`, `--ok-fill`, `--on-ok`, `--ok-tint`, `--warn`, `--warn-fill`, `--on-warn`, `--warn-tint`, `--sale`, `--sale-fill`, `--on-sale`, `--sale-tint`, `--pop-press`, `--r-pop`, `--ease-exit`, `--plate-2`, `--rule`, `--field`, `--scrim`, `--scrim-deck`, `--layer-helper`, `--layer-toast` | роль |
+| объявлений в стилях набора | 795, по форме 795 | `tools/names.mjs`, `parse()` |
 <!-- /families:names -->
 
 ## Роли, обязанные существовать

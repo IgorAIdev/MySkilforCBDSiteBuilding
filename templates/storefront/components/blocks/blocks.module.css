@@ -7,10 +7,58 @@
 .point svg{inline-size:calc(var(--ctrl-h-sm) * .6);block-size:calc(var(--ctrl-h-sm) * .6)}
 .h3{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
 .h3 a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
-/* Воздух под героем платит раздел, стоящий ниже (`.section` ставит просвет
-   над собой), поэтому ручка `--lede-air` снизу — ноль: иначе шов оплачен
-   дважды, 72 + 88 (check:craft, twoAir). */
-.hero{--lede-air:var(--air-page) 0}
+/* ГЕРОЙ — снимок во всю коробку страницы, текст ПОВЕРХ него внизу слева.
+   Замер 23.09.2026: текст на снимке у 11–12 магазинов из 13, снимок —
+   70–80 % высоты окна. Большим снимок бывает только здесь; кадра под
+   текстом (флакон во весь экран под заголовком) больше нет.
+
+   Пол героя стоит на внешнем крае страницы (`flush` на коробке), линия
+   текста внутри — его поле, как у листа. Высота — 72 % малого окна;
+   тексту, которому мало (телефон в альбоме), герой уступает и растёт.
+   Воздух под героем платит раздел ниже (`.section` ставит просвет над
+   собой) — снизу у полосы ноль, иначе шов оплачен дважды (check:craft,
+   twoAir).
+
+   Вуаль — роль `--scrim-deck` (styles/tokens.css): самая тёмная нейтраль
+   темы, в светлой — чернила, в тёмной — бумага. На ней пишет палуба
+   (`data-ground="deck"`, styles/base.css): светлые чернила и светлая
+   громкая кнопка в обеих темах. Под текстом
+   вуаль не прозрачнее 72 %: белый лист под ней дал бы 6.3 : 1 для
+   заголовка и 4.6 : 1 для тихой строки — порог 4.5 держится на ЛЮБОМ
+   снимке заказчика, не только на образце. Сверху полосы — растворение на
+   воздух полосы, там текста нет. На узком (< 820 коробки) текст идёт во
+   всю ширину, и вуаль ровная; на широком текст держит колонку
+   `--hero-w` слева, а вуаль сходит на нет к правому краю, открывая
+   снимок. Снимок кадрируется вокруг правой трети (`object-position`):
+   там предметы сцены, левый нижний угол — под текстом. */
+.heroBand{padding-block-start:var(--air-group)}
+.hero{
+  --hero-w:36rem;
+  position:relative;display:flex;align-items:flex-end;
+  min-block-size:72svh;overflow:hidden;
+  border-radius:var(--r-sheet);background:var(--scrim-deck);
+  container-type:inline-size
+}
+.heroShot{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:cover;object-position:72% 50%}
+.heroText{
+  position:relative;isolation:isolate;inline-size:100%;
+  display:flex;flex-direction:column;align-items:flex-start;gap:var(--air-group);
+  padding:calc(var(--air-band) + var(--pad-sheet)) var(--pad-sheet) var(--pad-sheet)
+}
+.heroText::before{
+  content:'';position:absolute;inset:0;z-index:-1;
+  background:color-mix(in srgb, var(--scrim-deck) 80%, transparent);
+  mask-image:linear-gradient(to top, #000 calc(100% - var(--air-band)), transparent)
+}
+.heroText h1{font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
+.heroText p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede);text-wrap:pretty}
+@container (min-width:820px){
+  .heroText{padding-inline-end:max(var(--pad-sheet), 100% - var(--hero-w))}
+  .heroText::before{background:linear-gradient(to right,
+    color-mix(in srgb, var(--scrim-deck) 86%, transparent),
+    color-mix(in srgb, var(--scrim-deck) 72%, transparent) 70%,
+    transparent)}
+}
 /* Вопросы — строки одной группы: между ними ритм строки, а не ноль
    (check:craft, collision). */
 .faq{--stack:var(--air-row)}

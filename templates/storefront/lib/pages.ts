@@ -1,7 +1,11 @@
 import type { Lang } from './locale.ts'
-import type { Block } from './source/contract.ts'
+import type { Block, Image } from './source/contract.ts'
+import { scene } from './source/sample/art.ts'
 
 type SamplePage = { title: Record<Lang, string>; description: Record<Lang, string>; blocks: Record<Lang, Block[]> }
+/* Снимок героя — сцена-образец (art.ts): текст героя лежит поверх него, поэтому
+   подпись пустая — смысл несут заголовок и абзац, картинка их не повторяет. */
+const HERO: Image = { src: scene(), alt: '', width: 1600, height: 1000 }
 const FEATURED = ['ulei-cbd-full-spectrum', 'capsule-cbd-25', 'crema-cbd', 'ulei-caini-cbd']
 
 /* Блоки главной — как придут из Payload (план 4): тип и поля, без вида. */
@@ -15,7 +19,7 @@ export const PAGES: Record<string, SamplePage> = {
     },
     blocks: {
       ro: [
-        { type: 'hero', title: 'Produse CBD cu buletin de analiză pentru fiecare lot', lede: 'Uleiuri, capsule și cosmetice din cânepă. Numărul lotului de pe etichetă este același cu cel din buletinul laboratorului.', cta: 'Vedeți produsele' },
+        { type: 'hero', title: 'Produse CBD cu buletin de analiză pentru fiecare lot', lede: 'Uleiuri, capsule și cosmetice din cânepă. Numărul lotului de pe etichetă este același cu cel din buletinul laboratorului.', cta: 'Vedeți produsele', image: HERO },
         { type: 'categories', title: 'Categorii' },
         { type: 'featured', title: 'Cele mai vândute', ids: FEATURED },
         { type: 'lab', title: 'Buletin de analiză pentru fiecare lot', body: 'Laboratorul măsoară CBD, THC, metale grele, pesticide și solvenți. Buletinul fiecărui lot este pe pagina produsului.' },
@@ -32,7 +36,7 @@ export const PAGES: Record<string, SamplePage> = {
         ] },
       ],
       en: [
-        { type: 'hero', title: 'CBD products with a lab report for every batch', lede: 'Oils, capsules and cosmetics made from hemp. The batch number on the label is the same as in the lab report.', cta: 'See the products' },
+        { type: 'hero', title: 'CBD products with a lab report for every batch', lede: 'Oils, capsules and cosmetics made from hemp. The batch number on the label is the same as in the lab report.', cta: 'See the products', image: HERO },
         { type: 'categories', title: 'Categories' },
         { type: 'featured', title: 'Best sellers', ids: FEATURED },
         { type: 'lab', title: 'A lab report for every batch', body: 'The lab measures CBD, THC, heavy metals, pesticides and solvents. Every batch report is on the product page.' },
@@ -49,7 +53,7 @@ export const PAGES: Record<string, SamplePage> = {
         ] },
       ],
       hu: [
-        { type: 'hero', title: 'CBD termékek minden tételhez laborjegyzőkönyvvel', lede: 'Kenderből készült olajok, kapszulák és kozmetikumok. A címkén lévő tételszám megegyezik a laborjegyzőkönyvben szereplővel.', cta: 'Termékek megtekintése' },
+        { type: 'hero', title: 'CBD termékek minden tételhez laborjegyzőkönyvvel', lede: 'Kenderből készült olajok, kapszulák és kozmetikumok. A címkén lévő tételszám megegyezik a laborjegyzőkönyvben szereplővel.', cta: 'Termékek megtekintése', image: HERO },
         { type: 'categories', title: 'Kategóriák' },
         { type: 'featured', title: 'Legnépszerűbb termékek', ids: FEATURED },
         { type: 'lab', title: 'Minden tételhez laborjegyzőkönyv', body: 'A labor méri a CBD- és THC-tartalmat, a nehézfémeket, a növényvédő szereket és az oldószereket. Minden tétel jegyzőkönyve a termékoldalon található.' },
