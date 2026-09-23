@@ -8,11 +8,13 @@ import { pickState, optionLinks, type OptionGroupLinks } from './variant.ts'
 import { shelfCard, stockText, type ShelfCard } from './view.ts'
 
 export type LabView = { title: string; rows: [string, string][] }
+export type BuyView = { variant: string | null; add: string; quantity: string; view: { label: string; href: string }; timeout: string; failed: string }
 export type ProductPageView = {
   crumbs: { name: string; href?: string }[]; crumbLabel: string
   eyebrow: string; name: string; price: string; stock: string | null; message: string | null
   image: Image; groups: OptionGroupLinks[]; lab: LabView | null; description: string
   related: ShelfCard[]; relatedTitle: string
+  buy: BuyView
 }
 
 function labView(lang: Lang, r: LabReport): LabView {
@@ -43,6 +45,10 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
     : state.status === 'missing' || state.status === 'invalid' ? t(lang, 'product.missing')
     : null
   const report = chosen ? product.labReports.find((r) => r.batch === chosen.batch) : product.labReports[0]
+  /* В корзину идёт только выбранный вариант в наличии; у товара с одним
+     вариантом он выбран сам. Кнопка без варианта выключена: почему — уже
+     сказано строкой выбора или наличия над ней. */
+  const buyable = chosen ?? (product.variants.length === 1 ? product.variants[0] : null)
   return {
     crumbs: [
       { name: t(lang, 'crumb.home'), href: hrefFor(lang, { home: true }) },
@@ -61,5 +67,11 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
     description: product.description,
     related: ctx.related.map((c) => shelfCard(lang, c)),
     relatedTitle: t(lang, 'product.related'),
+    buy: {
+      variant: buyable && buyable.stock !== 'out' ? buyable.id : null,
+      add: t(lang, 'cart.add'), quantity: t(lang, 'cart.quantity'),
+      view: { label: t(lang, 'cart.view'), href: hrefFor(lang, { cart: true }) },
+      timeout: t(lang, 'cart.error.timeout'), failed: t(lang, 'cart.error.unavailable'),
+    },
   }
 }

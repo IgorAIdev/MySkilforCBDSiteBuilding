@@ -41,7 +41,8 @@
 | протокол лаборатории | buletin de analiză | lab report | laborvizsgálati jegyzőkönyv | не «certificat»: это протокол измерения |
 | концентрация | concentrație | strength | erősség | проценты и мг — два факта, не один |
 | курьер до двери | curier la domiciliu | courier to your door | futár házhoz | |
-| постамат | easybox | parcel locker | csomagautomata | easybox — имя сети |
+| постамат | locker | parcel locker | csomagautomata | имя сети и службы — данные, не слово интерфейса (И261) |
+| пункт выдачи | punct de ridicare | pickup point | átvételi pont | |
 | наложенный платёж | ramburs | cash on delivery | utánvét | |
 | код скидки | cod de reducere | discount code | kedvezménykód | |
 
@@ -51,12 +52,14 @@
 | --- | --- | --- | --- |
 | положить в корзину | Adaugă în coș | Add to cart | Kosárba |
 | перейти к оформлению | Finalizează comanda | Continue to checkout | Tovább a pénztárhoz |
-| подтвердить заказ | Trimite comanda | Place order | Megrendelés elküldése |
+| подтвердить заказ | Comandă cu obligație de plată | Order with obligation to pay | Megrendelés fizetési kötelezettséggel |
 | применить код | Aplică | Apply | Beváltás |
 | убрать из корзины | Șterge | Remove | Eltávolítás |
 | применить фильтры | Aplică filtrele | Apply filters | Szűrők alkalmazása |
 | сбросить фильтры | Șterge filtrele | Clear filters | Szűrők törlése |
 | искать | Caută | Search | Keresés |
+
+Кнопка заказа называет обязанность платить — Директива 2011/83/ЕС, ст. 8(2) (И262). Формулировку внутри этой рамки утверждает заказчик.
 
 ## Ошибки у поля
 
@@ -66,19 +69,23 @@
 | e-mail неполон | Adresa de e-mail pare incompletă | de exemplu nume@exemplu.ro | The email looks incomplete, e.g. name@example.com | Az e-mail-cím hiányosnak tűnik, például nev@pelda.hu |
 | телефон | Introduceți numărul de telefon | de exemplu 0722 123 456 | Enter your phone number, e.g. 0722 123 456 | Adja meg telefonszámát, például 0722 123 456 |
 | код скидки | Codul nu este valabil | verificați-l și introduceți-l fără spații | The code is not valid; check it and enter it without spaces | A kód nem érvényes; ellenőrizze, és szóközök nélkül írja be |
-| количество больше остатка | Mai sunt doar {n} buc. | micșorați cantitatea sau alegeți altă variantă | Only {n} left; lower the quantity or pick another option | Csak {n} db van; csökkentse a mennyiséget, vagy válasszon másik változatot |
+| количество больше остатка | Avem doar {n} buc. în stoc | atât sunt acum în coș | We only have {n} in stock — that is how many are in your cart now | Csak {n} db van raktáron — most ennyi van a kosárban |
 | обязательное поле | Completați câmpul | pentru a continua | Fill in this field to continue | A folytatáshoz töltse ki a mezőt |
+| индекс | Verificați codul poștal | de exemplu {example} | Check the postcode, e.g. {example} | Ellenőrizze az irányítószámot, például {example} |
+| слишком длинно | Scurtați textul | la cel mult {n} caractere | Shorten this to at most {n} characters | Legfeljebb {n} karakter lehet |
 
 ## Пустые экраны
 
 | Экран | ro | Шаг | en | hu |
 | --- | --- | --- | --- | --- |
-| пустая корзина | Coșul este gol | Vedeți uleiurile | Your cart is empty — browse the oils | A kosár üres — nézze meg az olajokat |
+| пустая корзина | Coșul este gol | Vedeți produsele | Your cart is empty — see the products | A kosár üres — termékek megtekintése |
 | поиск без результатов | Niciun rezultat pentru „{q}” | Verificați ortografia sau vedeți toate produsele | No results for “{q}” — check the spelling or see all products | Nincs találat: „{q}” — ellenőrizze a helyesírást, vagy nézze meg az összes terméket |
 | фильтры без результатов | Niciun produs nu corespunde filtrelor | Ștergeți unul dintre filtre | No products match these filters — clear one | Nincs a szűrőknek megfelelő termék — töröljön egy szűrőt |
 | пустая категория | Nu sunt produse în această categorie | Vedeți toate produsele | There are no products in this category — see all products | Ebben a kategóriában nincs termék — összes termék |
 | нет заказов | Nu aveți încă nicio comandă | Mergeți la magazin | No orders yet — go to the shop | Még nincs rendelése — irány a bolt |
 | магазин не отвечает | Magazinul nu răspunde momentan | Încercați din nou peste un minut | The shop is not responding — try again in a minute | A bolt jelenleg nem válaszol — próbálja újra egy perc múlva |
+| нет точек выдачи | Niciun punct de ridicare în „{city}” | Încercați o localitate apropiată | No pickup points in “{city}” — try a nearby town | Nincs átvételi pont itt: „{city}” — próbáljon egy közeli települést |
+| нет свежего заказа | Nu există o comandă recentă de afișat | Mergeți la produse | There is no recent order to show — go to the products | Nincs megjeleníthető friss rendelés — tovább a termékekhez |
 
 «Магазин не отвечает» — не «пусто»: источник недоступен и пустой каталог —
 разные состояния.

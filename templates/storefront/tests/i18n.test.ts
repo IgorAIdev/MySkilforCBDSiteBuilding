@@ -35,3 +35,19 @@ test('Romanian uses comma-below ș ț, never cedilla ş ţ', () => {
 test('the storefront words dictionary is well-formed', () => {
   assert.deepEqual(auditWords(readFileSync(new URL('../docs/words.md', import.meta.url), 'utf8')), [])
 })
+
+/* И262: кнопка заказа называет обязанность платить — Директива 2011/83/ЕС,
+   ст. 8(2); без этого договор покупателя не обязывает. */
+test('the order button names the obligation to pay', () => {
+  assert.match(RO['order.place'], /obligație de plată/)
+  assert.match(EN['order.place'], /obligation to pay/)
+  assert.match(HU['order.place'], /fizetési kötelezettség/)
+})
+
+test('a range of days counts by its upper end', () => {
+  assert.equal(tn('ro', 'delivery.span', 3, { min: 1 }), '1–3 zile lucrătoare')
+  assert.equal(tn('ro', 'delivery.day', 1), '1 zi lucrătoare')
+  assert.equal(tn('ro', 'delivery.day', 20), '20 de zile lucrătoare')
+  assert.equal(tn('en', 'delivery.day', 1), '1 working day')
+  assert.equal(tn('hu', 'delivery.span', 2, { min: 1 }), '1–2 munkanap')
+})

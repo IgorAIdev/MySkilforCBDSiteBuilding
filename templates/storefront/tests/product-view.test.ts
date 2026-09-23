@@ -39,3 +39,17 @@ test('a single product has its own price and no choice to make', async () => {
   assert.equal(v.groups.length, 0)
   assert.equal(v.lab, null)
 })
+
+test('buying: only a chosen variant in stock can go to the cart', async () => {
+  const oil = await sample.product('ro', 'ulei-cbd-full-spectrum')
+  assert.ok(oil.ok)
+  assert.equal(productView('ro', oil.value, {}, none).buy.variant, null)
+  assert.equal(productView('ro', oil.value, { putere: '20', volum: '10' }, none).buy.variant, 'uf-20-10')
+  assert.equal(productView('ro', oil.value, { putere: '30', volum: '10' }, none).buy.variant, null)
+  const cream = await sample.product('ro', 'crema-cbd')
+  assert.ok(cream.ok)
+  const buy = productView('ro', cream.value, {}, none).buy
+  assert.equal(buy.variant, 'cr-50')
+  assert.equal(buy.add, 'Adaugă în coș')
+  assert.equal(buy.view.href, '/ro/cart')
+})

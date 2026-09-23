@@ -27,3 +27,11 @@ test('a slug or id is one encoded path segment: a space, a diacritic or a slash 
   assert.equal(hrefFor('ro', { doc: 'politica de retur' }), '/ro/info/politica%20de%20retur')
   assert.equal(hrefFor('ro', { category: 'uleiuri', page: 2 }), '/ro/catalog/uleiuri?page=2')
 })
+
+test('cart and checkout addresses', () => {
+  assert.equal(hrefFor('ro', { cart: true }), '/ro/cart')
+  assert.equal(hrefFor('ro', { cart: true, result: 'ok:add' }), '/ro/cart?r=ok%3Aadd')
+  assert.equal(hrefFor('hu', { checkout: 'delivery' }), '/hu/checkout/delivery')
+  assert.equal(hrefFor('ro', { checkout: 'delivery', city: 'București' }), '/ro/checkout/delivery?city=Bucure%C8%99ti')
+  assert.equal(hrefFor('en', { checkout: 'done' }), '/en/checkout/done')
+})

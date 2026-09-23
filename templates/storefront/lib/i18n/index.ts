@@ -17,9 +17,10 @@ export function t(lang: Lang, key: Key, vars: Record<string, string | number> = 
   })
 }
 
-/** Счёт по правилам языка: по-румынски 1 produs, 12 produse, 20 de produse. */
-export function tn(lang: Lang, base: PluralBase, n: number): string {
+/** Счёт по правилам языка: по-румынски 1 produs, 12 produse, 20 de produse.
+ *  Другие переменные строки — рядом со счётом: «1–3 zile» считается по 3. */
+export function tn(lang: Lang, base: PluralBase, n: number, vars: Record<string, string | number> = {}): string {
   const form = new Intl.PluralRules(intlLocale(lang)).select(n)
   const key = (form === 'one' || form === 'few' ? `${base}.${form}` : `${base}.other`) as Key
-  return t(lang, key, { n })
+  return t(lang, key, { ...vars, n })
 }
