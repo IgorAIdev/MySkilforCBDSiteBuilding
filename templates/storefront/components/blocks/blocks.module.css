@@ -6,14 +6,6 @@
 .point{--stack:var(--air-row)}
 .point svg{inline-size:calc(var(--ctrl-h-sm) * .6);block-size:calc(var(--ctrl-h-sm) * .6)}
 .h3{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
-/* Текстовый блок (лаборатория): заголовок раздела и лид под ним — те же
-   роли, что у `sectionHead`, но без его нижнего поля до содержимого. */
-.say{--stack:var(--sp-2)}
-.h2{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
-.say p{
-  color:var(--ink-soft);max-inline-size:var(--measure-lede);
-  font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);letter-spacing:var(--lede-track)
-}
 .h3 a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
 /* Воздух под героем платит раздел, стоящий ниже (`.section` ставит просвет
    над собой), поэтому ручка `--lede-air` снизу — ноль: иначе шов оплачен
