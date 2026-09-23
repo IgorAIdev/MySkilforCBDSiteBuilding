@@ -1,5 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readdirSync, readFileSync } from 'node:fs'
 import { parseContact, parseAddress } from '../lib/checkout-form.ts'
 
 const form = (fields: Record<string, string>) => {
@@ -38,4 +39,16 @@ test('address: the market’s postcode pattern, spaces forgiven, country from th
   const bad = parseAddress('ro', form({ street: 'S 1', city: 'C', region: 'R', postalCode: '01001' }))
   assert.ok(!bad.ok)
   assert.deepEqual(bad.errors, { postalCode: 'Verificați codul poștal, de exemplu 010011.' })
+})
+
+/* И265: выбор в группе не отправляет форму. Стрелки в группе радиокнопок
+   меняют выбор; отправка на изменение уводила покупателя с клавиатурой и
+   чтением с экрана на следующий шаг и роняла фокус (WCAG 3.2.2, «On Input»,
+   уровень A). Выбор подтверждает кнопка формы — она же путь без скрипта. */
+test('a choice does not send its form: the button does', () => {
+  const dir = new URL('../components/', import.meta.url)
+  const sends = readdirSync(dir)
+    .filter((n) => n.endsWith('.tsx'))
+    .filter((n) => /\bon(?:Change|Input)=\{[^}]*\b(?:requestSubmit|submit)\(/.test(readFileSync(new URL(n, dir), 'utf8')))
+  assert.deepEqual(sends, [])
 })

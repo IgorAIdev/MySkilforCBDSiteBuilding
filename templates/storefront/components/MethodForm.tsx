@@ -9,10 +9,14 @@ import type { FormState } from '@/lib/checkout-form.ts'
 
 type Action = (prev: FormState, form: FormData) => Promise<FormState>
 
+/* Выбор способа подтверждает кнопка, а не само изменение (И265): стрелки в
+   группе радиокнопок меняют выбор, и отправка на изменение уводила
+   покупателя с клавиатурой и чтением с экрана на следующий шаг, роняя фокус
+   (WCAG 3.2.2, «On Input»). Кнопка тихая — громкая у форм подробностей ниже. */
 export function MethodForm({ view, action, permalink }: { view: DeliveryPageView; action: Action; permalink: string }) {
   const [state, formAction, pending] = useActionState(action, null, permalink)
   return (
-    <form className={p.stack} action={formAction} onChange={(e) => e.currentTarget.requestSubmit()}>
+    <form className={p.stack} action={formAction}>
       <h2 id="delivery-title" className={s.title}>{view.title}</h2>
       {state?.message ? <p className={f.say} data-state="error" role="alert">{state.message}</p> : null}
       <fieldset className={`${s.options} ${s.plain}`} disabled={pending} aria-labelledby="delivery-title">
