@@ -1,5 +1,6 @@
 import p from '@/styles/primitives.module.css'
 import b from '@/styles/btn.module.css'
+import s from './blocks.module.css'
 import type { Block } from '@/lib/source/contract.ts'
 import { hrefFor } from '@/lib/href.ts'
 import type { BlockCtx } from './types.ts'
@@ -7,7 +8,7 @@ import type { BlockCtx } from './types.ts'
 export function Hero({ block, ctx }: { block: Extract<Block, { type: 'hero' }>; ctx: BlockCtx }) {
   const shot = Object.values(ctx.cards)[0]
   return (
-    <section className={`${p.wrap} ${p.lede}`}>
+    <section className={`${p.wrap} ${p.lede} ${s.hero}`}>
       <div className={p.ledeText}>
         <h1>{block.title}</h1>
         <p>{block.lede}</p>

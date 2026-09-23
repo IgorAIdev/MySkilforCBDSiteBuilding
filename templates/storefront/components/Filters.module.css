@@ -1,3 +1,6 @@
 .filters{--stack:var(--air-group);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
-.set{border:0;padding:0;margin:0}
+/* Поля сброшены по бокам, а не целиком: `margin:0` стоит позже примитива
+   `stack` той же силы и гасил его ритм — группа «Concentrație» вставала
+   вплотную под последней галочкой «Formă» (снимок приёмки). */
+.set{border:0;padding:0;margin-inline:0}
 .legend{font-weight:600;margin-block-end:var(--air-row)}

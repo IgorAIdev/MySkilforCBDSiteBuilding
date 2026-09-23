@@ -1,6 +1,15 @@
-.card{--stack:var(--air-row);block-size:100%;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
+/* Ссылка на товар одна — имя; её область нажатия растянута на всю
+   карточку (`::after`), поэтому снимок и цена ведут туда же. Снимок стоял
+   второй ссылкой, скрытой от чтения, — и был органом без имени (check:craft,
+   name). */
+.card{--stack:var(--air-row);position:relative;block-size:100%;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
 .shot{--frame:1 / 1;border-radius:var(--r-ctrl)}
-.name{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);overflow-wrap:anywhere}
+/* Имя — тело, а не ступень подзаголовка: на полке каталога оно стояло
+   ростом с заголовок подвала «Ajutor» (h2), и лестница заголовков
+   перекрещивалась (check:craft, ladder). Так же набрана карточка на стенде
+   шкал (tools/scale-stand.mjs, `.nm`). */
+.name{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;overflow-wrap:anywhere}
 .name a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+.name a::after{content:'';position:absolute;inset:0}
 .buy{justify-content:space-between;margin-block-start:auto}
 .price{font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}

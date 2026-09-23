@@ -25,6 +25,11 @@ export function Catalog({ view, top }: { view: CatalogView; top?: ReactNode }) {
       </div>
       {top}
       {view.invalid ? <p className={p.muted} role="status">{view.invalid}</p> : null}
+      {/* Полку подписывает заголовок страницы, второй на экране не нужен, но
+          лестница для чтения вслух не прыгает с h1 на h3 имён товаров
+          (check:craft, heads): h2 говорится и не рисуется (`said`). Пустую
+          полку подписывает свой h2 экрана «пусто». */}
+      {view.cards.length ? <h2 className={p.said}>{view.shelf}</h2> : null}
       {view.filters ? (
         <div className={p.sidebar}>
           <aside className={p.aside}><Filters f={view.filters} /></aside>

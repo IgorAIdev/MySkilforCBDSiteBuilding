@@ -10,6 +10,7 @@ export const RO = {
   'catalog.count.one': '{n} produs',
   'catalog.count.few': '{n} produse',
   'catalog.count.other': '{n} de produse',
+  'catalog.shelf': 'Produse',
   'catalog.filters': 'Filtre',
   'catalog.apply': 'Aplică filtrele',
   'catalog.clear': 'Șterge filtrele',

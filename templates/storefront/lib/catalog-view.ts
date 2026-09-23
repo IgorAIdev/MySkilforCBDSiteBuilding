@@ -13,7 +13,7 @@ export type FiltersView = {
 }
 export type PagesView = { label: string; prev: string | null; next: string | null; prevLabel: string; nextLabel: string }
 export type CatalogView = {
-  title: string; lede: string | null; count: string; cards: ShelfCard[]
+  title: string; lede: string | null; count: string; shelf: string; cards: ShelfCard[]
   filters: FiltersView | null; invalid: string | null; empty: Empty; pages: PagesView | null
 }
 
@@ -31,6 +31,7 @@ export function catalogView(lang: Lang, a: {
     title: a.title,
     lede: a.lede,
     count: tn(lang, 'catalog.count', listing.total),
+    shelf: t(lang, 'catalog.shelf'),
     cards: listing.items.map((c) => shelfCard(lang, c)),
     filters: a.filters ? {
       action: at({}), clear: at({}), facets: listing.facets,

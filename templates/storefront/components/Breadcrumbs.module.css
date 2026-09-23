@@ -1,3 +1,11 @@
+/* Расстояние от крошек до содержимого страницы объявлено ЗДЕСЬ и только
+   здесь (styles/primitives.module.css, «Строка навигации над содержимым»):
+   сосед снизу своего верхнего воздуха не добавляет. На странице документа
+   его не добавлял никто — заголовок стоял вплотную и строкой шрифта
+   перекрывал низ ссылки «Acasă» (check:craft, collision и stolen). */
+.crumbs{margin-block-end:var(--air-group)}
 .crumbs ol{display:flex;flex-wrap:wrap;gap:var(--sp-1);list-style:none;padding:0;margin:0;font-size:var(--note-size);color:var(--ink-soft)}
 .crumbs li + li::before{content:'/';margin-inline-end:var(--sp-1)}
-.crumbs a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+/* Цель — квадрат, а не только высота: короткое «Acasă» под пальцем
+   выходило 32×44 (check:craft, target и coarse). */
+.crumbs a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}

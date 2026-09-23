@@ -12,6 +12,7 @@ export const EN: Record<keyof typeof RO, string> = {
   'catalog.count.one': '{n} product',
   'catalog.count.few': '{n} products',
   'catalog.count.other': '{n} products',
+  'catalog.shelf': 'Products',
   'catalog.filters': 'Filters',
   'catalog.apply': 'Apply filters',
   'catalog.clear': 'Clear filters',

@@ -1,6 +1,14 @@
-.cols{--cols:4;--cell-min:160px;--cols-min:1}
+/* Столбец подвала — заголовок и его строки: ритм строки. */
+.cols{--cols:4;--cell-min:160px;--cols-min:1;--stack:var(--air-row)}
 .h{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
-.list{list-style:none;padding:0;margin:0}
-.list a,.addr a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+/* `margin:0` стоял позже примитива `stack` той же силы и гасил его ритм:
+   «Ajutor» лежал на своём списке вплотную, а «Companie» над адресом — с
+   воздухом (снимок приёмки). Верхнее поле — умолчанием нулевой силы: вне
+   столбца (выбор языка) оно ноль, в столбце его ставит `stack`. */
+.list{list-style:none;padding:0;margin-inline:0;margin-block-end:0}
+:where(.list){margin-block-start:0}
+/* Цель — квадрат, а не только высота: «Retur» под пальцем выходило 38×44
+   (check:craft, target и coarse). */
+.list a,.addr a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}
 .list a[aria-current='true']{color:var(--ink);font-weight:600}
 .addr{font-style:normal;color:var(--ink-soft);line-height:var(--body-lead)}
