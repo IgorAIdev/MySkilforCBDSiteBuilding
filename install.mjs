@@ -64,7 +64,7 @@ const FORCE = flags.has('--force')
 /* Набор цвета, выбранный заказчиком, — ключом при постановке:
    `node install.mjs --palette "Латунь на угле" ../мой-сайт`.
    Без ключа новый сайт получает серый стартовый и напоминание спросить
-   фирменный цвет (И199). С ключом — названный набор из образцов набора,
+   фирменный цвет (И199); витрина (`--storefront`) — решённый набор набора. С ключом — названный набор из образцов набора,
    потому что выбор УЖЕ сделан, и заставлять делать его заново значит
    терять то, за что заказчик уже заплатил своим временем (И213). */
 const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith('--'))
@@ -299,9 +299,13 @@ if (MODE === 'new') {
         console.error(`Набора «${PALETTE}» нет среди образцов. Есть: ${Object.keys(образцы).join(', ')}`)
         process.exit(1)
       }
+      /* Витрина набора (`--storefront`) — не чистый лист: цвет у неё решён
+         (docs/decisions.md, «Набор цвета — «Латунь на угле»») и лежит в
+         `styles/palette.json` набора. Без ключа она встаёт на эти краски, а
+         не на серый стартовый; названный ключом набор сильнее умолчания. */
       const краски = PALETTE
         ? { [PALETTE]: образцы[PALETTE] }
-        : JSON.parse(readFileSync(join(SRC, 'templates/palette-starter.json'), 'utf8'))
+        : JSON.parse(readFileSync(join(SRC, STOREFRONT ? 'styles/palette.json' : 'templates/palette-starter.json'), 'utf8'))
       writeFileSync(join(OUT, name), JSON.stringify(краски, null, 2) + '\n')
       /* И выпустить из них CSS тем же кодом, что считает проверка: иначе
          `styles/palette.css` приезжает выпущенным из красок ЧУЖОГО магазина

@@ -54,6 +54,30 @@ test('--storefront lays the template over the foundation and copies the kit help
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
 
+/* Витрина набора стоит на решённом наборе цвета, а не на сером стартовом:
+   решение «Латунь на угле» записано в docs/decisions.md набора, и витрина,
+   поставленная без ключа, встречала владельца серой (23.09.2026). Названный
+   ключом `--palette` набор по-прежнему сильнее умолчания. */
+test('--storefront installs the kit decided palette unless --palette names another', async () => {
+  const { toCss } = await import('../tools/palette.mjs')
+  const kitPalette = JSON.parse(readFileSync(join(KIT, 'styles/palette.json'), 'utf8'))
+  const root = mkdtempSync(join(tmpdir(), 'storefront-'))
+  try {
+    const plain = join(root, 'plain')
+    const r = install('--storefront', plain)
+    assert.equal(r.status, 0, r.stderr)
+    const got = JSON.parse(readFileSync(join(plain, 'styles/palette.json'), 'utf8'))
+    assert.deepEqual(Object.keys(got), ['Латунь на угле'])
+    assert.deepEqual(got, kitPalette, 'краски — те, что решены в наборе')
+    assert.equal(readFileSync(join(plain, 'styles/palette.css'), 'utf8'), toCss(kitPalette), 'выпуск сходится с красками')
+
+    const named = join(root, 'named')
+    const n = install('--storefront', '--palette', 'Олива', named)
+    assert.equal(n.status, 0, n.stderr)
+    assert.deepEqual(Object.keys(JSON.parse(readFileSync(join(named, 'styles/palette.json'), 'utf8'))), ['Олива'])
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
 test('--storefront is only for a new site', () => {
   const r = install('--storefront', '--update', join(tmpdir(), 'storefront-nope'))
   assert.notEqual(r.status, 0)
