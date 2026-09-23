@@ -15,9 +15,9 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
@@ -110,5 +110,50 @@ test('строитель палитры показывает работу тем
     const c = spawnSync(process.execPath, [join(корень, 'tools/palette-builder.mjs'), '--check', образец],
       { encoding: 'utf8', cwd: корень })
     assert.equal(c.status, 0, c.stderr || c.stdout)
+  }
+})
+
+/* Набор, собранный `tools/kit.mjs`, везёт каждый ввоз своих инструментов.
+   Дефект — итоговый разбор плана 2 витрины: список `FILES` не знал
+   `sessions.mjs`, `browser.mjs`, `pages.mjs` и `words.mjs`, и в собранном
+   наборе `check:craft`, `sweep`, `shade`, `check-urls`, `check-seo`,
+   `routes` и `stages` падали на первом же ввозе. Список набирается рукой, и
+   ввоз, добавленный в инструмент, в него сам не попадает; поэтому меряется
+   собранное: каждый `from './x.mjs'` каждого файла набора ведёт в файл,
+   который набор положил, и каждое ввезённое по имени этот файл отдаёт
+   (записанный набором `sheet-samples.mjs` отставал от настоящего на одно
+   имя). */
+test('собранный набор везёт каждый ввоз своих инструментов, по файлу и по имени', () => {
+  const корень = fileURLToPath(new URL('..', import.meta.url))
+  const dir = mkdtempSync(join(tmpdir(), 'kit-build-'))
+  try {
+    const out = join(dir, 'kit')
+    const r = spawnSync(process.execPath, [join(корень, 'tools/kit.mjs'), out], { encoding: 'utf8', cwd: корень })
+    assert.equal(r.status, 0, r.stderr)
+    const IMPORT = /^[ \t]*(?:import|export)\b([^'"`;]*?)\bfrom\s*['"](\.\.?\/[^'"]+\.mjs)['"]/gm
+    const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? (e.name === 'node_modules' || e.name.startsWith('.') ? [] : walk(join(d, e.name)))
+      : e.name.endsWith('.mjs') ? [join(d, e.name)] : [])
+    const exportsOf = (text) => new Set([
+      ...[...text.matchAll(/^export\s+(?:async\s+)?(?:const|let|var|function\*?|class)\s+([\w$]+)/gm)].map((m) => m[1]),
+      ...[...text.matchAll(/^export\s*\{([^}]*)\}/gm)].flatMap((m) => m[1].split(',').map((x) => x.trim().split(/\s+as\s+/).pop()).filter(Boolean)),
+    ])
+    const нет = []
+    let ввозов = 0
+    for (const file of walk(out)) {
+      for (const m of readFileSync(file, 'utf8').matchAll(IMPORT)) {
+        ввозов++
+        const target = join(dirname(file), m[2])
+        const where = `${relative(out, file).split('\\').join('/')} → ${m[2]}`
+        if (!existsSync(target)) { нет.push(`${where}: файла нет в наборе`); continue }
+        const names = /\{([^}]*)\}/.exec(m[1])?.[1].split(',').map((x) => x.trim().split(/\s+as\s+/)[0]).filter(Boolean) ?? []
+        const есть = exportsOf(readFileSync(target, 'utf8'))
+        for (const name of names) if (!есть.has(name)) нет.push(`${where}: нет «${name}»`)
+      }
+    }
+    assert.ok(ввозов > 40, `ввозов найдено ${ввозов} — разбор сломан, мерить нечего`)
+    assert.deepEqual(нет, [], `собранный набор не везёт то, что ввозят его инструменты:\n  ${нет.join('\n  ')}`)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
   }
 })
