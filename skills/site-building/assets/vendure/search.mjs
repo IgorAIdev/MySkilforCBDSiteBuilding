@@ -14,15 +14,17 @@ export function parseFacetParams(searchParams) {
   const entries = typeof searchParams?.entries === 'function'
     ? [...searchParams.entries()]
     : Object.entries(searchParams ?? {}).flatMap(([k, v]) => [v].flat().map((one) => [k, one]))
-  const out = {}
+  // A Map, not {}: `facet.constructor` or `facet.__proto__` would read (and
+  // write) the object's inherited members instead of an empty slot.
+  const out = new Map()
   for (const [key, raw] of entries) {
     if (!key.startsWith(PREFIX) || typeof raw !== 'string') continue
     const code = key.slice(PREFIX.length)
     if (!code) continue
     const values = raw.split(',').map((v) => v.trim()).filter(Boolean)
-    out[code] = [...new Set([...(out[code] ?? []), ...values])]
+    out.set(code, [...new Set([...(out.get(code) ?? []), ...values])])
   }
-  return out
+  return Object.fromEntries(out)
 }
 
 /**
@@ -35,7 +37,9 @@ export function facetValueFilters(selected, dictionary) {
   const filters = []
   const invalid = []
   for (const [facet, values] of Object.entries(selected ?? {})) {
-    const known = dictionary?.[facet]
+    // Own keys only: `facet.constructor=name` must be reported, not read as
+    // Object.name and sent to Vendure as the filter id "Object".
+    const known = dictionary && Object.hasOwn(dictionary, facet) ? dictionary[facet] : undefined
     const ids = []
     for (const value of values) {
       const id = known && Object.hasOwn(known, value) ? known[value] : undefined

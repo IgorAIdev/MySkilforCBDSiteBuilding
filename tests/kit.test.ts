@@ -1052,8 +1052,24 @@ test('сегмент рисует кнопку и ссылку одним рис
   /* Выбранный держит заливку `--pop`; кромка поверх неё — вторая рамка. */
   const on = primitives.match(/\.seg :is\(\[aria-pressed="true"\], \[aria-current="true"\]\)\{[^}]*\}/)?.[0] ?? ''
   assert.match(on, /box-shadow:none/)
-  /* Принудительные цвета стирают и заливку, и тень: ссылке-сегменту — обводка. */
-  assert.match(primitives, /@media \(forced-colors:active\)\{ \.seg a\{border:var\(--line-w\) solid CanvasText\} \}/)
+  /* Принудительные цвета стирают и заливку, и тень: ссылке-сегменту — обводка,
+     выбранному — системная пара выделения, иначе его не отличить от соседей.
+     Без `forced-color-adjust:none` режим кладёт под слово подложку `Canvas`,
+     и `HighlightText` на ней пропадает. */
+  const forced = primitives.match(/@media \(forced-colors:active\)\{\s*\.seg a\{[\s\S]*?\n\}/)?.[0] ?? ''
+  assert.match(forced, /\.seg a\{border:var\(--line-w\) solid CanvasText\}/)
+  assert.match(forced, /\.seg :is\(\[aria-pressed="true"\], \[aria-current="true"\]\)\{forced-color-adjust:none;background:Highlight;color:HighlightText\}/)
+})
+
+test('выбранный сегмент под рукой остаётся выбранным', () => {
+  /* `:is(button, a[href])` весит как `a[href]`: наведение (0,3,1) било
+     выбранный (0,2,0), и выбранная пилюля под рукой теряла заливку `--pop`.
+     Ответ на руку исключает выбранный явно — как у лотка. */
+  const hand = [...primitives.matchAll(/\.seg ([^{]*):(hover|active)\{/g)]
+  assert.equal(hand.length, 2, 'у сегмента два ответа на руку: наведение и нажатие')
+  for (const [, selector] of hand) {
+    assert.match(selector, /^:where\(button, a\[href\]\):not\(\[aria-pressed="true"\], \[aria-current="true"\]\)$/)
+  }
 })
 
 test('шапка раздела не выносит отбивку за конец раздела', () => {

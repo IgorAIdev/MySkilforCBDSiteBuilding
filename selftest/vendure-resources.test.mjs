@@ -88,6 +88,15 @@ test('facets: OR inside one facet, AND across facets, unknown codes reported not
   assert.throws(() => parseFacetParams(Promise.resolve({})), /Await/)
 })
 
+test('facets: inherited names are unknown codes, not filter ids', () => {
+  const dictionary = { form: { oil: '11' } }
+  const selected = parseFacetParams(new URLSearchParams('facet.constructor=name&facet.__proto__=x&facet.toString=length'))
+  assert.deepEqual(facetValueFilters(selected, dictionary), {
+    filters: [],
+    invalid: ['constructor:name', '__proto__:x', 'toString:length'],
+  })
+})
+
 test('page numbers: absent is page 1, junk is a 404, not silently page 1', () => {
   assert.deepEqual(pageVariables(new URLSearchParams('')), { ok: true, page: 1, take: 24, skip: 0 })
   assert.deepEqual(pageVariables(new URLSearchParams('page=3'), { pageSize: 12 }), { ok: true, page: 3, take: 12, skip: 24 })

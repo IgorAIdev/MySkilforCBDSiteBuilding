@@ -297,10 +297,12 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
    стираются, выживают обводки и outline; единственные имена цвета —
    системные (Canvas, CanvasText, ButtonText, LinkText, Highlight).
    Поэтому у листа и органа — обводка вместо тени, у знака — currentColor.
-   `forced-color-adjust: none` — только для образца цвета, никогда для
-   текста и кнопок. css-color-adjust §3.1; Edge: «If authors wish to use
-   non-system color values in forced color modes, they will need to supply
-   forced-colors-adjust: none». */
+   `forced-color-adjust: none` — только для образца цвета и для выбранного,
+   закрашенного системной парой `Highlight` / `HighlightText` (у выбранного
+   без него под текст ложится подложка `Canvas` и слово пропадает); никогда
+   для текста и кнопок с красками автора. css-color-adjust §3.1; Edge: «If
+   authors wish to use non-system color values in forced color modes, they
+   will need to supply forced-colors-adjust: none». */
 @media (forced-colors:active){
   [data-plate],dialog,[popover],button,input,select,textarea{border:var(--line-w) solid CanvasText}
   button,[role='button']{forced-color-adjust:auto}

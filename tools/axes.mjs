@@ -59,7 +59,7 @@ export const AXES = {
   },
   contrast: {
     name: 'контраст: усиленный и принудительные цвета',
-    how: '`@media (prefers-contrast: more)` усиливает роли (волосок — сплошной, приглушённые чернила — непрозрачные), а не рисует вторую тему; `@media (forced-colors: active)` — обводки вместо теней, `outline` у фокуса, системные цвета; `forced-color-adjust: none` только для образца цвета',
+    how: '`@media (prefers-contrast: more)` усиливает роли (волосок — сплошной, приглушённые чернила — непрозрачные), а не рисует вторую тему; `@media (forced-colors: active)` — обводки вместо теней, `outline` у фокуса, системные цвета; `forced-color-adjust: none` только для образца цвета и выбранного в системной паре `Highlight` / `HighlightText`',
     features: ['prefers-contrast', 'forced-colors'],
     varies: 'линия, приглушённые чернила, вуали, тень → обводка',
     static: 'раскладка, размеры',

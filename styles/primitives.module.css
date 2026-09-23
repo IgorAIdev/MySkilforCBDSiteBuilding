@@ -1010,15 +1010,33 @@
   font-size:var(--ctrl-fs-sm);color:var(--ink-soft);text-decoration:none;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .seg :is(button, a[href]):hover{background:var(--hover-ctrl);color:var(--ink)} }
-.seg :is(button, a[href]):active{background:var(--press-ctrl);color:var(--ink)}
+/* Ответ на руку — только у невыбранного, и выбранный исключён ЯВНО, а не
+   весом селектора. Стояло `:is(button, a[href])`: `:is()` берёт вес самого
+   тяжёлого из своих, `a[href]`, и наведение весило (0,3,1) против (0,2,0) у
+   выбранного, — выбранная пилюля под рукой теряла заливку `--pop` и
+   читалась обычной. Так же устроен лоток выше: `:where()` без веса и
+   `:not()` на выбор. */
+@media (hover:hover){
+  .seg :where(button, a[href]):not([aria-pressed="true"], [aria-current="true"]):hover{background:var(--hover-ctrl);color:var(--ink)}
+}
+.seg :where(button, a[href]):not([aria-pressed="true"], [aria-current="true"]):active{background:var(--press-ctrl);color:var(--ink)}
 .seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600;box-shadow:none}
 .seg [aria-disabled="true"]{opacity:var(--state-off);cursor:not-allowed}
 /* Принудительные цвета стирают заливку и тень: у ссылки-сегмента не
    остаётся ни плашки, ни кромки. Обводка — та же, что у кнопки в
    styles/base.css; записана здесь, а не там: имя класса модуля хешируется,
-   и `.seg a` в общем файле не совпал бы ни с чем. */
-@media (forced-colors:active){ .seg a{border:var(--line-w) solid CanvasText} }
+   и `.seg a` в общем файле не совпал бы ни с чем.
+
+   Выбранный без заливки неотличим от соседей: остаётся одна жирность. Ему —
+   системная пара `Highlight` / `HighlightText`, и только с
+   `forced-color-adjust:none`. Без него режим подкладывает под текст
+   подложку цвета `Canvas`, и `HighlightText` на ней пропадает: замер в
+   Chromium с принудительными цветами — белая плашка без слова. Цвета здесь
+   только системные, палитра пользователя не нарушена (base.css). */
+@media (forced-colors:active){
+  .seg a{border:var(--line-w) solid CanvasText}
+  .seg :is([aria-pressed="true"], [aria-current="true"]){forced-color-adjust:none;background:Highlight;color:HighlightText}
+}
 
 /* ── sections ─────────────────────────────────────────────────────────── */
 /* Воздух между разделами — верхняя ступень шкалы, и течёт он вместе с ней:

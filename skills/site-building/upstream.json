@@ -748,7 +748,7 @@
     {
       "local": "assets/vendure/search.mjs",
       "description": "Original SiteBuildingSkill Vendure adapter helper; Shop API names follow Vendure documentation, checked against vendurehq/nextjs-starter-vendure@7d06ae0.",
-      "sha256": "c127d9c38aa08f9384e68eaac7ee00dae99302752cfe9ddf9f94f544babd2d88"
+      "sha256": "f4e3418f09d58f8cb86ae557501f2c21d0c792f14130e065b481b103ae619576"
     },
     {
       "local": "assets/vendure/asset.mjs",

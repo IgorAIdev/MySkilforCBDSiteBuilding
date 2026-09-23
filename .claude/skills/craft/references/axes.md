@@ -35,7 +35,7 @@ changing».
 | ширина: телефон … макет | рампы `clamp()` между двумя названными ширинами (строитель шкал); три шва раскладки; компонент меряет контейнер (`@container`) | блоков 3; имена: `--page-gut`, `--head-pad`, `--dock` | геометрия органа (правило 2 CLAUDE.md), оптика не выше пола |
 | язык страницы | `<html lang>` из адреса; мера строки по языку (`:lang()`); `quotes: auto`; `hyphens: auto` только как улучшение поверх `overflow-wrap: anywhere` и `<wbr>` — у Chromium нет словаря переноса для румынского | блоков 1; имена: `--measure`, `--measure-lede`, `--measure-note` | словарь токенов: «Spectrum tokens are not localized» — локаль меняет раскладку и содержание, а не имена |
 | движение: просьба «меньше анимации» | `@media (prefers-reduced-motion: reduce)` — длительности в 0.01ms, `scroll-behavior: auto`; смысл не держится на движении | блоков 2; свойства: interpolate-size, animation-duration, animation-iteration-count, transition-duration, scroll-behavior | всё остальное |
-| контраст: усиленный и принудительные цвета | `@media (prefers-contrast: more)` усиливает роли (волосок — сплошной, приглушённые чернила — непрозрачные), а не рисует вторую тему; `@media (forced-colors: active)` — обводки вместо теней, `outline` у фокуса, системные цвета; `forced-color-adjust: none` только для образца цвета | блоков 3; имена: `--rule`, `--ink-soft`, `--border`, `--quiet`, `--quiet-on`; свойства: border, forced-color-adjust, fill, outline | раскладка, размеры |
+| контраст: усиленный и принудительные цвета | `@media (prefers-contrast: more)` усиливает роли (волосок — сплошной, приглушённые чернила — непрозрачные), а не рисует вторую тему; `@media (forced-colors: active)` — обводки вместо теней, `outline` у фокуса, системные цвета; `forced-color-adjust: none` только для образца цвета и выбранного в системной паре `Highlight` / `HighlightText` | блоков 3; имена: `--rule`, `--ink-soft`, `--border`, `--quiet`, `--quiet-on`; свойства: border, forced-color-adjust, fill, outline, background, color | раскладка, размеры |
 | признаки вне реестра | — | нет | — |
 <!-- /families:axes -->
 
@@ -117,7 +117,9 @@ purposeful? responsive? meticulous? unobtrusive?».
   тени и градиенты стираются, выживают обводки и `outline`. Поэтому у листа
   и органа — обводка, у знака — `currentColor`, у фокуса — `outline`
   системным `Highlight`; `forced-color-adjust: none` — только для образца
-  цвета, никогда для текста и кнопок.
+  цвета и для выбранного, закрашенного системной парой `Highlight` /
+  `HighlightText` (без него режим подкладывает под текст `Canvas`, и слово
+  выбранного пропадает); никогда для текста и кнопок с красками автора.
 
 ## Что нашёл замер 20.09.2026
 
