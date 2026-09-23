@@ -1014,6 +1014,11 @@
 .seg :is(button, a[href]):active{background:var(--press-ctrl);color:var(--ink)}
 .seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600;box-shadow:none}
 .seg [aria-disabled="true"]{opacity:var(--state-off);cursor:not-allowed}
+/* Принудительные цвета стирают заливку и тень: у ссылки-сегмента не
+   остаётся ни плашки, ни кромки. Обводка — та же, что у кнопки в
+   styles/base.css; записана здесь, а не там: имя класса модуля хешируется,
+   и `.seg a` в общем файле не совпал бы ни с чем. */
+@media (forced-colors:active){ .seg a{border:var(--line-w) solid CanvasText} }
 
 /* ── sections ─────────────────────────────────────────────────────────── */
 /* Воздух между разделами — верхняя ступень шкалы, и течёт он вместе с ней:
@@ -1049,6 +1054,13 @@
   display:flex;flex-direction:column;align-items:flex-start;
   gap:var(--sp-2);margin-bottom:var(--air-head)
 }
+/* Отбивка — до содержимого раздела, и только до него. У раздела из одной
+   шапки (блок «лаборатория» на главной: заголовок и лид, больше ничего)
+   нижнее поле схлопывалось сквозь конец раздела и ложилось на шов со
+   следующим: 132px против 88 у остальных швов. Семья `twoAir` такого не
+   видит — блок ниже её порога в 120px. Собственное внешнее поле примитива
+   кончается у края его коробки (И259). */
+.sectionHead:last-child{margin-bottom:0}
 /* every heading on the page reads one size and one leading */
 /* Заголовок держит свою строку и не ужимается: в ряду он ужимался ради
    строки рядом, и короткое имя раздела ломалось надвое при пустом месте

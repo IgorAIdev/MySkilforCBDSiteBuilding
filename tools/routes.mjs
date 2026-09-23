@@ -145,6 +145,19 @@ export function shapes() {
   return out.sort()
 }
 
+/** Как язык стоит в адресе: `[lang]` — у каждого языка своя приставка,
+ *  `[locale]` — основной в корне, остальные приставкой; `null` — языка в
+ *  адресе нет. Одно место на `check:open` и `sweep` (И257). */
+export function langSegment() {
+  const tree = shapes()
+  return tree.some((s) => s.startsWith('/[lang]')) ? '[lang]'
+    : tree.some((s) => s.startsWith('/[locale]')) ? '[locale]' : null
+}
+
+/** Главная основного языка — страница, а не перенаправление: у `[lang]` это
+ *  `/<основной>`, у `[locale]` и у сайта без языка в адресе — корень. */
+export const homePath = () => (langSegment() === '[lang]' && DEFAULT_LANG ? `/${DEFAULT_LANG}` : '/')
+
 /** Чем заполняются динамические сегменты. Ключ — сегмент, как он записан в
  *  дереве; значение — все существующие величины. */
 const FILL = {

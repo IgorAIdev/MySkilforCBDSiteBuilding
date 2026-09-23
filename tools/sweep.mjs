@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url'
 import { LAYOUT } from './thresholds.mjs'
 import { SEAMS } from './kit-config.mjs'
 import { sweepWidths } from './seams.mjs'
-import { DEFAULT_LANG, shapes } from './routes.mjs'
+import { homePath } from './routes.mjs'
 
 const args = process.argv.slice(2)
 /* Умолчание — главная основного языка сайта, из дерева маршрутов: у корня
@@ -37,10 +37,10 @@ const args = process.argv.slice(2)
    Стояло `/bg` — главная магазина, из которого набор приехал. На витрине
    ro · en · hu это адрес, которого нет, и свип без аргумента снимал 41
    ширину страницы «не найдено» и докладывал «всё чисто» (И257): свип
-   промаха — тишина, а не зелёный. У доменной витрины (`[locale]`) основной
-   язык живёт в корне. */
-const home = shapes().some((s) => s.startsWith('/[locale]')) || !DEFAULT_LANG ? '/' : `/${DEFAULT_LANG}`
-const path = args.find((a) => a.startsWith('/')) ?? home
+   промаха — тишина, а не зелёный. Та же главная, что у `check:open`
+   (`homePath`): `[lang]` — `/<основной>`, доменная витрина (`[locale]`) и
+   сайт без языка в адресе — корень. */
+const path = args.find((a) => a.startsWith('/')) ?? homePath()
 const fold = args.includes('--fold')
 const base = process.env.SITE ?? 'http://localhost:8099'
 

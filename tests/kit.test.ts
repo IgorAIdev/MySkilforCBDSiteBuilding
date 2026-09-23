@@ -1049,4 +1049,15 @@ test('сегмент рисует кнопку и ссылку одним рис
      тихого органа `--edge` (И258). */
   const seg = primitives.match(/\.seg :is\(button, a\)\{[^}]*\}/)?.[0] ?? ''
   assert.match(seg, /box-shadow:inset 0 0 0 var\(--line-w\) var\(--edge\)/)
+  /* Выбранный держит заливку `--pop`; кромка поверх неё — вторая рамка. */
+  const on = primitives.match(/\.seg :is\(\[aria-pressed="true"\], \[aria-current="true"\]\)\{[^}]*\}/)?.[0] ?? ''
+  assert.match(on, /box-shadow:none/)
+  /* Принудительные цвета стирают и заливку, и тень: ссылке-сегменту — обводка. */
+  assert.match(primitives, /@media \(forced-colors:active\)\{ \.seg a\{border:var\(--line-w\) solid CanvasText\} \}/)
+})
+
+test('шапка раздела не выносит отбивку за конец раздела', () => {
+  /* Раздел из одной шапки (блок «лаборатория») получал шов 132 вместо 88:
+     нижнее поле `.sectionHead` схлопывалось сквозь конец раздела (И259). */
+  assert.match(primitives, /\.sectionHead:last-child\{margin-bottom:0\}/)
 })

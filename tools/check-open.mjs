@@ -26,8 +26,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createServer } from 'node:net'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
-import { all, sample, shapes, LOCALES, DEFAULT_LANG } from './routes.mjs'
-import { ownNotFound, quietMiss, docLang } from './not-found.mjs'
+import { all, sample, shapes, langSegment, LOCALES, DEFAULT_LANG } from './routes.mjs'
+import { whyNotOwn, whyNotQuiet, missKind } from './not-found.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -164,14 +164,17 @@ await Promise.all([worker(), worker(), worker(), worker()])
  * была встроенная английская страница Next без языка — на каждом промахе, и
  * все проверки были зелёные.
  *
- * Пробы две, по роду промаха (`tools/not-found.mjs`): адрес мимо дерева на
- * каждом языке — своя страница с кодом 404 и `lang` адреса; промах данных
- * (товара нет) — 404 и `noindex`. Языки и маршрут товара берутся из дерева
- * маршрутов, а не набираются здесь рукой. */
+ * Пробы берутся из дерева маршрутов, а не набираются рукой: на каждом языке
+ * адрес под языком (`/ro/__kit-missing__`), адрес в один сегмент там, где
+ * язык — приставка (`/__kit-missing__`: `/contact` и `/bg` падали в макет
+ * языка и отдавали пустую страницу ошибки), и промах товара, если маршрут
+ * товара в дереве есть. Род промаха решает дерево (`missKind`): форма
+ * маршрута принимает адрес — промах данных, 404 и `noindex`; не принимает —
+ * адрес мимо дерева, своя страница с кодом 404 на языке адреса. Причину
+ * провала формулирует `tools/not-found.mjs`, здесь её только печатают. */
 const MISSING = '__kit-missing__'
 const tree = shapes()
-const langSeg = tree.some((s) => s.startsWith('/[lang]')) ? '[lang]'
-  : tree.some((s) => s.startsWith('/[locale]')) ? '[locale]' : null
+const langSeg = langSegment()
 /* Сайт без языка в адресе отвечает на основном; сайт без языков — любым. */
 const langs = langSeg ? LOCALES : [LOCALES.length ? DEFAULT_LANG : '']
 const fill = (shape, lang) => shape.split('/').map((seg) =>
@@ -179,34 +182,33 @@ const fill = (shape, lang) => shape.split('/').map((seg) =>
     : seg === '[locale]' ? (lang === DEFAULT_LANG ? '' : lang)
       : /^\[.*\]$/.test(seg) ? MISSING : seg).join('/').replace(/\/{2,}/g, '/') || '/'
 const product = tree.find((s) => /\/product\/\[[^\]]+\]$/.test(s))
-const lost = []
-const probe = async (url) => {
-  let res = await ask(url)
-  if (res.status >= 500) res = await ask(url)
-  return { status: res.status, html: await res.text() }
-}
+/* Адрес и язык, которым на нём обязан ответить сайт. */
+const probes = new Map()
 for (const lang of langs) {
-  const stray = fill(`${langSeg ? `/${langSeg}` : ''}/${MISSING}`, lang)
+  probes.set(fill(`${langSeg ? `/${langSeg}` : ''}/${MISSING}`, lang), lang)
+  if (product) probes.set(fill(product, lang), lang)
+}
+/* Один сегмент под приставкой языка: чужое слово на месте языка. Отвечает
+   основным языком. У `[locale]` этот адрес — промах основного языка, он уже
+   в списке. */
+if (langSeg === '[lang]') probes.set(`/${MISSING}`, DEFAULT_LANG)
+const lost = []
+const tally = { stray: 0, data: 0 }
+for (const [url, lang] of probes) {
+  const kind = missKind(url, tree, LOCALES)
+  tally[kind]++
   try {
-    const got = await probe(stray)
-    if (!ownNotFound({ ...got, lang })) {
-      const why = got.status !== 404 ? `код ${got.status}`
-        : /__next_error__/.test(got.html) ? 'пустая страница ошибки Next'
-          : docLang(got.html) ? `язык документа «${docLang(got.html)}»` : 'документ без языка — встроенная страница Next'
-      lost.push(`${stray} — ${why}: адрес мимо дерева обязан отвечать своей страницей с кодом 404${lang ? ` на языке «${lang}»` : ''}`)
+    let res = await ask(url)
+    if (res.status >= 500) res = await ask(url)
+    const got = { status: res.status, html: await res.text(), lang }
+    const why = kind === 'data' ? whyNotQuiet(got) : whyNotOwn(got)
+    if (why) {
+      lost.push(`${url} — ${why}: ${kind === 'data'
+        ? 'промах данных обязан отвечать кодом 404 и noindex'
+        : `адрес мимо дерева обязан отвечать своей страницей с кодом 404${lang ? ` на «${lang}»` : ''}`}`)
     }
   } catch (e) {
-    lost.push(`${stray} — не ответил: ${e.message}`)
-  }
-  if (!product) continue
-  const miss = fill(product, lang)
-  try {
-    const got = await probe(miss)
-    if (!quietMiss(got)) {
-      lost.push(`${miss} — код ${got.status}${got.status === 404 ? ', без noindex' : ''}: промах данных обязан отвечать кодом 404 и noindex`)
-    }
-  } catch (e) {
-    lost.push(`${miss} — не ответил: ${e.message}`)
+    lost.push(`${url} — не ответил: ${e.message}`)
   }
 }
 
@@ -228,8 +230,8 @@ if (bad.length || lost.length) {
 }
 
 console.log(`· открылись все ${urls.length} адресов (${built ? 'собранный сайт' : 'next dev'})`)
-console.log(`· «не найдено»: адрес мимо дерева — своя страница с кодом 404${langs[0] ? ` на ${langs.join(', ')}` : ''}; ` +
-  (product ? 'промах данных — 404 и noindex' : 'проба промаха данных пропущена: в дереве нет маршрута товара (…/product/[id])'))
+console.log(`· «не найдено»: адресов мимо дерева ${tally.stray} — своя страница с кодом 404${langs[0] ? ` (${langs.join(', ')})` : ''}; ` +
+  (product ? `промахов данных ${tally.data} — 404 и noindex` : 'проба промаха данных пропущена: в дереве нет маршрута товара (…/product/[id])'))
 /* Явный выход: соединения `fetch` держат цикл событий ещё несколько секунд
    после последнего ответа, и проверка выглядела бы висящей. */
 process.exit(0)
