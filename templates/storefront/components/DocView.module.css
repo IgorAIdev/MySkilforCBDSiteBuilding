@@ -1,2 +1,4 @@
-.doc{--stack:var(--air-group);padding-block-end:var(--air-page)}
+/* Воздух под документом платит подвал (Footer.module.css, `.foot`) — у шва
+   один хозяин; своё нижнее поле здесь давало бы его вдвое. */
+.doc{--stack:var(--air-group)}
 .part{max-inline-size:var(--measure)}

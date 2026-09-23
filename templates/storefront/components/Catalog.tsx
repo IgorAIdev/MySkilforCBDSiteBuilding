@@ -7,11 +7,17 @@ import { StateScreen } from './StateScreen.tsx'
 import { Filters } from './Filters.tsx'
 import { Pagination } from './Pagination.tsx'
 
+/* Снимки первого экрана не ленивые: полка у фильтров на ноутбуке держит в
+   нём две строки по три (Catalog.module.css, `--cols:3`). Стояло четыре —
+   пятый и шестой снимок стояли в первом экране пустыми, пока браузер не
+   дошёл до ленивых (check:craft, `broken`, 1440). */
+const FIRST_SCREEN = 6
+
 export function Catalog({ view, top }: { view: CatalogView; top?: ReactNode }) {
   const shelf = (
     <div className={p.stack}>
       {view.cards.length
-        ? <ul className={`${p.grid} ${s.shelf}`}>{view.cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < 4} /></li>)}</ul>
+        ? <ul className={`${p.grid} ${s.shelf}`}>{view.cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < FIRST_SCREEN} /></li>)}</ul>
         : <StateScreen level={2} kind="none" title={view.empty.title} step={view.empty.step} href={view.empty.href} />}
       {view.pages ? <Pagination pages={view.pages} /> : null}
     </div>

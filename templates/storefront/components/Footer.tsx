@@ -15,7 +15,7 @@ const LEGAL = ['termeni', 'confidentialitate']
 export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
   const links = (slugs: string[]) => docs.filter((d) => slugs.includes(d.slug)).map((d) => <li key={d.slug}><a href={hrefFor(lang, { doc: d.slug })}>{d.title}</a></li>)
   return (
-    <footer className={`${p.wrap} ${p.sheet} ${p.section}`} data-ground="paper">
+    <footer className={`${p.wrap} ${p.sheet} ${p.section} ${s.foot}`} data-ground="paper">
       <div className={`${p.grid} ${s.cols}`}>
         <div className={p.stack}>
           <h2 className={s.h}>{t(lang, 'footer.help')}</h2>

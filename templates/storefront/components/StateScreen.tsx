@@ -27,3 +27,13 @@ export function Unavailable({ lang }: { lang: Lang }) {
     </main>
   )
 }
+
+/* «Не найдено» — один экран на оба пути: промах данных (app/[lang]/not-found.tsx,
+   после гидратации) и адрес мимо дерева (app/global-not-found.tsx, с сервера). */
+export function Missing({ lang }: { lang: Lang }) {
+  return (
+    <main id="main" className={p.wrap}>
+      <StateScreen level={1} kind="not-found" title={t(lang, 'notFound.title')} step={t(lang, 'notFound.step')} href={hrefFor(lang, { catalog: true })} />
+    </main>
+  )
+}

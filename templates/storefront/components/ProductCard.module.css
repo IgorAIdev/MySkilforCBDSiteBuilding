@@ -12,4 +12,9 @@
 .name a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
 .name a::after{content:'';position:absolute;inset:0}
 .buy{justify-content:space-between;margin-block-start:auto}
-.price{font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
+/* Цена — одна фраза: «de la 89,90 lei» не рвётся на «de la» и сумму.
+   Ступенью подзаголовка фраза в узкой карточке (320 окна — 108px поля,
+   полка у фильтров — 193) не помещалась и рвалась посередине; строка тела,
+   жирная и неразрывная, помещается на любой ширине свипа. Жирнее имени —
+   этим и отличается от него. */
+.price{font-size:var(--body-size);font-weight:700;white-space:nowrap;color:var(--ink)}
