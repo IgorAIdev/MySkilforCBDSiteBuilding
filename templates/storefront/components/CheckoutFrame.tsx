@@ -12,13 +12,12 @@ import { StateScreen } from './StateScreen.tsx'
 import { Icon } from './Icon.tsx'
 
 /* Оформление: шаги сверху, шаг слева, итог — рядом, тем же столбиком, что
-   в корзине. На шаге оплаты итог стоит в самой форме, над кнопкой заказа
-   (`totals={null}`): на телефоне колонка рядом уезжает под форму, и сумма
-   оказалась бы ниже кнопки, которой её подтверждают. Шаг без колонки рядом
-   держит потолок (`data-alone`): во всю ширину окна кнопка заказа шла
-   полосой в 1334px (check:craft, семья wideCtrl). */
+   в корзине. На шаге оплаты второй колонки рамка не даёт (`totals={null}`):
+   форма оплаты сама ряд — способы слева, сверка, итог и кнопка заказа
+   колонкой рядом (PaymentForm). Колонка итога рамки ушла бы на телефоне под
+   форму, и сумма оказалась бы ниже кнопки, которой её подтверждают. */
 export function CheckoutFrame({ text, steps, totals, children }: { text: FrameText; steps: StepsView; totals: TotalsView | null; children: ReactNode }) {
-  const step = <div className={`${p.stack} ${s.step}`} data-alone={totals ? undefined : ''}>{children}</div>
+  const step = <div className={`${p.stack} ${s.step}`}>{children}</div>
   return (
     <main id="main" className={`${p.wrap} ${p.section}`}>
       <div className={p.pagehead}><h1>{text.title}</h1></div>
