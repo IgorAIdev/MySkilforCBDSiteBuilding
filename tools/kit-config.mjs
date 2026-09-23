@@ -121,7 +121,15 @@ function load() {
      падает здесь, а не молча выключает замер полных страниц. */
   const ses = cfg.sessions
   if (ses.cookie !== null && !/^[A-Za-z0-9_-]+$/.test(String(ses.cookie))) { console.error('kit.config.json: «sessions.cookie» — имя cookie или null'); process.exit(1) }
-  for (const [shape, list] of Object.entries(ses.pages ?? {})) {
+  /* `pages` — объект «форма → сессии», не список и не null: `?? {}` ниже
+     спасает только ОТСУТСТВУЮЩИЙ ключ, а `pages: null` в own.sessions
+     проходит его молча (`null ?? {}` даёт `{}`) и падает НЕ ЗДЕСЬ, а внутри
+     sessionUrls() без единого слова о причине. */
+  if (ses.pages === null || typeof ses.pages !== 'object' || Array.isArray(ses.pages)) {
+    console.error('kit.config.json: «sessions.pages» — объект { форма: [сессии] }, не null и не список')
+    process.exit(1)
+  }
+  for (const [shape, list] of Object.entries(ses.pages)) {
     if (!shape.startsWith('/') || !Array.isArray(list) || !list.every((e) => /^[A-Za-z0-9_-]+(\?\S*)?$/.test(String(e)))) {
       console.error(`kit.config.json: «sessions.pages["${shape}"]» — список имён сессий, например ["sample-cart"]`)
       process.exit(1)
