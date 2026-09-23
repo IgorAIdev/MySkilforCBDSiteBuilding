@@ -1,0 +1,3 @@
+.crumbs ol{display:flex;flex-wrap:wrap;gap:var(--sp-1);list-style:none;padding:0;margin:0;font-size:var(--note-size);color:var(--ink-soft)}
+.crumbs li + li::before{content:'/';margin-inline-end:var(--sp-1)}
+.crumbs a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}

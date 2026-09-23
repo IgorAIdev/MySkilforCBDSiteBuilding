@@ -1,0 +1,6 @@
+.cols{--cols:4;--cell-min:160px;--cols-min:1}
+.h{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
+.list{list-style:none;padding:0;margin:0}
+.list a,.addr a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+.list a[aria-current='true']{color:var(--ink);font-weight:600}
+.addr{font-style:normal;color:var(--ink-soft);line-height:var(--body-lead)}

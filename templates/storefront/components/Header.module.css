@@ -1,0 +1,4 @@
+.head{padding-block:var(--air-row)}
+.bar{justify-content:space-between}
+.logo{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
+.nav a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);font-size:var(--ctrl-fs-sm);color:var(--ink-soft)}
