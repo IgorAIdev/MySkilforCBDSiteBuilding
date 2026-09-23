@@ -26,7 +26,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createServer } from 'node:net'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
-import { all, sample } from './routes.mjs'
+import { all, sample, shapes, LOCALES, DEFAULT_LANG } from './routes.mjs'
+import { ownNotFound, quietMiss, docLang } from './not-found.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -156,18 +157,79 @@ const worker = async () => {
 }
 await Promise.all([worker(), worker(), worker(), worker()])
 
+/* Несуществующая страница — тоже страница (И257).
+ *
+ * Обход выше ходит только по адресам, которые ЕСТЬ, и потому ни разу не
+ * видел, чем сайт отвечает на адрес, которого нет. На первой витрине это
+ * была встроенная английская страница Next без языка — на каждом промахе, и
+ * все проверки были зелёные.
+ *
+ * Пробы две, по роду промаха (`tools/not-found.mjs`): адрес мимо дерева на
+ * каждом языке — своя страница с кодом 404 и `lang` адреса; промах данных
+ * (товара нет) — 404 и `noindex`. Языки и маршрут товара берутся из дерева
+ * маршрутов, а не набираются здесь рукой. */
+const MISSING = '__kit-missing__'
+const tree = shapes()
+const langSeg = tree.some((s) => s.startsWith('/[lang]')) ? '[lang]'
+  : tree.some((s) => s.startsWith('/[locale]')) ? '[locale]' : null
+/* Сайт без языка в адресе отвечает на основном; сайт без языков — любым. */
+const langs = langSeg ? LOCALES : [LOCALES.length ? DEFAULT_LANG : '']
+const fill = (shape, lang) => shape.split('/').map((seg) =>
+  seg === '[lang]' ? lang
+    : seg === '[locale]' ? (lang === DEFAULT_LANG ? '' : lang)
+      : /^\[.*\]$/.test(seg) ? MISSING : seg).join('/').replace(/\/{2,}/g, '/') || '/'
+const product = tree.find((s) => /\/product\/\[[^\]]+\]$/.test(s))
+const lost = []
+const probe = async (url) => {
+  let res = await ask(url)
+  if (res.status >= 500) res = await ask(url)
+  return { status: res.status, html: await res.text() }
+}
+for (const lang of langs) {
+  const stray = fill(`${langSeg ? `/${langSeg}` : ''}/${MISSING}`, lang)
+  try {
+    const got = await probe(stray)
+    if (!ownNotFound({ ...got, lang })) {
+      const why = got.status !== 404 ? `код ${got.status}`
+        : /__next_error__/.test(got.html) ? 'пустая страница ошибки Next'
+          : docLang(got.html) ? `язык документа «${docLang(got.html)}»` : 'документ без языка — встроенная страница Next'
+      lost.push(`${stray} — ${why}: адрес мимо дерева обязан отвечать своей страницей с кодом 404${lang ? ` на языке «${lang}»` : ''}`)
+    }
+  } catch (e) {
+    lost.push(`${stray} — не ответил: ${e.message}`)
+  }
+  if (!product) continue
+  const miss = fill(product, lang)
+  try {
+    const got = await probe(miss)
+    if (!quietMiss(got)) {
+      lost.push(`${miss} — код ${got.status}${got.status === 404 ? ', без noindex' : ''}: промах данных обязан отвечать кодом 404 и noindex`)
+    }
+  } catch (e) {
+    lost.push(`${miss} — не ответил: ${e.message}`)
+  }
+}
+
 stop()
 
-if (bad.length) {
-  console.error(`\n✗ Не открылось: ${bad.length} из ${urls.length}`)
-  for (const b of bad.slice(0, 20)) console.error(`    ${b}`)
-  if (bad.length > 20) console.error(`    …и ещё ${bad.length - 20}`)
+if (bad.length || lost.length) {
+  if (bad.length) {
+    console.error(`\n✗ Не открылось: ${bad.length} из ${urls.length}`)
+    for (const b of bad.slice(0, 20)) console.error(`    ${b}`)
+    if (bad.length > 20) console.error(`    …и ещё ${bad.length - 20}`)
+  }
+  if (lost.length) {
+    console.error('\n✗ Несуществующая страница отвечает не так (И257):')
+    for (const b of lost) console.error(`    ${b}`)
+  }
   console.error('\n  Это НЕ храповик: страница, которая не открывается, — не долг,')
   console.error('  который платят в своём темпе.')
   process.exit(1)
 }
 
 console.log(`· открылись все ${urls.length} адресов (${built ? 'собранный сайт' : 'next dev'})`)
+console.log(`· «не найдено»: адрес мимо дерева — своя страница с кодом 404${langs[0] ? ` на ${langs.join(', ')}` : ''}; ` +
+  (product ? 'промах данных — 404 и noindex' : 'проба промаха данных пропущена: в дереве нет маршрута товара (…/product/[id])'))
 /* Явный выход: соединения `fetch` держат цикл событий ещё несколько секунд
    после последнего ответа, и проверка выглядела бы висящей. */
 process.exit(0)

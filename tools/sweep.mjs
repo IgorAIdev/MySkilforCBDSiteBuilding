@@ -14,8 +14,9 @@
  * между соседними ширинами.
  *
  *   npm run build:site && npm run serve            (или next dev)
- *   node tools/sweep.mjs                            вся страница целиком
- *   node tools/sweep.mjs /bg/product/zelenika-15 --fold            только первый экран
+ *   node tools/sweep.mjs                            главная основного языка целиком
+ *   node tools/sweep.mjs /ro/product/<id> --fold    только первый экран
+ *   node tools/sweep.mjs /ro/nu-exista --miss       страницу «не найдено» — нарочно
  *
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
@@ -27,11 +28,19 @@ import { fileURLToPath } from 'node:url'
 import { LAYOUT } from './thresholds.mjs'
 import { SEAMS } from './kit-config.mjs'
 import { sweepWidths } from './seams.mjs'
+import { DEFAULT_LANG, shapes } from './routes.mjs'
 
 const args = process.argv.slice(2)
-/* Умолчание — болгарская главная: у корня своего содержимого нет, он
-   перенаправляет, а свипу нужна страница. */
-const path = args.find((a) => a.startsWith('/')) ?? '/bg'
+/* Умолчание — главная основного языка сайта, из дерева маршрутов: у корня
+   своего содержимого нет, он перенаправляет, а свипу нужна страница.
+
+   Стояло `/bg` — главная магазина, из которого набор приехал. На витрине
+   ro · en · hu это адрес, которого нет, и свип без аргумента снимал 41
+   ширину страницы «не найдено» и докладывал «всё чисто» (И257): свип
+   промаха — тишина, а не зелёный. У доменной витрины (`[locale]`) основной
+   язык живёт в корне. */
+const home = shapes().some((s) => s.startsWith('/[locale]')) || !DEFAULT_LANG ? '/' : `/${DEFAULT_LANG}`
+const path = args.find((a) => a.startsWith('/')) ?? home
 const fold = args.includes('--fold')
 const base = process.env.SITE ?? 'http://localhost:8099'
 
@@ -66,7 +75,15 @@ const rows = []
 
 for (const w of WIDTHS) {
   await page.setViewportSize({ width: w, height: HEIGHT })
-  await page.goto(base + path, { waitUntil: 'networkidle' })
+  const res = await page.goto(base + path, { waitUntil: 'networkidle' })
+  /* Промах — не страница: 41 снимок «не найдено» вместо заказанной
+     страницы ничего не говорит о её вёрстке, а сводка вышла бы зелёной
+     (И257). Саму страницу «не найдено» снимают нарочно — ключом `--miss`. */
+  if (!res || (res.status() >= 400 && !(res.status() === 404 && args.includes('--miss')))) {
+    console.error(`\n✗ ${path} отвечает ${res?.status() ?? 'ничем'} — свип промаха не проверяет ничего. Дайте адрес страницы (страницу «не найдено» — с ключом --miss).`)
+    await browser.close()
+    process.exit(1)
+  }
   /* Ширина читается после верстания, а не сразу после goto: шрифты меняют
      метрики, и до их загрузки высота — чужая. */
   await page.evaluate(() => document.fonts.ready)
@@ -215,7 +232,7 @@ for (let i = 1; i < rows.length; i++) {
   }
 }
 
-console.log(`\n${rows.length} ширин, ${LAYOUT.sweep[0]}…${LAYOUT.sweep[1]}px (швы ${SEAMS.map((s) => s.at).join(", ")} и пиксель над ними, сложенные экраны), снимки в .sweep/\n`)
+console.log(`\n${path}: ${rows.length} ширин, ${LAYOUT.sweep[0]}…${LAYOUT.sweep[1]}px (швы ${SEAMS.map((s) => s.at).join(", ")} и пиксель над ними, сложенные экраны), снимки в .sweep/\n`)
 
 if (overflow.length) {
   console.log('✗ Горизонтальное переполнение — страницу можно утащить вбок:')

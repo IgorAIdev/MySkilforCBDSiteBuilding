@@ -1044,4 +1044,9 @@ test('сегмент рисует кнопку и ссылку одним рис
   assert.match(primitives, /\.seg :is\(button, a\)\{/)
   assert.match(primitives, /\.seg :is\(\[aria-pressed="true"\], \[aria-current="true"\]\)\{/)
   assert.match(primitives, /\.seg \[aria-disabled="true"\]\{/)
+  /* Тихая плашка — ступень пола; на полу страницы она тонула (1.14 при
+     норме 1.15, check:craft `sunk`). Орган отличает от пола кромка — роль
+     тихого органа `--edge` (И258). */
+  const seg = primitives.match(/\.seg :is\(button, a\)\{[^}]*\}/)?.[0] ?? ''
+  assert.match(seg, /box-shadow:inset 0 0 0 var\(--line-w\) var\(--edge\)/)
 })

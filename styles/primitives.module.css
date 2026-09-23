@@ -995,17 +995,24 @@
 
 /* ── a segmented control ──────────────────────────────────────────────── */
 /* Кнопка или ссылка — рисунок один: выбор на месте — кнопка с aria-pressed,
-   выбор, который несёт адрес (вариант товара), — ссылка с aria-current. */
+   выбор, который несёт адрес (вариант товара), — ссылка с aria-current.
+
+   Кромка — роль тихого органа `--edge` (3 : 1 на полах 1–5, И252), а не
+   только заливка: тихая плашка `--plate-quiet` — ступень пола, и на полу
+   страницы она давала 1.14 при норме 1.15, на белом листе ещё меньше.
+   Пилюли вариантов на карте товара стояли словами в воздухе (check:craft,
+   `sunk`; И258). Выбранной кромка не нужна: её держит заливка `--pop`. */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .seg :is(button, a){
   display:inline-flex;align-items:center;
   height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
+  box-shadow:inset 0 0 0 var(--line-w) var(--edge);
   font-size:var(--ctrl-fs-sm);color:var(--ink-soft);text-decoration:none;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
 @media (hover:hover){ .seg :is(button, a[href]):hover{background:var(--hover-ctrl);color:var(--ink)} }
 .seg :is(button, a[href]):active{background:var(--press-ctrl);color:var(--ink)}
-.seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600}
+.seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600;box-shadow:none}
 .seg [aria-disabled="true"]{opacity:var(--state-off);cursor:not-allowed}
 
 /* ── sections ─────────────────────────────────────────────────────────── */
