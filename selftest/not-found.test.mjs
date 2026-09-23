@@ -6,6 +6,12 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { spawn } from 'node:child_process'
+import { copyFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { createServer } from 'node:http'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { whyNotOwn, whyNotQuiet, docLang, matchesShape, missKind } from '../tools/not-found.mjs'
 
 /* Ответы, которые сайты действительно отдают. Встроенная страница Next —
@@ -69,4 +75,63 @@ test('форма маршрута: доменная витрина, ловушк
 test('язык документа читается с <html>, без региона', () => {
   assert.equal(docLang('<html lang="en-GB" class="x">'), 'en')
   assert.equal(docLang(BUILTIN), '')
+})
+
+/* `check:open --built` на сайте, который отвечает страницей на ЛЮБОЙ адрес:
+   на `/__kit-missing__` тоже 200 — так отвечает сайт, который набор застал
+   готовым. Пробы строгие и печатают рецепт; отказ — только словом проекта в
+   kit.config.json, и проверка называет пропуск вслух. */
+const KIT = fileURLToPath(new URL('..', import.meta.url))
+const TOOLS = ['check-open.mjs', 'routes.mjs', 'not-found.mjs', 'kit-config.mjs', 'seams.mjs', 'thresholds.mjs']
+
+async function openOn(config) {
+  const root = mkdtempSync(join(tmpdir(), 'probes-'))
+  const server = createServer((_, res) => {
+    res.writeHead(200, { 'content-type': 'text/html' })
+    res.end('<!DOCTYPE html><html lang="ro"><body><main>Pagina</main></body></html>')
+  })
+  try {
+    mkdirSync(join(root, 'tools'))
+    for (const f of TOOLS) copyFileSync(join(KIT, 'tools', f), join(root, 'tools', f))
+    mkdirSync(join(root, 'app'))
+    writeFileSync(join(root, 'app/page.tsx'), 'export default function Page() { return null }\n')
+    if (config) writeFileSync(join(root, 'kit.config.json'), JSON.stringify(config))
+    await new Promise((done) => server.listen(0, '127.0.0.1', done))
+    const env = { ...process.env, SITE: `http://127.0.0.1:${server.address().port}` }
+    delete env.PORT
+    const child = spawn(process.execPath, [join(root, 'tools/check-open.mjs'), '--built'], { cwd: root, env })
+    let out = ''
+    child.stdout.on('data', (d) => { out += d })
+    child.stderr.on('data', (d) => { out += d })
+    const code = await new Promise((done) => child.on('close', done))
+    return { code, out }
+  } finally {
+    server.close()
+    rmSync(root, { recursive: true, force: true })
+  }
+}
+
+test('check:open: пробы по умолчанию строгие, провал печатает рецепт (И257)', async () => {
+  const { code, out } = await openOn(null)
+  assert.equal(code, 1, out)
+  assert.match(out, /\/__kit-missing__ — код 200, а не 404/)
+  assert.match(out, /app\/global-not-found\.tsx/)
+  assert.match(out, /globalNotFound/)
+  assert.match(out, /proxy\.ts/)
+  assert.match(out, /dynamicParams = false/)
+  assert.match(out, /И257/)
+})
+
+test('check:open: отказ от проб — словом проекта, и пропуск назван', async () => {
+  const { code, out } = await openOn({ probes: { notFound: false } })
+  assert.equal(code, 0, out)
+  assert.match(out, /открылись все 1 адресов/)
+  assert.match(out, /пробы «не найдено» пропущены словом проекта: kit\.config\.json/)
+  assert.doesNotMatch(out, /__kit-missing__/)
+})
+
+test('check:open: отказ пишется true или false, не строкой', async () => {
+  const { code, out } = await openOn({ probes: { notFound: 'false' } })
+  assert.equal(code, 1, out)
+  assert.match(out, /probes\.notFound» должен быть true или false/)
 })

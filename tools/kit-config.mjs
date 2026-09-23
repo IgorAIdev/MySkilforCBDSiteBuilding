@@ -22,7 +22,8 @@
  *     "base":        "src/app/globals.css",
  *     "primitives":  null,
  *     "scale":       { "font": "text", "space": "space", "layer": "layer" },
- *     "breakpoints": [860]
+ *     "breakpoints": [860],
+ *     "probes":      { "notFound": false }
  *   }
  *
  * Пути — от корня проекта (папки, где лежит `tools/`); `..` разрешён: в
@@ -78,18 +79,33 @@ const DEFAULTS = {
     'lib/studio/boot.ts', 'app/[lang]/layout.tsx'],
   /** чем заменить имя пакета в `composes … from '@shop/ui/control.css'`: путь от корня проекта */
   aliases: {},
+  /** пробы `check:open` сверх обхода дерева. `notFound` — несуществующий
+   *  адрес отвечает своей страницей с кодом 404 (И257). Выключается только
+   *  словом проекта — `"probes": { "notFound": false }`, — и проверка
+   *  печатает, что пробы пропущены: молча зеленеть ей нельзя. */
+  probes: { notFound: true },
 }
 
 const FILE = join(ROOT, 'kit.config.json')
 
 function load() {
-  if (!existsSync(FILE)) return { ...DEFAULTS, scale: { ...DEFAULTS.scale } }
+  if (!existsSync(FILE)) return { ...DEFAULTS, scale: { ...DEFAULTS.scale }, probes: { ...DEFAULTS.probes } }
   let own
   try { own = JSON.parse(readFileSync(FILE, 'utf8')) } catch (e) {
     console.error(`kit.config.json не читается: ${e.message}`)
     process.exit(1)
   }
-  const cfg = { ...DEFAULTS, ...own, scale: { ...DEFAULTS.scale, ...(own.scale ?? {}) } }
+  const cfg = {
+    ...DEFAULTS, ...own,
+    scale: { ...DEFAULTS.scale, ...(own.scale ?? {}) },
+    probes: { ...DEFAULTS.probes, ...(own.probes ?? {}) },
+  }
+  /* Отказ от пробы — слово, и оно пишется без двусмысленности: строка
+     `"false"` или `0` читались бы одним местом как «выключено», другим как
+     «включено». Только true или false. */
+  for (const [k, v] of Object.entries(cfg.probes)) {
+    if (typeof v !== 'boolean') { console.error(`kit.config.json: «probes.${k}» должен быть true или false`); process.exit(1) }
+  }
   /* Список чисел `breakpoints` — старая форма: ширины без имени и причины.
      Читается — проверки по файлам обязаны работать и на таком проекте, —
      но записи без причины шаг 8 в `npm run stage` не пропускает: шов должен
@@ -129,6 +145,8 @@ export const BREAKPOINTS = SEAMS.map((s) => s.at)
 export const HUES = CONFIG.hues ?? []
 export const STORES = CONFIG.stores ?? []
 export const ALIASES = CONFIG.aliases ?? {}
+/** Пробы `check:open` сверх обхода: `notFound` — несуществующая страница. */
+export const PROBES = CONFIG.probes
 
 /** Полные имена шкал: `--fs-`, `--sp-`, `--layer-`. */
 export const PREFIX = {

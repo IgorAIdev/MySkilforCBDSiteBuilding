@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { all, sample, shapes, langSegment, LOCALES, DEFAULT_LANG } from './routes.mjs'
 import { whyNotOwn, whyNotQuiet, missKind } from './not-found.mjs'
+import { PROBES } from './kit-config.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -171,7 +172,15 @@ await Promise.all([worker(), worker(), worker(), worker()])
  * товара в дереве есть. Род промаха решает дерево (`missKind`): форма
  * маршрута принимает адрес — промах данных, 404 и `noindex`; не принимает —
  * адрес мимо дерева, своя страница с кодом 404 на языке адреса. Причину
- * провала формулирует `tools/not-found.mjs`, здесь её только печатают. */
+ * провала формулирует `tools/not-found.mjs`, здесь её только печатают.
+ *
+ * Пробы строгие — чужая страница «не найдено» настоящий дефект, — но у
+ * сайта, который набор застал готовым, их провал приходит в день
+ * обновления, на том же коде, что вчера был зелёным. Поэтому провал
+ * печатает рецепт, а отказ возможен — только словом проекта в
+ * kit.config.json (`"probes": { "notFound": false }`), и проверка говорит
+ * вслух, что пробы пропущены. */
+const SKIPPED = !PROBES.notFound
 const MISSING = '__kit-missing__'
 const tree = shapes()
 const langSeg = langSegment()
@@ -184,14 +193,14 @@ const fill = (shape, lang) => shape.split('/').map((seg) =>
 const product = tree.find((s) => /\/product\/\[[^\]]+\]$/.test(s))
 /* Адрес и язык, которым на нём обязан ответить сайт. */
 const probes = new Map()
-for (const lang of langs) {
+for (const lang of SKIPPED ? [] : langs) {
   probes.set(fill(`${langSeg ? `/${langSeg}` : ''}/${MISSING}`, lang), lang)
   if (product) probes.set(fill(product, lang), lang)
 }
 /* Один сегмент под приставкой языка: чужое слово на месте языка. Отвечает
    основным языком. У `[locale]` этот адрес — промах основного языка, он уже
    в списке. */
-if (langSeg === '[lang]') probes.set(`/${MISSING}`, DEFAULT_LANG)
+if (langSeg === '[lang]' && !SKIPPED) probes.set(`/${MISSING}`, DEFAULT_LANG)
 const lost = []
 const tally = { stray: 0, data: 0 }
 for (const [url, lang] of probes) {
@@ -214,6 +223,10 @@ for (const [url, lang] of probes) {
 
 stop()
 
+/* Пропуск называется вслух и при провале обхода: иначе отчёт о провале
+   выглядел бы полным. */
+const SKIP_LINE = '· пробы «не найдено» пропущены словом проекта: kit.config.json → "probes": { "notFound": false } (И257)'
+
 if (bad.length || lost.length) {
   if (bad.length) {
     console.error(`\n✗ Не открылось: ${bad.length} из ${urls.length}`)
@@ -223,15 +236,31 @@ if (bad.length || lost.length) {
   if (lost.length) {
     console.error('\n✗ Несуществующая страница отвечает не так (И257):')
     for (const b of lost) console.error(`    ${b}`)
+    /* Рецепт — тот, по которому это починено в витрине набора
+       (templates/storefront); разбор — docs/rules.md, И257. */
+    console.error('\n  Как чинится (docs/rules.md, И257):')
+    console.error('    · адрес мимо дерева — своя страница, отрисованная сервером: app/global-not-found.tsx')
+    console.error('      и experimental: { globalNotFound: true } в next.config;')
+    console.error('    · язык этой страницы — из адреса: proxy.ts копирует язык первого сегмента')
+    console.error('      в заголовок запроса, страница читает его через headers();')
+    console.error('    · язык — закрытый список: dynamicParams = false в макете языка')
+    console.error('      (app/[lang]/layout.tsx), чужое слово на месте языка уходит мимо дерева;')
+    console.error('    · промах данных — notFound() и noindex: 404, поиск адрес не запомнит.')
+    console.error('  Отказаться от проб можно только словом проекта: kit.config.json →')
+    console.error('  "probes": { "notFound": false } — и проверка скажет, что они пропущены.')
   }
+  if (SKIPPED) console.error(`\n${SKIP_LINE}`)
   console.error('\n  Это НЕ храповик: страница, которая не открывается, — не долг,')
   console.error('  который платят в своём темпе.')
   process.exit(1)
 }
 
 console.log(`· открылись все ${urls.length} адресов (${built ? 'собранный сайт' : 'next dev'})`)
-console.log(`· «не найдено»: адресов мимо дерева ${tally.stray} — своя страница с кодом 404${langs[0] ? ` (${langs.join(', ')})` : ''}; ` +
-  (product ? `промахов данных ${tally.data} — 404 и noindex` : 'проба промаха данных пропущена: в дереве нет маршрута товара (…/product/[id])'))
+if (SKIPPED) console.log(SKIP_LINE)
+else {
+  console.log(`· «не найдено»: адресов мимо дерева ${tally.stray} — своя страница с кодом 404${langs[0] ? ` (${langs.join(', ')})` : ''}; ` +
+    (product ? `промахов данных ${tally.data} — 404 и noindex` : 'проба промаха данных пропущена: в дереве нет маршрута товара (…/product/[id])'))
+}
 /* Явный выход: соединения `fetch` держат цикл событий ещё несколько секунд
    после последнего ответа, и проверка выглядела бы висящей. */
 process.exit(0)

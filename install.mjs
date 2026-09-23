@@ -33,7 +33,7 @@
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { basename, join, resolve } from 'node:path'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
 import { toCss as ritmToCss } from './tools/scale.mjs'
@@ -123,6 +123,23 @@ const rel = (p) => p.slice(OUT.length + 1)
 const has = (p) => existsSync(join(OUT, p))
 
 /* ── что уже есть у проекта ─────────────────────────────────────────────── */
+
+/* Витрина кладёт своё приложение целиком: `package.json`, `tsconfig.json`,
+   `next.config.ts`, `.gitignore`, `app/`. Проверка проектных файлов ниже
+   этого не видит: у проекта из create-next-app их нет ни одного, — и шаблон
+   молча затирал его зависимости, а `app/[lang]` ложился рядом с его
+   `app/layout.tsx`. Поэтому витрина встаёт только в пустую папку; в
+   непустую — по слову `--force` (И169). */
+if (STOREFRONT && !FORCE && existsSync(OUT)) {
+  const inside = statSync(OUT).isDirectory() ? readdirSync(OUT) : [basename(OUT)]
+  if (inside.length) {
+    const shown = inside.slice(0, 5).join(', ') + (inside.length > 5 ? ` и ещё ${inside.length - 5}` : '')
+    console.error(`Папка ${OUT} не пуста: ${shown}.`)
+    console.error('Витрина ставится в пустую папку: шаблон затёр бы package.json, tsconfig.json, next.config.ts и app/ проекта.')
+    console.error('  --force   это новый сайт, файлы затереть (И169 — сказать это надо словом)')
+    process.exit(1)
+  }
+}
 
 if (MODE === 'new' && !FORCE) {
   const taken = PROJECT_OWNED.filter(has)
@@ -260,8 +277,12 @@ if (MODE === 'new') {
     if (name === 'AGENTS.md') {
       copy(join(SRC, 'templates/AGENTS.md'), join(OUT, name))
     } else if (name === '.github/workflows/check.yml') {
+      /* Витрина — серверная сборка: `out/` у неё нет, адреса и разметку
+         проверки спрашивают у поднятого `npm run start` (SITE=…), а Node —
+         тот, что просит шаблон (`engines`). Статический рабочий процесс
+         падал бы на ней на каждом PR. */
       mkdirSync(join(OUT, '.github/workflows'), { recursive: true })
-      copy(join(SRC, 'templates/check.yml'), join(OUT, name))
+      copy(join(SRC, STOREFRONT ? 'templates/check-storefront.yml' : 'templates/check.yml'), join(OUT, name))
     } else if (name === 'styles/palette.json') {
       /* Новый сайт с первой минуты стоит на шкале — но НЕ на красках чужого
          магазина. Палитра набора едет вместе со `styles/`, и без этой строки
@@ -391,6 +412,11 @@ if (MODE === 'new') {
   console.log('  · .claude/settings.json — хуки: брифинг этапа сам в начале сессии, проверка сама после правки')
   console.log('  · .github/workflows/check.yml — проверки падают сами, без чьей-либо памяти')
   console.log('  · базы храповиков на нулях — на новом проекте долга нет')
+}
+/* Проверка, ставшая строже, — новость, а не сюрприз на первом прогоне: сайт,
+   зелёный вчера, сегодня красный на том же коде. */
+if (MODE === 'update') {
+  console.log('  · check:open теперь пробует и несуществующие страницы — своя «не найдено» с кодом 404 (И257); отказ — словом проекта: kit.config.json → "probes": { "notFound": false }')
 }
 if (MODE === 'audit') {
   console.log('  · kit.config.json — где лежит код и стили, как названы шкалы, сколько швов: поправьте под проект')

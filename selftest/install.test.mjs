@@ -77,6 +77,8 @@ test('новый сайт: всё разложено, команды допис�
   assert.doesNotMatch(readFileSync(join(dir, 'docs/decisions.md'), 'utf8'), /CBD_ecommerce_eu|Ровный магазин|Латунь на угле/,
     'новый сайт не наследует бизнес-решения другого сайта')
   assert.ok(!existsSync(join(dir, '.github/workflows/kit.yml')), 'CI набора — не CI проекта')
+  assert.equal(readFileSync(join(dir, '.github/workflows/check.yml'), 'utf8'), readFileSync(join(KIT, 'templates/check.yml'), 'utf8'),
+    'голая установка — статический CI; серверный только у витрины')
   const s = scriptsOf(dir)
   assert.equal(s.dev, 'next dev', 'свои команды остаются')
   assert.equal(s['check:css'], 'node tools/check-css.mjs')
@@ -171,6 +173,8 @@ test('--update: базы храповиков и CLAUDE.md проекта ост
   assert.equal(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), 'Этап производства: **3 · Поведение**\n', 'этап проекта не сбрасывается')
   assert.equal(readFileSync(join(dir, 'tools/css-baseline.json'), 'utf8'), '{"fontPx": 7}\n', 'долг не прощается')
   assert.notEqual(readFileSync(join(dir, 'tools/check-css.mjs'), 'utf8'), '// устаревшая копия\n', 'инструмент обновлён')
+  /* Проверка, ставшая строже, объявлена при обновлении — вместе с отказом. */
+  assert.match(r.stdout, /check:open теперь пробует и несуществующие страницы.*И257.*"probes": \{ "notFound": false \}/)
   rmSync(dir, { recursive: true, force: true })
 })
 
