@@ -88,7 +88,10 @@ export const sample: Source = {
       images: [image(p, lang)],
       optionGroups: p.groups.map((g) => ({ code: g.code, name: g.name[lang], options: g.options.map((o) => ({ code: o.code, name: o.name[lang] })) })),
       variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), stock: v.stock, options: v.options, batch: v.batch })),
-      labReports: batches.map((b) => ({ batch: b, ...LAB_REPORTS[b], url: `#lab-${b}` })),
+      labReports: batches.map((b) => {
+        const r = LAB_REPORTS[b]
+        return { batch: b, lab: r.lab, date: r.date, cbdPercent: r.cbdPercent, thcPercent: r.thcPercent, url: `#lab-${b}` }
+      }),
     }
     return ok(product)
   },
