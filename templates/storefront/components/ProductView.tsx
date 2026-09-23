@@ -13,7 +13,7 @@ export function ProductView({ view, lang, submit, call }: { view: ProductPageVie
     <>
       <Breadcrumbs trail={view.crumbs} label={view.crumbLabel} />
       <section className={`${p.switcher} ${s.pdp}`}>
-        <div className={`${p.frame} ${s.gallery}`}>
+        <div className={`${p.frame} ${p.bias} ${s.gallery}`}>
           <img src={view.image.src} alt={view.image.alt} width={view.image.width} height={view.image.height} fetchPriority="high" />
         </div>
         <div className={`${p.stack} ${s.offer}`}>

@@ -219,8 +219,10 @@
   gap:var(--switch-gap-stack, var(--switch-gap, var(--air-block))) var(--switch-gap, var(--air-block));
 }
 .switcher > *{flex-grow:1;flex-basis:calc((var(--switch-at, 640px) - 100%) * 999)}
-/* Доля, если колонки неравные: `--bias` кратен единице второй колонки. */
-.switcher > .bias{flex-grow:var(--bias, 2)}
+/* Доля, если колонки неравные: `--switch-bias` кратен единице второй
+   колонки. Имя — ручка примитива (`--switch-*`, tools/names.mjs): голое
+   `--bias` реестр имён не узнаёт, и первый же узел, взявший долю, краснел. */
+.switcher > .bias{flex-grow:var(--switch-bias, 2)}
 
 /* Lede — вводная пара «текст и кадр», шестой примитив.
 

@@ -3,8 +3,38 @@
    заголовка страницы, а та меряет `cqi` — ряд карты, а не узкую колонку
    покупки. Мерилась бы колонка — на 900…1100 окна имя выходило мельче
    заголовка «Produse similare» ниже по странице (check:craft, ladder). */
-.pdp{--switch-at:720px;container-type:inline-size}
-.gallery{--frame:1 / 1}
+.pdp{--switch-at:820px;container-type:inline-size;align-items:start}
+
+/* Снимок товара — норма живых магазинов (замер 23.09.2026, четырнадцать
+   магазинов: byredo, lelabo, aesop, glossier, cuyana, muji, apple, diptyque,
+   cos, cibdol, formulaswiss, hempico.bg, mamakana.ro, mycbd.bg). Заказчик
+   показал снимком: на ширине планшета карта стояла одной колонкой, кадр во
+   всю ширину ряда, и имя с ценой уезжали под сгиб.
+
+   ОДНА КОЛОНКА (ряд уже `--switch-at`): кадр не выше 55 % малого окна и
+   не шире `--frame-max`, по середине ряда. Замер: телефон ≈ 58 % высоты
+   окна, планшет ≈ 48 % и ≈ 620px в ширину; имя в первом экране у всех.
+   Ширина считается из потолка высоты (у квадрата ширина равна высоте) —
+   кадр остаётся квадратом, а не режется в полосу.
+
+   ДВЕ КОЛОНКИ — с 820px ряда, как у живых магазинов (вторая колонка
+   появляется при содержимом ≈ 820px; ниже — одна): кадр берёт ≈ 55 % ряда
+   (`--switch-bias` 1.22 к 1 у покупки) и может быть высоким — потолок
+   85 % окна (замер 1024–1440: галерея 51–57 % ширины, снимок 75–86 %
+   высоты окна, текст рядом). Ряд не тянет кадр во
+   всю высоту колонки покупки (`align-items:start`): растянутый, он
+   становился полосой 366×540 и резал квадратный снимок на треть.
+
+   Порог 820 — шов набора, у `--switch-at` выше и у запроса ниже: одно
+   решение двумя записями, условие `@container` переменную не принимает.
+   Стоял 720, и ряд 720…819 (окно ≈ 760…900) держал две колонки по
+   половине: кадр 366px, растянутый в 540 по высоте колонки покупки. На
+   пороге колонка покупки получает ≈ 350px (45 % ряда за вычетом просвета)
+   — имя, цена и кнопка стоят в ней без обрывков. */
+.gallery{--frame:1 / 1;--frame-cap:55svh;--frame-max:620px;--switch-bias:1.22;inline-size:100%;max-inline-size:min(var(--frame-max), var(--frame-cap));margin-inline:auto}
+@container (min-width:820px){
+  .gallery{--frame-cap:85svh;max-inline-size:none;margin-inline:0}
+}
 .offer{--stack:var(--air-group)}
 .name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);overflow-wrap:anywhere}
 .price{font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
