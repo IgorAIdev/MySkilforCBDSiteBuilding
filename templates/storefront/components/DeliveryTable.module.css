@@ -5,5 +5,10 @@
 .table{border-collapse:collapse;min-inline-size:100%}
 .caption{text-align:start;font-weight:600;padding-block-end:var(--gap-row)}
 .table :is(th, td){padding:var(--gap-row);text-align:start;border-block-end:var(--line-w) solid var(--edge)}
+/* Край таблицы вровень с текстом страницы, не отступом внутрь: только
+   крайние ячейки строки теряют своё внешнее поле, зазоры между колонками
+   остаются — на 360 это и есть та ширина, которой не хватало «Ingyenes». */
+.table :is(th, td):first-child{padding-inline-start:0}
+.table :is(th, td):last-child{padding-inline-end:0}
 .table thead th{color:var(--ink-soft);font-weight:600}
 .price{white-space:nowrap;text-align:end;font-variant-numeric:tabular-nums}
