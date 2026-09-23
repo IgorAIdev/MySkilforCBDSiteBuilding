@@ -23,8 +23,14 @@
  *     "primitives":  null,
  *     "scale":       { "font": "text", "space": "space", "layer": "layer" },
  *     "breakpoints": [860],
- *     "probes":      { "notFound": false }
+ *     "probes":      { "notFound": false },
+ *     "sessions":    { "cookie": "shop_session", "pages": { "/[lang]/cart": ["sample-cart"] } }
  *   }
+ *
+ * `sessions` называет личные страницы полными для дорогих проверок (И263):
+ * cookie сессии проверки и, по форме маршрута, имена заготовленных сессий
+ * образца (с необязательной строкой запроса — `"sample-pickup?city=Cluj"`).
+ * Нет cookie — нет и личных страниц: они меряются только деревом, пустыми.
  *
  * Пути — от корня проекта (папки, где лежит `tools/`); `..` разрешён: в
  * монорепозитории общие стили живут этажом выше. `null` у файла значит «его
@@ -84,12 +90,15 @@ const DEFAULTS = {
    *  словом проекта — `"probes": { "notFound": false }`, — и проверка
    *  печатает, что пробы пропущены: молча зеленеть ей нельзя. */
   probes: { notFound: true },
+  /* Личные страницы (И263): без cookie сессии в проекте их нет вовсе — они
+   *  меряются только деревом, пустыми. */
+  sessions: { cookie: null, pages: {} },
 }
 
 const FILE = join(ROOT, 'kit.config.json')
 
 function load() {
-  if (!existsSync(FILE)) return { ...DEFAULTS, scale: { ...DEFAULTS.scale }, probes: { ...DEFAULTS.probes } }
+  if (!existsSync(FILE)) return { ...DEFAULTS, scale: { ...DEFAULTS.scale }, probes: { ...DEFAULTS.probes }, sessions: { ...DEFAULTS.sessions } }
   let own
   try { own = JSON.parse(readFileSync(FILE, 'utf8')) } catch (e) {
     console.error(`kit.config.json не читается: ${e.message}`)
@@ -99,12 +108,24 @@ function load() {
     ...DEFAULTS, ...own,
     scale: { ...DEFAULTS.scale, ...(own.scale ?? {}) },
     probes: { ...DEFAULTS.probes, ...(own.probes ?? {}) },
+    sessions: { ...DEFAULTS.sessions, ...(own.sessions ?? {}) },
   }
   /* Отказ от пробы — слово, и оно пишется без двусмысленности: строка
      `"false"` или `0` читались бы одним местом как «выключено», другим как
      «включено». Только true или false. */
   for (const [k, v] of Object.entries(cfg.probes)) {
     if (typeof v !== 'boolean') { console.error(`kit.config.json: «probes.${k}» должен быть true или false`); process.exit(1) }
+  }
+  /* Личные страницы (И263): имя cookie — слово или null; формы маршрутов —
+     с «/»; сессия — имя без пробелов и, если нужно, «?запрос». Кривая запись
+     падает здесь, а не молча выключает замер полных страниц. */
+  const ses = cfg.sessions
+  if (ses.cookie !== null && !/^[A-Za-z0-9_-]+$/.test(String(ses.cookie))) { console.error('kit.config.json: «sessions.cookie» — имя cookie или null'); process.exit(1) }
+  for (const [shape, list] of Object.entries(ses.pages ?? {})) {
+    if (!shape.startsWith('/') || !Array.isArray(list) || !list.every((e) => /^[A-Za-z0-9_-]+(\?\S*)?$/.test(String(e)))) {
+      console.error(`kit.config.json: «sessions.pages["${shape}"]» — список имён сессий, например ["sample-cart"]`)
+      process.exit(1)
+    }
   }
   /* Список чисел `breakpoints` — старая форма: ширины без имени и причины.
      Читается — проверки по файлам обязаны работать и на таком проекте, —
@@ -147,6 +168,9 @@ export const STORES = CONFIG.stores ?? []
 export const ALIASES = CONFIG.aliases ?? {}
 /** Пробы `check:open` сверх обхода: `notFound` — несуществующая страница. */
 export const PROBES = CONFIG.probes
+/** Личные страницы полными (И263): cookie сессии проверки и сессии образца
+ *  по форме маршрута. */
+export const SESSIONS = CONFIG.sessions
 
 /** Полные имена шкал: `--fs-`, `--sp-`, `--layer-`. */
 export const PREFIX = {

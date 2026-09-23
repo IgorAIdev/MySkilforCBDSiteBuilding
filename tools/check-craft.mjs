@@ -63,7 +63,9 @@ import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { sample, isNative } from './routes.mjs'
+import { sample, personal, isNative } from './routes.mjs'
+import { sessionOf } from './sessions.mjs'
+import { SESSIONS } from './kit-config.mjs'
 
 /** Контраст по WCAG — та же формула, что и в странице; здесь она нужна
  *  второй раз, снаружи, для дна, снятого с экрана. */
@@ -113,7 +115,7 @@ const ONLY_PAGE = flag('--page')
 const ONLY_FAM = (flag('--only') ?? '').split(',').map((x) => x.trim()).filter(Boolean)
 const NARROW = Boolean(ONLY_PAGE)
 
-const PAGES = sample().filter((path) => !ONLY_PAGE || path.includes(ONLY_PAGE))
+const PAGES = [...sample(), ...personal()].filter((path) => !ONLY_PAGE || path.includes(ONLY_PAGE))
 if (!PAGES.length) {
   console.error(`Под «${ONLY_PAGE}» не подошёл ни один адрес дерева. Список: node tools/routes.mjs`)
   process.exit(1)
@@ -1899,6 +1901,15 @@ async function still(page) {
   }).catch(() => {})
 }
 
+/** Открыть адрес проверки. Сессию личной страницы несёт заголовок
+ *  `Cookie` — страницы берутся из общей стопки, поэтому заголовок ставится
+ *  каждый раз, и у страницы без сессии он пустой (И263). */
+async function openAt(page, path, options) {
+  const { path: clean, cookie } = sessionOf(path, SESSIONS.cookie)
+  await page.setExtraHTTPHeaders(cookie ? { cookie } : {})
+  return page.goto(BASE + clean, options)
+}
+
 async function visit(path, w, { finger, dark = false }) {
     const phone = finger
     /* Страница берётся из той среды, которую изображаем: сменить
@@ -1921,7 +1932,7 @@ async function visit(path, w, { finger, dark = false }) {
        Сторож «это вообще страница сайта?» у проверки был, а сторожа «сервер
        жив?» не было. */
     try {
-      await page.goto(BASE + path, { waitUntil: 'networkidle' })
+      await openAt(page, path, { waitUntil: 'networkidle' })
     } catch (e) {
       /* Говорит об этом ПЕРВАЯ полоса и только она: страниц открыто
          несколько, и упавший сервер уронил бы их все — четыре одинаковых
@@ -2234,7 +2245,7 @@ await lanes(native, async (path) => {
     const page = await take(calm)
     try {
     await page.setViewportSize({ width: 1200, height: 900 })
-    await page.goto(BASE + path, { waitUntil: 'networkidle' })
+    await openAt(page, path, { waitUntil: 'networkidle' })
     const lines = await page.evaluate(() => {
       const out = []
       const name = (el) => {
@@ -2321,7 +2332,7 @@ await lanes(
     const page = await take(ctx)
     try {
     await page.setViewportSize({ width: DIP_W, height: 900 })
-    try { await page.goto(BASE + path, { waitUntil: 'networkidle' }) } catch { return }
+    try { await openAt(page, path, { waitUntil: 'networkidle' }) } catch { return }
     await still(page)
     await page.evaluate(() => Promise.all(
       document.getAnimations().map((a) => a.finished.catch(() => {})))).catch(() => {})
@@ -2505,7 +2516,7 @@ const sheetSpot = async (ctx, win, at, pick, nth, text, tab) => {
   const page = await take(ctx)
   try {
     await page.setViewportSize({ width: win, height: 1000 })
-    try { await page.goto(BASE + at, { waitUntil: 'networkidle' }) } catch { return null }
+    try { await openAt(page, at, { waitUntil: 'networkidle' }) } catch { return null }
     await still(page)
     if (tab) {
       /* Образцы лежат по вкладкам, и закрытая вкладка не отрисована вовсе. */

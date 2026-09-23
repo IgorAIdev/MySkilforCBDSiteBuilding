@@ -82,7 +82,7 @@ test('язык документа читается с <html>, без регио�
    готовым. Пробы строгие и печатают рецепт; отказ — только словом проекта в
    kit.config.json, и проверка называет пропуск вслух. */
 const KIT = fileURLToPath(new URL('..', import.meta.url))
-const TOOLS = ['check-open.mjs', 'routes.mjs', 'not-found.mjs', 'kit-config.mjs', 'seams.mjs', 'thresholds.mjs']
+const TOOLS = ['check-open.mjs', 'routes.mjs', 'not-found.mjs', 'kit-config.mjs', 'seams.mjs', 'thresholds.mjs', 'sessions.mjs']
 
 async function openOn(config) {
   const root = mkdtempSync(join(tmpdir(), 'probes-'))

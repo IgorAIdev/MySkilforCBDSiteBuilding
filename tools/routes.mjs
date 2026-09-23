@@ -33,6 +33,8 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { sessionUrls } from './sessions.mjs'
+import { SESSIONS } from './kit-config.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 /* Файла может не быть вовсе: набор переезжает в новый проект, где `lib/`
@@ -272,6 +274,15 @@ export function all() {
 export function sample() {
   assertData()
   return [...new Set([...shapes().flatMap(expand(SAMPLE)), ...queried()])].sort()
+}
+
+/** Личные страницы полными — для дорогих проверок (И263): формы из
+ *  `sessions.pages` в kit.config.json, по адресу на язык и сессию, хвостом
+ *  `#as=…`. Нет cookie в конфиге — нет и личных страниц. */
+export function personal() {
+  if (!SESSIONS.cookie) return []
+  assertData()
+  return sessionUrls(SESSIONS.pages, expand(SAMPLE))
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

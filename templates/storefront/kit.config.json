@@ -1,0 +1,12 @@
+{
+  "sessions": {
+    "cookie": "shop_session",
+    "pages": {
+      "/[lang]/cart": ["sample-cart"],
+      "/[lang]/checkout/contact": ["sample-cart"],
+      "/[lang]/checkout/delivery": ["sample-contact", "sample-address", "sample-pickup?city=Bucure%C8%99ti"],
+      "/[lang]/checkout/payment": ["sample-ready"],
+      "/[lang]/checkout/done": ["sample-placed"]
+    }
+  }
+}

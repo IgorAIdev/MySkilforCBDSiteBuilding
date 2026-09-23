@@ -17,6 +17,7 @@
  *   node tools/sweep.mjs                            главная основного языка целиком
  *   node tools/sweep.mjs /ro/product/<id> --fold    только первый экран
  *   node tools/sweep.mjs /ro/nu-exista --miss       страницу «не найдено» — нарочно
+ *   node tools/sweep.mjs '/ro/cart#as=sample-cart'   личную страницу — полной (сессия из kit.config.json)
  *
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
@@ -26,9 +27,10 @@ const { chromium } = await loadPlaywright()
 import { mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { LAYOUT } from './thresholds.mjs'
-import { SEAMS } from './kit-config.mjs'
+import { SEAMS, SESSIONS } from './kit-config.mjs'
 import { sweepWidths } from './seams.mjs'
 import { homePath } from './routes.mjs'
+import { sessionOf } from './sessions.mjs'
 
 const args = process.argv.slice(2)
 /* Умолчание — главная основного языка сайта, из дерева маршрутов: у корня
@@ -73,9 +75,14 @@ const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE
 const page = await browser.newPage()
 const rows = []
 
+/* Хвост `#as=…` личной страницы (И263) несёт заголовок `Cookie`, а не адрес:
+   на сервер уходит только то, что до `#`. */
+const { path: clean, cookie } = sessionOf(path, SESSIONS.cookie)
+if (cookie) await page.setExtraHTTPHeaders({ cookie })
+
 for (const w of WIDTHS) {
   await page.setViewportSize({ width: w, height: HEIGHT })
-  const res = await page.goto(base + path, { waitUntil: 'networkidle' })
+  const res = await page.goto(base + clean, { waitUntil: 'networkidle' })
   /* Промах — не страница: 41 снимок «не найдено» вместо заказанной
      страницы ничего не говорит о её вёрстке, а сводка вышла бы зелёной
      (И257). Саму страницу «не найдено» снимают нарочно — ключом `--miss`. */
