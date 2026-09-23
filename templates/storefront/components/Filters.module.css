@@ -1,0 +1,3 @@
+.filters{--stack:var(--air-group);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
+.set{border:0;padding:0;margin:0}
+.legend{font-weight:600;margin-block-end:var(--air-row)}

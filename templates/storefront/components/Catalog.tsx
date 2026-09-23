@@ -1,0 +1,36 @@
+import type { ReactNode } from 'react'
+import p from '@/styles/primitives.module.css'
+import s from './Catalog.module.css'
+import type { CatalogView } from '@/lib/catalog-view.ts'
+import { ProductCard } from './ProductCard.tsx'
+import { StateScreen } from './StateScreen.tsx'
+import { Filters } from './Filters.tsx'
+import { Pagination } from './Pagination.tsx'
+
+export function Catalog({ view, top }: { view: CatalogView; top?: ReactNode }) {
+  const shelf = (
+    <div className={p.stack}>
+      {view.cards.length
+        ? <ul className={`${p.grid} ${s.shelf}`}>{view.cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < 4} /></li>)}</ul>
+        : <StateScreen level={2} kind="none" title={view.empty.title} step={view.empty.step} href={view.empty.href} />}
+      {view.pages ? <Pagination pages={view.pages} /> : null}
+    </div>
+  )
+  return (
+    <main id="main" className={`${p.wrap} ${p.section}`}>
+      <div className={p.pagehead}>
+        <h1>{view.title}</h1>
+        {view.lede ? <p>{view.lede}</p> : null}
+        <p className={p.muted}>{view.count}</p>
+      </div>
+      {top}
+      {view.invalid ? <p className={p.muted} role="status">{view.invalid}</p> : null}
+      {view.filters ? (
+        <div className={p.sidebar}>
+          <aside className={p.aside}><Filters f={view.filters} /></aside>
+          {shelf}
+        </div>
+      ) : shelf}
+    </main>
+  )
+}
