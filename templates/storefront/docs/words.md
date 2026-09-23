@@ -46,6 +46,15 @@
 | наложенный платёж | ramburs | cash on delivery | utánvét | |
 | код скидки | cod de reducere | discount code | kedvezménykód | |
 
+## Обещание магазина
+
+Полоса над шапкой «Search first» — три факта магазина, словами, которые уже
+стоят на витрине (герой, лаборатория, доставка), а не новым слоганом.
+
+| ro | en | hu |
+| --- | --- | --- |
+| Buletin de analiză pentru fiecare lot · Livrare în 1–3 zile lucrătoare · Plata ramburs | A lab report for every batch · Delivery in 1–3 working days · Cash on delivery | Laborjegyzőkönyv minden tételhez · Kiszállítás 1–3 munkanapon belül · Utánvétes fizetés |
+
 ## Кнопки
 
 | Действие | ro | en | hu |
@@ -60,6 +69,7 @@
 | искать | Caută | Search | Keresés |
 | открыть меню полок (шапка, узкий экран) | Meniu | Menu | Menü |
 | закрыть меню полок | Închide meniul | Close menu | Menü bezárása |
+| открыть панель полок (шапка «Boutique») | Magazin | Shop | Bolt |
 
 Кнопка заказа называет обязанность платить — Директива 2011/83/ЕС, ст. 8(2) (И262). Формулировку внутри этой рамки утверждает заказчик.
 

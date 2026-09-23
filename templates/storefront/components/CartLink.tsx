@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import b from '@/styles/btn.module.css'
 import s from './Header.module.css'
 import { Icon } from './Icon.tsx'
 
@@ -9,8 +8,10 @@ import { Icon } from './Icon.tsx'
    после каждого перехода (шапка не размонтируется между страницами, а
    переход, скажем, оформления заказа корзину меняет без записи через форму
    корзины) — и после каждой записи в корзину — событием `cart:count` от
-   формы корзины. Без скрипта — ссылка без числа. */
-export function CartLink({ href, label, countUrl }: { href: string; label: string; countUrl: string }) {
+   формы корзины. Без скрипта — ссылка без числа. Знак шапки, а не кнопка
+   действия: стиль кнопок сайта его не касается; `labelled` — со словом
+   «Cart» рядом (шапка «Search first»). */
+export function CartLink({ href, label, countUrl, labelled = false }: { href: string; label: string; countUrl: string; labelled?: boolean }) {
   const [count, setCount] = useState<number | null>(null)
   const pathname = usePathname()
   useEffect(() => {
@@ -24,8 +25,9 @@ export function CartLink({ href, label, countUrl }: { href: string; label: strin
     return () => { stop.abort(); window.removeEventListener('cart:count', on) }
   }, [countUrl, pathname])
   return (
-    <a className={`${b.btn} ${s.cart}`} data-size="sm" href={href} aria-label={count ? `${label} (${count})` : label}>
+    <a className={`${s.glyph} ${s.cart}`} href={href} aria-label={count ? `${label} (${count})` : label}>
       <Icon id="shopping-cart" />
+      {labelled ? <span className={s.cartLabel} aria-hidden="true">{label}</span> : null}
       {count ? <span className={s.badge} aria-hidden="true">{count}</span> : null}
     </a>
   )

@@ -1,58 +1,132 @@
-/* ── Шапка: одна строка на любой ширине ──────────────────────────────────
-   Коробка шапки — контейнер (правило 6): полки строкой или шторкой решает
-   ЕЁ ширина, а не окно. Шов — 820 (реестр швов, kit.config.json): уже этой
-   коробки строка полок рядом со знаком и действиями не помещается, и шапка
-   на телефоне вставала в три этажа (193px, полки срезаны справа). Теперь
-   строка одна: знак — поиск, корзина, «Meniu».
+/* ── Шапка: своя полоса, три варианта ─────────────────────────────────────
+   Полоса поверхности во всю ширину окна с волоском снизу: на голом полу
+   страницы шапка не лежит никогда (заказчик показал снимок 1900 широкого
+   окна: знак и полки висели на сером полу без полосы). Коробка шапки —
+   контейнер (правило 6): строкой полки или шторкой, решает ЕЁ ширина на шве
+   820 (реестр швов, kit.config.json), а не окно.
 
-   Высота строки — от органа (`--ctrl-h`: 40 под мышью, 48 под пальцем), поле
-   сверху и снизу — ступень ритма: под пальцем 48 + 2 × 8 = 64. */
-.head{container-type:inline-size;padding-block:var(--sp-2)}
-.bar{display:flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-h)}
+   Строка — рост органа (`--ctrl-h`) и поле ступенью ритма сверху и снизу.
+   Эта же сумма (`--head-h`) — запасной верх для списка языка и панели
+   полок там, где браузер не умеет привязывать всплывающее к шапке. */
+.head{
+  --head-h:calc(var(--ctrl-h) + var(--sp-2) * 2);
+  container-type:inline-size;anchor-name:--head;
+  background:var(--surface);border-block-end:var(--line-w) solid var(--rule)
+}
+.bar{display:flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-h);padding-block:var(--sp-2)}
 .logo{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);margin-inline-end:var(--air-row);font-size:var(--h3-size);font-weight:700;letter-spacing:var(--h3-track);color:var(--ink)}
+/* Действия — одна группа у правого края; просвет между целями — роль
+   зазора целей (под пальцем вдвое шире). */
+.actions{display:flex;align-items:center;gap:var(--gap-targets);margin-inline-start:auto}
+.lang{display:flex}
 
-/* Полки строкой. Навигация носит `popover` (шторка на узком), и у браузера на
-   такой элемент своя коробка: `fixed`, `inset:0`, рамка, поле, `Canvas`,
-   `display:none`. Правило автора сильнее правила браузера при любой силе
-   селектора, поэтому строка объявляет всю коробку сама. */
+/* Знак шапки — тихий глиф ростом с цель (`--ctrl-target`: 24 под мышью, 44
+   под пальцем), без заливки: не кнопка действия, и стиль кнопок сайта
+   (`data-button`) его не касается. Ответ на руку — вуаль органа. Знак —
+   от кегля подписи (`em`), а не от роста цели: под пальцем растёт цель,
+   а не рисунок. */
+.glyph{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--ctrl-target) * .2);
+  min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);padding-inline:calc(var(--ctrl-target) * .1);
+  border-radius:var(--r-ctrl);background:none;color:var(--ink);
+  font:inherit;font-size:var(--ctrl-fs-xs);font-weight:500;
+  transition:background-color var(--hover-t) var(--ease)
+}
+.glyph svg{inline-size:1.43em;block-size:1.43em;flex:none}
+@media (hover:hover){ .glyph:hover{background:var(--hover-ctrl)} }
+.glyph:active{background:var(--press-ctrl)}
+/* Со словом («Shop», «Cart») — поле по бокам шире: слово не липнет к краю вуали. */
+.shop,.cart:has(.cartLabel){padding-inline:calc(var(--ctrl-target) * .25)}
+
+/* Число в корзине — маленькой пилюлей краски «выбранного» на углу знака,
+   только когда оно больше нуля. Вынос — доля роста цели (правило 2);
+   место под число не занимается — шапка от него не прыгает. */
+.badge{
+  position:absolute;
+  inset-block-start:calc(var(--ctrl-target) * -.25);inset-inline-end:calc(var(--ctrl-target) * -.3);
+  min-inline-size:1.6em;padding-inline:.35em;border-radius:50%;
+  background:var(--pop);color:var(--on-pop);
+  font-size:var(--ctrl-fs-xs);line-height:1.6;text-align:center;font-variant-numeric:tabular-nums
+}
+
+/* ── Полки строкой ───────────────────────────────────────────────────────
+   Навигация носит `popover` (шторка на узком), и у браузера на такой элемент
+   своя коробка: `fixed`, `inset:0`, рамка, поле, `Canvas`, `display:none`.
+   Правило автора сильнее правила браузера при любой силе селектора,
+   поэтому строка объявляет всю коробку сама. Полка — надписью органа
+   средней толщины; текущая — чертой краской марки, под рукой — чертой. */
 .nav{
   position:static;inset:auto;margin:0;padding:0;border:0;
   inline-size:auto;block-size:auto;overflow:visible;
   background:none;color:inherit;
   display:flex;align-items:center;min-inline-size:0
 }
-.links{list-style:none;padding:0;margin:0;--cluster:0px}
-/* Полка — строкой текста, кеглем тела и чернилами: это главный путь по
-   магазину, а не подпись. Цель — высота органа; поле по бокам — внутреннее
-   поле карточки. Текущая полка — полужирным и чертой краской марки. */
+.links{display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--air-row);list-style:none;padding:0;margin:0}
 .links a{
-  display:inline-flex;align-items:center;min-block-size:var(--ctrl-h);
-  padding-inline:var(--pad-inner);border-radius:var(--r-ctrl);
-  font-size:var(--body-size);color:var(--ink);
-  transition:background-color var(--hover-t) var(--ease)
+  display:inline-flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-target);
+  font-size:var(--ctrl-fs-xs);font-weight:500;color:var(--ink);
+  text-underline-offset:.45em;text-decoration-thickness:var(--line-w)
 }
-@media (hover:hover){ .links a:hover{background:var(--hover-row)} }
-.links a:active{background:var(--press-row)}
-.links a[aria-current='page']{font-weight:600;text-decoration-line:underline;text-decoration-color:var(--pop);text-decoration-thickness:var(--ring-w)}
+@media (hover:hover){ .links a:hover{text-decoration-line:underline} }
+.links a:active{text-decoration-line:underline}
+.links a[aria-current='page']{text-decoration-line:underline;text-decoration-thickness:var(--ring-w);text-decoration-color:var(--pop)}
+/* Кадр, строка о полке и стрелка — у шторки и у панели полок, не у строки. */
+.thumb,.line,.chev,.sheetHead,.sheetLang{display:none}
 
-/* Действия — одна группа у правого края; `auto`, а не число. */
-.actions{margin-inline-start:auto}
+/* ── Язык: «EN ▾» и список ───────────────────────────────────────────────
+   Список — верхний слой браузера, без номера (правило 8); встаёт под своей
+   кнопкой (привязка к вызвавшему), а где браузер привязывать не умеет — у
+   правого края под строкой шапки. Лист (`data-plate`) — на палубе полосы
+   обещания его роли не темнеют. */
+.langBtn{padding-inline:calc(var(--ctrl-target) * .25)}
+.langList{
+  position:fixed;inset:auto;inset-block-start:var(--head-h);inset-inline-end:var(--gut);
+  margin:0;padding:var(--sp-1);border:0;list-style:none;
+  min-inline-size:calc(var(--ctrl-target) * 6);
+  background:var(--surface);color:var(--ink);border-radius:var(--r-ctrl);box-shadow:var(--sh-overlay)
+}
+@supports (position-area:block-end){
+  .langList{inset:auto;position-area:block-end span-inline-start;margin-block-start:var(--sp-1)}
+}
+.langList a,.langLine a{display:flex;align-items:center;min-block-size:var(--ctrl-target);padding-inline:var(--pad-inner);border-radius:var(--r-ctrl);font-size:var(--ctrl-fs-sm);color:var(--ink)}
+@media (hover:hover){ :is(.langList, .langLine) a:hover{background:var(--hover-row)} }
+:is(.langList, .langLine) a:active{background:var(--press-row)}
+:is(.langList, .langLine) a[aria-current='true']{font-weight:600;background:var(--quiet)}
+.langLine{display:flex;flex-wrap:wrap;gap:var(--sp-1);list-style:none;padding:0;margin:0}
 
-/* Узкая коробка: закрытой навигации в потоке нет — её место держит кнопка
-   «Meniu» в конце строки. Широкая: кнопки нет. Сила — атрибутом: у `.btn`
-   та же сила голого класса. */
+/* ── search: полоса обещания, широкий поиск, полки второй строкой ─────── */
+.strip{--sheet-pad:var(--page-line);--sheet-air:0px;background:var(--page-deck);font-size:var(--ctrl-fs-xs)}
+.stripRow{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);min-block-size:calc(var(--ctrl-target) + var(--sp-1) * 2)}
+.promise{color:var(--ink-soft)}
+.field{display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-inline-size:0;margin-inline:var(--air-block)}
+.shelfRow{border-block-start:var(--line-w) solid var(--rule);padding-block:var(--sp-1)}
+
+/* ── boutique: знак по центру, «Shop» слева ──────────────────────────── */
+.head[data-variant='boutique'] .bar{display:grid;grid-template-columns:1fr auto 1fr}
+.head[data-variant='boutique'] .logo{margin-inline-end:0}
+.shop{justify-self:start}
+.head[data-variant='boutique'] .actions{justify-self:end;margin-inline-start:0}
+.head[data-variant='boutique'] .nav:not(:popover-open){display:none}
+
+/* Кнопка меню — только там, где полок в строке нет: на узкой коробке. */
+.menu{display:none}
+
+/* ── Узкая коробка: одна строка — знак, поиск, корзина, меню ──────────── */
 @container (max-width:819px){
-  .nav:not(:popover-open){display:none}
-}
-@container (min-width:820px){
-  .menu[popovertarget]{display:none}
+  .nav:not(:popover-open),.lang,.strip,.cartLabel{display:none}
+  .menu{display:inline-flex}
+  .shelfRow{border:0;padding:0}
+  /* Поле поиска «search» — своей строкой во всю ширину под строкой знака. */
+  .head[data-variant='search'] .bar{flex-wrap:wrap}
+  .field{order:1;flex-basis:100%;margin-inline:0}
 }
 
-/* Шторка — от того края, где кнопка: справа. Верхний слой, номера нет
-   (правило 8); Escape и щелчок мимо закрывают сами, третий выход — крестик.
-   Высота — от окна, `dvh`, прокручивается шторка, а не страница (правило 9).
-   Ширина — как у шторки фильтров: мимо неё остаётся полоса под палец.
-   Правила не спрятаны под шов: открытая шторка остаётся шторкой, даже если
+/* ── Шторка меню ─────────────────────────────────────────────────────────
+   От того края, где кнопка: справа. Верхний слой, номера нет (правило 8);
+   Escape и щелчок мимо закрывают сами, третий выход — крестик. Высота — от
+   окна, `dvh`, прокручивается шторка, а не страница (правило 9). Строки —
+   кадр полки, имя, стрелка, ростом строки меню; текущая — вуалью и
+   полужирным; язык — внизу. Открытая шторка остаётся шторкой, даже если
    окно раздвинули, пока она открыта. */
 .nav:popover-open{
   position:fixed;inset-block:0;inset-inline:auto 0;
@@ -65,32 +139,51 @@
   overflow:auto;overscroll-behavior:contain
 }
 .nav::backdrop{background:var(--scrim)}
-.sheetHead{display:none}
-.nav:popover-open > .sheetHead{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row)}
+.nav:popover-open .sheetHead{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row)}
 .sheetTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
-/* Строки шторки — во всю её ширину, высотой строки меню (`--ctrl-h-lg`). */
-.nav:popover-open .links{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
-.nav:popover-open .links a{display:flex;min-block-size:var(--ctrl-h-lg)}
-.nav:popover-open .links a[aria-current='page']{background:var(--quiet);text-decoration-line:none}
+.nav:popover-open .links{flex-direction:column;align-items:stretch;flex-wrap:nowrap;column-gap:0}
+.nav:popover-open .links li + li{border-block-start:var(--line-w) solid var(--rule)}
+.nav:popover-open .links a{display:flex;min-block-size:var(--ctrl-h-lg);padding:var(--sp-2) var(--pad-inner);border-radius:var(--r-ctrl);font-size:var(--ctrl-fs-sm);text-decoration-line:none}
+.nav:popover-open .thumb{display:grid;place-items:center;flex:none;inline-size:calc(var(--ctrl-h-lg) * .8);block-size:calc(var(--ctrl-h-lg) * .8);border-radius:var(--r-ctrl);object-fit:cover;background:var(--quiet);color:var(--ink-soft)}
+.nav:popover-open .thumb svg{inline-size:50%;block-size:50%}
+.nav:popover-open .name{flex:1 1 auto}
+.nav:popover-open .chev{display:grid;color:var(--ink-soft)}
+.nav:popover-open .chev svg{inline-size:1.25em;block-size:1.25em}
+.nav:popover-open .links a[aria-current='page']{background:var(--quiet);font-weight:600}
+.nav:popover-open .sheetLang{display:block;margin-block-start:auto;padding-block-start:var(--air-row);border-block-start:var(--line-w) solid var(--rule)}
 
-/* Корзина в шапке — тот же контрол, что кнопка поиска рядом (правило 10:
-   контрол живёт в одном месте — устройство органа и его размер держит
-   styles/btn.module.css, здесь второй раз не заводятся). `.cart` добавляет
-   только то, чего у кнопки нет: точку отсчёта для цифры сверху. Число —
-   пилюлей краски «выбранного» (--pop), как выбранный сегмент: это одно
-   значение «здесь что-то есть».
-
-   Цифра сидит на углу кнопки, а не внутри: внутри малой кнопки (sm) она
-   закрывала знак тележки (снимки задач 5 и 6). Вынос — доля высоты самой
-   кнопки (`--btn-h`, правило 2: геометрия контрола от его высоты), не число:
-   на любом росте кнопки цифра уходит за угол на ту же долю и знак остаётся
-   открытым. Место под цифру не занимается — число приходит запросом после
-   загрузки, и шапка от него не прыгает. */
-.cart{position:relative}
-.badge{
-  position:absolute;
-  inset-block-start:calc(var(--btn-h) * -.25);inset-inline-end:calc(var(--btn-h) * -.25);
-  min-inline-size:1.6em;padding-inline:.35em;border-radius:50%;
-  background:var(--pop);color:var(--on-pop);
-  font-size:var(--ctrl-fs-xs);line-height:1.6;text-align:center;font-variant-numeric:tabular-nums
+/* ── Панель полок «Shop» (boutique) ──────────────────────────────────────
+   Плитки полок — кадр 4 : 3 с потолком (правило 4), имя, строка о полке;
+   «все товары» — строкой над плитками. На широкой коробке — панель под
+   шапкой во всю ширину холста (привязка к шапке; без неё — на её высоте),
+   на узкой — шторка от левого края, где кнопка «Shop». Число плиток в ряду
+   считает перенос по основе плитки (правило 5): полок четыре — четыре в
+   ряд на всю ширину, в шторке телефона — по две. */
+.head[data-variant='boutique'] .nav:popover-open{
+  inset:auto;inset-inline:0;inset-block-start:var(--head-h);
+  margin-inline:auto;inline-size:min(var(--wrap) - var(--gut) * 2, 100% - var(--gut) * 2);
+  block-size:auto;max-block-size:calc(100dvh - var(--head-h) - var(--gut));
+  border-radius:0 0 var(--r-card) var(--r-card)
+}
+@supports (position-area:block-end){
+  .head[data-variant='boutique'] .nav:popover-open{position-anchor:--head;inset-block-start:anchor(bottom)}
+}
+.head[data-variant='boutique'] .nav:popover-open .links{flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:var(--gap-grid)}
+.head[data-variant='boutique'] .nav:popover-open .links li{flex:1 1 12rem;min-inline-size:0}
+.head[data-variant='boutique'] .nav:popover-open .links li + li{border:0}
+.head[data-variant='boutique'] .nav:popover-open .links a{flex-direction:column;align-items:stretch;gap:var(--sp-2);min-block-size:0;padding:var(--sp-2)}
+.head[data-variant='boutique'] .nav:popover-open .thumb{inline-size:100%;block-size:auto;aspect-ratio:4 / 3;max-block-size:30svh}
+.head[data-variant='boutique'] .nav:popover-open .line{display:block;color:var(--ink-soft);font-size:var(--ctrl-fs-xs);font-weight:400}
+.head[data-variant='boutique'] .nav:popover-open .chev{display:none}
+.head[data-variant='boutique'] .nav:popover-open .links [data-all]{flex-basis:100%}
+.head[data-variant='boutique'] .nav:popover-open [data-all] a{flex-direction:row;align-items:center;min-block-size:var(--ctrl-target)}
+.head[data-variant='boutique'] .nav:popover-open [data-all] .thumb{display:none}
+.head[data-variant='boutique'] .nav:popover-open [data-all] .chev{display:grid}
+@container (max-width:819px){
+  .head[data-variant='boutique'] .nav:popover-open{
+    inset:auto;inset-block:0;inset-inline:0 auto;margin:0;
+    inline-size:min(22.5rem, 100% - var(--ctrl-h-lg));block-size:100dvh;max-block-size:none;
+    border-radius:0 var(--r-sheet) var(--r-sheet) 0
+  }
+  .head[data-variant='boutique'] .nav:popover-open .links li{flex-basis:7rem}
 }

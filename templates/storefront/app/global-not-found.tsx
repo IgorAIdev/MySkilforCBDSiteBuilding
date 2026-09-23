@@ -3,7 +3,7 @@ import { headers } from 'next/headers'
 import { DEFAULT_LANG, LANG_HEADER, isLang, type Lang } from '@/lib/locale.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { shellData } from '@/lib/shell.ts'
-import { lookData } from '@/lib/look-data.ts'
+import { lookNow } from '@/lib/look.ts'
 import { Shell } from '@/components/Shell.tsx'
 import { Missing } from '@/components/StateScreen.tsx'
 
@@ -22,5 +22,5 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function GlobalNotFound() {
   const lang = await langOfRequest()
-  return <Shell lang={lang} data={await shellData(lang)} look={await lookData()}><Missing lang={lang} /></Shell>
+  return <Shell lang={lang} data={await shellData(lang)} look={await lookNow()}><Missing lang={lang} /></Shell>
 }

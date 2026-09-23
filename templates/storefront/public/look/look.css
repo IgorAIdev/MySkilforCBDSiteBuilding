@@ -1,0 +1,58 @@
+/* Панель «Look» — свои стили, отдельно от стилей сайта (public/look/look.js).
+   С сайта берутся только роли, которые он и так объявил: стиль кнопок
+   (`--ctrl-btn-*`) и шрифт (`--face`) — чтобы показать вариант таким, каким
+   он встанет на странице. Всё остальное — своё: системный шрифт, простые
+   органы, свои краски светлой и тёмной темы. */
+.lp{font:14px/1.45 ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color-scheme:light dark}
+.lp *{box-sizing:border-box}
+.lp button{font:inherit;color:inherit;cursor:pointer}
+.lp-open{
+  position:fixed;inset-block-end:16px;inset-inline-end:16px;z-index:90;
+  display:inline-flex;align-items:center;gap:8px;min-block-size:40px;padding:0 16px;
+  border:1px solid rgb(0 0 0 / .12);border-radius:999px;background:Canvas;color:CanvasText;
+  box-shadow:0 2px 4px rgb(0 0 0 / .08), 0 12px 28px -10px rgb(0 0 0 / .35);font-weight:600
+}
+.lp-panel{
+  position:fixed;inset:auto;inset-block-end:16px;inset-inline-end:16px;margin:0;
+  inline-size:min(24rem, 100% - 32px);max-block-size:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;
+  padding:16px;border:1px solid rgb(0 0 0 / .1);border-radius:16px;background:Canvas;color:CanvasText;
+  box-shadow:0 4px 8px rgb(0 0 0 / .08), 0 36px 80px -28px rgb(0 0 0 / .5)
+}
+.lp-panel:popover-open{display:flex;flex-direction:column;gap:16px}
+/* На широком окне панель не поднимается выше шапки сайта: поиск и корзина
+   в правом верхнем углу остаются открытыми. */
+@media (min-width:820px){ .lp-panel{max-block-size:calc(100dvh - 9.5rem)} }
+.lp-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lp-title{margin:0;font-size:16px;font-weight:600}
+.lp-x{display:grid;place-items:center;min-inline-size:36px;min-block-size:36px;border:0;border-radius:8px;background:rgb(127 127 127 / .14);font-size:18px;line-height:1}
+.lp-now{margin:0;padding:10px 12px;border-radius:8px;background:rgb(127 127 127 / .12);font-weight:600}
+.lp-copy{display:flex;align-items:center;gap:12px}
+.lp-copy button{min-block-size:36px;padding:0 14px;border:1px solid rgb(127 127 127 / .35);border-radius:8px;background:none;font-weight:600}
+.lp-copy output{color:GrayText;font-size:13px}
+.lp fieldset{margin:0;padding:0;border:0;display:flex;flex-direction:column;gap:6px}
+.lp legend{margin-block-end:8px;font-weight:600}
+.lp-opt{display:flex;flex-wrap:wrap;align-items:center;column-gap:10px;row-gap:6px;min-block-size:32px;cursor:pointer}
+.lp-opt input{margin:0;inline-size:16px;block-size:16px;accent-color:var(--pop, #9a7b3f)}
+.lp-opt[aria-disabled='true']{opacity:.5;cursor:not-allowed}
+.lp-txt{display:flex;flex-direction:column}
+.lp-small{color:GrayText;font-size:12.5px}
+.lp-face b{font-family:var(--face-head, inherit);font-size:15px;font-weight:600}
+.lp-face small{font-family:var(--face, inherit);font-size:13px;color:GrayText}
+.lp-pair{display:flex;gap:8px;flex-basis:100%;padding-inline-start:26px}
+.lp-b{
+  display:inline-flex;align-items:center;min-block-size:30px;padding:0 13px;font-size:12.5px;line-height:1.2;
+  border:1px solid var(--ctrl-btn-edge, transparent);border-radius:var(--ctrl-btn-r, 8px);
+  background:var(--ctrl-btn-fill, rgb(127 127 127 / .14));color:var(--ink, CanvasText);
+  font-weight:var(--ctrl-btn-weight, 600);text-transform:var(--ctrl-btn-case, none);letter-spacing:var(--ctrl-btn-track, normal)
+}
+.lp-b[data-loud]{
+  background:var(--ctrl-btn-fill-pop, #9a7b3f);color:var(--ctrl-btn-ink-pop, #fff);
+  border-color:var(--ctrl-btn-edge-pop, transparent);border-width:var(--ctrl-btn-line-pop, 1px);
+  border-radius:var(--ctrl-btn-r-pop, 999px);box-shadow:var(--ctrl-btn-sh, none)
+}
+.lp :focus-visible{outline:2px solid Highlight;outline-offset:2px}
+@media (pointer:coarse){
+  .lp-opt{min-block-size:44px}
+  .lp-x,.lp-copy button{min-block-size:44px;min-inline-size:44px}
+  .lp-open{min-block-size:48px}
+}

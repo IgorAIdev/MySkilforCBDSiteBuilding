@@ -29,7 +29,7 @@ test('--storefront lays the template over the foundation and copies the kit help
     assert.ok(pkg.dependencies.next && pkg.dependencies.react, 'Next и React')
     assert.equal(pkg.scripts['check:css'], 'node tools/check-css.mjs', 'команды набора дописаны')
     assert.equal(pkg.scripts.test, 'node tools/check-test.mjs', 'тесты гоняет прогон набора')
-    assert.equal(pkg.scripts.build, 'node scripts/copy-icons.mjs && next build', 'свой build шаблона остался')
+    assert.equal(pkg.scripts.build, 'node scripts/copy-icons.mjs && node scripts/look-options.mjs && next build', 'свой build шаблона остался')
     assert.match(readFileSync(join(dir, 'lib/locale.ts'), 'utf8'), /LOCALES = \['ro', 'en', 'hu'\]/)
 
     /* Этот файл сам гоняется `node --test`, и Node метит СЕБЯ переменной
