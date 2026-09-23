@@ -341,8 +341,9 @@ for (const path of files) {
        (`components/Btn.tsx`: `/^(tel:|mailto:|https?:)/.test(...)`
        отличает внешний адрес от маршрута сайта, а не набирает контакт
        заново): после схемы там сразу стоит `|` — знак того же списка, а не
-       продолжение настоящего адреса. */
-    for (const m of src.matchAll(/\b(?:tel:|mailto:)(?!\|)|(?:https?:)?\/\/(?:t\.me|wa\.me)\/|viber:\/\//g)) {
+       продолжение настоящего адреса.
+       \b в JavaScript без флага `u` считает «é» границей слова, и венгерское «Tétel:» читалось как схема `tel:`; граница теперь — любая буква или цифра Юникода (И254). */
+    for (const m of src.matchAll(/(?<![\p{L}\p{N}_])(?:tel:|mailto:)(?!\|)|(?:https?:)?\/\/(?:t\.me|wa\.me)\/|viber:\/\//gu)) {
       found.contactScheme.push(`${at(m.index)}  ${m[0]} — адрес канала связи вне lib/contacts.ts`)
     }
   }

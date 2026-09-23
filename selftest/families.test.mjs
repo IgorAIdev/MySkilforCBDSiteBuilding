@@ -139,3 +139,15 @@ test('deadDress: атрибут, поставленный кодом строк�
     assert.match(out, /data-nobody —/, 'никем не поставлен — находка')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+test('contactScheme: «tel:» внутри слова после не-латинской буквы — не схема ссылки; настоящая схема — находка', () => {
+  const dir = project({
+    'lib/i18n/hu.ts': "export const HU = { 'product.batch': 'Tétel: {batch}' }\n",
+    'components/Call.tsx': "export const Call = () => <a href=\"tel:+40700000000\">+40</a>\n",
+  })
+  try {
+    const out = code(dir).stdout + code(dir).stderr
+    assert.doesNotMatch(out, /hu\.ts.*tel:/, 'венгерское «Tétel:» принято за схему tel:')
+    assert.match(out, /Call\.tsx.*tel:/, 'настоящий tel: мимо lib/contacts.ts — находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
