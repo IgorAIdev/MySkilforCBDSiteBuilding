@@ -12,25 +12,29 @@ import { LangSwitch } from './LangSwitch.tsx'
 const HELP = ['livrare-si-plata', 'retur', 'contact', 'despre-noi']
 const LEGAL = [TERMS_DOC, 'confidentialitate']
 
+/* Подписи столбцов — подписи, а не заголовки: мелкие и полужирные (роль
+   надзаголовка), а заголовок h2 такого кегля вставал в лестнице страницы
+   ниже заголовков карточек (check:craft, лестница заголовков). Столбцы
+   ссылок — навигация, названная своей подписью (`aria-labelledby`). */
 export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
   const links = (slugs: string[]) => docs.filter((d) => slugs.includes(d.slug)).map((d) => <li key={d.slug}><a href={hrefFor(lang, { doc: d.slug })}>{d.title}</a></li>)
   return (
-    <footer className={`${p.wrap} ${p.sheet} ${p.section} ${s.foot}`} data-ground="paper">
-      <div className={`${p.grid} ${s.cols}`}>
-        <div className={p.stack}>
-          <h2 className={s.h}>{t(lang, 'footer.help')}</h2>
+    <footer className={s.foot} data-ground="deck">
+      <div className={`${p.wrap} ${p.grid} ${s.cols}`}>
+        <nav className={p.stack} aria-labelledby="foot-help">
+          <p className={p.eyebrow} id="foot-help">{t(lang, 'footer.help')}</p>
           <ul className={s.list}>{links(HELP)}</ul>
-        </div>
-        <div className={p.stack}>
-          <h2 className={s.h}>{t(lang, 'footer.legal')}</h2>
+        </nav>
+        <nav className={p.stack} aria-labelledby="foot-legal">
+          <p className={p.eyebrow} id="foot-legal">{t(lang, 'footer.legal')}</p>
           <ul className={s.list}>
             {links(LEGAL)}
             <li><a href={ANPC_SAL_URL} rel="noopener">{t(lang, 'footer.anpc')}</a></li>
             <li><a href={SOL_URL} rel="noopener">{t(lang, 'footer.sol')}</a></li>
           </ul>
-        </div>
+        </nav>
         <div className={p.stack}>
-          <h2 className={s.h}>{t(lang, 'footer.company')}</h2>
+          <p className={p.eyebrow}>{t(lang, 'footer.company')}</p>
           <address className={s.addr}>
             <span translate="no">{COMPANY.name}</span><br />
             CUI {COMPANY.cui} · {COMPANY.regCom}<br />

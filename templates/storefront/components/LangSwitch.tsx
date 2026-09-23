@@ -1,16 +1,19 @@
 'use client'
 import { usePathname } from 'next/navigation'
+import p from '@/styles/primitives.module.css'
 import s from './Footer.module.css'
 import { LOCALES, type Lang } from '@/lib/locale.ts'
 
 const NAMES: Record<Lang, string> = { ro: 'Română', en: 'English', hu: 'Magyar' }
 const FIRST = new RegExp(`^/(${LOCALES.join('|')})(?=/|$)`)
 
-/* Та же страница на другом языке: язык — первый сегмент адреса. */
+/* Та же страница на другом языке: язык — первый сегмент адреса. Столбец
+   подвала, как соседние: подпись видна («Limba»), список — под ней. */
 export function LangSwitch({ lang, label }: { lang: Lang; label: string }) {
   const path = usePathname()
   return (
-    <nav aria-label={label}>
+    <nav className={p.stack} aria-labelledby="lang-title">
+      <p className={p.eyebrow} id="lang-title">{label}</p>
       <ul className={s.list}>
         {LOCALES.map((l) => (
           <li key={l}>
