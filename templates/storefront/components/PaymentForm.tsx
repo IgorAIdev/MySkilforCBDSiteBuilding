@@ -22,7 +22,11 @@ type Action = (prev: FormState, form: FormData) => Promise<FormState>
 
    Колонка не приклеена (`pinned`): сверка с итогом выше окна ноутбука, а
    приклеенное выше окна свой низ — кнопку заказа — не показывает никогда
-   (правило 9). Она и так длиннее соседки — ехать ей не вдоль чего. */
+   (правило 9). Она и так длиннее соседки — ехать ей не вдоль чего.
+
+   Итог, который покупатель видит над кнопкой, форма уносит с заказом
+   (`total`, `currency`): другой у корзины — заказ не ставится (И262).
+   Скрытые поля — в конце формы: первыми в стопке они дали бы пустой зазор. */
 export function PaymentForm({ view, action, permalink, children }: { view: PaymentPageView; action: Action; permalink: string; children: ReactNode }) {
   const [state, formAction, pending] = useActionState(action, null, permalink)
   return (
@@ -50,6 +54,8 @@ export function PaymentForm({ view, action, permalink, children }: { view: Payme
           <button className={b.btn} data-voice="loud" data-wide type="submit" disabled={pending}>{view.submit}</button>
         </div>
       </aside>
+      <input type="hidden" name="total" value={view.expected.minor} />
+      <input type="hidden" name="currency" value={view.expected.currency} />
     </form>
   )
 }

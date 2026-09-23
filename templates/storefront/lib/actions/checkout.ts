@@ -7,7 +7,7 @@ import { hrefFor } from '../href.ts'
 import { t, type Key } from '../i18n/index.ts'
 import { deliveryReady } from '../checkout-steps.ts'
 import { parseAddress, parseContact, type FormState, type Values } from '../checkout-form.ts'
-import type { CommerceError } from '../source/contract.ts'
+import type { CommerceError, Money } from '../source/contract.ts'
 
 const MESSAGE: Partial<Record<CommerceError, Key>> = {
   'unavailable': 'cart.error.unavailable',
@@ -81,6 +81,23 @@ export async function choosePoint(rawLang: string, _prev: FormState, form: FormD
   redirect(hrefFor(lang, { checkout: 'payment' }))
 }
 
+/** Итог, который покупатель видел у кнопки: малые единицы цифрами и код
+ *  валюты. Нет или кривой — не угадывается: страница перерисуется с
+ *  нынешним итогом. */
+function expectedOf(form: FormData): Money | null {
+  const minor = String(form.get('total') ?? '')
+  const currency = String(form.get('currency') ?? '')
+  return /^\d{1,15}$/.test(minor) && /^[A-Z]{3}$/.test(currency) ? { minor: Number(minor), currency } : null
+}
+
+/** Итог уже не тот, что видел покупатель (И262): заказ не ставится, страница
+ *  перечитывается — со скриптом ответ записи несёт её с новым итогом, без
+ *  скрипта её рисует сервер, — и сверху слова «итог изменился». */
+function totalChanged(lang: Lang): FormState {
+  sessionChanged()
+  return { errors: {}, values: {}, message: t(lang, 'payment.changed') }
+}
+
 /** Заказ. Второе нажатие того же заказа (двойной щелчок без скрипта)
  *  находит корзину уже пустой — и ведёт на «спасибо», где этот заказ и
  *  показан, а не на пустую корзину. */
@@ -88,8 +105,11 @@ export async function placeOrder(rawLang: string, _prev: FormState, form: FormDa
   const lang = langFrom(rawLang)
   const code = String(form.get('payment') ?? '')
   if (!code) return { errors: {}, values: {}, message: t(lang, 'payment.missing') }
-  const r = await commerce().placeOrder(await sessionOr(lang), lang, code)
+  const expected = expectedOf(form)
+  if (!expected) return totalChanged(lang)
+  const r = await commerce().placeOrder(await sessionOr(lang), lang, code, expected)
   if (!r.ok && r.error === 'empty-cart') redirect(hrefFor(lang, { checkout: 'done' }))
+  if (!r.ok && r.error === 'changed') return totalChanged(lang)
   if (!r.ok) return refused(lang, r.error)
   sessionChanged()
   redirect(hrefFor(lang, { checkout: 'done' }))

@@ -77,6 +77,8 @@ export type CommerceError =
   | 'coupon-invalid' | 'coupon-expired'
   | 'empty-cart' | 'no-contact' | 'no-delivery' | 'point-missing'
   | 'payment-ineligible' | 'payment-declined'
+  /** Итог корзины не тот, что покупатель видел у кнопки заказа (И262). */
+  | 'changed'
 /** Запись. `added` — только у частичного успеха: сколько на самом деле в
  *  строке после записи, когда просили больше, чем есть на складе. */
 export type Change<T> = { ok: true; value: T; added?: number } | { ok: false; error: CommerceError }
@@ -99,6 +101,9 @@ export type Commerce = {
   pickupPoints(lang: Lang, methodId: string, city: string): Promise<Result<PickupPoint[]>>
   setDelivery(session: string, lang: Lang, choice: DeliveryChoice): Promise<Change<Checkout>>
   paymentMethods(session: string, lang: Lang): Promise<Result<PaymentMethod[]>>
-  placeOrder(session: string, lang: Lang, paymentCode: string): Promise<Change<Order>>
+  /** Заказ — только по итогу, который покупатель видел у кнопки (Директива
+   *  2011/83/ЕС, ст. 8(2); И262): `expected` — этот итог; иной у корзины —
+   *  `'changed'`, заказ не ставится. */
+  placeOrder(session: string, lang: Lang, paymentCode: string, expected: Money): Promise<Change<Order>>
   lastOrder(session: string | null, lang: Lang): Promise<Result<Order | null>>
 }

@@ -73,6 +73,7 @@
 | обязательное поле | Completați câmpul | pentru a continua | Fill in this field to continue | A folytatáshoz töltse ki a mezőt |
 | индекс | Verificați codul poștal | de exemplu {example} | Check the postcode, e.g. {example} | Ellenőrizze az irányítószámot, például {example} |
 | слишком длинно | Scurtați textul | la cel mult {n} caractere | Shorten this to at most {n} characters | Legfeljebb {n} karakter lehet |
+| итог заказа изменился у кнопки | Totalul comenzii s-a schimbat | verificați-l din nou înainte să plasați comanda | Your order total has changed — check it again before placing the order | A rendelés végösszege megváltozott — ellenőrizze újra, mielőtt leadja a rendelést |
 
 ## Пустые экраны
 

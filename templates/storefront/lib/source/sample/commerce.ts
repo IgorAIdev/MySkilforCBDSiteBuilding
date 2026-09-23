@@ -249,12 +249,14 @@ export const sampleCommerce: Commerce = {
     if (!s) return { ok: false, reason: 'not-found' }
     return ok(paymentsOf(cartOf(s, lang).total.minor, lang))
   },
-  async placeOrder(session, lang, paymentCode) {
+  async placeOrder(session, lang, paymentCode, expected) {
     const s = live(session)
     if (!s || !s.lines.length) return fail('empty-cart')
     if (!s.contact) return fail('no-contact')
     const checkout = checkoutOf(s, lang)
     if (!s.delivery || !deliveryReady(checkout.delivery)) return fail('no-delivery')
+    const total = checkout.cart.total
+    if (total.minor !== expected.minor || total.currency !== expected.currency) return fail('changed')
     const pay = paymentsOf(checkout.cart.total.minor, lang).find((p) => p.code === paymentCode)
     if (!pay || !pay.eligible) return fail('payment-ineligible')
     for (const l of s.lines) {

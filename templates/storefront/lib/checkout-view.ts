@@ -28,6 +28,9 @@ export type PaymentPageView = {
   methods: { code: string; name: string; description: string; disabled: boolean; reason: string | null; checked: boolean }[]
   review: string; recaps: Recap[]; itemsTitle: string; items: ItemView[]; totals: TotalsView
   terms: { note: string; link: { label: string; href: string } }; submit: string
+  /** Итог, который покупатель видит у кнопки, — форма уносит его с заказом:
+   *  другой у корзины — заказ не ставится (И262). Малые единицы строкой. */
+  expected: { minor: string; currency: string }
 }
 export type DonePageView = {
   title: string; code: string; keep: string; review: string; recaps: Recap[]
@@ -154,6 +157,7 @@ export function paymentView(lang: Lang, a: { methods: PaymentMethod[]; checkout:
     itemsTitle: t(lang, 'order.items'), items: itemsOf(lang, c.cart), totals: totalsView(lang, c.cart),
     terms: { note: t(lang, 'order.terms'), link: { label: a.terms.title, href: a.terms.href } },
     submit: t(lang, 'order.place'),
+    expected: { minor: String(c.cart.total.minor), currency: c.cart.total.currency },
   }
 }
 

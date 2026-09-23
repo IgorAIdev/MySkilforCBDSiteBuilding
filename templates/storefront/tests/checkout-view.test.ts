@@ -100,6 +100,7 @@ test('payment: eligible first, the rest disabled with the reason; the review and
   assert.equal(v.items[0].detail, '20 % · 10 ml')
   assert.equal(v.totals.total.value, `469,72${NB}lei`)
   assert.equal(v.submit, 'Comandă cu obligație de plată')
+  assert.deepEqual(v.expected, { minor: '46972', currency: 'RON' }, 'the form carries the total the buyer sees')
   const hu = paymentView('hu', { methods: pay.value, checkout: await at(FIXTURES.ready, 'hu'), terms: { title: 'ÁSZF', href: '/hu/info/termeni' } })
   assert.equal(hu.recaps[0].lines[0], 'Popescu Ana')
 })

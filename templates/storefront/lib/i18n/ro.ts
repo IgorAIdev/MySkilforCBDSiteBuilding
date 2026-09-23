@@ -153,6 +153,7 @@ export const RO = {
   'payment.title': 'Cum plătiți',
   'payment.missing': 'Alegeți un mod de plată.',
   'payment.declined': 'Plata nu a fost acceptată — alegeți alt mod de plată.',
+  'payment.changed': 'Totalul comenzii s-a schimbat — verificați-l din nou înainte să plasați comanda.',
   'payment.ineligible': 'Modul de plată ales nu este disponibil pentru această comandă — alegeți altul.',
   'order.review': 'Verificați comanda',
   'order.items': 'Produse',

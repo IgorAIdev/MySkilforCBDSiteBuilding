@@ -122,12 +122,13 @@ test('payments: a method over its limit is shown with a reason, not hidden', asy
 test('placeOrder: every precondition is checked by the source, then the cart is emptied', async () => {
   const empty = (await c.add(null, 'ro', 'uf-20-10', 1)).session
   assert.ok(empty)
-  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs'), { ok: false, error: 'no-contact' })
+  const shown = RON(21990 + 1999)
+  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'no-contact' })
   await c.setContact(empty, 'ro', CONTACT)
-  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs'), { ok: false, error: 'no-delivery' })
+  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'no-delivery' })
   await c.setDelivery(empty, 'ro', { methodId: 'curier', address: ADDRESS, pointId: null })
-  assert.deepEqual(await c.placeOrder(empty, 'ro', 'card'), { ok: false, error: 'payment-ineligible' })
-  const placed = await c.placeOrder(empty, 'ro', 'ramburs')
+  assert.deepEqual(await c.placeOrder(empty, 'ro', 'card', shown), { ok: false, error: 'payment-ineligible' })
+  const placed = await c.placeOrder(empty, 'ro', 'ramburs', shown)
   assert.ok(placed.ok)
   assert.match(placed.value.code, /^RO[0-9A-F]{8}$/)
   assert.deepEqual(placed.value.cart.total, RON(21990 + 1999))
@@ -139,8 +140,25 @@ test('placeOrder: every precondition is checked by the source, then the cart is 
   assert.ok(last.ok)
   assert.equal(last.value?.code, placed.value.code)
   assert.deepEqual(await c.lastOrder('someone-else', 'ro'), { ok: true, value: null })
-  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs'), { ok: false, error: 'empty-cart' })
+  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'empty-cart' })
   assert.deepEqual(await c.setContact('nobody', 'ro', CONTACT), { ok: false, error: 'empty-cart' })
+})
+
+/* И262, Директива 2011/83/ЕС, ст. 8(2): заказ ставится только по тому итогу,
+   который покупатель видел прямо перед кнопкой. Другая вкладка поменяла
+   корзину — итог уже другой, и заказ не ставится. */
+test('placeOrder: only at the total the buyer saw', async () => {
+  const s = await fresh('uf-20-10', 1)
+  await c.setContact(s, 'ro', CONTACT)
+  await c.setDelivery(s, 'ro', { methodId: 'curier', address: ADDRESS, pointId: null })
+  const shown = RON(21990 + 1999)
+  await c.add(s, 'ro', 'uf-20-10', 1)
+  assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', shown), { ok: false, error: 'changed' })
+  const now = 2 * 21990 + 1999
+  assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', { minor: now, currency: 'EUR' }), { ok: false, error: 'changed' })
+  const placed = await c.placeOrder(s, 'ro', 'ramburs', RON(now))
+  assert.ok(placed.ok)
+  assert.deepEqual(placed.value.cart.total, RON(now))
 })
 
 test('fixtures: the prepared sessions stand at their steps', async () => {

@@ -31,6 +31,7 @@ const FAILED: Record<Failure, Key> = {
   'point-missing': 'cart.error.request',
   'payment-ineligible': 'cart.error.request',
   'payment-declined': 'cart.error.request',
+  'changed': 'cart.error.request',
 }
 /* Количество — до трёх цифр; иное — -1: источник ответит «quantity», и
    покупатель прочтёт, какое количество можно, а не «запрос не понят». */

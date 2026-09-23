@@ -155,6 +155,7 @@ export const HU: Record<keyof typeof RO, string> = {
   'payment.title': 'Fizetési mód',
   'payment.missing': 'Válasszon fizetési módot.',
   'payment.declined': 'A fizetést nem fogadták el — válasszon másik módot.',
+  'payment.changed': 'A rendelés végösszege megváltozott — ellenőrizze újra, mielőtt leadja a rendelést.',
   'payment.ineligible': 'Ez a fizetési mód ennél a rendelésnél nem érhető el — válasszon másikat.',
   'order.review': 'Rendelés ellenőrzése',
   'order.items': 'Termékek',
