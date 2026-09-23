@@ -42,3 +42,63 @@ export type Content = {
   docs(lang: Lang): Promise<Result<Doc[]>>
   doc(lang: Lang, slug: string): Promise<Result<Doc>>
 }
+
+/* ── Покупка ─────────────────────────────────────────────────────────────
+   Корзина, оформление, заказ. Итоги, скидку, доставку и допустимость оплаты
+   считает источник (Vendure — сервер; образец — sample/commerce.ts), витрина
+   не складывает цены. Доставка и оплата — общий механизм (И261): вид способа
+   — закрытый список, имя службы — строка данных. */
+export type CartLine = {
+  id: string; productId: string; variantId: string; name: string
+  options: { group: string; code: string; name: string }[]
+  image: Image; unit: Money; quantity: number; total: Money
+}
+export type Cart = {
+  lines: CartLine[]; quantity: number; subtotal: Money
+  discounts: { code: string; amount: Money }[]; delivery: Money | null; total: Money
+}
+export type DeliveryKind = 'address' | 'pickup'
+export type PointType = 'office' | 'locker' | 'partner' | 'shop'
+export type DeliveryMethod = {
+  id: string; kind: DeliveryKind; carrier: string | null; name: string; description: string
+  price: Money; days: { min: number; max: number } | null
+}
+export type PickupPoint = { id: string; type: PointType; name: string; address: string; city: string; hours: string | null }
+export type Address = { street: string; city: string; region: string; postalCode: string; country: string }
+export type Contact = { email: string; firstName: string; lastName: string; phone: string }
+export type Delivery = { method: DeliveryMethod; address: Address | null; point: PickupPoint | null }
+export type DeliveryChoice = { methodId: string; address: Address | null; pointId: string | null }
+export type PaymentKind = 'on-delivery' | 'transfer' | 'online'
+export type PaymentMethod = { code: string; kind: PaymentKind; name: string; description: string; eligible: boolean; reason: string | null }
+export type Checkout = { cart: Cart; contact: Contact | null; delivery: Delivery | null }
+export type Order = { code: string; placedAt: string; contact: Contact; delivery: Delivery; payment: PaymentMethod; cart: Cart }
+export type CommerceError =
+  | 'unavailable' | 'not-found' | 'out-of-stock' | 'quantity'
+  | 'coupon-invalid' | 'coupon-expired'
+  | 'empty-cart' | 'no-contact' | 'no-delivery' | 'point-missing'
+  | 'payment-ineligible' | 'payment-declined'
+/** Запись. `added` — только у частичного успеха: сколько на самом деле в
+ *  строке после записи, когда просили больше, чем есть на складе. */
+export type Change<T> = { ok: true; value: T; added?: number } | { ok: false; error: CommerceError }
+
+/** Покупка: Vendure в плане 4, образец — сейчас. `session` — непрозрачный
+ *  ключ сессии из cookie; `null` — сессии ещё нет. Первое добавление её
+ *  заводит и возвращает. */
+export type Commerce = {
+  checkout(session: string | null, lang: Lang): Promise<Result<Checkout | null>>
+  add(session: string | null, lang: Lang, variantId: string, quantity: number): Promise<{ session: string | null; change: Change<Cart> }>
+  setQuantity(session: string, lang: Lang, lineId: string, quantity: number): Promise<Change<Cart>>
+  remove(session: string, lang: Lang, lineId: string): Promise<Change<Cart>>
+  applyCoupon(session: string, lang: Lang, code: string): Promise<Change<Cart>>
+  removeCoupon(session: string, lang: Lang, code: string): Promise<Change<Cart>>
+  setContact(session: string, lang: Lang, contact: Contact): Promise<Change<Checkout>>
+  deliveryMethods(session: string | null, lang: Lang): Promise<Result<DeliveryMethod[]>>
+  /** Точки способа `pickup`. Пустой город — все точки, если их у способа
+   *  мало (магазин продавца), иначе пусто: тысячи постаматов списком не
+   *  отдаются, их ищут по городу. */
+  pickupPoints(lang: Lang, methodId: string, city: string): Promise<Result<PickupPoint[]>>
+  setDelivery(session: string, lang: Lang, choice: DeliveryChoice): Promise<Change<Checkout>>
+  paymentMethods(session: string, lang: Lang): Promise<Result<PaymentMethod[]>>
+  placeOrder(session: string, lang: Lang, paymentCode: string): Promise<Change<Order>>
+  lastOrder(session: string | null, lang: Lang): Promise<Result<Order | null>>
+}
