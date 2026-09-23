@@ -50,11 +50,14 @@ export default async function DeliveryStep({ params, searchParams }: Props) {
   }
   const view = deliveryView(lang, { methods: methods.value, delivery: c.delivery, pickup })
   const here = hrefFor(lang, { checkout: 'delivery' })
+  /* Отказ формы точки без скрипта рисуется по адресу формы: без города в нём
+     вернулись бы поле поиска и пустота — ни списка, ни слов об ошибке. */
+  const pointsHere = pickup?.city ? hrefFor(lang, { checkout: 'delivery', city: pickup.city }) : here
   return (
     <CheckoutFrame text={frameText(lang)} steps={stepsView(lang, 'delivery')} totals={totalsView(lang, c.cart)}>
       <MethodForm view={view} action={chooseMethod.bind(null, lang)} permalink={here} />
       {view.details?.kind === 'address' ? <AddressForm details={view.details} action={saveAddress.bind(null, lang)} permalink={here} /> : null}
-      {view.details?.kind === 'pickup' ? <PointPicker details={view.details} action={choosePoint.bind(null, lang)} permalink={here} /> : null}
+      {view.details?.kind === 'pickup' ? <PointPicker details={view.details} action={choosePoint.bind(null, lang)} permalink={pointsHere} /> : null}
     </CheckoutFrame>
   )
 }
