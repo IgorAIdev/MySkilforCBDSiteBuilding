@@ -5,6 +5,7 @@ import { shelfCard } from '@/lib/view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { toMetadata } from '@/lib/seo.ts'
 import { organizationLd, websiteLd } from '@/lib/ld.ts'
+import { COMPANY_IS_REAL } from '@/lib/flags.ts'
 import { Blocks } from '@/components/blocks/registry.tsx'
 import { JsonLd } from '@/components/JsonLd.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
@@ -29,8 +30,10 @@ export default async function Home({ params }: Props) {
   const ctx: BlockCtx = { lang, collections: cols.value, cards: Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)])) }
   return (
     <main id="main">
-      <JsonLd data={organizationLd()} />
-      <JsonLd data={websiteLd()} />
+      {/* Сведения об организации машина читает как факт: образец компании в
+          них не публикуется (флаг настоящести COMPANY_IS_REAL). */}
+      {COMPANY_IS_REAL && <JsonLd data={organizationLd()} />}
+      {COMPANY_IS_REAL && <JsonLd data={websiteLd()} />}
       <Blocks blocks={page.value.blocks} ctx={ctx} />
     </main>
   )

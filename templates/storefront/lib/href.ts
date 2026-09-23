@@ -11,6 +11,11 @@ type To =
   | { doc: string }
 
 type Pair = [string, string]
+/* Слаг и id — ОДИН сегмент пути, и кодируется он здесь же: из живого
+   источника придёт «uleiuri și creme» или «olaj/10», и пробел, буква с
+   надстрочным знаком или косая черта иначе ломали бы адрес или делили его на
+   два сегмента. Латинский слаг из образца не меняется. */
+const seg = (s: string) => encodeURIComponent(s)
 const withQuery = (path: string, params: Pair[]) => {
   const q = new URLSearchParams(params).toString()
   return q ? `${path}?${q}` : path
@@ -31,11 +36,11 @@ const shelfParams = (q: Query): Pair[] => [
 export function hrefFor(lang: Lang, to: To): string {
   if ('home' in to) return `/${lang}`
   if ('catalog' in to) return withQuery(`/${lang}/catalog`, shelfParams(to))
-  if ('category' in to) return withQuery(`/${lang}/catalog/${to.category}`, shelfParams(to))
+  if ('category' in to) return withQuery(`/${lang}/catalog/${seg(to.category)}`, shelfParams(to))
   if ('product' in to) {
     const opts = Object.entries(to.options ?? {}).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]): Pair => [`option.${k}`, v])
-    return withQuery(`/${lang}/product/${to.product}`, opts)
+    return withQuery(`/${lang}/product/${seg(to.product)}`, opts)
   }
   if ('search' in to) return withQuery(`/${lang}/search`, [...(to.search ? [['q', to.search] as Pair] : []), ...pageParam(to.page)])
-  return `/${lang}/info/${to.doc}`
+  return `/${lang}/info/${seg(to.doc)}`
 }

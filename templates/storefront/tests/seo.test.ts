@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { toMetadata } from '../lib/seo.ts'
+import { toMetadata, siteUrlFrom } from '../lib/seo.ts'
 import { productLd, breadcrumbLd } from '../lib/ld.ts'
 import { sample } from '../lib/source/sample/catalog.ts'
 
@@ -11,6 +11,15 @@ test('every page names itself canonical and lists all three languages plus x-def
   assert.deepEqual(Object.keys(langs).sort(), ['en', 'hu', 'ro', 'x-default'])
   assert.equal(langs['x-default'], 'http://localhost:3020/ro/catalog')
   assert.equal((m.openGraph as { locale?: string }).locale, 'hu_RO')
+})
+
+test('a real catalogue without SITE_URL fails loudly instead of publishing localhost', () => {
+  assert.throws(() => siteUrlFrom(true, {}), /SITE_URL/)
+  assert.throws(() => siteUrlFrom(true, { SITE_URL: ' ' }), /SITE_URL/)
+  assert.equal(siteUrlFrom(true, { SITE_URL: 'https://magazin.ro' }), 'https://magazin.ro')
+  /* Образец живёт на машине разработчика: там localhost и есть адрес. */
+  assert.equal(siteUrlFrom(false, {}), 'http://localhost:3020')
+  assert.equal(siteUrlFrom(false, { SITE_URL: 'https://proba.ro' }), 'https://proba.ro')
 })
 
 test('while the catalogue is a sample, nothing is open to indexing', () => {

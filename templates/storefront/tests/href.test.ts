@@ -20,3 +20,10 @@ test('a shelf address keeps facets, sort and page in one stable order', () => {
   )
   assert.equal(hrefFor('ro', { catalog: true, facets: { forma: [] }, sort: 'popular' }), '/ro/catalog')
 })
+
+test('a slug or id is one encoded path segment: a space, a diacritic or a slash cannot break the address', () => {
+  assert.equal(hrefFor('ro', { category: 'uleiuri și creme' }), '/ro/catalog/uleiuri%20%C8%99i%20creme')
+  assert.equal(hrefFor('hu', { product: 'olaj/10' }), '/hu/product/olaj%2F10')
+  assert.equal(hrefFor('ro', { doc: 'politica de retur' }), '/ro/info/politica%20de%20retur')
+  assert.equal(hrefFor('ro', { category: 'uleiuri', page: 2 }), '/ro/catalog/uleiuri?page=2')
+})
