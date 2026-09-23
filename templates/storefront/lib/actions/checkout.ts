@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { commerce } from '../source/index.ts'
-import { readSession } from '../session.ts'
+import { readSession, sessionChanged } from '../session.ts'
 import { isLang, type Lang } from '../locale.ts'
 import { hrefFor } from '../href.ts'
 import { t, type Key } from '../i18n/index.ts'
@@ -45,6 +45,7 @@ export async function saveContact(rawLang: string, _prev: FormState, form: FormD
   if (!parsed.ok) return { errors: parsed.errors, values: parsed.values, message: t(lang, 'checkout.fix') }
   const r = await commerce().setContact(await sessionOr(lang), lang, parsed.value)
   if (!r.ok) return refused(lang, r.error, parsed.value)
+  sessionChanged()
   redirect(hrefFor(lang, { checkout: 'delivery' }))
 }
 
@@ -56,6 +57,7 @@ export async function chooseMethod(rawLang: string, _prev: FormState, form: Form
   if (!methodId) return { errors: {}, values: {}, message: t(lang, 'delivery.methodMissing') }
   const r = await commerce().setDelivery(await sessionOr(lang), lang, { methodId, address: null, pointId: null })
   if (!r.ok) return refused(lang, r.error)
+  sessionChanged()
   redirect(hrefFor(lang, { checkout: deliveryReady(r.value.delivery) ? 'payment' : 'delivery' }))
 }
 
@@ -65,6 +67,7 @@ export async function saveAddress(rawLang: string, _prev: FormState, form: FormD
   if (!parsed.ok) return { errors: parsed.errors, values: parsed.values, message: t(lang, 'checkout.fix') }
   const r = await commerce().setDelivery(await sessionOr(lang), lang, { methodId: String(form.get('method') ?? ''), address: parsed.value, pointId: null })
   if (!r.ok) return refused(lang, r.error, parsed.value)
+  sessionChanged()
   redirect(hrefFor(lang, { checkout: 'payment' }))
 }
 
@@ -74,6 +77,7 @@ export async function choosePoint(rawLang: string, _prev: FormState, form: FormD
   if (!pointId) return { errors: {}, values: {}, message: t(lang, 'delivery.pointMissing') }
   const r = await commerce().setDelivery(await sessionOr(lang), lang, { methodId: String(form.get('method') ?? ''), address: null, pointId })
   if (!r.ok) return refused(lang, r.error)
+  sessionChanged()
   redirect(hrefFor(lang, { checkout: 'payment' }))
 }
 
@@ -87,5 +91,6 @@ export async function placeOrder(rawLang: string, _prev: FormState, form: FormDa
   const r = await commerce().placeOrder(await sessionOr(lang), lang, code)
   if (!r.ok && r.error === 'empty-cart') redirect(hrefFor(lang, { checkout: 'done' }))
   if (!r.ok) return refused(lang, r.error)
+  sessionChanged()
   redirect(hrefFor(lang, { checkout: 'done' }))
 }
