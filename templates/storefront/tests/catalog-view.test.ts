@@ -25,3 +25,12 @@ test('empty: with facets — clear them; without — go to all products', () => 
   assert.deepEqual(none, { title: 'No products match these filters', step: 'Clear one of the filters', href: '/en/catalog/uleiuri' })
   assert.equal(emptyFor('en', { facets: {}, sort: 'popular', page: null }, at).href, '/en/catalog')
 })
+
+test('filters on a phone: the open button counts what is chosen', async () => {
+  const r = await sample.listing('ro', { category: 'uleiuri', facets: { putere: ['10', '20'] }, sort: 'popular', page: null })
+  assert.ok(r.ok)
+  const at = (q: Query) => hrefFor('ro', { category: 'uleiuri', ...q })
+  const v = catalogView('ro', { title: 'T', lede: null, listing: r.value, asked: { facets: { putere: ['10', '20'] }, sort: 'popular', page: null }, at, filters: true, empty: { title: '', step: '', href: '' } })
+  assert.equal(v.filters?.chosen, 2)
+  assert.equal(v.filters?.close, 'Închide filtrele')
+})

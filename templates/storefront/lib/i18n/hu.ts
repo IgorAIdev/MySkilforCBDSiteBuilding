@@ -14,6 +14,8 @@ export const HU: Record<keyof typeof RO, string> = {
   'catalog.count.other': '{n} termék',
   'catalog.shelf': 'Termékek',
   'catalog.filters': 'Szűrők',
+  'catalog.open': 'Szűrők',
+  'catalog.close': 'Szűrők bezárása',
   'catalog.apply': 'Szűrők alkalmazása',
   'catalog.clear': 'Szűrők törlése',
   'catalog.sort': 'Rendezés',

@@ -12,6 +12,8 @@ export const RO = {
   'catalog.count.other': '{n} de produse',
   'catalog.shelf': 'Produse',
   'catalog.filters': 'Filtre',
+  'catalog.open': 'Filtre',
+  'catalog.close': 'Închide filtrele',
   'catalog.apply': 'Aplică filtrele',
   'catalog.clear': 'Șterge filtrele',
   'catalog.sort': 'Sortează după',

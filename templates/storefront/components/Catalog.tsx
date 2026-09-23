@@ -39,8 +39,8 @@ export function Catalog({ view, top }: { view: CatalogView; top?: ReactNode }) {
       {top}
       {view.invalid ? <p className={p.muted} role="status">{view.invalid}</p> : null}
       {view.filters ? (
-        <div className={p.sidebar}>
-          <aside className={p.aside}><Filters f={view.filters} /></aside>
+        <div className={`${p.sidebar} ${s.side}`}>
+          <aside className={`${p.aside} ${s.aside}`}><Filters f={view.filters} /></aside>
           {shelf}
         </div>
       ) : shelf}

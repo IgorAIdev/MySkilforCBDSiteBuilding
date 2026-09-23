@@ -10,6 +10,9 @@ export type FiltersView = {
   action: string; clear: string; facets: Facet[]
   sort: { label: string; value: SortKey; options: { value: SortKey; label: string }[] }
   title: string; apply: string; clearLabel: string
+  /** Кнопка открытия шторки на узком контейнере, подпись её крестика и
+   *  сколько значений граней выбрано — число стоит в подписи кнопки. */
+  open: string; close: string; chosen: number
 }
 export type PagesView = { label: string; prev: string | null; next: string | null; prevLabel: string; nextLabel: string }
 export type CatalogView = {
@@ -37,6 +40,8 @@ export function catalogView(lang: Lang, a: {
       action: at({}), clear: at({}), facets: listing.facets,
       sort: { label: t(lang, 'catalog.sort'), value: asked.sort, options: SORTS.map(([value, key]) => ({ value, label: t(lang, key) })) },
       title: t(lang, 'catalog.filters'), apply: t(lang, 'catalog.apply'), clearLabel: t(lang, 'catalog.clear'),
+      open: t(lang, 'catalog.open'), close: t(lang, 'catalog.close'),
+      chosen: listing.facets.reduce((n, f) => n + f.values.filter((v) => v.selected).length, 0),
     } : null,
     invalid: listing.invalid.length ? t(lang, 'catalog.invalid') : null,
     empty: a.empty,

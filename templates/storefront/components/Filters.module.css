@@ -1,6 +1,70 @@
-.filters{--stack:var(--air-group);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
+/* ── Панель фильтров: колонка на широком контейнере, шторка на узком ───────
+   Шов — 820 по КОНТЕЙНЕРУ каталога, а не по окну: «панель становится
+   выдвижной» — пример шва из правила 3, и мерит его коробка (правило 6).
+   Контейнер — ряд `sidebar` (primitives.module.css), он и так `inline-size`;
+   кнопку над полкой на узком ставит строкой сам каталог (Catalog.module.css).
+
+   Форма носит `popover`, и у браузера на такой элемент своя коробка:
+   `fixed`, `inset:0`, `margin:auto`, рамка, поле .25em, `fit-content`,
+   `Canvas`. Правило автора сильнее правила браузера при ЛЮБОЙ силе
+   селектора — и `[popover]:not(:popover-open){display:none}` тоже: форму
+   показывает `display` примитива `stack`. Поэтому колонка объявляет всю
+   коробку сама; что не объявлено, досталось бы от браузера. */
+.filters{
+  --stack:var(--air-group);
+  background:var(--surface);color:inherit;
+  border:0;border-radius:var(--r-card);
+  margin:0;padding:var(--pad-card);
+  inline-size:auto;block-size:auto;
+  /* Позицию и верх держит `pinned`; низ и бока браузерного `inset:0`
+     сняты, иначе приклеенная колонка держалась бы и за низ окна. */
+  inset-inline:auto;inset-block-end:auto;
+  /* Под потолком `pinned` прокручивается вся панель (правило 9), и
+     остаток прокрутки не уезжает на страницу под ней. */
+  overflow:auto;overscroll-behavior:contain
+}
 /* Поля сброшены по бокам, а не целиком: `margin:0` стоит позже примитива
    `stack` той же силы и гасил его ритм — группа «Concentrație» вставала
    вплотную под последней галочкой «Formă» (снимок приёмки). */
 .set{border:0;padding:0;margin-inline:0}
 .legend{font-weight:600;margin-block-end:var(--air-row)}
+
+/* Кнопка открытия — только там, где панели нет в потоке. Сила — атрибутом:
+   у кнопки `.btn{display:inline-flex}` той же силы, что голый класс, и
+   решать, кто виден, порядку кусков сборки нельзя. */
+@container (min-width:820px){
+  .open[popovertarget]{display:none}
+}
+/* Узкий контейнер: закрытой панели в потоке нет — её место над полкой
+   занимает кнопка. */
+@container (max-width:819px){
+  .filters:not(:popover-open){display:none}
+}
+
+/* Шапка шторки — заголовок и крестик — есть только у шторки: в колонке
+   закрывать нечего. Спрятанная, она остаётся первым ребёнком `stack`, и
+   ритм лёг бы над первой группой колонки — его снимает сосед шапки. */
+.head{display:none}
+.filters:not(:popover-open) > .head + *{margin-block-start:0}
+
+/* Шторка — от того же края, где на широком стоит колонка: панель живёт
+   слева и выезжает оттуда. Верхний слой браузера, номера нет (правило 8);
+   Escape и щелчок мимо закрывают сами, третий выход — крестик в шапке.
+   Высота — от окна, `dvh`, и прокручивается содержимое, а не страница
+   (правило 9). Ширина — та же, что у колонки, но не больше окна за вычетом
+   полосы под палец: мимо шторки должно быть куда нажать (M2, «ширина
+   экрана минус 56»). Правила не спрятаны под шов: открытая шторка остаётся
+   шторкой, даже если окно раздвинули, пока она открыта. */
+.filters:popover-open{
+  position:fixed;
+  inset-block:0;inset-inline:0 auto;
+  inline-size:min(22.5rem, 100% - var(--ctrl-h-lg));
+  max-block-size:100dvh;
+  padding:var(--pad-sheet);
+  border-radius:0;
+  border-start-end-radius:var(--r-sheet);border-end-end-radius:var(--r-sheet);
+  box-shadow:var(--sh-overlay)
+}
+.filters::backdrop{background:var(--scrim)}
+.filters:popover-open > .head{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row)}
+.title{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
