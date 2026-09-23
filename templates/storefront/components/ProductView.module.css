@@ -31,18 +31,29 @@
    половине: кадр 366px, растянутый в 540 по высоте колонки покупки. На
    пороге колонка покупки получает ≈ 350px (45 % ряда за вычетом просвета)
    — имя, цена и кнопка стоят в ней без обрывков. */
-.gallery{--frame:1 / 1;--frame-cap:55svh;--frame-max:620px;--switch-bias:1.22;inline-size:100%;max-inline-size:min(var(--frame-max), var(--frame-cap));margin-inline:auto}
+.pin{--switch-bias:1.22}
+.gallery{--frame:1 / 1;--frame-cap:55svh;--frame-max:620px;inline-size:100%;max-inline-size:min(var(--frame-max), var(--frame-cap));margin-inline:auto}
+/* Одна колонка: клеить не к чему — кадр в потоке, и потолка приклеенного
+   у него нет (`pinned`, ручки `--pin-pos` и `--pin-max`). Две: кадр едет
+   рядом с колонкой покупки, и его потолок — бюджет высоты приклеенного
+   (`--pin-fit`), а не 85 % окна: приклеенное выше окна не показывает низ
+   никогда (правило 9). */
+@container (max-width:819px){
+  .pin{--pin-pos:static;--pin-max:none}
+}
 @container (min-width:820px){
-  .gallery{--frame-cap:85svh;max-inline-size:none;margin-inline:0}
+  .gallery{--frame-cap:var(--pin-fit);max-inline-size:none;margin-inline:0}
 }
 .offer{--stack:var(--air-group)}
 .name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);overflow-wrap:anywhere}
 .price{font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
-.message{font-weight:600;color:var(--ink)}
 /* Поля сброшены по бокам и снизу, а не целиком: `margin:0` стоит позже
    примитива `stack` той же силы и гасил его ритм — «În stoc», «Concentrație»
    и «Volum» стояли вплотную (снимок приёмки). Верхнее поле — от `stack`. */
-.group{border:0;padding:0;margin-inline:0}
+/* Опции варианта — органы ростом с кнопку (`--seg-h` сегмента: `--ctrl-h`,
+   40 под мышью, 48 под пальцем), а не малые фишки: это выбор, без которого
+   не купить. */
+.group{--seg-h:var(--ctrl-h);border:0;padding:0;margin-inline:0}
 .legend{font-weight:600;margin-block-end:var(--air-row)}
 .lab{--stack:var(--air-row);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
 .labTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
@@ -57,3 +68,5 @@
    (перенос, не шов). Ширина поля количества — от высоты органа. */
 .buy{display:flex;flex-wrap:wrap;align-items:end;gap:var(--gap-row)}
 .qty{inline-size:calc(var(--ctrl-h) * 2.2)}
+/* Подсказка у выключенной кнопки — на её высоте и приглушённая. */
+.hint{display:flex;align-items:center;min-block-size:var(--ctrl-h);color:var(--ink-soft)}

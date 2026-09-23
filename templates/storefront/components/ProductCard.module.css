@@ -2,16 +2,23 @@
    карточку (`::after`), поэтому снимок и цена ведут туда же. Снимок стоял
    второй ссылкой, скрытой от чтения, — и был органом без имени (check:craft,
    name). */
-.card{--stack:var(--air-row);position:relative;block-size:100%;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
+/* Карточки ряда — одной высоты (ячейка сетки тянет, карточка берёт её
+   всю), и цена с наличием стоят у всех на одной линии: растёт имя, а не
+   воздух над ценой. */
+.card{--stack:var(--air-row);position:relative;block-size:100%;display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
 .shot{--frame:1 / 1;border-radius:var(--r-ctrl)}
 /* Имя — тело, а не ступень подзаголовка: на полке каталога оно стояло
    ростом с заголовок подвала «Ajutor» (h2), и лестница заголовков
    перекрещивалась (check:craft, ladder). Так же набрана карточка на стенде
    шкал (tools/scale-stand.mjs, `.nm`). */
-.name{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;overflow-wrap:anywhere}
-.name a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+.name{flex:1 0 auto;font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;overflow-wrap:anywhere}
+/* Имя — не больше двух строк: длинное имя третьей строкой сдвигало цену
+   ниже, чем у соседей. Целиком оно на карте товара. */
+.name a{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;min-block-size:var(--ctrl-target)}
 .name a::after{content:'';position:absolute;inset:0}
-.buy{justify-content:space-between;margin-block-start:auto}
+/* Цена и наличие — две строки, всегда: в одну строку они вставали там, где
+   помещались, и «În stoc» стояло то рядом с ценой, то под ней. */
+.buy{display:flex;flex-direction:column;gap:var(--sp-2)}
 /* Цена — одна фраза: «de la 89,90 lei» не рвётся на «de la» и сумму.
    Ступенью подзаголовка фраза в узкой карточке (320 окна — 108px поля,
    полка у фильтров — 193) не помещалась и рвалась посередине; строка тела,

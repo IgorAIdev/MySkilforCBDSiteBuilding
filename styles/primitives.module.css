@@ -1004,10 +1004,13 @@
    страницы она давала 1.14 при норме 1.15, на белом листе ещё меньше.
    Пилюли вариантов на карте товара стояли словами в воздухе (check:craft,
    `sunk`; И258). Выбранной кромка не нужна: её держит заливка `--pop`. */
+/* Рост сегмента — ручка `--seg-h` (умолчание — малый орган): выбор, без
+   которого не купить (опции варианта), берёт рост кнопки. Поле по бокам —
+   доля роста (правило 2). */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .seg :is(button, a){
   display:inline-flex;align-items:center;
-  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
+  height:var(--seg-h, var(--ctrl-h-sm));padding:0 calc(var(--seg-h, var(--ctrl-h-sm)) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
   box-shadow:inset 0 0 0 var(--line-w) var(--edge);
   font-size:var(--ctrl-fs-sm);color:var(--ink-soft);text-decoration:none;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
