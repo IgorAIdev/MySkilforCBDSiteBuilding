@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import b from '@/styles/btn.module.css'
 import s from './Header.module.css'
 import { Icon } from './Icon.tsx'
 
@@ -19,7 +20,7 @@ export function CartLink({ href, label, countUrl }: { href: string; label: strin
     return () => { stop.abort(); window.removeEventListener('cart:count', on) }
   }, [countUrl])
   return (
-    <a className={s.cart} href={href} aria-label={count ? `${label} (${count})` : label}>
+    <a className={`${b.btn} ${s.cart}`} data-size="sm" href={href} aria-label={count ? `${label} (${count})` : label}>
       <Icon id="shopping-cart" />
       {count ? <span className={s.badge} aria-hidden="true">{count}</span> : null}
     </a>

@@ -18,12 +18,17 @@ export type CartPageView = {
   title: string; count: string; summary: string; lines: CartLineView[]; totals: TotalsView
   checkout: { label: string; href: string }
   coupon: { label: string; apply: string; applied: { code: string; op: string; label: string }[] }
-  notice: Outcome | null; empty: Empty; messages: { timeout: string; failed: string }
+  notice: Outcome | null; couponNotice: Outcome | null; empty: Empty; messages: { timeout: string; failed: string }
 }
 
 const MAX = 99
 const zero = (): Money => ({ minor: 0, currency: MARKET.currency })
 const EMPTY: Cart = { lines: [], quantity: 0, subtotal: zero(), discounts: [], delivery: null, total: zero() }
+
+/* Исход кода скидки живёт у поля кода, а не у списка товаров: по имени
+   исхода (после «:») — свой блок кодов купона, остальное — линии корзины. */
+const COUPON_CODES = new Set(['coupon', 'uncoupon', 'coupon-invalid', 'coupon-expired', 'coupon-empty'])
+const isCouponCode = (code: string): boolean => COUPON_CODES.has(code.split(':')[1] ?? '')
 
 /** Ноль у доставки — словом «бесплатно», а не «0,00 lei». */
 export const priceOrFree = (lang: Lang, m: Money): string => (m.minor === 0 ? t(lang, 'delivery.free') : money(m, lang))
@@ -66,6 +71,8 @@ function lineView(lang: Lang, l: CartLine): CartLineView {
  *  скрипта: запись → переход → корзина); чужой код не показывается. */
 export function cartView(lang: Lang, cart: Cart | null, result: string | null): CartPageView {
   const c = cart ?? EMPTY
+  const outcome = result ? outcomeOf(lang, result) : null
+  const coupon = outcome !== null && isCouponCode(outcome.code)
   return {
     title: t(lang, 'cart.title'),
     count: tn(lang, 'catalog.count', c.quantity),
@@ -77,7 +84,8 @@ export function cartView(lang: Lang, cart: Cart | null, result: string | null): 
       label: t(lang, 'cart.coupon'), apply: t(lang, 'cart.apply'),
       applied: c.discounts.map((d) => ({ code: d.code, op: `uncoupon:${d.code}`, label: t(lang, 'cart.couponRemove', { code: d.code }) })),
     },
-    notice: result ? outcomeOf(lang, result) : null,
+    notice: outcome && !coupon ? outcome : null,
+    couponNotice: outcome && coupon ? outcome : null,
     empty: { title: t(lang, 'cart.empty'), step: t(lang, 'cart.emptyStep'), href: hrefFor(lang, { catalog: true }) },
     messages: { timeout: t(lang, 'cart.error.timeout'), failed: t(lang, 'cart.error.unavailable') },
   }

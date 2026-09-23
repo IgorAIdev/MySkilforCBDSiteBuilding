@@ -54,7 +54,7 @@ export function CartView({ lang, view, submit, call }: { lang: string; view: Car
             <h2 className={s.summaryTitle}>{view.summary}</h2>
             <OrderTotals totals={view.totals} />
             <a className={b.btn} data-voice="loud" data-wide href={view.checkout.href}>{view.checkout.label}</a>
-            <CartForm lang={lang} className={p.stack} submit={submit} call={call} initial={null} {...msgs}>
+            <CartForm lang={lang} className={p.stack} submit={submit} call={call} initial={view.couponNotice} {...msgs}>
               <label className={f.field}>
                 <span className={f.label}>{view.coupon.label}</span>
                 <input className={f.box} name="code" autoComplete="off" autoCapitalize="characters" spellCheck={false} />

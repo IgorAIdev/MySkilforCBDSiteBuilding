@@ -47,3 +47,12 @@ test('the notice comes from a known code only; an empty cart says what next', ()
   assert.equal(cartView('ro', null, 'nonsense').notice, null)
   assert.equal(priceOrFree('ro', { minor: 0, currency: 'RON' }), 'Gratuit')
 })
+
+test('a coupon outcome and a line outcome show in different places', () => {
+  const coupon = cartView('ro', null, 'e:coupon-expired')
+  assert.equal(coupon.notice, null)
+  assert.equal(coupon.couponNotice?.message, 'Codul a expirat — folosiți un cod valabil.')
+  const line = cartView('ro', null, 'ok:remove')
+  assert.equal(line.notice?.message, 'Produsul a fost scos din coș.')
+  assert.equal(line.couponNotice, null)
+})

@@ -3,10 +3,13 @@
 .logo{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
 .nav a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);font-size:var(--ctrl-fs-sm);color:var(--ink-soft)}
 
-/* Корзина в шапке — ссылка с цифрой. Цель нажатия — роль, число — пилюлей
-   краски «выбранного» (--pop), как выбранный сегмент: это одно значение
-   «здесь что-то есть». */
-.cart{position:relative;display:inline-flex;align-items:center;justify-content:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);color:var(--ink)}
+/* Корзина в шапке — тот же контрол, что кнопка поиска рядом (правило 10:
+   контрол живёт в одном месте — устройство органа и его размер держит
+   styles/btn.module.css, здесь второй раз не заводятся). `.cart` добавляет
+   только то, чего у кнопки нет: точку отсчёта для цифры сверху. Число —
+   пилюлей краски «выбранного» (--pop), как выбранный сегмент: это одно
+   значение «здесь что-то есть». */
+.cart{position:relative}
 .badge{
   position:absolute;inset-block-start:0;inset-inline-end:0;
   min-inline-size:1.6em;padding-inline:.35em;border-radius:50%;
