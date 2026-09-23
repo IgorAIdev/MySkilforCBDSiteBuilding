@@ -28,7 +28,7 @@
   "groundGlue": 0,
   "important": 0,
   "takenTwice": 0,
-  "bareVw": 1,
+  "bareVw": 0,
   "padPx": 0,
   "airRatio": 0,
   "typeGuess": 0,
@@ -53,5 +53,9 @@
   "popRadius": 0,
   "msLiteral": 0,
   "motionOut": 0,
-  "stateOut": 0
+  "stateOut": 0,
+  "dressClass": 0,
+  "stateClass": 0,
+  "dressGrown": 0,
+  "varMissing": 0
 }

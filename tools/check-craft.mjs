@@ -59,7 +59,7 @@ const { chromium } = await loadPlaywright()
 const sharp = await loadSharp()
 import { readFileSync, writeFileSync } from 'node:fs'
 import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
-import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
+import { CRAFT_LABELS as NAMES, VECTOR } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -149,7 +149,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /** Что меряется в самой странице. Одной функцией, потому что она уезжает
  *  в браузер целиком и ничего оттуда не импортирует. */
-const measure = ({ phone, catalogue, target, contrast }) => {
+const measure = ({ phone, catalogue, target, contrast, vector }) => {
   const out = { placeholder: [], measure: [], target: [], contrast: [], collision: [],
                 weight: [], jump: [], name: [], heads: [], dress: [], clip: [],
                 swipe: [], stretch: [], broken: [], spill: [], focus: [], wrap: [],
@@ -910,9 +910,15 @@ const measure = ({ phone, catalogue, target, contrast }) => {
   /* 5 · вес снимка. Меряется в пикселях, а не в байтах: байты зависят от
      сжатия, а пикселей отдано ровно столько, сколько решил тот, кто вставил
      картинку. Порог 2× — это уже вчетверо больше данных, чем нужно даже
-     экрану с удвоенной плотностью. */
+     экрану с удвоенной плотностью.
+
+     Вектор пикселей не везёт (И264): у SVG `naturalWidth` — размер по
+     умолчанию, а не отданный вес. Образец витрины рисует товар SVG, и
+     миниатюра строки корзины в 38px числилась «150px в 38px, ×3.9» —
+     двадцать шесть находок того, чего нет. */
+  const isVector = new RegExp(vector, 'i')
   for (const img of document.images) {
-    if (!shown(img) || !img.naturalWidth) continue
+    if (!shown(img) || !img.naturalWidth || isVector.test(img.currentSrc)) continue
     const w = img.getBoundingClientRect().width
     if (w < 24) continue
     const over = img.naturalWidth / w
@@ -1990,6 +1996,7 @@ async function visit(path, w, { finger, dark = false }) {
       catalogue: LAYOUT.catalogue,
       target: TARGET,
       contrast: CONTRAST,
+      vector: VECTOR.source,
     })
 
     /* ── приклеенное — в НИЗКОМ окне ───────────────────────────────────────
