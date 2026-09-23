@@ -22,15 +22,11 @@ if (existsSync('public/look')) {
     const f = off[name]?.[0]
     return { name, title: TITLES[name] ?? name, on: !f, why: f ? `Not available on this palette: contrast ${f.got}, needs ${f.need}` : '' }
   })
-  /* Шрифты: id — блок [data-face] в styles/storefront.css; `google` — что
-     панель просит у Google Fonts, пока идёт выбор (сайт их не грузит). */
-  const faces = [
-    { id: 'system', name: 'System', google: null },
-    { id: 'manrope', name: 'Manrope', google: 'Manrope:wght@400;500;600;700' },
-    { id: 'plex', name: 'IBM Plex Sans', google: 'IBM+Plex+Sans:wght@400;500;600;700' },
-    { id: 'inter', name: 'Inter', google: 'Inter:wght@400;500;600;700' },
-    { id: 'serif', name: 'Source Serif 4 + IBM Plex Sans', google: 'Source+Serif+4:wght@600;700' },
-  ]
+  /* Шрифты: id — FACE_IDS в lib/faces.ts и блоки [data-face] в
+     styles/storefront.css (все собраны в сайт, грузится стоящий). */
+  const NAMES = { system: 'System', manrope: 'Manrope', plex: 'IBM Plex Sans', inter: 'Inter', serif: 'Source Serif 4 + IBM Plex Sans' }
+  const ids = [...(readFileSync('lib/faces.ts', 'utf8').match(/FACE_IDS = \[([^\]]*)\]/)?.[1] ?? '').matchAll(/'([^']+)'/g)].map((m) => m[1])
+  const faces = ids.map((id) => ({ id, name: NAMES[id] ?? id }))
   /* Шапки: id — HEADERS в lib/look.ts. */
   const headers = [
     { id: 'classic', name: 'Classic', line: 'A bar with the categories beside the logo' },

@@ -1,5 +1,7 @@
 import type { Lang } from '../../locale.ts'
-import type { Content, Doc } from '../contract.ts'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import type { Content, Doc, Look } from '../contract.ts'
 import { PAGES } from '../../pages.ts'
 import DOCS from '../../docs.json' with { type: 'json' }
 
@@ -23,5 +25,15 @@ export const sampleContent: Content = {
   async doc(lang, slug) {
     const d = RAW.find((x) => x.slug === slug)
     return d ? { ok: true, value: docOf(d, lang) } : { ok: false, reason: 'not-found' }
+  },
+  /* Вид читается с диска при каждом промахе кэша, а не ввозится в сборку:
+     правка look.json и запрос на /api/revalidate меняют вид живого сайта
+     без сборки — так же придёт global «look» из Payload. */
+  async look() {
+    try {
+      return { ok: true, value: JSON.parse(readFileSync(join(process.cwd(), 'lib/source/sample/look.json'), 'utf8')) as Look }
+    } catch {
+      return { ok: false, reason: 'unavailable' }
+    }
   },
 }

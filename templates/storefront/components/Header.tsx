@@ -3,7 +3,7 @@ import f from '@/styles/form.module.css'
 import s from './Header.module.css'
 import type { Lang } from '@/lib/locale.ts'
 import type { NavLink } from '@/lib/shell.ts'
-import type { HeaderVariant } from '@/lib/look.ts'
+import type { HeaderVariant } from '@/lib/source/contract.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { Icon } from './Icon.tsx'
@@ -14,7 +14,7 @@ import { LangMenu } from './LangMenu.tsx'
 type Props = { lang: Lang; nav: NavLink[]; variant: HeaderVariant }
 
 /* Шапка — своя полоса поверхности с волоском снизу, на голом полу страницы
-   она не лежит никогда. Вариант приходит значением (lib/look.ts): разметка
+   она не лежит никогда. Вариант приходит значением вида (данные источника, lib/look.ts): разметка
    рисуется своя у каждого, три варианта спрятанными не рисуются.
 
    · classic   — знак, полки строкой рядом; справа язык, поиск, корзина;

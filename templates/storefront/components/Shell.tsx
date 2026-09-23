@@ -2,7 +2,8 @@ import type { ReactNode } from 'react'
 import p from '@/styles/primitives.module.css'
 import type { Lang } from '@/lib/locale.ts'
 import type { ShellData } from '@/lib/shell.ts'
-import type { Look } from '@/lib/look.ts'
+import type { Look } from '@/lib/source/contract.ts'
+import { FACE_VARS } from '@/lib/faces.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { Header } from './Header.tsx'
 import { Footer } from './Footer.tsx'
@@ -18,13 +19,15 @@ import '@/styles/storefront.css'
    «не найдено» без макета (app/global-not-found.tsx): второй экземпляр
    документа разошёлся бы с первым на первой же правке.
 
-   Вид (`look`, lib/look.ts) — атрибутами на `<html>`: шрифт, стиль кнопок,
-   вариант шапки. Строка `look-panel` подключает панель выбора вида
-   (public/look/) — только при LOOK_PICKER=on; `npm run look:remove` её
-   снимает, и сайт от этого не меняется. */
+   Вид (`look`, lib/look.ts — данные источника) — атрибутами на `<html>`:
+   шрифт, стиль кнопок, вариант шапки, набор цвета; переменные всех шрифтов
+   объявлены классами (lib/faces.ts), грузится только стоящий. Строка с
+   меткой панели подключает панель выбора вида (public/look/) — только при
+   LOOK_PICKER=on; `npm run look:remove` её снимает, и сайт от этого не
+   меняется. */
 export function Shell({ lang, data, look, children }: { lang: Lang; data: ShellData; look: Look; children: ReactNode }) {
   return (
-    <html lang={lang} data-face={look.face} data-button={look.button} data-header={look.header}>
+    <html lang={lang} className={FACE_VARS} data-face={look.face} data-button={look.button} data-header={look.header} data-palette={look.palette}>
       <body>
         <a className={p.skip} href="#main">{t(lang, 'skip')}</a>
         <Header lang={lang} nav={data.nav} variant={look.header} />

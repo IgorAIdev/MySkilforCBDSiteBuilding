@@ -4,14 +4,17 @@
    неё ничего не берёт; снимается она `npm run look:remove`.
 
    Что она делает с сайтом — только передаёт значения:
-   · пишет cookie `look` ({ face, button, header }) — по нему сервер рисует
-     страницу, пока идёт выбор (lib/look.ts);
+   · включает черновой режим Next (/api/look-preview) и пишет cookie `look`
+     ({ face, button, header, palette }) — в черновом режиме сервер рисует
+     страницу по выбранному (lib/look.ts), остальные гости видят
+     опубликованное, и страницы остаются статическими;
    · шрифт и кнопки меняет сразу атрибутами на <html> — их CSS сайта уже
-     умеет; шапка — другая разметка, и страница перезагружается;
-   · шрифты для показа просит у Google Fonts, пока панель открыта или
-     выбран не системный шрифт: сайт сам грузит только утверждённый.
+     умеет, все шрифты и стили в сайте собраны; шапка — другая разметка, и
+     страница перезагружается.
    Файлов она не пишет: выбранное заказчик копирует кнопкой «Copy settings»
-   и передаёт словами, а значения переписываются в lib/look.ts. */
+   и передаёт; значения ложатся в источник вида (look.json образца или
+   global «look» в админке) — без сборки. «Stop preview» возвращает
+   опубликованный вид. */
 (function () {
   var script = document.currentScript
   var base = new URL('.', script && script.src ? script.src : location.origin + '/look/')
@@ -29,25 +32,22 @@
     return n
   }
   function now() {
-    return { face: root.dataset.face || 'system', button: root.dataset.button || '', header: root.dataset.header || 'classic' }
+    return { face: root.dataset.face || 'system', button: root.dataset.button || '', header: root.dataset.header || 'classic', palette: root.dataset.palette || '' }
+  }
+  var previewing = null
+  function preview() {
+    previewing = previewing || fetch('/api/look-preview', { method: 'POST', credentials: 'same-origin' }).catch(function () {})
+    return previewing
   }
   function save(c) {
     document.cookie = 'look=' + encodeURIComponent(JSON.stringify(c)) + '; path=/; max-age=31536000; samesite=lax'
+    return preview()
   }
   function remember(open) {
     try { open ? sessionStorage.setItem(OPEN, '1') : sessionStorage.removeItem(OPEN) } catch (e) { /* без памяти */ }
   }
   function remembered() {
     try { return sessionStorage.getItem(OPEN) === '1' } catch (e) { return false }
-  }
-
-  var fontsAsked = false
-  function fonts(faces) {
-    if (fontsAsked) return
-    fontsAsked = true
-    var families = faces.filter(function (f) { return f.google }).map(function (f) { return 'family=' + f.google })
-    families.push('family=IBM+Plex+Sans:wght@400;500;600;700')
-    document.head.appendChild(el('link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?' + families.join('&') + '&display=swap' }))
   }
 
   function build(opt) {
@@ -85,24 +85,30 @@
     })
     var headerItems = opt.headers.map(function (h) {
       return radio('header', h.id, c.header === h.id, false, function () {
-        var next = now(); next.header = h.id; save(next); remember(true); location.reload()
+        var next = now(); next.header = h.id; remember(true); save(next).then(function () { location.reload() })
       }, [el('span', { class: 'lp-txt' }, [el('span', { text: h.name }), el('span', { class: 'lp-small', text: h.line })])])
     })
 
     var copy = el('button', { type: 'button', text: 'Copy settings' })
     copy.addEventListener('click', function () {
       var x = now()
-      var text = "LOOK = { face: '" + x.face + "', button: '" + x.button + "', header: '" + x.header + "' }"
+      var text = JSON.stringify(x)
       var done = function () { status.textContent = 'Copied: ' + text }
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, function () { status.textContent = text })
       else status.textContent = text
     })
 
+    var stop = el('button', { type: 'button', text: 'Stop preview' })
+    stop.addEventListener('click', function () {
+      document.cookie = 'look=; path=/; max-age=0; samesite=lax'
+      remember(true)
+      fetch('/api/look-preview', { method: 'DELETE', credentials: 'same-origin' }).catch(function () {}).then(function () { location.reload() })
+    })
     var close = el('button', { class: 'lp-x', type: 'button', popovertarget: 'lp-panel', popovertargetaction: 'hide', 'aria-label': 'Close', text: '×' })
     var panel = el('div', { id: 'lp-panel', class: 'lp-panel', popover: 'manual', role: 'region', 'aria-label': 'Look' }, [
       el('div', { class: 'lp-head' }, [el('p', { class: 'lp-title', text: 'Look' }), close]),
       line,
-      el('div', { class: 'lp-copy' }, [copy, status]),
+      el('div', { class: 'lp-copy' }, [copy, stop, status]),
       group('Typeface', faceItems),
       group('Buttons', buttonItems),
       group('Header', headerItems),
@@ -110,12 +116,7 @@
     var open = el('button', { class: 'lp-open', type: 'button', popovertarget: 'lp-panel', text: 'Look' })
     document.body.appendChild(el('div', { class: 'lp' }, [open, panel]))
     say()
-    panel.addEventListener('toggle', function (e) {
-      var shown = e.newState === 'open'
-      remember(shown)
-      if (shown) fonts(opt.faces)
-    })
-    if (c.face !== 'system') fonts(opt.faces)
+    panel.addEventListener('toggle', function (e) { remember(e.newState === 'open') })
     if (remembered() && panel.showPopover) panel.showPopover()
   }
 

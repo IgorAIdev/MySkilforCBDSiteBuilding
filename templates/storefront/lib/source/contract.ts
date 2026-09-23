@@ -26,6 +26,12 @@ export type Block =
   | { type: 'delivery'; title: string; items: { title: string; body: string }[] }
   | { type: 'faq'; title: string; items: { q: string; a: string }[] }
 export type Page = { slug: string; title: string; description: string; blocks: Block[] }
+/** Вид витрины — значения, которые магазин меняет без сборки, как настройки
+ *  темы: шрифт (`[data-face]`), стиль кнопок (styles/buttons.css), вариант
+ *  шапки, набор цвета (styles/palette.css, `[data-palette]`). Все варианты
+ *  уже собраны в сайт; сборка нужна только новому варианту. */
+export type HeaderVariant = 'classic' | 'search' | 'boutique'
+export type Look = { face: string; button: string; header: HeaderVariant; palette: string }
 export type Result<T> = { ok: true; value: T } | { ok: false; reason: 'unavailable' | 'not-found' | 'bad-request' }
 
 /** Торговля: Vendure в плане 4, образец — сейчас. */
@@ -44,6 +50,8 @@ export type Content = {
   page(lang: Lang, slug: string): Promise<Result<Page>>
   docs(lang: Lang): Promise<Result<Doc[]>>
   doc(lang: Lang, slug: string): Promise<Result<Doc>>
+  /** Вид витрины: у образца — lib/source/sample/look.json, у Payload — global «look» (план 4). */
+  look(): Promise<Result<Look>>
 }
 
 /* ── Покупка ─────────────────────────────────────────────────────────────

@@ -1,39 +1,66 @@
-import { cookies } from 'next/headers' // look-panel
+import { unstable_cache } from 'next/cache'
+import { cookies, draftMode } from 'next/headers' // look-panel
+import BUTTONS from '../styles/buttons.json' with { type: 'json' }
+import PALETTES from '../styles/palette.json' with { type: 'json' }
+import type { HeaderVariant, Look } from './source/contract.ts'
+import { content } from './source/index.ts'
+import { FACE_IDS } from './faces.ts'
 
-/* Вид витрины — утверждённые значения, и только они. Макет ставит их
-   атрибутами на `<html>` (`data-face`, `data-button`, `data-header`), шапка
-   берёт по `header` свою разметку. Шрифт, стиль кнопок и шапку заказчик
-   выбирает глазами на самой витрине (панель «Look», public/look/); выбранное
-   он передаёт словами — «Copy settings», — и значения переписываются СЮДА.
-   Панель сама файлов не пишет, а сайт из панели не берёт ничего. */
+/* Вид витрины приходит ДАННЫМИ, как настройки темы: источник отдаёт
+   значения (content().look() — у образца lib/source/sample/look.json, у
+   Payload — global «look»), макет ставит их атрибутами на `<html>`
+   (`data-face`, `data-button`, `data-header`, `data-palette`), шапка берёт
+   по `header` свою разметку. Все варианты уже в сборке — шрифты
+   (lib/faces.ts, грузится только стоящий), стили кнопок и наборы цвета в
+   CSS, шапки в коде, — поэтому смена вида сборки не требует: сохранили в
+   админке → POST /api/revalidate с тегом `look` → через секунды новый вид.
+   Страницы остаются статическими: чтение закэшировано с тегом `look`. */
 
-/** Варианты шапки — разметка каждого в components/Header.tsx. */
-export const HEADERS = ['classic', 'search', 'boutique'] as const
-export type HeaderVariant = (typeof HEADERS)[number]
-export type Look = { face: string; button: string; header: HeaderVariant }
+export const HEADERS: readonly HeaderVariant[] = ['classic', 'search', 'boutique']
 
-/** Утверждено. `face` — блок `[data-face]` в styles/storefront.css; `button` —
- *  стиль из styles/buttons.json (первый — умолчание); `header` — из HEADERS. */
-export const LOOK: Look = { face: 'system', button: 'Пилюля', header: 'classic' }
+/** Умолчание — на случай, когда источник молчит или прислал незнакомое:
+ *  системный шрифт, первый стиль каталога, первая шапка, первый набор. */
+export const FALLBACK: Look = {
+  face: FACE_IDS[0], button: Object.keys(BUTTONS)[0], header: HEADERS[0], palette: Object.keys(PALETTES)[0],
+}
 
-/* look-panel:start — пока заказчик выбирает (LOOK_PICKER=on), те же значения
-   может передать панель cookie `look`. Выключено — не делается ничего, и
-   страницы остаются статическими. Снимается вместе с панелью:
-   `npm run look:remove` удаляет всё, что помечено `look-panel`. */
-const WORD = /^[\p{L}\p{N} -]{1,40}$/u
-const word = (x: unknown): x is string => typeof x === 'string' && WORD.test(x)
-async function fromPanel(base: Look): Promise<Look> {
-  let v: Record<string, unknown> = {}
-  try { v = JSON.parse(decodeURIComponent((await cookies()).get('look')?.value ?? '{}')) as Record<string, unknown> } catch { return base }
-  const header = HEADERS.find((h) => h === v.header)
-  return { face: word(v.face) ? v.face : base.face, button: word(v.button) ? v.button : base.button, header: header ?? base.header }
+const pick = <T extends string>(value: unknown, known: readonly T[], fallback: T): T => known.find((k) => k === value) ?? fallback
+
+/** Значение принимается, только если такой вариант собран в сайт. */
+export function accept(raw: Partial<Record<keyof Look, unknown>> | null): Look {
+  return {
+    face: pick(raw?.face, FACE_IDS, FALLBACK.face),
+    button: pick(raw?.button, Object.keys(BUTTONS), FALLBACK.button),
+    header: pick(raw?.header, HEADERS, FALLBACK.header),
+    palette: pick(raw?.palette, Object.keys(PALETTES), FALLBACK.palette),
+  }
+}
+
+const published = unstable_cache(async () => {
+  const r = await content().look()
+  return r.ok ? r.value : null
+}, ['look'], { tags: ['look'] })
+
+/* look-panel:start — просмотр вида панелью «Look» (public/look/), пока
+   заказчик выбирает (LOOK_PICKER=on). Панель включает черновой режим Next
+   (/api/look-preview) и пишет выбранное cookie `look`; в черновом режиме
+   страница рисуется по запросу и берёт значения из cookie. Другие гости
+   видят опубликованное, страницы остаются статическими. Снимается вместе с
+   панелью: `npm run look:remove`. */
+async function preview(base: Look): Promise<Look> {
+  if (process.env.LOOK_PICKER !== 'on' || !(await draftMode()).isEnabled) return base
+  try {
+    const raw = JSON.parse(decodeURIComponent((await cookies()).get('look')?.value ?? '{}')) as Record<string, unknown>
+    return accept({ ...base, ...raw })
+  } catch {
+    return base
+  }
 }
 /* look-panel:end */
 
 /** Вид, которым рисуется страница. */
 export async function lookNow(): Promise<Look> {
-  /* look-panel:start */
-  if (process.env.LOOK_PICKER === 'on') return fromPanel(LOOK)
-  /* look-panel:end */
-  return LOOK
+  let look = accept(await published())
+  look = await preview(look) // look-panel
+  return look
 }
