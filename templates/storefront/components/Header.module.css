@@ -15,10 +15,18 @@
    styles/btn.module.css, здесь второй раз не заводятся). `.cart` добавляет
    только то, чего у кнопки нет: точку отсчёта для цифры сверху. Число —
    пилюлей краски «выбранного» (--pop), как выбранный сегмент: это одно
-   значение «здесь что-то есть». */
+   значение «здесь что-то есть».
+
+   Цифра сидит на углу кнопки, а не внутри: внутри малой кнопки (sm) она
+   закрывала знак тележки (снимки задач 5 и 6). Вынос — доля высоты самой
+   кнопки (`--btn-h`, правило 2: геометрия контрола от его высоты), не число:
+   на любом росте кнопки цифра уходит за угол на ту же долю и знак остаётся
+   открытым. Место под цифру не занимается — число приходит запросом после
+   загрузки, и шапка от него не прыгает. */
 .cart{position:relative}
 .badge{
-  position:absolute;inset-block-start:0;inset-inline-end:0;
+  position:absolute;
+  inset-block-start:calc(var(--btn-h) * -.25);inset-inline-end:calc(var(--btn-h) * -.25);
   min-inline-size:1.6em;padding-inline:.35em;border-radius:50%;
   background:var(--pop);color:var(--on-pop);
   font-size:var(--ctrl-fs-xs);line-height:1.6;text-align:center;font-variant-numeric:tabular-nums

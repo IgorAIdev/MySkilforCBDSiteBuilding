@@ -8,7 +8,10 @@ import { OrderTotals } from './OrderTotals.tsx'
 import { Icon } from './Icon.tsx'
 
 /* «Спасибо»: номер заказа крупно, что заказано, куда и как платится.
-   Письма образец не шлёт — и не обещает его (план 4, сервер Vendure). */
+   Письма образец не шлёт — и не обещает его (план 4, сервер Vendure).
+   Выход «продолжить покупки» — в столбике итога, как «назад» на шагах
+   (CheckoutFrame): отдельной строкой под раскладкой он вставал вплотную к
+   итогу, без воздуха (check:craft, семья collision, на полной странице). */
 export function OrderDone({ view }: { view: DonePageView }) {
   return (
     <main id="main" className={`${p.wrap} ${p.section}`}>
@@ -19,9 +22,13 @@ export function OrderDone({ view }: { view: DonePageView }) {
       </div>
       <div className={p.sidebar}>
         <OrderReview title={view.review} recaps={view.recaps} itemsTitle={view.itemsTitle} items={view.items} />
-        <aside className={p.aside}><div className={`${p.stack} ${c.summary}`}><OrderTotals totals={view.totals} /></div></aside>
+        <aside className={p.aside}>
+          <div className={`${p.stack} ${c.summary}`}>
+            <OrderTotals totals={view.totals} />
+            <a className={go.go} href={view.more.href}>{view.more.label}<Icon id="arrow-right" /></a>
+          </div>
+        </aside>
       </div>
-      <a className={go.go} href={view.more.href}>{view.more.label}<Icon id="arrow-right" /></a>
     </main>
   )
 }

@@ -11,7 +11,11 @@
 .line{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-row);padding-block:var(--air-row);border-block-end:var(--line-w) solid var(--edge)}
 .thumb{--frame:1 / 1;flex:0 0 calc(var(--ctrl-target) * 1.6)}
 .what{flex:1 1 12em;min-inline-size:0}
-.name{font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+/* Имя — ссылка на вариант и цель пальца: ростом не ниже `--ctrl-target`
+   (44 под пальцем, 24 под мышью), как имя на карточке полки
+   (ProductCard.module.css). Строкой в 21px она была мельче пальца
+   (check:craft, семья target, на полной корзине — И263). */
+.name{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);font-weight:600;color:var(--ink);overflow-wrap:anywhere}
 .qty{display:inline-flex;align-items:center;gap:var(--gap-targets)}
 .count{min-inline-size:2ch;text-align:center;font-variant-numeric:tabular-nums}
 .sum{margin:0;min-inline-size:6em;text-align:end;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}

@@ -6,6 +6,9 @@
 .plain{border:0;padding:0;margin-inline:0;min-inline-size:0}
 .title{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
 .step{--stack:var(--air-group)}
+/* Шаг один в ряду (оплата: итог стоит в форме над кнопкой) — потолок меры
+   строки: орган шире строки текста читается полосой, а не кнопкой. */
+.step[data-alone]{max-inline-size:var(--measure)}
 
 /* Шаги — одна строка с переносом. Текущий — краской выбранного (--pop),
    как выбранный сегмент: одно значение «вы здесь». */

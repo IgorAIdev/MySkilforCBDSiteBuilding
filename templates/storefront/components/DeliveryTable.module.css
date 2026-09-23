@@ -1,7 +1,9 @@
 /* Вертикаль закрыта: одна ось auto делает вторую такой же, и коробка
    начинает ездить вверх-вниз, стоит подписи или отступу перерасти ячейку
-   (check:css, семья railY). */
-.scroll{overflow-x:auto;overflow-y:hidden;max-inline-size:100%}
+   (check:css, семья railY). Прокрутка вбок не передаётся странице — как у
+   примитива `rail`: докрутив таблицу до края, палец не уводит назад всю
+   страницу жестом «назад» браузера. */
+.scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;max-inline-size:100%}
 .table{border-collapse:collapse;min-inline-size:100%}
 .caption{text-align:start;font-weight:600;padding-block-end:var(--gap-row)}
 .table :is(th, td){padding:var(--gap-row);text-align:start;border-block-end:var(--line-w) solid var(--edge)}
