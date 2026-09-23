@@ -7,7 +7,7 @@ import type { NextConfig } from 'next'
 const config: NextConfig = {
   experimental: { globalNotFound: true },
   async redirects() {
-    return [{ source: '/', destination: '/ro', permanent: false }]
+    return [{ source: '/', destination: '/en', permanent: false }]
   },
 }
 

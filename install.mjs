@@ -57,7 +57,7 @@ const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
    `--palette "Имя"`: имя набора выглядит как путь, и ставщик однажды принял
    «Латунь на угле» за папку назначения (И213). */
-const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale'].includes(args[i - 1]))
+const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale', '--lang'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
 const MODE = flags.has('--skill-only') ? 'skill-only' : flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
@@ -72,10 +72,14 @@ const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith
    заказчика, сделанный глазами на стенде, и теряться при постановке он не
    должен ровно по той же причине (И213). */
 const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
+/* Основной язык витрины: `--lang ro`. Образец открывается по-английски
+   (слово заказчика 24.09.2026); настоящий магазин рынка ставит свой язык
+   основным — он же x-default, адрес корня и язык проверок. */
+const LANG = args.find((a, i) => args[i - 1] === '--lang' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras', '--storefront'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя", --storefront.`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras', '--storefront', '--lang'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя", --storefront, --lang код.`)
     process.exit(1)
   }
 }
@@ -90,6 +94,13 @@ const STOREFRONT = flags.has('--storefront')
 if (STOREFRONT && MODE !== 'new') {
   console.error('--storefront ставит новый сайт: не смешивается с --audit, --update и --skill-only.')
   process.exit(1)
+}
+if (flags.has('--lang')) {
+  const codes = STOREFRONT ? (readFileSync(join(SRC, 'templates/storefront/lib/locale.ts'), 'utf8').match(/LOCALES = \[([^\]]*)\]/)?.[1] ?? '').match(/[a-z-]+/g) ?? [] : []
+  if (!STOREFRONT || !LANG || !codes.includes(LANG)) {
+    console.error(`--lang ставит основной язык витрины и идёт только с --storefront: --lang ${codes.join(' | ') || 'код'}.`)
+    process.exit(1)
+  }
 }
 
 // A self-contained instruction bundle for any platform; no project config changes.
@@ -364,6 +375,16 @@ if (STOREFRONT) {
     copy(join(commerce, f), join(OUT, 'lib/commerce', f))
   }
   moved.push('шаблон витрины и помощники Vendure и коммерции')
+  if (LANG) {
+    /* Строку DEFAULT_LANG читает tools/routes.mjs регуляркой — запись та же,
+       меняется только код; корень переадресуется туда же. */
+    const localeFile = join(OUT, 'lib/locale.ts')
+    const configFile = join(OUT, 'next.config.ts')
+    const locale = readFileSync(localeFile, 'utf8').replace(/(export const DEFAULT_LANG: Lang = ')[a-z-]+(')/, `$1${LANG}$2`)
+    writeFileSync(localeFile, locale)
+    writeFileSync(configFile, readFileSync(configFile, 'utf8').replace(/(source: '\/', destination: '\/)[a-z-]+(')/, `$1${LANG}$2`))
+    moved.push(`основной язык витрины — ${LANG}`)
+  }
 }
 
 /* Аудиту — конфиг путей: чужой проект лежит не там и зовёт шкалы не так,

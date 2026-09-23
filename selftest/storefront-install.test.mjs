@@ -132,3 +132,22 @@ test('--storefront writes the server-build CI, not the static one', () => {
     assert.ok(steps.every((l) => !/npm run serve/.test(l)), 'раздача out/ вместо next start')
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
+
+/* Образец открывается по-английски (24.09.2026); настоящий магазин рынка
+   ставит свой язык основным ключом `--lang`: он же адрес корня и x-default. */
+test('--storefront opens in English; --lang ro makes Romanian the main language', () => {
+  const root = mkdtempSync(join(tmpdir(), 'storefront-'))
+  try {
+    const plain = join(root, 'plain')
+    assert.equal(install('--storefront', plain).status, 0)
+    assert.match(readFileSync(join(plain, 'lib/locale.ts'), 'utf8'), /DEFAULT_LANG: Lang = 'en'/)
+    assert.match(readFileSync(join(plain, 'next.config.ts'), 'utf8'), /destination: '\/en'/)
+    const ro = join(root, 'ro')
+    const r = install('--storefront', '--lang', 'ro', ro)
+    assert.equal(r.status, 0, r.stderr)
+    assert.match(readFileSync(join(ro, 'lib/locale.ts'), 'utf8'), /DEFAULT_LANG: Lang = 'ro'/)
+    assert.match(readFileSync(join(ro, 'next.config.ts'), 'utf8'), /destination: '\/ro'/)
+    assert.notEqual(install('--storefront', '--lang', 'bg', join(root, 'bg')).status, 0, 'языка нет в LOCALES')
+    assert.notEqual(install('--lang', 'ro', join(root, 'bare')).status, 0, 'без --storefront')
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})

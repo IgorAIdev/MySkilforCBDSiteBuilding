@@ -1,8 +1,15 @@
 /* Языки витрины румынского рынка. Строки LOCALES и DEFAULT_LANG читает
-   tools/routes.mjs набора регуляркой — запись не менять. */
+   tools/routes.mjs набора регуляркой — запись не менять.
+
+   Основной язык образца — английский (слово заказчика 24.09.2026: «делай все
+   текста на англ.»); ro и hu остаются языками рынка. Настоящий магазин RO
+   ставит румынский основным при постановке: `install.mjs --storefront --lang ro`
+   переписывает строку ниже и переадресацию корня в next.config.ts. */
 export const LOCALES = ['ro', 'en', 'hu'] as const
 export type Lang = (typeof LOCALES)[number]
-export const DEFAULT_LANG: Lang = 'ro'
+export const DEFAULT_LANG: Lang = 'en'
+/** Имя языка на нём самом — так его ищет тот, кто его читает. */
+export const LANG_NAMES: Record<Lang, string> = { ro: 'Română', en: 'English', hu: 'Magyar' }
 export const isLang = (value: string): value is Lang => (LOCALES as readonly string[]).includes(value)
 
 /** Язык адреса — первый сегмент пути; чужой или пустой — основной язык. */

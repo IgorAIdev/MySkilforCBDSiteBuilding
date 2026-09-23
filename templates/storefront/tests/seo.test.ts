@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { toMetadata, siteUrlFrom } from '../lib/seo.ts'
+import { DEFAULT_LANG } from '../lib/locale.ts'
 import { productLd, breadcrumbLd } from '../lib/ld.ts'
 import { sample } from '../lib/source/sample/catalog.ts'
 
@@ -9,7 +10,7 @@ test('every page names itself canonical and lists all three languages plus x-def
   assert.equal(m.alternates?.canonical, 'http://localhost:3020/hu/catalog')
   const langs = m.alternates?.languages as Record<string, string>
   assert.deepEqual(Object.keys(langs).sort(), ['en', 'hu', 'ro', 'x-default'])
-  assert.equal(langs['x-default'], 'http://localhost:3020/ro/catalog')
+  assert.equal(langs['x-default'], `http://localhost:3020/${DEFAULT_LANG}/catalog`)
   assert.equal((m.openGraph as { locale?: string }).locale, 'hu_RO')
 })
 
