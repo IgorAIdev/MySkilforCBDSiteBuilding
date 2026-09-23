@@ -30,7 +30,7 @@ export function Catalog({ view, top }: { view: CatalogView; top?: ReactNode }) {
     </div>
   )
   return (
-    <main id="main" className={`${p.wrap} ${p.section}`}>
+    <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <div className={p.pagehead}>
         <h1>{view.title}</h1>
         {view.lede ? <p>{view.lede}</p> : null}

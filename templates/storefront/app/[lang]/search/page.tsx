@@ -26,7 +26,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const form = <SearchForm action={hrefFor(lang, { search: '' })} q={q} label={t(lang, 'search.label')} submit={t(lang, 'search.submit')} />
   if (!q) {
     return (
-      <main id="main" className={`${p.wrap} ${p.section}`}>
+      <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
         <div className={p.pagehead}><h1>{t(lang, 'nav.search')}</h1><p>{t(lang, 'search.prompt')}</p></div>
         {form}
       </main>

@@ -18,14 +18,14 @@ export function CartView({ lang, view, submit, call }: { lang: string; view: Car
   const msgs = { timeout: view.messages.timeout, failed: view.messages.failed }
   if (!view.lines.length) {
     return (
-      <main id="main" className={`${p.wrap} ${p.section}`}>
+      <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
         {view.notice ? <p className={p.muted} role="status">{view.notice.message}</p> : null}
-        <StateScreen level={1} kind="empty" title={view.empty.title} step={view.empty.step} href={view.empty.href} />
+        <StateScreen level={1} kind="empty" title={view.empty.title} step={view.empty.step} href={view.empty.href} icon="shopping-cart" loud />
       </main>
     )
   }
   return (
-    <main id="main" className={`${p.wrap} ${p.section}`}>
+    <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <div className={p.pagehead}><h1>{view.title}</h1><p className={p.muted}>{view.count}</p></div>
       <div className={p.sidebar}>
         <CartForm lang={lang} submit={submit} call={call} initial={view.notice} {...msgs}>

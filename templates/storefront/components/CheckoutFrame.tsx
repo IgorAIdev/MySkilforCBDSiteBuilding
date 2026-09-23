@@ -19,7 +19,7 @@ import { Icon } from './Icon.tsx'
 export function CheckoutFrame({ text, steps, totals, children }: { text: FrameText; steps: StepsView; totals: TotalsView | null; children: ReactNode }) {
   const step = <div className={`${p.stack} ${s.step}`}>{children}</div>
   return (
-    <main id="main" className={`${p.wrap} ${p.section}`}>
+    <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <div className={p.pagehead}><h1>{text.title}</h1></div>
       <CheckoutSteps steps={steps} />
       {totals ? (
@@ -43,7 +43,7 @@ export function CheckoutFrame({ text, steps, totals, children }: { text: FrameTe
 export function CheckoutEmpty({ empty }: { empty: Empty }) {
   return (
     <main id="main" className={p.wrap}>
-      <StateScreen level={1} kind="empty" title={empty.title} step={empty.step} href={empty.href} />
+      <StateScreen level={1} kind="empty" title={empty.title} step={empty.step} href={empty.href} icon="shopping-cart" loud />
     </main>
   )
 }

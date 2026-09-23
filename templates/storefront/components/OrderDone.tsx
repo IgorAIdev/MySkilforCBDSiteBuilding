@@ -14,7 +14,7 @@ import { Icon } from './Icon.tsx'
    итогу, без воздуха (check:craft, семья collision, на полной странице). */
 export function OrderDone({ view }: { view: DonePageView }) {
   return (
-    <main id="main" className={`${p.wrap} ${p.section}`}>
+    <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <div className={p.pagehead}>
         <h1>{view.title}</h1>
         <p className={s.code}>{view.code}</p>
