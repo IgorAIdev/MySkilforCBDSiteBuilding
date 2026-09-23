@@ -72,3 +72,58 @@ test('sessions: «pages» списком или строкой падает те
   const ok = await loadWith({ cookie: 'shop_session', pages: { '/[lang]/cart': ['sample-cart'] } })
   assert.equal(ok.code, 0, ok.out)
 })
+
+/* Предупреждения, а не выходы (итоговый разбор плана 2): запись, которая
+ * молча выключает замер полных страниц, говорит об этом строкой, но
+ * проверку не роняет — остальное меряется. Сессии названы, а cookie нет —
+ * личные страницы не меряются полными вовсе. */
+test('sessions: сессии без cookie — одна строка предупреждения, не выход', async () => {
+  const warned = await loadWith({ cookie: null, pages: { '/[lang]/cart': ['sample-cart'] } })
+  assert.equal(warned.code, 0, warned.out)
+  const lines = warned.out.split('\n').filter((l) => /sessions\.cookie/.test(l))
+  assert.equal(lines.length, 1, warned.out)
+  assert.match(lines[0], /«sessions\.pages» названы, а «sessions\.cookie» — null/)
+
+  const quiet = await loadWith({ cookie: null, pages: {} })
+  assert.equal(quiet.code, 0, quiet.out)
+  assert.equal(quiet.out.trim(), '')
+})
+
+/* Форма из «sessions.pages», которой нет в дереве маршрутов (переименовали
+ * страницу, опечатка), не меряется никогда — и молчала. Теперь личные
+ * страницы отдаются без неё, а она названа строкой. */
+const ROUTE_TOOLS = ['routes.mjs', 'sessions.mjs', 'kit-config.mjs', 'seams.mjs', 'thresholds.mjs']
+
+async function personalWith(pages) {
+  const root = mkdtempSync(join(tmpdir(), 'personal-'))
+  try {
+    mkdirSync(join(root, 'tools'))
+    for (const f of ROUTE_TOOLS) copyFileSync(join(KIT, 'tools', f), join(root, 'tools', f))
+    mkdirSync(join(root, 'app', '[lang]', 'cart'), { recursive: true })
+    writeFileSync(join(root, 'app', '[lang]', 'cart', 'page.tsx'), 'export default function Page() { return null }\n')
+    mkdirSync(join(root, 'lib'))
+    writeFileSync(join(root, 'lib', 'locale.ts'), "export const LOCALES = ['ro', 'hu'] as const\nexport const DEFAULT_LANG = 'ro'\n")
+    writeFileSync(join(root, 'kit.config.json'), JSON.stringify({ sessions: { cookie: 'shop_session', pages } }))
+    const child = spawn(process.execPath, ['-e', "import('./tools/routes.mjs').then((m) => console.log(JSON.stringify(m.personal())))"], { cwd: root })
+    let out = ''
+    let err = ''
+    child.stdout.on('data', (d) => { out += d })
+    child.stderr.on('data', (d) => { err += d })
+    const code = await new Promise((done) => child.on('close', done))
+    return { code, out, err }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+}
+
+test('sessions: форма не из дерева маршрутов названа предупреждением, остальные отданы', async () => {
+  const r = await personalWith({ '/[lang]/cart': ['sample-cart'], '/[lang]/cabinet': ['sample-cart'] })
+  assert.equal(r.code, 0, r.err)
+  assert.deepEqual(JSON.parse(r.out), ['/ro/cart#as=sample-cart', '/hu/cart#as=sample-cart'])
+  assert.match(r.err, /\/\[lang\]\/cabinet/)
+  assert.doesNotMatch(r.err, /\/\[lang\]\/cart\b/)
+
+  const clean = await personalWith({ '/[lang]/cart': ['sample-cart'] })
+  assert.equal(clean.code, 0, clean.err)
+  assert.equal(clean.err.trim(), '')
+})

@@ -278,11 +278,19 @@ export function sample() {
 
 /** Личные страницы полными — для дорогих проверок (И263): формы из
  *  `sessions.pages` в kit.config.json, по адресу на язык и сессию, хвостом
- *  `#as=…`. Нет cookie в конфиге — нет и личных страниц. */
+ *  `#as=…`. Нет cookie в конфиге — нет и личных страниц. Форма, которой нет
+ *  в дереве маршрутов (страницу переименовали, опечатка), не меряется —
+ *  она названа предупреждением, остальные отдаются. */
 export function personal() {
   if (!SESSIONS.cookie) return []
   assertData()
-  return sessionUrls(SESSIONS.pages, expand(SAMPLE))
+  const tree = new Set(shapes())
+  const pages = {}
+  for (const [shape, list] of Object.entries(SESSIONS.pages)) {
+    if (tree.has(shape)) pages[shape] = list
+    else console.warn(`kit.config.json: форма «${shape}» из «sessions.pages» — не из дерева маршрутов app/, не меряется`)
+  }
+  return sessionUrls(pages, expand(SAMPLE))
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
