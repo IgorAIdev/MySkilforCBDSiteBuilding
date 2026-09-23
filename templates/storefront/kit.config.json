@@ -9,6 +9,7 @@
       "/[lang]/checkout/done": ["sample-placed"]
     }
   },
+  "stores": ["lib/look.ts"],
   "seams": [
     {
       "at": 1080,
