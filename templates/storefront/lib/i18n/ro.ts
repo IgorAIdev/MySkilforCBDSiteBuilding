@@ -142,7 +142,6 @@ export const RO = {
   'delivery.methodMissing': 'Alegeți un mod de livrare.',
   'delivery.table': 'Moduri de livrare',
   'delivery.col.method': 'Mod de livrare',
-  'delivery.col.where': 'Unde',
   'delivery.col.days': 'Termen',
   'delivery.col.price': 'Cost',
   'point.office': 'Oficiu',

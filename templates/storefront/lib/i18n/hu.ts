@@ -144,7 +144,6 @@ export const HU: Record<keyof typeof RO, string> = {
   'delivery.methodMissing': 'Válasszon szállítási módot.',
   'delivery.table': 'Szállítási módok',
   'delivery.col.method': 'Szállítási mód',
-  'delivery.col.where': 'Hová',
   'delivery.col.days': 'Idő',
   'delivery.col.price': 'Díj',
   'point.office': 'Iroda',

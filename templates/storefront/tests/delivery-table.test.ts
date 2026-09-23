@@ -12,7 +12,7 @@ test('the delivery page table is the checkout list itself', async () => {
   const m = await sampleCommerce.deliveryMethods(null, 'ro')
   assert.ok(m.ok)
   const v = deliveryTable('ro', m.value)
-  assert.deepEqual(v.head, ['Mod de livrare', 'Unde', 'Termen', 'Cost'])
+  assert.deepEqual(v.head, ['Mod de livrare', 'Termen', 'Cost'])
   assert.deepEqual(v.rows.map((r) => [r.name, r.kind, r.days, r.price]), [
     ['Curier la domiciliu · FAN Courier', 'La adresă', '1–2 zile lucrătoare', `19,99${NB}lei`],
     ['Locker · Sameday', 'Punct de ridicare', '1–2 zile lucrătoare', `12,99${NB}lei`],

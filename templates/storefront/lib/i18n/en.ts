@@ -144,7 +144,6 @@ export const EN: Record<keyof typeof RO, string> = {
   'delivery.methodMissing': 'Choose a delivery method.',
   'delivery.table': 'Delivery methods',
   'delivery.col.method': 'Method',
-  'delivery.col.where': 'Where',
   'delivery.col.days': 'Time',
   'delivery.col.price': 'Cost',
   'point.office': 'Office',

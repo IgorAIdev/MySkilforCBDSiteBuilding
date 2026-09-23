@@ -181,14 +181,16 @@ export const frameText = (lang: Lang): FrameText => ({
 export const noOrder = (lang: Lang): Empty => ({ title: t(lang, 'done.none'), step: t(lang, 'done.noneStep'), href: hrefFor(lang, { catalog: true }) })
 export const emptyCheckout = (lang: Lang): Empty => ({ title: t(lang, 'cart.empty'), step: t(lang, 'cart.emptyStep'), href: hrefFor(lang, { catalog: true }) })
 
-export type DeliveryTableView = { caption: string; head: [string, string, string, string]; rows: { id: string; name: string; kind: string; days: string; price: string }[] }
+export type DeliveryTableView = { caption: string; head: [string, string, string]; rows: { id: string; name: string; kind: string; days: string; price: string }[] }
 
 /** Таблица способов для страницы «Доставка и оплата» — из того же списка,
- *  что выбор на оформлении (скилл shop, И95). */
+ *  что выбор на оформлении (скилл shop, И95). Три колонки, не четыре: на
+ *  телефоне вид способа (`kind`) не тянет свой столбец — он второй строкой
+ *  под именем в самой шапке строки (правило И95, экран уже 360). */
 export function deliveryTable(lang: Lang, methods: DeliveryMethod[]): DeliveryTableView {
   return {
     caption: t(lang, 'delivery.table'),
-    head: [t(lang, 'delivery.col.method'), t(lang, 'delivery.col.where'), t(lang, 'delivery.col.days'), t(lang, 'delivery.col.price')],
+    head: [t(lang, 'delivery.col.method'), t(lang, 'delivery.col.days'), t(lang, 'delivery.col.price')],
     rows: methods.map((m) => ({
       id: m.id, name: [m.name, m.carrier].filter(Boolean).join(' · '), kind: t(lang, KIND[m.kind]),
       days: daysText(lang, m.days) ?? '—', price: priceOrFree(lang, m.price),
