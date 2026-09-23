@@ -9,6 +9,7 @@ import { productView } from '@/lib/product-view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { toMetadata } from '@/lib/seo.ts'
 import { productLd, breadcrumbLd } from '@/lib/ld.ts'
+import { cartSubmit, cartCall } from '@/lib/actions/cart.ts'
 import { ProductView } from '@/components/ProductView.tsx'
 import { JsonLd } from '@/components/JsonLd.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
@@ -39,7 +40,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
     <main id="main" className={p.wrap}>
       <JsonLd data={productLd(product, pickState(product, selected).variant ?? (product.variants.length === 1 ? product.variants[0] : null))} />
       <JsonLd data={breadcrumbLd(view.crumbs.map((c) => ({ name: c.name, href: c.href ?? hrefFor(lang, { product: id }) })))} />
-      <ProductView view={view} />
+      <ProductView view={view} lang={lang} submit={cartSubmit} call={cartCall} />
     </main>
   )
 }

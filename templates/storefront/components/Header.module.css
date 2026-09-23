@@ -2,3 +2,14 @@
 .bar{justify-content:space-between}
 .logo{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
 .nav a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);font-size:var(--ctrl-fs-sm);color:var(--ink-soft)}
+
+/* Корзина в шапке — ссылка с цифрой. Цель нажатия — роль, число — пилюлей
+   краски «выбранного» (--pop), как выбранный сегмент: это одно значение
+   «здесь что-то есть». */
+.cart{position:relative;display:inline-flex;align-items:center;justify-content:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);color:var(--ink)}
+.badge{
+  position:absolute;inset-block-start:0;inset-inline-end:0;
+  min-inline-size:1.6em;padding-inline:.35em;border-radius:50%;
+  background:var(--pop);color:var(--on-pop);
+  font-size:var(--ctrl-fs-xs);line-height:1.6;text-align:center;font-variant-numeric:tabular-nums
+}

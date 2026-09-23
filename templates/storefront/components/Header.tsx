@@ -6,6 +6,7 @@ import type { Collection } from '@/lib/source/contract.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { Icon } from './Icon.tsx'
+import { CartLink } from './CartLink.tsx'
 
 export function Header({ lang, collections }: { lang: Lang; collections: Collection[] }) {
   return (
@@ -16,6 +17,7 @@ export function Header({ lang, collections }: { lang: Lang; collections: Collect
           <a href={hrefFor(lang, { catalog: true })}>{t(lang, 'nav.catalog')}</a>
           {collections.map((c) => <a key={c.slug} href={hrefFor(lang, { category: c.slug })}>{c.name}</a>)}
         </nav>
+        <CartLink href={hrefFor(lang, { cart: true })} label={t(lang, 'nav.cart')} countUrl="/api/cart" />
         <a className={b.btn} data-size="sm" href={hrefFor(lang, { search: '' })} aria-label={t(lang, 'nav.search')}><Icon id="search" /></a>
       </div>
     </header>

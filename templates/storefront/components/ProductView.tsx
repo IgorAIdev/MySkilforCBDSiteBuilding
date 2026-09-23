@@ -1,12 +1,14 @@
 import p from '@/styles/primitives.module.css'
 import s from './ProductView.module.css'
 import type { ProductPageView } from '@/lib/product-view.ts'
+import type { Outcome } from '@/lib/cart-ops.ts'
 import { Breadcrumbs } from './Breadcrumbs.tsx'
 import { ProductCard } from './ProductCard.tsx'
 import { VariantPicker } from './VariantPicker.tsx'
 import { LabReport } from './LabReport.tsx'
+import { AddToCart } from './AddToCart.tsx'
 
-export function ProductView({ view }: { view: ProductPageView }) {
+export function ProductView({ view, lang, submit, call }: { view: ProductPageView; lang: string; submit: (form: FormData) => Promise<void>; call: (form: FormData) => Promise<Outcome> }) {
   return (
     <>
       <Breadcrumbs trail={view.crumbs} label={view.crumbLabel} />
@@ -21,6 +23,7 @@ export function ProductView({ view }: { view: ProductPageView }) {
           {view.stock ? <p className={p.muted}>{view.stock}</p> : null}
           <VariantPicker groups={view.groups} />
           {view.message ? <p className={s.message} role="status">{view.message}</p> : null}
+          <AddToCart lang={lang} buy={view.buy} submit={submit} call={call} />
           <div className={p.prose}><p>{view.description}</p></div>
           {view.lab ? <LabReport lab={view.lab} /> : null}
         </div>
