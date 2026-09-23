@@ -10,3 +10,7 @@ export const COMPANY = {
 export const ANPC_SAL_URL = 'https://anpc.ro/ce-este-sal/'
 // Обязанность ссылаться на платформу споров ЕС (ODR) перепроверить: сообщается о её закрытии 20.07.2025 (Регламент (ЕС) 2024/3228) — docs/open.md набора; решают заказчик и юрист.
 export const SOL_URL = 'https://ec.europa.eu/consumers/odr'
+
+/* Условия магазина — документ с этим адресом: на него ссылаются подвал и
+   последний шаг оформления (заказ принимается по этим условиям). */
+export const TERMS_DOC = 'termeni'

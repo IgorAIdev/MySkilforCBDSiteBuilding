@@ -4,13 +4,13 @@ import type { Lang } from '@/lib/locale.ts'
 import type { Doc } from '@/lib/source/contract.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { hrefFor } from '@/lib/href.ts'
-import { COMPANY, ANPC_SAL_URL, SOL_URL } from '@/lib/company.ts'
+import { COMPANY, ANPC_SAL_URL, SOL_URL, TERMS_DOC } from '@/lib/company.ts'
 import { CONTACTS, telHref, mailHref } from '@/lib/contacts.ts'
 import { COMPANY_IS_REAL } from '@/lib/flags.ts'
 import { LangSwitch } from './LangSwitch.tsx'
 
 const HELP = ['livrare-si-plata', 'retur', 'contact', 'despre-noi']
-const LEGAL = ['termeni', 'confidentialitate']
+const LEGAL = [TERMS_DOC, 'confidentialitate']
 
 export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
   const links = (slugs: string[]) => docs.filter((d) => slugs.includes(d.slug)).map((d) => <li key={d.slug}><a href={hrefFor(lang, { doc: d.slug })}>{d.title}</a></li>)
