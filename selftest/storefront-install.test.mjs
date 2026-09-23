@@ -43,6 +43,14 @@ test('--storefront lays the template over the foundation and copies the kit help
     delete env.NODE_TEST_CONTEXT
     const tests = spawnSync(process.execPath, [join(dir, 'tools/check-test.mjs')], { cwd: dir, encoding: 'utf8', env })
     assert.equal(tests.status, 0, `npm test нового сайта красный:\n${tests.stdout.slice(-2000)}\n${tests.stderr.slice(-1000)}`)
+
+    /* И260: демо-витрина, поставленная этим ключом, встретила владельца
+       красным `check:rules` — таблица фактов палитры ехала собранной из
+       образцов набора, а сайт стоит на стартовой. */
+    const rules = spawnSync(process.execPath, [join(dir, 'tools/check-rules.mjs')], { cwd: dir, encoding: 'utf8' })
+    assert.equal(rules.status, 0, `check:rules витрины красный:\n${rules.stdout}${rules.stderr}`)
+    const list = spawnSync(process.execPath, [join(dir, 'tools/check-rules.mjs'), '--list'], { cwd: dir, encoding: 'utf8' })
+    assert.equal(list.stdout.trim(), '', `check:rules витрины — расхождения под планкой:\n${list.stdout}`)
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
 
