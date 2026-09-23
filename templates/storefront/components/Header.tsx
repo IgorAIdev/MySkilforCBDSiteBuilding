@@ -17,8 +17,10 @@ export function Header({ lang, collections }: { lang: Lang; collections: Collect
           <a href={hrefFor(lang, { catalog: true })}>{t(lang, 'nav.catalog')}</a>
           {collections.map((c) => <a key={c.slug} href={hrefFor(lang, { category: c.slug })}>{c.name}</a>)}
         </nav>
-        <CartLink href={hrefFor(lang, { cart: true })} label={t(lang, 'nav.cart')} countUrl="/api/cart" />
-        <a className={b.btn} data-size="sm" href={hrefFor(lang, { search: '' })} aria-label={t(lang, 'nav.search')}><Icon id="search" /></a>
+        <div className={`${p.cluster} ${s.actions}`}>
+          <CartLink href={hrefFor(lang, { cart: true })} label={t(lang, 'nav.cart')} countUrl="/api/cart" />
+          <a className={b.btn} data-size="sm" href={hrefFor(lang, { search: '' })} aria-label={t(lang, 'nav.search')}><Icon id="search" /></a>
+        </div>
       </div>
     </header>
   )
