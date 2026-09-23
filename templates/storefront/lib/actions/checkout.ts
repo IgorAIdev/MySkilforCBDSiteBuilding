@@ -99,8 +99,9 @@ function totalChanged(lang: Lang): FormState {
 }
 
 /** Заказ. Второе нажатие того же заказа (двойной щелчок без скрипта)
- *  находит корзину уже пустой — и ведёт на «спасибо», где этот заказ и
- *  показан, а не на пустую корзину. */
+ *  источник узнаёт — корзина пуста, заказ поставлен только что (`placed`), —
+ *  и оно ведёт на «спасибо», где этот заказ и показан. Пустая корзина без
+ *  свежего заказа — на корзину (`refused`). */
 export async function placeOrder(rawLang: string, _prev: FormState, form: FormData): Promise<FormState> {
   const lang = langFrom(rawLang)
   const code = String(form.get('payment') ?? '')
@@ -108,7 +109,7 @@ export async function placeOrder(rawLang: string, _prev: FormState, form: FormDa
   const expected = expectedOf(form)
   if (!expected) return totalChanged(lang)
   const r = await commerce().placeOrder(await sessionOr(lang), lang, code, expected)
-  if (!r.ok && r.error === 'empty-cart') redirect(hrefFor(lang, { checkout: 'done' }))
+  if (!r.ok && r.error === 'placed') redirect(hrefFor(lang, { checkout: 'done' }))
   if (!r.ok && r.error === 'changed') return totalChanged(lang)
   if (!r.ok) return refused(lang, r.error)
   sessionChanged()

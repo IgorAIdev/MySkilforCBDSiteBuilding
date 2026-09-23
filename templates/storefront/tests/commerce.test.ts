@@ -140,7 +140,8 @@ test('placeOrder: every precondition is checked by the source, then the cart is 
   assert.ok(last.ok)
   assert.equal(last.value?.code, placed.value.code)
   assert.deepEqual(await c.lastOrder('someone-else', 'ro'), { ok: true, value: null })
-  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'empty-cart' })
+  assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'placed' })
+  assert.deepEqual(await c.placeOrder('nobody', 'ro', 'ramburs', shown), { ok: false, error: 'empty-cart' })
   assert.deepEqual(await c.setContact('nobody', 'ro', CONTACT), { ok: false, error: 'empty-cart' })
 })
 
@@ -159,6 +160,40 @@ test('placeOrder: only at the total the buyer saw', async () => {
   const placed = await c.placeOrder(s, 'ro', 'ramburs', RON(now))
   assert.ok(placed.ok)
   assert.deepEqual(placed.value.cart.total, RON(now))
+})
+
+/* Окно заказа: «спасибо» показывает заказ два часа — столько гость Vendure
+   открывает свой заказ по коду (DefaultOrderByCodeAccessStrategy, '2h').
+   Пустая корзина в окне — заказ уже поставлен (второе нажатие), после
+   окна — просто пустая корзина. Часы — хранилища, не стенные. */
+test('the last order is shown for two hours; an empty cart within them is «placed», later «empty-cart»', async () => {
+  const HOUR = 60 * 60 * 1000
+  let now = Date.parse('2026-09-23T10:00:00.000Z')
+  resetSample(() => now)
+  const s = await fresh('uf-20-10', 1)
+  await c.setContact(s, 'ro', CONTACT)
+  await c.setDelivery(s, 'ro', { methodId: 'curier', address: ADDRESS, pointId: null })
+  const shown = RON(21990 + 1999)
+  const placed = await c.placeOrder(s, 'ro', 'ramburs', shown)
+  assert.ok(placed.ok)
+  assert.equal(placed.value.placedAt, '2026-09-23T10:00:00.000Z')
+  now += 2 * HOUR - 1
+  const within = await c.lastOrder(s, 'ro')
+  assert.ok(within.ok)
+  assert.equal(within.value?.code, placed.value.code)
+  assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', shown), { ok: false, error: 'placed' })
+  now += 1
+  assert.deepEqual(await c.lastOrder(s, 'ro'), { ok: true, value: null })
+  assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', shown), { ok: false, error: 'empty-cart' })
+})
+
+test('the placed fixture shows its order at any hour of the store clock', async () => {
+  resetSample(() => Date.parse('2031-01-01T00:00:00.000Z'))
+  const last = await c.lastOrder(FIXTURES.placed, 'ro')
+  assert.ok(last.ok && last.value)
+  assert.equal(last.value.code, 'EXEMPLU1')
+  assert.equal(last.value.placedAt, '2030-12-31T23:50:00.000Z')
+  assert.deepEqual(await c.placeOrder(FIXTURES.placed, 'ro', 'ramburs', RON(0)), { ok: false, error: 'placed' })
 })
 
 /* Заготовка — только для чтения: запись в неё (товар, заказ) ложится на

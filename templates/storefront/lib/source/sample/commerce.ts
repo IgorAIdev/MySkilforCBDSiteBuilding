@@ -14,9 +14,19 @@ import { bottle } from './art.ts'
 type Line = { id: string; variantId: string; quantity: number }
 type State = { lines: Line[]; coupons: string[]; contact: Contact | null; delivery: DeliveryChoice | null; lastOrder: string | null; seq: number }
 type Placed = { code: string; placedAt: string; session: string; lines: Line[]; coupons: string[]; contact: Contact; delivery: DeliveryChoice; payment: string }
-type Store = { sessions: Map<string, State>; orders: Map<string, Placed> }
+/* `now` — часы хранилища: окно заказа меряется ими, тест ставит свои. */
+type Store = { sessions: Map<string, State>; orders: Map<string, Placed>; now: () => number }
 
 const MAX = 99
+/* Окно заказа: «спасибо» показывает заказ сессии и второе нажатие узнаёт
+   его два часа — столько гость Vendure открывает свой заказ по коду
+   (`DefaultOrderByCodeAccessStrategy`, по умолчанию '2h'). Позже — заказа
+   на экране нет, пустая корзина — просто пустая. */
+const RECENT = 2 * 60 * 60 * 1000
+/* Заказ заготовки `placed` поставлен за десять минут до «сейчас» по часам
+   хранилища — при любом времени работы сервера он в окне. */
+const SAMPLE_ORDER = 'EXEMPLU1'
+const SAMPLE_AGO = 10 * 60 * 1000
 /* Способ, у которого точек не больше трёх, отдаёт их без города. */
 const FEW = 3
 /* Остаток образца: у данных каталога есть только «в наличии / мало / нет». */
@@ -49,29 +59,27 @@ const FIXTURE: Record<string, () => State> = {
   [FIXTURES.address]: () => seeded({ contact: SAMPLE_CONTACT, delivery: { methodId: 'curier', address: null, pointId: null } }),
   [FIXTURES.pickup]: () => seeded({ contact: SAMPLE_CONTACT, delivery: { methodId: 'locker', address: null, pointId: null } }),
   [FIXTURES.ready]: () => seeded({ contact: SAMPLE_CONTACT, delivery: door() }),
-  [FIXTURES.placed]: () => seeded({ lines: [], coupons: [], lastOrder: 'EXEMPLU1' }),
+  [FIXTURES.placed]: () => seeded({ lines: [], coupons: [], lastOrder: SAMPLE_ORDER }),
 }
 /** Свежая копия заготовки или null — это не заготовка. */
 const fixture = (session: string): State | null => (Object.hasOwn(FIXTURE, session) ? FIXTURE[session]() : null)
 
-function seed(): Store {
-  return {
-    sessions: new Map<string, State>(),
-    orders: new Map<string, Placed>([
-      ['EXEMPLU1', { code: 'EXEMPLU1', placedAt: '2026-09-23T10:00:00.000Z', session: FIXTURES.placed, lines: seedLines(), coupons: ['CBD10'], contact: SAMPLE_CONTACT, delivery: door(), payment: 'ramburs' }],
-    ]),
-  }
-}
+const sampleOrder = (now: number): Placed => ({
+  code: SAMPLE_ORDER, placedAt: new Date(now - SAMPLE_AGO).toISOString(), session: FIXTURES.placed,
+  lines: seedLines(), coupons: ['CBD10'], contact: SAMPLE_CONTACT, delivery: door(), payment: 'ramburs',
+})
+
+const seed = (now: () => number): Store => ({ sessions: new Map<string, State>(), orders: new Map<string, Placed>(), now })
 
 /* Корзины образца живут в памяти процесса и пропадают при перезапуске — как
    сказано в замысле. Хранилище — на globalThis: перезагрузка модуля в
    разработке не теряет корзину посреди оформления. */
 const KEY = Symbol.for('storefront.sample.commerce')
 const shelf = globalThis as unknown as Record<symbol, Store | undefined>
-const store = (): Store => (shelf[KEY] ??= seed())
-/** Для тестов: хранилище заново. */
-export function resetSample(): void {
-  shelf[KEY] = seed()
+const store = (): Store => (shelf[KEY] ??= seed(Date.now))
+/** Для тестов: хранилище заново; `now` — свои часы вместо стенных. */
+export function resetSample(now: () => number = Date.now): void {
+  shelf[KEY] = seed(now)
 }
 const live = (session: string | null): State | null => (session ? fixture(session) ?? store().sessions.get(session) ?? null : null)
 const token = () => randomBytes(24).toString('base64url')
@@ -151,6 +159,13 @@ function orderOf(o: Placed, lang: Lang): Order {
 }
 
 const valid = (q: number) => Number.isInteger(q) && q >= 1 && q <= MAX
+
+/** Заказ этой сессии, поставленный в окне, — или null. */
+function recent(session: string, s: State): Placed | null {
+  const now = store().now()
+  const placed = s.lastOrder === SAMPLE_ORDER ? sampleOrder(now) : s.lastOrder ? store().orders.get(s.lastOrder) : undefined
+  return placed && placed.session === session && now - Date.parse(placed.placedAt) < RECENT ? placed : null
+}
 
 export const sampleCommerce: Commerce = {
   async checkout(session, lang) {
@@ -256,7 +271,8 @@ export const sampleCommerce: Commerce = {
   },
   async placeOrder(session, lang, paymentCode, expected) {
     const s = live(session)
-    if (!s || !s.lines.length) return fail('empty-cart')
+    /* Пустая корзина в окне заказа — заказ уже поставлен (второе нажатие). */
+    if (!s || !s.lines.length) return fail(s && recent(session, s) ? 'placed' : 'empty-cart')
     if (!s.contact) return fail('no-contact')
     const checkout = checkoutOf(s, lang)
     if (!s.delivery || !deliveryReady(checkout.delivery)) return fail('no-delivery')
@@ -269,7 +285,7 @@ export const sampleCommerce: Commerce = {
       if (!found || l.quantity > AVAILABLE[found.v.stock]) return fail('out-of-stock')
     }
     const placed: Placed = {
-      code: orderCode(), placedAt: new Date().toISOString(), session,
+      code: orderCode(), placedAt: new Date(store().now()).toISOString(), session,
       lines: s.lines, coupons: s.coupons, contact: s.contact, delivery: s.delivery, payment: pay.code,
     }
     store().orders.set(placed.code, placed)
@@ -278,8 +294,8 @@ export const sampleCommerce: Commerce = {
   },
   async lastOrder(session, lang) {
     const s = live(session)
-    const placed = s?.lastOrder ? store().orders.get(s.lastOrder) : undefined
-    return ok(placed && placed.session === session ? orderOf(placed, lang) : null)
+    const placed = s && session ? recent(session, s) : null
+    return ok(placed ? orderOf(placed, lang) : null)
   },
 }
 

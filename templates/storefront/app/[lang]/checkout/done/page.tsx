@@ -17,8 +17,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return toMetadata(lang, { title: t(lang, 'done.title'), description: t(lang, 'done.keep'), path: (l) => hrefFor(l, { checkout: 'done' }), index: false })
 }
 
-/* Заказ — последний заказ этой сессии, а не номер из адреса: чужой заказ по
-   угаданному номеру не открывается (references/commerce-patterns.md). */
+/* Заказ — последний заказ этой сессии, поставленный недавно (окно — у
+   источника), а не номер из адреса: чужой заказ по угаданному номеру не
+   открывается (references/commerce-patterns.md). */
 export default async function DonePage({ params }: Props) {
   const lang = await langOf(params)
   const r = await commerce().lastOrder(await readSession(), lang)

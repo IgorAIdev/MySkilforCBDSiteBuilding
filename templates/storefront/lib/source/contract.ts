@@ -79,6 +79,8 @@ export type CommerceError =
   | 'payment-ineligible' | 'payment-declined'
   /** Итог корзины не тот, что покупатель видел у кнопки заказа (И262). */
   | 'changed'
+  /** Корзина пуста, а заказ этой сессии поставлен недавно — второе нажатие. */
+  | 'placed'
 /** Запись. `added` — только у частичного успеха: сколько на самом деле в
  *  строке после записи, когда просили больше, чем есть на складе. */
 export type Change<T> = { ok: true; value: T; added?: number } | { ok: false; error: CommerceError }
@@ -105,5 +107,7 @@ export type Commerce = {
    *  2011/83/ЕС, ст. 8(2); И262): `expected` — этот итог; иной у корзины —
    *  `'changed'`, заказ не ставится. */
   placeOrder(session: string, lang: Lang, paymentCode: string, expected: Money): Promise<Change<Order>>
+  /** Заказ этой сессии, поставленный недавно (окно — у источника; у
+   *  Vendure гость видит заказ два часа), иначе null. */
   lastOrder(session: string | null, lang: Lang): Promise<Result<Order | null>>
 }
