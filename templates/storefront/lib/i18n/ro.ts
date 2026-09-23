@@ -3,6 +3,8 @@ export const RO = {
   'nav.catalog': 'Toate produsele',
   'nav.search': 'Căutare',
   'nav.lang': 'Limba',
+  'nav.menu': 'Meniu',
+  'nav.close': 'Închide meniul',
   'crumb.label': 'Navigare',
   'crumb.home': 'Acasă',
   'catalog.title': 'Toate produsele',

@@ -5,6 +5,8 @@ export const EN: Record<keyof typeof RO, string> = {
   'nav.catalog': 'All products',
   'nav.search': 'Search',
   'nav.lang': 'Language',
+  'nav.menu': 'Menu',
+  'nav.close': 'Close menu',
   'crumb.label': 'Breadcrumb',
   'crumb.home': 'Home',
   'catalog.title': 'All products',

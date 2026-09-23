@@ -58,6 +58,8 @@
 | применить фильтры | Aplică filtrele | Apply filters | Szűrők alkalmazása |
 | сбросить фильтры | Șterge filtrele | Clear filters | Szűrők törlése |
 | искать | Caută | Search | Keresés |
+| открыть меню полок (шапка, узкий экран) | Meniu | Menu | Menü |
+| закрыть меню полок | Închide meniul | Close menu | Menü bezárása |
 
 Кнопка заказа называет обязанность платить — Директива 2011/83/ЕС, ст. 8(2) (И262). Формулировку внутри этой рамки утверждает заказчик.
 

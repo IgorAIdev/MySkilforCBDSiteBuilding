@@ -1,14 +1,77 @@
-.head{padding-block:var(--air-row)}
-.bar{justify-content:space-between}
-.logo{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
-.nav a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);font-size:var(--ctrl-fs-sm);color:var(--ink-soft)}
-/* Корзина и поиск — одна группа действий шапки, а не два предмета в общем
-   `space-between`: врозь они дрейфовали по ряду сами по себе, каждый на
-   свою сторону. `--cluster` группе не задан — просвет внутри тот же, что
-   примитив уже даёт, второе число не заводится. Свой отступ слева —
-   `auto`, не число: группа держится у правого края и тогда, когда сама
-   переносится на свою строку (перенос — по ширине, шов не считает). */
+/* ── Шапка: одна строка на любой ширине ──────────────────────────────────
+   Коробка шапки — контейнер (правило 6): полки строкой или шторкой решает
+   ЕЁ ширина, а не окно. Шов — 820 (реестр швов, kit.config.json): уже этой
+   коробки строка полок рядом со знаком и действиями не помещается, и шапка
+   на телефоне вставала в три этажа (193px, полки срезаны справа). Теперь
+   строка одна: знак — поиск, корзина, «Meniu».
+
+   Высота строки — от органа (`--ctrl-h`: 40 под мышью, 48 под пальцем), поле
+   сверху и снизу — ступень ритма: под пальцем 48 + 2 × 8 = 64. */
+.head{container-type:inline-size;padding-block:var(--sp-2)}
+.bar{display:flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-h)}
+.logo{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);margin-inline-end:var(--air-row);font-size:var(--h3-size);font-weight:700;letter-spacing:var(--h3-track);color:var(--ink)}
+
+/* Полки строкой. Навигация носит `popover` (шторка на узком), и у браузера на
+   такой элемент своя коробка: `fixed`, `inset:0`, рамка, поле, `Canvas`,
+   `display:none`. Правило автора сильнее правила браузера при любой силе
+   селектора, поэтому строка объявляет всю коробку сама. */
+.nav{
+  position:static;inset:auto;margin:0;padding:0;border:0;
+  inline-size:auto;block-size:auto;overflow:visible;
+  background:none;color:inherit;
+  display:flex;align-items:center;min-inline-size:0
+}
+.links{list-style:none;padding:0;margin:0;--cluster:0px}
+/* Полка — строкой текста, кеглем тела и чернилами: это главный путь по
+   магазину, а не подпись. Цель — высота органа; поле по бокам — внутреннее
+   поле карточки. Текущая полка — полужирным и чертой краской марки. */
+.links a{
+  display:inline-flex;align-items:center;min-block-size:var(--ctrl-h);
+  padding-inline:var(--pad-inner);border-radius:var(--r-ctrl);
+  font-size:var(--body-size);color:var(--ink);
+  transition:background-color var(--hover-t) var(--ease)
+}
+@media (hover:hover){ .links a:hover{background:var(--hover-row)} }
+.links a:active{background:var(--press-row)}
+.links a[aria-current='page']{font-weight:600;text-decoration-line:underline;text-decoration-color:var(--pop);text-decoration-thickness:var(--ring-w)}
+
+/* Действия — одна группа у правого края; `auto`, а не число. */
 .actions{margin-inline-start:auto}
+
+/* Узкая коробка: закрытой навигации в потоке нет — её место держит кнопка
+   «Meniu» в конце строки. Широкая: кнопки нет. Сила — атрибутом: у `.btn`
+   та же сила голого класса. */
+@container (max-width:819px){
+  .nav:not(:popover-open){display:none}
+}
+@container (min-width:820px){
+  .menu[popovertarget]{display:none}
+}
+
+/* Шторка — от того края, где кнопка: справа. Верхний слой, номера нет
+   (правило 8); Escape и щелчок мимо закрывают сами, третий выход — крестик.
+   Высота — от окна, `dvh`, прокручивается шторка, а не страница (правило 9).
+   Ширина — как у шторки фильтров: мимо неё остаётся полоса под палец.
+   Правила не спрятаны под шов: открытая шторка остаётся шторкой, даже если
+   окно раздвинули, пока она открыта. */
+.nav:popover-open{
+  position:fixed;inset-block:0;inset-inline:auto 0;
+  inline-size:min(22.5rem, 100% - var(--ctrl-h-lg));block-size:100dvh;
+  flex-direction:column;align-items:stretch;gap:var(--air-group);
+  padding:var(--pad-sheet);
+  background:var(--surface);color:var(--ink);
+  border-start-start-radius:var(--r-sheet);border-end-start-radius:var(--r-sheet);
+  box-shadow:var(--sh-overlay);
+  overflow:auto;overscroll-behavior:contain
+}
+.nav::backdrop{background:var(--scrim)}
+.sheetHead{display:none}
+.nav:popover-open > .sheetHead{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row)}
+.sheetTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
+/* Строки шторки — во всю её ширину, высотой строки меню (`--ctrl-h-lg`). */
+.nav:popover-open .links{flex-direction:column;align-items:stretch;flex-wrap:nowrap}
+.nav:popover-open .links a{display:flex;min-block-size:var(--ctrl-h-lg)}
+.nav:popover-open .links a[aria-current='page']{background:var(--quiet);text-decoration-line:none}
 
 /* Корзина в шапке — тот же контрол, что кнопка поиска рядом (правило 10:
    контрол живёт в одном месте — устройство органа и его размер держит

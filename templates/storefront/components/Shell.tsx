@@ -20,7 +20,7 @@ export function Shell({ lang, data, children }: { lang: Lang; data: ShellData; c
     <html lang={lang}>
       <body>
         <a className={p.skip} href="#main">{t(lang, 'skip')}</a>
-        <Header lang={lang} collections={data.collections} />
+        <Header lang={lang} nav={data.nav} />
         {children}
         <Footer lang={lang} docs={data.docs} />
       </body>

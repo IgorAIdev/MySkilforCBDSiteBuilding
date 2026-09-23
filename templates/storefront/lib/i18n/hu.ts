@@ -5,6 +5,8 @@ export const HU: Record<keyof typeof RO, string> = {
   'nav.catalog': 'Összes termék',
   'nav.search': 'Keresés',
   'nav.lang': 'Nyelv',
+  'nav.menu': 'Menü',
+  'nav.close': 'Menü bezárása',
   'crumb.label': 'Morzsamenü',
   'crumb.home': 'Főoldal',
   'catalog.title': 'Összes termék',
