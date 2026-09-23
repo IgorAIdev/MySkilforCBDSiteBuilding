@@ -9,13 +9,14 @@
         "body": { "ro": "Fiecare lot are un număr pe etichetă și un buletin de analiză cu același număr.", "en": "Every batch has a number on the label and a lab report with the same number.", "hu": "Minden tételnek száma van a címkén, és ugyanazzal a számmal laborjegyzőkönyve." } }
     ] },
   { "slug": "livrare-si-plata",
+    "table": "delivery",
     "title": { "ro": "Livrare și plată", "en": "Delivery and payment", "hu": "Szállítás és fizetés" },
-    "summary": { "ro": "Curier, easybox și plata ramburs.", "en": "Courier, parcel locker and cash on delivery.", "hu": "Futár, csomagautomata és utánvét." },
+    "summary": { "ro": "Curier, puncte de ridicare și plata la livrare.", "en": "Courier, pickup points and cash on delivery.", "hu": "Futár, átvételi pontok és utánvét." },
     "sections": [
       { "heading": { "ro": "Curier la domiciliu", "en": "Courier to your door", "hu": "Futár házhoz" },
-        "body": { "ro": "Text de exemplu — tarifele și termenele le stabilește magazinul.", "en": "Sample text — the shop sets the rates and delivery times.", "hu": "Mintaszöveg — a díjakat és a határidőket a bolt határozza meg." } },
-      { "heading": { "ro": "Easybox", "en": "Parcel locker", "hu": "Csomagautomata" },
-        "body": { "ro": "Alegeți un easybox din listă la finalizarea comenzii.", "en": "Choose a parcel locker from the list at checkout.", "hu": "A rendelés véglegesítésekor válasszon csomagautomatát a listából." } },
+        "body": { "ro": "Tarifele și termenele sunt în tabelul de mai sus; le stabilește magazinul.", "en": "Rates and delivery times are in the table above; the shop sets them.", "hu": "A díjak és a határidők a fenti táblázatban vannak; ezeket a bolt határozza meg." } },
+      { "heading": { "ro": "Puncte de ridicare", "en": "Pickup points", "hu": "Átvételi pontok" },
+        "body": { "ro": "Alegeți un locker sau un punct de ridicare la finalizarea comenzii.", "en": "Choose a parcel locker or a pickup point at checkout.", "hu": "A rendelés véglegesítésekor válasszon csomagautomatát vagy átvételi pontot." } },
       { "heading": { "ro": "Plata ramburs", "en": "Cash on delivery", "hu": "Utánvétes fizetés" },
         "body": { "ro": "Plătiți curierului la primirea coletului.", "en": "Pay the courier when the parcel arrives.", "hu": "A csomag átvételekor fizessen a futárnak." } }
     ] },

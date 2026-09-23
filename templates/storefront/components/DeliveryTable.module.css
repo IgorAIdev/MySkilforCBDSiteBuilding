@@ -1,0 +1,9 @@
+/* Вертикаль закрыта: одна ось auto делает вторую такой же, и коробка
+   начинает ездить вверх-вниз, стоит подписи или отступу перерасти ячейку
+   (check:css, семья railY). */
+.scroll{overflow-x:auto;overflow-y:hidden;max-inline-size:100%}
+.table{border-collapse:collapse;min-inline-size:100%}
+.caption{text-align:start;font-weight:600;padding-block-end:var(--gap-row)}
+.table :is(th, td){padding:var(--gap-row);text-align:start;border-block-end:var(--line-w) solid var(--edge)}
+.table thead th{color:var(--ink-soft);font-weight:600}
+.price{white-space:nowrap;text-align:end;font-variant-numeric:tabular-nums}

@@ -9,7 +9,7 @@ export const PAGES: Record<string, SamplePage> = {
   home: {
     title: { ro: 'Magazin CBD — uleiuri, capsule, cosmetice', en: 'CBD shop — oils, capsules, cosmetics', hu: 'CBD bolt — olajok, kapszulák, kozmetikumok' },
     description: {
-      ro: 'Produse CBD cu buletin de analiză pentru fiecare lot. Livrare prin curier sau easybox, plata ramburs.',
+      ro: 'Produse CBD cu buletin de analiză pentru fiecare lot. Livrare prin curier sau la punct de ridicare, plata ramburs.',
       en: 'CBD products with a lab report for every batch. Courier or parcel locker delivery, cash on delivery.',
       hu: 'CBD termékek minden tételhez laborjegyzőkönyvvel. Futár vagy csomagautomata, utánvétes fizetés.',
     },
@@ -21,14 +21,14 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'lab', title: 'Buletin de analiză pentru fiecare lot', body: 'Laboratorul măsoară CBD, THC, metale grele, pesticide și solvenți. Buletinul fiecărui lot este pe pagina produsului.' },
         { type: 'delivery', title: 'Livrare și plată', items: [
           { title: 'Curier la domiciliu', body: 'Livrare în 1–3 zile lucrătoare.' },
-          { title: 'Easybox', body: 'Ridicați coletul când vă convine.' },
+          { title: 'Locker sau punct de ridicare', body: 'Ridicați coletul când vă convine.' },
           { title: 'Plata ramburs', body: 'Plătiți la primirea coletului.' },
         ] },
         { type: 'faq', title: 'Întrebări frecvente', items: [
           { q: 'Ce conține buletinul de analiză?', a: 'Concentrația de CBD și THC, metalele grele, pesticidele și solvenții reziduali ai lotului.' },
           { q: 'Unde găsesc numărul lotului?', a: 'Pe eticheta produsului; același număr apare în buletinul laboratorului.' },
           { q: 'Cât durează livrarea?', a: 'De obicei 1–3 zile lucrătoare; termenul exact apare la finalizarea comenzii.' },
-          { q: 'Pot plăti la livrare?', a: 'Da, plata ramburs este disponibilă pentru livrarea prin curier și easybox.' },
+          { q: 'Pot plăti la livrare?', a: 'Da, plata ramburs este disponibilă pentru livrarea prin curier și la punct de ridicare.' },
         ] },
       ],
       en: [

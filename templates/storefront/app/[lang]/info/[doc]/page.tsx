@@ -2,12 +2,14 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import p from '@/styles/primitives.module.css'
 import { langOf } from '@/lib/route.ts'
-import { content } from '@/lib/source/index.ts'
+import { commerce, content } from '@/lib/source/index.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
+import { deliveryTable } from '@/lib/checkout-view.ts'
 import { toMetadata } from '@/lib/seo.ts'
 import { breadcrumbLd } from '@/lib/ld.ts'
 import { Breadcrumbs } from '@/components/Breadcrumbs.tsx'
+import { DeliveryTable } from '@/components/DeliveryTable.tsx'
 import { DocView } from '@/components/DocView.tsx'
 import { JsonLd } from '@/components/JsonLd.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
@@ -36,11 +38,15 @@ export default async function DocPage({ params }: Props) {
     notFound()
   }
   const home = { name: t(lang, 'crumb.home'), href: hrefFor(lang, { home: true }) }
+  /* Документ просит таблицу способов — она из списка оформления; источник
+     покупки молчит — документ стоит без таблицы, а не падает. */
+  const methods = r.value.table === 'delivery' ? await commerce().deliveryMethods(null, lang) : null
+  const table = methods?.ok ? <DeliveryTable view={deliveryTable(lang, methods.value)} /> : null
   return (
     <main id="main" className={p.wrap}>
       <JsonLd data={breadcrumbLd([home, { name: r.value.title, href: hrefFor(lang, { doc }) }])} />
       <Breadcrumbs trail={docTrail(home, r.value.title)} label={t(lang, 'crumb.label')} />
-      <DocView doc={r.value} />
+      <DocView doc={r.value} table={table} />
     </main>
   )
 }

@@ -14,7 +14,7 @@ export type Collection = { slug: string; name: string; description: string }
 export type SortKey = 'popular' | 'price-asc' | 'price-desc'
 export type ListingQuery = { category?: string; q?: string; facets: Record<string, string[]>; sort: SortKey; page: string | null }
 export type Listing = { items: Card[]; total: number; page: number; pages: number; facets: Facet[]; invalid: string[] }
-export type Doc = { slug: string; title: string; summary: string; sections: { heading: string; body: string }[] }
+export type Doc = { slug: string; title: string; summary: string; sections: { heading: string; body: string }[]; table: 'delivery' | null }
 export type Block =
   | { type: 'hero'; title: string; lede: string; cta: string }
   | { type: 'categories'; title: string }
