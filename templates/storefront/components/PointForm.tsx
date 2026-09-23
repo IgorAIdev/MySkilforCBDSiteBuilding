@@ -13,7 +13,6 @@ export function PointForm({ details, action, permalink }: { details: PickupDetai
   const [state, formAction, pending] = useActionState(action, null, permalink)
   return (
     <form className={p.stack} action={formAction}>
-      <input type="hidden" name="method" value={details.method} />
       {state?.message ? <p className={f.say} data-state="error" role="alert">{state.message}</p> : null}
       <fieldset className={`${s.options} ${s.plain}`} disabled={pending} aria-labelledby="points-title">
         {details.points.map((pt) => (
@@ -28,6 +27,7 @@ export function PointForm({ details, action, permalink }: { details: PickupDetai
         ))}
       </fieldset>
       <button className={b.btn} data-voice="loud" type="submit" disabled={pending}>{details.submit}</button>
+      <input type="hidden" name="method" value={details.method} />
     </form>
   )
 }
