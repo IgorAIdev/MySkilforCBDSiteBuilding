@@ -28,7 +28,9 @@ const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCas
 
 /** Заготовленные сессии — корзина и шаги оформления уже заполнены: по ним
  *  отрисованные проверки меряют корзину и оформление полными (И263).
- *  Только у образца; у живого источника их нет. */
+ *  Только у образца; у живого источника их нет. Заготовка — только для
+ *  чтения: каждое чтение даёт её свежую копию, и запись (товар, заказ)
+ *  ложится на копию — следующая проверка снова видит заготовку полной. */
 export const FIXTURES = {
   cart: 'sample-cart', contact: 'sample-contact', address: 'sample-address',
   pickup: 'sample-pickup', ready: 'sample-ready', placed: 'sample-placed',
@@ -36,24 +38,27 @@ export const FIXTURES = {
 const SAMPLE_CONTACT: Contact = { email: 'ana.popescu@example.com', firstName: 'Ana', lastName: 'Popescu', phone: '0722 123 456' }
 const SAMPLE_ADDRESS: Address = { street: 'Str. Exemplului 1', city: 'București', region: 'București', postalCode: '010011', country: MARKET.country }
 
-/* Не замыкание внутри seed(): не берёт ничего снаружи, и линтер
-   (unicorn/consistent-function-scoping) просит держать её уровнем выше. */
+/* Не замыкания внутри fixture(): не берут ничего снаружи, и линтер
+   (unicorn/consistent-function-scoping) просит держать их уровнем выше. */
 const seedLines = (): Line[] => [{ id: 'l1', variantId: 'uf-20-10', quantity: 1 }, { id: 'l2', variantId: 'cc-30', quantity: 2 }]
+const seeded = (over: Partial<State>): State => ({ lines: seedLines(), coupons: ['CBD10'], contact: null, delivery: null, lastOrder: null, seq: 2, ...over })
+const door = (): DeliveryChoice => ({ methodId: 'curier', address: SAMPLE_ADDRESS, pointId: null })
+const FIXTURE: Record<string, () => State> = {
+  [FIXTURES.cart]: () => seeded({}),
+  [FIXTURES.contact]: () => seeded({ contact: SAMPLE_CONTACT }),
+  [FIXTURES.address]: () => seeded({ contact: SAMPLE_CONTACT, delivery: { methodId: 'curier', address: null, pointId: null } }),
+  [FIXTURES.pickup]: () => seeded({ contact: SAMPLE_CONTACT, delivery: { methodId: 'locker', address: null, pointId: null } }),
+  [FIXTURES.ready]: () => seeded({ contact: SAMPLE_CONTACT, delivery: door() }),
+  [FIXTURES.placed]: () => seeded({ lines: [], coupons: [], lastOrder: 'EXEMPLU1' }),
+}
+/** Свежая копия заготовки или null — это не заготовка. */
+const fixture = (session: string): State | null => (Object.hasOwn(FIXTURE, session) ? FIXTURE[session]() : null)
 
 function seed(): Store {
-  const state = (over: Partial<State>): State => ({ lines: seedLines(), coupons: ['CBD10'], contact: null, delivery: null, lastOrder: null, seq: 2, ...over })
-  const door: DeliveryChoice = { methodId: 'curier', address: SAMPLE_ADDRESS, pointId: null }
   return {
-    sessions: new Map<string, State>([
-      [FIXTURES.cart, state({})],
-      [FIXTURES.contact, state({ contact: SAMPLE_CONTACT })],
-      [FIXTURES.address, state({ contact: SAMPLE_CONTACT, delivery: { methodId: 'curier', address: null, pointId: null } })],
-      [FIXTURES.pickup, state({ contact: SAMPLE_CONTACT, delivery: { methodId: 'locker', address: null, pointId: null } })],
-      [FIXTURES.ready, state({ contact: SAMPLE_CONTACT, delivery: door })],
-      [FIXTURES.placed, state({ lines: [], coupons: [], lastOrder: 'EXEMPLU1' })],
-    ]),
+    sessions: new Map<string, State>(),
     orders: new Map<string, Placed>([
-      ['EXEMPLU1', { code: 'EXEMPLU1', placedAt: '2026-09-23T10:00:00.000Z', session: FIXTURES.placed, lines: seedLines(), coupons: ['CBD10'], contact: SAMPLE_CONTACT, delivery: door, payment: 'ramburs' }],
+      ['EXEMPLU1', { code: 'EXEMPLU1', placedAt: '2026-09-23T10:00:00.000Z', session: FIXTURES.placed, lines: seedLines(), coupons: ['CBD10'], contact: SAMPLE_CONTACT, delivery: door(), payment: 'ramburs' }],
     ]),
   }
 }
@@ -64,11 +69,11 @@ function seed(): Store {
 const KEY = Symbol.for('storefront.sample.commerce')
 const shelf = globalThis as unknown as Record<symbol, Store | undefined>
 const store = (): Store => (shelf[KEY] ??= seed())
-/** Для тестов: хранилище заново, заготовленные сессии на месте. */
+/** Для тестов: хранилище заново. */
 export function resetSample(): void {
   shelf[KEY] = seed()
 }
-const live = (session: string | null): State | null => (session ? store().sessions.get(session) ?? null : null)
+const live = (session: string | null): State | null => (session ? fixture(session) ?? store().sessions.get(session) ?? null : null)
 const token = () => randomBytes(24).toString('base64url')
 const orderCode = () => `RO${randomBytes(4).toString('hex').toUpperCase()}`
 

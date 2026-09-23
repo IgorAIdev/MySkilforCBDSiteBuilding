@@ -161,6 +161,24 @@ test('placeOrder: only at the total the buyer saw', async () => {
   assert.deepEqual(placed.value.cart.total, RON(now))
 })
 
+/* Заготовка — только для чтения: запись в неё (товар, заказ) ложится на
+   копию, и следующая отрисованная проверка снова видит её полной. Иначе
+   первый же прогон сценария по заготовке опустошал бы её до перезапуска. */
+test('fixtures are read-only: an add and an order never empty them', async () => {
+  const add = await c.add(FIXTURES.ready, 'ro', 'uf-20-10', 1)
+  assert.equal(add.session, FIXTURES.ready)
+  assert.ok(add.change.ok)
+  const full = RON(49970 - 4997 + 1999)
+  const placed = await c.placeOrder(FIXTURES.ready, 'ro', 'ramburs', full)
+  assert.ok(placed.ok)
+  const after = await c.checkout(FIXTURES.ready, 'ro')
+  assert.ok(after.ok && after.value)
+  assert.equal(after.value.cart.lines.length, 2)
+  assert.deepEqual(after.value.cart.total, full)
+  assert.equal(after.value.contact?.email, 'ana.popescu@example.com')
+  assert.equal(after.value.delivery?.method.id, 'curier')
+})
+
 test('fixtures: the prepared sessions stand at their steps', async () => {
   const at = async (s: string) => {
     const r = await c.checkout(s, 'ro')
