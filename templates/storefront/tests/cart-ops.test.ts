@@ -45,3 +45,16 @@ test('an outcome is read only from the closed list of codes', () => {
   assert.equal(outcomeOf('ro', 'e:timeout')?.kind, 'error')
   for (const bad of ['ok:constructor', 'e:__proto__', 'partial:abc', 'x', '']) assert.equal(outcomeOf('ro', bad), null, bad)
 })
+
+/* Добавить вариант, которого больше нет, — не «товара уже нет в корзине»:
+   его там и не было. Остальные записи по строке, которой нет, — «gone». */
+test('adding an option that no longer exists says so; a missing line stays «gone»', async () => {
+  const r = await runCartOp(sampleCommerce, null, 'ro', { op: 'add', variantId: 'nu-exista', quantity: 1 })
+  assert.equal(r.code, 'e:variant')
+  assert.equal(outcomeOf('ro', r.code)?.message, 'Această variantă nu mai există — alegeți alta.')
+  assert.equal(outcomeOf('en', r.code)?.message, 'This option no longer exists — pick another.')
+  assert.equal(outcomeOf('hu', r.code)?.message, 'Ez a változat már nem létezik — válasszon másikat.')
+  const set = await runCartOp(sampleCommerce, FIXTURES.cart, 'ro', { op: 'set', lineId: 'l999', quantity: 1 })
+  assert.equal(set.code, 'e:not-found')
+  assert.equal(outcomeOf('ro', set.code)?.message, 'Produsul nu mai este în coș — reîncărcați pagina.')
+})

@@ -91,6 +91,7 @@ export const EN: Record<keyof typeof RO, string> = {
   'cart.couponRemoved': 'Discount code removed.',
   'cart.error.outOfStock': 'This item is out of stock — pick another option.',
   'cart.error.quantity': 'Choose a quantity between 1 and 99.',
+  'cart.error.variant': 'This option no longer exists — pick another.',
   'cart.error.gone': 'That item is no longer in your cart — reload the page.',
   'cart.error.coupon': 'The code is not valid — check it and enter it without spaces.',
   'cart.error.couponExpired': 'This code has expired — use a valid one.',

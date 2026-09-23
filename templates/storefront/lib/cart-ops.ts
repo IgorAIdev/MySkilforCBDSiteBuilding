@@ -12,12 +12,15 @@ type Op = CartOp['op']
 /** Исход записи в корзину. `code` — короткий и ходит в адресе корзины без
  *  скрипта (`?r=`), `message` — те же слова для страницы со скриптом. */
 export type Outcome = { kind: 'ok' | 'partial' | 'error'; code: string; message: string; count: number | null }
-type Failure = CommerceError | 'request' | 'coupon-empty' | 'timeout'
+/* `variant` — добавляли вариант, которого нет: у добавления «not-found»
+   значит не строку корзины, а сам товар. */
+type Failure = CommerceError | 'request' | 'coupon-empty' | 'timeout' | 'variant'
 
 const DONE: Record<Op, Key> = { add: 'cart.added', set: 'cart.updated', remove: 'cart.removed', coupon: 'cart.couponApplied', uncoupon: 'cart.couponRemoved' }
 const FAILED: Record<Failure, Key> = {
   'unavailable': 'cart.error.unavailable',
   'not-found': 'cart.error.gone',
+  'variant': 'cart.error.variant',
   'empty-cart': 'cart.error.gone',
   'out-of-stock': 'cart.error.outOfStock',
   'quantity': 'cart.error.quantity',
@@ -71,6 +74,7 @@ export async function runCartOp(c: Commerce, session: string | null, lang: Lang,
   if (op.op === 'coupon' && !op.code) return { session, code: 'e:coupon-empty', count: null }
   if (op.op === 'add') {
     const r = await c.add(session, lang, op.variantId, op.quantity)
+    if (!r.change.ok && r.change.error === 'not-found') return { session: r.session ?? session, code: 'e:variant', count: null }
     return { session: r.session ?? session, ...codeOf(op.op, r.change) }
   }
   if (!session) return { session, code: 'e:not-found', count: null }

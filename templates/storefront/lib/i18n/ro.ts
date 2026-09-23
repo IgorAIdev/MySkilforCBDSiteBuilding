@@ -89,6 +89,7 @@ export const RO = {
   'cart.couponRemoved': 'Codul de reducere a fost eliminat.',
   'cart.error.outOfStock': 'Produsul nu mai este în stoc — alegeți altă variantă.',
   'cart.error.quantity': 'Alegeți o cantitate între 1 și 99.',
+  'cart.error.variant': 'Această variantă nu mai există — alegeți alta.',
   'cart.error.gone': 'Produsul nu mai este în coș — reîncărcați pagina.',
   'cart.error.coupon': 'Codul nu este valabil — verificați-l și introduceți-l fără spații.',
   'cart.error.couponExpired': 'Codul a expirat — folosiți un cod valabil.',

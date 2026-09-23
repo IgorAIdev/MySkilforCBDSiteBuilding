@@ -69,6 +69,7 @@
 | e-mail неполон | Adresa de e-mail pare incompletă | de exemplu nume@exemplu.ro | The email looks incomplete, e.g. name@example.com | Az e-mail-cím hiányosnak tűnik, például nev@pelda.hu |
 | телефон | Introduceți numărul de telefon | de exemplu 0722 123 456 | Enter your phone number, e.g. 0722 123 456 | Adja meg telefonszámát, például 0722 123 456 |
 | код скидки | Codul nu este valabil | verificați-l și introduceți-l fără spații | The code is not valid; check it and enter it without spaces | A kód nem érvényes; ellenőrizze, és szóközök nélkül írja be |
+| варианта больше нет | Această variantă nu mai există | alegeți alta | This option no longer exists — pick another | Ez a változat már nem létezik — válasszon másikat |
 | количество больше остатка | Avem doar {n} buc. în stoc | atât sunt acum în coș | We only have {n} in stock — that is how many are in your cart now | Csak {n} db van raktáron — most ennyi van a kosárban |
 | обязательное поле | Completați câmpul | pentru a continua | Fill in this field to continue | A folytatáshoz töltse ki a mezőt |
 | индекс | Verificați codul poștal | de exemplu {example} | Check the postcode, e.g. {example} | Ellenőrizze az irányítószámot, például {example} |

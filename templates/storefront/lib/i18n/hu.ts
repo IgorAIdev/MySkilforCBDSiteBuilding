@@ -91,6 +91,7 @@ export const HU: Record<keyof typeof RO, string> = {
   'cart.couponRemoved': 'A kedvezménykódot töröltük.',
   'cart.error.outOfStock': 'A termék elfogyott — válasszon másik változatot.',
   'cart.error.quantity': 'Válasszon 1 és 99 közötti mennyiséget.',
+  'cart.error.variant': 'Ez a változat már nem létezik — válasszon másikat.',
   'cart.error.gone': 'A termék már nincs a kosárban — töltse újra az oldalt.',
   'cart.error.coupon': 'A kód nem érvényes — ellenőrizze, és szóközök nélkül írja be.',
   'cart.error.couponExpired': 'A kód lejárt — használjon érvényes kódot.',
