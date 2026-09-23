@@ -42,3 +42,34 @@ test('check fails when an icon is added to the kit and the sheet is not re-emitt
     assert.equal(run('--check').status, 0)
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+/* В поставленном сайте скилл лежит не в `skills/`, а в `.agents/skills/` и
+   `.claude/skills/` — и проверка листа падала на каждом сайте: «собирать лист
+   не из чего». Лист при этом тот же байт в байт: его шапка называет путь
+   набора, а не место в сайте. */
+test('check finds the kit icons where an installed site keeps the skill', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'icons-'))
+  try {
+    cpSync(join(KIT, 'tools'), join(dir, 'tools'), { recursive: true })
+    cpSync(LUCIDE, join(dir, '.agents/skills/site-building/assets/icons/lucide'), { recursive: true })
+    mkdirSync(join(dir, 'styles'))
+    writeFileSync(join(dir, 'styles/icons.svg'), sheet)
+    const run = (...a) => spawnSync(process.execPath, [join(dir, 'tools/icons.mjs'), ...a], { cwd: dir, encoding: 'utf8' })
+    const check = run('--check')
+    assert.equal(check.status, 0, check.stdout + check.stderr)
+    assert.equal(run().status, 0)
+    assert.equal(readFileSync(join(dir, 'styles/icons.svg'), 'utf8'), sheet, 'лист сайта отличается от листа набора')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+test('without any icon source the check names every place it looked', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'icons-'))
+  try {
+    cpSync(join(KIT, 'tools'), join(dir, 'tools'), { recursive: true })
+    const r = spawnSync(process.execPath, [join(dir, 'tools/icons.mjs'), '--check'], { cwd: dir, encoding: 'utf8' })
+    assert.notEqual(r.status, 0)
+    for (const where of ['skills/site-building/assets/icons/lucide', '.agents/skills/site-building/assets/icons/lucide', '.claude/skills/site-building/assets/icons/lucide']) {
+      assert.ok(r.stderr.includes(where), `${where} не назван:\n${r.stderr}`)
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

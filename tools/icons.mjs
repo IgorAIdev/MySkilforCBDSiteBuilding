@@ -24,13 +24,21 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs'
 import path from 'node:path'
 
-const FROM = path.resolve('skills/site-building/assets/icons/lucide')
+/* Знаки лежат там, где лежит скилл: в наборе — `skills/`, в поставленном
+   сайте — `.agents/skills/` и `.claude/skills/` (install.mjs кладёт обе
+   копии). Искали только первое — и проверка листа падала на каждом сайте.
+   Берётся первое существующее; шапка листа называет путь набора, чтобы лист
+   сайта и лист набора не расходились ни байтом. */
+const SOURCE = 'skills/site-building/assets/icons/lucide'
+const PLACES = [SOURCE, `.agents/${SOURCE}`, `.claude/${SOURCE}`]
+const found = PLACES.find((p) => existsSync(path.resolve(p)))
 const TO = path.resolve('styles/icons.svg')
 
-if (!existsSync(FROM)) {
-  console.error(`✗ Нет ${path.relative(process.cwd(), FROM)} — собирать лист не из чего.`)
+if (!found) {
+  console.error(`✗ Нет знаков набора ни в одном из мест: ${PLACES.join(', ')} — собирать лист не из чего.`)
   process.exit(1)
 }
+const FROM = path.resolve(found)
 
 const SHAPES = /<(path|circle|rect|line|polyline|polygon|ellipse)\b([^>]*?)\s*\/?>/g
 const names = readdirSync(FROM).filter((n) => n.endsWith('.svg')).sort()
