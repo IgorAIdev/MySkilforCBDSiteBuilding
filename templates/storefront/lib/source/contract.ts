@@ -10,7 +10,8 @@ export type Product = { id: string; category: string; name: string; summary: str
 export type Price = { kind: 'single'; value: Money } | { kind: 'range'; min: Money; max: Money }
 export type Card = { id: string; category: string; name: string; image: Image; price: Price; stock: Stock }
 export type Facet = { code: string; name: string; values: { code: string; name: string; count: number; selected: boolean }[] }
-export type Collection = { slug: string; name: string; description: string }
+/** Полка. `image` — кадр полки на главной (4 : 3); у полки без снимка — null. */
+export type Collection = { slug: string; name: string; description: string; image: Image | null }
 export type SortKey = 'popular' | 'price-asc' | 'price-desc'
 export type ListingQuery = { category?: string; q?: string; facets: Record<string, string[]>; sort: SortKey; page: string | null }
 export type Listing = { items: Card[]; total: number; page: number; pages: number; facets: Facet[]; invalid: string[] }
@@ -20,7 +21,8 @@ export type Block =
   | { type: 'hero'; title: string; lede: string; cta: string; image: Image }
   | { type: 'categories'; title: string }
   | { type: 'featured'; title: string; ids: string[] }
-  | { type: 'lab'; title: string; body: string }
+  /** `report` — образец протокола рядом с текстом: партия, лаборатория, замер. */
+  | { type: 'lab'; title: string; body: string; report: LabReport | null }
   | { type: 'delivery'; title: string; items: { title: string; body: string }[] }
   | { type: 'faq'; title: string; items: { q: string; a: string }[] }
 export type Page = { slug: string; title: string; description: string; blocks: Block[] }

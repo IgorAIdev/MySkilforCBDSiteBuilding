@@ -14,7 +14,9 @@ export function Featured({ block, ctx }: { block: Extract<Block, { type: 'featur
   if (!cards.length) return null
   return (
     <section className={`${p.wrap} ${p.section}`}>
-      <div className={p.sectionHead}>
+      {/* Выход ко всему каталогу — в строке заголовка, у правого края: он
+          отвечает на другой вопрос. Тесно — уходит под заголовок сам. */}
+      <div className={p.sectionHead} data-row>
         <h2>{block.title}</h2>
         <a className={go.go} href={hrefFor(ctx.lang, { catalog: true })}>{t(ctx.lang, 'nav.catalog')}<Icon id="arrow-right" /></a>
       </div>

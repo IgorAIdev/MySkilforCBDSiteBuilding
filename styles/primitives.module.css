@@ -1081,6 +1081,12 @@
    видит — блок ниже её порога в 120px. Собственное внешнее поле примитива
    кончается у края его коробки (И259). */
 .sectionHead:last-child{margin-bottom:0}
+/* Строкой — только когда рядом с заголовком стоит ответ на ДРУГОЙ вопрос:
+   выход «ко всему» (`data-row`). Он у правого края; не помещается — уходит
+   под заголовок переносом, а заголовок сжимается и переносит слова, а не
+   вылезает за строку. */
+.sectionHead[data-row]{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;column-gap:var(--gap-row)}
+.sectionHead[data-row] h2{flex:0 1 auto;min-inline-size:0}
 /* every heading on the page reads one size and one leading */
 /* Заголовок держит свою строку и не ужимается: в ряду он ужимался ради
    строки рядом, и короткое имя раздела ломалось надвое при пустом месте

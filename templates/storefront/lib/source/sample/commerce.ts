@@ -9,7 +9,7 @@ import { METHODS, POINTS, PAYMENTS, COUPONS, type SampleMethod, type SamplePoint
 import { MARKET } from '../../market.ts'
 import { money as moneyText } from '../../money.ts'
 import { deliveryReady } from '../../checkout-steps.ts'
-import { bottle } from './art.ts'
+import { productArt } from './art.ts'
 
 type Line = { id: string; variantId: string; quantity: number }
 type State = { lines: Line[]; coupons: string[]; contact: Contact | null; delivery: DeliveryChoice | null; lastOrder: string | null; seq: number }
@@ -103,7 +103,7 @@ function lineOf(l: Line, lang: Lang): CartLine | null {
       const code = v.options[g.code] ?? ''
       return { group: g.code, code, name: g.options.find((o) => o.code === code)?.name[lang] ?? code }
     }),
-    image: { src: bottle(p.hue, p.label), alt: p.name[lang], width: 800, height: 800 },
+    image: { src: productArt(p.cat, p.hue, p.label), alt: p.name[lang], width: 800, height: 800 },
     unit: money(v.price), quantity: l.quantity, total: money(v.price * l.quantity),
   }
 }

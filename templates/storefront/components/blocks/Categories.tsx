@@ -4,6 +4,9 @@ import type { Block } from '@/lib/source/contract.ts'
 import { hrefFor } from '@/lib/href.ts'
 import type { BlockCtx } from './types.ts'
 
+/* Полки плиткой: кадр полки, имя и строка о ней. Ссылка одна — имя; её
+   область нажатия растянута на всю плитку (blocks.module.css), кадр — не
+   вторая ссылка, а картинка без подписи: имя стоит рядом. */
 export function Categories({ block, ctx }: { block: Extract<Block, { type: 'categories' }>; ctx: BlockCtx }) {
   if (!ctx.collections.length) return null
   return (
@@ -12,7 +15,12 @@ export function Categories({ block, ctx }: { block: Extract<Block, { type: 'cate
       <ul className={`${p.grid} ${s.tiles}`}>
         {ctx.collections.map((c) => (
           <li key={c.slug} className={`${p.stack} ${s.tile}`}>
-            <h3 className={s.h3}><a href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}</a></h3>
+            {c.image ? (
+              <div className={`${p.frame} ${s.tileShot}`}>
+                <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
+              </div>
+            ) : null}
+            <h3 className={s.title}><a href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}</a></h3>
             <p className={p.muted}>{c.description}</p>
           </li>
         ))}

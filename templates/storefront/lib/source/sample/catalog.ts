@@ -3,7 +3,7 @@ import type { Card, Collection, Facet, Listing, Product, Result, SortKey, Source
 import { CATEGORIES, FACETS, LAB_REPORTS, PRODUCTS, type SampleProduct } from '../../products.ts'
 import { facetValueFilters, pageVariables, pageCount } from '../vendure/core/search.mjs'
 import { MARKET } from '../../market.ts'
-import { bottle } from './art.ts'
+import { categoryArt, productArt } from './art.ts'
 
 /* Помощники набора — JavaScript; тип их ответа записан здесь один раз. */
 type Filter = { and: string } | { or: string[] }
@@ -13,7 +13,7 @@ const PAGE = 8
 const ok = <T,>(value: T): Result<T> => ({ ok: true, value })
 const money = (minor: number) => ({ minor, currency: MARKET.currency })
 const overall = (stocks: Stock[]): Stock => (stocks.every((s) => s === 'out') ? 'out' : stocks.some((s) => s === 'in') ? 'in' : 'low')
-const image = (p: SampleProduct, lang: Lang) => ({ src: bottle(p.hue, p.label), alt: p.name[lang], width: 800, height: 800 })
+const image = (p: SampleProduct, lang: Lang) => ({ src: productArt(p.cat, p.hue, p.label), alt: p.name[lang], width: 800, height: 800 })
 const low = (p: SampleProduct) => Math.min(...p.variants.map((v) => v.price))
 
 function card(p: SampleProduct, lang: Lang): Card {
@@ -41,7 +41,10 @@ const ORDER: Record<SortKey, (a: SampleProduct, b: SampleProduct) => number> = {
   'price-desc': (a, b) => low(b) - low(a) || a.popular - b.popular,
 }
 
-const collection = (c: (typeof CATEGORIES)[number], lang: Lang): Collection => ({ slug: c.slug, name: c.name[lang], description: c.description[lang] })
+const collection = (c: (typeof CATEGORIES)[number], lang: Lang): Collection => ({
+  slug: c.slug, name: c.name[lang], description: c.description[lang],
+  image: { src: categoryArt(c.slug), alt: c.name[lang], width: 800, height: 600 },
+})
 
 export const sample: Source = {
   async collections(lang) {

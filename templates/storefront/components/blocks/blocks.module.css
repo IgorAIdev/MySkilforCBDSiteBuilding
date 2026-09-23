@@ -1,12 +1,31 @@
 .tiles,.shelf,.points{list-style:none;padding:0;margin:0}
+/* Полки — плитки: четыре в ряд на широком, две на телефоне; число колонок
+   считает сетка (`grid`: `--cols` сверху, пол ряда — две). */
 .tiles{--cols:4;--cell-min:200px}
 .shelf{--cols:4;--cell-min:200px}
 .points{--cols:3;--cell-min:220px;--cols-min:1}
-.tile{--stack:var(--air-row);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
+/* Плитка полки — карточка той же породы, что карточка товара: поверхность,
+   угол карточки, тень `--sh-raised`, одна ссылка на всю плитку. Кадр 4 : 3
+   с потолком примитива `frame`, угол кадра — концентрический. */
+.tile{--stack:var(--air-row);position:relative;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
+.tileShot{--frame:4 / 3;border-radius:var(--r-ctrl)}
+/* Имя плитки и имя пункта доставки — роль имени карточки (тело,
+   полужирное), как у карточки товара: ступень подзаголовка здесь кричала. */
+.title{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600}
+.title a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+.title a::after{content:'';position:absolute;inset:0}
+
+/* Лаборатория — полоса тона марки: слова слева, протокол справа (белая
+   карточка на тоне). Колонки — `switcher` по ширине полосы; в узкой одна. */
+.labBand{--switch-at:820px;--switch-gap:var(--air-block);align-items:center;background:var(--pop-tint)}
+.labText{margin-block-end:0}
+/* Доставка — полоса поверхности: заголовок и пункты читаются одним
+   предметом. Знак — в тонированном круге ростом с крупный орган
+   (`--ctrl-h-lg`, 48), а не 16px в воздухе; знак внутри — половина круга. */
+.band{background:var(--surface)}
 .point{--stack:var(--air-row)}
-.point svg{inline-size:calc(var(--ctrl-h-sm) * .6);block-size:calc(var(--ctrl-h-sm) * .6)}
-.h3{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
-.h3 a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+.disc{display:grid;place-items:center;inline-size:var(--ctrl-h-lg);block-size:var(--ctrl-h-lg);border-radius:50%;background:var(--pop-tint);color:var(--pop-ink)}
+.disc svg{inline-size:50%;block-size:50%}
 /* ГЕРОЙ — снимок во всю коробку страницы, текст ПОВЕРХ него внизу слева.
    Замер 23.09.2026: текст на снимке у 11–12 магазинов из 13, снимок —
    70–80 % высоты окна. Большим снимок бывает только здесь; кадра под
@@ -59,6 +78,14 @@
     color-mix(in srgb, var(--scrim-deck) 72%, transparent) 70%,
     transparent)}
 }
-/* Вопросы — строки одной группы: между ними ритм строки, а не ноль
-   (check:craft, collision). */
-.faq{--stack:var(--air-row)}
+/* Вопросы — строки во всю ширину, разделённые линией; цель нажатия —
+   вся строка вопроса (у `summary` рост цели уже в styles/base.css). Знак
+   раскрытия поворачивается ролью раскрытия. Ответ — в мере строки тела:
+   на широком окне он не растягивается во всю полосу. */
+.faq{border-block-start:var(--line-w) solid var(--rule)}
+.q{border-block-end:var(--line-w) solid var(--rule)}
+.ask{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);padding-block:var(--pad-inner);list-style:none;font-weight:600}
+.ask::-webkit-details-marker{display:none}
+.ask svg{flex:none;inline-size:1.25em;block-size:1.25em;color:var(--ink-soft);transition:transform var(--open-t) var(--ease)}
+.q[open] .ask svg{transform:rotate(180deg)}
+.answer{max-inline-size:var(--measure);padding-block-end:var(--pad-card);color:var(--ink-soft)}
