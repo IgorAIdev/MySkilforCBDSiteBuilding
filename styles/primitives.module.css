@@ -994,15 +994,19 @@
 .qty b{display:grid;place-items:center;min-width:calc(var(--qty-h, var(--ctrl-h-lg)) * .7)}
 
 /* ── a segmented control ──────────────────────────────────────────────── */
+/* Кнопка или ссылка — рисунок один: выбор на месте — кнопка с aria-pressed,
+   выбор, который несёт адрес (вариант товара), — ссылка с aria-current. */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
-.seg button{
+.seg :is(button, a){
+  display:inline-flex;align-items:center;
   height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
-  font-size:var(--ctrl-fs-sm);color:var(--ink-soft);
+  font-size:var(--ctrl-fs-sm);color:var(--ink-soft);text-decoration:none;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .seg button:hover{background:var(--hover-ctrl);color:var(--ink)} }
-.seg button:active{background:var(--press-ctrl);color:var(--ink)}
-.seg button[aria-pressed="true"]{background:var(--pop);color:var(--on-pop);font-weight:600}
+@media (hover:hover){ .seg :is(button, a[href]):hover{background:var(--hover-ctrl);color:var(--ink)} }
+.seg :is(button, a[href]):active{background:var(--press-ctrl);color:var(--ink)}
+.seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600}
+.seg [aria-disabled="true"]{opacity:var(--state-off);cursor:not-allowed}
 
 /* ── sections ─────────────────────────────────────────────────────────── */
 /* Воздух между разделами — верхняя ступень шкалы, и течёт он вместе с ней:

@@ -1036,3 +1036,12 @@ test('правила переносят CRLF и тонкий проектный 
   assert.match(rules, /filter\(\(\[, n\]\) => n !== null\)/)
   assert.match(all, /import \{ STAGES, confirmed, currentStage \}/)
 })
+
+test('сегмент рисует кнопку и ссылку одним рисунком', () => {
+  /* Выбор варианта товара — ссылка: адрес несёт выбор и работает без
+     JavaScript. Второй рисунок сегмента в модуле витрины — это второе
+     место, где решается вид одного контрола (запрет 10). */
+  assert.match(primitives, /\.seg :is\(button, a\)\{/)
+  assert.match(primitives, /\.seg :is\(\[aria-pressed="true"\], \[aria-current="true"\]\)\{/)
+  assert.match(primitives, /\.seg \[aria-disabled="true"\]\{/)
+})

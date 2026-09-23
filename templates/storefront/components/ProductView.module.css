@@ -1,0 +1,14 @@
+.pdp{--switch-at:720px;padding-block-start:var(--air-group)}
+.gallery{--frame:1 / 1}
+.offer{--stack:var(--air-group)}
+.name{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);overflow-wrap:anywhere}
+.price{font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
+.message{font-weight:600;color:var(--ink)}
+.group{border:0;padding:0;margin:0}
+.legend{font-weight:600;margin-block-end:var(--air-row)}
+.lab{--stack:var(--air-row);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
+.labTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
+.facts{display:grid;gap:var(--gap-row);margin:0}
+.fact{display:flex;justify-content:space-between;gap:var(--gap-row)}
+.fact dd{margin:0;font-weight:600;text-align:end}
+.related{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}
