@@ -37,6 +37,24 @@ test('weight: raster sources stay measured, even with «svg» elsewhere in the a
   ]) assert.ok(!VECTOR.test(src), src)
 })
 
+/* Адрес на .svg, который CDN отдаёт растром по параметру формата (`fm` —
+   imgix, Contentful, Sanity; `format` — Shopify, Cloudflare), — не вектор:
+   пиксели отданы, и вес меряется. `format=svg`, чужие параметры и `fm=` в
+   хвосте после `#` вектор не отменяют. */
+test('weight: an .svg address rasterised by a CDN format parameter is measured', () => {
+  for (const src of [
+    'https://cdn.example/media/bottle.svg?fm=png',
+    'https://cdn.example/media/bottle.svg?w=400&fm=webp',
+    'https://cdn.example/media/bottle.svg?format=jpg&w=80',
+    'https://cdn.example/media/bottle.SVG?auto=compress&FORMAT=avif#top',
+  ]) assert.ok(!VECTOR.test(src), src)
+  for (const src of [
+    'https://cdn.example/media/bottle.svg?format=svg',
+    'https://cdn.example/media/bottle.svg?w=400&fmt=1',
+    'https://cdn.example/media/bottle.svg?v=3#fm=png',
+  ]) assert.ok(VECTOR.test(src), src)
+})
+
 test('weight: the page-side measure receives the vector pattern and skips it before comparing sizes', () => {
   const src = readFileSync(fileURLToPath(new URL('../tools/check-craft.mjs', import.meta.url)), 'utf8')
   assert.match(src, /vector: VECTOR\.source/, 'the pattern travels into page.evaluate as a string')
