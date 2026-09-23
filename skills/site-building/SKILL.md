@@ -21,6 +21,7 @@ description: Строить витрины интернет-магазинов (
 | Выбрать дизайн в диалоге или настройках | [design-studio.md](references/design-studio.md): диалог и живые варианты, независимые настройки, подтверждение |
 | Реализовать сохранение, миграции, утверждение и чистый экспорт | [studio-runtime.md](references/studio-runtime.md): исполняемое переносимое ядро, адаптер сайта, безопасное обновление и контрольный проект |
 | Витрина Next.js: товары, цены, корзина, оформление из Vendure | [vendure.md](references/vendure.md): порядок, запросы, ошибки корзины, машина состояний заказа, кэш; код — [assets/vendure](assets/vendure/INTEGRATION.md) |
+| Доставка и оплата в витрине | [delivery.md](references/delivery.md): доставка и оплата как общий механизм, службы по странам |
 | Витрина Next.js: страницы, блоки, SEO, медиа из Payload | [payload.md](references/payload.md): договор полей, реестр блоков, одна функция адреса, сброс кэша, предпросмотр, CBD-коллекции |
 | Проверить готовую витрину на архитектуру | таблицы «Как проверить готовую» в [vendure.md](references/vendure.md) и [payload.md](references/payload.md), затем [renovation.md](references/renovation.md) |
 | Payload + Vendure, WordPress, OpenCart | [platforms.md](references/platforms.md): границы общего слоя и конкретного адаптера |
