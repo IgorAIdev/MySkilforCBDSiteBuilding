@@ -276,6 +276,42 @@ test('--palette и --scale вместе: папка назначения не п
   rmSync(dir, { recursive: true, force: true })
 })
 
+/* И260: таблицы фактов в скиллах собираются из кода сайта, а ехали
+   собранными из кода набора — и `check:rules` краснел на любом свежем
+   сайте: стартовая палитра вместо образцов, другой ритм на корне, свой
+   README владельца с правилами README набора. Проверяется то, что увидит
+   сайт: его собственный `node tools/check-rules.mjs` сразу после
+   постановки и после обновления, без единой правки рукой. */
+const rulesGreen = (dir, why) => {
+  const c = check(dir, 'check-rules.mjs')
+  const list = run([join(dir, 'tools/check-rules.mjs'), '--list'], dir).stdout
+  assert.equal(c.status, 0, `check:rules ${why}:\n${c.stdout}${c.stderr}`)
+  assert.equal(list.trim(), '', `check:rules ${why} — расхождения под планкой:\n${list}`)
+}
+
+test('свежий сайт: скилл сходится с проверками без правки рукой (И260)', () => {
+  const plain = fresh('rules-plain')
+  /* create-next-app кладёт свой README.md — он слово владельца, а не
+     README набора, и правил README набора на нём нет. */
+  writeFileSync(join(plain, 'README.md'), '# My app\n\nThis is a Next.js project.\n')
+  assert.equal(install(plain).status, 0)
+  rulesGreen(plain, 'на голой установке')
+  assert.equal(readFileSync(join(plain, 'README.md'), 'utf8'), '# My app\n\nThis is a Next.js project.\n',
+    'README владельца тронут')
+
+  const chosen = fresh('rules-chosen')
+  const r = install(chosen, '--palette', 'Латунь на угле', '--scale', 'Просторный')
+  assert.equal(r.status, 0, r.stderr)
+  rulesGreen(chosen, 'с выбранными палитрой и ритмом')
+  /* Обновление везёт скиллы набора заново — с таблицами, собранными у
+     набора; сайт обязан остаться зелёным на своих красках и своём ритме. */
+  const u = install(chosen, '--update')
+  assert.equal(u.status, 0, u.stderr)
+  rulesGreen(chosen, 'после --update')
+  rmSync(plain, { recursive: true, force: true })
+  rmSync(chosen, { recursive: true, force: true })
+})
+
 test('--skill-only: works on a PHP site without changing application files or installing tooling', () => {
   const dir = mkdtempSync(join(tmpdir(), 'skill-php-'))
   try {

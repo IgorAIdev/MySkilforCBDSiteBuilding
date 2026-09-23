@@ -34,6 +34,7 @@ import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
 import { basename, join, resolve } from 'node:path'
+import { spawnSync } from 'node:child_process'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
 import { toCss as ritmToCss } from './tools/scale.mjs'
@@ -368,6 +369,21 @@ if (MODE === 'audit' && !has('kit.config.json')) {
   const { CONFIG } = await import(new URL('./tools/kit-config.mjs', import.meta.url))
   writeFileSync(join(OUT, 'kit.config.json'), JSON.stringify(CONFIG, null, 2) + '\n')
   moved.push('kit.config.json')
+}
+
+/* Таблицы фактов в скиллах (маркеры `families:*`) собираются из кода
+   проекта — красок, шкал, стилей, швов, — а скиллы приезжают с таблицами,
+   собранными из кода НАБОРА: его образцы палитры, его ритм на корне. У
+   сайта краски стартовые или выбранные, ритм переставлен ключом, `templates/`
+   нет — и первый же `check:rules` сайта был красным (И260). Тот же шов, что
+   у `palette.css` и `scale.css` выше, и закрывается он тем же ходом:
+   пересобрать тем кодом, которым сайт будет сверять, — своей копией
+   проверки, по своим файлам. Скиллы легли только что, всё проектное уже на
+   месте, поэтому здесь, в самом конце раскладки. */
+const tables = spawnSync(process.execPath, [join(OUT, 'tools/check-rules.mjs'), '--tables'], { cwd: OUT, encoding: 'utf8' })
+if (tables.status !== 0) {
+  console.error(`Таблицы фактов в скиллах не пересобраны по коду проекта:\n${tables.stdout}${tables.stderr}`)
+  process.exit(1)
 }
 
 function mergeHooks(from, to) {

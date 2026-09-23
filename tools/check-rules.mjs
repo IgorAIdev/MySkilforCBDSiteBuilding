@@ -68,6 +68,13 @@ const has = (p) => existsSync(join(ROOT, p))
    процесс) сюда не входят — их текст не наш и не правится. */
 const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/palette', '.claude/skills/scale', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
 const LEDGER = 'docs/rules.md'
+/* Набор или сайт. Стартовый образец красок лежит только у набора: сайту
+   ставщик кладёт его уже как `styles/palette.json`, а `templates/` не везёт.
+   README набора держит таблицы фактов и «что за чем» (И217, И219); README
+   сайта — слово его владельца (create-next-app кладёт свой), и правила
+   README набора на него не распространяются (И260). */
+const KIT = has('templates/palette-starter.json')
+const KIT_README = KIT && has('README.md')
 /* Где живут собранные таблицы семей: файл → ключи GEN. Вёрстка и
    отрисованная — в справочнике craft; код — в законе code: справочников у
    него нет, а тринадцать строк в чтение помещаются. */
@@ -76,7 +83,7 @@ const TABLES = {
   '.claude/skills/code/SKILL.md': ['code'],
   /* Факты о палитре — сколько красок называет заказчик, сколько семей,
      сколько выпускается, какие наборы и команды — собираются из кода в
-     закон palette и в README набора (И219). README у проекта нет — там
+     закон palette и в README набора (И219). У сайта README — свой, там
      таблица только в законе. */
   '.claude/skills/palette/SKILL.md': ['palette'],
   '.claude/skills/scale/SKILL.md': ['scale'],
@@ -85,7 +92,7 @@ const TABLES = {
   '.claude/skills/craft/references/layout.md': ['layout'],
   '.claude/skills/craft/references/shape.md': ['shape'],
   '.claude/skills/craft/references/states.md': ['states'],
-  ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
+  ...(KIT_README ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
    скилл. Число обязано быть одним — иначе новый проект получает восемь
@@ -434,7 +441,7 @@ for (const dir of SKILL_DIRS) {
   const heads = [...read(f).matchAll(/^## (.+)$/gm)].map((m) => m[1])
   if (!heads.some((h) => /порядок|шаг/i.test(h))) bad.push(`${f}: нет раздела о порядке работы — что за чем идёт`)
 }
-if (has('README.md') && !/^## .*что за чем/im.test(read('README.md'))) {
+if (KIT_README && !/^## .*что за чем/im.test(read('README.md'))) {
   bad.push('README.md: нет раздела «что за чем» — набор читается как склад, а не как порядок')
 }
 
@@ -481,7 +488,7 @@ for (const dir of SKILL_DIRS) {
    трогаем. */
 const NUMBER_WORDS = { две: 2, два: 2, три: 3, трёх: 3, трех: 3, четыре: 4, четырёх: 4, пять: 5, пяти: 5, шесть: 6, шести: 6, семь: 7, семи: 7, восемь: 8, восьми: 8 }
 if (HAND_COUNT !== null) {
-  const prose = [...skillFiles, ...(has('README.md') ? ['README.md'] : [])]
+  const prose = [...skillFiles, ...(KIT_README ? ['README.md'] : [])]
   for (const f of prose) {
     for (const m of read(f).matchAll(/(две|два|три|трёх|трех|четыре|четырёх|пять|пяти|шесть|шести|семь|семи|восемь|восьми)\s+крас(?:ки|ок|ками)\s+на\s+тему/gi)) {
       const n = NUMBER_WORDS[m[1].toLowerCase()]
