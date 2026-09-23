@@ -29,14 +29,20 @@ export function CartForm({ lang, className, refresh = true, submit, call, initia
     e.preventDefault()
     if (cartLane.pending) return
     const form = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter)
+    /* Удачная запись перерисовывает страницу сама — её ответ несёт страницу
+       после `sessionChanged()`. Перечитывать надо только после ошибки или
+       таймаута: исход не известен, корзина могла разойтись с экраном. */
+    let unsure = false
     try {
       const out = await cartLane.run(() => call(form))
       setSaid(out)
+      unsure = out.kind === 'error'
       if (out.count !== null) window.dispatchEvent(new CustomEvent('cart:count', { detail: out.count }))
     } catch (error) {
       setSaid({ kind: 'error', message: isTimeout(error) ? timeout : failed })
+      unsure = true
     }
-    if (refresh) router.refresh()
+    if (refresh && unsure) router.refresh()
   }
   return (
     <form className={className} action={submit} onSubmit={onSubmit} aria-busy={pending}>
