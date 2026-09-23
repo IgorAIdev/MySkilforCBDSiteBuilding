@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import p from '@/styles/primitives.module.css'
 import { langOf } from '@/lib/route.ts'
@@ -6,11 +7,17 @@ import { first, type Asked, type Params } from '@/lib/listing.ts'
 import { catalogView } from '@/lib/catalog-view.ts'
 import { hrefFor, type Query } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
+import { toMetadata } from '@/lib/seo.ts'
 import { Catalog } from '@/components/Catalog.tsx'
 import { SearchForm } from '@/components/SearchForm.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 
 type Props = { params: Promise<{ lang: string }>; searchParams: Promise<Params> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const lang = await langOf(params)
+  return toMetadata(lang, { title: t(lang, 'nav.search'), description: t(lang, 'search.label'), path: (l) => hrefFor(l, { search: '' }), index: false })
+}
 
 export default async function SearchPage({ params, searchParams }: Props) {
   const lang = await langOf(params)

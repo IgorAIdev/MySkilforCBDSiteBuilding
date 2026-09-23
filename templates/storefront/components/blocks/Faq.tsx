@@ -10,7 +10,7 @@ export function Faq({ block }: { block: Extract<Block, { type: 'faq' }>; ctx: Bl
   return (
     <section className={`${p.wrap} ${p.section} ${p.prose}`}>
       <div className={p.sectionHead}><h2>{block.title}</h2></div>
-      {block.items.map((item) => <details key={item.q}><summary>{item.q}</summary><p>{item.a}</p></details>)}
+      {block.items.map((item) => <details key={item.q} data-faq><summary>{item.q}</summary><p>{item.a}</p></details>)}
       <JsonLd data={faqLd(block.items)} />
     </section>
   )

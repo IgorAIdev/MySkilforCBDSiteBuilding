@@ -1,13 +1,23 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { langOf } from '@/lib/route.ts'
 import { source } from '@/lib/source/index.ts'
 import { readQuery, type Params } from '@/lib/listing.ts'
 import { catalogView, emptyFor } from '@/lib/catalog-view.ts'
 import { hrefFor, type Query } from '@/lib/href.ts'
+import { toMetadata } from '@/lib/seo.ts'
 import { Catalog } from '@/components/Catalog.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 
 type Props = { params: Promise<{ lang: string; cat: string }>; searchParams: Promise<Params> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const lang = await langOf(params)
+  const { cat } = await params
+  const col = await source().collection(lang, cat)
+  if (!col.ok) return {}
+  return toMetadata(lang, { title: col.value.name, description: col.value.description, path: (l) => hrefFor(l, { category: cat }) })
+}
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const lang = await langOf(params)
