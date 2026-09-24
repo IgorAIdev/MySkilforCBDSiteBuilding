@@ -16,6 +16,13 @@
  * надпись 4.5 : 1, кромка 3 : 1, вуаль и тон видны (1.15 : 1 — замер набора,
  * controls.md); угол — из лестницы SHAPE, полный круг только у громкой; вес и
  * разрядка — из порогов TEXT; заглавные без разрядки — находка.
+ *
+ * Наборов цвета у сайта бывает несколько (витрина: выбор вида, И270), и
+ * замер идёт на КАЖДОМ отдельно. Стиль, не прошедший ни на одном, не
+ * выпускается; стиль, не прошедший на части наборов, выпускается, а пара
+ * «стиль × набор» запрещена — её не даёт выбрать панель вида и не примет
+ * сайт (`clash` в `availability`). Стиль по умолчанию обязан пройти на
+ * наборе по умолчанию — первом.
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -61,13 +68,15 @@ export function buttonRoles(s) {
 /* ── чтение ролей основы: какой ступенью что покрашено ─────────────────── */
 
 const tokensText = () => readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8')
-function tokenMap(text = tokensText()) {
+export function tokenMap(text = tokensText()) {
   const map = {}
   for (const m of text.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) if (!(m[1] in map)) map[m[1]] = m[2].trim()
   return map
 }
-/** Имя роли → hex в теме: палитра, затем tokens.css, light-dark и var(). */
-function resolver(palette, tokens, theme) {
+/** Имя роли → hex в теме: палитра, затем tokens.css, light-dark и var().
+ *  Ввозится и панелью вида витрины: плитка набора красится теми же ролями,
+ *  что сайт (look-panel/scripts/build-catalog.mjs витрины). */
+export function resolver(palette, tokens, theme) {
   const get = (name, depth = 0) => {
     if (depth > 12) throw new Error(`цикл ролей у ${name}`)
     const v = palette[name] ?? tokens[name]
@@ -115,47 +124,62 @@ export function auditButtons(styles, palettes, tokens = null) {
       for (const theme of ['light', 'dark'].filter((t) => set[t])) {
         const pal = paletteRoles(set[theme], theme)
         const role = resolver(pal, tokens, theme)
-        const want = (rule, got, need) => { if (got < need) found.push({ style: name, kind: 'palette', palette: pName, theme, rule, got: Number(got.toFixed(2)), need }) }
-        for (const [where, floorName] of [['страница', '--page'], ['карточка', '--plate']]) {
+        /* `part` и `floor` — то же, что `rule`, для машины: по ним панель
+           вида и сайт называют причину своими словами (И270). */
+        /* Округление вниз: 2,996 при пороге 3 — «2.99», а не «3 при норме 3». */
+        const want = (part, floor, rule, got, need) => { if (got < need) found.push({ style: name, kind: 'palette', palette: pName, theme, part, floor, rule, got: Math.floor(got * 100) / 100, need }) }
+        for (const [where, at, floorName] of [['страница', 'page', '--page'], ['карточка', 'card', '--plate']]) {
           const floor = role(floorName)
-          if (s.тихая === 'вуаль') want(`тихая видна на полу (${where})`, ratio(mix(role('--ink'), floor, quietShare), floor), STATE.visible)
-          if (s.тихая === 'кромка') want(`кромка тихой (${where})`, ratio(role('--edge'), floor), CONTRAST.control)
+          if (s.тихая === 'вуаль') want('quiet-veil', at, `тихая видна на полу (${where})`, ratio(mix(role('--ink'), floor, quietShare), floor), STATE.visible)
+          if (s.тихая === 'кромка') want('quiet-edge', at, `кромка тихой (${where})`, ratio(role('--edge'), floor), CONTRAST.control)
           if (s.громкая === 'контур') {
-            want(`надпись громкой-контура (${where})`, ratio(role('--pop-ink'), floor), CONTRAST.text)
-            want(`контур громкой (${where})`, ratio(role('--pop'), floor), CONTRAST.control)
+            want('outline-ink', at, `надпись громкой-контура (${where})`, ratio(role('--pop-ink'), floor), CONTRAST.text)
+            want('outline-line', at, `контур громкой (${where})`, ratio(role('--pop'), floor), CONTRAST.control)
           }
-          if (s.громкая === 'тон') want(`тон громкой виден (${where})`, ratio(role('--a-4'), floor), STATE.visible)
+          if (s.громкая === 'тон') want('tone-fill', at, `тон громкой виден (${where})`, ratio(role('--a-4'), floor), STATE.visible)
         }
-        if (s.громкая === 'заливка') want('надпись на заливке', ratio(role('--on-pop'), role('--pop')), CONTRAST.text)
-        if (s.громкая === 'тон') want('надпись на тоне', ratio(role('--a-11'), role('--a-4')), CONTRAST.text)
+        if (s.громкая === 'заливка') want('fill-ink', null, 'надпись на заливке', ratio(role('--on-pop'), role('--pop')), CONTRAST.text)
+        if (s.громкая === 'тон') want('tone-ink', null, 'надпись на тоне', ratio(role('--a-11'), role('--a-4')), CONTRAST.text)
       }
     }
   }
   return found
 }
 
-/** Какие стили сайт может носить: ошибка каталога — отказ целиком; стиль,
- *  не прошедший замер на палитре сайта, не выпускается и называется. */
+/** Какие стили сайт может носить и с какими наборами цвета: ошибка
+ *  каталога — отказ целиком; стиль, не прошедший замер ни на одном наборе
+ *  палитры сайта, не выпускается и называется (`off`); не прошедший на
+ *  части наборов — выпускается, а пары «стиль × набор» названы первой
+ *  находкой (`clash[стиль][набор]`). Набор один — `clash` пуст. */
 export function availability(styles, palettes, tokens) {
   const found = auditButtons(styles, palettes, tokens)
   const structure = found.filter((f) => f.kind === 'structure')
+  const names = Object.keys(palettes)
+  const fails = {}
+  for (const f of found.filter((x) => x.kind === 'palette')) ((fails[f.style] ??= {})[f.palette] ??= []).push(f)
   const off = {}
-  for (const f of found.filter((x) => x.kind === 'palette')) (off[f.style] ??= []).push(f)
+  const clash = {}
+  for (const [style, byPalette] of Object.entries(fails)) {
+    if (names.every((p) => byPalette[p])) off[style] = Object.values(byPalette).flat()
+    else clash[style] = Object.fromEntries(Object.entries(byPalette).map(([p, list]) => [p, list[0]]))
+  }
   const on = Object.keys(styles).filter((n) => !off[n] && !structure.some((f) => f.style === n))
-  return { structure, off, on }
+  return { structure, off, on, clash }
 }
 
 /* ── выпуск ────────────────────────────────────────────────────────────── */
 
 const block = (sel, style) => `${sel}{\n${Object.entries(buttonRoles(style)).map(([k, v]) => `  ${k}: ${v};`).join('\n')}\n}`
-export function toCss(styles, off = {}) {
+export function toCss(styles, off = {}, clash = {}) {
   const names = Object.keys(styles).filter((n) => !off[n])
   const skipped = Object.keys(off)
+  const pairs = Object.entries(clash).map(([n, by]) => `${n} — ${Object.keys(by).join(', ')}`)
   return `/* Собран tools/buttons.mjs из styles/buttons.json. Руками не правят.\n` +
     `   Стиль — роли одной кнопки основы (styles/btn.module.css). На корне —\n` +
     `   первый стиль; выбрать другой — [data-button="имя"] на документе.\n` +
     `   Стилей: ${names.length} — ${names.join(' · ')}.` +
-    (skipped.length ? `\n   Не выпущены — не прошли замер на палитре сайта: ${skipped.join(' · ')}.` : '') + ' */\n\n' +
+    (skipped.length ? `\n   Не выпущены — не прошли замер на палитре сайта: ${skipped.join(' · ')}.` : '') +
+    (pairs.length ? `\n   Не носятся с частью наборов цвета (пару не примет сайт): ${pairs.join('; ')}.` : '') + ' */\n\n' +
     [block(':root', styles[names[0]]), ...names.map((n) => block(`[data-button="${n}"]`, styles[n]))].join('\n\n') + '\n'
 }
 
@@ -178,11 +202,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const TOKENS = path.resolve('styles/tokens.css')
   if (!existsSync(TOKENS)) { console.error('✗ Нет styles/tokens.css — не видно, какой ступенью покрашены пол и кнопка.'); process.exit(1) }
   const tokens = tokenMap(readFileSync(TOKENS, 'utf8'))
-  const { structure, off } = availability(styles, JSON.parse(readFileSync(PALETTE, 'utf8')), tokens)
+  const palettes = JSON.parse(readFileSync(PALETTE, 'utf8'))
+  const { structure, off, clash } = availability(styles, palettes, tokens)
   const first = Object.keys(styles)[0]
-  if (structure.length || off[first]) {
-    const why = structure.length ? structure : off[first]
-    const what = structure.length ? 'ошибка каталога' : `стиль по умолчанию «${first}» не прошёл замер`
+  const firstPalette = Object.keys(palettes)[0]
+  const firstOff = off[first] ?? (clash[first]?.[firstPalette] ? [clash[first][firstPalette]] : null)
+  if (structure.length || firstOff) {
+    const why = structure.length ? structure : firstOff
+    const what = structure.length ? 'ошибка каталога' : `стиль по умолчанию «${first}» не прошёл замер на наборе по умолчанию «${firstPalette}»`
     console.error(`✗ Каталог кнопок не выпущен: ${what}. styles/buttons.css не тронут.`)
     for (const f of why.slice(0, 12)) console.error(`    ${f.style} · ${f.palette} · ${f.theme}: ${f.rule} — ${f.got}; нужно ${f.need}`)
     process.exit(1)
@@ -190,7 +217,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   for (const [name, list] of Object.entries(off)) {
     console.log(`· «${name}» не выпущен для этой палитры: ${list[0].rule} — ${list[0].got} (${list[0].theme}); нужно ${list[0].need}`)
   }
-  const css = toCss(styles, off)
+  for (const [name, by] of Object.entries(clash)) {
+    for (const [p, f] of Object.entries(by)) console.log(`· «${name}» не носится с набором «${p}»: ${f.rule} — ${f.got} (${f.theme}); нужно ${f.need}`)
+  }
+  const css = toCss(styles, off, clash)
   const count = Object.keys(styles).length - Object.keys(off).length
   if (process.argv.includes('--check')) {
     const was = existsSync(TO) ? readFileSync(TO, 'utf8').replace(/\r\n/g, '\n') : ''

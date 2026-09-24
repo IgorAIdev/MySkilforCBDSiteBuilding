@@ -102,22 +102,32 @@ const BASE = process.env.SITE ?? 'http://localhost:8099'
  * перепроверял разовыми замерами руками, которые никуда не ложатся.
  *
  *   node tools/check-craft.mjs --page /bg/catalog     только эти адреса
+ *   node tools/check-craft.mjs --pages /bg,/bg/catalog/oils   ровно эти адреса дерева
  *   node tools/check-craft.mjs --only target,markInk  только эти семьи в отчёте
+ *   node tools/check-craft.mjs --pages … --json out.json   находки узкого прогона файлом
  *
  * Узкий прогон НИКОГДА не трогает базу и не выносит вердикт: считать долг по
  * половине дерева значит записать неправду. Он печатает найденное, а судит
- * полный. */
+ * полный — или тот, кто его позвал, по файлу `--json` (проверка выбранного
+ * вида витрины, `check:choice`, И270).
+ *
+ * `CRAFT_COOKIE="имя=значение; имя2=значение2"` — cookie во всех средах
+ * проверки, настоящие, а не заголовком: их видит и скрипт страницы. Так
+ * меряется черновик вида (черновой режим Next и его cookie). */
 const flag = (name) => {
   const i = process.argv.indexOf(name)
   return i === -1 ? null : process.argv[i + 1] ?? null
 }
 const ONLY_PAGE = flag('--page')
+const ONLY_PAGES = (flag('--pages') ?? '').split(',').map((x) => x.trim()).filter(Boolean)
 const ONLY_FAM = (flag('--only') ?? '').split(',').map((x) => x.trim()).filter(Boolean)
-const NARROW = Boolean(ONLY_PAGE)
+const JSON_OUT = flag('--json')
+const NARROW = Boolean(ONLY_PAGE || ONLY_PAGES.length)
+const ASKED = ONLY_PAGES.length ? ONLY_PAGES.join(', ') : ONLY_PAGE
 
-const PAGES = [...sample(), ...personal()].filter((path) => !ONLY_PAGE || path.includes(ONLY_PAGE))
-if (!PAGES.length) {
-  console.error(`Под «${ONLY_PAGE}» не подошёл ни один адрес дерева. Список: node tools/routes.mjs`)
+const PAGES = [...sample(), ...personal()].filter((path) => ONLY_PAGES.length ? ONLY_PAGES.includes(path) : !ONLY_PAGE || path.includes(ONLY_PAGE))
+if (!PAGES.length || (ONLY_PAGES.length && PAGES.length !== ONLY_PAGES.length)) {
+  console.error(`Под «${ASKED}» не подошли адреса дерева${PAGES.length ? ` (подошли: ${PAGES.join(', ')})` : ''}. Список: node tools/routes.mjs`)
   process.exit(1)
 }
 /* 1200 и 900 добавлены не для полноты. Ровно в этой полосе двухколоночный
@@ -1813,6 +1823,12 @@ const hand = await browser.newContext({ hasTouch: true, isMobile: true, deviceSc
    написали, и пропадает в соседней. */
 const deskDark = await browser.newContext({ colorScheme: 'dark' })
 const handDark = await browser.newContext({ colorScheme: 'dark', hasTouch: true, isMobile: true, deviceScaleFactor: 1 })
+/* Cookie из CRAFT_COOKIE — каждой среде проверки, включая «поменьше
+   движения» ниже (`jar`). */
+const JAR = (process.env.CRAFT_COOKIE ?? '').split(';').map((x) => x.trim()).filter(Boolean)
+  .map((pair) => ({ name: pair.slice(0, pair.indexOf('=')), value: pair.slice(pair.indexOf('=') + 1), url: BASE }))
+const jar = async (ctx) => { if (JAR.length) await ctx.addCookies(JAR); return ctx }
+for (const ctx of [desk, hand, deskDark, handDark]) await jar(ctx)
 /* ── ПОЛОСЫ: почему проверка шла двадцать минут ────────────────────────────
  *
  * Заказчик сказал прямо: «пиздец как долго… два часа гонял проверку и стоит
@@ -2246,7 +2262,7 @@ await lanes(
  *
  * Одна ширина и родные страницы: движение от языка не зависит, а от ширины
  * зависит редко — и там, где зависит, это тот же самый сброс. */
-const calm = await browser.newContext({ reducedMotion: 'reduce' })
+const calm = await jar(await browser.newContext({ reducedMotion: 'reduce' }))
 await lanes(native, async (path) => {
   {
     const page = await take(calm)
@@ -2551,7 +2567,7 @@ const sheetSpot = async (ctx, win, at, pick, nth, text, tab) => {
 /* В узком прогоне сверка идёт, только если спрошен сам лист: она открывает
    ЧУЖИЕ адреса, и считать её по одной странице дерева нечестно. */
 const SHEET_AT = '/bg/design'
-if (!NARROW || SHEET_AT.includes(ONLY_PAGE)) {
+if (!NARROW || (ONLY_PAGE && SHEET_AT.includes(ONLY_PAGE))) {
   const WORD = { w: 'ширина', h: 'рост', fs: 'кегль', ar: 'складка' }
   await lanes(SHEET_SAMPLES, async (row) => {
     const shop = await sheetSpot(desk, row.win, row.shop.at, row.shop.pick, row.shop.nth, row.shop.text, null)
@@ -2624,7 +2640,8 @@ if (process.argv.includes('--list')) {
 
 if (NARROW) {
   const keys = Object.keys(NAMES).filter((k) => !ONLY_FAM.length || ONLY_FAM.includes(k))
-  console.log(`\nУзкий прогон: ${PAGES.length} адрес(ов) под «${ONLY_PAGE}»` +
+  if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify({ pages: PAGES, names: Object.fromEntries(keys.map((k) => [k, NAMES[k]])), found: Object.fromEntries(keys.map((k) => [k, found[k]])) }, null, 2) + '\n')
+  console.log(`\nУзкий прогон: ${PAGES.length} адрес(ов) под «${ASKED}»` +
     `${ONLY_FAM.length ? `, семьи: ${ONLY_FAM.join(', ')}` : ''}. База не тронута, вердикт за полным прогоном.\n`)
   for (const key of keys) {
     console.log(`${found[key].length ? '·' : '✓'} ${NAMES[key]}: ${found[key].length}`)

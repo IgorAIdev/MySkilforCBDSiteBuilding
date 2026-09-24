@@ -290,8 +290,11 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
    — заливкой органа. Это цветовые роли, light-dark() внутри них продолжает
    работать. MDN: «User has requested an interface with higher contrast
    levels»; Baseline high 2024-11-30. */
+/* Селектор удвоен нарочно: вид витрины приходит значениями блоком
+   `<style id="look">` ПОСЛЕ стилей сайта (И270) и объявляет `--border`
+   палитры на `:root` — равная сила и позднее место перебили бы усиление. */
 @media (prefers-contrast:more){
-  :root{ --rule:var(--ink); --ink-soft:var(--ink); --border:var(--ink); --quiet:var(--ctrl); --quiet-on:var(--ctrl) }
+  :root:root{ --rule:var(--ink); --ink-soft:var(--ink); --border:var(--ink); --quiet:var(--ctrl); --quiet-on:var(--ctrl) }
 }
 /* Принудительные цвета (Windows High Contrast): тени, заливки и градиенты
    стираются, выживают обводки и outline; единственные имена цвета —

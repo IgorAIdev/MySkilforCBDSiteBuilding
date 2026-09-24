@@ -148,6 +148,9 @@ const FILES = [
      работает» (И192). */
   'tools/palette.mjs',
   'tools/palette-profile.json',
+  /* Замер стилей кнопки на палитре сайта: его ввозит ставщик — выпускает
+     styles/buttons.css из красок нового сайта (И270). */
+  'tools/buttons.mjs',
   'tools/palette-css.mjs',
   'tools/check-palette.mjs',
   /* Шкалы: строитель, выпуск, замер и стенд. Без них новый сайт получает

@@ -35,6 +35,27 @@ test('the audit runs on every sample palette and names style, palette and theme'
   }
 })
 
+/* Наборов цвета несколько (витрина с выбором вида, И270): стиль, не
+   прошедший на части наборов, выпускается, а пара «стиль × набор» названа;
+   не прошедший ни на одном — не выпускается. */
+test('several palettes: a style that fails on some is released and the pairs are named; one failing on all is not', () => {
+  const names = Object.keys(samples)
+  const { off, clash, on } = availability(styles, samples)
+  const css = toCss(styles, off, clash)
+  for (const [style, by] of Object.entries(clash)) {
+    assert.ok(on.includes(style), `${style} выпускается`)
+    assert.ok(css.includes(`[data-button="${style}"]{`), `${style} в CSS`)
+    assert.ok(names.some((p) => !by[p]), `${style} проходит хоть на одном наборе`)
+    for (const f of Object.values(by)) assert.ok(f.part && f.rule && f.theme && f.got < f.need, JSON.stringify(f))
+  }
+  for (const [style, list] of Object.entries(off)) {
+    assert.deepEqual([...new Set(list.map((f) => f.palette))].sort(), [...names].sort(), `${style} падает на всех`)
+    assert.ok(!css.includes(`[data-button="${style}"]`), `${style} не выпущен`)
+  }
+  assert.ok(Object.keys(clash).length, 'на образцах есть пары, которые не носятся')
+  assert.match(css, /Не носятся с частью наборов цвета/)
+})
+
 test('a style is a set of roles of the one button, first style is the default', () => {
   const css = toCss(styles)
   const names = Object.keys(styles)
