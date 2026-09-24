@@ -8,6 +8,7 @@ import { percent } from './format.ts'
 import { pickState, optionLinks, type OptionGroupLinks } from './variant.ts'
 import { saleOf, shelfCard, stockText, type ShelfCard, type WasView } from './view.ts'
 import { QTY_MAX } from './cart-view.ts'
+import { packFacts, type FactsView } from './facts.ts'
 
 /** Протокол готовыми строками. `batch` — номер партии отдельно от заголовка:
  *  код партии не рвётся посередине (`RO-` / `2409-05`), его держит разметка.
@@ -45,7 +46,7 @@ export type { WasView }
 export type ProductPageView = {
   crumbs: { name: string; href?: string }[]; crumbLabel: string
   name: string; price: string; was: WasView | null; stock: string | null; message: string | null; choose: string | null
-  gallery: GalleryView; groups: OptionGroupLinks[]; lab: LabView | null; description: string
+  gallery: GalleryView; groups: OptionGroupLinks[]; facts: FactsView | null; description: string
   related: ShelfCard[]; relatedTitle: string
   buy: BuyView
 }
@@ -87,9 +88,13 @@ function askOf(lang: Lang, product: Product, selected: Record<string, string>): 
 }
 
 /** Страница товара готовыми строками. Цена — выбранного варианта; пока
- *  выбора нет — «de la» самой низкой, если цены разные. Протокол — партии
- *  выбранного варианта; без выбора — первой партии товара. `asked` — адрес
- *  несёт `choose=1`: покупатель нажал «в корзину» без выбора. */
+ *  выбора нет — «de la» самой низкой, если цены разные. Поле основных
+ *  параметров — упаковки выбранного варианта (у товара с одним вариантом он
+ *  выбран сам); без выбора поля нет: у разных упаковок разные числа.
+ *  Протокола партии на карте нет — слово заказчика 25.09.2026 («lab report
+ *  убирай, делай просто поле, где будут основные параметры»); образец
+ *  протокола остаётся блоком главной. `asked` — адрес несёт `choose=1`:
+ *  покупатель нажал «в корзину» без выбора. */
 export function productView(lang: Lang, product: Product, selected: Record<string, string>, ctx: { category: Collection | null; related: Card[]; asked?: boolean }): ProductPageView {
   const state = pickState(product, selected)
   const cheapest = product.variants.reduce((a, b) => (b.price.minor < a.price.minor ? b : a))
@@ -104,7 +109,6 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
      нажатия строки под кнопкой нет: кнопка открыта и сама приведёт к ответу. */
   const open = state.status === 'incomplete' || state.status === 'ambiguous'
   const message = state.status === 'missing' || state.status === 'invalid' ? t(lang, 'product.missing') : null
-  const report = chosen ? product.labReports.find((r) => r.batch === chosen.batch) : product.labReports[0]
   /* В корзину идёт только выбранный вариант в наличии; у товара с одним
      вариантом он выбран сам. Не выбран — кнопка ведёт к выбору (`ask`);
      распродан или сочетания нет — выключена, почему — строкой наличия или
@@ -126,7 +130,7 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
     choose: ask && ctx.asked ? t(lang, 'product.choose') : null,
     gallery: galleryView(lang, product.images, sale?.badge ?? null),
     groups: optionLinks(lang, product, selected),
-    lab: report ? labView(lang, report) : null,
+    facts: buyable ? packFacts(lang, buyable.pack, product.strength, buyable.price) : null,
     description: product.description,
     related: ctx.related.map((c) => shelfCard(lang, c)),
     relatedTitle: t(lang, 'product.related'),

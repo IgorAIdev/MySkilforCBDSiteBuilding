@@ -27,21 +27,26 @@ test('nothing chosen: a "from" price, an open button without a price that leads 
   assert.equal(productView('en', r.value, { putere: '20', volum: '10' }, { ...none, asked: true }).choose, null, 'выбрано — ошибки нет')
 })
 
-test('a chosen variant: its price, its stock and the report of its batch', async () => {
+test('a chosen variant: its price, its stock and the key figures of its pack', async () => {
   const r = await sample.product('ro', 'ulei-cbd-full-spectrum')
   assert.ok(r.ok)
   const v = productView('ro', r.value, { putere: '20', volum: '10' }, none)
   assert.equal(v.price, '64,90 €')
   assert.equal(v.stock, 'În stoc')
   assert.equal(v.message, null)
-  assert.equal(v.lab?.title, 'Buletin de analiză')
-  assert.equal(v.lab?.batch, 'Lot RO-2409-20')
-  assert.deepEqual(v.lab?.rows.map(([k]) => k), ['Laborator', 'Data analizei', 'CBD', 'THC'])
-  /* Ссылка на документ — только у настоящего адреса: якорь `#lab-…` образца
-     документом не является. Протокол один на карте товара и на главной. */
-  assert.equal(v.lab?.open, null)
+  /* Поле основных параметров вместо протокола (слово заказчика 25.09.2026):
+     2000 мг в 10 мл — 200 мг в 1 мл, 10 мг в капле 0,05 мл, 200 капель,
+     64,90 € ÷ 2000 мг. */
+  const NB = ' '
+  assert.deepEqual(v.facts?.rows.map((x) => [x.value, x.label, x.note]), [
+    [`2000${NB}mg`, 'CBD în total', null],
+    [`200${NB}mg`, 'CBD în 1 ml', null],
+    [`10${NB}mg`, 'CBD într-o picătură', '≈ 200 picături în flacon'],
+    [`0,032${NB}€`, 'pentru 1 mg de CBD', null],
+  ])
   const doc = labView('en', { batch: 'RO-2409-10', lab: 'Lab', date: '2026-09-02', cbdPercent: 10, thcPercent: 0.1, url: '/sample/lab-RO-2409-10.pdf' })
-  assert.deepEqual(doc.open, { label: 'Open the lab report', href: '/sample/lab-RO-2409-10.pdf' })
+  assert.deepEqual(doc.open, { label: 'Open the lab report', href: '/sample/lab-RO-2409-10.pdf' }, 'протокол — блоком главной')
+  assert.equal(productView('ro', r.value, {}, none).facts, null, 'без выбора поля нет: у упаковок разные числа')
   const gone = productView('ro', r.value, { putere: '30', volum: '10' }, none)
   assert.equal(gone.stock, 'Stoc epuizat')
   assert.equal(gone.message, null)
@@ -56,7 +61,8 @@ test('a single product has its own price and no choice to make', async () => {
   assert.equal(v.price, '34,90 €')
   assert.equal(v.message, null)
   assert.equal(v.groups.length, 0)
-  assert.equal(v.lab, null)
+  /* Капсулы: доза штуки, капель нет. */
+  assert.deepEqual(v.facts?.rows.map((x) => x.label), ['CBD összesen', 'CBD egy darabban', '1 mg CBD ára'])
 })
 
 /* Цена в кнопке — выбранного варианта, за штуку: строку собирает вид, а не

@@ -1,7 +1,8 @@
 import type { Lang } from './locale.ts'
-import type { Card, Pack } from './source/contract.ts'
+import type { Card, Money, Pack, Strength } from './source/contract.ts'
 import { BIND, RANGE, num } from './format.ts'
 import { t } from './i18n/index.ts'
+import { moneyPer } from './money.ts'
 
 /* Факты товара на полке — сила, мера, миллиграммы — одной строкой из данных
    (shop, «Один факт о товаре — одно место»; разбор 24.09.2026, X3). Покупатель
@@ -68,3 +69,37 @@ export function factsLine(lang: Lang, card: Pick<Card, 'strength' | 'packs'>): s
  *  только его запись на экране, слова не меняются. */
 const UNITS = /(\d)\s+(?=(?:%|mg|ml|g|pcs|buc\.|db)(?![\p{L}\d]))/gu
 export const bindUnits = (text: string): string => text.replace(UNITS, `$1${BIND}`)
+
+/** Капля — 0,05 мл: стандартная пипетка отмеряет 20 капель воды на 1 мл
+ *  (Ph. Eur. 2.1.1); так же считают «мг в капле» живые магазины масел
+ *  (cbdin.bg: 100 мг в 1 мл — 5 мг в капле, 30 мл — ≈ 600 капель). */
+export const DROP_ML = 0.05
+
+/** Строка поля параметров: число с единицей крупно, подпись тихо, `note` —
+ *  пояснение той же строки («≈ 200 drops in the bottle»). */
+export type FactRow = { value: string; label: string; note: string | null }
+/** Поле основных параметров карты товара — готовыми строками. `label` —
+ *  имя списка для чтения с экрана. */
+export type FactsView = { label: string; rows: FactRow[] }
+
+const mg = (lang: Lang, value: number): string => `${num(lang, value)}${BIND}mg`
+
+/** Основные параметры упаковки варианта — что покупатель CBD сверяет
+ *  перед покупкой (как у cbdin.bg): сколько CBD всего, сколько в единице
+ *  приёма — в 1 мл или 1 г, в штуке, у масла ещё в капле и сколько капель во
+ *  флаконе, — и цена миллиграмма. Мг не заявлены — поля нет: число без
+ *  этикетки было бы выдумкой. */
+export function packFacts(lang: Lang, pack: Pack | null, strength: Strength, price: Money): FactsView | null {
+  if (!pack?.mg || !pack.size) return null
+  const each = pack.mg / pack.size
+  const rows: FactRow[] = [{ value: mg(lang, pack.mg), label: t(lang, 'facts.total'), note: null }]
+  if (pack.unit === 'pcs') rows.push({ value: mg(lang, each), label: t(lang, 'facts.perPiece'), note: null })
+  else rows.push({ value: mg(lang, each), label: t(lang, pack.unit === 'ml' ? 'facts.perMl' : 'facts.perG'), note: null })
+  /* Капля — только у того, что продаётся концентрацией в мл (масла): крем
+     в мл каплями не меряют. */
+  if (pack.unit === 'ml' && strength === 'percent') {
+    rows.push({ value: mg(lang, each * DROP_ML), label: t(lang, 'facts.perDrop'), note: t(lang, 'facts.drops', { n: num(lang, Math.round(pack.size / DROP_ML)) }) })
+  }
+  rows.push({ value: moneyPer(price, pack.mg, lang), label: t(lang, 'facts.perMg'), note: null })
+  return { label: t(lang, 'facts.label'), rows }
+}

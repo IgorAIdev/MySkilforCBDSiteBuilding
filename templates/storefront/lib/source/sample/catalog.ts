@@ -131,11 +131,12 @@ export function sampleSource(pageSize = PAGE): Source {
         id: p.id, category: p.cat, name: p.name[lang], summary: p.summary[lang], description: p.description[lang],
         images: images(p, lang),
         optionGroups: p.groups.map((g) => ({ code: g.code, name: g.name[lang], options: g.options.map((o) => ({ code: o.code, name: o.name[lang] })) })),
-        variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), was: v.was ? money(v.was) : null, stock: v.stock, options: v.options, batch: v.batch })),
+        variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), was: v.was ? money(v.was) : null, stock: v.stock, options: v.options, batch: v.batch, pack: v.pack })),
         labReports: batches.map((b) => {
           const r = LAB_REPORTS[b]
           return { batch: b, lab: r.lab, date: r.date, cbdPercent: r.cbdPercent, thcPercent: r.thcPercent, url: `#lab-${b}` }
         }),
+        strength: p.strength,
       }
       return ok(product)
     },

@@ -6,7 +6,7 @@ import { Breadcrumbs } from './Breadcrumbs.tsx'
 import { ProductCard } from './ProductCard.tsx'
 import { Gallery } from './Gallery.tsx'
 import { VariantPicker } from './VariantPicker.tsx'
-import { LabReport } from './LabReport.tsx'
+import { KeyFacts } from './KeyFacts.tsx'
 import { AddToCart } from './AddToCart.tsx'
 
 /* Карта товара. Колонка покупки — четыре группы, и воздух между группами
@@ -38,7 +38,7 @@ export function ProductView({ view, lang, submit, call }: { view: ProductPageVie
           <AddToCart lang={lang} buy={view.buy} hint={view.message} submit={submit} call={call} />
           <div className={s.info}>
             <div className={p.prose}><p>{view.description}</p></div>
-            {view.lab ? <LabReport lab={view.lab} /> : null}
+            {view.facts ? <KeyFacts facts={view.facts} /> : null}
           </div>
         </div>
       </section>

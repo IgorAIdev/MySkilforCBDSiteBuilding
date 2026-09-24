@@ -9,11 +9,14 @@ export type Image = { src: string; alt: string; width: number; height: number }
 export type OptionGroup = { code: string; name: string; options: { code: string; name: string }[] }
 /** `was` — цена до скидки (Shopify `compareAtPrice`; у Vendure — своё поле
  *  варианта, план 4); `null` — скидки нет. */
-export type Variant = { id: string; sku: string; name: string; price: Money; was: Money | null; stock: Stock; options: Record<string, string>; batch: string | null }
+/** `pack` — упаковка варианта (мг CBD и мера, `Pack` ниже): из неё карта
+ *  товара считает поле основных параметров; `null` — мера неизвестна. */
+export type Variant = { id: string; sku: string; name: string; price: Money; was: Money | null; stock: Stock; options: Record<string, string>; batch: string | null; pack: Pack | null }
 export type LabReport = { batch: string; lab: string; date: string; cbdPercent: number; thcPercent: number; url: string }
 /** `images` — снимки товара, первый — главный (у Vendure `featuredAsset`,
  *  за ним `assets` без него; план 4). */
-export type Product = { id: string; category: string; name: string; summary: string; description: string; images: Image[]; optionGroups: OptionGroup[]; variants: Variant[]; labReports: LabReport[] }
+/** `strength` — чем товар продаётся (`Strength` ниже), как у его карточки. */
+export type Product = { id: string; category: string; name: string; summary: string; description: string; images: Image[]; optionGroups: OptionGroup[]; variants: Variant[]; labReports: LabReport[]; strength: Strength }
 export type Price = { kind: 'single'; value: Money } | { kind: 'range'; min: Money; max: Money }
 /** Упаковка варианта — то, что покупатель CBD сравнивает на полке (shop,
  *  «Сила — две шкалы, проценты и миллиграммы»): CBD во всей упаковке, мг, и

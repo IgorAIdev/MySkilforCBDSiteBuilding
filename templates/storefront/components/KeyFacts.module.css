@@ -1,0 +1,21 @@
+/* Поле основных параметров (KeyFacts.tsx) — тихая марка `--pop-tint`, как
+   поле цифр у cbdin.bg: одно окрашенное место в колонке покупки, и оно про
+   то, сколько CBD за эти деньги. Лежит на колонке покупки, не в листе —
+   карточки в карточке нет. Угол и поле — роли карточки, строки — через
+   ступень оптики: это один список, а не группы.
+
+   Строка — предложение: число ступенью вводного абзаца, полужирно и
+   чернилами, подпись — телом, тихой краской; по базовой линии. Пояснение
+   строки («≈ 200 drops in the bottle») — строкой заметки ниже, с новой
+   строки: в одну с подписью оно рвалось бы посередине на узкой колонке. */
+.facts{
+  display:grid;gap:var(--sp-2);
+  margin:0;padding:var(--pad-card);list-style:none;
+  background:var(--pop-tint);border-radius:var(--r-card)
+}
+.fact{font-size:var(--body-size);line-height:var(--body-lead);color:var(--ink-soft)}
+.value{
+  font-size:var(--lede-size);line-height:var(--lede-lead);letter-spacing:var(--lede-track);
+  font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap
+}
+.note{display:block;font-size:var(--note-size);line-height:var(--note-lead)}

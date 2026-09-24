@@ -262,6 +262,9 @@ export function vendureSource(env: VendureEnv, fetchImpl: typeof fetch = globalT
       const text = p.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
       const was = p.customFields?.wasPrice
       const shown = displayOptionGroups(p) as VProduct['optionGroups']
+      /* Упаковка — поле товара движка, одна на все его варианты, как у
+         карточки полки (`packs` выше). */
+      const pack = packOf(p.customFields?.volume, p.customFields?.strength)
       const product: Product = {
         id: nativeSlug(c, p), category: p.collections[0] ? nativeSlug(c, p.collections[0]) : '', name: p.name,
         summary: p.customFields?.seoDescription?.trim() || text.split(/(?<=[.!?])\s/)[0] || '',
@@ -271,9 +274,9 @@ export function vendureSource(env: VendureEnv, fetchImpl: typeof fetch = globalT
         variants: p.variants.map((v): Variant => ({
           id: v.id, sku: v.sku, name: p.name, price: money(c, v.priceWithTax),
           was: typeof was === 'number' && was > v.priceWithTax ? money(c, was) : null,
-          stock: stockOf(v.stockLevel), options: Object.fromEntries(v.options.map((o) => [o.group.code, o.code])), batch: null,
+          stock: stockOf(v.stockLevel), options: Object.fromEntries(v.options.map((o) => [o.group.code, o.code])), batch: null, pack,
         })),
-        labReports: [],
+        labReports: [], strength: strengthOf(p, pack),
       }
       return { ok: true, value: product }
     },
