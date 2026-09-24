@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>60 · Список флажков</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 60 — «Список флажков». Источник — CSS от заказчика 24.09.2026 (набор «cir-», одна семья с 51 вторым источником), переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: рост галки из 0.6 и плавность 180–220 ms — галка встаёт сразу; синее кольцо фокуса; рамка 1.5 px; угол 8 px на квадрате 20 px — почти круг; угол флажка — доля его размера; галка картинкой в data-URI — из листа набора; битый @import шрифта.
+  Приведено к единой форме: квадрат с кромкой края, угол — доля размера; отмечен — заливка чернилами, галка краской пола из листа набора; под рукой кромка — чернилами; подпись — ролью тела, нажимается вместе с квадратом; фокус — кольцо набора у квадрата; в формах (56) тот же флажок отмечается краской марки — это вариант, а не второй флажок.
+  Наведение: кромка — чернилами. Нажатие: квадрат 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="choices" data-pick="ink" role="group" aria-label="Filter"><label class="tick"><input type="checkbox" checked><svg data-sign="check"></svg>In stock only</label><label class="tick"><input type="checkbox"><svg data-sign="check"></svg>Lab tested</label><label class="tick"><input type="checkbox"><svg data-sign="check"></svg>Organic hemp</label></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="choices" data-pick="ink"><span class="tick" data-on><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>In stock only</span><span class="tick"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Lab tested</span><span class="tick"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Organic hemp</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="choices" data-pick="ink"><span class="tick" data-on><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>In stock only</span><span class="tick" data-state="hover"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Lab tested</span><span class="tick"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Organic hemp</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="choices" data-pick="ink"><span class="tick" data-on><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>In stock only</span><span class="tick" data-state="press"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Lab tested</span><span class="tick"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Organic hemp</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="choices" data-pick="ink"><span class="tick" data-on><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>In stock only</span><span class="tick" data-state="focus"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Lab tested</span><span class="tick"><input type="checkbox" tabindex="-1"><svg data-sign="check"></svg>Organic hemp</span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

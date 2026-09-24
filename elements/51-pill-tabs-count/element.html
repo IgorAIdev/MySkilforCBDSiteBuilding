@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>51 · Вкладки-пилюли со счётчиком</title>
+<title>51 · Вкладки-пилюли</title>
 <link rel="stylesheet" href="../palettes.css">
 <link rel="stylesheet" href="../../styles/scale.css">
 <link rel="stylesheet" href="../../styles/tokens.css">
 <link rel="stylesheet" href="../base.css">
 <script src="../stage.js"></script>
 <!--
-  Элемент 51 — «Вкладки-пилюли со счётчиком». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  Элемент 51 — «Вкладки-пилюли». Источник — два CSS от заказчика 24.09.2026, пересланы из сессии «Кнопки и дизайн»: вкладки со счётчиком и вкладки с выбранной, залитой чернилами — после разбора одни (source.css, source-2.css).
   В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
   роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
-  Снято: тени полосы; переезд плашки (glider) — плашка встаёт на место; уменьшение всей полосы до 0.6 на узком окне; z-index у всех детей; синие краски; ширина вкладки 50 px.
-  Приведено к единой форме: полоса — пилюля с волоском; выбранная — тон марки, слово краской марки; счётчик — число в круге тона, у выбранной — краской марки; ширина вкладки — по слову; пункты — радио, фокус — кольцо у пункта.
+  Снято: тени полосы и выбранной; переезд плашки (glider) — плашка встаёт на место; у второго: наведение только темнит слово — у набора подложка 5 %; у второго: синее кольцо фокуса и битый @import шрифта; уменьшение всей полосы до 0.6 на узком окне; z-index у всех детей; синие краски; ширина вкладки 50 px.
+  Приведено к единой форме: полоса — пилюля с волоском; выбранная — тон марки, слово краской марки; счётчик — число в круге тона, у выбранной — краской марки; ширина вкладки — по слову; пункты — радио, фокус — кольцо у пункта; вариант второго источника: выбранная залита чернилами, слово краской пола; без счётчика.
   Наведение: подложка 5 % чернил. Нажатие: 9 %, 0.97 и на пиксель ниже.
 -->
 </head>
 <body>
   <div class="live one">
-    <div class="tabs" data-voice="line" data-shape="pill" data-pick="tint" role="radiogroup" aria-label="Orders"><label class="el"><input type="radio" name="orders" checked>New<span class="badge">2</span></label><label class="el"><input type="radio" name="orders">Orders<span class="badge">5</span></label><label class="el"><input type="radio" name="orders">Returns<span class="badge">0</span></label></div>
+    <div class="column"><div class="tabs" data-voice="line" data-shape="pill" data-pick="tint" role="radiogroup" aria-label="Orders"><label class="el"><input type="radio" name="orders" checked>New<span class="badge">2</span></label><label class="el"><input type="radio" name="orders">Orders<span class="badge">5</span></label><label class="el"><input type="radio" name="orders">Returns<span class="badge">0</span></label></div><div class="tabs" data-voice="line" data-shape="pill" data-pick="ink" role="radiogroup" aria-label="Product"><label class="el"><input type="radio" name="product" checked>Overview</label><label class="el"><input type="radio" name="product">Reviews</label><label class="el"><input type="radio" name="product">Lab report</label></div></div>
   </div>
 
   <div class="states" aria-hidden="true">
