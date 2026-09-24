@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>58 · Оплата картой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 58 — «Оплата картой». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тень окна в пять слоёв; градиент кнопки «оплатить» от серого к чёрному и кольцо под рукой; знаки Apple Pay, PayPal и Google Pay: чужие марки ставятся по правилам платёжных систем при встраивании; на образце — словами; подписи 10 px; тёмное кольцо фокуса вместо кромки — у набора кольцо набора; ширины колонок 33 % 34 % 33 %.
+  Приведено к единой форме: лист карточки; способы оплаты — кнопки тоном в ряд, переносятся; разделитель со словами — «или» набора; поля тоном с подписью над ними (41, 46); номер карты, срок и CVV — цифровая клавиатура и автозаполнение карты (autocomplete cc-*); срок и CVV — в строку, 2 : 1; «Оплатить» — чернила во всю ширину, рост 48; сумма — из данных корзины, не из разметки.
+  Наведение: кнопки: + 5 % краски надписи. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <form class="card" data-form action="#"><div class="options"><button class="el"  type="button">Apple Pay</button><button class="el"  type="button">PayPal</button><button class="el"  type="button">Google Pay</button></div><p class="or">or pay by card</p><div class="entry"><label class="label" for="p-name">Card holder</label><label class="field"><input type="text" placeholder="Name on the card" id="p-name" autocomplete="cc-name"></label></div><div class="entry"><label class="label" for="p-num">Card number</label><label class="field"><input type="text" placeholder="0000 0000 0000 0000" id="p-num" autocomplete="cc-number" inputmode="numeric"></label></div><div class="split" data-ratio="2:1"><div class="entry"><label class="label" for="p-exp">Expiry date</label><label class="field"><input type="text" placeholder="MM / YY" id="p-exp" autocomplete="cc-exp" inputmode="numeric"></label></div><div class="entry"><label class="label" for="p-cvc">CVV</label><label class="field"><input type="text" placeholder="123" id="p-cvc" autocomplete="cc-csc" inputmode="numeric"></label></div></div><button class="el" data-voice="ink" data-size="lg" type="button">Pay 29,90 €</button></form>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-form><div class="options"><span class="el" >Apple Pay</span><span class="el" >PayPal</span><span class="el" >Google Pay</span></div><span class="el" data-voice="ink" data-size="lg">Pay 29,90 €</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-form><div class="options"><span class="el" >Apple Pay</span><span class="el" >PayPal</span><span class="el" >Google Pay</span></div><span class="el" data-voice="ink" data-size="lg" data-state="hover">Pay 29,90 €</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-form><div class="options"><span class="el" >Apple Pay</span><span class="el" >PayPal</span><span class="el" >Google Pay</span></div><span class="el" data-voice="ink" data-size="lg" data-state="press">Pay 29,90 €</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-form><div class="options"><span class="el" >Apple Pay</span><span class="el" >PayPal</span><span class="el" >Google Pay</span></div><span class="el" data-voice="ink" data-size="lg" data-state="focus">Pay 29,90 €</span></div><figcaption>фокус</figcaption></figure>
+    <figure><div class="card" data-form><div class="options"><span class="el" >Apple Pay</span><span class="el" >PayPal</span><span class="el" >Google Pay</span></div><span class="el" data-voice="ink" data-size="lg" data-state="off" aria-disabled="true">Pay 29,90 €</span></div><figcaption>выключено</figcaption></figure>
+  </div>
+</body>
+</html>

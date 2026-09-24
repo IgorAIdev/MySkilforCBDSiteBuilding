@@ -59,6 +59,8 @@
  *    .el data-row aria-current          текущий пункт меню: тон и черта марки
  *    .card data-form · .or              форма: поля и действия на листе · разделитель «или»
  *    aria-disabled | data-state off     выключенный орган: прозрачность --state-off
+ *    .split .options .link .tick        формы: два поля в строку · способы оплаты · ссылка строкой · флажок
+ *    .cost .ticks · .mark data-size lg  цена крупно · список с галкой · знак марки крупно
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -576,6 +578,50 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    главное первым. */
 .card .stack[data-align='center']{align-items:center;text-align:center}
 .card[data-form] .entry{inline-size:100%}
+/* Строка сноской по центру или у конца: «нет учётной записи? создать»,
+   «забыли пароль?». Ссылка в ней — краской марки, подчёркнута всегда (И289). */
+.card p[data-align='center']{text-align:center}
+.card p[data-align='end'], .entry > [data-align='end']{text-align:end}
+.entry > .hint a{color:var(--pop-ink);text-decoration:underline;text-underline-offset:.15em}
+.card[data-form] .field{inline-size:100%}
+/* Два поля в строку: имя и фамилия поровну, срок и CVV — 2 : 1. */
+.card .split{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:var(--gap-row, 12px)}
+.card .split[data-ratio='2:1']{grid-template-columns:minmax(0, 2fr) minmax(0, 1fr)}
+/* Способы оплаты — органы тоном в ряд, переносятся. */
+.card .options{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px)}
+.card .options > .el{flex:1 1 auto}
+/* Ссылка строкой — «забыли пароль?»: сноской, краской марки, подчёркнута. */
+.card .link{font-size:var(--note-size, .875rem);color:var(--pop-ink);text-decoration:underline;text-underline-offset:.15em}
+/* Знак марки крупно — плитка над заголовком формы. */
+.mark[data-size='lg']{inline-size:3.5rem;block-size:3.5rem}
+.mark[data-size='lg'] svg{inline-size:1.75rem;block-size:1.75rem}
+/* Флажок: квадрат с кромкой края; отмечен — заливка марки и галка из листа
+   набора краской на ней; подпись нажимается вместе с ним. */
+.tick{position:relative;display:inline-flex;align-items:center;gap:calc(var(--h-sm) * .3);min-block-size:var(--h-sm);font-size:var(--note-size, .875rem);color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tick > input{--box:1.125rem;appearance:none;-webkit-appearance:none;flex:none;inline-size:var(--box);block-size:var(--box);margin:0;border-radius:calc(var(--box) * .22);background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge);cursor:pointer}
+.tick > svg{position:absolute;inset-inline-start:.1875rem;inline-size:.75rem;block-size:.75rem;color:var(--on-pop);stroke-width:2.4;opacity:0;pointer-events:none}
+@media (hover:hover){ .tick:hover > input:not(:checked){box-shadow:inset 0 0 0 var(--line) var(--ink)} }
+.tick > input:checked, .tick[data-on] > input{background:var(--pop);box-shadow:none}
+.tick:has(> input:checked) > svg, .tick[data-on] > svg{opacity:1}
+.tick > input:focus-visible{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+/* Цена крупно: число ролью h2, срок мельче краской подписи; у окна тарифа
+   показывается цена выбранного срока. */
+.cost{margin:0;font-size:var(--h2-size, 1.75rem);font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.cost small{margin-inline-start:.25em;font-size:var(--note-size, .875rem);font-weight:400;color:var(--ink-soft)}
+.cost > span + span{display:none}
+.sheet:has(.tabs > .el:nth-child(2) > input:checked, .tabs > .el:nth-child(2)[data-on]) .cost > span:first-child{display:none}
+.sheet:has(.tabs > .el:nth-child(2) > input:checked, .tabs > .el:nth-child(2)[data-on]) .cost > span + span{display:inline}
+.sheet > footer:has(> .cost){justify-content:space-between}
+/* Окно, которое помещается целиком (data-fit): без потолка и без дымки над
+   подвалом — дымка говорит «тело продолжается», а оно не продолжается. */
+.sheet[data-fit]{max-block-size:none}
+.sheet[data-fit] > footer::before{content:none}
+.sheet .body > .tabs{display:flex}
+/* Список с галкой: преимущества; галка — из листа набора краской марки. */
+.ticks{display:grid;gap:calc(var(--air-row, 16px) / 2);margin:0;padding:0;list-style:none}
+.sheet .body .ticks{padding-inline-start:0}
+.ticks li{display:flex;align-items:center;gap:calc(var(--gap-row, 12px) * .75)}
+.ticks svg{flex:none;inline-size:1.125rem;block-size:1.125rem;color:var(--pop-ink)}
 /* Разделитель «или»: слово краской подписи между двумя волосками. */
 .or{display:flex;align-items:center;gap:var(--gap-row, 12px);margin:0;font-size:var(--note-size, .875rem);color:var(--ink-soft)}
 .or::before, .or::after{content:'';flex:1;block-size:var(--line);background:var(--rule)}
@@ -594,6 +640,9 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
 .live:has(.card[data-layout='row']){inline-size:min(360px, 100% - 32px)}
 .states figure:has(> .card){inline-size:min(320px, 100%)}
 .states figure:has(> .card[data-layout='row']){inline-size:min(360px, 100%)}
+/* Несколько вариантов элемента рядом — сетка стенда. */
+.forms{display:grid;grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr));gap:24px;align-items:start;inline-size:100%}
+.live:has(> .forms){inline-size:min(1000px, 100% - 32px)}
 .group{display:flex;gap:6px}
 .column{display:flex;flex-direction:column;align-items:center;gap:24px}
 .states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
