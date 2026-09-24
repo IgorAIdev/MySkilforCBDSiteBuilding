@@ -8,3 +8,15 @@
    Шрифт вида — `--face` и `--face-head` (styles/tokens.css): вид кладёт
    их значения в `<style id="look">` вместе со своими шрифтами. */
 :root{--menu-mark-line:underline;--menu-mark-fill:transparent;--menu-mark-ink:var(--ink);--menu-mark-r:0;--menu-mark-pad:0}
+
+/* Карта товара — ручки вида (И271; панель «Look» поставит их позже, группа
+   «Admin → Product page»). Раскладку считает ProductView.module.css, здесь —
+   только выбор:
+     --pdp-gallery  доля ряда под галерею в две колонки: 50 % (норма живых
+                    магазинов 45–57 %, образец заказчика ≈ 40 %); потолок по
+                    высоте окна всё равно у галереи — доля может только
+                    уменьшить её, не вытянуть выше экрана
+     --pdp-frame    пропорция снимка: 1 / 1 или 4 / 5
+     --pdp-thumbs   где миниатюры: below (ряд под кадром), side (полоса слева,
+                    только в две колонки), none (точки под кадром) */
+:root{--pdp-gallery:50%;--pdp-frame:1 / 1;--pdp-thumbs:below}

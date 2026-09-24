@@ -4,31 +4,41 @@ import type { ProductPageView } from '@/lib/product-view.ts'
 import type { Outcome } from '@/lib/cart-ops.ts'
 import { Breadcrumbs } from './Breadcrumbs.tsx'
 import { ProductCard } from './ProductCard.tsx'
+import { Gallery } from './Gallery.tsx'
 import { VariantPicker } from './VariantPicker.tsx'
 import { LabReport } from './LabReport.tsx'
 import { AddToCart } from './AddToCart.tsx'
 
+/* Карта товара. Колонка покупки — четыре группы, и воздух между группами
+   крупнее воздуха внутри (И271): кто это и сколько стоит; выбор варианта;
+   покупка; сведения. Порядок разметки — порядок чтения и на телефоне:
+   галерея, имя и цена, выбор, покупка, сведения. */
 export function ProductView({ view, lang, submit, call }: { view: ProductPageView; lang: string; submit: (form: FormData) => Promise<void>; call: (form: FormData) => Promise<Outcome> }) {
   return (
     <>
       <Breadcrumbs trail={view.crumbs} label={view.crumbLabel} />
       <section className={`${p.switcher} ${s.pdp}`}>
-        {/* Кадр едет рядом с колонкой покупки, пока колонок две (`pinned`):
-            длинная колонка больше не оставляет под снимком пустоты. */}
+        {/* Галерея едет рядом с колонкой покупки, пока колонок две (`pinned`),
+            и помещается в экран целиком — кадр, зазор, ряд миниатюр. */}
         <div className={`${p.pinned} ${p.bias} ${s.pin}`}>
-          <div className={`${p.frame} ${s.gallery}`}>
-            <img src={view.image.src} alt={view.image.alt} width={view.image.width} height={view.image.height} fetchPriority="high" />
-          </div>
+          <Gallery view={view.gallery} />
         </div>
         <div className={`${p.stack} ${s.offer}`}>
-          {view.eyebrow ? <p className={p.eyebrow}>{view.eyebrow}</p> : null}
-          <h1 className={s.name}>{view.name}</h1>
-          <p className={s.price}>{view.price}</p>
-          {view.stock ? <p className={p.muted}>{view.stock}</p> : null}
-          <VariantPicker groups={view.groups} />
+          <div className={s.identity}>
+            {view.eyebrow ? <p className={p.eyebrow}>{view.eyebrow}</p> : null}
+            <h1 className={s.name}>{view.name}</h1>
+            <p className={s.price}>
+              <span className={s.now}>{view.price}</span>
+              {view.was ? <><s className={s.was} aria-hidden="true">{view.was.text}</s><span className={p.said}>{view.was.said}</span></> : null}
+              {view.stock ? <span className={s.stock}>{view.stock}</span> : null}
+            </p>
+          </div>
+          {view.groups.length ? <div className={s.choice}><VariantPicker groups={view.groups} /></div> : null}
           <AddToCart lang={lang} buy={view.buy} hint={view.message} submit={submit} call={call} />
-          <div className={p.prose}><p>{view.description}</p></div>
-          {view.lab ? <LabReport lab={view.lab} /> : null}
+          <div className={s.info}>
+            <div className={p.prose}><p>{view.description}</p></div>
+            {view.lab ? <LabReport lab={view.lab} /> : null}
+          </div>
         </div>
       </section>
       {view.related.length ? (

@@ -58,7 +58,7 @@ const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
    `--palette "Имя"`: имя набора выглядит как путь, и ставщик однажды принял
    «Латунь на угле» за папку назначения (И213). */
-const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale', '--lang'].includes(args[i - 1]))
+const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale', '--lang', '--currency'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
 const MODE = flags.has('--skill-only') ? 'skill-only' : flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
@@ -77,10 +77,15 @@ const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--
    (слово заказчика 24.09.2026); настоящий магазин рынка ставит свой язык
    основным — он же x-default, адрес корня и язык проверок. */
 const LANG = args.find((a, i) => args[i - 1] === '--lang' && !a.startsWith('--'))
+/* Валюта витрины: `--currency RON`. Образец торгует в евро (слово заказчика
+   24.09.2026); магазин рынка ставит свою валюту — код ISO 4217, запись
+   числа делает `Intl` языка страницы (lib/money.ts). Цены образца при этом
+   не пересчитываются: они образец, настоящие приходят из Vendure. */
+const CURRENCY = args.find((a, i) => args[i - 1] === '--currency' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras', '--storefront', '--lang'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя", --storefront, --lang код.`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras', '--storefront', '--lang', '--currency'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя", --storefront, --lang код, --currency код.`)
     process.exit(1)
   }
 }
@@ -102,6 +107,10 @@ if (flags.has('--lang')) {
     console.error(`--lang ставит основной язык витрины и идёт только с --storefront: --lang ${codes.join(' | ') || 'код'}.`)
     process.exit(1)
   }
+}
+if (flags.has('--currency') && (!STOREFRONT || !/^[A-Z]{3}$/.test(CURRENCY ?? ''))) {
+  console.error('--currency ставит валюту витрины и идёт только с --storefront: код ISO 4217 заглавными, например --currency RON.')
+  process.exit(1)
 }
 
 // A self-contained instruction bundle for any platform; no project config changes.
@@ -428,6 +437,13 @@ if (STOREFRONT) {
     writeFileSync(localeFile, locale)
     writeFileSync(configFile, readFileSync(configFile, 'utf8').replace(/(source: '\/', destination: '\/)[a-z-]+(')/, `$1${LANG}$2`))
     moved.push(`основной язык витрины — ${LANG}`)
+  }
+  if (CURRENCY) {
+    /* Строка `currency` в lib/market.ts — единственное место валюты: её
+       читают каталог, корзина, доставка и разметка `priceCurrency`. */
+    const marketFile = join(OUT, 'lib/market.ts')
+    writeFileSync(marketFile, readFileSync(marketFile, 'utf8').replace(/(currency: ')[A-Z]{3}(')/, `$1${CURRENCY}$2`))
+    moved.push(`валюта витрины — ${CURRENCY}`)
   }
 }
 

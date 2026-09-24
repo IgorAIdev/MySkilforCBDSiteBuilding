@@ -5,8 +5,12 @@ export type Money = { minor: number; currency: string }
 export type Stock = 'in' | 'low' | 'out'
 export type Image = { src: string; alt: string; width: number; height: number }
 export type OptionGroup = { code: string; name: string; options: { code: string; name: string }[] }
-export type Variant = { id: string; sku: string; name: string; price: Money; stock: Stock; options: Record<string, string>; batch: string | null }
+/** `was` — цена до скидки (Shopify `compareAtPrice`; у Vendure — своё поле
+ *  варианта, план 4); `null` — скидки нет. */
+export type Variant = { id: string; sku: string; name: string; price: Money; was: Money | null; stock: Stock; options: Record<string, string>; batch: string | null }
 export type LabReport = { batch: string; lab: string; date: string; cbdPercent: number; thcPercent: number; url: string }
+/** `images` — снимки товара, первый — главный (у Vendure `featuredAsset`,
+ *  за ним `assets` без него; план 4). */
 export type Product = { id: string; category: string; name: string; summary: string; description: string; images: Image[]; optionGroups: OptionGroup[]; variants: Variant[]; labReports: LabReport[] }
 export type Price = { kind: 'single'; value: Money } | { kind: 'range'; min: Money; max: Money }
 export type Card = { id: string; category: string; name: string; image: Image; price: Price; stock: Stock }
