@@ -39,6 +39,7 @@
  *    data-bars even · data-morph arrow  полоски равной длины · открыто — стрелка «→» (с data-dir down — «↓»)
  *    .swap + aria-pressed | data-on     два знака в одной клетке; включено — второй
  *    data-fill-on + aria-pressed        знак заливается маркой, когда включено
+ *    data-on-voice loud                 включённый орган встаёт в голос марки
  *    role=switch + .knob, aria-checked  ползунок: дорожка и ручка; data-track theme — дорожка по теме,
  *                                       data-knob over — ручка крупнее дорожки
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
@@ -183,6 +184,9 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .el .swap svg:last-child{scale:0;opacity:0}
 .el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:first-child{scale:0;opacity:0}
 .el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:last-child{scale:1;opacity:1}
+
+/* Включённый орган встаёт в голос марки: заливка марки, знак краской на ней. */
+.el[data-on-voice='loud']:is([aria-pressed='true'], [data-on]){--bg:var(--pop);--fg:var(--on-pop)}
 
 /* Знак заливается, когда включено: контур в покое, фигура краской марки —
    сердце «в избранное». Отвечает краской, не ростом. */
