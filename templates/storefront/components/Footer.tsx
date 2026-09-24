@@ -15,17 +15,22 @@ const LEGAL = [TERMS_DOC, 'confidentialitate']
 /* Подписи столбцов — подписи, а не заголовки: мелкие и полужирные (роль
    надзаголовка), а заголовок h2 такого кегля вставал в лестнице страницы
    ниже заголовков карточек (check:craft, лестница заголовков). Столбцы
-   ссылок — навигация, названная своей подписью (`aria-labelledby`). */
+   ссылок — навигация, названная своей подписью (`aria-labelledby`).
+
+   Столбец — группа (`col`): подпись к своим строкам ближе, чем столбцы друг к
+   другу. Стояло одним шагом — 16 внутри и 16 между, — и на телефоне, где
+   четыре столбца ложатся два на два, «Компания» читалась пятой строкой
+   «Помощи» (разбор 24.09.2026, S5; check:design, flatRhythm). */
 export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
   const links = (slugs: string[]) => docs.filter((d) => slugs.includes(d.slug)).map((d) => <li key={d.slug}><a href={hrefFor(lang, { doc: d.slug })}>{d.title}</a></li>)
   return (
     <footer className={s.foot} data-ground="deck">
       <div className={`${p.wrap} ${p.grid} ${s.cols}`}>
-        <nav className={p.stack} aria-labelledby="foot-help">
+        <nav className={`${p.stack} ${s.col}`} aria-labelledby="foot-help">
           <p className={p.eyebrow} id="foot-help">{t(lang, 'footer.help')}</p>
           <ul className={s.list}>{links(HELP)}</ul>
         </nav>
-        <nav className={p.stack} aria-labelledby="foot-legal">
+        <nav className={`${p.stack} ${s.col}`} aria-labelledby="foot-legal">
           <p className={p.eyebrow} id="foot-legal">{t(lang, 'footer.legal')}</p>
           <ul className={s.list}>
             {links(LEGAL)}
@@ -33,7 +38,7 @@ export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
             <li><a href={SOL_URL} rel="noopener">{t(lang, 'footer.sol')}</a></li>
           </ul>
         </nav>
-        <div className={p.stack}>
+        <div className={`${p.stack} ${s.col}`}>
           <p className={p.eyebrow}>{t(lang, 'footer.company')}</p>
           <address className={s.addr}>
             <span translate="no">{COMPANY.name}</span><br />
@@ -42,7 +47,7 @@ export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
             <a href={telHref()}>{CONTACTS.phone}</a><br />
             <a href={mailHref()}>{CONTACTS.email}</a>
           </address>
-          {COMPANY_IS_REAL ? null : <p className={p.muted}>{t(lang, 'sample')}</p>}
+          {COMPANY_IS_REAL ? null : <p className={p.note}>{t(lang, 'sample')}</p>}
         </div>
         <LangSwitch lang={lang} label={t(lang, 'nav.lang')} />
       </div>

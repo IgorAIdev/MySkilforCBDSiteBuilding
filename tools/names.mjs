@@ -63,6 +63,10 @@ export const MODIFIERS = new Set([
   'ctrl', 'pop', 'raised', 'overlay', 'strong', 'exit', 'case', 'r', 'sh', 'intro', 'pos',
   /* форма главной кнопки (И276): вырез, остриё, выемка, эхо-шеврон */
   'clip', 'tip', 'notch', 'echo', 'trail', 'stop',
+  /* выравнивание колонок `sidebar` (`--side-align`): ручку примитив читал
+     давно, а объявить её было нечем — первым объявил документ, чтобы строки
+     заголовка и текста стояли на одной линии шрифта (разбор 24.09.2026, D3) */
+  'align',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',

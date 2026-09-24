@@ -19,7 +19,7 @@ export async function ProductCard({ card, eager = false }: { card: ShelfCard; ea
       <h3 className={s.name}><a href={card.href}>{card.name}</a></h3>
       <div className={s.buy}>
         <b className={s.price}>{card.price}</b>
-        <span className={p.muted}>{card.stock}</span>
+        <span className={p.note}>{card.stock}</span>
       </div>
     </article>
   )
