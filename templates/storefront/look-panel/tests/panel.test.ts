@@ -37,11 +37,15 @@ test('panel catalog: every variant is values of properties the site declares, ea
   for (const f of FIELDS) assert.equal(catalog.defaults[f], catalog.groups[f][0].id, `${f}: умолчание — первый, вариант сайта`)
 })
 
-test('panel sections: every field sits in exactly one sub-tab; System is colour, type, spacing, layout, shape, buttons', () => {
+test('panel sections: every field sits in exactly one sub-tab; System is colour, type, spacing, layout, shape, buttons, fields', () => {
   const placed = SECTIONS.flatMap((s) => s.subs.flatMap((sub) => sub.fields.map((f) => f[0])))
   assert.deepEqual([...placed].sort(), [...FIELDS].sort())
   assert.equal(new Set(placed).size, placed.length)
-  assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons'])
+  assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons', 'Fields'])
+  /* Поле ввода (И390): один вид на сайт; кромка есть у каждого — вокруг
+     или чертой снизу (WCAG 1.4.11); умолчание — то, что стоит у сайта. */
+  assert.deepEqual(catalog.groups.field.map((o) => o.id), ['framed', 'outline', 'tone'])
+  for (const o of catalog.groups.field) assert.ok(/^var\(--/.test(o.vars!['--ctrl-field-edge']), `${o.id}: кромка — роль палитры`)
   assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card', 'Home', 'Product page'])
   /* Главная — разметка вида (lib/homes.ts): варианты каталога — все главные
      сайта, по порядку; первая, нынешняя, — умолчание. */

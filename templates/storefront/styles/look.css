@@ -1,5 +1,5 @@
 /* Выпущен scripts/look-slots.mjs из опубликованного вида (lib/source/sample/look.json;
-   у Payload — global «look»). Руками не правят: шрифт, тени, отметка текущего пункта меню, ручки карты товара и полки и шрифты вида со своего адреса. */
+   у Payload — global «look»). Руками не правят: шрифт, тени, отметка текущего пункта меню, вид поля ввода, ручки карты товара и полки и шрифты вида со своего адреса. */
 
 :root{
   --face: var(--face-stack);
@@ -9,6 +9,9 @@
   --menu-mark-ink: var(--ink);
   --menu-mark-r: 0;
   --menu-mark-pad: 0;
+  --ctrl-field-fill: var(--field);
+  --ctrl-field-edge: var(--tick-edge);
+  --ctrl-field-side: 1;
   --pdp-gallery: 50%;
   --pdp-thumbs: below;
   --pdp-edge: inset;

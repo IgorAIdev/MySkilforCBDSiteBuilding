@@ -106,6 +106,21 @@ export const MARKERS = [
      (elements/, И356). Обе роли правило сочетаний мерит. */
   { id: 'ink', name: 'Ink pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--ink)', '--menu-mark-ink': 'var(--surface)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)' } },
 ]
+/** Вид поля ввода (И390): одно поле на весь сайт — поиск в шапке, почта,
+ *  касса (styles/form.module.css, `.box`). Кромка остаётся у каждого вида:
+ *  без неё поле на листе не видно (WCAG 1.4.11) — у тона она чертой снизу.
+ *  Угол — из Shape. Пилюля (элемент 44) сюда не идёт: полный круг — только у
+ *  главного действия (CLAUDE.md, запрет 2, И228). */
+export const FIELD_LOOKS = [
+  { id: 'framed', name: 'Framed', line: 'A light fill inside a full edge', vars: { '--ctrl-field-fill': 'var(--field)', '--ctrl-field-edge': 'var(--tick-edge)', '--ctrl-field-side': '1' } },
+  /* Кромка контура и черта тона — краской подписи: краска рамки
+     (`--tick-edge`) замерена строителем к заливке поля, на поверхности
+     тёмной темы она 2.75 : 1, на тоне — 2.5; подпись держит 5 : 1 на всех
+     наборах. Тон — тихая плашка, а не вуаль: на вуали поверх пола страницы
+     подсказка в поле 3.9 : 1 (замер 25.09.2026, все образцы). */
+  { id: 'outline', name: 'Outline', line: 'The card surface inside a darker full edge (element 43)', vars: { '--ctrl-field-fill': 'var(--surface)', '--ctrl-field-edge': 'var(--ink-soft)', '--ctrl-field-side': '1' } },
+  { id: 'tone', name: 'Tone', line: 'A tone fill with one line underneath, no box (element 41)', vars: { '--ctrl-field-fill': 'var(--plate-quiet)', '--ctrl-field-edge': 'var(--ink-soft)', '--ctrl-field-side': '0' } },
+]
 /** Карточки товара: id — CARDS в lib/cards.ts. Каждая — простая карточка
  *  полки (shop: «Полная полка на десктопе держит 4–5 простых карточек по
  *  260–325px»), вариант — одежда одной раскладки (craft: «Вид меняет
@@ -260,6 +275,7 @@ export async function buildCatalog({ site, kit }) {
     shadow: siteFirst(SHADOW_SETS(tokenMap(readFileSync(join(kit, 'styles/look.css'), 'utf8'))).map((o) => ({ ...o, vars: check('shadow', o.id, o.vars) }))),
     ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
+    field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
     card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),

@@ -29,9 +29,9 @@ export type Problem = { groups: readonly [Group, Group]; why: string; roles?: re
 export type Fell = { group: Group; why: string }
 
 /** Старшинство: уступает младшая группа — ручки полки и карты товара раньше
- *  стиля кнопок, стиль кнопок раньше отметки пункта меню, шрифта, теней, углов,
- *  ширины, ритма и цвета. */
-export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'button', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy']
+ *  стиля кнопок, стиль кнопок раньше вида поля, вид поля раньше отметки
+ *  пункта меню, шрифта, теней, углов, ширины, ритма и цвета. */
+export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'field', 'button', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy']
 
 type Rgba = readonly [number, number, number, number]
 const THEMES = ['light', 'dark'] as const
@@ -149,6 +149,28 @@ export function problems(vars: Readonly<Record<string, string>>, fonts: readonly
       if (r < need.visible) add('marker', 'palette', `the current-item pill fades into the header: ${say(r, need.visible)}`)
       const ink = get('--menu-mark-ink')
       if (ink) { const t = contrast(over(ink, under), under); if (t < need.text) add('marker', 'palette', `the current item's label is too faint on its pill: ${say(t, need.text)}`) }
+    }
+    /* Поле ввода (И390, styles/form.module.css) — на каждом полу, где поле
+       стоит: страница (поиск, корзина), шапка, лист (касса). Кромка — вокруг
+       или чертой снизу — 3 : 1 к соседней краске, заливке поля или полу
+       (WCAG 1.4.11; строитель палитры мерит краску рамки к заливке поля);
+       вписанное и подсказка — 4.5 : 1 на заливке. */
+    for (const [where, floorRole] of [['page', '--page'], ['header', '--surface'], ['card', '--plate']] as const) {
+      const floor = get(floorRole)
+      const fill = get('--ctrl-field-fill')
+      if (!floor || !fill) continue
+      const under = fill[3] > 0 ? over(fill, floor) : floor
+      const edge = get('--ctrl-field-edge')
+      if (edge) {
+        const r = edge[3] > 0 ? Math.max(contrast(over(edge, floor), floor), contrast(over(edge, floor), under)) : 1
+        if (r < need.control) add('field', 'palette', `the field's edge is too faint against its fill and the ${where}: ${say(r, need.control)}`, ['--ctrl-field-edge'])
+      }
+      for (const [role, what] of [['--ink', 'text'], ['--ink-soft', 'hint']] as const) {
+        const ink = get(role)
+        if (!ink) continue
+        const t = contrast(over(ink, under), under)
+        if (t < need.text) add('field', 'palette', `the field's ${what} is too faint on its fill on the ${where}: ${say(t, need.text)}`, ['--ctrl-field-fill'])
+      }
     }
   }
   for (const theme of THEMES) {

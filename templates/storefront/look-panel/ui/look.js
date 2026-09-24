@@ -188,6 +188,13 @@
           ';letter-spacing:' + (v['--ctrl-btn-track'] || 'normal') + ';font-weight:' + (v['--ctrl-btn-weight'] || '600')
         return el('span', { class: 'lp-btn', style: style, 'aria-hidden': 'true', text: 'Aa' })
       }
+      /* Вид поля (И390): заливка и кромка варианта поверх пола страницы;
+         у тона — одна черта снизу. */
+      if (field === 'field') {
+        var fv = o.vars
+        var ff = fv['--ctrl-field-fill'] || 'transparent'
+        return el('span', { class: 'lp-field', 'data-side': fv['--ctrl-field-side'], style: 'background:linear-gradient(' + ff + ',' + ff + '),var(--page, #fff);border-color:' + (fv['--ctrl-field-edge'] || 'currentColor'), 'aria-hidden': 'true' })
+      }
       if (field === 'corners') { var r = Math.round(parseFloat(o.vars['--r-card']) / 3) + 'px'; return el('i', { class: 'lp-shape', style: 'border-radius:' + r + ' ' + r + ' 0 0', 'aria-hidden': 'true' }) }
       /* Карта товара: доля ряда — полоса с долей галереи; пропорция — кадр;
          миниатюры — кадр с рядом под ним, полосой сбоку или точками. */

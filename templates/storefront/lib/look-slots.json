@@ -1056,6 +1056,21 @@
       "group": "marker",
       "value": "0"
     },
+    "--ctrl-field-fill": {
+      "type": "colour",
+      "group": "field",
+      "value": "var(--field)"
+    },
+    "--ctrl-field-edge": {
+      "type": "colour",
+      "group": "field",
+      "value": "var(--tick-edge)"
+    },
+    "--ctrl-field-side": {
+      "type": "number",
+      "group": "field",
+      "value": "1"
+    },
     "--pdp-gallery": {
       "type": "length",
       "group": "pdp-gallery",
@@ -1093,6 +1108,8 @@
       "--plate": "light-dark(var(--n-1), var(--n-4))",
       "--surface": "var(--plate)",
       "--ink": "var(--n-12)",
+      "--ink-soft": "var(--n-11)",
+      "--plate-quiet": "var(--n-3)",
       "--quiet": "var(--quiet-paper)",
       "--pop": "var(--accent-solid)",
       "--on-pop": "var(--on-accent)",
@@ -1104,6 +1121,8 @@
       "--sh-far-2": "var(--sh-far-2-paper)",
       "--sh-far-3": "var(--sh-far-3-paper)",
       "--sh-inset": "var(--sh-inset-paper)",
+      "--field": "var(--n-2)",
+      "--tick-edge": "var(--border)",
       "--accent-solid": "var(--a-9)",
       "--on-accent": "var(--on-a-9)"
     },

@@ -35,20 +35,33 @@
 .label{font-size:var(--ctrl-fs-sm);font-weight:600;color:var(--ink)}
 
 /* Рисунок поля — один; `select.box`, `textarea.box` и `.input` приматива
-   берут его же. */
+   берут его же.
+
+   Вид поля — три роли (И390): заливка `--ctrl-field-fill`, кромка
+   `--ctrl-field-edge` и `--ctrl-field-side` — 1, кромка вокруг; 0 — только
+   черта снизу, нижние углы прямые (поле тоном, элемент 41 набора; так
+   Material держит видимость залитого поля). Значения даёт вид сайта (панель
+   «System → Fields»), без него — рамка по умолчанию. Черта снизу остаётся
+   всегда: граница поля — не украшение, без неё поле на листе не видно
+   (WCAG 1.4.11, 3 : 1 к соседнему цвету; меряет check:palette и правило
+   сочетаний вида). */
 .box{
   inline-size:100%;min-inline-size:0;min-block-size:var(--ctrl-h);
-  padding-inline:calc(var(--ctrl-h) * .3);
+  /* Без боковой кромки поле отдаёт её толщину полю внутри: вписанное стоит
+     на том же месте при любом виде. */
+  padding-inline:calc(var(--ctrl-h) * .3 + var(--line-w) * (1 - var(--ctrl-field-side, 1)));
   font:inherit;font-size:var(--ctrl-fs-base);line-height:1.3;color:var(--ink);
-  background:var(--field);
-  /* Граница поля — не украшение: без неё поле на листе не видно
-     (WCAG 1.4.11, 3 : 1 к соседнему цвету; меряет check:palette). */
-  border:var(--line-w) solid var(--tick-edge);border-radius:var(--r-ctrl);
+  background:var(--ctrl-field-fill, var(--field));
+  border:var(--line-w) solid var(--ctrl-field-edge, var(--tick-edge));
+  border-width:calc(var(--line-w) * var(--ctrl-field-side, 1)) calc(var(--line-w) * var(--ctrl-field-side, 1)) var(--line-w);
+  border-radius:var(--r-ctrl) var(--r-ctrl) calc(var(--r-ctrl) * var(--ctrl-field-side, 1)) calc(var(--r-ctrl) * var(--ctrl-field-side, 1));
   transition:border-color var(--hover-t) var(--ease)
 }
 textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--ctrl-h) * 2.5);resize:vertical}
 .box::placeholder{color:var(--ink-soft);opacity:1}
-@media (hover:hover){ .box:not(:disabled):hover{border-color:var(--ink-soft)} }
+/* Под рукой кромка — чернилами: у контура и тона она уже краской подписи
+   (И390), и наведение должно быть видно у каждого вида. */
+@media (hover:hover){ .box:not(:disabled):hover{border-color:var(--ink)} }
 .box:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
 .box[aria-invalid='true']{border-color:var(--bad-line)}
 .box:disabled{opacity:var(--state-off);cursor:not-allowed}
