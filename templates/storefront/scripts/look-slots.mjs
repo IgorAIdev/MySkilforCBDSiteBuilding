@@ -147,7 +147,7 @@ export function lookStyles(site, raw) {
   const values = kept.vars
   const missing = raw ? Object.keys(before.slots).filter((k) => !Object.hasOwn(values, k)) : []
   const notes = [...dropped.map((d) => `${d.what} ${d.why}`), ...kept.fell.map((f) => `${f.group} ${f.why}`),
-    ...(missing.length ? [`вид не дал значения ${missing.length} свойствам (${missing.slice(0, 4).join(', ')}${missing.length > 4 ? ' …' : ''}) — остались прежние`] : [])]
+    ...(missing.length ? [`вид не дал значения ${missing.length} свойствам (${missing.slice(0, 4).join(', ')}${missing.length > 4 ? ' …' : ''}) — остались прежние; вид старше каталога — пересчитать из имён (И352)`] : [])]
   const decls = (group) => Object.entries(before.slots).filter(([, s]) => s.group === group)
     .map(([k, s]) => `  ${k}: ${values[k] ?? s.value};`).join('\n')
   const out = {

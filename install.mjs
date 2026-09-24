@@ -53,6 +53,11 @@ function copy(from, to) {
     copyFileSync(from, to)
   }
 }
+/* Строки сборки каталога панели о пересчёте опубликованного вида из имён
+   (И352): что получило значения, что осталось прежним. Идут в отчёт
+   ставщика — пересчёт, о котором не сказано, то же, что правка без спроса. */
+const lookLines = (out) => out.split('\n').map((l) => l.trim()).filter((l) => /^(Опубликованный вид|⚠ вид:)/.test(l))
+const lookReport = []
 const args = process.argv.slice(2)
 const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
@@ -172,15 +177,18 @@ if (flags.has('--look-panel')) {
     if (/^\s*LOOK_PICKER\s*=/m.test(text)) continue
     writeFileSync(at, `${text.replace(/\n*$/, '\n')}${lines.join('\n')}\n`)
   }
+  const report = []
   for (const [script, ...rest] of [['look-panel/scripts/build-catalog.mjs', '--from', SRC], ['scripts/look-slots.mjs']]) {
     const run = spawnSync(process.execPath, [join(OUT, script), ...rest], { cwd: OUT, encoding: 'utf8' })
     if (run.status !== 0) {
       console.error(`${script} не прошёл:\n${run.stdout}${run.stderr}`)
       process.exit(1)
     }
+    if (script.includes('build-catalog')) report.push(...lookLines(run.stdout))
   }
   console.log(`Панель вида возвращена в ${OUT}: ${OWNED.map((p) => `${p}/`).join(', ')}, ${MARKED.join(', ')}; команды ${commands.map(([k]) => k).join(', ')}; флаг LOOK_PICKER (включить: LOOK_PICKER=on в .env).`)
-  console.log('Опубликованный вид (lib/source/sample/look.json) не тронут; каталог панели собран из набора, стили выпущены из вида.')
+  console.log('Имена опубликованного вида (lib/source/sample/look.json) не тронуты; каталог панели собран из набора, значения вида выведены из имён (И352), стили выпущены из вида.')
+  for (const line of report) console.log(`  · ${line}`)
   process.exit(0)
 }
 if (flags.has('--lang')) {
@@ -526,8 +534,11 @@ if (STOREFRONT) {
      (слово заказчика 24.09.2026: «вложим туда много сил сейчас»):
      опубликованный вид, черновик, скачанные шрифты вида, окружение. Шаблон
      кладётся мимо них, опубликованный вид по умолчанию не пишется, стили
-     выпускаются из вида, который уже есть. */
-  const SITE_DATA = ['lib/source/sample/look.json', 'lib/source/sample/look.draft.json', 'public/fonts', '.env', '.env.local']
+     выпускаются из вида, который уже есть. Решение в опубликованном виде —
+     имена; значения, выведенные из них, сборка каталога пересчитывает
+     нынешним каталогом (И352), прежний файл — копией рядом
+     (`look.before-refresh.json`, тоже данные сайта). */
+  const SITE_DATA = ['lib/source/sample/look.json', 'lib/source/sample/look.before-refresh.json', 'lib/source/sample/look.draft.json', 'public/fonts', '.env', '.env.local']
   const siteData = SITE_DATA.filter(has)
   const isData = (rel) => siteData.some((d) => rel === d || rel.startsWith(`${d}/`))
   /* Что кладёт шаблон: путь на сайте → откуда. Файлы шаблона и копии
@@ -608,6 +619,9 @@ if (STOREFRONT) {
       console.error(`${script} не прошёл:\n${run.stdout}${run.stderr}`)
       process.exit(1)
     }
+    /* Опубликованный вид пересчитан из имён новым каталогом (И352) — что
+       получило значения и что осталось прежним, словами в отчёт. */
+    if (script.includes('build-catalog')) lookReport.push(...lookLines(run.stdout))
   }
   moved.push('вид витрины: список свойств и каталог панели')
   if (LANG) {
@@ -705,6 +719,7 @@ if (templateReport) {
   else console.log('  · снимать нечего: всё, что шаблон вёз прежде, он везёт и теперь')
   if (changed.length) console.log(`  · шаблон больше не везёт, но сайт это поправил — оставлено, решить руками:\n${changed.map((r) => `      ${r}`).join('\n')}`)
 }
+for (const line of lookReport) console.log(`  · ${line}`)
 if (MODE === 'new') {
   console.log('  · CLAUDE.md — правила, читаются раньше кода каждой сессией')
   console.log('  · .claude/skills — шесть предметных скиллов; сторонние только с --extras')

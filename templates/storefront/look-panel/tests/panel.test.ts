@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { blockedBy, clashes, complete, compose, CUSTOM, fieldsOf, paletteChecks, paletteVars, ruleGroup, sectionsOf, STRUCTURE } from '../ui/choice.mjs'
+import { blockedBy, clashes, complete, compose, CUSTOM, fieldsOf, paletteChecks, paletteVars, reresolve, ruleGroup, sectionsOf, STRUCTURE, uncovered } from '../ui/choice.mjs'
 import { toCss } from '../../tools/palette.mjs'
 import { stripHeaders, stripPanel, stripVariants, OWNED } from '../scripts/remove.mjs'
 import { pairsOf } from '../scripts/pairs.mjs'
@@ -83,14 +83,46 @@ test('panel palette builder: the kit engine gives each catalog set the values th
   assert.equal(compose({ palette: CUSTOM }, catalog).look.names.palette, catalog.defaults.palette, 'своя палитра без красок — умолчание')
 })
 
-test('panel catalog: the default look is what the site publishes and it is accepted whole', () => {
+test('panel catalog: the default look is accepted whole, and the published look gives every site property a value', () => {
   const { look } = compose(catalog.defaults, catalog)
-  const published = JSON.parse(read('lib/source/sample/look.json'))
   assert.deepEqual(acceptLook(look, slots, facts).notes, [])
-  /* Вид, опубликованный до того, как каталог вырос (новые группы — тени,
-     форма кнопки), свойств новых групп не несёт: их держат стили сайта. Всё,
-     что он несёт, — свойства сайта, и умолчание каталога их покрывает. */
-  for (const k of Object.keys(published.vars)) assert.ok(slots[k] && Object.hasOwn(look.vars, k), `опубликованный вид: ${k} — свойство сайта и каталога`)
+  assert.deepEqual(uncovered(look.vars, slots), [], 'умолчание каталога покрывает каждое свойство сайта')
+  /* И353: вид, старше каталога, не смешивается с умолчаниями стилей чужой
+     палитры — сборка каталога пересчитывает его из имён (И352). */
+  const published = JSON.parse(read('lib/source/sample/look.json'))
+  assert.deepEqual(acceptLook(published, slots, facts).notes, [])
+  assert.deepEqual(uncovered(published.vars, slots), [], 'опубликованный вид — значение каждому свойству сайта')
+})
+
+test('published look re-resolved from its names: new properties get values of the owner\'s choice, names stay, a vanished name keeps its group', () => {
+  const palette = catalog.groups.palette.find((o) => o.id !== catalog.defaults.palette)!
+  const names = { palette: palette.id, face: catalog.groups.face.at(-1)!.id, marker: catalog.groups.marker.at(-1)!.id }
+  const full = compose(names, catalog).look
+  /* Вид, опубликованный до новых ролей палитры, теней и формы кнопки. */
+  const newer = [...Object.keys(palette.vars!).slice(-5), '--sh-raised', '--pdp-frame']
+  const old = { header: 'classic', vars: Object.fromEntries(Object.entries(full.vars).filter(([k]) => !newer.includes(k))), fonts: [], names }
+  const r = reresolve(old, catalog)
+  assert.deepEqual(r.look.names, names, 'имена — как были')
+  assert.equal(r.look.names, names, 'тот же объект имён')
+  assert.deepEqual(r.look.vars, full.vars, 'значения — из выбора заказчика, как у свежей публикации')
+  assert.deepEqual([...r.added].sort(), [...newer].sort())
+  assert.deepEqual([r.changed, r.dropped, r.kept, r.same], [[], [], [], false])
+  assert.equal(reresolve(r.look, catalog).same, true, 'второй пересчёт ничего не меняет')
+  /* Имени в каталоге больше нет — не угадывается: группа держит прежнее. */
+  const gone = reresolve({ ...old, names: { ...names, face: 'gone' }, vars: { ...old.vars, '--face': "'Gone', var(--face-stack)" } }, catalog)
+  assert.deepEqual(gone.kept, [{ field: 'face', id: 'gone', why: '«gone» is no longer in the catalog' }])
+  assert.equal(gone.look.vars['--face'], "'Gone', var(--face-stack)")
+  /* Поля не было при публикации: умолчание каталога — если прежние значения
+     группы и есть умолчание; иначе прежние остаются и называются. */
+  const width = catalog.groups.width.find((o) => o.id !== catalog.defaults.width)!
+  const unnamed = reresolve({ ...old, vars: { ...old.vars, ...width.vars } }, catalog)
+  assert.deepEqual(unnamed.kept.map((k) => k.field), ['width'])
+  assert.equal(unnamed.look.vars['--wrap'], width.vars!['--wrap'])
+  /* Своя палитра — из её трёх красок на тему, тем же движком. */
+  const own = { light: { paper: '#FBFAF7', ink: '#1F1E1C', accent: '#2F6B4F' }, dark: { paper: '#121110', ink: '#EDEBE8', accent: '#7FB89A' } }
+  const custom = reresolve({ ...old, names: { ...names, palette: CUSTOM }, paints: { name: 'Mine', ...own } }, catalog)
+  assert.deepEqual(Object.fromEntries(Object.keys(paletteVars(own)).map((k) => [k, custom.look.vars[k]])), paletteVars(own))
+  assert.deepEqual(custom.kept, [])
 })
 
 test('panel pairs: each listed pair is a problem of the site rule, and the guard finds it from both sides', () => {
