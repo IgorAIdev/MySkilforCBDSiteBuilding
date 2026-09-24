@@ -37,7 +37,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
   const [col, related] = await Promise.all([source().collection(lang, product.category), source().related(lang, id, 4)])
   const view = productView(lang, product, selected, { category: col.ok ? col.value : null, related: related.ok ? related.value : [] })
   return (
-    <main id="main" className={p.wrap}>
+    <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <JsonLd data={productLd(product, pickState(product, selected).variant ?? (product.variants.length === 1 ? product.variants[0] : null))} />
       <JsonLd data={breadcrumbLd(view.crumbs.map((c) => ({ name: c.name, href: c.href ?? hrefFor(lang, { product: id }) })))} />
       <ProductView view={view} lang={lang} submit={cartSubmit} call={cartCall} />

@@ -43,7 +43,7 @@ export default async function DocPage({ params }: Props) {
   const methods = r.value.table === 'delivery' ? await commerce().deliveryMethods(null, lang) : null
   const table = methods?.ok ? <DeliveryTable view={deliveryTable(lang, methods.value)} /> : null
   return (
-    <main id="main" className={p.wrap}>
+    <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <JsonLd data={breadcrumbLd([home, { name: r.value.title, href: hrefFor(lang, { doc }) }])} />
       <Breadcrumbs trail={docTrail(home, r.value.title)} label={t(lang, 'crumb.label')} />
       <DocView doc={r.value} table={table} />
