@@ -7,7 +7,7 @@ type To =
   | { home: true }
   | ({ catalog: true } & Query)
   | ({ category: string } & Query)
-  | { product: string; options?: Record<string, string> }
+  | { product: string; options?: Record<string, string>; choose?: boolean }
   | { search: string; page?: number }
   | { doc: string }
   | { cart: true; result?: string }
@@ -42,7 +42,10 @@ export function hrefFor(lang: Lang, to: To): string {
   if ('category' in to) return withQuery(`/${lang}/catalog/${seg(to.category)}`, shelfParams(to))
   if ('product' in to) {
     const opts = Object.entries(to.options ?? {}).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]): Pair => [`option.${k}`, v])
-    return withQuery(`/${lang}/product/${seg(to.product)}`, opts)
+    /* `choose=1` — покупатель нажал «в корзину», не выбрав варианта: карта
+       товара покажет «Choose an option» у групп выбора (lib/variant.ts,
+       `askedToChoose`). */
+    return withQuery(`/${lang}/product/${seg(to.product)}`, [...opts, ...(to.choose ? [['choose', '1'] as Pair] : [])])
   }
   if ('search' in to) return withQuery(`/${lang}/search`, [...(to.search ? [['q', to.search] as Pair] : []), ...pageParam(to.page)])
   if ('cart' in to) return withQuery(`/${lang}/cart`, to.result ? [['r', to.result]] : [])

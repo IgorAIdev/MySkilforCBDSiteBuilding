@@ -184,6 +184,6 @@ export const HU: Record<keyof typeof RO, string> = {
   'done.none': 'Nincs megjeleníthető friss rendelés',
   'done.noneStep': 'Tovább a termékekhez',
   'done.more': 'Vásárlás folytatása',
-  'home.lab.open': 'A laborjegyzőkönyv megnyitása',
+  'lab.open': 'A laborjegyzőkönyv megnyitása',
   'home.delivery.terms': 'Minden szállítási és fizetési feltétel',
 }

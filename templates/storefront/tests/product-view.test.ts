@@ -1,19 +1,30 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { sample } from '../lib/source/sample/catalog.ts'
-import { productView } from '../lib/product-view.ts'
+import { labView, productView } from '../lib/product-view.ts'
 
 const none = { category: null, related: [] }
 
-test('nothing chosen: a "from" price, a request to choose and a button without a price', async () => {
+test('nothing chosen: a "from" price, an open button without a price that leads to the choice', async () => {
   const r = await sample.product('ro', 'ulei-cbd-full-spectrum')
   assert.ok(r.ok)
   const v = productView('ro', r.value, {}, none)
   assert.equal(v.price, 'de la 34,90 €')
-  assert.equal(v.message, 'Alegeți o variantă')
+  assert.equal(v.message, null, 'до нажатия под кнопкой ничего: она открыта')
+  assert.equal(v.choose, null, 'ошибка выбора — только после нажатия')
   assert.equal(v.stock, null)
   assert.equal(v.buy.variant, null)
-  assert.equal(v.buy.add, 'Adaugă în coș', 'выключенная кнопка называет одно действие')
+  assert.equal(v.buy.add, 'Adaugă în coș', 'без варианта — одно действие, без цены')
+  /* Кнопка не выключена: форма ведёт на адрес карты с тем, что уже выбрано,
+     и `choose=1` — адрес разобран из hrefFor. */
+  assert.deepEqual(v.buy.ask, { action: '/ro/product/ulei-cbd-full-spectrum', keep: [['choose', '1']] })
+  const half = productView('en', r.value, { volum: '10' }, none)
+  assert.deepEqual(half.buy.ask, { action: '/en/product/ulei-cbd-full-spectrum', keep: [['option.volum', '10'], ['choose', '1']] }, 'выбранное едет в адресе')
+  /* Нажали без выбора: «Choose an option» у групп выбора. */
+  const asked = productView('en', r.value, { volum: '10' }, { ...none, asked: true })
+  assert.equal(asked.choose, 'Choose an option')
+  assert.equal(asked.message, null)
+  assert.equal(productView('en', r.value, { putere: '20', volum: '10' }, { ...none, asked: true }).choose, null, 'выбрано — ошибки нет')
 })
 
 test('a chosen variant: its price, its stock and the report of its batch', async () => {
@@ -26,6 +37,11 @@ test('a chosen variant: its price, its stock and the report of its batch', async
   assert.equal(v.lab?.title, 'Buletin de analiză')
   assert.equal(v.lab?.batch, 'Lot RO-2409-20')
   assert.deepEqual(v.lab?.rows.map(([k]) => k), ['Laborator', 'Data analizei', 'CBD', 'THC'])
+  /* Ссылка на документ — только у настоящего адреса: якорь `#lab-…` образца
+     документом не является. Протокол один на карте товара и на главной. */
+  assert.equal(v.lab?.open, null)
+  const doc = labView('en', { batch: 'RO-2409-10', lab: 'Lab', date: '2026-09-02', cbdPercent: 10, thcPercent: 0.1, url: '/sample/lab-RO-2409-10.pdf' })
+  assert.deepEqual(doc.open, { label: 'Open the lab report', href: '/sample/lab-RO-2409-10.pdf' })
   const gone = productView('ro', r.value, { putere: '30', volum: '10' }, none)
   assert.equal(gone.stock, 'Stoc epuizat')
   assert.equal(gone.message, null)
@@ -54,11 +70,14 @@ test('buying: only a chosen variant in stock goes to the cart, and the button na
   assert.equal(chosen.add, 'Add to cart · €64.90')
   const out = productView('en', oil.value, { putere: '30', volum: '10' }, none).buy
   assert.equal(out.variant, null)
+  assert.equal(out.ask, null, 'распродано — выбирать нечего, кнопка выключена')
+  assert.equal(productView('en', oil.value, { putere: '5', volum: '30' }, none).buy.ask, null, 'сочетания нет — кнопка выключена, почему — message')
   assert.equal(out.add, 'Add to cart', 'нет в наличии — цены в кнопке нет')
   const cream = await sample.product('ro', 'crema-cbd')
   assert.ok(cream.ok)
   const buy = productView('ro', cream.value, {}, none).buy
   assert.equal(buy.variant, 'cr-50')
+  assert.equal(buy.ask, null, 'один вариант выбран сам')
   assert.equal(buy.add, 'Adaugă în coș · 24,90 €')
   assert.equal(buy.view.href, '/ro/cart')
 })

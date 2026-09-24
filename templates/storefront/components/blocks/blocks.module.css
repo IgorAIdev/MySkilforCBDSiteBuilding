@@ -84,18 +84,7 @@
    легла бы вторым просветом поверх просвета колонок: снимается силой
    места, а не порядком файлов. */
 .labBand .labText{margin-block-end:0}
-.labDoc{--stack:var(--air-group);max-inline-size:30rem}
-/* ЗАПЛАТКА С ИМЕНЕМ (docs/open.md). Протокол нарисован стилями карты
-   товара (`ProductView.module.css`, `.lab`): там он отдельный лист с полем.
-   Здесь он лежит НА листе, и лист в листе — вложенная карточка. Пока стили
-   протокола не переехали в свой модуль (после вливания карты товара),
-   второй лист снимается здесь, обёрткой блока: протокол становится плоским
-   — строки через волосок, заголовок ролью имени, а не ступенью h3, которая
-   спорила с h2 раздела. */
-.labDoc > section{background:none;padding:0;border-radius:0}
-.labDoc h3{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600}
-.labDoc dl{gap:0;border-block-start:var(--line-w) solid var(--rule)}
-.labDoc dl > div{padding-block:var(--pad-inner);border-block-end:var(--line-w) solid var(--rule)}
+.labDoc{max-inline-size:30rem}
 
 /* СПРАВОЧНЫЕ РАЗДЕЛЫ — доставка и вопросы: заголовок своей колонкой слева,
    строки справа через волосок (`sidebar`); в узкой коробке — столбиком, и

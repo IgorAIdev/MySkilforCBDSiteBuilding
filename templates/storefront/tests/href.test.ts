@@ -8,6 +8,7 @@ test('one function builds every address, language first', () => {
   assert.equal(hrefFor('hu', { catalog: true, page: 1 }), '/hu/catalog')
   assert.equal(hrefFor('en', { category: 'uleiuri', page: 2 }), '/en/catalog/uleiuri?page=2')
   assert.equal(hrefFor('ro', { product: 'ulei-cbd-full-spectrum', options: { volum: '10', putere: '20' } }), '/ro/product/ulei-cbd-full-spectrum?option.putere=20&option.volum=10')
+  assert.equal(hrefFor('en', { product: 'ulei-cbd-full-spectrum', options: { volum: '10' }, choose: true }), '/en/product/ulei-cbd-full-spectrum?option.volum=10&choose=1')
   assert.equal(hrefFor('ro', { search: 'ulei 10 %' }), '/ro/search?q=ulei+10+%25')
   assert.equal(hrefFor('ro', { search: '' }), '/ro/search')
   assert.equal(hrefFor('en', { doc: 'livrare-si-plata' }), '/en/info/livrare-si-plata')

@@ -17,10 +17,21 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8')
 const SLOTS = JSON.parse(read('lib/look-slots.json')) as { slots: Slots; facts: Facts }
 
-test('look: the published look is accepted whole — every property known, every value of its kind, the combination holds', () => {
+/* Опубликованный вид — данные заказчика, а не код: свойство, которого сайт
+   больше не объявляет (переименовано, снято), сайт отбрасывает и называет в
+   журнале, остальное рисует (lib/look.ts). Тест на живых данных падает на
+   том, что сайт НЕ примет молча: значение не своего рода, сочетание, которое
+   не носится. Устаревшее свойство — строка в отчёте, а не красный тест. */
+const STALE = 'is not a property of this site'
+
+test('look: the published look is accepted — every value of its kind, the combination holds; a stale property is dropped and named', (t) => {
   const raw = JSON.parse(read('lib/source/sample/look.json')) as { header: string; vars: Record<string, string> }
   const { look, notes } = acceptLook(raw, SLOTS.slots, SLOTS.facts)
-  assert.deepEqual(notes, [])
+  for (const n of notes.filter((x) => x.why === STALE)) t.diagnostic(`опубликованный вид: ${n.what} ${n.why} — отброшено, стоит умолчание сайта`)
+  assert.deepEqual(notes.filter((x) => x.why !== STALE), [])
+  const stale = acceptLook({ ...raw, vars: { ...raw.vars, '--mark-fill': 'transparent' } }, SLOTS.slots, SLOTS.facts)
+  assert.ok(stale.notes.some((n) => n.what === '--mark-fill' && n.why === STALE), 'снятое свойство отброшено и названо')
+  assert.deepEqual(stale.look.vars, look.vars, 'остальное — как без него')
   assert.equal(look.header, raw.header)
   for (const [k, v] of Object.entries(look.vars)) assert.notEqual(SLOTS.slots[k].value, v, `${k}: значение по умолчанию в блок не идёт`)
   assert.ok(lookCss(look).length < 20000, 'блок вида — не каталог')

@@ -331,12 +331,22 @@ for (const view of views) {
     if (el.tag === 'nav' && !/crumb/i.test(`${basename(view.file)} ${el.attrs}`)) {
       const inside = els.filter((e) => e === el || ancestors(e).includes(el))
       const refs = inside.flatMap((e) => e.classes)
-      const linkClasses = new Set(inside.filter((e) => /^(a|Link)$/.test(e.tag)).flatMap((e) => e.classes.map((c) => c.name)))
+      const links = inside.filter((e) => /^(a|Link)$/.test(e.tag))
+      const linkClasses = new Set(links.flatMap((e) => e.classes.map((c) => c.name)))
+      /* Правило с отметкой (`[data-around='quiet']`) метит только ту ссылку,
+         что отметку несёт: «куда ведёт» набора (`go`) с плашкой — орган, а
+         голая стрелка листания в `nav` набрана кеглем строки. Без этого
+         стрелка страниц каталога числилась мелким меню по правилу плашки,
+         которого у неё нет. */
+      const carried = (sel) => {
+        const marks = [...sel.matchAll(/\[([\w-]+)=['"]?([\w-]+)['"]?\]/g)]
+        return !marks.length || links.some((l) => marks.some((m) => new RegExp(m[1] + '=[{"\'`\\s]*' + m[2] + '\\b').test(l.attrs)))
+      }
       for (const file of new Set(refs.map((c) => c.file).filter(Boolean))) {
         const names = new Set(refs.filter((c) => c.file === file).map((c) => c.name))
         for (const r of css.get(file)?.rules ?? []) {
           const last = r.parts.at(-1)
-          const aimsLink = elementsOf(last).includes('a') || classesOf(last).some((c) => linkClasses.has(c))
+          const aimsLink = (elementsOf(last).includes('a') || classesOf(last).some((c) => linkClasses.has(c))) && carried(last)
           if (!aimsLink || !r.parts.some((p) => classesOf(p).some((c) => names.has(c)))) continue
           const size = sizeOf(r.decl)
           const px = size && range(size)

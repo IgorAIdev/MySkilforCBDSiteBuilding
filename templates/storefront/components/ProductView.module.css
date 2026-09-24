@@ -100,6 +100,10 @@
    не купить. */
 .group{--seg-h:var(--ctrl-h);border:0;padding:0;margin:0;min-inline-size:0}
 .legend{padding:0;margin-block-end:var(--sp-2);font-size:var(--ctrl-fs-sm);font-weight:600;color:var(--ink)}
+/* «Choose an option» — строка ошибки поля (form.module.css, `.say`) под
+   опциями первой невыбранной группы, на той же ступени оптики, что подпись
+   над ними. */
+.choose{margin-block:var(--sp-2) 0}
 
 /* Покупка: количество и кнопка в одну строку ростом крупного органа, кнопка
    забирает остаток; подсказка, исход записи и «View cart» — строками под
@@ -112,21 +116,6 @@
 .add{flex:1 1 auto;font-variant-numeric:tabular-nums}
 .hint{flex-basis:100%;margin:0;font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
 
-/* Сведения: абзац и протокол партии. На карте товара протокол — тихая
-   таблица под волоском, а не белая карточка: карточка была самым тяжёлым
-   пятном колонки, тяжелее кнопки покупки. На главной он остаётся
-   карточкой — там он предмет раздела. */
+/* Сведения: абзац и протокол партии (плоский — LabReport.module.css). */
 .info{display:grid;gap:var(--air-row)}
-.info .lab{--stack:var(--sp-2);background:none;border-radius:0;padding:var(--air-row) 0 0;border-block-start:var(--line-w) solid var(--rule)}
-.info .labTitle{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:var(--body-track)}
-.info .facts{gap:0}
-.info .fact{padding-block:var(--sp-2);border-block-end:var(--line-w) solid var(--rule);font-size:var(--note-size)}
-
-.lab{--stack:var(--air-row);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
-.labTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
-/* Номер партии — одним куском: «RO-2409-05» не рвётся на дефисе. */
-.batch{white-space:nowrap}
-.facts{display:grid;gap:var(--gap-row);margin-inline:0;margin-block-end:0}
-.fact{display:flex;justify-content:space-between;gap:var(--gap-row)}
-.fact dd{margin:0;font-weight:600;text-align:end}
 .related{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}

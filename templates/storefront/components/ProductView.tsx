@@ -12,7 +12,9 @@ import { AddToCart } from './AddToCart.tsx'
 /* Карта товара. Колонка покупки — четыре группы, и воздух между группами
    крупнее воздуха внутри (И278): кто это и сколько стоит; выбор варианта;
    покупка; сведения. Порядок разметки — порядок чтения и на телефоне:
-   галерея, имя и цена, выбор, покупка, сведения. */
+   галерея, имя и цена, выбор, покупка, сведения. Надписи над именем нет:
+   раздел называют крошки над картой, а надпись над заголовком — запрет
+   impeccable (`check:design`, семья `eyebrow`). */
 export function ProductView({ view, lang, submit, call }: { view: ProductPageView; lang: string; submit: (form: FormData) => Promise<void>; call: (form: FormData) => Promise<Outcome> }) {
   return (
     <>
@@ -25,7 +27,6 @@ export function ProductView({ view, lang, submit, call }: { view: ProductPageVie
         </div>
         <div className={`${p.stack} ${s.offer}`}>
           <div className={s.identity}>
-            {view.eyebrow ? <p className={p.eyebrow}>{view.eyebrow}</p> : null}
             <h1 className={s.name}>{view.name}</h1>
             <p className={s.price}>
               <span className={s.now}>{view.price}</span>
@@ -33,7 +34,7 @@ export function ProductView({ view, lang, submit, call }: { view: ProductPageVie
               {view.stock ? <span className={s.stock}>{view.stock}</span> : null}
             </p>
           </div>
-          {view.groups.length ? <div className={s.choice}><VariantPicker groups={view.groups} /></div> : null}
+          {view.groups.length ? <div className={s.choice}><VariantPicker groups={view.groups} error={view.choose} /></div> : null}
           <AddToCart lang={lang} buy={view.buy} hint={view.message} submit={submit} call={call} />
           <div className={s.info}>
             <div className={p.prose}><p>{view.description}</p></div>

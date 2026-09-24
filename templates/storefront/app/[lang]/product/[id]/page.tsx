@@ -4,7 +4,7 @@ import p from '@/styles/primitives.module.css'
 import { langOf } from '@/lib/route.ts'
 import { source } from '@/lib/source/index.ts'
 import type { Params } from '@/lib/listing.ts'
-import { readSelection, pickState } from '@/lib/variant.ts'
+import { readSelection, pickState, askedToChoose } from '@/lib/variant.ts'
 import { productView } from '@/lib/product-view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { toMetadata } from '@/lib/seo.ts'
@@ -33,9 +33,10 @@ export default async function ProductPage({ params, searchParams }: Props) {
     notFound()
   }
   const product = r.value
-  const selected = readSelection(await searchParams, product)
+  const query = await searchParams
+  const selected = readSelection(query, product)
   const [col, related] = await Promise.all([source().collection(lang, product.category), source().related(lang, id, 4)])
-  const view = productView(lang, product, selected, { category: col.ok ? col.value : null, related: related.ok ? related.value : [] })
+  const view = productView(lang, product, selected, { category: col.ok ? col.value : null, related: related.ok ? related.value : [], asked: askedToChoose(query) })
   return (
     <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <JsonLd data={productLd(product, pickState(product, selected).variant ?? (product.variants.length === 1 ? product.variants[0] : null))} />
