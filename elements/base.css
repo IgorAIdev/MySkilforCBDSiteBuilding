@@ -42,6 +42,8 @@
  *    data-on-voice loud                 включённый орган встаёт в голос марки
  *    role=switch + .knob, aria-checked  ползунок: дорожка и ручка; data-track theme — дорожка по теме,
  *                                       data-knob over — ручка крупнее дорожки
+ *    .card .sheet .mark .frame          карточка · окно · знак в круге · кадр под снимок;
+ *                                       data-tone ok | bad — сообщение краской смысла, data-layout row — строкой
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -259,11 +261,127 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   .el svg, .el svg *, .el .bars, .el .bars i, .el .knob{transition:none}
 }
 
+/* ── карточка, сообщение, окно ───────────────────────────────────────────
+   Несколько частей одного сообщения на своём листе. Размеры — роли шкал
+   набора (`../../styles/scale.css`): поле карточки, угол, ритм, кегли ролей
+   текста. Край — волосок краской `--rule`, не тень (И336: «лишнее типа тени
+   убирай сразу»). */
+.card{
+  box-sizing:border-box;display:flex;flex-direction:column;gap:var(--air-row, 16px);
+  inline-size:min(320px, 100%);padding:var(--pad-card, 1.25rem);
+  border-radius:var(--r-card, 16px);background:var(--surface);color:var(--ink);
+  box-shadow:inset 0 0 0 var(--line) var(--rule);font-family:var(--face)
+}
+.card[data-align='center']{align-items:center;text-align:center}
+.card .title{margin:0;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600);line-height:var(--h3-lead, 1.2)}
+.card .text{margin:0;font-size:var(--note-size, .875rem);line-height:var(--body-lead, 1.45);color:var(--ink-soft)}
+.card .text a{color:var(--pop-ink);text-decoration:underline;text-underline-offset:.15em}
+.card .label{font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.card .price{font-size:var(--h3-size, 1.25rem);font-weight:600}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row, 12px)}
+.card .actions{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px)}
+.card .chips{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px)}
+.card .stack{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4)}
+/* Знак и слова рядом: прижаты друг к другу, знак у первой строки. */
+.card .item{display:flex;align-items:flex-start;gap:var(--gap-row, 12px)}
+/* Кадр под снимок: место занято заранее, пропорция с потолком от окна
+   (запрет 4), угол — концентричный полю карточки. */
+.card .frame{
+  display:grid;place-items:center;aspect-ratio:4 / 3;max-block-size:40svh;
+  border-radius:max(4px, calc(var(--r-card, 16px) - var(--pad-card, 1.25rem)));
+  background:var(--pop-tint);color:var(--pop-ink)
+}
+.card .frame svg{inline-size:3rem;block-size:3rem}
+/* Знак в круге тона — рисунок при сообщении, а не орган: не нажимается. */
+.mark{display:inline-grid;place-items:center;flex:none;inline-size:2.5rem;block-size:2.5rem;border-radius:999px;background:var(--quiet);color:var(--ink)}
+.mark svg{inline-size:1.25rem;block-size:1.25rem}
+/* Сообщение: краска семьи смысла — тон под всем, её чернила у знака и
+   заголовка (controls.md: «цветом отмечается событие»). Кнопки внутри —
+   без своей заливки, краской семьи. */
+.card:is([data-tone='ok'], [data-tone='bad']){box-shadow:none}
+.card[data-tone='ok']{--tone-ink:var(--ok);background:var(--ok-tint)}
+.card[data-tone='bad']{--tone-ink:var(--bad);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.card[data-tone] :is(.title, .mark){color:var(--tone-ink)}
+.card[data-tone] .mark{background:transparent}
+.card[data-tone='bad'] .mark{background:var(--bad-tint);border-radius:var(--r-ctrl, 8px)}
+.card[data-tone] .el[data-voice='ghost']{--fg:var(--tone-ink, var(--ink))}
+/* Строкой: знак, слова, выход — всплывающее сообщение. */
+.card[data-layout='row']{flex-direction:row;align-items:center;inline-size:min(360px, 100%);padding:var(--pad-inner, .75rem)}
+.card[data-layout='row'] > .stack{flex:1}
+/* Окно: шапка с именем и выходом, прокручиваемое тело, подвал с действиями.
+   Разделители — волоском; над подвалом — дымка: тело продолжается. На сайте
+   это `<dialog>` с `showModal()`, страницу гасит `::backdrop` (запрет 8). */
+.sheet{
+  box-sizing:border-box;display:flex;flex-direction:column;inline-size:min(480px, 100%);max-block-size:400px;
+  border-radius:var(--r-sheet, 20px);background:var(--surface);color:var(--ink);overflow:hidden;
+  box-shadow:inset 0 0 0 var(--line) var(--rule);font-family:var(--face)
+}
+.sheet > header, .sheet > footer{display:flex;align-items:center;gap:var(--gap-row, 12px);padding:var(--pad-inner, .75rem) var(--pad-card, 1.25rem)}
+.sheet > header{justify-content:space-between;box-shadow:inset 0 calc(var(--line) * -1) 0 var(--rule)}
+.sheet > header .title{display:flex;align-items:center;gap:.5rem;margin:0;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600)}
+.sheet > header .title svg{inline-size:1.5rem;block-size:1.5rem;color:var(--pop-ink)}
+.sheet .body{overflow-y:auto;padding:var(--pad-card, 1.25rem);font-size:var(--body-size, 1rem);line-height:var(--body-lead, 1.45)}
+.sheet .body > * + *{margin-block-start:1em}
+.sheet .body > *{margin-block-end:0}
+.sheet .body h3{margin-block-start:1.5em;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600);line-height:var(--h3-lead, 1.2)}
+.sheet .body ul{padding-inline-start:1.25em}
+.sheet > footer{position:relative;justify-content:flex-end;box-shadow:inset 0 var(--line) 0 var(--rule)}
+.sheet > footer::before{content:'';position:absolute;inset-inline:0;inset-block-end:100%;block-size:2.5rem;background:linear-gradient(to top, var(--surface), transparent);pointer-events:none}
+
+/* Меню действий: бумага всплывающего — лист с волоском, строки — органы во
+   всю ширину, группы разделены волоском. На сайте открывается `popover`
+   (запрет 8). */
+.menu{box-sizing:border-box;display:flex;flex-direction:column;gap:2px;inline-size:min(240px, 100%);padding:calc(var(--h-sm) * .15);border-radius:var(--r-card, 16px);background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.menu hr{margin:4px 0;border:0;block-size:var(--line);background:var(--rule)}
+.el[data-row]{inline-size:100%;justify-content:flex-start;padding-inline:calc(var(--h) * .3)}
+/* Шапка меню краской марки — кто вошёл; или просто имя списка. */
+.menu > header{display:flex;flex-direction:column;gap:6px;margin:calc(var(--h-sm) * -.15) calc(var(--h-sm) * -.15) 4px;padding:var(--pad-inner, .75rem);border-radius:var(--r-card, 16px) var(--r-card, 16px) 0 0;background:var(--pop);color:var(--on-pop)}
+.menu > header .label{font-size:var(--note-size, .875rem);text-transform:uppercase;letter-spacing:var(--caps)}
+.menu > header .who{display:flex;align-items:center;gap:8px;min-inline-size:0;font-weight:600}
+.menu > header .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu > header .mark{inline-size:2rem;block-size:2rem;background:var(--on-pop);color:var(--pop)}
+.menu > .name{margin:6px 8px 8px;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600)}
+/* Знак-плитка в строке: квадрат тона марки или смысла, .75 высоты строки. */
+.el .mark{inline-size:calc(var(--h) * .75);block-size:calc(var(--h) * .75)}
+.mark[data-shape='tile']{border-radius:var(--r-ctrl, 8px);background:var(--pop-tint);color:var(--pop-ink)}
+.mark[data-tone='bad']{background:var(--bad-tint);color:var(--bad)}
+/* Шеврон у конца строки — краской подписи. */
+.el .end{margin-inline-start:auto;color:var(--ink-soft)}
+/* Строка с пояснением: название и строка мельче под ним. */
+.el .lines{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:start;min-inline-size:0}
+.el .lines small{font-size:var(--note-size, .875rem);font-weight:400;color:var(--ink-soft)}
+.el[data-size='xl']{--h:calc(var(--h-lg) * 1.25)}
+/* Метка: слово в пилюле тона смысла — «новое», «бета». */
+.tag{display:inline-flex;align-items:center;block-size:1.5rem;padding-inline:.6rem;border-radius:999px;background:var(--quiet);color:var(--ink-soft);font-size:var(--note-size, .875rem);font-weight:600}
+.tag[data-tone='ok']{background:var(--ok-tint);color:var(--ok)}
+.card .frame{position:relative}
+.card .frame > .tag{position:absolute;inset-block-start:.5rem;inset-inline-end:.5rem}
+/* Ползунок значения: дорожка тона, заполнение маркой до ручки, ручка —
+   круг пола с краем. Доля заполнения — `--fill`, её ставит ../stage.js. */
+.range{-webkit-appearance:none;appearance:none;inline-size:100%;block-size:var(--h-sm);margin:0;background:transparent;cursor:pointer;--fill:50%}
+.range::-webkit-slider-runnable-track{block-size:6px;border-radius:999px;background:linear-gradient(var(--pop), var(--pop)) 0 / var(--fill) 100% no-repeat, var(--quiet)}
+.range::-moz-range-track{block-size:6px;border-radius:999px;background:var(--quiet)}
+.range::-moz-range-progress{block-size:6px;border-radius:999px;background:var(--pop)}
+.range::-webkit-slider-thumb{-webkit-appearance:none;inline-size:calc(var(--h-sm) * .6);block-size:calc(var(--h-sm) * .6);margin-block-start:calc((6px - var(--h-sm) * .6) / 2);border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.range::-moz-range-thumb{inline-size:calc(var(--h-sm) * .6);block-size:calc(var(--h-sm) * .6);border:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.range:focus-visible{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.card .control{display:grid;grid-template-columns:5rem 1fr 2.5rem;align-items:center;gap:var(--gap-row, 12px);font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.card .control output{text-align:end;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.card hr{margin:0;border:0;block-size:var(--line);background:var(--rule)}
+.card[data-layout='row'] .title{font-size:var(--body-size, 1rem)}
+.card[data-tone='ok'] .el[data-voice='loud']{--bg:var(--ok-fill);--fg:var(--on-ok)}
+
+/* Краска смысла у органа: «удалить» — краской ошибки, особое — краской марки;
+   вуаль под рукой идёт той же краской. */
+.el[data-tone='bad']{--fg:var(--bad)}
+.el[data-tone='pop']{--fg:var(--pop-ink)}
+
 /* ── страница элемента: живой сверху, состояния застывшими ниже ─────── */
 body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding-block:24px;background:var(--surface);color:var(--ink);font-family:var(--face)}
 .live{display:flex;align-items:center;justify-content:space-between;gap:6px;inline-size:min(360px, 100% - 32px)}
 .live.one{justify-content:center}
 .group{display:flex;gap:6px}
+.column{display:flex;flex-direction:column;align-items:center;gap:24px}
 .states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 .states figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
 .states figcaption{font-size:.8125rem;color:var(--ink-soft)}

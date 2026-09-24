@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>27 · Карточка согласия на cookie</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 27 — «Карточка согласия на cookie». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тени карточки и кнопок; курсор «нельзя» у «Отказаться» — отказ обязан быть так же доступен, как согласие; рост тени под рукой.
+  Приведено к единой форме: лист с волоском краской --rule вместо тени; значок — щит из листа набора: печенья в листе нет; ссылка в тексте подчёркнута всегда, краской марки (И289); кнопки — главная и тихая пилюли набора, рост 32; заголовок — роль h3 шкалы, текст — роль сноски.
+  Наведение: у кнопок: марка и тон + 5 % краски надписи. Нажатие: у кнопок: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><button class="el" data-voice="loud" data-shape="pill" data-size="sm" type="button">Accept</button><button class="el" data-shape="pill" data-size="sm" type="button">Decline</button></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><span class="el" data-voice="loud" data-shape="pill" data-size="sm">Accept</span><span class="el" data-shape="pill" data-size="sm">Decline</span></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><span class="el" data-voice="loud" data-shape="pill" data-size="sm" data-state="hover">Accept</span><span class="el" data-shape="pill" data-size="sm" data-state="hover">Decline</span></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><span class="el" data-voice="loud" data-shape="pill" data-size="sm" data-state="press">Accept</span><span class="el" data-shape="pill" data-size="sm" data-state="press">Decline</span></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><span class="el" data-voice="loud" data-shape="pill" data-size="sm" data-state="focus">Accept</span><span class="el" data-shape="pill" data-size="sm">Decline</span></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

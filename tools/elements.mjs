@@ -60,6 +60,17 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill)
   else fill()
+  /* Ползунок значения: доля заполнения и число рядом идут за ручкой. */
+  const range = (el) => {
+    const f = (el.value - (el.min || 0)) / ((el.max || 100) - (el.min || 0))
+    el.style.setProperty('--fill', \`\${Math.round(f * 100)}%\`)
+    const out = el.parentElement?.querySelector('output')
+    if (out) out.textContent = el.value
+  }
+  const ranges = () => document.querySelectorAll('input.range').forEach(range)
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ranges)
+  else ranges()
+  document.addEventListener('input', (e) => { if (e.target.matches?.('input.range')) range(e.target) })
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
@@ -73,7 +84,9 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
 `
 
 /** Подключения каждой отрисовки: палитры набора, роли, основа, сцена. */
-export const LINKS = ['<link rel="stylesheet" href="../palettes.css">', '<link rel="stylesheet" href="../../styles/tokens.css">', '<link rel="stylesheet" href="../base.css">', '<script src="../stage.js"></script>']
+export const LINKS = ['<link rel="stylesheet" href="../palettes.css">', '<link rel="stylesheet" href="../../styles/scale.css">', '<link rel="stylesheet" href="../../styles/tokens.css">', '<link rel="stylesheet" href="../base.css">', '<script src="../stage.js"></script>']
+/** Основа — по имени файла, а не по месту в списке: список подключений растёт. */
+export const BASE = LINKS.find((l) => l.includes('/base.css'))
 /** Род, у которого нет состояний и меток органа: это рисунки, а не орган. */
 export const DRAWINGS = 'набор значков'
 
@@ -114,8 +127,8 @@ export function auditElements(cat, read, icons = []) {
     const page = read(`${e.папка}/element.html`)
     if (page == null) { bad(who, 'нет отрисовки element.html'); continue }
     if (!drawings && (!/data-state="hover"/.test(page) || !/data-state="press"/.test(page))) bad(who, 'наведение и нажатие не показаны застывшими (data-state)')
-    if (!page.includes(LINKS[2])) bad(who, 'отрисовка не на основе ../base.css')
-    for (const link of LINKS.filter((l) => l !== LINKS[2])) if (!page.includes(link)) bad(who, `нет подключения ${link.match(/(?:href|src)="([^"]+)"/)[1]}: краски — ролями палитры набора, значки — из листа`)
+    if (!page.includes(BASE)) bad(who, 'отрисовка не на основе ../base.css')
+    for (const link of LINKS.filter((l) => l !== BASE)) if (!page.includes(link)) bad(who, `нет подключения ${link.match(/(?:href|src)="([^"]+)"/)[1]}: краски — ролями палитры набора, значки — из листа`)
     const markup = page.replace(/<!--[\s\S]*?-->/g, '')
     if (/<style[\s>]/.test(markup) || /\sstyle="/.test(markup)) bad(who, 'свои стили — отличие пишется атрибутом основы, а не правилом')
     if (/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i.test(markup.replace(/href="#[\w-]+"/g, ''))) bad(who, 'своя краска — краски только в основе')

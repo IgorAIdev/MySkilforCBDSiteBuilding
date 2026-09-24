@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>28 · Карточка товара с размерами</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 28 — «Карточка товара с размерами». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тёмная карточка своими красками; градиент и внутренняя тень кнопки корзины; обрезка названия в одну строку; рамка у размера под рукой.
+  Приведено к единой форме: лист с волоском; в тёмной теме — тёмный сам; кадр под снимок — место занято заранее, тон марки, пропорция с потолком; размеры — фишки тона, выбранная — маркой (aria-pressed); кнопка корзины — главная набора со знаком корзины; название — роль h3, цена — рядом с кнопкой.
+  Наведение: фишки и кнопка: + 5 % краски надписи. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card"><div class="frame"><svg data-sign="package"></svg></div><div class="stack"><p class="title">CBD oil 10 %</p><span class="label">Size</span></div><div class="chips"><button class="el" data-size="sm" data-on-voice="loud" aria-pressed="false" type="button">S</button><button class="el" data-size="sm" data-on-voice="loud" aria-pressed="true" type="button">M</button><button class="el" data-size="sm" data-on-voice="loud" aria-pressed="false" type="button">L</button><button class="el" data-size="sm" data-on-voice="loud" aria-pressed="false" type="button">XL</button></div><div class="row"><span class="price">29,90 €</span><button class="el" data-voice="loud" type="button"><svg data-sign="shopping-cart"></svg>Add to cart</button></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card"><div class="frame"><svg data-sign="package"></svg></div><div class="stack"><p class="title">CBD oil 10 %</p><span class="label">Size</span></div><div class="chips"><span class="el" data-size="sm" data-on-voice="loud">S</span><span class="el" data-size="sm" data-on-voice="loud" data-on>M</span><span class="el" data-size="sm" data-on-voice="loud">L</span><span class="el" data-size="sm" data-on-voice="loud">XL</span></div><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="loud"><svg data-sign="shopping-cart"></svg>Add to cart</span></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card"><div class="frame"><svg data-sign="package"></svg></div><div class="stack"><p class="title">CBD oil 10 %</p><span class="label">Size</span></div><div class="chips"><span class="el" data-size="sm" data-on-voice="loud" data-state="hover">S</span><span class="el" data-size="sm" data-on-voice="loud" data-on>M</span><span class="el" data-size="sm" data-on-voice="loud" data-state="hover">L</span><span class="el" data-size="sm" data-on-voice="loud" data-state="hover">XL</span></div><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="loud" data-state="hover"><svg data-sign="shopping-cart"></svg>Add to cart</span></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card"><div class="frame"><svg data-sign="package"></svg></div><div class="stack"><p class="title">CBD oil 10 %</p><span class="label">Size</span></div><div class="chips"><span class="el" data-size="sm" data-on-voice="loud" data-state="press">S</span><span class="el" data-size="sm" data-on-voice="loud" data-on>M</span><span class="el" data-size="sm" data-on-voice="loud" data-state="press">L</span><span class="el" data-size="sm" data-on-voice="loud" data-state="press">XL</span></div><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="loud" data-state="press"><svg data-sign="shopping-cart"></svg>Add to cart</span></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card"><div class="frame"><svg data-sign="package"></svg></div><div class="stack"><p class="title">CBD oil 10 %</p><span class="label">Size</span></div><div class="chips"><span class="el" data-size="sm" data-on-voice="loud">S</span><span class="el" data-size="sm" data-on-voice="loud" data-on>M</span><span class="el" data-size="sm" data-on-voice="loud">L</span><span class="el" data-size="sm" data-on-voice="loud">XL</span></div><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="loud" data-state="focus"><svg data-sign="shopping-cart"></svg>Add to cart</span></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

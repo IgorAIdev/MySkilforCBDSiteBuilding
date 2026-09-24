@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>30 · Карточка с отметкой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 30 — «Карточка с отметкой». Источник — разметка Tailwind от заказчика 24.09.2026 (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: подъём карточки под рукой; тень; тёмно-серые краски.
+  Приведено к единой форме: лист с волоском; отметка — щит из листа набора в круге тона вместо значка-печати; текст — роль сноски; кнопка «Подробнее» — чтобы у карточки было действие: иначе ей нечем отвечать на руку.
+  Наведение: у кнопки: вуаль 5 %. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="text">Every batch is tested in an independent lab: CBD, THC, heavy metals and pesticides. The batch number on the label matches the report.</p><div class="actions"><button class="el" data-voice="ghost" data-size="sm" type="button">Learn more</button></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="text">Every batch is tested in an independent lab: CBD, THC, heavy metals and pesticides. The batch number on the label matches the report.</p><div class="actions"><span class="el" data-voice="ghost" data-size="sm">Learn more</span></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="text">Every batch is tested in an independent lab: CBD, THC, heavy metals and pesticides. The batch number on the label matches the report.</p><div class="actions"><span class="el" data-voice="ghost" data-size="sm" data-state="hover">Learn more</span></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="text">Every batch is tested in an independent lab: CBD, THC, heavy metals and pesticides. The batch number on the label matches the report.</p><div class="actions"><span class="el" data-voice="ghost" data-size="sm" data-state="press">Learn more</span></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="text">Every batch is tested in an independent lab: CBD, THC, heavy metals and pesticides. The batch number on the label matches the report.</p><div class="actions"><span class="el" data-voice="ghost" data-size="sm" data-state="focus">Learn more</span></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

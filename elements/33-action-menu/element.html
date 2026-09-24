@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>33 · Меню действий</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 33 — «Меню действий». Источник — два CSS от заказчика 24.09.2026: тёмное и белое меню — после разбора одно (source.css, source-2.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тёмная карточка с градиентом; сдвиг строки под рукой; заливка строки синим и красным под рукой; сиреневая краска последней группы.
+  Приведено к единой форме: бумага всплывающего — лист с волоском, на сайте — popover; строки — органы во всю ширину, под рукой вуаль краской строки; «Удалить» — краской ошибки, особый пункт — краской марки; значки из листа набора: «переименовать» не нашёлся — пункт снят.
+  Наведение: строка: вуаль 5 % своей краски. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="menu"><button class="el" data-voice="ghost" data-size="sm" data-row type="button"><svg data-sign="user"></svg>Add member</button><button class="el" data-voice="ghost" data-size="sm" data-row type="button"><svg data-sign="sliders-horizontal"></svg>Settings</button><hr><button class="el" data-voice="ghost" data-size="sm" data-row data-tone="bad" type="button"><svg data-sign="trash"></svg>Delete</button><hr><button class="el" data-voice="ghost" data-size="sm" data-row data-tone="pop" type="button"><svg data-sign="shield-check"></svg>Team access</button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="menu"><span class="el" data-voice="ghost" data-size="sm" data-row><svg data-sign="user"></svg>Add member</span><span class="el" data-voice="ghost" data-size="sm" data-row><svg data-sign="sliders-horizontal"></svg>Settings</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="bad"><svg data-sign="trash"></svg>Delete</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="pop"><svg data-sign="shield-check"></svg>Team access</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="menu"><span class="el" data-voice="ghost" data-size="sm" data-row data-state="hover"><svg data-sign="user"></svg>Add member</span><span class="el" data-voice="ghost" data-size="sm" data-row><svg data-sign="sliders-horizontal"></svg>Settings</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="bad"><svg data-sign="trash"></svg>Delete</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="pop"><svg data-sign="shield-check"></svg>Team access</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="menu"><span class="el" data-voice="ghost" data-size="sm" data-row data-state="press"><svg data-sign="user"></svg>Add member</span><span class="el" data-voice="ghost" data-size="sm" data-row><svg data-sign="sliders-horizontal"></svg>Settings</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="bad"><svg data-sign="trash"></svg>Delete</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="pop"><svg data-sign="shield-check"></svg>Team access</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="menu"><span class="el" data-voice="ghost" data-size="sm" data-row data-state="focus"><svg data-sign="user"></svg>Add member</span><span class="el" data-voice="ghost" data-size="sm" data-row><svg data-sign="sliders-horizontal"></svg>Settings</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="bad"><svg data-sign="trash"></svg>Delete</span><hr><span class="el" data-voice="ghost" data-size="sm" data-row data-tone="pop"><svg data-sign="shield-check"></svg>Team access</span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

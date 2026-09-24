@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>29 · Сообщение: успех</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 29 — «Сообщение: успех». Источник — два CSS от заказчика 24.09.2026: действия словом и главное — заливкой (source.css, source-2.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: свои зелёные краски: пять оттенков; появление, пульс знака, подъём под рукой и тени второго источника.
+  Приведено к единой форме: тон и чернила семьи «успех» палитры (--ok-tint, --ok); знак — круг с галкой из листа набора; кнопки — без заливки, краской семьи; под рукой — вуаль той же краски; заголовок — роль h3, текст — роль сноски; вариант: главное действие залито краской успеха (--ok-fill), второе — словом.
+  Наведение: у кнопок: вуаль 5 % краски успеха. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="column"><div class="card" data-tone="ok"><div class="item"><span class="mark"><svg data-sign="circle-check"></svg></span><div class="stack"><p class="title">Order completed</p><p class="text">Your order is placed and paid. We will send the tracking number by email.</p></div></div><div class="actions"><button class="el" data-voice="ghost" data-size="sm" type="button">View status</button><button class="el" data-voice="ghost" data-size="sm" type="button">Dismiss</button></div></div><div class="card" data-tone="ok"><div class="item"><span class="mark"><svg data-sign="circle-check"></svg></span><div class="stack"><p class="title">Order completed</p><p class="text">Your order is placed and paid.</p></div></div><div class="actions"><button class="el" data-voice="loud" data-size="sm" type="button">View status</button><button class="el" data-voice="ghost" data-size="sm" type="button">Dismiss</button></div></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-tone="ok"><div class="item"><span class="mark"><svg data-sign="circle-check"></svg></span><div class="stack"><p class="title">Order completed</p><p class="text">Your order is placed and paid. We will send the tracking number by email.</p></div></div><div class="actions"><span class="el" data-voice="ghost" data-size="sm">View status</span><span class="el" data-voice="ghost" data-size="sm">Dismiss</span></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-tone="ok"><div class="item"><span class="mark"><svg data-sign="circle-check"></svg></span><div class="stack"><p class="title">Order completed</p><p class="text">Your order is placed and paid. We will send the tracking number by email.</p></div></div><div class="actions"><span class="el" data-voice="ghost" data-size="sm" data-state="hover">View status</span><span class="el" data-voice="ghost" data-size="sm" data-state="hover">Dismiss</span></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-tone="ok"><div class="item"><span class="mark"><svg data-sign="circle-check"></svg></span><div class="stack"><p class="title">Order completed</p><p class="text">Your order is placed and paid. We will send the tracking number by email.</p></div></div><div class="actions"><span class="el" data-voice="ghost" data-size="sm" data-state="press">View status</span><span class="el" data-voice="ghost" data-size="sm" data-state="press">Dismiss</span></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-tone="ok"><div class="item"><span class="mark"><svg data-sign="circle-check"></svg></span><div class="stack"><p class="title">Order completed</p><p class="text">Your order is placed and paid. We will send the tracking number by email.</p></div></div><div class="actions"><span class="el" data-voice="ghost" data-size="sm" data-state="focus">View status</span><span class="el" data-voice="ghost" data-size="sm">Dismiss</span></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>
