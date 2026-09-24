@@ -5,8 +5,29 @@
 /* Карточки ряда — одной высоты (ячейка сетки тянет, карточка берёт её
    всю), и цена с наличием стоят у всех на одной линии: растёт имя, а не
    воздух над ценой. */
-.card{--stack:var(--air-row);position:relative;block-size:100%;display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
+.card{--stack:var(--air-row);position:relative;block-size:100%;display:flex;flex-direction:column}
 .shot{--frame:1 / 1;border-radius:var(--r-ctrl)}
+
+/* Варианты карточки — одежда одной раскладки (craft, «Виды предмета — это
+   одежда, а не разная раскладка»): поверхность, линия, поле. Все три —
+   простая карточка полки, договор плотности один (shop, «Плотность товарной
+   полки зависит от занятой ширины»: 4–5 карточек по 260–325px). Вариант
+   выбирает вид (`card`, lib/cards.ts).
+   look-card:* Пока вид выбирается, стоят все; `npm run look:remove` оставляет выбранный.
+*/
+/* look-card:framed:start */
+/* framed — своя поверхность с тенью: карточка лежит над полом страницы. */
+.card[data-card='framed']{background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
+/* look-card:framed:end */
+/* look-card:bare:start */
+/* bare — коробки нет: снимок со своим углом прямо на полу, текст под ним. */
+.card[data-card='bare'] .shot{border-radius:var(--r-card)}
+/* look-card:bare:end */
+/* look-card:outlined:start */
+/* outlined — волосок вместо тени и поле внутреннее: полка плотнее, а карточка
+   остаётся карточкой. */
+.card[data-card='outlined']{border:var(--line-w) solid var(--rule);border-radius:var(--r-card);padding:var(--pad-inner)}
+/* look-card:outlined:end */
 /* Имя — тело, а не ступень подзаголовка: на полке каталога оно стояло
    ростом с заголовок подвала «Ajutor» (h2), и лестница заголовков
    перекрещивалась (check:craft, ladder). Так же набрана карточка на стенде

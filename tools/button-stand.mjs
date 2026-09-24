@@ -1,29 +1,31 @@
 /*
- * Стенд стилей кнопки: каталог `styles/buttons.json` на одном и том же куске
- * магазина — выбор глазами, а не списком (CLAUDE.md, «Выбор показывается
- * глазами»; И252).
+ * Стенд кнопки: каталог `styles/buttons.json` — оси и их варианты (И252,
+ * И273) — на одном и том же куске магазина: выбор глазами, а не списком
+ * (CLAUDE.md, «Выбор показывается глазами»). Угол — из Shape, нажатие — одно
+ * на всё нажимаемое: на стенде их не выбирают, их видно.
  *
  *   node tools/button-stand.mjs [куда.html]          по умолчанию button-stand.html
  *   node tools/button-stand.mjs --bare куда.html     без обёртки <html> — для публикации артефактом
  *
  * Собран ИЗ ВЫПУЩЕННОГО: палитра, шкалы, роли, основа, примитивы, кнопка
  * основы и каталог стилей вставлены как есть. Каждый стиль — та же кнопка
- * основы под `[data-button="имя"]`, поэтому стенд не может показать то, чего
- * сайт не наденет. Стиль, не прошедший замер на палитре сайта, показан, но
- * помечен и не выбирается — причина числом рядом.
+ * основы под `[data-button-<ось>="вариант"]`, поэтому стенд не может показать
+ * то, чего сайт не наденет. Вариант, не прошедший замер на палитре сайта,
+ * показан, но помечен — причина числом рядом.
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { availability, toCss, buttonRoles } from './buttons.mjs'
+import { availability, toCss, axesOf } from './buttons.mjs'
 
 const read = (p) => (existsSync(path.resolve(p)) ? readFileSync(path.resolve(p), 'utf8') : '')
 const need = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/btn.module.css', 'styles/buttons.json', 'styles/palette.json', 'styles/icons.svg']
 const missing = need.filter((p) => !read(p))
 if (missing.length) { console.error(`✗ Нет ${missing.join(', ')} — показывать нечем.`); process.exit(1) }
 
-const styles = JSON.parse(read('styles/buttons.json'))
-const { off } = availability(styles, JSON.parse(read('styles/palette.json')))
+const catalog = JSON.parse(read('styles/buttons.json'))
+const { off } = availability(catalog, JSON.parse(read('styles/palette.json')))
+const options = axesOf(catalog).flatMap((a) => a.options.map((o) => ({ axis: a, o })))
 const plain = (p) => read(p).replace(/composes\s*:[^;}]*;?/g, '')
 const scaleCss = read('styles/scale.css')
 
@@ -53,25 +55,21 @@ const scene = (big = false) => `
         </div>
       </div>`
 
-const tile = (name, s) => {
-  const r = buttonRoles(s)
-  const why = off[name]?.[0]
+const tile = ({ axis, o }) => {
+  const why = off[`${axis.id}/${o.id}`]?.[0]
   return `
-    <article class="tile${why ? ' off' : ''}" data-button="${esc(name)}">
+    <article class="tile${why ? ' off' : ''}" data-button-${esc(axis.id)}="${esc(o.id)}">
       <header class="head">
-        <h2>${esc(name)}</h2>
+        <h2>${esc(axis.имя)}: ${esc(o.имя)}</h2>
         ${why ? `<p class="badge no">не для этой палитры</p>` : `<p class="badge ok">проходит</p>`}
       </header>
-      <p class="what">${esc(s.что)}</p>
+      <p class="what">${esc(o.что)}</p>
       ${scene()}
       <dl class="facts">
-        <div><dt>угол</dt><dd>${esc(r['--ctrl-btn-r'])}${s.круг ? ' · главная — круг' : ''}</dd></div>
-        <div><dt>буквы</dt><dd>${s.вес} · ${esc(s.регистр)}${s.разрядка ? ` · ${s.разрядка}em` : ''}</dd></div>
-        <div><dt>главная</dt><dd>${esc(s.громкая)}${s.тень !== 'нет' ? ` · ${esc(s.тень)}` : ''}</dd></div>
-        <div><dt>тихая</dt><dd>${esc(s.тихая)}</dd></div>
+        ${Object.entries(o.роли).map(([k, v]) => `<div><dt>${esc(k.replace('--ctrl-btn-', ''))}</dt><dd>${esc(v)}</dd></div>`).join('')}
         <div><dt>надпись главной</dt><dd class="live" data-live="contrast">—</dd></div>
       </dl>
-      ${why ? `<p class="why">${esc(why.rule)}: ${why.got} при норме ${why.need} (${why.theme === 'light' ? 'светлая' : 'тёмная'} тема)</p>` : `<button class="btn pick" type="button" data-pick="${esc(name)}">Посмотреть крупно</button>`}
+      ${why ? `<p class="why">${esc(why.rule)}: ${why.got} при норме ${why.need} (${why.theme === 'light' ? 'светлая' : 'тёмная'} тема)</p>` : ''}
     </article>`
 }
 
@@ -83,7 +81,7 @@ ${read('styles/tokens.css')}
 ${read('styles/base.css')}
 ${plain('styles/primitives.module.css')}
 ${read('styles/btn.module.css')}
-${toCss(styles)}
+${toCss(catalog)}
 ${coarseRule}
 body{background:var(--page);color:var(--ink);font-family:var(--face)}
 .top{display:flex;flex-wrap:wrap;gap:var(--gap-row);align-items:center;justify-content:space-between;padding-block:var(--air-row)}
@@ -121,8 +119,8 @@ const content = `${read('styles/icons.svg').replace('<svg ', '<svg style="displa
 <main class="wrap">
   <header class="top">
     <div class="stack">
-      <h1>Стиль кнопок</h1>
-      <p class="intro">Одна и та же кнопка магазина в ${Object.keys(styles).length} стилях, на одном и том же товаре. Голосов два: главная — одна на экране, тихая — всё остальное. Выберите стиль глазами; числа рядом — что он проходит на палитре сайта.</p>
+      <h1>Кнопка</h1>
+      <p class="intro">Одна и та же кнопка магазина: ${axesOf(catalog).map((a) => `${a.имя.toLowerCase()} — ${a.options.map((o) => o.имя.toLowerCase()).join(' или ')}`).join('; ')}. Угол — из Shape, нажатие у всех одно: цвет, чуть меньше и на пиксель ниже. Числа рядом — что вариант проходит на палитре сайта.</p>
     </div>
     <div class="stack">
       <div class="switch" role="group" aria-label="Тема">
@@ -150,7 +148,7 @@ const content = `${read('styles/icons.svg').replace('<svg ', '<svg style="displa
     </div>
   </section>
 
-  <section class="grid gallery">${Object.entries(styles).map(([n, s]) => tile(n, s)).join('')}
+  <section class="grid gallery">${options.map(tile).join('')}
   </section>
 </main>
 <script>
@@ -192,4 +190,4 @@ ${content}
 </body>
 </html>
 `)
-console.log(`✓ стенд кнопок: ${out} · ${Object.keys(styles).length} стилей, не для этой палитры: ${Object.keys(off).join(', ') || 'нет'}`)
+console.log(`✓ стенд кнопок: ${out} · ${options.length} вариантов по ${axesOf(catalog).length} осям, не для этой палитры: ${Object.keys(off).join(', ') || 'нет'}`)

@@ -13,6 +13,7 @@ import '@/styles/tokens.css'
 import '@/styles/base.css'
 import '@/styles/buttons.css'
 import '@/styles/storefront.css'
+import '@/styles/look.css'
 
 /* Документ витрины: язык, вид, пропуск к содержимому, шапка, подвал и общие
    стили. Один на двоих — макет языка (app/[lang]/layout.tsx) и страницу

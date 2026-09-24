@@ -66,7 +66,7 @@ test('--storefront lays the template over the foundation and copies the kit help
    первый набор ритма; весь каталог набора — у панели вида
    (look-panel/ui/catalog.json), опубликованный вид — умолчание каталога. */
 test('--storefront installs one look in the site and the whole kit catalogue in the panel', async () => {
-  const { toCss } = await import('../tools/palette.mjs')
+  const { roles } = await import('../tools/palette.mjs')
   const kitPalette = JSON.parse(readFileSync(join(KIT, 'styles/palette.json'), 'utf8'))
   const samples = JSON.parse(readFileSync(join(KIT, 'templates/palette.json'), 'utf8'))
   const kitButtons = JSON.parse(readFileSync(join(KIT, 'styles/buttons.json'), 'utf8'))
@@ -79,18 +79,26 @@ test('--storefront installs one look in the site and the whole kit catalogue in 
     const json = (p) => JSON.parse(readFileSync(join(plain, p), 'utf8'))
     const got = json('styles/palette.json')
     assert.deepEqual(got, kitPalette, 'краски — те, что решены в наборе, и только они')
-    assert.equal(readFileSync(join(plain, 'styles/palette.css'), 'utf8'), toCss(got), 'выпуск сходится с красками')
-    assert.deepEqual(Object.keys(json('styles/buttons.json')), [Object.keys(kitButtons)[0]], 'один стиль кнопки')
+    /* Стили сайта выпущены из опубликованного вида (И272): краски — те же
+       ступени, что строитель считает из решённого набора. */
+    const [name, seed] = Object.entries(got)[0]
+    const light = roles(seed.light, 'light')
+    const dark = roles(seed.dark, 'dark')
+    const palette = readFileSync(join(plain, 'styles/palette.css'), 'utf8')
+    for (const k of Object.keys(light)) assert.ok(palette.includes(`  ${k}: light-dark(${light[k]}, ${dark[k] ?? light[k]});`), `${name}: ${k}`)
+    assert.equal(json('lib/source/sample/look.json').vars['--a-9'], `light-dark(${light['--a-9']}, ${dark['--a-9']})`, 'стили и опубликованный вид — одни значения')
+    /* Кнопка — оси каталога (И273): сайт несёт первый вариант каждой оси. */
+    for (const [axis, a] of Object.entries(json('styles/buttons.json'))) assert.deepEqual(Object.keys(a.варианты), [Object.keys(kitButtons[axis].варианты)[0]], `${axis}: один вариант`)
     assert.deepEqual(Object.keys(json('styles/scale.json')), [Object.keys(kitScales)[0]], 'один набор ритма')
-    for (const [file, attr] of [['styles/palette.css', 'data-palette'], ['styles/buttons.css', 'data-button'], ['styles/scale.css', 'data-scale']]) {
+    for (const [file, attr] of [['styles/palette.css', 'data-palette'], ['styles/buttons.css', 'data-button[\\w-]*'], ['styles/scale.css', 'data-scale']]) {
       const css = readFileSync(join(plain, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
       const names = new Set([...css.matchAll(new RegExp(`\\[${attr}="([^"]+)"\\]`, 'g'))].map((m) => m[1]))
-      assert.ok(names.size <= 1, `${file}: ${[...names].join(', ')}`)
+      assert.equal(names.size, 0, `${file}: ${[...names].join(', ')} — набор под именем в стилях сайта`)
     }
     const catalog = json('look-panel/ui/catalog.json')
     const ids = (g) => catalog.groups[g].map((o) => o.id).sort()
     assert.deepEqual(ids('palette'), [...new Set([...Object.keys(kitPalette), ...Object.keys(samples)])].sort(), 'все палитры набора — у панели')
-    assert.deepEqual(ids('button'), Object.keys(kitButtons).sort(), 'все стили кнопки — у панели')
+    for (const [axis, a] of Object.entries(kitButtons)) assert.deepEqual(ids(`btn-${axis}`), Object.keys(a.варианты).sort(), `${axis}: все варианты оси кнопки — у панели`)
     assert.deepEqual(ids('scale'), Object.keys(kitScales).sort(), 'все наборы ритма — у панели')
     assert.ok(catalog.pairs.length > 0, 'пары, которые не носятся, посчитаны')
     assert.deepEqual(json('lib/source/sample/look.json').names, catalog.defaults, 'опубликован вид по умолчанию')

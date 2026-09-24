@@ -11,13 +11,14 @@
    вовсе, функции и слова — из списка рода. Внедрить CSS нечем. Не прошедшее
    отбрасывается по одному свойству; на его месте остаётся умолчание стилей
    сайта, и отброшенное называется. Чистый модуль: ни next, ни диска. */
-import type { HeaderVariant } from './headers.ts'
+import { HEADERS, type HeaderVariant } from './headers.ts'
+import { CARDS, type CardVariant } from './cards.ts'
 import type { Look, LookFont } from './source/contract.ts'
 
 export type SlotType = 'colour' | 'length' | 'number' | 'keyword' | 'shadow' | 'transform' | 'font'
-/** Что выбирается вместе: набор цвета, набор ритма, шрифт, стиль кнопок,
- *  отметка текущего пункта меню. */
-export type Group = 'palette' | 'scale' | 'face' | 'button' | 'marker'
+/** Что выбирается вместе: набор цвета, набор ритма, ширина холста, углы,
+ *  тени, шрифт, стиль кнопок, отметка текущего пункта меню. */
+export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker'
 /** Свойство вида: род значения, группа и умолчание стилей сайта. */
 export type Slot = { type: SlotType; group: Group; value: string }
 export type Slots = Readonly<Record<string, Slot>>
@@ -29,7 +30,7 @@ const FUNCS: Readonly<Record<SlotType, readonly string[]>> = {
   length: ['clamp', 'calc', 'min', 'max'],
   number: ['calc'],
   keyword: [],
-  shadow: [],
+  shadow: ['color-mix'],
   transform: ['scale', 'translatex', 'translatey'],
   font: [],
 }
@@ -37,8 +38,8 @@ const WORDS: Readonly<Record<SlotType, readonly string[]>> = {
   colour: ['transparent', 'currentcolor', 'in', 'srgb', 'oklab', 'oklch'],
   length: ['normal'],
   number: [],
-  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline'],
-  shadow: ['none'],
+  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block'],
+  shadow: ['none', 'inset', 'transparent', 'in', 'srgb', 'oklab'],
   transform: ['none'],
   font: [],
 }
@@ -69,7 +70,8 @@ export function valid(type: SlotType, value: unknown): boolean {
     else if (t.startsWith('#')) { if (type !== 'colour') return false; kinds.push('hex') }
     else if (/^[+-]?[\d.]/.test(t)) {
       const unit = (m[1] ?? '').toLowerCase()
-      if (!UNITS.has(unit) || type === 'keyword' || type === 'shadow' || type === 'font') return false
+      if (!UNITS.has(unit) || type === 'keyword' || type === 'font') return false
+      if (type === 'shadow' && !['', 'px', 'rem', 'em', '%'].includes(unit)) return false
       if (type === 'number' && unit) return false
       if (type === 'colour' && unit && unit !== '%') return false
       kinds.push('num')
@@ -83,12 +85,15 @@ export function valid(type: SlotType, value: unknown): boolean {
       if (type !== 'font' && !WORDS[type].includes(t.toLowerCase())) return false
       kinds.push('word')
     } else {
-      if (type === 'keyword' || type === 'shadow' || (type === 'font' && t !== ',')) return false
-      kinds.push('op')
+      if (type === 'keyword' || ((type === 'shadow' || type === 'font') && t !== ',')) return false
+      kinds.push(t === ',' ? 'comma' : 'op')
     }
   }
   if (depth !== 0 || !kinds.length) return false
-  if (type === 'keyword' || type === 'shadow') return kinds.length === 1 && (type === 'shadow' || kinds[0] === 'word')
+  if (type === 'keyword') return kinds.length === 1 && kinds[0] === 'word'
+  /* Тень — ссылка на роль, `none` или слои: длины, краска ссылкой или
+     вуалью, `inset`. `none` — только одно. */
+  if (type === 'shadow') return kinds.length === 1 || !/\bnone\b/i.test(rest)
   return true
 }
 
@@ -97,7 +102,13 @@ const FONT_URL = /^\/fonts\/[a-z0-9-]{1,80}\.woff2$/
 const WEIGHT = /^[1-9]00( [1-9]00)?$/
 const RANGE = /^U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?(, ?U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?)*$/
 const LABEL = /^[\p{L}\p{N} .+-]{1,60}$/u
-const FIELDS = new Set(['palette', 'face', 'scale', 'button', 'marker', 'header'])
+const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'header', 'card'])
+/** Оси кнопки — поля `btn-<ось>`: каталог кнопки растёт осями данными (И273). */
+const AXIS = /^btn-[a-z0-9-]{1,30}$/
+
+/** Разметка, которую сайт умеет рисовать: варианты шапки и карточки товара. */
+export type Structure = { headers: readonly HeaderVariant[]; cards: readonly CardVariant[] }
+export const STRUCTURE: Structure = { headers: HEADERS, cards: CARDS }
 
 const record = (x: unknown): Record<string, unknown> | null => (x && typeof x === 'object' && !Array.isArray(x) ? (x as Record<string, unknown>) : null)
 
@@ -113,11 +124,15 @@ export function validFont(x: unknown): x is LookFont {
 }
 
 /** Сохранённый вид → вид, которым можно рисовать, и что отброшено. */
-export function acceptValues(raw: unknown, slots: Slots, headers: readonly HeaderVariant[]): { look: Look; dropped: Dropped[] } {
+export function acceptValues(raw: unknown, slots: Slots, known: Structure = STRUCTURE): { look: Look; dropped: Dropped[] } {
   const dropped: Dropped[] = []
   const r = record(raw)
-  const header = headers.find((h) => h === r?.header)
+  const header = known.headers.find((h) => h === r?.header)
   if (r && !header) dropped.push({ what: 'header', why: `«${String(r.header)}» is not a header this site draws` })
+  /* Карточки в сохранённом виде может не быть (вид старше поля) — тогда
+     первая, без слова. */
+  const card = known.cards.find((c) => c === r?.card)
+  if (r && r.card !== undefined && !card) dropped.push({ what: 'card', why: `«${String(r.card)}» is not a product card this site draws` })
   const vars: Record<string, string> = {}
   for (const [name, value] of Object.entries(record(r?.vars) ?? {})) {
     const slot = Object.hasOwn(slots, name) ? slots[name] : null
@@ -132,8 +147,8 @@ export function acceptValues(raw: unknown, slots: Slots, headers: readonly Heade
     else dropped.push({ what: 'font', why: 'is not a self-hosted woff2 font of this site' })
   }
   const names: Record<string, string> = {}
-  for (const [k, v] of Object.entries(record(r?.names) ?? {})) if (FIELDS.has(k) && typeof v === 'string' && LABEL.test(v)) names[k] = v
-  return { look: { header: header ?? headers[0], vars, fonts, names }, dropped }
+  for (const [k, v] of Object.entries(record(r?.names) ?? {})) if ((FIELDS.has(k) || AXIS.test(k)) && typeof v === 'string' && LABEL.test(v)) names[k] = v
+  return { look: { header: header ?? known.headers[0], card: card ?? known.cards[0], vars, fonts, names }, dropped }
 }
 
 /** Проверенный вид → текст блока `<style href="look">`: свойства на корне

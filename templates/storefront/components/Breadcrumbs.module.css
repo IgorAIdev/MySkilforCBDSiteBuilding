@@ -19,5 +19,10 @@
 .crumbs li{display:inline-flex;align-items:center}
 .crumbs li + li::before{content:'/';margin-inline-end:var(--sp-1)}
 /* Цель — квадрат, а не только высота: короткое «Acasă» под пальцем
-   выходило 32×44 (check:craft, target и coarse). */
-.crumbs a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}
+   выходило 32×44 (check:craft, target и coarse). Цель растёт в обе стороны
+   поровну и не сдвигает строку: поле по бокам — доля роста цели, и ровно
+   столько же ссылка отступает назад. Без этого короткое «Home» под пальцем
+   стояло в мишени 44 px текстом влево, и после него зиял пустой хвост
+   (свип 375, pointer:coarse, 24.09.2026). */
+.crumbs a{display:inline-flex;align-items:center;justify-content:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);
+  padding-inline:calc(var(--ctrl-target) * .2);margin-inline:calc(var(--ctrl-target) * -.2)}

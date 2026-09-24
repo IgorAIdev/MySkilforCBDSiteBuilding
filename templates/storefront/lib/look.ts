@@ -1,9 +1,11 @@
+import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
 import { draftMode } from 'next/headers'
 import SLOTS from './look-slots.json' with { type: 'json' }
 import type { Look } from './source/contract.ts'
 import { content } from './source/index.ts'
 import { HEADERS } from './headers.ts'
+import { CARDS } from './cards.ts'
 import type { Slots } from './look-values.ts'
 import { acceptLook, type Facts } from './look-rule.ts'
 
@@ -29,13 +31,13 @@ const slots = SLOTS.slots as Slots
 const facts = SLOTS.facts as Facts
 
 /** Вид по умолчанию — пустой: всё берут стили сайта. */
-export const FALLBACK: Look = { header: HEADERS[0], vars: {}, fonts: [], names: {} }
+export const FALLBACK: Look = { header: HEADERS[0], card: CARDS[0], vars: {}, fonts: [], names: {} }
 
 /** Сохранённое → вид, которым рисуется страница. Отброшенное называется
  *  в журнале сервера: свойство, род или группа и почему. */
 export function accept(raw: unknown): Look {
   if (raw === null || raw === undefined) return FALLBACK
-  const { look, notes } = acceptLook(raw, slots, facts, HEADERS)
+  const { look, notes } = acceptLook(raw, slots, facts)
   for (const n of notes) console.warn(`look: ${n.what} ${n.why} — the site default stays`)
   return look
 }
@@ -46,11 +48,12 @@ const published = unstable_cache(async () => {
 }, ['look'], { tags: ['look'] })
 
 /** Вид, которым рисуется страница: опубликованный, а в черновом режиме —
- *  черновик источника. */
-export async function lookNow(): Promise<Look> {
+ *  черновик источника. Один раз на запрос (`cache` React): его спрашивают
+ *  и макет, и каждая карточка товара. */
+export const lookNow = cache(async (): Promise<Look> => {
   if ((await draftMode()).isEnabled) {
     const r = await content().look({ draft: true })
     return accept(r.ok ? r.value : null)
   }
   return accept(await published())
-}
+})

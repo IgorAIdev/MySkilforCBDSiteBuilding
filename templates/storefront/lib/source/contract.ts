@@ -1,5 +1,6 @@
 import type { Lang } from '../locale.ts'
 import type { HeaderVariant } from '../headers.ts'
+import type { CardVariant } from '../cards.ts'
 
 export type Money = { minor: number; currency: string }
 export type Stock = 'in' | 'low' | 'out'
@@ -29,12 +30,13 @@ export type Block =
 export type Page = { slug: string; title: string; description: string; blocks: Block[] }
 /** Вид витрины — ОДИН, готовыми значениями (CLAUDE.md, «Панель настройки
  *  физически отделена от сайта»; И270): свойства CSS обеих тем (`vars`,
- *  имя → значение из закрытого списка lib/look-slots.json), вариант шапки,
+ *  имя → значение из закрытого списка lib/look-slots.json), варианты шапки
+ *  и карточки товара (`header`, `card` — разметка из lib/headers.ts, lib/cards.ts),
  *  шрифты со своих адресов (`fonts`, пусто — системный) и имена вариантов,
  *  из которых вид собран (`names`, для людей и панели; сайт их не читает).
  *  Каталога вариантов в сайте нет — он у панели вида. */
 export type LookFont = { family: string; files: { url: string; weight: string; range: string }[] }
-export type Look = { header: HeaderVariant; vars: Record<string, string>; fonts: LookFont[]; names: Record<string, string> }
+export type Look = { header: HeaderVariant; card: CardVariant; vars: Record<string, string>; fonts: LookFont[]; names: Record<string, string> }
 export type Result<T> = { ok: true; value: T } | { ok: false; reason: 'unavailable' | 'not-found' | 'bad-request' }
 
 /** Торговля: Vendure в плане 4, образец — сейчас. */

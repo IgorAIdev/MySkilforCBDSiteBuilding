@@ -23,20 +23,19 @@
 .lang{display:flex} /* look-header:classic,search */
 
 /* Знак шапки — тихий глиф ростом с цель (`--ctrl-target`: 24 под мышью, 44
-   под пальцем), без заливки: не кнопка действия, и стиль кнопок сайта
-   (`data-button`) его не касается. Ответ на руку — вуаль органа. Знак —
-   от кегля подписи (`em`), а не от роста цели: под пальцем растёт цель,
-   а не рисунок. */
+   под пальцем), без заливки: не кнопка действия, и оси кнопки сайта его не
+   касаются. Ответ на руку — тот же, что у кнопки (`press` из
+   styles/btn.module.css, И273): вуаль своего цвета, при нажатии чуть меньше и
+   на пиксель ниже. Знак — от кегля подписи (`em`), а не от роста цели: под
+   пальцем растёт цель, а не рисунок. */
 .glyph{
+  composes:press from '../styles/btn.module.css';
   position:relative;display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--ctrl-target) * .2);
   min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);padding-inline:calc(var(--ctrl-target) * .1);
-  border-radius:var(--r-ctrl);background:none;color:var(--ink);
-  font:inherit;font-size:var(--ctrl-fs-xs);font-weight:500;
-  transition:background-color var(--hover-t) var(--ease)
+  border-radius:var(--r-ctrl);color:var(--ink);
+  font:inherit;font-size:var(--ctrl-fs-xs);font-weight:500
 }
 .glyph svg{inline-size:1.43em;block-size:1.43em;flex:none}
-@media (hover:hover){ .glyph:hover{background:var(--hover-ctrl)} }
-.glyph:active{background:var(--press-ctrl)}
 /* Со словом («Shop», «Cart») — поле по бокам шире: слово не липнет к краю вуали. */
 .cart:has(.cartLabel){padding-inline:calc(var(--ctrl-target) * .25)}
 .shop{padding-inline:calc(var(--ctrl-target) * .25)} /* look-header:boutique */

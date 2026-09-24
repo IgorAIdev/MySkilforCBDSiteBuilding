@@ -1,37 +1,83 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { blockedBy, clashes, complete, compose, FIELDS } from '../ui/choice.mjs'
-import { stripHeaders, stripPanel, OWNED } from '../scripts/remove.mjs'
+import { blockedBy, clashes, complete, compose, CUSTOM, fieldsOf, paletteChecks, paletteVars, ruleGroup, sectionsOf, STRUCTURE } from '../ui/choice.mjs'
+import { toCss } from '../../tools/palette.mjs'
+import { stripHeaders, stripPanel, stripVariants, OWNED } from '../scripts/remove.mjs'
 import { parseFaces } from '../scripts/fonts.mjs'
 import { acceptLook, problems, type Facts } from '../../lib/look-rule.ts'
 import { valid, type Slots } from '../../lib/look-values.ts'
 import { HEADERS } from '../../lib/headers.ts'
+import { CARDS } from '../../lib/cards.ts'
 import { availability } from '../../tools/buttons.mjs'
 
 /* Тесты панели вида — уходят вместе с ней (`npm run test:panel`). */
 const read = (p: string) => readFileSync(new URL(`../../${p}`, import.meta.url), 'utf8')
-type Option = { id: string; name: string; vars?: Record<string, string>; fonts?: { family: string; weights: number[] }[]; seed?: unknown; style?: unknown }
+type Paints = { light: Record<string, string>; dark: Record<string, string> }
+type Option = { id: string; name: string; vars?: Record<string, string>; fonts?: { family: string; weights: number[] }[]; seed?: Paints; style?: unknown }
 type Pair = { x: { field: string; id: string }; y: { field: string; id: string }; why: string }
-const catalog = JSON.parse(read('look-panel/ui/catalog.json')) as { defaults: Record<string, string>; groups: Record<string, Option[]>; pairs: Pair[] }
+const catalog = JSON.parse(read('look-panel/ui/catalog.json')) as { defaults: Record<string, string>; groups: Record<string, Option[]>; axes: { field: string; name: string }[]; pairs: Pair[]; steps: Record<string, Record<string, string>> }
+const FIELDS = fieldsOf(catalog) as string[]
+const SECTIONS = sectionsOf(catalog)
 const { slots, facts } = JSON.parse(read('lib/look-slots.json')) as { slots: Slots; facts: Facts }
 
 test('panel catalog: every variant is values of properties the site declares, each of its kind', () => {
   assert.deepEqual(Object.keys(catalog.groups).sort(), [...FIELDS].sort())
   for (const [field, list] of Object.entries(catalog.groups)) {
-    assert.ok(list.length >= 2, `${field}: выбирать есть из чего`)
+    /* Ось кнопки может стоять одним вариантом, пока каталог не вырос (И273). */
+    assert.ok(list.length >= (field.startsWith('btn-') ? 1 : 2), `${field}: выбирать есть из чего`)
     for (const o of list) for (const [k, v] of Object.entries(o.vars ?? {})) {
       assert.ok(slots[k], `${field} «${o.id}»: ${k} — свойство сайта`)
+      assert.equal(slots[k].group, ruleGroup(field), `${field} «${o.id}»: ${k} — свойство своей группы (ритм углов не меняет)`)
       assert.ok(valid(slots[k].type, v), `${field} «${o.id}»: ${k}: ${v}`)
     }
   }
   for (const f of FIELDS) assert.equal(catalog.defaults[f], catalog.groups[f][0].id, `${f}: умолчание — первый, вариант сайта`)
 })
 
+test('panel sections: every field sits in exactly one sub-tab; System is colour, type, spacing, layout, shape, buttons', () => {
+  const placed = SECTIONS.flatMap((s) => s.subs.flatMap((sub) => sub.fields.map((f) => f[0])))
+  assert.deepEqual([...placed].sort(), [...FIELDS].sort())
+  assert.equal(new Set(placed).size, placed.length)
+  assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons'])
+  assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card'])
+  const buttons = SECTIONS[0].subs.find((s) => s.id === 'buttons')!
+  assert.deepEqual(buttons.fields.map((f) => f[0]), catalog.axes.map((a) => a.field), 'Buttons — оси каталога кнопки')
+  assert.deepEqual(catalog.axes.map((a) => a.name), ['Letters', 'Main button', 'Quiet button', 'Main button shape'])
+  assert.deepEqual(catalog.groups['btn-letters'].map((o) => o.name), ['Sentence case', 'CAPITALS'], 'как в предложении — по умолчанию')
+  assert.deepEqual(catalog.groups.width.map((o) => o.id), ['1440', '1280', '1600'], 'холст по умолчанию — 1440')
+  assert.deepEqual(catalog.groups.corners.map((o) => o.name).sort(), ['Crisp', 'Round', 'Standard'])
+  assert.deepEqual(catalog.groups.shadow.map((o) => o.name), ['Soft', 'Flat', 'Lifted'])
+  for (const o of catalog.groups.corners) {
+    const [ctrl, card, sheet] = ['--r-ctrl', '--r-card', '--r-sheet'].map((k) => Number.parseFloat(o.vars![k]))
+    assert.ok(ctrl <= card && card <= sheet, `${o.name}: орган ≤ карточка ≤ лист`)
+  }
+  assert.ok(STRUCTURE.every((f) => SECTIONS[1].subs.some((s) => s.fields.some((x) => x[0] === f))), 'разметка — в Admin')
+})
+
+test('panel palette builder: the kit engine gives each catalog set the values the kit palette writes, and every set passes the checks', () => {
+  for (const o of catalog.groups.palette) {
+    const kit = Object.fromEntries([...toCss({ [o.id]: o.seed }).split('[data-palette=')[0].matchAll(/ {2}(--[\w-]+): ([^;]+);/g)].map((m) => [m[1], m[2]]))
+    assert.deepEqual(paletteVars(o.seed!), kit, `${o.name}: движок панели = tools/palette.mjs`)
+    assert.deepEqual(o.vars, kit, `${o.name}: каталог посчитан тем же движком`)
+    const m = paletteChecks(o.seed!, catalog.steps)
+    assert.ok(m.ok, `${o.name}: ${[...m.rows.filter((r: { pass: boolean }) => !r.pass), ...m.extra].map((r: { label: string; mode: string }) => `${r.label} ${r.mode}`).join(', ')}`)
+  }
+  const loud = { light: { paper: '#FFFFFF', ink: '#1F1E1C', accent: '#FFE600' }, dark: { paper: '#121110', ink: '#EDEBE8', accent: '#B8955A' } }
+  const m = paletteChecks(loud, catalog.steps)
+  assert.equal(m.ok, false, 'жёлтая марка на белом — не годится')
+  assert.ok([...m.rows.filter((r: { pass: boolean }) => !r.pass), ...m.extra].length > 0)
+  const own = compose({ ...catalog.defaults, palette: CUSTOM }, catalog, { name: 'Mine', ...loud })
+  assert.equal(own.look.names.palette, CUSTOM)
+  assert.deepEqual(own.look.paints, { name: 'Mine', ...loud }, 'три краски на тему — рядом со значениями')
+  assert.equal(own.look.vars['--a-9'], paletteVars(loud)['--a-9'])
+  assert.equal(compose({ palette: CUSTOM }, catalog).look.names.palette, catalog.defaults.palette, 'своя палитра без красок — умолчание')
+})
+
 test('panel catalog: the default look is what the site publishes and it is accepted whole', () => {
   const { look } = compose(catalog.defaults, catalog)
   const published = JSON.parse(read('lib/source/sample/look.json'))
-  assert.deepEqual(acceptLook(look, slots, facts, HEADERS).notes, [])
+  assert.deepEqual(acceptLook(look, slots, facts).notes, [])
   assert.deepEqual(Object.keys(published.vars).sort(), Object.keys(look.vars).sort(), 'опубликованный вид — те же свойства')
 })
 
@@ -52,15 +98,19 @@ test('panel pairs: each listed pair is a problem of the site rule, and the guard
   }
 })
 
-test('panel pairs: button × palette agrees with the kit button audit on every catalog palette', () => {
-  const styles = Object.fromEntries(catalog.groups.button.map((o) => [o.id, o.style]))
+test('panel pairs: every button axis option × palette agrees with the kit button audit on every catalog palette', () => {
+  /* Каталог кнопки — оси: вариант каждой оси меряется набором своими ролями. */
+  const buttons = Object.fromEntries(catalog.axes.map((a) => [a.field.slice(4), { имя: a.name, name: a.name, варианты: Object.fromEntries(catalog.groups[a.field].map((o) => [o.id, { имя: o.name, name: o.name, что: o.name, роли: o.vars }])) }]))
   const palettes = Object.fromEntries(catalog.groups.palette.map((o) => [o.id, o.seed]))
-  const { off, clash } = availability(styles, palettes) as unknown as { off: Record<string, unknown>; clash: Record<string, Record<string, unknown>> }
-  for (const style of Object.keys(styles)) {
-    for (const palette of Object.keys(palettes)) {
-      const kit = Boolean(off[style] || clash[style]?.[palette])
-      const site = catalog.pairs.some((p) => p.x.field === 'palette' && p.x.id === palette && p.y.field === 'button' && p.y.id === style)
-      assert.equal(site, kit, `${style} × ${palette}`)
+  const { off, clash } = availability(buttons, palettes) as unknown as { off: Record<string, unknown>; clash: Record<string, Record<string, unknown>> }
+  for (const a of catalog.axes) {
+    for (const o of catalog.groups[a.field]) {
+      const style = `${a.field.slice(4)}/${o.id}`
+      for (const palette of Object.keys(palettes)) {
+        const kit = Boolean(off[style] || clash[style]?.[palette])
+        const site = catalog.pairs.some((p) => p.x.field === 'palette' && p.x.id === palette && p.y.field === a.field && p.y.id === o.id)
+        assert.equal(site, kit, `${style} × ${palette}`)
+      }
     }
   }
 })
@@ -80,6 +130,13 @@ test('panel removal: the panel lines go, the chosen header stays without its mar
     assert.ok(!css.includes('look-header'))
     assert.equal(css.includes("[data-variant='boutique']"), chosen === 'boutique')
     assert.equal(css.includes('.strip{'), chosen === 'search')
+  }
+  for (const chosen of CARDS) {
+    const css = stripVariants(read('components/ProductCard.module.css'), 'look-card', chosen)
+    assert.ok(!css.includes('look-card'), `${chosen}: меток не осталось`)
+    for (const c of CARDS) assert.equal(css.includes(`[data-card='${c}']`), c === chosen, `${chosen}: ${c}`)
+    assert.ok(!/\/\*[^*]*$/.test(css.replace(/\/\*[\s\S]*?\*\//g, '')), `${chosen}: комментарии закрыты`)
+    assert.match(stripVariants(read('lib/cards.ts'), 'look-card', chosen), new RegExp(`CARDS = \\[\\n  '${chosen}',\\n\\] as const`))
   }
 })
 

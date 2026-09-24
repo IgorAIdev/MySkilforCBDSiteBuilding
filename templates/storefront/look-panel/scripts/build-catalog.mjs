@@ -14,18 +14,22 @@
    каждой паре вариантов двух групп — панель гасит по ним, сайт судит тем
    же правилом. Список пар ложится и в PANEL.md.
 
+   Строитель палитры панели считает движком набора: сборка кладёт его копию
+   в ui/engine/ из skills/site-building/assets/studio/engine набора — ту же,
+   что выпускает `npm run studio:sync`; краски наборов в каталоге посчитаны
+   этой копией.
+
      node look-panel/scripts/build-catalog.mjs --from ../SkillSiteBuilding
        --from   папка набора: откуда брать полный каталог (ставщик передаёт сам)
        --look   заодно записать опубликованный вид образца = умолчание каталога */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { roles as paletteRoles } from '../../tools/palette.mjs'
-import { buttonRoles, resolver, tokenMap } from '../../tools/buttons.mjs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { axesOf, resolver, tokenMap } from '../../tools/buttons.mjs'
 import { variables, inputCss, resolve as resolveScale } from '../../tools/scale.mjs'
 import { valid } from '../../lib/look-values.ts'
 import { problems } from '../../lib/look-rule.ts'
-import { compose } from '../ui/choice.mjs'
+import { pairsOf } from './pairs.mjs'
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const read = (dir, p) => JSON.parse(readFileSync(join(dir, p), 'utf8'))
@@ -42,12 +46,35 @@ const TITLES = {
     'Латунь на угле': 'Brass on charcoal', 'Аптека': 'Apothecary', 'Олива': 'Olive', 'Мек остров': 'Soft island',
     'Тёплый лист': 'Warm leaf', 'Ледяной шалфей': 'Icy sage', 'Аптечный синий': 'Pharmacy blue',
   },
-  button: {
-    'Пилюля': 'Pill', 'Строгий угол': 'Sharp corner', 'Мягкий тон': 'Soft tone', 'Контур': 'Outline', 'Заглавные': 'Capitals',
-    'С тенью': 'Shadow', 'Тонкий люкс': 'Quiet luxury', 'Аптека': 'Pharmacy', 'Округлый': 'Rounded', 'Плотный': 'Dense',
-  },
   scale: { 'Нынешний': 'Standard', 'Тесный': 'Compact', 'Просторный': 'Spacious', 'Тихий': 'Quiet' },
 }
+
+/** Движок набора: файлы и откуда (И247: одна математика для панели, сайта и проверок). */
+export const ENGINE = ['palette.mjs', 'thresholds.mjs', 'palette-profile.json']
+export const ENGINE_FROM = 'skills/site-building/assets/studio/engine'
+/** Положить копию движка набора в ui/engine/. */
+export function copyEngine(kit, site) {
+  mkdirSync(join(site, 'look-panel/ui/engine'), { recursive: true })
+  for (const f of ENGINE) copyFileSync(join(kit, ENGINE_FROM, f), join(site, 'look-panel/ui/engine', f))
+}
+
+/** Холст — ширина коробки страницы (`--wrap`): опубликованная норма
+ *  1140–1440, у Shopify 1000–1600; заказчик выбрал 1440 (24.09.2026). */
+export const WIDTHS = [1440, 1280, 1600]
+/** Наборы углов — из лестницы набора (M3 ∪ Carbon, SHAPE.radii), взятые из
+ *  наборов ритма; вложенность «орган ≤ карточка ≤ лист» держит каждый. */
+const CORNER_NAMES = { '4/4/12/16': 'Crisp', '8/8/24/28': 'Standard', '8/8/28/32': 'Round' }
+/** Тени — роли по работе (И228). Soft — роли основы (tokens.css); Flat —
+ *  без тени, одной линией (всплывающее тень оставляет); Lifted — на ступень
+ *  выше: покой берёт подъём, подъём — всплывающее. */
+const SHADOW_SETS = (t) => [
+  { id: 'soft', name: 'Soft', line: 'The kit shadow roles: a quiet lift at rest, more under the hand', vars: { '--sh-raised': t['--sh-raised'], '--sh-lift': t['--sh-lift'], '--sh-overlay': t['--sh-overlay'], '--sh-in': t['--sh-in'] } },
+  { id: 'flat', name: 'Flat', line: 'No shadow: a hairline marks the card; only overlays keep a shadow', vars: { '--sh-raised': '0 0 0 1px var(--rule)', '--sh-lift': '0 0 0 1px var(--rule)', '--sh-overlay': t['--sh-overlay'], '--sh-in': 'inset 0 0 0 1px var(--rule)' } },
+  { id: 'lifted', name: 'Lifted', line: 'One step higher: cards rest lifted, hover rises further', vars: { '--sh-raised': t['--sh-lift'], '--sh-lift': t['--sh-overlay'], '--sh-overlay': t['--sh-overlay'], '--sh-in': t['--sh-in'] } },
+]
+/** Роли, по которым панель мерит свою палитру, — какими ступенями палитры
+ *  сайт их красит в каждой теме (цепочки ссылок tokens.css). */
+const STEP_ROLES = { page: '--page', plate: '--plate', ink: '--ink', inkSoft: '--ink-soft', pop: '--pop', onPop: '--on-pop' }
 
 /** Шрифты-кандидаты: семейства и толщины, которые загрузит публикация
  *  (scripts/fonts.mjs — со своего адреса сайта), и стек для `--face`. */
@@ -63,6 +90,15 @@ export const MARKERS = [
   { id: 'underline', name: 'Underline', vars: { '--menu-mark-line': 'underline', '--menu-mark-fill': 'transparent', '--menu-mark-ink': 'var(--ink)', '--menu-mark-r': '0', '--menu-mark-pad': '0' } },
   { id: 'pill', name: 'Pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--quiet)', '--menu-mark-ink': 'var(--ink)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)' } },
 ]
+/** Карточки товара: id — CARDS в lib/cards.ts. Каждая — простая карточка
+ *  полки (shop: «Полная полка на десктопе держит 4–5 простых карточек по
+ *  260–325px»), вариант — одежда одной раскладки (craft: «Вид меняет
+ *  поверхность, краску, поле; раскладку внутри он НЕ меняет»). */
+const CARD_LINES = {
+  framed: { name: 'Framed', line: 'Own surface with a shadow: the card sits above the page' },
+  bare: { name: 'Bare', line: 'No box: the picture with its own corners on the page, text below' },
+  outlined: { name: 'Outlined', line: 'A hairline instead of a shadow, inner field: a denser shelf' },
+}
 /** Шапки: id — HEADERS в lib/headers.ts. */
 const HEADER_LINES = {
   classic: { name: 'Classic', line: 'Categories beside the logo' },
@@ -78,20 +114,48 @@ const google = (f) => {
   const fams = [f.body, f.head].filter(Boolean)
   return fams.length ? `https://fonts.googleapis.com/css2?${fams.map((x) => `family=${x.family.replace(/ /g, '+')}:wght@${x.weights.join(';')}`).join('&')}&display=swap` : null
 }
-/** Шрифт кандидата как его увидит правило: семейства и толщины без файлов. */
-const pseudoFonts = (fonts) => fonts.map((x) => ({ family: x.family, files: x.weights.map((w) => ({ url: '', weight: String(w), range: '' })) }))
+
+/** Ступень палитры, которой роль красит тему: по ссылкам `var()` и
+ *  `light-dark()` до свойства палитры сайта. */
+function stepOf(tokens, palette, name, theme, depth = 0) {
+  if (palette.has(name)) return name
+  const v = tokens[name]?.trim()
+  if (!v || depth > 12) return null
+  const ref = v.match(/^var\((--[\w-]+)\)$/)
+  if (ref) return stepOf(tokens, palette, ref[1], theme, depth + 1)
+  const ld = v.match(/^light-dark\(\s*var\((--[\w-]+)\)\s*,\s*var\((--[\w-]+)\)\s*\)$/)
+  return ld ? stepOf(tokens, palette, theme === 'light' ? ld[1] : ld[2], theme, depth + 1) : null
+}
 
 /** Каталог: группы вариантов значениями, умолчания, пары. */
-export function buildCatalog({ site, kit }) {
+export async function buildCatalog({ site, kit }) {
+  copyEngine(kit, site)
+  const { paletteVars, valuesOf } = await import(pathToFileURL(join(site, 'look-panel/ui/choice.mjs')).href)
+  const { roles: paletteRoles } = await import(pathToFileURL(join(site, 'look-panel/ui/engine/palette.mjs')).href)
   const slotsFile = read(site, 'lib/look-slots.json')
   const { slots, facts } = slotsFile
   const tokens = tokenMap(readFileSync(join(site, 'styles/tokens.css'), 'utf8'))
   const palettes = merge(read(site, 'styles/palette.json'), read(kit, 'styles/palette.json'), read(kit, 'templates/palette.json'))
-  const styles = merge(read(site, 'styles/buttons.json'), read(kit, 'styles/buttons.json'))
+  /* Кнопка — оси каталога (И273): варианты сайта первыми, затем набора. */
+  const buttonAxes = []
+  for (const cat of [read(site, 'styles/buttons.json'), read(kit, 'styles/buttons.json')]) {
+    for (const a of axesOf(cat).filter((x) => x.options.length)) {
+      const into = buttonAxes.find((x) => x.id === a.id) ?? buttonAxes[buttonAxes.push({ ...a, options: [] }) - 1]
+      for (const o of a.options) if (o.роли && !into.options.some((x) => x.id === o.id)) into.options.push(o)
+    }
+  }
   const kitScales = read(kit, 'styles/scale.json')
   const roleSource = Object.values(kitScales)[0]?.текст
   const scales = merge(read(site, 'styles/scale.json'), kitScales)
-  const headers = [...(readFileSync(join(site, 'lib/headers.ts'), 'utf8').match(/HEADERS = \[([\s\S]*?)\]/)?.[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((m) => m[1])
+  const list = (file, name) => [...(readFileSync(join(site, file), 'utf8').match(new RegExp(`${name} = \\[([\\s\\S]*?)\\]`))?.[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((m) => m[1])
+  const headers = list('lib/headers.ts', 'HEADERS')
+  const cards = list('lib/cards.ts', 'CARDS')
+  const ofGroup = (group, vars) => Object.fromEntries(Object.entries(vars).filter(([k]) => slots[k]?.group === group))
+  /** Вариант сайта — первым: он умолчание каталога. */
+  const siteFirst = (list) => {
+    const own = list.find((o) => Object.entries(o.vars).every(([k, v]) => slots[k]?.value === v))
+    return own ? [own, ...list.filter((o) => o !== own)] : list
+  }
 
   const check = (group, id, vars) => {
     for (const [k, v] of Object.entries(vars)) {
@@ -105,45 +169,39 @@ export function buildCatalog({ site, kit }) {
     return [theme, ['--page', '--pop', '--ink'].map((r) => role(r))]
   }))
   const groups = {
-    palette: Object.entries(palettes).map(([id, set]) => {
-      const light = paletteRoles(set.light, 'light')
-      const dark = paletteRoles(set.dark, 'dark')
-      const vars = Object.fromEntries(Object.keys(light).map((k) => [k, `light-dark(${light[k]}, ${dark[k] ?? light[k]})`]))
-      return { id, name: TITLES.palette[id] ?? id, seed: set, dots: dots(set), vars: check('palette', id, vars) }
-    }),
+    palette: Object.entries(palettes).map(([id, set]) => ({ id, name: TITLES.palette[id] ?? id, seed: set, dots: dots(set), vars: check('palette', id, paletteVars(set)) })),
     face: FACES.map((f) => ({ id: f.id, name: f.name, stack: faceVars(f)[f.head ? '--face-head' : '--face'], google: google(f), fonts: [f.body, f.head].filter(Boolean).map(({ family, weights }) => ({ family, weights })), vars: check('face', f.id, faceVars(f)) })),
     scale: Object.entries(scales).map(([id, raw]) => {
       const set = { ...raw, текст: raw.текст ?? roleSource }
       const coarse = new Set([...inputCss(set, 'x').matchAll(/(--[\w-]+):/g)].map((m) => m[1]))
-      const vars = Object.fromEntries(Object.entries(variables(set)).filter(([k]) => !coarse.has(k)))
+      const vars = ofGroup('scale', Object.fromEntries(Object.entries(variables(set)).filter(([k]) => !coarse.has(k))))
       const r = resolveScale(set)
-      const line = `Text ${r.тело[0]}–${r.тело[1]} px · sections ${r.воздух.page.pair[0]}–${r.воздух.page.pair[1]} px apart · card corners ${set.радиус?.card ?? '—'} px`
+      const line = `Text ${r.тело[0]}–${r.тело[1]} px · sections ${r.воздух.page.pair[0]}–${r.воздух.page.pair[1]} px apart`
       return { id, name: TITLES.scale[id] ?? id, line, vars: check('scale', id, vars) }
     }),
-    button: Object.entries(styles).map(([id, s]) => ({ id, name: TITLES.button[id] ?? id, style: s, vars: check('button', id, buttonRoles(s)) })),
+    width: siteFirst(WIDTHS.map((w) => ({ id: String(w), name: String(w), line: `Canvas ${w} px wide`, vars: check('width', String(w), { '--wrap': `${w}px` }) }))),
+    corners: siteFirst(Object.values(Object.fromEntries(Object.values(scales).map((set) => {
+      const key = ['xs', 'ctrl', 'card', 'sheet'].map((k) => set.радиус?.[k]).join('/')
+      const name = CORNER_NAMES[key] ?? key
+      return [key, { id: name.toLowerCase(), name, line: `Controls ${set.радиус?.ctrl} px · cards ${set.радиус?.card} px · sheets ${set.радиус?.sheet} px`, vars: check('corners', key, ofGroup('corners', variables(set))) }]
+    })))),
+    shadow: siteFirst(SHADOW_SETS(tokens).map((o) => ({ ...o, vars: check('shadow', o.id, o.vars) }))),
+    ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
+    card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),
   }
   const defaults = Object.fromEntries(Object.entries(groups).map(([g, list]) => [g, list[0].id]))
 
-  /* Пары: правило сайта на значениях «умолчания сайта + вариант A + вариант B»;
-     проверки правила парные, поэтому пара, найденная так, — ровно пара. */
+  /* Пары: правило сайта на значениях «умолчания сайта + вариант A + вариант B». */
   const base = Object.fromEntries(Object.entries(slots).map(([k, s]) => [k, s.value]))
-  const pairs = []
-  const valueGroups = ['palette', 'scale', 'face', 'button', 'marker']
-  for (let i = 0; i < valueGroups.length; i++) {
-    for (let j = i + 1; j < valueGroups.length; j++) {
-      const [gx, gy] = [valueGroups[i], valueGroups[j]]
-      for (const x of groups[gx]) {
-        for (const y of groups[gy]) {
-          const fonts = pseudoFonts([...(gx === 'face' ? x.fonts : []), ...(gy === 'face' ? y.fonts : [])])
-          const hit = problems({ ...base, ...x.vars, ...y.vars }, fonts, facts).find((p) => p.groups.includes(gx) && p.groups.includes(gy))
-          if (hit) pairs.push({ x: { field: gx, id: x.id }, y: { field: gy, id: y.id }, why: hit.why })
-        }
-      }
-    }
-  }
-  return { about: 'Собран look-panel/scripts/build-catalog.mjs из каталога набора. Руками не правят.', defaults, groups, pairs }
+  const axes = buttonAxes.map((a) => ({ field: `btn-${a.id}`, name: a.name }))
+  const pairs = pairsOf({ groups, fields: valuesOf({ axes }), base, facts, problems })
+  /* Ступени, которыми сайт красит страницу, — для замера своей палитры. */
+  const own = new Set(Object.keys(slots).filter((k) => slots[k].group === 'palette'))
+  const steps = Object.fromEntries(Object.entries(STEP_ROLES).map(([role, name]) => [role, Object.fromEntries(['light', 'dark'].map((t) => [t, stepOf(tokens, own, name, t)]))]))
+  for (const [role, v] of Object.entries(steps)) for (const t of ['light', 'dark']) if (!v[t]) throw new Error(`роль ${STEP_ROLES[role]}: ступень палитры в теме ${t} не найдена (styles/tokens.css)`)
+  return { about: 'Собран look-panel/scripts/build-catalog.mjs из каталога набора. Руками не правят.', defaults, groups, axes, pairs, steps }
 }
 
 /** Список пар для PANEL.md — между метками `pairs:start` и `pairs:end`. */
@@ -160,7 +218,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.error('✗ Нужна папка набора: --from <путь к SkillSiteBuilding> — полный каталог живёт там.')
     process.exit(1)
   }
-  const catalog = buildCatalog({ site: ROOT, kit })
+  const catalog = await buildCatalog({ site: ROOT, kit })
   writeFileSync(join(ROOT, 'look-panel/ui/catalog.json'), JSON.stringify(catalog, null, 1) + '\n')
   const md = join(ROOT, 'look-panel/PANEL.md')
   if (existsSync(md)) {
@@ -168,6 +226,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     writeFileSync(md, text.replace(/(<!-- pairs:start -->\n)[\s\S]*?(\n<!-- pairs:end -->)/, `$1${pairsMarkdown(catalog)}$2`))
   }
   if (process.argv.includes('--look')) {
+    const { compose } = await import('../ui/choice.mjs')
     const { look } = compose(catalog.defaults, catalog)
     writeFileSync(join(ROOT, 'lib/source/sample/look.json'), JSON.stringify(look, null, 2) + '\n')
   }

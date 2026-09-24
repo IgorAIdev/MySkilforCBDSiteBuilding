@@ -1,78 +1,104 @@
-/* Закрытый список свойств вида — lib/look-slots.json (И270).
+/* Стили вида и закрытый список свойств — из ОДНОГО источника (И270, И272).
 
-   Вид приходит сайту значениями, и сайт принимает только свои свойства:
-   те, чьи умолчания объявлены его же стилями на корне — набор цвета
-   (styles/palette.css), стиль кнопок (styles/buttons.css), набор ритма
-   (styles/scale.css), шрифт (--face, --face-head в styles/tokens.css) и
-   отметка текущего пункта меню (styles/storefront.css). У каждого — род
-   значения, группа и умолчание. Свойства, которые набор ритма
-   переобъявляет под пальцем (`@media (pointer:coarse)`), в вид не входят:
-   блок вида стоит после стилей и перебил бы палец.
+   Вид сайта пишется рукой в одном месте — опубликованный вид источника
+   данных (у образца lib/source/sample/look.json, у Payload — global «look»,
+   план 4). Всё остальное о виде выпускается из него здесь, в сборке
+   (`npm run build`) и при снятии панели вида, и руками
+   не правится:
 
-   Рядом — факты для правила сочетаний (lib/look-rule.ts): как роли, на
-   которых мерится кнопка, собраны из ступеней (tokens.css), пороги набора
-   (tools/thresholds.mjs) и какие роли текста — заголовки. Сервер страниц
-   tools/ не ввозит (И267): всё, что ему нужно от набора, выпускается здесь,
-   самим Node, готовым файлом.
+     1. стили — значения свойств вида в styles/palette.css, styles/buttons.css
+        и styles/scale.css заменяются опубликованными, блоков чужих наборов
+        (`[data-palette]`, `[data-button]`, `[data-scale]`) в них нет;
+        шрифт, тени, отметка пункта меню и `@font-face` опубликованных
+        шрифтов — в styles/look.css. Устройство файлов (имена, порядок, блок
+        `@media (pointer:coarse)`) берётся из них самих: имена выпускают
+        строители набора, значения — вид;
+     2. закрытый список свойств — lib/look-slots.json: у каждого свойства
+        род, группа и умолчание (то есть опубликованное значение), рядом —
+        факты для правила сочетаний (роли из tokens.css, пороги набора,
+        заголовки). Сервер страниц tools/ не ввозит (И267): что ему нужно
+        от набора, выпускается здесь, самим Node.
 
-     node scripts/look-slots.mjs          выпустить (идёт в сборке)
-     node scripts/look-slots.mjs --check  сверить: выпуск не отстал */
+   После сборки отгружаемые стили несут ровно опубликованный вид; между
+   публикацией и следующей сборкой новое значение приходит блоком вида
+   страницы и перекрывает прежнее. styles/palette.json, buttons.json и
+   scale.json сайта — записи каталога (панель вида берёт их первыми), не
+   источник стилей.
+
+     node scripts/look-slots.mjs          выпустить
+     node scripts/look-slots.mjs --check  сверить: стили и список не отстали от вида */
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { tokenMap } from '../tools/buttons.mjs'
+import { ROLES as BUTTON, tokenMap } from '../tools/buttons.mjs'
 import { rolesOf } from '../tools/scale.mjs'
 import { CONTRAST, STATE } from '../tools/thresholds.mjs'
+import { acceptValues, lookCss } from '../lib/look-values.ts'
+import { settle } from '../lib/look-rule.ts'
 
 const TO = 'lib/look-slots.json'
+const PUBLISHED = 'lib/source/sample/look.json'
+const FILES = { palette: 'styles/palette.css', buttons: 'styles/buttons.css', scale: 'styles/scale.css', look: 'styles/look.css' }
 
-/** Род свойства стиля кнопок — по его роли (tools/buttons.mjs, buttonRoles). */
-const BUTTON = {
-  r: 'length', 'r-pop': 'length', weight: 'number', case: 'keyword', track: 'length', fill: 'colour', edge: 'colour',
-  sh: 'shadow', press: 'transform', 'fill-pop': 'colour', 'ink-pop': 'colour', 'edge-pop': 'colour', 'on-pop': 'colour', 'line-pop': 'length',
-}
-/** Род свойства отметки текущего пункта меню (styles/storefront.css). */
+/** Род свойства отметки текущего пункта меню. */
 const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length' }
+/** Роли тени — по работе (И228): предмет в покое, подъём под рукой,
+ *  всплывающее, вдавленное. Основа объявляет их в tokens.css, вид — в
+ *  styles/look.css. */
+export const SHADOWS = ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']
+/** Группа свойства из styles/scale.css: углы и холст выбираются отдельно от
+ *  ритма (Shape и Layout панели) — ритм углов не меняет. */
+const scaleGroup = (name) => (/^--r-(xs|ctrl|card|sheet)$/.test(name) ? 'corners' : name === '--wrap' ? 'width' : 'scale')
 
 const bare = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '')
+/** Границы первого блока `:root{…}` вне @media: [начало тела, конец тела]. */
+function rootRange(css) {
+  const at = css.search(/(^|\n):root\s*\{/)
+  if (at < 0) return null
+  const from = css.indexOf('{', at) + 1
+  return [from, css.indexOf('}', from)]
+}
 /** Объявления первого блока `:root{…}` вне @media. */
 function rootBlock(css) {
   const text = bare(css)
-  const at = text.search(/(^|\n):root\s*\{/)
-  if (at < 0) return {}
-  const from = text.indexOf('{', at) + 1
-  const body = text.slice(from, text.indexOf('}', from))
-  return Object.fromEntries([...body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);?/g)].map((m) => [m[1], m[2].trim()]))
+  const r = rootRange(text)
+  if (!r) return {}
+  return Object.fromEntries([...text.slice(r[0], r[1]).matchAll(/(--[\w-]+)\s*:\s*([^;]+);?/g)].map((m) => [m[1], m[2].trim()]))
 }
 /** Имена, переобъявленные внутри @media. */
 const inMedia = (css) => new Set([...bare(css).matchAll(/@media[^{]*\{([^{}]*\{[^}]*\})/g)].flatMap((m) => [...m[1].matchAll(/(--[\w-]+)\s*:/g)].map((x) => x[1])))
 
-/** Список свойств и факты — из текстов стилей и чисел набора. */
-export function lookSlots({ palette, buttons, scale, tokens, storefront, scales }) {
+/** Список свойств и факты — из текстов стилей и чисел набора. Шрифт и
+ *  отметка — из styles/look.css; пока его нет — из основы (tokens.css) и
+ *  прежнего места отметки (styles/storefront.css). */
+export function lookSlots({ palette, buttons, scale, tokens, storefront, look, scales }) {
   const slots = {}
   const put = (name, type, group, value) => { slots[name] = { type, group, value } }
   for (const [k, v] of Object.entries(rootBlock(palette))) put(k, 'colour', 'palette', v)
   for (const [k, v] of Object.entries(rootBlock(buttons))) {
-    const type = BUTTON[k.replace(/^--ctrl-btn-/, '')]
-    if (!type) throw new Error(`${k}: род свойства кнопки неизвестен — дописать в BUTTON (scripts/look-slots.mjs)`)
+    /* Род роли кнопки — из каталога набора (tools/buttons.mjs, ROLES). */
+    const type = BUTTON[k]
+    if (!type) throw new Error(`${k}: роль кнопки неизвестна каталогу набора (tools/buttons.mjs, ROLES)`)
     put(k, type, 'button', v)
   }
   const coarse = inMedia(scale)
-  for (const [k, v] of Object.entries(rootBlock(scale))) if (!coarse.has(k)) put(k, /^-?[\d.]+$/.test(v) ? 'number' : 'length', 'scale', v)
+  for (const [k, v] of Object.entries(rootBlock(scale))) if (!coarse.has(k)) put(k, /^-?[\d.]+$/.test(v) ? 'number' : 'length', scaleGroup(k), v)
   const map = tokenMap(tokens)
-  for (const k of ['--face', '--face-head']) put(k, 'font', 'face', map[k])
-  for (const [k, v] of Object.entries(rootBlock(storefront))) {
+  const own = look ? rootBlock(look) : {}
+  for (const k of ['--face', '--face-head']) put(k, 'font', 'face', own[k] ?? map[k])
+  for (const k of SHADOWS) put(k, 'shadow', 'shadow', own[k] ?? map[k])
+  const marks = look ? own : rootBlock(storefront)
+  for (const [k, v] of Object.entries(marks)) {
+    if (!k.startsWith('--menu-mark-')) continue
     const type = MARKER[k.replace(/^--menu-mark-/, '')]
-    if (k.startsWith('--menu-mark-')) {
-      if (!type) throw new Error(`${k}: род свойства отметки неизвестен — дописать в MARKER (scripts/look-slots.mjs)`)
-      put(k, type, 'marker', v)
-    }
+    if (!type) throw new Error(`${k}: род свойства отметки неизвестен — дописать в MARKER (scripts/look-slots.mjs)`)
+    put(k, type, 'marker', v)
   }
   /* Роли, на которых правило мерит кнопку и отметку: замыкание ссылок от
      полов и ролей кнопки до ступеней палитры (они — свойства вида). */
   const refs = (v) => [...String(v).matchAll(/var\((--[\w-]+)\)/g)].map((m) => m[1])
-  const queue = ['--page', '--plate', '--surface', '--ink', '--quiet', '--pop', '--on-pop', '--pop-ink',
-    ...Object.values(slots).filter((s) => s.group === 'button' || s.group === 'marker').flatMap((s) => refs(s.value))]
+  const queue = ['--page', '--plate', '--surface', '--ink', '--quiet', '--pop', '--on-pop', '--pop-ink', '--rule',
+    ...Object.values(slots).filter((s) => ['button', 'marker', 'shadow'].includes(s.group)).flatMap((s) => refs(s.value))]
   const roles = {}
   while (queue.length) {
     const name = queue.shift()
@@ -85,27 +111,70 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, scales 
   return { slots, facts: { roles, need: { text: CONTRAST.text, control: CONTRAST.control, visible: STATE.visible }, headings } }
 }
 
-const HEAD = 'Собран scripts/look-slots.mjs из стилей сайта и порогов набора. Руками не правят.'
-export const render = (data) => JSON.stringify({ about: HEAD, ...data }, null, 2) + '\n'
+const HEAD = (what) => `/* Выпущен scripts/look-slots.mjs из опубликованного вида (${PUBLISHED};\n   у Payload — global «look»). Руками не правят: ${what}. */\n\n`
 
-/** Тексты стилей сайта с диска. */
+/** Значения в первом блоке `:root{…}`: имя сохраняет место и подпись,
+ *  значение — опубликованное. */
+function substitute(css, values) {
+  const r = rootRange(css)
+  if (!r) return css
+  const body = css.slice(r[0], r[1]).replace(/(--[\w-]+)(\s*:\s*)([^;]+)(;)/g, (m, name, sep, _v, end) => (Object.hasOwn(values, name) ? `${name}${sep}${values[name]}${end}` : m))
+  return css.slice(0, r[0]) + body + css.slice(r[1])
+}
+/** Файл от первого `:root{` до первого блока чужого набора. */
+const ownPart = (css, attr) => {
+  const at = css.search(/(^|\n):root\s*\{/)
+  const cut = css.indexOf(`\n[data-${attr}=`)
+  return css.slice(at < 0 ? 0 : at, cut < 0 ? css.length : cut).replace(/^\n/, '').replace(/\s*$/, '\n')
+}
+
+/** Опубликованный вид → тексты стилей вида и список свойств. `notes` —
+ *  чего вид не дал или что не прошло проверку: там остаётся прежнее. */
+export function lookStyles(site, raw) {
+  const before = lookSlots(site)
+  const { look, dropped } = acceptValues(raw, before.slots)
+  const kept = settle(look.vars, look.fonts, before.slots, before.facts)
+  const values = kept.vars
+  const missing = raw ? Object.keys(before.slots).filter((k) => !Object.hasOwn(values, k)) : []
+  const notes = [...dropped.map((d) => `${d.what} ${d.why}`), ...kept.fell.map((f) => `${f.group} ${f.why}`),
+    ...(missing.length ? [`вид не дал значения ${missing.length} свойствам (${missing.slice(0, 4).join(', ')}${missing.length > 4 ? ' …' : ''}) — остались прежние`] : [])]
+  const decls = (group) => Object.entries(before.slots).filter(([, s]) => s.group === group)
+    .map(([k, s]) => `  ${k}: ${values[k] ?? s.value};`).join('\n')
+  const out = {
+    palette: `${HEAD('краски обеих тем — ступени и линии')}:root{\n  color-scheme: light dark;\n${decls('palette')}\n}\n`,
+    buttons: `${HEAD('роли одной кнопки основы (styles/btn.module.css)')}:root{\n${decls('button')}\n}\n`,
+    scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню и шрифты вида со своего адреса')}:root{\n${decls('face')}\n${decls('shadow')}\n${decls('marker')}\n}\n` +
+      (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
+  }
+  const after = lookSlots({ ...site, ...out })
+  return { files: out, slots: after, notes }
+}
+
+const HEADER = 'Собран scripts/look-slots.mjs из стилей сайта (они — из опубликованного вида) и порогов набора. Руками не правят.'
+export const render = (data) => JSON.stringify({ about: HEADER, ...data }, null, 2) + '\n'
+
+/** Тексты стилей сайта и опубликованный вид с диска. */
 export function readSite(root = '.') {
   const at = (p) => readFileSync(resolve(root, p), 'utf8')
+  const maybe = (p) => (existsSync(resolve(root, p)) ? at(p) : null)
   return {
-    palette: at('styles/palette.css'), buttons: at('styles/buttons.css'), scale: at('styles/scale.css'),
+    palette: at(FILES.palette), buttons: at(FILES.buttons), scale: at(FILES.scale), look: maybe(FILES.look),
     tokens: at('styles/tokens.css'), storefront: at('styles/storefront.css'), scales: JSON.parse(at('styles/scale.json')),
   }
 }
+export const readPublished = (root = '.') => (existsSync(resolve(root, PUBLISHED)) ? JSON.parse(readFileSync(resolve(root, PUBLISHED), 'utf8')) : null)
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const text = render(lookSlots(readSite()))
-  const count = Object.keys(JSON.parse(text).slots).length
+  const { files, slots, notes } = lookStyles(readSite(), readPublished())
+  const texts = { ...Object.fromEntries(Object.entries(files).map(([k, v]) => [FILES[k], v])), [TO]: render(slots) }
+  for (const n of notes) console.warn(`· вид: ${n}`)
   if (process.argv.includes('--check')) {
-    const was = existsSync(TO) ? readFileSync(TO, 'utf8').replace(/\r\n/g, '\n') : ''
-    if (was === text) { console.log(`Свойства вида не отстали: ${count}`); process.exit(0) }
-    console.error(`✗ ${TO} отстал от стилей сайта. Выпустить: node scripts/look-slots.mjs`)
+    const behind = Object.entries(texts).filter(([p, text]) => (existsSync(p) ? readFileSync(p, 'utf8').replace(/\r\n/g, '\n') : '') !== text).map(([p]) => p)
+    if (!behind.length) { console.log(`Стили вида и список свойств не отстали от опубликованного вида: ${Object.keys(slots.slots).length} свойств`); process.exit(0) }
+    console.error(`✗ Отстали от опубликованного вида: ${behind.join(', ')}. Выпустить: node scripts/look-slots.mjs (идёт в npm run build)`)
     process.exit(1)
   }
-  writeFileSync(TO, text)
-  console.log(`Выпущено: ${TO} · свойств вида: ${count}`)
+  for (const [p, text] of Object.entries(texts)) writeFileSync(p, text)
+  console.log(`Выпущено из опубликованного вида: ${Object.values(FILES).join(', ')}, ${TO} · свойств вида: ${Object.keys(slots.slots).length}`)
 }

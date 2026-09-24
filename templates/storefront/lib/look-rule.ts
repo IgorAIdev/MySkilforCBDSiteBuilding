@@ -12,9 +12,8 @@
    в lib/look.ts — уступает младшая группа, остаётся умолчание стилей),
    панель вида ввозит его и гасит варианты, которые с текущими не носятся,
    админка (план 4) проверяет им при сохранении. Сайт панель не ввозит. */
-import type { HeaderVariant } from './headers.ts'
 import type { Look, LookFont } from './source/contract.ts'
-import { acceptValues, loadedWeights, type Group, type Slots } from './look-values.ts'
+import { acceptValues, loadedWeights, STRUCTURE, type Group, type Slots, type Structure } from './look-values.ts'
 
 /** Факты сайта для правила: как роли собраны из ступеней (tokens.css),
  *  пороги и какие роли текста — заголовки (шрифт заголовков). */
@@ -23,12 +22,15 @@ export type Facts = {
   need: { text: number; control: number; visible: number }
   headings: readonly string[]
 }
-export type Problem = { groups: readonly [Group, Group]; why: string }
+/** Что не носится: две группы, причина словами и свойства, на которых
+ *  она стоит (`roles`) — по ним панель знает, какой вариант оси кнопки её
+ *  несёт (каталог кнопки растёт осями данными, И273). */
+export type Problem = { groups: readonly [Group, Group]; why: string; roles?: readonly string[] }
 export type Fell = { group: Group; why: string }
 
 /** Старшинство: уступает младшая группа — стиль кнопок раньше отметки
- *  пункта меню, шрифта, ритма и цвета. */
-export const ORDER: readonly Group[] = ['palette', 'scale', 'face', 'marker', 'button']
+ *  пункта меню, шрифта, теней, углов, ширины, ритма и цвета. */
+export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'button']
 
 type Rgba = readonly [number, number, number, number]
 const THEMES = ['light', 'dark'] as const
@@ -89,40 +91,47 @@ export const contrast = (a: Rgba, b: Rgba): number => {
   return (hi + 0.05) / (lo + 0.05)
 }
 const shown = (r: number) => Math.floor(r * 100) / 100
-const px = (v: string | undefined): number | null => (v && /^\d+(\.\d+)?px$/.test(v) ? Number.parseFloat(v) : null)
 const family = (stack: string | undefined): string | null => stack?.match(/^'([^']+)'/)?.[1] ?? null
+/** Краска плоской тени: одна линия `0 0 0 Npx var(--краска)` без
+ *  размытых слоёв; null — тень не плоская. */
+const flatLine = (v: string | undefined): string | null => {
+  if (!v) return null
+  const layers = args(v)
+  const m = layers.length === 1 ? layers[0].match(/^0 0 0 [\d.]+px var\((--[\w-]+)\)$/) : null
+  return m ? m[1] : null
+}
 
 /** Что в сочетании значений не носится: пары групп и причина словами. */
 export function problems(vars: Readonly<Record<string, string>>, fonts: readonly LookFont[], facts: Facts): Problem[] {
   const out: Problem[] = []
-  const add = (a: Group, b: Group, why: string) => { if (!out.some((p) => p.why === why)) out.push({ groups: [a, b], why }) }
+  const add = (a: Group, b: Group, why: string, roles?: readonly string[]) => { if (!out.some((p) => p.why === why)) out.push({ groups: [a, b], why, ...(roles ? { roles } : {}) }) }
   const { need } = facts
   for (const theme of THEMES) {
     const get = painter(vars, facts.roles, theme)
     const say = (r: number, n: number) => `${shown(r)} : 1 in the ${theme} theme, needs ${n}`
+    /* Кнопка — по объявленным значениям ролей, какой бы вариант оси их ни
+       дал: заливка видна на полу, кромка — 3 : 1, надпись — 4.5 : 1 на том,
+       на чём стоит (заливке или полу). */
     for (const [where, floorRole] of [['page', '--page'], ['card', '--plate']] as const) {
       const floor = get(floorRole)
       if (!floor) continue
-      const fill = get('--ctrl-btn-fill')
-      if (fill && fill[3] > 0) {
-        const r = contrast(over(fill, floor), floor)
-        if (r < need.visible) add('button', 'palette', `the quiet button fades into the ${where}: ${say(r, need.visible)}`)
-      }
-      const edge = get('--ctrl-btn-edge')
-      if (edge && edge[3] > 0) {
-        const r = contrast(over(edge, floor), floor)
-        if (r < need.control) add('button', 'palette', `the quiet button's edge is too faint on the ${where}: ${say(r, need.control)}`)
-      }
-      const pop = get('--ctrl-btn-fill-pop')
-      const ink = get('--ctrl-btn-ink-pop')
-      const line = get('--ctrl-btn-edge-pop')
-      if (pop && pop[3] === 0) {
-        if (ink) { const r = contrast(over(ink, floor), floor); if (r < need.text) add('button', 'palette', `the outline button's label is too faint on the ${where}: ${say(r, need.text)}`) }
-        if (line && line[3] > 0) { const r = contrast(over(line, floor), floor); if (r < need.control) add('button', 'palette', `the outline is too faint on the ${where}: ${say(r, need.control)}`) }
-      } else if (pop) {
-        const r = contrast(over(pop, floor), floor)
-        if (r < need.visible) add('button', 'palette', `the loud button fades into the ${where}: ${say(r, need.visible)}`)
-        if (ink && where === 'page') { const t = contrast(over(ink, over(pop, floor)), over(pop, floor)); if (t < need.text) add('button', 'palette', `the label on the loud button is too faint: ${say(t, need.text)}`) }
+      for (const [voice, fillRole, inkRole, edgeRole] of [['quiet', '--ctrl-btn-fill', '--ctrl-btn-ink', '--ctrl-btn-edge'], ['loud', '--ctrl-btn-fill-pop', '--ctrl-btn-ink-pop', '--ctrl-btn-edge-pop']] as const) {
+        const fill = get(fillRole)
+        const ink = get(inkRole)
+        const edge = get(edgeRole)
+        const under = fill && fill[3] > 0 ? over(fill, floor) : floor
+        if (fill && fill[3] > 0) {
+          const r = contrast(under, floor)
+          if (r < need.visible) add('button', 'palette', `the ${voice} button fades into the ${where}: ${say(r, need.visible)}`, [fillRole])
+        }
+        if (edge && edge[3] > 0) {
+          const r = contrast(over(edge, floor), floor)
+          if (r < need.control) add('button', 'palette', `the ${voice} button's edge is too faint on the ${where}: ${say(r, need.control)}`, [edgeRole])
+        }
+        if (ink) {
+          const t = contrast(over(ink, under), under)
+          if (t < need.text) add('button', 'palette', `the ${voice} button's label is too faint on the ${where}: ${say(t, need.text)}`, [inkRole, fillRole])
+        }
       }
     }
     const plate = get('--plate')
@@ -135,17 +144,25 @@ export function problems(vars: Readonly<Record<string, string>>, fonts: readonly
       if (ink) { const t = contrast(over(ink, under), under); if (t < need.text) add('marker', 'palette', `the current item's label is too faint on its pill: ${say(t, need.text)}`) }
     }
   }
-  const corner = px(vars['--ctrl-btn-r'])
-  const card = px(vars['--r-card'])
-  if (corner !== null && card !== null && corner > card) add('button', 'scale', `button corners (${corner} px) are rounder than the cards they sit on (${card} px)`)
+  for (const theme of THEMES) {
+    /* Плоская тень — одна линия без размытия: карточку от пола отделяет
+       только она, и она должна быть видна не хуже вуали состояния. */
+    const flat = flatLine(vars['--sh-raised'])
+    if (!flat) continue
+    const get = painter(vars, facts.roles, theme)
+    const [line, floor] = [get(flat), get('--page')]
+    if (!line || !floor) continue
+    const r = contrast(over(line, floor), floor)
+    if (r < need.visible) add('shadow', 'palette', `the card's line fades into the page: ${shown(r)} : 1 in the ${theme} theme, needs ${need.visible}`)
+  }
   const body = family(vars['--face'])
   const head = vars['--face-head'] === 'var(--face)' ? body : family(vars['--face-head'])
-  const weight = (fam: string | null, w: number, what: string, g: Group) => {
+  const weight = (fam: string | null, w: number, what: string, g: Group, roles?: readonly string[]) => {
     const have = loadedWeights(fonts, fam)
-    if (have && !have.includes(w)) add('face', g, `${what} is set at weight ${w}; ${fam} is loaded at ${have.join(', ')}`)
+    if (have && !have.includes(w)) add('face', g, `${what} is set at weight ${w}; ${fam} is loaded at ${have.join(', ')}`, roles)
   }
   const btn = Number(vars['--ctrl-btn-weight'])
-  if (btn) weight(body, btn, 'button labels', 'button')
+  if (btn) weight(body, btn, 'button labels', 'button', ['--ctrl-btn-weight'])
   for (const [name, value] of Object.entries(vars)) {
     const role = name.match(/^--([a-z0-9]+)-weight$/)?.[1]
     if (role && Number(value)) weight(facts.headings.includes(role) ? head : body, Number(value), `${role} text`, 'scale')
@@ -179,8 +196,8 @@ export type Note = { what: string; why: string }
  *  не из списка сайта или не того рода (lib/look-values.ts), группы, не
  *  носящиеся с остальными (`settle`). Значения, равные умолчанию стилей
  *  сайта, в блок вида не идут — их и так держат стили. */
-export function acceptLook(raw: unknown, slots: Slots, facts: Facts, headers: readonly HeaderVariant[]): { look: Look; notes: Note[] } {
-  const { look, dropped } = acceptValues(raw, slots, headers)
+export function acceptLook(raw: unknown, slots: Slots, facts: Facts, known: Structure = STRUCTURE): { look: Look; notes: Note[] } {
+  const { look, dropped } = acceptValues(raw, slots, known)
   const kept = settle(look.vars, look.fonts, slots, facts)
   const vars = Object.fromEntries(Object.entries(kept.vars).filter(([k, v]) => slots[k].value !== v))
   return { look: { ...look, vars, fonts: kept.fonts }, notes: [...dropped, ...kept.fell.map((f) => ({ what: f.group, why: f.why }))] }

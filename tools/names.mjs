@@ -61,6 +61,8 @@ export const MODIFIERS = new Set([
   'grid', 'band', 'block', 'group', 'lede', 'note', 'cell', 'in', 'off', 'act', 'fit', 'side', 'above', 'at', 'bias',
   'uri', 'lift', 'select', 'search', 'plate', 'bleed', 'hand', 'cap', 'slope', 'md', 'lg', 'target',
   'ctrl', 'pop', 'raised', 'overlay', 'strong', 'exit', 'case', 'r', 'sh', 'intro', 'pos',
+  /* форма главной кнопки (И276): вырез, остриё, выемка, эхо-шеврон */
+  'clip', 'tip', 'notch', 'echo', 'trail', 'stop',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',

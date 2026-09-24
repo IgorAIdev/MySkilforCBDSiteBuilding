@@ -664,3 +664,114 @@ export function auditPalette(rawSeed, mode) {
   if (pushed > 16) found.push({ rule: 'нажатие кнопки не обвал', got: Number(pushed.toFixed(2)), need: 16 })
   return found
 }
+
+/* ── Строитель для заказчика: верен по построению (И275) ────────────────
+
+   Заказчик задаёт НАМЕРЕНИЕ, а не три краски: цвет марки (тон он хочет
+   именно этот), бумагу — тёплую, нейтральную или холодную, с лёгким тоном
+   или без, и чернила — сами или с уходом в марку. Строитель превращает
+   намерение в набор, который проходит ВЕСЬ замер набора (`auditPalette`) в
+   обеих темах, и одной строкой говорит, что он подвинул. Списка ошибок
+   заказчик не видит никогда: замер остаётся инструментом того, кто ведёт
+   набор, а инструмент заказчика гарантирует (слово заказчика 24.09.2026:
+   «не понимаю, зачем мне давать выбор цвета, а затем он не подходит и
+   ошибки в меню»).
+
+   Поиск ближайшего: тон марки держится, светлота и насыщенность перебираются
+   от заданной краски наружу по ΔE, и берётся первая, при которой замер
+   чист; тон двигается только если ни одна светлота не прошла — и тогда это
+   названо. Чернила темнеют (светлеют в тёмной теме), пока текст не сдержит
+   обещание эталона. */
+
+const PAPER_HUE = { warm: 80, cool: 250, neutral: 80 }
+const PAPER_TINT = { none: 0.003, light: 0.012 }
+const THEME = {
+  light: { paper: 0.988, ink: [0.25, 0.23, 0.21, 0.19, 0.17, 0.15, 0.13] },
+  dark: { paper: 0.18, ink: [0.94, 0.955, 0.97, 0.985] },
+}
+const hexOf = (lch) => toHex(clampChroma(lch).map((v) => v * 255))
+/** К чему относится находка замера — по её имени (замер тот же, И275). */
+const partOf = (rule) => (/разные краски/.test(rule) ? 'signals'
+  : /ошибки|скидки|предупреждения|наличия|информации/.test(rule) ? 'status'
+    : /фирменн|кнопк|кольцо фокуса|наведение|нажатие/.test(rule) ? 'brand' : 'neutral')
+
+/** Бумага и чернила темы из намерения: чернила уходят от бумаги, пока
+ *  нейтральная часть замера не станет чистой. */
+function groundOf(intent, mode) {
+  const warmth = intent.paper ?? 'warm'
+  const hue = PAPER_HUE[warmth] ?? 80
+  const tint = warmth === 'neutral' ? 0 : PAPER_TINT[intent.tint ?? 'none'] ?? 0.003
+  const paper = hexOf([THEME[mode].paper, tint, hue])
+  const [, bC, bH] = oklch(intent.brand)
+  const inkHue = intent.inkTowardBrand ? bH : hue
+  const inkC = intent.inkTowardBrand ? Math.min(0.03, bC * 0.3) : Math.max(tint, 0.004)
+  let ink = null
+  for (const L of THEME[mode].ink) {
+    ink = hexOf([L, inkC, inkHue])
+    if (!auditPalette({ paper, ink, accent: intent.brand }, mode).some((f) => partOf(f.rule) === 'neutral')) break
+  }
+  return { paper, ink }
+}
+
+/** Ближайшая к `brand` краска марки, при которой замер темы чист целиком. */
+function brandFor(brand, ground, mode) {
+  const [L, C, H] = oklch(brand)
+  const clean = (accent) => auditPalette({ ...ground, accent }, mode).length === 0
+  if (clean(brand)) return { accent: brand, hue: 0 }
+  const tried = new Set()
+  for (const turn of [0, 8, -8, 16, -16, 24, -24, 32, -32]) {
+    const candidates = []
+    for (const c of [C, C * 0.8, C * 0.6, C * 0.4]) {
+      for (let d = 0; d <= 0.5; d += 0.02) for (const l of d ? [L - d, L + d] : [L]) if (l > 0.15 && l < 0.93) candidates.push(hexOf([l, c, (H + turn + 360) % 360]))
+    }
+    candidates.sort((a, b) => difference(a, brand) - difference(b, brand))
+    for (const hex of candidates) {
+      if (tried.has(hex)) continue
+      tried.add(hex)
+      if (clean(hex)) return { accent: hex, hue: turn }
+    }
+  }
+  return null
+}
+
+/** Почему краску марки пришлось подвинуть — словами для заказчика. */
+function whyMoved(from, to, ground, mode) {
+  const parts = new Set(auditPalette({ ...ground, accent: from }, mode).map((f) => partOf(f.rule)))
+  const way = lightness(to) < lightness(from) ? 'a little darker' : 'a little lighter'
+  if (parts.has('signals')) return `${way}, so it stays apart from the sale and stock colours`
+  if (parts.has('brand')) return `${way}, so the button text and the focus ring read`
+  return `${way}, so every text on it reads`
+}
+
+/** Намерение → набор, который проходит замер в обеих темах, и что
+ *  подвинуто. `intent`: { brand: '#hex', paper: 'warm'|'neutral'|'cool',
+ *  tint: 'none'|'light', inkTowardBrand: boolean }. `exact` (тонкая
+ *  настройка) — свои бумага и чернила темы: они тоже доводятся до замера. */
+export function fitPalette(intent, exact = null) {
+  const out = { light: null, dark: null }
+  const notes = []
+  const used = {}
+  for (const mode of ['light', 'dark']) {
+    let ground = exact?.[mode] ? { paper: exact[mode].paper, ink: exact[mode].ink } : groundOf(intent, mode)
+    if (exact?.[mode] && auditPalette({ ...ground, accent: exact[mode].accent ?? intent.brand }, mode).some((f) => partOf(f.rule) === 'neutral')) {
+      const auto = groundOf({ ...intent, ...(exact[mode].paper ? {} : {}) }, mode)
+      notes.push({ what: 'ink', mode, from: ground.ink, to: auto.ink, why: 'the ink was made deeper, so body text reads' })
+      ground = { paper: ground.paper, ink: auto.ink }
+    }
+    const want = exact?.[mode]?.accent ?? intent.brand
+    const found = brandFor(want, ground, mode)
+    if (!found) return { ok: false, seed: null, notes: [{ what: 'brand', mode, from: want, to: want, why: 'no tone of this colour works as a button here; try another colour' }] }
+    if (found.accent !== want) notes.push({ what: 'brand', mode, from: want, to: found.accent, why: found.hue ? `the hue was turned ${Math.abs(found.hue)}°, so it stays apart from the sale and stock colours` : whyMoved(want, found.accent, ground, mode) })
+    out[mode] = { ...ground, accent: found.accent }
+    used[mode] = found.accent
+  }
+  return { ok: true, seed: out, notes, used }
+}
+
+/** Набор → намерение, из которого строитель его повторит (для «Edit»). */
+export function intentOf(set) {
+  const [, pC, pH] = oklch(set.light.paper)
+  const [, iC] = oklch(set.light.ink)
+  const paper = pC < 0.0045 ? 'neutral' : pH >= 20 && pH < 160 ? 'warm' : 'cool'
+  return { brand: set.light.accent.toUpperCase(), paper, tint: pC >= 0.007 ? 'light' : 'none', inkTowardBrand: iC >= 0.02 }
+}

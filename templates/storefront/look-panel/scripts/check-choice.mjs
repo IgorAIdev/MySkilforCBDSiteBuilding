@@ -78,6 +78,7 @@ async function shows(look, cookie) {
   const html = await res.text()
   if ((html.match(/<style[^>]*data-href="look"[^>]*>([\s\S]*?)<\/style>/)?.[1] ?? null) !== lookCss(look)) fail([`сайт рисует не этот вид: блок <style href="look"> на /${LANG} не совпал с проверяемым`])
   if (!html.includes(`data-variant="${look.header}"`)) fail([`на /${LANG} не та шапка: ждали «${look.header}»`])
+  if (!html.includes(`data-card="${look.card}"`)) fail([`на /${LANG} не та карточка товара: ждали «${look.card}»`])
 }
 
 /** check:craft на трёх страницах → находки по семьям. */
@@ -93,7 +94,7 @@ async function craft(pages, cookie) {
 async function check(mode, args) {
   const raw = mode === 'choice' ? await lookOfChoice(args) : read(`lib/source/sample/${mode === 'draft' ? 'look.draft.json' : 'look.json'}`)
   /* Правило сайта — то же, что принимает вид на сервере. */
-  const { look, notes } = acceptLook(raw, slots, facts, HEADERS)
+  const { look, notes } = acceptLook(raw, slots, facts)
   if (notes.length) fail(notes.map((n) => `${n.what} ${n.why}`))
   console.log(`Проверяю вид: ${Object.entries(look.names).map(([f, id]) => `${f} ${title(catalog, f, id)}`).join(' · ') || '(имена не записаны)'}`)
 

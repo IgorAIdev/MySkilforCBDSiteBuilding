@@ -1,5 +1,5 @@
 {
-  "about": "Собран scripts/look-slots.mjs из стилей сайта и порогов набора. Руками не правят.",
+  "about": "Собран scripts/look-slots.mjs из стилей сайта (они — из опубликованного вида) и порогов набора. Руками не правят.",
   "slots": {
     "--n-1": {
       "type": "colour",
@@ -261,50 +261,20 @@
       "group": "palette",
       "value": "light-dark(#9A7B3F, #B8955A)"
     },
-    "--ctrl-btn-r": {
-      "type": "length",
+    "--ctrl-btn-case": {
+      "type": "keyword",
       "group": "button",
-      "value": "8px"
-    },
-    "--ctrl-btn-r-pop": {
-      "type": "length",
-      "group": "button",
-      "value": "var(--r-pop)"
+      "value": "none"
     },
     "--ctrl-btn-weight": {
       "type": "number",
       "group": "button",
       "value": "600"
     },
-    "--ctrl-btn-case": {
-      "type": "keyword",
-      "group": "button",
-      "value": "none"
-    },
     "--ctrl-btn-track": {
       "type": "length",
       "group": "button",
       "value": "normal"
-    },
-    "--ctrl-btn-fill": {
-      "type": "colour",
-      "group": "button",
-      "value": "var(--quiet)"
-    },
-    "--ctrl-btn-edge": {
-      "type": "colour",
-      "group": "button",
-      "value": "transparent"
-    },
-    "--ctrl-btn-sh": {
-      "type": "shadow",
-      "group": "button",
-      "value": "none"
-    },
-    "--ctrl-btn-press": {
-      "type": "transform",
-      "group": "button",
-      "value": "scale(.97)"
     },
     "--ctrl-btn-fill-pop": {
       "type": "colour",
@@ -321,15 +291,50 @@
       "group": "button",
       "value": "transparent"
     },
-    "--ctrl-btn-on-pop": {
+    "--ctrl-btn-fill": {
       "type": "colour",
       "group": "button",
-      "value": "color-mix(in oklab, var(--pop), var(--ink) var(--state-press))"
+      "value": "var(--quiet)"
     },
-    "--ctrl-btn-line-pop": {
-      "type": "length",
+    "--ctrl-btn-ink": {
+      "type": "colour",
       "group": "button",
-      "value": "var(--line-w)"
+      "value": "var(--ink)"
+    },
+    "--ctrl-btn-edge": {
+      "type": "colour",
+      "group": "button",
+      "value": "transparent"
+    },
+    "--ctrl-btn-tip": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
+    "--ctrl-btn-tip-at": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
+    "--ctrl-btn-notch": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
+    "--ctrl-btn-echo": {
+      "type": "keyword",
+      "group": "button",
+      "value": "none"
+    },
+    "--ctrl-btn-trail-1": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
+    "--ctrl-btn-trail-2": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
     },
     "--fs-xs": {
       "type": "length",
@@ -518,7 +523,7 @@
     },
     "--wrap": {
       "type": "length",
-      "group": "scale",
+      "group": "width",
       "value": "1440px"
     },
     "--gut": {
@@ -558,22 +563,22 @@
     },
     "--r-xs": {
       "type": "length",
-      "group": "scale",
+      "group": "corners",
       "value": "8px"
     },
     "--r-ctrl": {
       "type": "length",
-      "group": "scale",
+      "group": "corners",
       "value": "8px"
     },
     "--r-card": {
       "type": "length",
-      "group": "scale",
+      "group": "corners",
       "value": "24px"
     },
     "--r-sheet": {
       "type": "length",
-      "group": "scale",
+      "group": "corners",
       "value": "28px"
     },
     "--r-pop": {
@@ -786,6 +791,26 @@
       "group": "face",
       "value": "var(--face)"
     },
+    "--sh-raised": {
+      "type": "shadow",
+      "group": "shadow",
+      "value": "0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1)"
+    },
+    "--sh-lift": {
+      "type": "shadow",
+      "group": "shadow",
+      "value": "0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2)"
+    },
+    "--sh-overlay": {
+      "type": "shadow",
+      "group": "shadow",
+      "value": "0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3)"
+    },
+    "--sh-in": {
+      "type": "shadow",
+      "group": "shadow",
+      "value": "inset 0 1px 2px color-mix(in oklab, var(--ink) 18%, transparent)"
+    },
     "--menu-mark-line": {
       "type": "keyword",
       "group": "marker",
@@ -822,7 +847,12 @@
       "--pop": "var(--accent-solid)",
       "--on-pop": "var(--on-accent)",
       "--pop-ink": "var(--a-11)",
-      "--state-press": "9%",
+      "--rule": "color-mix(in oklab, var(--ink) 16%, transparent)",
+      "--sh-ring": "light-dark(color-mix(in srgb, var(--accent-solid) 18%, transparent), rgba(255,255,255,.05))",
+      "--sh-near": "light-dark(color-mix(in srgb, var(--accent-solid) 18%, transparent), rgba(0,0,0,.50))",
+      "--sh-far-1": "light-dark(color-mix(in srgb, var(--accent-solid) 40%, transparent), rgba(0,0,0,.60))",
+      "--sh-far-2": "light-dark(color-mix(in srgb, var(--accent-solid) 55%, transparent), rgba(0,0,0,.68))",
+      "--sh-far-3": "light-dark(color-mix(in srgb, var(--accent-solid) 70%, transparent), rgba(0,0,0,.75))",
       "--accent-solid": "var(--a-9)",
       "--on-accent": "var(--on-a-9)"
     },

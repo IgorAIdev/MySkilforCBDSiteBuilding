@@ -2,10 +2,11 @@
    (PANEL.md, «Где что лежит»). Сайт их не знает и не ввозит; вход открыт,
    только пока LOOK_PICKER=on.
 
-     GET    /look-panel/look.js, look.css, choice.mjs, catalog.json — сама панель
-     GET    /look-panel/state    опубликованные и черновые имена вариантов
+     GET    /look-panel/look.js, look.css, choice.mjs, catalog.json, engine/* — сама панель
+     GET    /look-panel/state    опубликованные и черновые имена вариантов и краски палитры
      POST   /look-panel/preview  включить черновой режим (видит только этот браузер)
      DELETE /look-panel/preview  выключить: снова опубликованный вид
+     POST   /look-panel/guard    своя палитра → с какими вариантами она не носится
      POST   /look-panel/draft    выбор → черновик вида (значения, шрифты скачаны)
      POST   /look-panel/publish  проверить черновик (check:choice) → опубликовать
 
@@ -18,13 +19,13 @@ import { join } from 'node:path'
 import { draftMode } from 'next/headers'
 import { revalidateTag } from 'next/cache'
 import SLOTS from '@/lib/look-slots.json' with { type: 'json' }
-import { HEADERS } from '@/lib/headers.ts'
 import { lookCss, type Slots } from '@/lib/look-values.ts'
 import { DEFAULT_LANG, LOCALES } from '@/lib/locale.ts'
-import { acceptLook, type Facts } from '@/lib/look-rule.ts'
+import { acceptLook, problems, type Facts } from '@/lib/look-rule.ts'
 import type { LookFont } from '@/lib/source/contract.ts'
-import { FIELDS, clashes, compose } from '../ui/choice.mjs'
+import { CUSTOM, clashes, compose, fieldsOf, paletteChecks, paletteVars, validPaints, valuesOf } from '../ui/choice.mjs'
 import { fetchFonts } from '../scripts/fonts.mjs'
+import { pairsOf } from '../scripts/pairs.mjs'
 
 const ROOT = process.cwd()
 const UI = join(ROOT, 'look-panel/ui')
@@ -34,33 +35,66 @@ const FILES: Record<string, string> = {
   'look.css': 'text/css; charset=utf-8',
   'choice.mjs': 'text/javascript; charset=utf-8',
   'catalog.json': 'application/json; charset=utf-8',
+  'engine/palette.mjs': 'text/javascript; charset=utf-8',
+  'engine/thresholds.mjs': 'text/javascript; charset=utf-8',
+  'engine/palette-profile.json': 'application/json; charset=utf-8',
 }
 type Pair = { x: { field: string; id: string }; y: { field: string; id: string }; why: string }
-type Catalog = { defaults: Record<string, string>; groups: Record<string, { id: string }[]>; pairs: Pair[] }
+type Option = { id: string; vars?: Record<string, string>; fonts?: { family: string; weights: number[] }[] }
+type Catalog = { defaults: Record<string, string>; groups: Record<string, Option[]>; axes: { field: string; name: string }[]; pairs: Pair[]; steps: Record<string, Record<string, string>> }
+type Intent = { brand: string; paper: string; tint: string; inkTowardBrand: boolean }
+type Paints = { name?: string; light: Record<string, string>; dark: Record<string, string>; intent?: Intent }
+/** Намерение строителя — метаданные рядом с красками: только свои поля. */
+const intentOf = (x: unknown): Intent | undefined => {
+  const r = x && typeof x === 'object' ? (x as Record<string, unknown>) : null
+  return r && typeof r.brand === 'string' && /^#[0-9a-f]{6}$/i.test(r.brand) && ['warm', 'neutral', 'cool'].includes(r.paper as string) && ['none', 'light'].includes(r.tint as string)
+    ? { brand: r.brand, paper: r.paper as string, tint: r.tint as string, inkTowardBrand: r.inkTowardBrand === true } : undefined
+}
 
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { 'cache-control': 'no-store' } })
 const catalog = (): Catalog => JSON.parse(readFileSync(join(UI, 'catalog.json'), 'utf8')) as Catalog
-const namesOf = (file: string): Record<string, string> | null => {
-  try { return (JSON.parse(readFileSync(join(SAMPLE, file), 'utf8')) as { names?: Record<string, string> }).names ?? null } catch { return null }
+const stateOf = (file: string): { names: Record<string, string> | null; paints: Paints | null } => {
+  try {
+    const raw = JSON.parse(readFileSync(join(SAMPLE, file), 'utf8')) as { names?: Record<string, string>; paints?: Paints }
+    return { names: raw.names ?? null, paints: validPaints(raw.paints) ? (raw.paints as Paints) : null }
+  } catch { return { names: null, paints: null } }
 }
-/** Имена из тела запроса — только поля выбора и только варианты каталога. */
-function names(body: unknown, cat: Catalog): Record<string, string> | string {
+const NAME = /^[\p{L}\p{N} .+-]{1,40}$/u
+/** Имена из тела запроса — только поля выбора и только варианты каталога;
+ *  своя палитра — только с тремя красками на тему. */
+function names(body: unknown, cat: Catalog): { chosen: Record<string, string>; paints: Paints | null } | string {
   const raw = body && typeof body === 'object' ? (body as Record<string, unknown>) : {}
-  const out: Record<string, string> = {}
-  for (const f of FIELDS) {
+  const given = validPaints(raw.paints) ? (raw.paints as Paints) : null
+  const three = (t: Record<string, string>) => ({ paper: t.paper, ink: t.ink, accent: t.accent })
+  const paints = given ? { name: given.name, light: three(given.light), dark: three(given.dark), intent: intentOf(given.intent) } : null
+  if (paints && paints.name !== undefined && (typeof paints.name !== 'string' || !NAME.test(paints.name))) return 'palette: the name takes letters, digits, spaces and . + -'
+  const chosen: Record<string, string> = {}
+  for (const f of fieldsOf(cat)) {
     const v = raw[f] ?? cat.defaults[f]
-    if (typeof v !== 'string' || !cat.groups[f]?.some((o) => o.id === v)) return `${f}: «${String(v)}» is not in the catalog`
-    out[f] = v
+    const own = f === 'palette' && v === CUSTOM && paints
+    if (typeof v !== 'string' || (!own && !cat.groups[f]?.some((o) => o.id === v))) return `${f}: «${String(v)}» is not in the catalog`
+    chosen[f] = v
   }
-  return out
+  return { chosen, paints: chosen.palette === CUSTOM ? paints : null }
 }
+const base = () => Object.fromEntries(Object.entries(SLOTS.slots as Slots).map(([k, s]) => [k, s.value]))
+/** Своя палитра против вариантов остальных групп — тем же правилом сайта,
+ *  что пары каталога (scripts/pairs.mjs). */
+const customPairs = (paints: Paints, cat: Catalog): Pair[] => pairsOf({
+  groups: { ...cat.groups, palette: [{ id: CUSTOM, vars: paletteVars(paints) }] }, fields: valuesOf(cat), base: base(),
+  facts: SLOTS.facts as Facts, problems, only: 'palette',
+}) as Pair[]
 /** Вид значениями для имён: собран, шрифты скачаны, принят сайтом без потерь. */
-async function build(chosen: Record<string, string>, cat: Catalog) {
-  const bad: Pair[] = clashes(chosen, cat.pairs)
+async function build(chosen: Record<string, string>, paints: Paints | null, cat: Catalog) {
+  if (paints) {
+    const measured = paletteChecks(paints, cat.steps)
+    if (!measured.ok) return { error: `palette: ${[...measured.rows.filter((r: { pass: boolean }) => !r.pass), ...measured.extra].map((r: { label: string; mode: string }) => `${r.label} (${r.mode})`).join('; ')}` }
+  }
+  const bad: Pair[] = clashes(chosen, paints ? [...cat.pairs, ...customPairs(paints, cat)] : cat.pairs)
   if (bad.length) return { error: bad.map((p) => `${p.x.field} «${p.x.id}» with ${p.y.field} «${p.y.id}»: ${p.why}`).join('; ') }
-  const composed = compose(chosen, cat)
+  const composed = compose(chosen, cat, paints)
   const look = { ...composed.look, fonts: (await fetchFonts(composed.need, join(ROOT, 'public/fonts'))) as LookFont[] }
-  const { notes } = acceptLook(look, SLOTS.slots as Slots, SLOTS.facts as Facts, HEADERS)
+  const { notes } = acceptLook(look, SLOTS.slots as Slots, SLOTS.facts as Facts)
   if (notes.length) return { error: notes.map((n) => `${n.what} ${n.why}`).join('; ') }
   return { look }
 }
@@ -80,23 +114,31 @@ const checkDraft = (site: string) => new Promise<{ ok: boolean; out: string }>((
 })
 
 export async function handle(request: Request, path: string[]): Promise<Response> {
-  const [head = '', ...rest] = path
+  const [head = ''] = path
+  const file = path.join('/')
   const method = request.method
-  if (method === 'GET' && !rest.length && Object.hasOwn(FILES, head)) {
-    return new Response(readFileSync(join(UI, head)), { headers: { 'content-type': FILES[head], 'cache-control': 'no-store' } })
+  if (method === 'GET' && Object.hasOwn(FILES, file)) {
+    return new Response(readFileSync(join(UI, file)), { headers: { 'content-type': FILES[file], 'cache-control': 'no-store' } })
   }
   if (method === 'GET' && head === 'state') {
     const previewing = (await draftMode()).isEnabled
-    return json({ published: namesOf('look.json'), draft: existsSync(join(SAMPLE, 'look.draft.json')) ? namesOf('look.draft.json') : null, previewing })
+    const published = stateOf('look.json')
+    const draft = existsSync(join(SAMPLE, 'look.draft.json')) ? stateOf('look.draft.json') : { names: null, paints: null }
+    return json({ published: published.names, publishedPaints: published.paints, draft: draft.names, draftPaints: draft.paints, previewing })
   }
   if (!sameOrigin(request)) return json({ ok: false, error: 'origin' }, 403)
   if (head === 'preview' && method === 'POST') { (await draftMode()).enable(); return json({ ok: true }) }
   if (head === 'preview' && method === 'DELETE') { (await draftMode()).disable(); return json({ ok: true }) }
+  if (head === 'guard' && method === 'POST') {
+    const body = (await request.json().catch(() => null)) as { paints?: unknown } | null
+    if (!validPaints(body?.paints)) return json({ ok: false, error: 'paints: three #RRGGBB paints per theme' }, 400)
+    return json({ ok: true, pairs: customPairs(body!.paints as Paints, catalog()) })
+  }
   if ((head === 'draft' || head === 'publish') && method === 'POST') {
     const cat = catalog()
-    const chosen = names(await request.json().catch(() => null), cat)
-    if (typeof chosen === 'string') return json({ ok: false, error: chosen }, 400)
-    const built = await build(chosen, cat).catch((e: Error) => ({ error: e.message }))
+    const asked = names(await request.json().catch(() => null), cat)
+    if (typeof asked === 'string') return json({ ok: false, error: asked }, 400)
+    const built = await build(asked.chosen, asked.paints, cat).catch((e: Error) => ({ error: e.message }))
     if ('error' in built) return json({ ok: false, error: built.error }, 422)
     writeFileSync(join(SAMPLE, 'look.draft.json'), JSON.stringify(built.look, null, 2) + '\n')
     ;(await draftMode()).enable()
@@ -108,7 +150,7 @@ export async function handle(request: Request, path: string[]): Promise<Response
        применяется, когда этот ответ ушёл, — поэтому страницы досчитывает
        панель: ей отдаётся блок вида, которого ждать на главной. */
     revalidateTag('look', 'max')
-    const css = lookCss(acceptLook(built.look, SLOTS.slots as Slots, SLOTS.facts as Facts, HEADERS).look)
+    const css = lookCss(acceptLook(built.look, SLOTS.slots as Slots, SLOTS.facts as Facts).look)
     return json({ ok: true, css, langs: LOCALES, main: DEFAULT_LANG, verdict: verdict.out.trim().split('\n').slice(-3) })
   }
   return json({ ok: false, error: 'not found' }, 404)
