@@ -34,7 +34,7 @@ export function Catalog({ view, top }: { view: CatalogView; top?: ReactNode }) {
       <div className={p.pagehead}>
         <h1>{view.title}</h1>
         {view.lede ? <p>{view.lede}</p> : null}
-        <p className={p.muted}>{view.count}</p>
+        <p className={p.note}>{view.count}</p>
       </div>
       {top}
       {view.invalid ? <p className={p.muted} role="status">{view.invalid}</p> : null}
