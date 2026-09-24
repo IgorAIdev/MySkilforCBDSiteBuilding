@@ -1,0 +1,90 @@
+/* Источник 56 — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и
+   дизайн» (там — «Щ»: форма входа; разметки нет), как прислан. */
+#login-form {
+  --primary-color: orangered;
+  --gray-border-dark: #b9b9b9;
+  --gray-light: #f2f3f6;
+  --gray: #727586;
+  --dark: #262626;
+
+  max-width: calc(100% - 40px);
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#login-form .header-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+#login-form .header-form .title {
+  font-size: 34px;
+  font-weight: 500;
+}
+
+#login-form .header-form .subtitle {
+  color: var(--gray);
+}
+
+#login-form input {
+  padding: 10px 15px;
+  border: 1px solid var(--gray-border-dark);
+  border-radius: 5px;
+  user-select: none;
+  outline: none;
+  transition: 0.2s ease-in-out;
+}
+
+#login-form input:focus {
+  border-color: var(--primary-color);
+}
+
+#login-form button {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.1s ease-in-out;
+}
+
+#login-form button[type="submit"] {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+#login-form button[type="submit"]:hover {
+  opacity: 0.9;
+}
+
+#login-form button:disabled {
+  background-color: var(--gray-light);
+  color: var(--gray);
+  cursor: not-allowed;
+}
+
+#login-form #google-btn {
+  background-color: #fff;
+  border: 1px solid var(--gray-border-dark);
+}
+#login-form #signup-btn {
+  background-color: var(--dark);
+  color: #fff;
+}
+
+#login-form .division-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+#login-form .division-or span {
+  color: var(--gray);
+}
+#login-form .h-line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--gray-border-dark);
+}

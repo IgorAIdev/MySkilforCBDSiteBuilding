@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>56 · Форма входа</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 56 — «Форма входа». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: оранжево-красная марка источника — краска марки палитры; поля без подписей, только подсказкой в поле — подсказка пропадает при вводе (WCAG 3.3.2); выключенная — серый тон своими красками; прозрачность 0.9 главной под рукой; заголовок 34 px.
+  Приведено к единой форме: лист карточки; шапка по центру — заголовок ролью h3, строка под ним ролью сноски; поля — контуром с подписью над ними (43 и 46); действия во всю ширину: «Войти» — марка, «Через Google» — контур, «или» между волосками, «Создать» — чернила; выключенная «Войти» — как у набора: прозрачность --state-off и курсор «нельзя»; знак Google не нарисован: чужая марка ставится по правилам Google и из их набора при встраивании, в листе набора её нет.
+  Наведение: кнопки: + 5 % краски надписи; «через Google» встаёт в голос марки. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <form class="card" data-form action="#"><div class="stack" data-align="center"><p class="title">Welcome back</p><p class="text">Sign in to see your orders.</p></div><div class="entry"><label class="label" for="login-email">Email</label><label class="field" data-voice="line"><input type="email" placeholder="name@example.com" id="login-email" autocomplete="email"></label></div><div class="entry"><label class="label" for="login-pass">Password</label><label class="field" data-voice="line"><input type="password" placeholder="Your password" id="login-pass" autocomplete="current-password"></label></div><button class="el" data-voice="loud" type="button">Sign in</button><button class="el" data-voice="line" type="button">Continue with Google</button><p class="or">or</p><button class="el" data-voice="ink" type="button">Create an account</button></form>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-form><span class="el" data-voice="loud">Sign in</span><span class="el" data-voice="line">Continue with Google</span><p class="or">or</p><span class="el" data-voice="ink">Create an account</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-form><span class="el" data-voice="loud" data-state="hover">Sign in</span><span class="el" data-voice="line" data-state="hover">Continue with Google</span><p class="or">or</p><span class="el" data-voice="ink" data-state="hover">Create an account</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-form><span class="el" data-voice="loud" data-state="press">Sign in</span><span class="el" data-voice="line" data-state="press">Continue with Google</span><p class="or">or</p><span class="el" data-voice="ink" data-state="press">Create an account</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-form><span class="el" data-voice="loud" data-state="focus">Sign in</span><span class="el" data-voice="line">Continue with Google</span><p class="or">or</p><span class="el" data-voice="ink">Create an account</span></div><figcaption>фокус</figcaption></figure>
+    <figure><div class="card" data-form><span class="el" data-voice="loud" data-state="off" aria-disabled="true">Sign in</span><span class="el" data-voice="line">Continue with Google</span><p class="or">or</p><span class="el" data-voice="ink">Create an account</span></div><figcaption>выключено</figcaption></figure>
+  </div>
+</body>
+</html>
