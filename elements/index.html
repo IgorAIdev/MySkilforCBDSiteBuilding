@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Элементы на выбор</title>
+<!-- Собран tools/elements.mjs из elements/elements.json. Руками не правят. -->
+<style>
+  body{margin:0;padding:24px 16px 48px;background:#F4F4F2;color:#1C1A18;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+  main{max-inline-size:1100px;margin-inline:auto;display:flex;flex-direction:column;gap:24px}
+  h1{margin:0;font-size:1.5rem;font-weight:600}
+  h2{margin:0;font-size:1.25rem;font-weight:600}
+  h3{margin:0;font-size:1.0625rem;font-weight:600}
+  .lead,.note{margin:0;color:#5F5E5A;max-inline-size:75ch}
+  .filter{display:flex;flex-wrap:wrap;gap:8px}
+  .filter button{font:inherit;font-size:.875rem;padding:6px 14px;border:0;border-radius:999px;background:#E6E5E1;color:#1C1A18;cursor:pointer}
+  .filter button[aria-pressed='true']{background:#1C1A18;color:#fff}
+  .family{display:flex;flex-direction:column;gap:14px}
+  article{background:#fff;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+  article header{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:.8125rem;padding:3px 10px;border-radius:999px;background:#F1F0EC;color:#3D3B37}
+  .chip i{font-style:normal;color:#8A877F}
+  .chip.kind{background:#1C1A18;color:#fff}
+  dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.875rem}
+  dt{color:#8A877F}
+  dd{margin:0}
+  .pair{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 320px), 1fr));gap:16px}
+  figure{margin:0;display:flex;flex-direction:column;gap:8px}
+  figcaption{font-size:.8125rem;color:#5F5E5A}
+  .src{border:1px solid #E4E3DF;border-radius:12px;overflow:hidden;background:#fff;display:grid;place-items:center;min-block-size:120px}
+  .src img{max-inline-size:100%;display:block}
+  iframe{inline-size:100%;border:1px solid #E4E3DF;border-radius:12px;background:#fff}
+  a{color:inherit}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<main>
+  <h1>Элементы на выбор</h1>
+  <p class="lead">Каждый элемент нарисован по источнику, разобран до базового и показан в трёх состояниях. Сгруппированы по семье стиля — внутри семьи элементы подходят друг к другу. В сайт не встроены.</p>
+  <div class="filter" role="group" aria-label="Род">
+    <button type="button" data-kind="" aria-pressed="true">Все</button>
+    <button type="button" data-kind="кнопка" aria-pressed="false">кнопка</button>
+    <button type="button" data-kind="кнопка-знак" aria-pressed="false">кнопка-знак</button>
+    <button type="button" data-kind="фишка" aria-pressed="false">фишка</button>
+  </div>
+    <section class="family" data-family="мягкий-тон">
+      <h2>Мягкий тон</h2>
+      <p class="note">пилюля и круг, тон 8 % чернил, без рамки и тени, значки листа набора штрихом 1.4. Подходит к характеру: Аптечная ясность, Ровный магазин.</p>
+      
+      <article data-kind="кнопка-знак фишка">
+        <header><h3>01 · Пилюли шапки</h3><span class="chip kind">кнопка-знак</span><span class="chip kind">фишка</span></header>
+        <p class="note">Значок без слова — круг, слово — пилюля той же высоты 40; тон без рамки и тени.</p>
+        <div class="tags"><span class="chip"><i>форма</i> круг, пилюля</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>тон + 5 % чернил</dd><dt>нажатие</dt><dd>тон + 9 %, кнопка 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо чернил</dd><dt>приведено</dt><dd>значки — из листа набора: назад, поиск, корзина вместо сумки со скрина; тон 8 % чернил вместо 1.08 : 1 со скрина — тот был ниже порога видимости; надпись 600, как у кнопок набора</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><img src="01-header-pills/source.png" alt="Источник: Пилюли шапки"></div><figcaption>Источник — скриншот заказчика 24.09.2026</figcaption></figure>
+          <figure><iframe src="01-header-pills/element.html" height="240" title="Пилюли шапки"></iframe><figcaption>Нарисовано — <a href="01-header-pills/element.html">01-header-pills/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article data-kind="кнопка">
+        <header><h3>02 · Explore со стрелкой</h3><span class="chip kind">кнопка</span></header>
+        <p class="note">Пилюля со словом и стрелкой в тонком кружке; стрелка смотрит вверх-вправо и под рукой встаёт вправо.</p>
+        <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> в кружке справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>движение</i> поворот знака</span></div>
+        <dl><dt>наведение</dt><dd>тон + 5 % чернил, стрелка встаёт вправо; кружок остаётся</dd><dt>нажатие</dt><dd>тон + 9 %, кнопка 0.97 и на пиксель ниже, стрелка вправо</dd><dt>фокус</dt><dd>кольцо чернил</dd><dt>снято</dt><dd>плавная заливка фоном при наведении; белая надпись при ней; большая тень; размытие под кнопкой; рамка цвета заливки</dd><dt>приведено</dt><dd>рост 40 вместо 44; тон 8 % чернил вместо белой; стрелка — из листа набора; кружок .75 высоты у конца пилюли</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="02-explore-arrow/source.html">source.html</a></div><figcaption>Источник — код Tailwind от заказчика 24.09.2026</figcaption></figure>
+          <figure><iframe src="02-explore-arrow/element.html" height="240" title="Explore со стрелкой"></iframe><figcaption>Нарисовано — <a href="02-explore-arrow/element.html">02-explore-arrow/element.html</a></figcaption></figure>
+        </div>
+      </article>
+    </section>
+</main>
+<script>
+for (const b of document.querySelectorAll('.filter button')) b.onclick = () => {
+  for (const x of document.querySelectorAll('.filter button')) x.setAttribute('aria-pressed', String(x === b))
+  for (const a of document.querySelectorAll('article')) a.hidden = !!b.dataset.kind && !a.dataset.kind.split(' ').includes(b.dataset.kind)
+  for (const s of document.querySelectorAll('.family')) s.hidden = ![...s.querySelectorAll('article')].some((a) => !a.hidden)
+}
+</script>
+</body>
+</html>
