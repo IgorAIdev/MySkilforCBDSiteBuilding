@@ -4,8 +4,10 @@
  *   name        — поле без подписи (подсказка внутри поля именем не считается);
  *   fieldZoom   — поле мельче 16px на телефоне (iOS увеличивает страницу);
  *   autofill    — поле оформления без autocomplete (WCAG 1.3.5), личные страницы;
- *   h1Lines     — главный заголовок длиннее трёх строк;
- *   scriptError — страница бросила ошибку при загрузке.
+ *   h1Lines     — главный заголовок длиннее трёх строк.
+ *
+ * Ошибку скрипта при загрузке ловит `check:detect` (семья `scriptError`,
+ * selftest/detect.test.mjs): второго ответа на тот же вопрос здесь нет.
  *
  * Поднимается крошечный сервер с тремя страницами — грязной, личной (форма
  * оформления) и чистой, — и настоящая проверка идёт по ним узким прогоном.
@@ -45,8 +47,7 @@ const shell = (title, body, style = '') => `<!doctype html><html lang="en"><head
 const PAGES = {
   '/home': shell('Dirty',
     '<h1 class="narrow">A very long product name that keeps wrapping line after line</h1>'
-    + '<input type="text" name="q" placeholder="Search">'
-    + '<script>throw new Error("boom at load")</script>',
+    + '<input type="text" name="q" placeholder="Search">',
     '.narrow{inline-size:140px;font-size:32px;line-height:40px;margin:0}input{font-size:13px}'),
   '/checkout': shell('Checkout',
     '<h1>Contact</h1><form>'
@@ -81,7 +82,7 @@ const run = (dir, base, args) => new Promise((resolve) => {
   child.on('close', (status) => resolve({ status, stdout, stderr }))
 })
 
-test('craft: поле без подписи, мелкое поле, автозаполнение, три строки заголовка, ошибка скрипта',
+test('craft: поле без подписи, мелкое поле, автозаполнение, три строки заголовка',
   { skip: modules ? false : 'нет Playwright и sharp — CRAFT_MODULES=…/node_modules, где они стоят', timeout: 300_000 }, async () => {
   const { server, base } = await serve()
   const dir = mkdtempSync(join(tmpdir(), 'kit-craft-'))
@@ -91,7 +92,7 @@ test('craft: поле без подписи, мелкое поле, автоза
     for (const p of ['app/home', 'app/checkout', 'app/clean']) { mkdirSync(join(dir, p), { recursive: true }); writeFileSync(join(dir, p, 'page.tsx'), 'export default () => null\n') }
     writeFileSync(join(dir, 'kit.config.json'), JSON.stringify({ sessions: { cookie: 'sid', pages: { '/checkout': ['s1'] } } }))
     const out = join(dir, 'found.json')
-    const r = await run(dir, base, ['--pages', '/home,/checkout#as=s1,/clean', '--only', 'name,fieldZoom,autofill,h1Lines,scriptError', '--json', out])
+    const r = await run(dir, base, ['--pages', '/home,/checkout#as=s1,/clean', '--only', 'name,fieldZoom,autofill,h1Lines', '--json', out])
     assert.equal(r.status, 0, r.stdout + r.stderr)
     const { found } = JSON.parse(readFileSync(out, 'utf8'))
     const on = (fam, page) => found[fam].filter((l) => l.startsWith(`${page} `))
@@ -112,7 +113,5 @@ test('craft: поле без подписи, мелкое поле, автоза
     assert.ok(on('h1Lines', '/home').length >= 1, 'заголовок в узкой колонке — длиннее трёх строк')
     assert.deepEqual(on('h1Lines', '/clean'), [])
 
-    assert.deepEqual(on('scriptError', '/home'), ['/home  при загрузке: boom at load'], 'одна ошибка — одна находка, а не по ширинам')
-    assert.deepEqual([...on('scriptError', '/checkout#as=s1'), ...on('scriptError', '/clean')], [])
   } finally { server.close(); rmSync(dir, { recursive: true, force: true }) }
 })

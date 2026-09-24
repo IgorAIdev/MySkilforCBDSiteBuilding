@@ -43,8 +43,8 @@
  *  13. Поле и телефон  — поле без подписи (семья `name`), мельче 16px на
  *                        телефоне (`fieldZoom`), поле оформления без
  *                        `autocomplete` (`autofill`, личные страницы).
- *  14. Главный заголовок— не длиннее трёх строк (`h1Lines`).
- *  15. Ошибка скрипта  — страница бросила при загрузке (`scriptError`).
+ *  14. Главный заголовок— не длиннее трёх строк (`h1Lines`). Ошибку скрипта
+ *                        при загрузке ловит `check:detect` (`scriptError`).
  *
  * Работает храповиком, как и `check:css`: в `tools/craft-baseline.json`
  * записано, сколько нарушений сегодня; проверка падает, только если их
@@ -59,7 +59,7 @@
  * PLAYWRIGHT.
  */
 
-import { loadPlaywright, loadSharp } from './browser.mjs'
+import { loadPlaywright, loadSharp, still } from './browser.mjs'
 const { chromium } = await loadPlaywright()
 const sharp = await loadSharp()
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -1931,19 +1931,10 @@ let dead = false
    стоит дороже самого замера. Отработавшая возвращается в стопку своей среды
    и достаётся следующему. */
 const idle = new Map()
-/* Ошибки скрипта страницы — по вкладке: слушатель вешается один раз, когда
-   вкладка родилась, а замер обнуляет список перед каждым открытием. Страница,
-   бросившая ошибку при загрузке, — витрина, часть которой не ожила
-   (impeccable, правило script-error): в разметке это не видно, а
-   `check:open` спрашивает только код ответа. */
-const pageErrors = new WeakMap()
 const take = async (ctx) => {
   const rest = idle.get(ctx)
   const kept = rest && rest.pop()
-  if (kept) return kept
-  const page = await ctx.newPage()
-  page.on('pageerror', (e) => pageErrors.get(page)?.push(String(e?.message ?? e).split('\n')[0]))
-  return page
+  return kept ?? await ctx.newPage()
 }
 const give = (ctx, p) => {
   const rest = idle.get(ctx) ?? []
@@ -1970,7 +1961,7 @@ const found = { lane: [], placeholder: [], measure: [], target: [], contrast: []
                 covered: [],
                 ladder: [], wideCtrl: [], lopsided: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [],
                 twiceLift: [], sheetSize: [],
-                autofill: [], fieldZoom: [], h1Lines: [], scriptError: [] }
+                autofill: [], fieldZoom: [], h1Lines: [] }
 
 /** Открыть страницу на ширине и померить.
  *
@@ -1978,33 +1969,8 @@ const found = { lane: [], placeholder: [], measure: [], target: [], contrast: []
  *  решает раскладку, указатель решает размер цели — это два разных вопроса,
  *  и задавать второй через первый нельзя.
  *  `dark` — вторая тема. */
-/** Остановить показ слайдов перед замером.
- *
- *  Заведено находкой, которая НЕ ПОВТОРИЛАСЬ: полный прогон показал контраст
- *  3.35 у подписи героя на 700, а узкий по той же странице и той же семье —
- *  ноль. Причина не в странице: кадры героя сами сменяются по таймеру, и
- *  замер иногда попадал В СЕРЕДИНУ ПЕРЕХОДА, когда на экране два снимка
- *  сразу и подпись лежит на их смеси. Все четыре снимка замерены по
- *  отдельности и держат 5.76:1 — мерилось не то, что видит покупатель.
- *
- *  Правило общее, не про этот слайдер: ЗАМЕР ИДЁТ ПО НЕПОДВИЖНОЙ СТРАНИЦЕ.
- *  Ожидание конца анимаций этого не даёт — таймер заводит следующую, и
- *  страница не бывает неподвижной никогда. Останавливаем тем же органом,
- *  которым останавливает человек: кнопкой паузы. Путь, который проверка
- *  проходит, — тот самый, что у покупателя.
- *
- *  Кнопки нет — ничего и не делаем: страниц без слайдера большинство. */
-async function still(page) {
-  await page.evaluate(() => {
-    const b = document.querySelector('[data-ctl="run"]')
-    if (!b) return
-    const before = b.getAttribute('aria-label')
-    b.click()
-    /* Нажатие не сработало (кнопка уже на паузе) — второго не делаем: оно
-       снова запустило бы показ. */
-    if (b.getAttribute('aria-label') === before) b.click()
-  }).catch(() => {})
-}
+/* Показ слайдов останавливается перед замером — `still` в `browser.mjs`:
+   общий у этой проверки и у детектора impeccable (`check:detect`). */
 
 /** Открыть адрес проверки. Сессию личной страницы несёт заголовок
  *  `Cookie` — страницы берутся из общей стопки, поэтому заголовок ставится
@@ -2028,7 +1994,6 @@ async function visit(path, w, { finger, dark = false }) {
     const page = await take(want)
     try {
     await page.setViewportSize({ width: w, height: 900 })
-    pageErrors.set(page, [])
     /* Сервер, УМЕРШИЙ в середине прогона, — не программная ошибка, а
        обстоятельство, и говорить о нём надо словами. Заведено по счёту:
        он падал дважды. В первый раз часть страниц померилась недогруженной
@@ -2063,8 +2028,6 @@ async function visit(path, w, { finger, dark = false }) {
       document.getAnimations().map((a) => a.finished.catch(() => {})),
     )).catch(() => {})
     await page.waitForTimeout(150)
-    /* Что бросила страница, пока грузилась, — до наших замеров. */
-    const thrown = [...new Set(pageErrors.get(page) ?? [])].map((m) => `при загрузке: ${m.slice(0, 120)}`)
 
     /* Кольцо фокуса рисуется по `:focus-visible`, а он у браузера зависит от
        того, ЧЕМ в последний раз пользовались: после мыши кольца нет и быть
@@ -2105,7 +2068,6 @@ async function visit(path, w, { finger, dark = false }) {
          оформления с полной корзиной: там меряется автозаполнение. */
       autofill: path.includes('#as='),
     })
-    r.scriptError = thrown
 
     /* ── приклеенное — в НИЗКОМ окне ───────────────────────────────────────
        Приклеенный блок выше окна нельзя увидеть целиком никогда: его низ
@@ -2292,9 +2254,9 @@ async function visit(path, w, { finger, dark = false }) {
  *  Заполнили реквизит — счётчик упал ровно на единицу, на скольких бы
  *  страницах он ни стоял. */
 const holders = new Map()
-/* Семьи, которые от ширины не зависят: ошибка скрипта и цель поля — факт
-   страницы, а не окна. Семь ширин не делают из одной ошибки семь. */
-const PER_PAGE = new Set(['scriptError', 'autofill'])
+/* Семьи, которые от ширины не зависят: цель поля — факт страницы, а не
+   окна. Семь ширин не делают из одного поля семь. */
+const PER_PAGE = new Set(['autofill'])
 
 /** Разложить находки по семьям. */
 const keep = (path, w, r) => {

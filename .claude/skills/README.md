@@ -39,7 +39,7 @@
 | Источник | Лицензия | Что взято |
 | --- | --- | --- |
 | [leonxlnx/taste-skill](https://github.com/leonxlnx/taste-skill) | MIT | `taste-skill`, `minimalist-skill`, `redesign-skill`, `brandkit`, `brutalist-skill`, `soft-skill`, `output-skill` |
-| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache 2.0 | `impeccable` — `SKILL.md` и `reference/` |
+| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache 2.0 | `impeccable` — `SKILL.md` и `reference/`; его детектор — не здесь, а в `tools/vendor/impeccable/` (ниже) |
 | [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT | `emil-design-eng`, `improve-animations`, `review-animations` |
 | [obra/superpowers](https://github.com/obra/superpowers) | MIT | все 14 скиллов процесса — `using-superpowers`, `brainstorming`, `writing-plans`, `executing-plans`, `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `writing-skills`, `using-git-worktrees`, `finishing-a-development-branch`, `dispatching-parallel-agents`, `subagent-driven-development` |
 
@@ -73,13 +73,24 @@
 
 ## Чего сознательно нет
 
-- **`impeccable/scripts/`** (1,7 МБ). Это launcher, который при первом запуске
-  тянет свой бинарь, плюс 500-килобайтный live-browser. Сам `SKILL.md`
-  описывает, как работать, если launcher отсутствует, — значит шаг загрузки
-  контекста просто пропускается, а ценность скилла (`reference/*.md`:
-  craft-floor, critique, layout, typeset, colorize) остаётся. Измеримая
-  половина его детектора переписана в набор — `check:design`, семьи с
-  источником в этих справочниках (И271, `docs/skills.md`).
+- **`impeccable/scripts/` — запускатель и живой режим** (1,7 МБ). Запускатель
+  при первом запуске тянет свой бинарь из сети — то, что пришло, набор
+  заранее не читал и хешем не закрепил; живой режим требует запускателя и
+  служебного сервера и показывает варианты рядом со страницей — второй
+  механизм выбора вида рядом с панелью, которая по правилу физически
+  отделена от сайта (разбор 24.09.2026). Сам `SKILL.md` описывает, как
+  работать без запускателя, — шаг загрузки контекста пропускается, а
+  ценность скилла (`reference/*.md`: craft-floor, critique, layout, typeset,
+  colorize) остаётся.
+
+  **Детектор теперь есть — файлом, а не загрузкой** (И310, 24.09.2026):
+  страничная сборка движка 0.1.5 (`crates/live/assets/detect-antipatterns-browser.js`
+  и `antipatterns.json`, тег `engine-v0.1.5`) лежит в `tools/vendor/impeccable/`
+  с `LICENSE`, `NOTICE.md`, `VENDOR.json` (коммит, хеши) и `SOURCE.md`
+  (разбор на сеть). Ядро вшито в файл как WebAssembly, сети не просит;
+  `check:detect` сверяет хеш перед вставкой и закрывает сеть на время
+  замера. Измеримое из справочников по файлу — по-прежнему `check:design`
+  (И271, `docs/skills.md`).
 - **`imagegen-*`, `stitch-skill`, `image-to-code-skill`** из taste-skill —
   им нужен генератор изображений, а в этой сессии его нет.
 - **`brandkit`** взят, хотя он тоже про генерацию картинок: его метод

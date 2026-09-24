@@ -1,0 +1,98 @@
+/* ═══ ОСНОВА ЭЛЕМЕНТОВ — одна на всю папку (И337) ═══════════════════════════
+ *
+ *  Слово заказчика 24.09.2026: «все кнопки и всё остальное оптимизируй,
+ *  приводи к единой форме». Поэтому элемент не несёт своих чисел и красок:
+ *  высота, поле, надпись, значок, штрих, тон, кольцо и состояния — отсюда.
+ *  Элемент отличается только атрибутами (форма, рост, значок, движение).
+ *
+ *  Числа — набора (styles/scale.css, tokens.css, base.css, btn.module.css),
+ *  чтобы выбранное встраивалось один к одному:
+ *    рост        32 / 40 / 48, под пальцем 44 / 48 / 56     (--ctrl-h-*)
+ *    надпись     1rem, 600, как в предложении               (--ctrl-fs, И273)
+ *    поле        .45 высоты, просвет до значка .2            (btn.module.css)
+ *    значок      при слове .42 высоты, один — .5; штрих 1.4  (base.css)
+ *    тон         8 % чернил поверх пола                      (--quiet)
+ *    угол        8 из Shape; пилюля — полный круг            (--r-ctrl, --r-pop)
+ *    кольцо      2, отступ 3                                 (--ring-w, --ring-off)
+ *    наведение   тон + 5 % чернил                            (--state-hover)
+ *    нажатие     тон + 9 %, 0.97 и на пиксель ниже           (--state-press, И273)
+ *
+ *  Атрибуты элемента:
+ *    data-size   sm | lg                  рост; без него — средний
+ *    data-shape  pill                     полный круг; без него — угол 8
+ *    data-icon                            значок без слова: квадрат, с пилюлей — круг
+ *    data-motion turn                     значок повёрнут на −45° и встаёт на место под рукой
+ *    .ring                                значок в тонком кружке у конца пилюли
+ *    data-state  hover | press | focus    состояние застывшим — для показа рядом
+ */
+
+:root{
+  --ink:#1F1E1C;
+  --floor:#FCFBF9;
+  --soft:#6B6964;
+  --h-sm:32px; --h-md:40px; --h-lg:48px;
+  --fs:1rem; --weight:600;
+  --tone:color-mix(in srgb, var(--ink) 8%, transparent);
+  --line:1px; --ring-w:2px; --ring-off:3px;
+  --state-hover:5%; --state-press:9%;
+  --hover-t:200ms; --press-t:120ms; --ease:cubic-bezier(.32,.72,0,1);
+  --face:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (pointer:coarse){ :root{ --h-sm:44px; --h-md:48px; --h-lg:56px } }
+
+svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── элемент ─────────────────────────────────────────────────────────── */
+.el{
+  --h:var(--h-md);
+  --r:8px;
+  --paint:var(--tone);
+  display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--h) * .2);
+  block-size:var(--h);min-inline-size:var(--h);padding-inline:calc(var(--h) * .45);
+  border:0;border-radius:var(--r);
+  background:var(--paint);color:var(--ink);
+  font:inherit;font-family:var(--face);font-size:var(--fs);font-weight:var(--weight);line-height:1.2;
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:background-color var(--hover-t) var(--ease), transform var(--press-t) var(--ease)
+}
+.el[data-size='sm']{--h:var(--h-sm)}
+.el[data-size='lg']{--h:var(--h-lg)}
+.el[data-shape='pill']{--r:999px}
+.el svg{inline-size:calc(var(--h) * .42);block-size:calc(var(--h) * .42);flex:none}
+.el[data-icon]{inline-size:var(--h);padding-inline:0}
+.el[data-icon] svg{inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5)}
+
+/* Значок в кружке у конца пилюли: кружок — .75 высоты, стоит концентрично
+   скруглению, поле у конца — остаток до края. */
+.el:has(.ring){padding-inline-end:calc(var(--h) * .125)}
+.el .ring{
+  display:grid;place-items:center;flex:none;
+  inline-size:calc(var(--h) * .75);block-size:calc(var(--h) * .75);
+  border:var(--line) solid currentColor;border-radius:999px
+}
+
+/* Поворот значка: под рукой встаёт на место. */
+.el[data-motion='turn'] svg{transform:rotate(var(--turn, -45deg));transition:transform var(--hover-t) var(--ease)}
+
+/* ── состояния: живые и застывшие одним правилом ─────────────────────── */
+@media (hover:hover){
+  .el:hover{--paint:color-mix(in oklab, var(--tone), var(--ink) var(--state-hover));--turn:0deg}
+}
+.el[data-state='hover']{--paint:color-mix(in oklab, var(--tone), var(--ink) var(--state-hover));--turn:0deg}
+.el:active,
+.el[data-state='press']{--paint:color-mix(in oklab, var(--tone), var(--ink) var(--state-press));--turn:0deg;transform:translateY(1px) scale(.97)}
+.el:focus-visible,
+.el[data-state='focus']{outline:var(--ring-w) solid var(--ink);outline-offset:var(--ring-off)}
+@media (prefers-reduced-motion:reduce){
+  .el,.el[data-motion='turn'] svg{transition:background-color var(--hover-t) var(--ease)}
+  .el:active,.el[data-state='press']{transform:none}
+}
+
+/* ── страница элемента: живой сверху, состояния застывшими ниже ─────── */
+body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;background:var(--floor);color:var(--ink);font-family:var(--face)}
+.live{display:flex;align-items:center;justify-content:space-between;gap:6px;inline-size:min(360px, 100% - 32px)}
+.live.one{justify-content:center}
+.group{display:flex;gap:6px}
+.states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
+.states figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.states figcaption{font-size:.8125rem;color:var(--soft)}

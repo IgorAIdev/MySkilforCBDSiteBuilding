@@ -1,0 +1,20 @@
+{
+  "source": "https://github.com/pbakaus/impeccable",
+  "tag": "engine-v0.1.5",
+  "tagObject": "9b5c80bd8c206bff1ae45daa10ef15082485ae11",
+  "commit": "112703d5bf2469574758e0ddc5baf8e03c958f58",
+  "engine": "0.1.5",
+  "file": "detect-antipatterns-browser.js",
+  "path": "crates/live/assets/detect-antipatterns-browser.js",
+  "sha256": "71896de93007e7a728aaeb961170c8da291a9627df98516f83384cfe181661f9",
+  "registry": "antipatterns.json",
+  "registryPath": "crates/live/assets/antipatterns.json",
+  "registrySha256": "4aaefef3c8cf38296cd16277f361ae480eaf84053ad25509c220178ac96cedf7",
+  "api": "impeccableDetect",
+  "license": "Apache-2.0",
+  "licenseFiles": {
+    "LICENSE": "02bb8c3b4e70190e3986c0404ad2fd8d639b4f534252d82379cc1b502b6d1812",
+    "NOTICE.md": "c60a093c2845fd9fb82f9c6f742ece31f379f8190b535309d32d66c45ccffdcb"
+  },
+  "date": "2026-09-24"
+}

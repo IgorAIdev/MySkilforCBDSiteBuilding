@@ -21,7 +21,7 @@ export const CRAFT_FAMILIES = [
   'marker', 'sticky', 'theme', 'coarse', 'calm', 'ladder', 'wideCtrl',
   'lopsided', 'sunk', 'stolen', 'inkDip', 'markInk', 'field', 'alone',
   'catalogueColumns', 'twoAir', 'twiceLift', 'sheetSize',
-  'autofill', 'fieldZoom', 'h1Lines', 'scriptError',
+  'autofill', 'fieldZoom', 'h1Lines',
 ]
 
 /** Вектор — адрес SVG: файл `.svg` или `data:image/svg+xml`. Семья
@@ -88,5 +88,4 @@ export const CRAFT_LABELS = {
   autofill: 'поле оформления без autocomplete: браузер не подставит имя, телефон и адрес — покупатель набирает их пальцем (WCAG 1.3.5)',
   fieldZoom: 'поле мельче 16px на телефоне: iOS Safari увеличивает страницу при вводе и не возвращает',
   h1Lines: 'главный заголовок в четыре строки и больше: мера держится ролью заголовка, а не длиной текста',
-  scriptError: 'страница бросила ошибку скрипта при загрузке — часть витрины не ожила',
 }

@@ -19,6 +19,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
+import { plainCss, takenBy, withTaken } from './stand-modules.mjs'
 
 const read = (p) => (existsSync(path.resolve(p)) ? readFileSync(path.resolve(p), 'utf8') : '')
 const need = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/btn.module.css', 'styles/form.module.css', 'styles/go.module.css']
@@ -31,8 +32,8 @@ if (missing.length) {
   process.exit(1)
 }
 /* `composes` — единственное, чем модуль отличается от простого CSS; снимается,
-   а взятые классы ставятся на элемент рядом (`box pick`, `input box`). */
-const plain = (p) => read(p).replace(/composes\s*:[^;}]*;?/g, '')
+   а взятые классы ставит в разметку tools/stand-modules.mjs (И335). */
+const plain = (p) => plainCss(read(p))
 const css = need.map(plain).join('\n')
 
 const img = (label, hue) => `data:image/svg+xml,${encodeURIComponent(
@@ -213,5 +214,5 @@ ${sheet}
 `
 
 const out = process.argv[2] ?? 'proof-stand.html'
-writeFileSync(out, html)
+writeFileSync(out, withTaken(html, takenBy(...need.filter((p) => p.endsWith('.module.css')).map(read))))
 console.log(`✓ страница-доказательство: ${out} (${Math.round(html.length / 1024)} КБ)`)

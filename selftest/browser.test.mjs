@@ -25,7 +25,7 @@ test('no tool depends on a path that exists on one machine only', () => {
 })
 
 test('rendered checks load Playwright and sharp through the one loader', () => {
-  for (const f of ['check-craft.mjs', 'sweep.mjs', 'shade.mjs']) {
+  for (const f of ['check-craft.mjs', 'check-detect.mjs', 'sweep.mjs', 'shade.mjs']) {
     const src = read(f)
     assert.match(src, /from '\.\/browser\.mjs'/, f)
     assert.doesNotMatch(src, /^import sharp from 'sharp'/m, f)

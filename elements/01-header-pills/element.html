@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Пилюли шапки</title>
+<link rel="stylesheet" href="../base.css">
+<!--
+  Элемент 01 — «пилюли шапки»: кнопки-значки в кругах и фишка со словом.
+  Источник: скриншот заказчика 24.09.2026 (source.png рядом). В сайт не
+  встроен. Всё, кроме атрибутов, — из основы (../base.css).
+
+  Приведено к единой форме: значки — из листа набора (назад, поиск, корзина
+  вместо сумки со скрина), тон — 8 % чернил, как у тихой кнопки набора (на
+  скрине светлее, 1.08 : 1 — ниже порога видимости 1.15), надпись — 600.
+-->
+</head>
+<body>
+  <script src="../icons.js"></script>
+
+  <div class="live">
+    <button class="el" data-shape="pill" data-icon type="button" aria-label="Назад"><svg aria-hidden="true"><use href="#arrow-left"/></svg></button>
+    <button class="el" data-shape="pill" type="button">Chart</button>
+    <div class="group">
+      <button class="el" data-shape="pill" data-icon type="button" aria-label="Поиск"><svg aria-hidden="true"><use href="#search"/></svg></button>
+      <button class="el" data-shape="pill" data-icon type="button" aria-label="Корзина"><svg aria-hidden="true"><use href="#shopping-cart"/></svg></button>
+    </div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="group"><span class="el" data-shape="pill">Chart</span><span class="el" data-shape="pill" data-icon><svg><use href="#search"/></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="group"><span class="el" data-shape="pill" data-state="hover">Chart</span><span class="el" data-shape="pill" data-icon data-state="hover"><svg><use href="#search"/></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="group"><span class="el" data-shape="pill" data-state="press">Chart</span><span class="el" data-shape="pill" data-icon data-state="press"><svg><use href="#search"/></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="group"><span class="el" data-shape="pill" data-state="focus">Chart</span><span class="el" data-shape="pill" data-icon><svg><use href="#search"/></svg></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>
