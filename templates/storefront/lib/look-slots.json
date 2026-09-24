@@ -1076,6 +1076,11 @@
       "group": "field",
       "value": "1"
     },
+    "--ctrl-field-label": {
+      "type": "keyword",
+      "group": "field-label",
+      "value": "above"
+    },
     "--ctrl-tick-fill": {
       "type": "colour",
       "group": "tick",

@@ -66,6 +66,42 @@ textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--c
 .box[aria-invalid='true']{border-color:var(--bad-line)}
 .box:disabled{opacity:var(--state-off);cursor:not-allowed}
 
+/* Подпись на кромке (И394; элемент 47 набора): роль вида
+   `--ctrl-field-label` — `above` (над полем, умолчание) или `edge`. Пока поле
+   пусто и не в фокусе, подпись стоит внутри, как подсказка; пишут — встаёт
+   на верхнюю кромку. Черту кромки под подписью закрывает её подложка: верхняя
+   половина прозрачна — виден пол, на котором поле стоит, каким бы он ни был;
+   нижняя — заливка поля. Черта идёт ровно по середине подписи, и закрыта
+   только она. Список (`select`) всегда показывает выбранное — подпись у него
+   всегда на кромке. Подсказка «вписанного нет» — `:placeholder-shown`, поэтому
+   у ввода подсказка — пробел. Где запрос стиля не поддержан, подпись стоит
+   над полем. Место подпись меняет сразу, без движения: движение источника
+   берётся только названным заказчиком (И350), а сдвиг кегля и места —
+   движение раскладки. */
+@container style(--ctrl-field-label: edge){
+  .field{position:relative}
+  .field > .label{
+    position:absolute;inset-block-start:0;inset-inline-start:calc(var(--ctrl-h) * .3 - .3em);
+    translate:0 -50%;padding-inline:.3em;max-inline-size:calc(100% - var(--ctrl-h) * .6);
+    font-size:var(--ctrl-fs-xs);line-height:1.3;
+    background:linear-gradient(transparent 50%, var(--ctrl-field-fill, var(--field)) 50%);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;
+    transition:color var(--hover-t) var(--ease)
+  }
+  .field:has(> input.box:placeholder-shown:not(:focus)) > .label{
+    inset-block-start:calc(var(--ctrl-h) / 2);
+    font-size:var(--ctrl-fs-base);font-weight:400;color:var(--ink-soft);background:none
+  }
+  .field:focus-within > .label{color:var(--pop-ink)}
+  /* Фокус — сама кромка краской кольца толщиной кольца (так у элемента 47):
+     кольцо снаружи с отступом шло бы сквозь подпись на кромке, а кромку
+     подложка подписи закрывает. Толщина сверх черты — внутренней тенью:
+     вписанное не сдвигается. Сила `:not(:disabled)` — чтобы наведение на
+     поле в фокусе не перекрасило кромку. */
+  .box:not(:disabled):focus-visible{outline:0;border-color:var(--ring);box-shadow:inset 0 0 0 calc(var(--ring-w) - var(--line-w)) var(--ring)}
+  .box::placeholder{color:transparent}
+}
+
 /* Список — та же коробка и своя стрелка: системную снимает `appearance`,
    стрелку рисуют два угла тона чернил — она следует теме без картинки. */
 .pick{

@@ -124,6 +124,13 @@ export const FIELD_LOOKS = [
   { id: 'outline', name: 'Outline', line: 'The card surface inside a darker full edge (element 43)', vars: { '--ctrl-field-fill': 'var(--surface)', '--ctrl-field-edge': 'var(--ink-soft)', '--ctrl-field-side': '1' } },
   { id: 'tone', name: 'Tone', line: 'A tone fill with one line underneath, no box (element 41)', vars: { '--ctrl-field-fill': 'var(--plate-quiet)', '--ctrl-field-edge': 'var(--ink-soft)', '--ctrl-field-side': '0' } },
 ]
+/** Место подписи поля (И394): над полем или на кромке (элемент 47) —
+ *  внутри, пока поле пусто, на верхней кромке, когда в него пишут. Краски
+ *  подписи — роли поля, их мерит правило поля. */
+export const FIELD_LABELS = [
+  { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
+  { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
+]
 /** Краска отмеченной галочки и радио (И392): одна на весь сайт — фильтры
  *  полки, касса, формы (styles/base.css, `accent-color`). Сами органы
  *  браузерные; галку на заливке браузер красит под контраст. Марка — краской
@@ -288,6 +295,7 @@ export async function buildCatalog({ site, kit }) {
     ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
+    'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
     ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),

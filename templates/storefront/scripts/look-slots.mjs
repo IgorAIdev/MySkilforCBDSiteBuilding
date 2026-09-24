@@ -45,7 +45,7 @@ const FILES = { palette: 'styles/palette.css', buttons: 'styles/buttons.css', sc
 const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length', side: 'number' }
 /** Род свойства вида поля ввода (И390, styles/form.module.css): заливка,
  *  кромка и 1 / 0 — кромка вокруг или только черта снизу. */
-const FIELD = { fill: 'colour', edge: 'colour', side: 'number' }
+const FIELD = { fill: 'colour', edge: 'colour', side: 'number', label: ['keyword', 'field-label'] }
 /** Род свойства отмеченной галочки и радио (И392, styles/base.css). */
 const TICK = { fill: 'colour' }
 /** Ручки товара: карта (И278, «Admin → Product page») и полка (И400,
@@ -131,9 +131,12 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, look, s
   for (const [prefix, kinds, group, table] of [['--ctrl-field-', FIELD, 'field', 'FIELD'], ['--ctrl-tick-', TICK, 'tick', 'TICK']]) {
     for (const [k, v] of Object.entries(own)) {
       if (!k.startsWith(prefix)) continue
-      const type = kinds[k.slice(prefix.length)]
-      if (!type) throw new Error(`${k}: род свойства неизвестен — дописать в ${table} (scripts/look-slots.mjs)`)
-      put(k, type, group, v)
+      /* Род — строкой; место подписи поля — [род, своя группа]: выбирается
+         отдельно от одежды поля (И394). */
+      const kind = kinds[k.slice(prefix.length)]
+      if (!kind) throw new Error(`${k}: род свойства неизвестен — дописать в ${table} (scripts/look-slots.mjs)`)
+      const [type, own] = Array.isArray(kind) ? kind : [kind, group]
+      put(k, type, own, v)
     }
   }
   for (const [k, { type, value }] of Object.entries(PRODUCT)) put(k, type, k.slice(2), own[k] ?? value)
@@ -191,7 +194,7 @@ export function lookStyles(site, raw) {
     scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
     /* Роли тени — своим блоком на списке полов (И385): на палубе и листе
        геометрия вида пересчитывается из их ингредиентов. */
-    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, вид поля ввода и галочки, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', 'marker', 'field', 'tick', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, вид поля ввода и галочки, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', 'marker', 'field', 'field-label', 'tick', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
       `${FLOORS}{\n${decls('shadow')}\n}\n` +
       (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
   }

@@ -48,7 +48,9 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   for (const o of catalog.groups.field) assert.ok(/^var\(--/.test(o.vars!['--ctrl-field-edge']), `${o.id}: кромка — роль палитры`)
   /* Галочка (И392): одна краска отмеченного на сайт, умолчание — марка. */
   assert.deepEqual(catalog.groups.tick.map((o) => o.id), ['brand', 'ink'])
-  assert.deepEqual(SECTIONS[0].subs.find((s) => s.id === 'fields')!.fields.map((f) => f[0]), ['field', 'tick'])
+  assert.deepEqual(SECTIONS[0].subs.find((s) => s.id === 'fields')!.fields.map((f) => f[0]), ['field', 'field-label', 'tick'])
+  /* Место подписи (И394): над полем — умолчание, на кромке — элемент 47. */
+  assert.deepEqual(catalog.groups['field-label'].map((o) => o.id), ['above', 'edge'])
   assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card', 'Home', 'Product page'])
   /* Главная — разметка вида (lib/homes.ts): варианты каталога — все главные
      сайта, по порядку; первая, нынешняя, — умолчание. */

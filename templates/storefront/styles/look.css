@@ -13,6 +13,7 @@
   --ctrl-field-fill: var(--field);
   --ctrl-field-edge: var(--tick-edge);
   --ctrl-field-side: 1;
+  --ctrl-field-label: above;
   --ctrl-tick-fill: var(--pop-ink);
   --pdp-gallery: 50%;
   --pdp-thumbs: below;

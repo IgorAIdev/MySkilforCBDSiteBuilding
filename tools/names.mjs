@@ -70,6 +70,9 @@ export const MODIFIERS = new Set([
   /* нахлёст: на сколько лист покупки наезжает на снимок во всю ширину
      (`--gallery-lap`, карта товара, бриф docs/design/карта-товара.md) */
   'lap',
+  /* место подписи поля (`--ctrl-field-label`: над полем или на его кромке,
+     элемент 47 набора, И394) */
+  'label',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',

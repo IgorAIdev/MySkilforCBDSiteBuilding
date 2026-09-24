@@ -202,6 +202,8 @@
         var ff = fv['--ctrl-field-fill'] || 'transparent'
         return el('span', { class: 'lp-field', 'data-side': fv['--ctrl-field-side'], style: 'background:linear-gradient(' + ff + ',' + ff + '),var(--page, #fff);border-color:' + (fv['--ctrl-field-edge'] || 'currentColor'), 'aria-hidden': 'true' })
       }
+      /* Место подписи (И394): полоска поля и черта подписи над ним или на кромке. */
+      if (field === 'field-label') return el('span', { class: 'lp-label', 'data-at': o.vars['--ctrl-field-label'], 'aria-hidden': 'true' }, [el('b'), el('i', { class: 'lp-field' })])
       /* Галочка (И392): отмеченный квадрат краской варианта. */
       if (field === 'tick') return el('i', { class: 'lp-tick', style: 'background:' + o.vars['--ctrl-tick-fill'], 'aria-hidden': 'true' })
       if (field === 'corners') { var r = Math.round(parseFloat(o.vars['--r-card']) / 3) + 'px'; return el('i', { class: 'lp-shape', style: 'border-radius:' + r + ' ' + r + ' 0 0', 'aria-hidden': 'true' }) }

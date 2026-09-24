@@ -97,6 +97,7 @@
 | System | Buttons | Quiet button | вуаль тихой `--ctrl-btn-fill`, `-ink`, `-edge` | Veil, Outline |
 | System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping, Circle arrow (пилюля и кружок со стрелкой у конца, элемент 02) |
 | System | Fields | Field | вид поля ввода `--ctrl-field-fill`, `-edge`, `-side` — одно поле на весь сайт: поиск, почта, касса; кромка — у каждого вида (И390) | Framed (умолчание), Outline (светлая поверхность, кромка краской подписи — элемент 43), Tone (тихая плашка, черта снизу — элемент 41) |
+| System | Fields | Label | место подписи поля `--ctrl-field-label` — над полем или на кромке: пока пусто — внутри, как подсказка; пишут — на верхней кромке, фокус — кромкой краски кольца (И394) | Above (умолчание), On the edge (элемент 47) |
 | System | Fields | Ticked boxes | краска отмеченной галочки и радио `--ctrl-tick-fill` — одна на весь сайт: фильтры, касса, формы; сами органы браузерные (И392) | Brand (умолчание), Ink (элемент 60) |
 | Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique |
 | Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`; `-side` — черта у начала строки, в шапке и в шторке) | Underline, Pill, Ink pill, Side bar (тон и черта марки у начала строки — элемент 52) |

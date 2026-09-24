@@ -32,7 +32,7 @@ export const SECTIONS = [
        встаёт сюда сама (И273). */
     { id: 'buttons', name: 'Buttons', hint: 'Press is the same for every button: the colour deepens, the button gets a touch smaller and moves 1 px down. Corners come from Shape.', fields: [], axes: true },
     /* Поле ввода (И390): одно на весь сайт — поиск, почта, касса. */
-    { id: 'fields', name: 'Fields', hint: 'One look for every field: the search in the header, email, checkout — and one colour for every ticked box and radio. Corners come from Shape.', fields: [['field', 'Field'], ['tick', 'Ticked boxes']] },
+    { id: 'fields', name: 'Fields', hint: 'One look for every field: the search in the header, email, checkout — and one colour for every ticked box and radio. Corners come from Shape.', fields: [['field', 'Field'], ['field-label', 'Label'], ['tick', 'Ticked boxes']] },
   ] },
   { id: 'admin', name: 'Admin', subs: [
     { id: 'header', name: 'Header', hint: 'The layout of the header, and how the current shelf is marked in it.', fields: [['header', 'Layout'], ['marker', 'Current menu item']] },

@@ -6,7 +6,9 @@ import type { FormState } from '@/lib/checkout-form.ts'
 /* Поле — тройка «подпись, ввод, строка под ним» (styles/form.module.css):
    ошибка стоит у своего поля и связана с вводом `aria-describedby`. Выбор
    из закрытого списка рынка (уезд) — `select` той же коробкой, первым —
-   пустой пункт «выберите»: без выбора форма его и просит. */
+   пустой пункт «выберите»: без выбора форма его и просит. Подсказка у ввода —
+   пробел: по ней стили знают, вписано ли что-то (`:placeholder-shown`), и
+   ставят подпись на кромку, если вид её так держит (И394). */
 export function Field({ field, value, error, side = false }: { field: FieldView; value: string; error: string | null; side?: boolean }) {
   const id = `f-${field.name}`
   const say = `${id}-say`
@@ -23,7 +25,7 @@ export function Field({ field, value, error, side = false }: { field: FieldView;
           {field.options.values.map((v) => <option key={v} value={v}>{v}</option>)}
         </select>
       ) : (
-        <input className={f.box} {...common} type={field.type} inputMode={field.inputMode ?? undefined} maxLength={field.max} />
+        <input className={f.box} {...common} type={field.type} inputMode={field.inputMode ?? undefined} maxLength={field.max} placeholder=" " />
       )}
       {error ? <p className={f.say} id={say} data-state="error">{error}</p> : null}
     </div>

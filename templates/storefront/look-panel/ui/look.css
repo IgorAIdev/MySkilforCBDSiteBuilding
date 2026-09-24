@@ -177,6 +177,11 @@
 /* Образец вида поля: полоска поля ввода, кромка вокруг или чертой снизу. */
 .lp-field{display:block;inline-size:36px;block-size:16px;border:1px solid;border-radius:min(var(--r-ctrl, 8px), 6px)}
 .lp-field[data-side='0']{border-width:0 0 1px;border-end-start-radius:0;border-end-end-radius:0}
+/* Образец места подписи: черта подписи над полоской поля или на её кромке. */
+.lp-label{display:grid;gap:2px;inline-size:36px}
+.lp-label b{display:block;inline-size:16px;block-size:3px;border-radius:2px;background:currentColor;opacity:.7}
+.lp-label[data-at='edge']{position:relative}
+.lp-label[data-at='edge'] b{position:absolute;inset-block-start:-1px;inset-inline-start:5px;box-shadow:0 0 0 2px var(--lp-well)}
 /* Образец галочки: отмеченный квадрат краской варианта. */
 .lp-tick{display:block;inline-size:14px;block-size:14px;border-radius:3px}
 /* Образец формы главной кнопки: заливка марки, вырез той же формулой. */
