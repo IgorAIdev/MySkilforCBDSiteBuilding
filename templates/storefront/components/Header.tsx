@@ -86,16 +86,20 @@ const search = (lang: Lang, nav: NavLink[]) => (
 /* look-header:search:end */
 
 /* look-header:boutique:start */
-/* boutique — знак по центру; слева «Shop» — панель полок с кадрами;
-   справа поиск и корзина. */
+/* boutique — знак по центру, слева язык, справа поиск и корзина; полки —
+   строкой под знаком, в той же полосе шапки. На узкой коробке слева «Shop»
+   — шторка полок от левого края. Панели полок окном поверх страницы нет:
+   слово заказчика 25.09.2026 — «так не делают, меню в верхней полосе должно
+   быть». */
 const boutique = (lang: Lang, nav: NavLink[]) => (
   <header className={s.head} data-variant="boutique">
     <div className={`${p.wrap} ${s.bar}`}>
       <button className={`${s.glyph} ${s.shop}`} type="button" popoverTarget="site-menu"><Icon id="menu" />{t(lang, 'nav.shop')}</button>
+      <div className={`${s.lang} ${s.side}`}><LangMenu lang={lang} label={t(lang, 'nav.lang')} id="lang-bar" /></div>
       {logo(lang)}
       <div className={s.actions}>{find(lang)}{cart(lang, false)}</div>
-      {shelves(lang, nav, t(lang, 'nav.shop'))}
     </div>
+    <div className={`${p.wrap} ${s.shelfRow}`}>{shelves(lang, nav, t(lang, 'nav.shop'))}</div>
   </header>
 )
 /* look-header:boutique:end */

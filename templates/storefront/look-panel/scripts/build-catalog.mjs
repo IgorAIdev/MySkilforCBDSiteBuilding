@@ -165,7 +165,7 @@ const HOME_LINES = {
 const HEADER_LINES = {
   classic: { name: 'Classic', line: 'Categories beside the logo' },
   search: { name: 'Search first', line: 'Promise bar, wide search, categories below' },
-  boutique: { name: 'Boutique', line: 'Centred logo, a Shop panel with pictures' },
+  boutique: { name: 'Boutique', line: 'Centred logo, the shelves in a row under it' },
 }
 
 const faceVars = (f) => ({

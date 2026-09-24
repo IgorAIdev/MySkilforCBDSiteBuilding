@@ -119,5 +119,5 @@ elevation»; Refactoring UI: набор фиксирован).
 | лестница радиусов | 0, 2, 4, 8, 12, 16, 20, 24, 28, 32, 48 (M3 ∪ Carbon) | `SHAPE.radii` в `tools/thresholds.mjs` |
 | линия и кольцо | линия 1px, сильная 2px; кольцо 2px с отступом 3px — не текут | `SHAPE.line`, `SHAPE.ring`; `--line-w`, `--ring-w`, `--ring-off` в `styles/scale.css` |
 | роли тени | `--sh-raised`, `--sh-lift`, `--sh-overlay`, `--sh-in` — по работе, одной записью на корне, палубе и листе; ингредиенты `--sh-ring`, `--sh-near`, `--sh-far-N`, `--sh-inset` несут light-dark() (`styles/tokens.css`) | `styles/look.css` |
-| кто читает радиусы | `--r-ctrl` — 8 мест; `--r-pop` — никто в наборе: главное действие придёт с магазином (REQUIRED) | `styles/base.css`, `styles/primitives.module.css` |
+| кто читает радиусы | `--r-ctrl` — 9 мест; `--r-pop` — никто в наборе: главное действие придёт с магазином (REQUIRED) | `styles/base.css`, `styles/primitives.module.css` |
 <!-- /families:shape -->

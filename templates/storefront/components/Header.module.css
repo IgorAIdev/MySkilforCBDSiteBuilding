@@ -20,7 +20,7 @@
 /* Действия — одна группа у правого края; просвет между целями — роль
    зазора целей (под пальцем вдвое шире). */
 .actions{display:flex;align-items:center;gap:var(--gap-targets);margin-inline-start:auto}
-.lang{display:flex} /* look-header:classic,search */
+.lang{display:flex} /* look-header:classic,search,boutique */
 
 /* Знак шапки — тихий глиф ростом с цель (`--ctrl-target`: 24 под мышью, 44
    под пальцем), без заливки: не кнопка действия, и оси кнопки сайта его не
@@ -111,16 +111,23 @@
 .stripRow{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);min-block-size:calc(var(--ctrl-target) + var(--sp-1) * 2)}
 .promise{color:var(--ink-soft)}
 .field{display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-inline-size:0;margin-inline:var(--air-block)}
-.shelfRow{border-block-start:var(--line-w) solid var(--rule);padding-block:var(--sp-1)}
 /* look-header:search:end */
+/* Строка полок второй строкой шапки — у «search» и у «boutique». */
+.shelfRow{border-block-start:var(--line-w) solid var(--rule);padding-block:var(--sp-1)} /* look-header:search,boutique */
 
 /* look-header:boutique:start */
-/* ── boutique: знак по центру, «Shop» слева ──────────────────────────── */
+/* ── boutique: знак по центру, язык слева, полки строкой под ним ─────────
+   Три места строки: слева язык (на узкой — «Shop»), знак по центру, справа
+   поиск и корзина. Спрятанный орган места в сетке не занимает — левое место
+   берёт тот, кто виден. Полки — строкой по середине под знаком, в той же
+   полосе. Окна с плитками полок поверх страницы нет (слово заказчика
+   25.09.2026). */
 .head[data-variant='boutique'] .bar{display:grid;grid-template-columns:1fr auto 1fr}
-.head[data-variant='boutique'] .logo{margin-inline-end:0}
-.shop{justify-self:start}
-.head[data-variant='boutique'] .actions{justify-self:end;margin-inline-start:0}
-.head[data-variant='boutique'] .nav:not(:popover-open){display:none}
+.head[data-variant='boutique'] .logo{grid-column:2;margin-inline-end:0}
+.shop,.side{grid-column:1;justify-self:start}
+.shop{display:none}
+.head[data-variant='boutique'] .actions{grid-column:3;justify-self:end;margin-inline-start:0}
+.head[data-variant='boutique'] .nav:not(:popover-open){justify-content:center}
 /* look-header:boutique:end */
 
 /* Кнопка меню — только там, где полок в строке нет: на узкой коробке. */
@@ -129,11 +136,12 @@
 /* ── Узкая коробка: одна строка — знак, поиск, корзина, меню ──────────── */
 @container (max-width:819px){
   .nav:not(:popover-open),.cartLabel{display:none}
-  .lang{display:none} /* look-header:classic,search */
+  .lang{display:none} /* look-header:classic,search,boutique */
   .menu{display:inline-flex} /* look-header:classic,search */
+  .shop{display:inline-flex} /* look-header:boutique */
+  .shelfRow{border:0;padding:0} /* look-header:search,boutique */
   /* look-header:search:start */
   .strip{display:none}
-  .shelfRow{border:0;padding:0}
   /* Поле поиска «search» — своей строкой во всю ширину под строкой знака. */
   .head[data-variant='search'] .bar{flex-wrap:wrap}
   .field{order:1;flex-basis:100%;margin-inline:0}
@@ -172,41 +180,10 @@
 .nav:popover-open .sheetLang{display:block;margin-block-start:auto;padding-block-start:var(--air-row);border-block-start:var(--line-w) solid var(--rule)}
 
 /* look-header:boutique:start */
-/* ── Панель полок «Shop» (boutique) ──────────────────────────────────────
-   Плитки полок — кадр 4 : 3 с потолком (правило 4), имя, строка о полке;
-   «все товары» — строкой над плитками. На широкой коробке — панель под
-   шапкой во всю ширину холста (привязка к шапке; без неё — на её высоте),
-   на узкой — шторка от левого края, где кнопка «Shop». Число плиток в ряду
-   считает перенос по основе плитки (правило 5): полок четыре — четыре в
-   ряд на всю ширину, в шторке телефона — по две. Ширина панели — коробка
-   страницы (`--page-box`, та же роль, что у `.wrap`): своя копия формулы
-   здесь не брала вырез камеры (И382). */
+/* Шторка «boutique» — та же шторка, от того края, где кнопка «Shop»:
+   слева. */
 .head[data-variant='boutique'] .nav:popover-open{
-  inset:auto;inset-inline:0;inset-block-start:var(--head-h);
-  margin-inline:auto;inline-size:var(--page-box);
-  block-size:auto;max-block-size:calc(100dvh - var(--head-h) - var(--gut));
-  border-radius:0 0 var(--r-card) var(--r-card)
-}
-@supports (position-area:block-end){
-  .head[data-variant='boutique'] .nav:popover-open{position-anchor:--head;inset-block-start:anchor(bottom)}
-}
-.head[data-variant='boutique'] .nav:popover-open .links{flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:var(--gap-grid)}
-.head[data-variant='boutique'] .nav:popover-open .links li{flex:1 1 12rem;min-inline-size:0}
-.head[data-variant='boutique'] .nav:popover-open .links li + li{border:0}
-.head[data-variant='boutique'] .nav:popover-open .links a{flex-direction:column;align-items:stretch;gap:var(--sp-2);min-block-size:0;padding:var(--sp-2)}
-.head[data-variant='boutique'] .nav:popover-open .thumb{inline-size:100%;block-size:auto;aspect-ratio:4 / 3;max-block-size:30svh}
-.head[data-variant='boutique'] .nav:popover-open .line{display:block;color:var(--ink-soft);font-size:var(--ctrl-fs-xs);font-weight:400}
-.head[data-variant='boutique'] .nav:popover-open .chev{display:none}
-.head[data-variant='boutique'] .nav:popover-open .links [data-all]{flex-basis:100%}
-.head[data-variant='boutique'] .nav:popover-open [data-all] a{flex-direction:row;align-items:center;min-block-size:var(--ctrl-target)}
-.head[data-variant='boutique'] .nav:popover-open [data-all] .thumb{display:none}
-.head[data-variant='boutique'] .nav:popover-open [data-all] .chev{display:grid}
-@container (max-width:819px){
-  .head[data-variant='boutique'] .nav:popover-open{
-    inset:auto;inset-block:0;inset-inline:0 auto;margin:0;
-    inline-size:min(22.5rem, 100% - var(--ctrl-h-lg));block-size:100dvh;max-block-size:none;
-    border-radius:0 var(--r-sheet) var(--r-sheet) 0
-  }
-  .head[data-variant='boutique'] .nav:popover-open .links li{flex-basis:7rem}
+  inset-inline:0 auto;
+  border-radius:0 var(--r-sheet) var(--r-sheet) 0
 }
 /* look-header:boutique:end */

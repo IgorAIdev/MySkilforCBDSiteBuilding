@@ -85,7 +85,7 @@
 | искать | Caută | Search | Keresés |
 | открыть меню полок (шапка, узкий экран) | Meniu | Menu | Menü |
 | закрыть меню полок | Închide meniul | Close menu | Menü bezárása |
-| открыть панель полок (шапка «Boutique») | Magazin | Shop | Bolt |
+| открыть шторку полок на узкой шапке («Boutique») | Magazin | Shop | Bolt |
 | открыть протокол партии (главная, лаборатория) | Deschideți buletinul de analiză | Open the lab report | A laborjegyzőkönyv megnyitása |
 | к полным условиям доставки (главная, доставка) | Toate condițiile de livrare și plată | All delivery and payment terms | Minden szállítási és fizetési feltétel |
 
