@@ -42,7 +42,7 @@ export function Shell({ lang, data, look, chrome = 'full', children }: { lang: L
         {chrome === 'checkout' ? <CheckoutHeader lang={lang} /> : <Header lang={lang} nav={data.nav} variant={look.header} />}
         {children}
         <Footer lang={lang} docs={data.docs} variant={chrome === 'checkout' ? 'legal' : 'full'} />
-        {process.env.LOOK_PICKER === 'on' ? <script src="/look-panel/look.js" async /> : null}{/* look-panel */}
+        {process.env.LOOK_PICKER === 'on' ? <><link rel="stylesheet" href="/look-panel/look.css" precedence="look-panel" /><script src="/look-panel/look.js" async /></> : null}{/* look-panel: стили — до первой отрисовки (резерв --dock), скрипт — после */}
       </body>
     </html>
   )
