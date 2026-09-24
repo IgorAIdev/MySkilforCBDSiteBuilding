@@ -73,7 +73,7 @@ test('новый сайт: всё разложено, команды допис�
   /* И271: правило CLAUDE.md «Дизайн делается дизайнерскими скиллами» зовёт
      их по имени — без них на сайте оно ссылалось бы в пустоту. */
   for (const f of ['.claude/skills/impeccable/SKILL.md', '.claude/skills/impeccable/reference/critique.md',
-    '.claude/skills/redesign-skill/SKILL.md', '.claude/skills/LICENSE.impeccable', '.claude/skills/LICENSE.taste-skill',
+    '.claude/skills/redesign-skill/SKILL.md', '.claude/skills/LICENSE.impeccable', '.claude/skills/NOTICE.impeccable', '.claude/skills/LICENSE.taste-skill',
     'tools/check-design.mjs']) {
     assert.ok(existsSync(join(dir, f)), `нет ${f} — правило о дизайне без своих скиллов`)
   }
