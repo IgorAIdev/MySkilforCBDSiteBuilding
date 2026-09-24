@@ -22,6 +22,7 @@ import { emptyCodeBaseline } from './code-families.mjs'
 import { emptyCssBaseline } from './css-families.mjs'
 import { emptyPortBaseline } from './port-families.mjs'
 import { emptyCraftBaseline } from './craft-families.mjs'
+import { emptyDesignBaseline } from './design-families.mjs'
 import { toCss } from './palette.mjs'
 import { toCss as scaleCss } from './scale.mjs'
 
@@ -66,6 +67,11 @@ const FILES = [
      проверки и проверка без конфига одинаково бесполезны. */
   'tools/check-lint.mjs',
   '.oxlintrc.json',
+  /* Храповик по дизайну (И271): механическая половина impeccable по файлу —
+     его запреты и рефлексы семьями; правило — «Дизайн делается
+     дизайнерскими скиллами». Семьи — в своём файле, как у вёрстки. */
+  'tools/check-design.mjs',
+  'tools/design-families.mjs',
   /* Прогон тестов и тест-образец. Едут парой и по одной причине: `node
      --test` на папке без тестов отвечает «0 тестов, 0 упало» и выходит с
      нулём, то есть новый проект получал бы зелёную команду, не проверяющую
@@ -256,6 +262,8 @@ writeFileSync(join(OUT, 'tools/seo-baseline.json'),
                    og: 0, ld: 0, alt: 0, sample: 0, robots: 0 }, null, 2) + '\n')
 writeFileSync(join(OUT, 'tools/craft-baseline.json'),
   JSON.stringify(emptyCraftBaseline(), null, 2) + '\n')
+writeFileSync(join(OUT, 'tools/design-baseline.json'),
+  JSON.stringify(emptyDesignBaseline(), null, 2) + '\n')
 
 /* Краски — данные ПРОЕКТА, а не набора: у нового сайта своя марка. Поэтому
    набор кладёт их один раз и больше не трогает, а `styles/palette.css`
@@ -413,7 +421,7 @@ https://github.com/IgorAIdev/SiteBuildingSkill» — он склонирует �
 накопленный долг проекта окажется «прощён»:
 
 \`\`\`
-git checkout tools/css-baseline.json tools/code-baseline.json tools/lint-baseline.json tools/craft-baseline.json tools/seo-baseline.json
+git checkout tools/css-baseline.json tools/code-baseline.json tools/lint-baseline.json tools/craft-baseline.json tools/seo-baseline.json tools/design-baseline.json
 \`\`\`
 
 ## Где источник

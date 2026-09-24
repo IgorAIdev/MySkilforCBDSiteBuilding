@@ -70,6 +70,14 @@ test('новый сайт: всё разложено, команды допис�
   assert.ok(!existsSync(join(dir, 'selftest')), 'самопроверка набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'research')), 'исследования набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, '.claude/skills/taste-skill')), 'чужие стилевые скиллы не ставятся без --extras')
+  /* И271: правило CLAUDE.md «Дизайн делается дизайнерскими скиллами» зовёт
+     их по имени — без них на сайте оно ссылалось бы в пустоту. */
+  for (const f of ['.claude/skills/impeccable/SKILL.md', '.claude/skills/impeccable/reference/critique.md',
+    '.claude/skills/redesign-skill/SKILL.md', '.claude/skills/LICENSE.impeccable', '.claude/skills/LICENSE.taste-skill',
+    'tools/check-design.mjs']) {
+    assert.ok(existsSync(join(dir, f)), `нет ${f} — правило о дизайне без своих скиллов`)
+  }
+  assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).scripts['check:design'], 'node tools/check-design.mjs')
   assert.ok(!existsSync(join(dir, 'pro')), 'реестр ссылок без снимков не едет в проект')
   assert.ok(!existsSync(join(dir, 'mood-stand.html')), 'локальный стенд не едет в проект')
   assert.doesNotMatch(readFileSync(join(dir, 'docs/gate.md'), 'utf8'), /^- \[x\]/m,
@@ -150,6 +158,7 @@ test('--audit: инструменты и четыре скилла, kit.config.j
   assert.ok(existsSync(join(dir, 'kit.config.json')))
   for (const s of ['craft', 'palette', 'code', 'shop', 'stages']) assert.ok(existsSync(join(dir, '.claude/skills', s, 'SKILL.md')), s)
   assert.ok(!existsSync(join(dir, '.claude/skills/taste-skill')), 'чужие скиллы аудиту не нужны')
+  assert.ok(!existsSync(join(dir, '.claude/skills/impeccable')), 'аудит не кладёт скиллов сверх своих: правило о дизайне у чужого сайта своё')
   const s = scriptsOf(dir)
   assert.equal(s['check:css'], 'node tools/check-css.mjs')
   assert.equal(s.lint, undefined, 'lint у чужого проекта свой')

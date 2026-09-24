@@ -55,6 +55,9 @@ export const SCRIPTS = {
   'check:all': 'node tools/check-all.mjs',
   checks: 'node tools/checks.mjs',
   'check:lint': 'node tools/check-lint.mjs',
+  /* Механическая половина impeccable храповиком (И271): правило «Дизайн
+     делается дизайнерскими скиллами», семьи — tools/design-families.mjs. */
+  'check:design': 'node tools/check-design.mjs',
   lint: 'oxlint app components lib',
   test: 'node tools/check-test.mjs',
   'check:craft': 'node tools/check-craft.mjs',

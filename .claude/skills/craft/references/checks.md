@@ -3,7 +3,7 @@
 Когда читать: проверка покраснела и надо понять, что она сторожит; пишется
 новая семья; замер не сходится с тем, что видно глазом. Таблицы семей
 собираются из реестров (`tools/css-families.mjs`,
-`tools/craft-families.mjs`) командой `npm run check:rules -- --tables`;
+`tools/craft-families.mjs`, `tools/design-families.mjs`) командой `npm run check:rules -- --tables`;
 рукой их не правят — `check:rules` сверяет.
 
 Содержание:
@@ -32,6 +32,7 @@ npm run check:css     # по файлам
 npm run check:port    # переносимость: общий слой, токены, данные, валюта
 npm run check:open    # каждая страница дерева открывается в next dev
 npm run check:urls    # обещанное открывается, открытое обещано (по out/)
+npm run check:design  # механическая половина impeccable: разметка и стили вместе
 npm run check:craft   # по отрисованной странице (нужен поднятый сайт)
 npm run check:craft -- --page /bg/catalog/oils   # узкий прогон: одна страница, ~минута
                                                  # базу не трогает и вердикта не выносит
@@ -249,6 +250,45 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 «существует ли адрес» отвечало «да» про папку. Нгинкс по такому адресу отдаст
 не страницу — `index.html` внутри нет. Сторож, не проверенный обратным ходом,
 не отличается от комментария.
+
+### `check:design` — механическая половина impeccable
+
+Заведена 24.09.2026 (И271): витрина проходила все проверки вёрстки и
+оставалась плохой — механику мерили, композицию не требовало ничего.
+Правило — `CLAUDE.md`, «Дизайн делается дизайнерскими скиллами»: вид
+правится скиллом `impeccable` по порядку. Его собственный детектор — бинарь,
+который запускатель скачивает при первом запуске, — набор не везёт
+(`.claude/skills/README.md`, «Чего сознательно нет»). Поэтому запреты и
+рефлексы его справочников, видимые по файлу, переписаны семьями храповика —
+так же, как `check:seo` переписал СЕО-скиллы (`docs/skills.md`).
+
+Проверка читает разметку и стили вместе: модуль стилей ищется по ввозу,
+класс — по `className`, предок, одевший заголовок правилом `.pagehead h1`, —
+по дереву разметки. В наборе мерится основа и образцовая витрина
+(`templates/storefront`). Вкус этим не меряется: зелёная проверка значит
+«новых механических приёмов не завелось», а не «красиво». Таблица — из
+реестра `tools/design-families.mjs`, у каждой семьи строка источника.
+
+<!-- families:design -->
+| Семья | Что ловит | Откуда в impeccable |
+| --- | --- | --- |
+| `eyebrow` | надпись над заголовком (eyebrow, kicker): заголовок несёт свой вес сам | craft-floor.md:27 — «A kicker or eyebrow above a heading. This one is a ban» |
+| `bareHeading` | заголовок без роли размера: ни своего класса, ни правила предка, ни основания — браузер ставит свой 1.5em | craft-floor.md:15 — «ship with browser defaults that belong to no design system»; typeset.md:20 |
+| `headRole` | уровень заголовка набран чужой ролью: h1 размером --h2-size, h2 размером --h3-size — у одного уровня разные виды | typeset.md:50 — «Keep repeated roles consistent across screens and states» |
+| `navSmall` | ссылки навигации мельче тела (меньше 1rem): главное меню читается как сноска | typeset.md:46 — «Use 1rem / 16px as the ordinary web body floor» |
+| `flatRhythm` | группа и разделение одним шагом: между пунктами не больше воздуха, чем внутри пункта, — пункты слипаются | layout.md:20 — «one spacing value repeated until everything has equal weight»; layout.md:48 |
+| `iconCards` | карточки «значок + заголовок + текст» по списку как устройство страницы | craft-floor.md:25 — «Same-size cards of icon plus heading plus text as the page structure» |
+| `browserSurface` | поверхность браузера не одета: выделение, каретка, фокус, подчёркивание, ползунок или цифры таблиц — по умолчанию | craft-floor.md:15 — «Text selection, the caret, custom scrollbars, focus rings, underline offset…» |
+| `proseLink` | ссылка в тексте без подчёркивания: подчёркивание снято со всех a и не возвращено в абзаце — ссылку выдаёт один цвет | craft-floor.md:15 — «underline offset» среди поверхностей браузера; WCAG 1.4.1 |
+| `gradientText` | текст градиентом (background-clip: text): выделяют весом и размером | craft-floor.md:33 — «Gradient text. Emphasis comes from weight or size» |
+| `glassBlur` | стекло и размытие фона (backdrop-filter: blur) как украшение | craft-floor.md:34 — «Glass and blur as decoration» |
+| `sideStripe` | цветная полоса сбоку толще 1px (border-left/right, inline-start/end) у карточки, пункта, плашки | craft-floor.md:35 — «A colored border-left or border-right above 1px» |
+| `hardShadow` | жёсткая тень со сдвигом и без размытия (4px 4px 0) — костюм, а не глубина | craft-floor.md:36 — «Hard offset shadows (box-shadow: 4px 4px 0)» |
+| `glowHalo` | ореол без сдвига (0 0 Npx) — свечение как украшение, а не тень | craft-floor.md:10 — «A zero-offset colored halo is decoration» |
+| `trackTight` | разрядка туже −0.04em | craft-floor.md:12 — «tracking floor -0.04em» |
+| `glyphIcon` | символ или эмодзи вместо знака из листа (→ ✓ ★ ×) | craft-floor.md:40 — «Unicode glyphs or emoji standing in for an icon system» |
+| `monoCostume` | моноширинный шрифт как костюм «технологичности» вне кода, данных и замеров | craft-floor.md:38 — «Monospace as a costume for "technical"» |
+<!-- /families:design -->
 
 ### `check:craft` — семьи по отрисованной странице
 

@@ -41,6 +41,7 @@ import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
 import { auditWords } from './words.mjs'
+import { DESIGN } from './checks.mjs'
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -503,7 +504,9 @@ export const STAGES = [
   {
     n: 2, name: 'Вёрстка',
     builds: 'блоки и страницы, отзывчивость по ширинам, обе темы, вкус и движение. Компонент меряет контейнер, а не окно; число колонок вычисляется.',
-    skills: ['craft', 'scale', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'impeccable', 'improve-animations', 'redesign-skill', 'stages'],
+    /* Дизайнерские скиллы — первыми: правка вида начинается с них, а не
+       с CSS (CLAUDE.md, «Дизайн делается дизайнерскими скиллами»; И271). */
+    skills: ['impeccable', 'redesign-skill', 'craft', 'scale', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'improve-animations', 'stages'],
     steps: [
       step(14, 'Узлы', 'атомы → молекулы → организмы: кнопка, поле → карточка, счётчик, поиск → шапка, сетка, полоса покупки; без сырых значений, все состояния, оба указателя, обе темы', 'craft',
         () => has('components') ? null : 'нет components/ — узлов ещё нет'),
@@ -512,7 +515,7 @@ export const STAGES = [
       step(16, 'Обе темы и все ширины', 'свип 320…1600 без переполнения; всё, что открывается, снято открытым в обеих темах', 'craft',
         () => script('sweep') || has('tools/sweep.mjs') ? null : 'свипа нет (tools/sweep.mjs)'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => script('check:craft') && has('tools/craft-baseline.json') ? null : 'храповика по отрисованной странице нет (check:craft + tools/craft-baseline.json)',
@@ -551,7 +554,7 @@ export const STAGES = [
         () => script('test') ? null : 'тестов нет (test) — красный тест писать нечем'),
       step(17, 'Склады памяти браузера', 'localStorage и cookie — через один склад, компонент помнит одно', 'code'),
     ],
-    checks: ['typecheck', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => {
@@ -598,7 +601,7 @@ export const STAGES = [
           return off.length ? `флаги не в true: ${off.map((f) => f.name).join(', ')}` : null
         }),
     ],
-    checks: ['test', 'check:tokens', 'check:port', 'build:site', 'check:craft', 'check:seo', 'check:rules', 'check:stage'],
+    checks: ['test', 'check:tokens', 'check:port', 'check:design', 'build:site', 'check:craft', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => {
@@ -644,7 +647,7 @@ export const STAGES = [
       step(18, 'Вес, скорость, доступность', 'бюджет веса, Core Web Vitals, доступность в check:craft на нуле, PageSpeed и Rich Results глазом', 'craft'),
       step(18, 'Перенос', 'переносимый слой встаёт на другой движок: Shopify, WordPress, Medusa; поломки переносимости на нуле', 'craft'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('out') ? null : 'сайт не собран — npm run build:site',
@@ -711,7 +714,7 @@ export const STAGES = [
     steps: [
       step(19, 'Жизнь', 'Search Console, замер после каждого выката, слежение за адресами и разметкой, новые тексты по спросу; версия у слепка, переименование псевдонимом со сроком', 'stages'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [],
       human: {
@@ -782,9 +785,14 @@ export const PLATFORM = [
   },
 ]
 
-/** Скиллы, которые работают на любом этапе: процесс, а не предмет. */
+/** Скиллы, которые работают на любом этапе: процесс, а не предмет.
+ *  Дизайн — тоже на любом: правка вида идёт дизайнерскими скиллами по
+ *  порядку, где бы проект ни стоял (И271). Порядок — из реестра слов
+ *  (`DESIGN` в tools/checks.mjs), его же печатает хук на слова заказчика. */
 export const ALWAYS = [
-  'stages', 'craft (при любой правке CSS)', 'palette (при любой правке красок, ролей цвета и строителя палитры)', 'scale (при любой правке кеглей, ритма, полей, воздуха и строителя шкал)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
+  'stages',
+  `дизайн (любая правка вида, на любом этапе): ${DESIGN.order.join(' → ')}; разбор готовой страницы — ${DESIGN.audit}; рядом ${DESIGN.alongside} — ${DESIGN.rule}`,
+  'craft (при любой правке CSS)', 'palette (при любой правке красок, ролей цвета и строителя палитры)', 'scale (при любой правке кеглей, ритма, полей, воздуха и строителя шкал)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
   'Superpowers: brainstorming · writing-plans · systematic-debugging · verification-before-completion · finishing-a-development-branch',
 ]
 

@@ -59,7 +59,9 @@
   тянет свой бинарь, плюс 500-килобайтный live-browser. Сам `SKILL.md`
   описывает, как работать, если launcher отсутствует, — значит шаг загрузки
   контекста просто пропускается, а ценность скилла (`reference/*.md`:
-  craft-floor, critique, layout, typeset, colorize) остаётся.
+  craft-floor, critique, layout, typeset, colorize) остаётся. Измеримая
+  половина его детектора переписана в набор — `check:design`, семьи с
+  источником в этих справочниках (И271, `docs/skills.md`).
 - **`imagegen-*`, `stitch-skill`, `image-to-code-skill`** из taste-skill —
   им нужен генератор изображений, а в этой сессии его нет.
 - **`brandkit`** взят, хотя он тоже про генерацию картинок: его метод

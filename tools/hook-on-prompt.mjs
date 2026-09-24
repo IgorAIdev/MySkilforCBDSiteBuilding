@@ -14,12 +14,20 @@
  * Молчит, если слова не про проверку: подсказка на каждую реплику — шум, а
  * шум перестают читать.
  *
+ * Слова про вид витрины («дизайн», «некрасиво», «ритм», «отступы»,
+ * «переделай», «как у всех») сверх того получают строку о ПОРЯДКЕ: какие
+ * дизайнерские скиллы звать и в какой очереди. Заведено 24.09.2026 словом
+ * заказчика (И271): скиллы лежали рядом, а композицию не требовало ничего —
+ * и их не звал никто. Строка идёт первой: скиллы зовутся до правки, проверки
+ * — после.
+ *
  * Проверить руками:
  *   echo '{"prompt":"шрифты поехали на телефоне"}' | node tools/hook-on-prompt.mjs
+ *   echo '{"prompt":"некрасиво, переделай"}' | node tools/hook-on-prompt.mjs
  */
 
 import { readFileSync } from 'node:fs'
-import { match, nameOf } from './checks.mjs'
+import { match, nameOf, designWord, designHint } from './checks.mjs'
 
 let raw = ''
 try { raw = readFileSync(0, 'utf8') } catch { /* stdin пуст — нечего разбирать */ }
@@ -36,9 +44,15 @@ try {
 /* Хук стоит на ПУТИ ЗАКАЗЧИКА: он срабатывает раньше, чем его слова дойдут
    до меня. Поэтому любая его ошибка — это ошибка на вводе, а подсказка
    такой цены не стоит. Молчаливый выход надёжнее полезного сообщения. */
-let r
-try { r = match(prompt) } catch { process.exit(0) }
-if (!r.checks.length) process.exit(0)
+let r, look
+try { r = match(prompt); look = designWord(prompt) } catch { process.exit(0) }
+if (!r.checks.length && !look) process.exit(0)
+
+if (look) {
+  for (const line of designHint(look)) console.log(line)
+  if (!r.checks.length) process.exit(0)
+  console.log('')
+}
 
 if (r.kind === 'final') {
   console.log('Слова заказчика — про сдачу. Гонится вся цепочка этапа сдачи:')
