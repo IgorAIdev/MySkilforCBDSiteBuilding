@@ -61,6 +61,9 @@ export const SCRIPTS = {
   lint: 'oxlint app components lib',
   test: 'node tools/check-test.mjs',
   'check:craft': 'node tools/check-craft.mjs',
+  /* Детектор impeccable по отрисованной странице (И310): вендоренная
+     браузерная сборка, закреплённая хешем; семьи — tools/detect-families.mjs. */
+  'check:detect': 'node tools/check-detect.mjs',
   'check:open': 'node tools/check-open.mjs',
   'check:urls': 'node tools/check-urls.mjs',
   'check:seo': 'node tools/check-seo.mjs',

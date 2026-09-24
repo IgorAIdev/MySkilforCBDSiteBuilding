@@ -515,7 +515,7 @@ export const STAGES = [
       step(16, 'Обе темы и все ширины', 'свип 320…1600 без переполнения; всё, что открывается, снято открытым в обеих темах', 'craft',
         () => script('sweep') || has('tools/sweep.mjs') ? null : 'свипа нет (tools/sweep.mjs)'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'check:detect', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => script('check:craft') && has('tools/craft-baseline.json') ? null : 'храповика по отрисованной странице нет (check:craft + tools/craft-baseline.json)',
@@ -647,7 +647,7 @@ export const STAGES = [
       step(18, 'Вес, скорость, доступность', 'бюджет веса, Core Web Vitals, доступность в check:craft на нуле, PageSpeed и Rich Results глазом', 'craft'),
       step(18, 'Перенос', 'переносимый слой встаёт на другой движок: Shopify, WordPress, Medusa; поломки переносимости на нуле', 'craft'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'check:detect', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('out') ? null : 'сайт не собран — npm run build:site',

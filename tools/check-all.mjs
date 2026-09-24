@@ -37,14 +37,17 @@ const FINAL = args.includes('--final')
 const FAST = args.includes('--fast')
 
 /** Отрисованным проверкам нужен браузер и поднятый сайт. */
-const RENDERED = new Set(['check:craft', 'sweep'])
+const RENDERED = new Set(['check:craft', 'check:detect', 'sweep'])
 /** Эти читают собранный `out/`. */
-const NEEDS_BUILD = new Set(['check:urls', 'check:seo', 'check:craft', 'sweep'])
-const NEEDS_LIVE = new Set(['check:urls', 'check:seo', 'check:craft', 'sweep'])
+const NEEDS_BUILD = new Set(['check:urls', 'check:seo', 'check:craft', 'check:detect', 'sweep'])
+const NEEDS_LIVE = new Set(['check:urls', 'check:seo', 'check:craft', 'check:detect', 'sweep'])
 const PORT = 8099
 function runNpm(check) {
   if (!/^[\w:-]+$/.test(check)) throw new Error(`Недопустимое имя проверки: ${check}`)
-  const env = { ...process.env, ...(server ? { SITE: `http://localhost:${PORT}` } : {}) }
+  /* Адрес — всем, кому поднят сайт: своим сервером или уже живым на порту.
+     `check:detect` без SITE= честно отвечает «не проверено» — и большая
+     проверка, поднявшая сайт, обязана его назвать (И310). */
+  const env = { ...process.env, ...(server || live ? { SITE: `http://localhost:${PORT}` } : {}) }
   if (process.platform === 'win32') {
     return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', `npm.cmd run ${check}`], {
       cwd: ROOT, stdio: 'inherit', shell: false, env,
@@ -81,13 +84,15 @@ const alive = async () => {
 }
 
 let server = null
+let live = false
 /* Сервер — ребёнок этого процесса, но не умирает вместе с ним: упади
    проверка исключением, он остался бы висеть на порту и следующий прогон
    мерил бы вчерашнюю сборку. Поэтому гасится и на обычном выходе тоже. */
 process.on('exit', () => server?.kill())
 
 async function serveIfNeeded(check) {
-  if (!NEEDS_LIVE.has(check) || server || await alive()) return
+  if (!NEEDS_LIVE.has(check) || server) return
+  if (await alive()) { live = true; return }
   console.log(`   (поднимаю свой сервер на ${PORT} — отрисованным проверкам нужен отданный сайт)`)
   const command = existsSync(join(ROOT, 'out'))
     ? [join(ROOT, 'tools/serve.mjs'), String(PORT)]

@@ -12,3 +12,6 @@
 *.yml text eol=lf
 # Research is an immutable snapshot, including original line endings.
 research/** !text !eol
+# Vendored third-party files are pinned by SHA-256 of their bytes
+# (tools/vendor/*/SOURCE.md): git must not touch line endings.
+tools/vendor/** -text
