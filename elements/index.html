@@ -79,6 +79,7 @@
       <button type="button" data-kind="переключатель" aria-pressed="false">переключатель</button>
       <button type="button" data-kind="вкладки" aria-pressed="false">вкладки</button>
       <button type="button" data-kind="радиокнопка" aria-pressed="false">радиокнопка</button>
+      <button type="button" data-kind="флажок" aria-pressed="false">флажок</button>
       <button type="button" data-kind="ползунок значения" aria-pressed="false">ползунок значения</button>
       <button type="button" data-kind="поле" aria-pressed="false">поле</button>
       <button type="button" data-kind="форма" aria-pressed="false">форма</button>
@@ -97,8 +98,9 @@
     <p><b>фишка</b> <span><a href="#e-01" title="Пилюли шапки">01</a> <a href="#e-28" title="Карточка товара с размерами">28</a></span></p>
     <p><b>лоток</b> <span><a href="#e-09" title="Лоток значков: пять движений">09</a> <a href="#e-39" title="Полоса значков с подсказкой">39</a></span></p>
     <p><b>переключатель</b> <span><a href="#e-21" title="Полоски меню → крест">21</a> <a href="#e-22" title="Полоски меню → стрелка">22</a> <a href="#e-23" title="Луна и солнце в круге">23</a> <a href="#e-24" title="Ползунок темы">24</a> <a href="#e-25" title="Ползунок: ручка крупнее дорожки">25</a> <a href="#e-26" title="Сердце «в избранное»">26</a></span></p>
-    <p><b>вкладки</b> <span><a href="#e-48" title="Полоса разделов значками">48</a> <a href="#e-49" title="Сегменты встык">49</a> <a href="#e-50" title="Сегменты в подложке">50</a> <a href="#e-51" title="Вкладки-пилюли со счётчиком">51</a> <a href="#e-54" title="Вкладки-листы как в браузере">54</a> <a href="#e-59" title="Окно тарифа">59</a></span></p>
+    <p><b>вкладки</b> <span><a href="#e-48" title="Полоса разделов значками">48</a> <a href="#e-49" title="Сегменты встык">49</a> <a href="#e-50" title="Сегменты в подложке">50</a> <a href="#e-51" title="Вкладки-пилюли">51</a> <a href="#e-54" title="Вкладки-листы как в браузере">54</a> <a href="#e-59" title="Окно тарифа">59</a></span></p>
     <p><b>радиокнопка</b> <span><a href="#e-53" title="Список радиокнопок">53</a></span></p>
+    <p><b>флажок</b> <span><a href="#e-60" title="Список флажков">60</a></span></p>
     <p><b>ползунок значения</b> <span><a href="#e-36" title="Панель с ползунками">36</a></span></p>
     <p><b>поле</b> <span><a href="#e-41" title="Поле тоном">41</a> <a href="#e-42" title="Подписка: поле и кнопка встык">42</a> <a href="#e-43" title="Поле контуром">43</a> <a href="#e-44" title="Поиск-пилюля с очисткой">44</a> <a href="#e-45" title="Поиск с подсказками">45</a> <a href="#e-46" title="Поле с подписью и пояснением">46</a> <a href="#e-47" title="Поле с подписью на кромке">47</a> <a href="#e-55" title="Поле сообщения с кнопками">55</a> <a href="#e-56" title="Формы входа и регистрации">56</a> <a href="#e-57" title="Форма-пилюли: регистрация и вход">57</a> <a href="#e-58" title="Оплата картой">58</a></span></p>
     <p><b>форма</b> <span><a href="#e-56" title="Формы входа и регистрации">56</a> <a href="#e-57" title="Форма-пилюли: регистрация и вход">57</a> <a href="#e-58" title="Оплата картой">58</a></span></p>
@@ -468,13 +470,13 @@
         </div>
       </article>
       <article id="e-51" data-kind="вкладки">
-        <header><h3>51 · Вкладки-пилюли со счётчиком</h3><span class="chip kind">вкладки</span></header>
-        <p class="note">Вкладки-пилюли со счётчиком: у выбранной счётчик — краской марки. Слова и числа — для примера.</p>
-        <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> контур, тон марки, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
-        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>тон марки, счётчик — маркой</dd><dt>снято</dt><dd>тени полосы; переезд плашки (glider) — плашка встаёт на место; уменьшение всей полосы до 0.6 на узком окне; z-index у всех детей; синие краски; ширина вкладки 50 px</dd><dt>приведено</dt><dd>полоса — пилюля с волоском; выбранная — тон марки, слово краской марки; счётчик — число в круге тона, у выбранной — краской марки; ширина вкладки — по слову; пункты — радио, фокус — кольцо у пункта</dd></dl>
+        <header><h3>51 · Вкладки-пилюли</h3><span class="chip kind">вкладки</span></header>
+        <p class="note">Вкладки-пилюли: у выбранной — тон марки и счётчик маркой; ниже вариант второго источника — выбранная залита чернилами. Слова и числа — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> контур, тон марки, марка, чернила</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>тон марки, счётчик — маркой</dd><dt>снято</dt><dd>тени полосы и выбранной; переезд плашки (glider) — плашка встаёт на место; у второго: наведение только темнит слово — у набора подложка 5 %; у второго: синее кольцо фокуса и битый @import шрифта; уменьшение всей полосы до 0.6 на узком окне; z-index у всех детей; синие краски; ширина вкладки 50 px</dd><dt>приведено</dt><dd>полоса — пилюля с волоском; выбранная — тон марки, слово краской марки; счётчик — число в круге тона, у выбранной — краской марки; ширина вкладки — по слову; пункты — радио, фокус — кольцо у пункта; вариант второго источника: выбранная залита чернилами, слово краской пола; без счётчика</dd></dl>
         <div class="pair">
-          <figure><div class="src"><a href="51-pill-tabs-count/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
-          <figure><iframe data-src="51-pill-tabs-count/element.html" src="51-pill-tabs-count/element.html" height="260" title="Вкладки-пилюли со счётчиком"></iframe><figcaption>Нарисовано — <a href="51-pill-tabs-count/element.html">51-pill-tabs-count/element.html</a></figcaption></figure>
+          <figure><div class="src"><a href="51-pill-tabs-count/source.css">source.css</a><a href="51-pill-tabs-count/source-2.css">source-2.css</a></div><figcaption>Источник — два CSS от заказчика 24.09.2026, пересланы из сессии «Кнопки и дизайн»: вкладки со счётчиком и вкладки с выбранной, залитой чернилами — после разбора одни</figcaption></figure>
+          <figure><iframe data-src="51-pill-tabs-count/element.html" src="51-pill-tabs-count/element.html" height="320" title="Вкладки-пилюли"></iframe><figcaption>Нарисовано — <a href="51-pill-tabs-count/element.html">51-pill-tabs-count/element.html</a></figcaption></figure>
         </div>
       </article>
       <article id="e-56" data-kind="форма поле кнопка">
@@ -685,6 +687,16 @@
         <div class="pair">
           <figure><div class="src"><a href="58-card-payment/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
           <figure><iframe data-src="58-card-payment/element.html" src="58-card-payment/element.html" height="760" title="Оплата картой"></iframe><figcaption>Нарисовано — <a href="58-card-payment/element.html">58-card-payment/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-60" data-kind="флажок">
+        <header><h3>60 · Список флажков</h3><span class="chip kind">флажок</span></header>
+        <p class="note">Список флажков — можно отметить несколько. Состояния — на втором пункте. Слова — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> контур, чернила</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кромка — чернилами</dd><dt>нажатие</dt><dd>квадрат 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у квадрата</dd><dt>выбрано</dt><dd>заливка чернилами, галка краской пола</dd><dt>снято</dt><dd>рост галки из 0.6 и плавность 180–220 ms — галка встаёт сразу; синее кольцо фокуса; рамка 1.5 px; угол 8 px на квадрате 20 px — почти круг; угол флажка — доля его размера; галка картинкой в data-URI — из листа набора; битый @import шрифта</dd><dt>приведено</dt><dd>квадрат с кромкой края, угол — доля размера; отмечен — заливка чернилами, галка краской пола из листа набора; под рукой кромка — чернилами; подпись — ролью тела, нажимается вместе с квадратом; фокус — кольцо набора у квадрата; в формах (56) тот же флажок отмечается краской марки — это вариант, а не второй флажок</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="60-checkbox-list/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026 (набор «cir-», одна семья с 51 вторым источником), переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="60-checkbox-list/element.html" src="60-checkbox-list/element.html" height="300" title="Список флажков"></iframe><figcaption>Нарисовано — <a href="60-checkbox-list/element.html">60-checkbox-list/element.html</a></figcaption></figure>
         </div>
       </article>
     </section>
