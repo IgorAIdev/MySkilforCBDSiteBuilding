@@ -64,7 +64,8 @@
  *    data-spread                        слово у начала, знак у конца
  *    .card data-tone tint               лист тоном товара; .frame data-cutout — снимок без фона до кромки
  *    .card data-shelf                   карточка товара полки: кадр, .stack, .row с ценой и «в корзину»;
- *                                       одежда — data-card у предка: outlined | framed | bare; data-view list — строкой
+ *                                       одежда — data-card у предка: outlined | framed | bare | toned; data-view list — строкой;
+ *                                       data-buy inline — кнопка ростом поменьше рядом с ценой
  *    .say + data-on · .qty · data-add   две надписи в одной клетке · число плиткой · «в корзину» на стенде
  *    .tag data-tone sale | warn         плашка скидки и наличия на кадре
  *    .stand data-stand · .knobs > .ctl  стенд с ручками вида: у входа data-attr — атрибут, data-var — переменная
@@ -812,19 +813,40 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
    волоском, кадр вписан в поле, угол кадра — угол карточки минус поле
    (концентрический), текст — по краю кадра. Своих правил не нужно. */
 /* Framed — лист, кадр до верхнего края, текст в поле карточки. Тень
-   одежды снята (И336): лист от пола отделяет его тон. */
-[data-card='framed'] .card[data-shelf]{--in:0px;box-shadow:none}
-[data-card='framed'] .card[data-shelf] .frame{border-radius:var(--r-card, 16px) var(--r-card, 16px) 0 0}
-[data-card='framed'] .card[data-shelf] > :not(.frame){margin-inline:var(--pad-card, 1.25rem)}
-[data-card='framed'] .card[data-shelf] > :last-child{margin-block-end:var(--pad-card, 1.25rem)}
-[data-card='framed'] .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
-[data-card='framed'] .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
+   одежды снята (И336): лист от пола отделяет его тон. Toned — то же
+   устройство (ниже). */
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf]{--in:0px;box-shadow:none}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] .frame{border-radius:var(--r-card, 16px) var(--r-card, 16px) 0 0}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] > :not(.frame){margin-inline:var(--pad-card, 1.25rem)}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] > :last-child{margin-block-end:var(--pad-card, 1.25rem)}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
 /* Bare — коробки нет: кадр со своим углом на полу, текст под ним без
    поля, по краю кадра. */
 [data-card='bare'] .card[data-shelf]{--in:0px;background:transparent;box-shadow:none}
 [data-card='bare'] .card[data-shelf] .frame{border-radius:var(--r-card, 16px)}
 [data-card='bare'] .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
 [data-card='bare'] .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
+/* Toned — по образцу заказчика 24.09.2026: «без окантовки фото и внизу
+   поле к нему примыкает тоже хорошо, как идея минималистичной карточки».
+   Устройство Framed, но поле под кадром — тоном, чуть отличным и от пола,
+   и от листа; ни линии, ни тени — карточку от пола отделяют тон и угол.
+   Имя и первая строка фактов — обычным весом: «простой и понятный».
+   Плашка — контуром краской своего смысла, буквами заголовка курсивом; под
+   контуром — тон поля: на тёмном снимке контур без заливки пропадал бы. */
+[data-card='toned'] .card[data-shelf]{background:var(--plate-2, var(--quiet))}
+[data-card='toned'] .card[data-shelf] :is(.title, .text b){font-weight:400}
+[data-card='toned'] .card[data-shelf] .tag{background:var(--plate-2, var(--quiet));color:var(--ink);box-shadow:inset 0 0 0 var(--line) currentColor;font-family:var(--face-head, var(--face));font-style:italic;font-weight:400}
+[data-card='toned'] .card[data-shelf] .tag[data-tone='sale']{color:var(--sale)}
+[data-card='toned'] .card[data-shelf] .tag[data-tone='warn']{color:var(--warn)}
+
+/* Кнопка рядом с ценой (data-buy inline у предка): пилюля ростом поменьше
+   в одной строке с ценой — когда карточке хватает места на цену и самую
+   длинную надпись; в тесной карточке — та же стопка во всю ширину. */
+@container (min-width: 250px){
+  [data-buy='inline'] .card[data-shelf] .row{flex-direction:row;align-items:center}
+  [data-buy='inline'] .card[data-shelf] .row > .el{--h:var(--h-sm);inline-size:auto}
+}
 
 /* Полка сеткой: ширина ячейки — ручка стенда (на сайте — пол ячейки
    примитива grid, число колонок считается). Списком — одна колонка,
