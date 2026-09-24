@@ -156,6 +156,14 @@
         return el('span', { class: 'lp-btn', style: style, 'aria-hidden': 'true', text: 'Aa' })
       }
       if (field === 'corners') { var r = Math.round(parseFloat(o.vars['--r-card']) / 3) + 'px'; return el('i', { class: 'lp-shape', style: 'border-radius:' + r + ' ' + r + ' 0 0', 'aria-hidden': 'true' }) }
+      /* Карта товара: доля ряда — полоса с долей галереи; пропорция — кадр;
+         миниатюры — кадр с рядом под ним, полосой сбоку или точками. */
+      if (field === 'pdp-gallery') return el('span', { class: 'lp-row-split', 'aria-hidden': 'true' }, [el('i', { style: 'inline-size:' + o.vars['--pdp-gallery'] })])
+      if (field === 'pdp-frame') return el('i', { class: 'lp-pic', style: 'aspect-ratio:' + o.vars['--pdp-frame'], 'aria-hidden': 'true' })
+      if (field === 'pdp-thumbs') {
+        var at = o.vars['--pdp-thumbs']
+        return el('span', { class: 'lp-thumbs', 'data-at': at, 'aria-hidden': 'true' }, [el('i', { class: 'lp-pic' })].concat([0, 1, 2].map(function () { return el('b') })))
+      }
       if (field === 'shadow') return el('i', { class: 'lp-shape lp-lit', style: 'box-shadow:' + o.vars['--sh-raised'], 'aria-hidden': 'true' })
       return null
     }
