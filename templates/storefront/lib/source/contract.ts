@@ -32,6 +32,12 @@ export type Block =
   | { type: 'delivery'; title: string; items: { title: string; body: string }[] }
   | { type: 'faq'; title: string; items: { q: string; a: string }[] }
 export type Page = { slug: string; title: string; description: string; blocks: Block[] }
+/** Обещания магазина, которые витрина печатает у кнопки заказа, — числом из
+ *  данных, а не словом в коде. `returnDays` — срок возврата в днях (закон ЕС
+ *  даёт не меньше 14, Директива 2011/83/ЕС, ст. 9; магазин вправе дать
+ *  больше); `null` — магазин срок не назвал, и строки о возврате нет. У
+ *  Payload — поле global «shop» (план 4). */
+export type ShopFacts = { returnDays: number | null }
 /** Вид витрины — ОДИН, готовыми значениями (CLAUDE.md, «Панель настройки
  *  физически отделена от сайта»; И270): свойства CSS обеих тем (`vars`,
  *  имя → значение из закрытого списка lib/look-slots.json), варианты шапки
@@ -59,6 +65,8 @@ export type Content = {
   page(lang: Lang, slug: string): Promise<Result<Page>>
   docs(lang: Lang): Promise<Result<Doc[]>>
   doc(lang: Lang, slug: string): Promise<Result<Doc>>
+  /** Обещания магазина у кнопки заказа: срок возврата (`ShopFacts`). */
+  facts(): Promise<Result<ShopFacts>>
   /** Вид витрины: у образца — lib/source/sample/look.json, у Payload — global
    *  «look» (план 4). `draft` — черновик для чернового режима (у образца
    *  look.draft.json рядом, у Payload — черновая версия global); черновика

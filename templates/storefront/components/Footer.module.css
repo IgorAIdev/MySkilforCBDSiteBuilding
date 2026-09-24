@@ -34,3 +34,14 @@
 .list a,.addr a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}
 .list a[aria-current='true']{color:var(--ink);font-weight:600}
 .addr{font-style:normal;color:var(--ink-soft);line-height:var(--body-lead)}
+
+/* Подвал кассы — строка на полу страницы под волоском: помощь, закон,
+   данные — кеглем сноски, группами через воздух блока, внутри группы —
+   зазор ряда. Цель у ссылки — та же, что у ссылок подвала. */
+.legal{
+  margin-block-start:var(--air-page);padding-block:var(--air-group);border-block-start:var(--line-w) solid var(--rule);
+  font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)
+}
+.legalRow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-row) var(--air-block)}
+.legalLinks{display:flex;flex-wrap:wrap;column-gap:var(--gap-row);list-style:none;padding:0;margin:0}
+.legal a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);color:var(--ink);text-decoration-line:underline;text-underline-offset:.2em}

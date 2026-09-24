@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import p from '@/styles/primitives.module.css'
 import f from '@/styles/form.module.css' // look-header:search
+import go from '@/styles/go.module.css'
 import s from './Header.module.css'
 import type { Lang } from '@/lib/locale.ts'
 import type { NavLink } from '@/lib/shell.ts'
@@ -107,4 +108,23 @@ const DRAW: Record<HeaderVariant, (lang: Lang, nav: NavLink[]) => ReactNode> = {
 
 export function Header({ lang, nav, variant }: Props) {
   return DRAW[variant](lang, nav)
+}
+
+/* Шапка кассы — закрытая (разбор 24.09.2026, S2 и X5; Baymard «enclosed
+   checkout»): знак ведёт домой, «назад в корзину» — единственный выход,
+   полок, поиска и языка нет — на шагах оформления их не выбирают. Та же
+   полоса и тот же знак, что у шапки магазина: рисунок один, меняется только
+   состав строки. Вариантом вида она не является и снятию панелью не
+   подлежит. */
+export function CheckoutHeader({ lang }: { lang: Lang }) {
+  return (
+    <header className={s.head} data-variant="checkout">
+      <div className={`${p.wrap} ${s.bar}`}>
+        {logo(lang)}
+        <div className={s.actions}>
+          <a className={go.go} data-to="back" href={hrefFor(lang, { cart: true })}><Icon id="arrow-left" />{t(lang, 'checkout.back')}</a>
+        </div>
+      </div>
+    </header>
+  )
 }

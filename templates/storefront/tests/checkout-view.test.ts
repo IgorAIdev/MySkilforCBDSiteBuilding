@@ -1,6 +1,6 @@
 import { test, beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { stepsView, contactView, daysText, deliveryView, paymentView, doneView } from '../lib/checkout-view.ts'
+import { stepsView, contactView, daysText, deliveryView, paymentView, doneView, summaryView } from '../lib/checkout-view.ts'
 import { sampleCommerce as c, resetSample, FIXTURES } from '../lib/source/sample/commerce.ts'
 import type { Lang } from '../lib/locale.ts'
 
@@ -17,18 +17,22 @@ async function methods(lang: Lang = 'ro') {
   return r.value
 }
 
-test('steps: passed ones are links back, the current one is marked, later ones have no address', () => {
+test('steps: passed ones are links back, the current one is marked and names the page, later ones have no address', () => {
   const v = stepsView('ro', 'delivery')
-  assert.deepEqual(v.items.map((i) => [i.name, i.href, i.current]), [
-    ['Date de contact', '/ro/checkout/contact', false],
-    ['Livrare', null, true],
-    ['Plată', null, false],
+  assert.deepEqual(v.items.map((i) => [i.name, i.href, i.current, i.done]), [
+    ['Date de contact', '/ro/checkout/contact', false, true],
+    ['Livrare', null, true, false],
+    ['Plată', null, false, false],
   ])
+  assert.equal(v.title, 'Livrare', 'the step is named once — as the page heading')
 })
 
-test('contact: fields keep what the checkout already knows', async () => {
+/* WCAG 1.3.5: у каждого поля о человеке — токен автозаполнения; имя и
+   фамилия — парой в одном ряду (разбор 24.09.2026, O4). */
+test('contact: fields keep what the checkout already knows, name and surname side by side', async () => {
   const v = contactView('ro', (await at(FIXTURES.contact)).contact)
-  assert.deepEqual(v.fields.map((f) => [f.name, f.type, f.autoComplete, f.value]), [
+  assert.deepEqual(v.rows.map((r) => r.map((f) => f.name)), [['email'], ['firstName', 'lastName'], ['phone']])
+  assert.deepEqual(v.rows.flat().map((f) => [f.name, f.type, f.autoComplete, f.value]), [
     ['email', 'email', 'email', 'ana.popescu@example.com'],
     ['firstName', 'text', 'given-name', 'Ana'],
     ['lastName', 'text', 'family-name', 'Popescu'],
@@ -61,8 +65,15 @@ test('delivery to the door asks for the address; the country comes from the mark
   const v = deliveryView('ro', { methods: await methods(), delivery: s.delivery, pickup: null })
   assert.equal(v.methods.find((m) => m.checked)?.id, 'curier')
   assert.ok(v.details?.kind === 'address')
-  assert.deepEqual(v.details.fields.map((f) => f.name), ['street', 'city', 'region', 'postalCode'])
-  assert.equal(v.details.fields[3].inputMode, 'numeric')
+  assert.equal(v.saved, 'curier')
+  const rows = v.details.rows
+  assert.deepEqual(rows.map((r) => r.map((f) => f.name)), [['street'], ['postalCode', 'city'], ['region']], 'the short postcode stands by the town')
+  assert.deepEqual(rows.flat().map((f) => f.autoComplete), ['address-line1', 'postal-code', 'address-level2', 'address-level1'])
+  const [postal] = rows[1]
+  assert.deepEqual([postal.inputMode, postal.short], ['numeric', true])
+  const region = rows[2][0]
+  assert.equal(region.options?.none, 'Alegeți județul')
+  assert.equal(region.options?.values.length, 42)
   assert.deepEqual(v.details.country, { label: 'Țara', value: 'România' })
 })
 
@@ -88,7 +99,7 @@ test('payment: eligible first, the rest disabled with the reason; the review and
   const s = await at(FIXTURES.ready)
   const pay = await c.paymentMethods(FIXTURES.ready, 'ro')
   assert.ok(pay.ok)
-  const v = paymentView('ro', { methods: pay.value, checkout: s, terms: { title: 'Termeni și condiții', href: '/ro/info/termeni' } })
+  const v = paymentView('ro', { methods: pay.value, checkout: s, terms: { title: 'Termeni și condiții', href: '/ro/info/termeni' }, returnDays: 14 })
   assert.deepEqual(v.methods.map((m) => [m.code, m.checked, m.disabled]), [['ramburs', true, false], ['transfer', false, false]])
   assert.deepEqual(v.recaps.map((r) => r.lines), [
     ['Ana Popescu', 'ana.popescu@example.com', '0722 123 456'],
@@ -96,23 +107,42 @@ test('payment: eligible first, the rest disabled with the reason; the review and
   ])
   assert.equal(v.recaps[1].change!.href, '/ro/checkout/delivery')
   assert.equal(v.recaps[1].change!.aria, 'Modifică: Livrare')
-  assert.equal(v.items[0].line, 'Ulei CBD full spectrum × 1')
-  assert.equal(v.items[0].detail, '20 % · 10 ml')
+  assert.deepEqual([v.items[0].name, v.items[0].facts, v.items[1].facts], ['Ulei CBD full spectrum', '20 % · 10 ml · Cant. 1', '30 buc. · Cant. 2'])
+  assert.deepEqual(v.pledges.items.map((i) => i.text), ['Retur în 14 zile'], 'by the order button: the return deadline from the data')
   assert.equal(v.totals.total.value, `135,22${NB}€`)
   assert.equal(v.submit, 'Comandă cu obligație de plată')
   assert.deepEqual(v.expected, { minor: '13522', currency: 'EUR' }, 'the form carries the total the buyer sees')
-  const hu = paymentView('hu', { methods: pay.value, checkout: await at(FIXTURES.ready, 'hu'), terms: { title: 'ÁSZF', href: '/hu/info/termeni' } })
+  const hu = paymentView('hu', { methods: pay.value, checkout: await at(FIXTURES.ready, 'hu'), terms: { title: 'ÁSZF', href: '/hu/info/termeni' }, returnDays: null })
   assert.equal(hu.recaps[0].lines[0], 'Popescu Ana')
 })
 
-test('done: the order number, what, where and how it is paid', async () => {
+/* «Спасибо»: номер своим блоком; что дальше — из способов этого заказа их
+   же словами; детали — кому и куда (разбор 24.09.2026, O8). */
+test('done: the order number, what happens next from this order’s methods, who and where', async () => {
   const r = await c.lastOrder(FIXTURES.placed, 'ro')
   assert.ok(r.ok && r.value)
   const v = doneView('ro', r.value)
-  assert.equal(v.code, 'Numărul comenzii: EXEMPLU1')
+  assert.deepEqual(v.code, { label: 'Numărul comenzii', value: 'EXEMPLU1' })
+  assert.equal(v.title, 'Mulțumim, comanda a fost plasată')
+  assert.doesNotMatch(v.title, /!/, 'the voice has no exclamation marks (docs/words.md)')
+  assert.equal(v.next.title, 'Ce urmează')
+  assert.deepEqual(v.next.steps.map((x) => [x.title, x.lines]), [
+    ['Livrare', ['Curier la domiciliu · FAN Courier · 1–2 zile lucrătoare', 'Curierul vă sună înainte de livrare.']],
+    ['Plată', ['Plata la livrare (ramburs)', 'Plătiți la primirea coletului.']],
+  ])
   assert.equal(v.review, 'Detaliile comenzii')
   assert.equal(v.recaps[0].change, null)
-  assert.deepEqual(v.recaps.map((x) => x.title), ['Date de contact', 'Livrare', 'Plată'])
-  assert.deepEqual(v.recaps[2].lines, ['Plata la livrare (ramburs)', 'Plătiți la primirea coletului.'])
+  assert.deepEqual(v.recaps.map((x) => [x.title, x.lines]), [
+    ['Date de contact', ['Ana Popescu', 'ana.popescu@example.com', '0722 123 456']],
+    ['Adresa de livrare', ['Str. Exemplului 1', '010011 București', 'București']],
+  ])
   assert.equal(v.totals.rows.at(-1)?.value, `4,99${NB}€`)
+})
+
+test('the checkout summary shows the items on every step, with the total for the phone line', async () => {
+  const v = summaryView('en', (await at(FIXTURES.cart, 'en')).cart)
+  assert.deepEqual(v.items.map((i) => i.name), ['Full-spectrum CBD oil', 'CBD capsules 25 mg'])
+  assert.equal(v.show, 'Order summary')
+  assert.equal(v.total, '€130.23')
+  assert.equal(v.totals.total.value, v.total)
 })

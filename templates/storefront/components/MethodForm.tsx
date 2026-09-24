@@ -12,26 +12,34 @@ type Action = (prev: FormState, form: FormData) => Promise<FormState>
 /* Выбор способа подтверждает кнопка, а не само изменение (И265): стрелки в
    группе радиокнопок меняют выбор, и отправка на изменение уводила
    покупателя с клавиатурой и чтением с экрана на следующий шаг, роняя фокус
-   (WCAG 3.2.2, «On Input»). Кнопка тихая — громкая у форм подробностей ниже. */
+   (WCAG 3.2.2, «On Input»).
+
+   Громкая кнопка на экране одна (разбор 24.09.2026, O5). Способа ещё нет —
+   громкая «Выбрать доставку». Способ записан (`data-saved`) и он же
+   отмечен — кнопка не нужна, вперёд ведут его подробности; отмечен другой —
+   кнопка появляется, а подробности прежнего прячутся. Это делает CSS по
+   отметке (`:has`), без скрипта; где `:has` нет — видны обе, как прежде.
+   Имя группы — заголовок страницы «Livrare»; своё имя у группы — для
+   чтения вслух. */
 export function MethodForm({ view, action, permalink }: { view: DeliveryPageView; action: Action; permalink: string }) {
   const [state, formAction, pending] = useActionState(action, null, permalink)
   return (
-    <form className={p.stack} action={formAction}>
-      <h2 id="delivery-title" className={s.title}>{view.title}</h2>
+    <form className={s.form} action={formAction}>
       {state?.message ? <p className={f.say} data-state="error" role="alert">{state.message}</p> : null}
-      <fieldset className={`${s.options} ${s.plain}`} disabled={pending} aria-labelledby="delivery-title">
+      <fieldset className={`${s.options} ${s.plain}`} disabled={pending}>
+        <legend className={p.said}>{view.title}</legend>
         {view.methods.map((m) => (
           <label key={m.id} className={s.option}>
-            <input type="radio" name="method" value={m.id} defaultChecked={m.checked} required />
+            <input type="radio" name="method" value={m.id} defaultChecked={m.checked} required data-saved={m.id === view.saved ? '' : undefined} />
             <span className={s.optionBody}>
               <span className={s.optionHead}><span className={s.optionName}>{m.name}</span><span className={s.price}>{m.price}</span></span>
-              <span className={p.muted}>{m.meta}</span>
-              <span className={p.muted}>{m.description}</span>
+              <span className={p.note}>{m.meta}</span>
+              <span className={s.optionText}>{m.description}</span>
             </span>
           </label>
         ))}
       </fieldset>
-      <button className={b.btn} type="submit" disabled={pending}>{view.choose}</button>
+      <button className={b.btn} data-voice="loud" data-size="lg" type="submit" disabled={pending} data-choose>{view.choose}</button>
     </form>
   )
 }

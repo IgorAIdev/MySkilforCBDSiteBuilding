@@ -10,11 +10,13 @@ import { PointForm } from './PointForm.tsx'
 type Action = (prev: FormState, form: FormData) => Promise<FormState>
 
 /* Пункт выдачи ищется по городу: тысячи постаматов списком не отдаются.
-   Точек мало (магазин продавца) — поиска нет, точки сразу. */
+   Точек мало (магазин продавца) — поиска нет, точки сразу. Поиск — тихая
+   кнопка: громкая у шага одна — «Продолжить к оплате» под точками. Весь
+   блок — подробности выбранного способа (`data-details`). */
 export function PointPicker({ details, action, permalink }: { details: PickupDetails; action: Action; permalink: string }) {
   return (
-    <section className={p.stack} aria-labelledby="points-title">
-      <h2 id="points-title" className={s.title}>{details.title}</h2>
+    <section className={s.form} aria-labelledby="points-title" data-details>
+      <h2 id="points-title">{details.title}</h2>
       {details.search ? (
         <form className={s.search} action={details.search.action} method="get" role="search">
           <label className={f.field}>

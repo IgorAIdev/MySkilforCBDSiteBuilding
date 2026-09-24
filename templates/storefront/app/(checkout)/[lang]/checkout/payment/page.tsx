@@ -4,7 +4,7 @@ import { langOf } from '@/lib/route.ts'
 import { commerce, content } from '@/lib/source/index.ts'
 import { readSession } from '@/lib/session.ts'
 import { stepFor } from '@/lib/checkout-steps.ts'
-import { emptyCheckout, frameText, paymentView, stepsView } from '@/lib/checkout-view.ts'
+import { emptyCheckout, paymentView, stepsView } from '@/lib/checkout-view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { toMetadata } from '@/lib/seo.ts'
@@ -13,7 +13,6 @@ import { placeOrder } from '@/lib/actions/checkout.ts'
 import { CheckoutFrame, CheckoutEmpty } from '@/components/CheckoutFrame.tsx'
 import { PaymentForm } from '@/components/PaymentForm.tsx'
 import { OrderReview } from '@/components/OrderReview.tsx'
-import { OrderTotals } from '@/components/OrderTotals.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 
 type Props = { params: Promise<{ lang: string }> }
@@ -31,17 +30,17 @@ export default async function PaymentStep({ params }: Props) {
   const go = stepFor(r.value, 'payment')
   if (!r.value || !session || go === 'cart') return <CheckoutEmpty empty={emptyCheckout(lang)} />
   if (go !== 'payment') redirect(hrefFor(lang, { checkout: go }))
-  const [pay, terms] = await Promise.all([commerce().paymentMethods(session, lang), content().doc(lang, TERMS_DOC)])
+  const [pay, terms, facts] = await Promise.all([commerce().paymentMethods(session, lang), content().doc(lang, TERMS_DOC), content().facts()])
   if (!pay.ok) return <Unavailable lang={lang} />
   const view = paymentView(lang, {
     methods: pay.value, checkout: r.value,
     terms: { title: terms.ok ? terms.value.title : t(lang, 'footer.legal'), href: hrefFor(lang, { doc: TERMS_DOC }) },
+    returnDays: facts.ok ? facts.value.returnDays : null,
   })
   return (
-    <CheckoutFrame text={frameText(lang)} steps={stepsView(lang, 'payment')} totals={null}>
+    <CheckoutFrame steps={stepsView(lang, 'payment')} summary={null}>
       <PaymentForm view={view} action={placeOrder.bind(null, lang)} permalink={hrefFor(lang, { checkout: 'payment' })}>
         <OrderReview title={view.review} recaps={view.recaps} itemsTitle={view.itemsTitle} items={view.items} />
-        <OrderTotals totals={view.totals} />
       </PaymentForm>
     </CheckoutFrame>
   )

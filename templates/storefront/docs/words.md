@@ -55,6 +55,21 @@
 | --- | --- | --- |
 | Buletin de analiză pentru fiecare lot · Livrare în 1–3 zile lucrătoare · Plata ramburs | A lab report for every batch · Delivery in 1–3 working days · Cash on delivery | Laborjegyzőkönyv minden tételhez · Kiszállítás 1–3 munkanapon belül · Utánvétes fizetés |
 
+## Обещания у кнопки заказа
+
+Под кнопкой корзины и кнопкой заказа — факты магазина, которые
+останавливают руку над кнопкой. Слова — рамка; числа и имена приходят из
+данных: способ оплаты при получении — своим именем из списка способов,
+цена доставки — из списка способов, срок возврата — из данных магазина
+(`lib/pledges.ts`). Нет данных — нет строки.
+
+| Обещание | ro | en | hu |
+| --- | --- | --- | --- |
+| доставка «от» | Livrare de la {price} | Delivery from {price} | Legolcsóbb szállítás: {price} |
+| доставка «от», самовывоз бесплатно | Livrare de la {price}, ridicare gratuită | Delivery from {price}, pickup free | Legolcsóbb szállítás: {price}, átvétel ingyenes |
+| бесплатная доставка | Livrare gratuită | Free delivery | Ingyenes szállítás |
+| срок возврата | Retur în {n} zile | {n}-day returns | Visszaküldés {n} napon belül |
+
 ## Кнопки
 
 | Действие | ro | en | hu |
@@ -62,6 +77,7 @@
 | положить в корзину | Adaugă în coș | Add to cart | Kosárba |
 | перейти к оформлению | Finalizează comanda | Continue to checkout | Tovább a pénztárhoz |
 | подтвердить заказ | Comandă cu obligație de plată | Order with obligation to pay | Megrendelés fizetési kötelezettséggel |
+| открыть поле кода (свёрнуто под вопросом) | Aveți un cod de reducere? | Have a discount code? | Van kedvezménykódja? |
 | применить код | Aplică | Apply | Beváltás |
 | убрать из корзины | Șterge | Remove | Eltávolítás |
 | применить фильтры | Aplică filtrele | Apply filters | Szűrők alkalmazása |
@@ -87,6 +103,7 @@
 | количество больше остатка | Avem doar {n} buc. în stoc | atât sunt acum în coș | We only have {n} in stock — that is how many are in your cart now | Csak {n} db van raktáron — most ennyi van a kosárban |
 | обязательное поле | Completați câmpul | pentru a continua | Fill in this field to continue | A folytatáshoz töltse ki a mezőt |
 | индекс | Verificați codul poștal | de exemplu {example} | Check the postcode, e.g. {example} | Ellenőrizze az irányítószámot, például {example} |
+| уезд не выбран | Alegeți județul | din listă | Choose your county from the list | Válassza ki a megyét a listából |
 | слишком длинно | Scurtați textul | la cel mult {n} caractere | Shorten this to at most {n} characters | Legfeljebb {n} karakter lehet |
 | итог заказа изменился у кнопки | Totalul comenzii s-a schimbat | verificați-l din nou înainte să plasați comanda | Your order total has changed — check it again before placing the order | A rendelés végösszege megváltozott — ellenőrizze újra, mielőtt leadja a rendelést |
 

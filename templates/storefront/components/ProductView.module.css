@@ -107,12 +107,11 @@
 
 /* Покупка: количество и кнопка в одну строку ростом крупного органа, кнопка
    забирает остаток; подсказка, исход записи и «View cart» — строками под
-   ней. Ширина поля количества — от высоты органа. */
+   ней. Счётчик — общий орган сайта (QuantityStepper, пилюля `qty`), его рост
+   по умолчанию — крупный орган, ровно под кнопку. */
 .buy{display:flex;flex-wrap:wrap;align-items:stretch;gap:var(--sp-2) var(--gap-row)}
 .buy > :is(p, a){flex-basis:100%}
 .buy > p:empty{display:none}
-.qty{display:flex;flex:none;inline-size:calc(var(--ctrl-h-lg) * 1.6)}
-.count{min-block-size:var(--ctrl-h-lg);text-align:center;font-variant-numeric:tabular-nums}
 .add{flex:1 1 auto;font-variant-numeric:tabular-nums}
 .hint{flex-basis:100%;margin:0;font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
 

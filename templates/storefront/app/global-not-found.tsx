@@ -1,10 +1,10 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { headers } from 'next/headers'
 import { DEFAULT_LANG, LANG_HEADER, isLang, type Lang } from '@/lib/locale.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { shellData } from '@/lib/shell.ts'
 import { lookNow } from '@/lib/look.ts'
-import { Shell } from '@/components/Shell.tsx'
+import { Shell, docViewport } from '@/components/Shell.tsx'
 import { Missing } from '@/components/StateScreen.tsx'
 
 /* Адрес, которому в дереве маршрутов нет места (/ro/nu-exista, /hu/a/b,
@@ -15,6 +15,10 @@ const langOfRequest = async (): Promise<Lang> => {
   const asked = (await headers()).get(LANG_HEADER) ?? ''
   return isLang(asked) ? asked : DEFAULT_LANG
 }
+
+/* Окно документа — то же, что у макетов (components/Shell.tsx, `docViewport`):
+   эта страница — свой корень, и без него теряла бы вырез (И301). */
+export const viewport: Viewport = docViewport
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: t(await langOfRequest(), 'notFound.title') }
