@@ -49,8 +49,8 @@ test('days count by the upper end, in every language', () => {
 test('delivery: methods speak their kind, carrier and days; nothing chosen — no details', async () => {
   const v = deliveryView('ro', { methods: await methods(), delivery: null, pickup: null })
   assert.deepEqual(v.methods.map((m) => [m.id, m.meta, m.price, m.checked]), [
-    ['curier', 'La adresă · FAN Courier · 1–2 zile lucrătoare', `19,99${NB}lei`, false],
-    ['locker', 'Punct de ridicare · Sameday · 1–2 zile lucrătoare', `12,99${NB}lei`, false],
+    ['curier', 'La adresă · FAN Courier · 1–2 zile lucrătoare', `4,99${NB}€`, false],
+    ['locker', 'Punct de ridicare · Sameday · 1–2 zile lucrătoare', `3,49${NB}€`, false],
     ['magazin', 'Punct de ridicare', 'Gratuit', false],
   ])
   assert.equal(v.details, null)
@@ -98,9 +98,9 @@ test('payment: eligible first, the rest disabled with the reason; the review and
   assert.equal(v.recaps[1].change!.aria, 'Modifică: Livrare')
   assert.equal(v.items[0].line, 'Ulei CBD full spectrum × 1')
   assert.equal(v.items[0].detail, '20 % · 10 ml')
-  assert.equal(v.totals.total.value, `469,72${NB}lei`)
+  assert.equal(v.totals.total.value, `135,22${NB}€`)
   assert.equal(v.submit, 'Comandă cu obligație de plată')
-  assert.deepEqual(v.expected, { minor: '46972', currency: 'RON' }, 'the form carries the total the buyer sees')
+  assert.deepEqual(v.expected, { minor: '13522', currency: 'EUR' }, 'the form carries the total the buyer sees')
   const hu = paymentView('hu', { methods: pay.value, checkout: await at(FIXTURES.ready, 'hu'), terms: { title: 'ÁSZF', href: '/hu/info/termeni' } })
   assert.equal(hu.recaps[0].lines[0], 'Popescu Ana')
 })
@@ -114,5 +114,5 @@ test('done: the order number, what, where and how it is paid', async () => {
   assert.equal(v.recaps[0].change, null)
   assert.deepEqual(v.recaps.map((x) => x.title), ['Date de contact', 'Livrare', 'Plată'])
   assert.deepEqual(v.recaps[2].lines, ['Plata la livrare (ramburs)', 'Plătiți la primirea coletului.'])
-  assert.equal(v.totals.rows.at(-1)?.value, `19,99${NB}lei`)
+  assert.equal(v.totals.rows.at(-1)?.value, `4,99${NB}€`)
 })

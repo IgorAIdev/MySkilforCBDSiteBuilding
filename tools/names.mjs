@@ -66,7 +66,7 @@ export const MODIFIERS = new Set([
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',
-  'pin', 'tray', 'leaf', 'chip', 'qty', 'more', 'chan', 'side', 'prose', 'pinned', 'sidebar', 'frame', 'btn', 'seg']
+  'pin', 'tray', 'leaf', 'chip', 'qty', 'more', 'chan', 'side', 'prose', 'pinned', 'sidebar', 'frame', 'btn', 'seg', 'gallery']
 
 const VALUE = [
   { rx: new RegExp(`^--${FAMS(COLOUR_FAMILIES)}-\\d{1,2}$`), family: 'ступень цвета', by: 'tools/palette.mjs' },
@@ -86,6 +86,10 @@ const ROLE = [
   { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-b)$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
   { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css' },
   { rx: /^--(wrap|gut(-base)?|page-(line|gut)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
+  /* Карта товара — ручки вида галереи (И278): доля ряда, пропорция снимка,
+     место миниатюр. Роли, а не узлы: их ставит вид сайта на корне (панель
+     «Look»), читает узел `gallery` карты. Список закрытый — по имени. */
+  { rx: /^--pdp-(gallery|frame|thumbs)$/, family: 'карта товара: вид галереи', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
 ]
 const ALL_CONCEPTS = [...new Set(Object.values(CONCEPTS).flat())]
 const concept = new RegExp(`^--${FAMS(ALL_CONCEPTS)}(-[a-z0-9]+)*$`)

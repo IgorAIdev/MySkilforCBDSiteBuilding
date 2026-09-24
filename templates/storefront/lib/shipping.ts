@@ -11,15 +11,17 @@ const H = (ro: string, en: string, hu: string): T => ({ ro, en, hu })
    справочника набора (skills/site-building/assets/commerce/carriers.json);
    какие службы возьмёт магазин, решает заказчик. Цены, сроки и точки —
    образец: настоящие назначает магазин в Vendure, точки приходят от службы.
+   Суммы — в минорных единицах валюты рынка (lib/market.ts, у образца —
+   евроцентах): курьер 4,99, постамат 3,49, порог оплаты при получении 400.
    Точки выдуманы и помечены «exemplu». */
 export const METHODS: SampleMethod[] = [
   {
-    id: 'curier', kind: 'address', carrier: 'FAN Courier', price: 1999, days: [1, 2],
+    id: 'curier', kind: 'address', carrier: 'FAN Courier', price: 499, days: [1, 2],
     name: H('Curier la domiciliu', 'Courier to your door', 'Futár házhoz'),
     description: H('Curierul vă sună înainte de livrare.', 'The courier calls you before delivery.', 'A futár kiszállítás előtt felhívja.'),
   },
   {
-    id: 'locker', kind: 'pickup', carrier: 'Sameday', price: 1299, days: [1, 2],
+    id: 'locker', kind: 'pickup', carrier: 'Sameday', price: 349, days: [1, 2],
     name: H('Locker', 'Parcel locker', 'Csomagautomata'),
     description: H('Ridicați coletul oricând, cu codul primit prin SMS.', 'Collect the parcel any time with the code sent by text message.', 'Az SMS-ben kapott kóddal bármikor átveheti a csomagot.'),
   },
@@ -46,7 +48,7 @@ export const POINTS: SamplePoint[] = [
 
 export const PAYMENTS: SamplePayment[] = [
   {
-    code: 'ramburs', kind: 'on-delivery', limit: 200000,
+    code: 'ramburs', kind: 'on-delivery', limit: 40000,
     name: H('Plata la livrare (ramburs)', 'Cash on delivery', 'Utánvét'),
     description: H('Plătiți la primirea coletului.', 'Pay when the parcel arrives.', 'A csomag átvételekor fizet.'),
     reason: H('Plata la livrare este disponibilă pentru comenzi de până la {limit}.', 'Cash on delivery is available for orders up to {limit}.', 'Utánvét {limit} értékig választható.'),

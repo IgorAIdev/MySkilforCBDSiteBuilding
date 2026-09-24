@@ -17,8 +17,9 @@ import type { Look, LookFont } from './source/contract.ts'
 
 export type SlotType = 'colour' | 'length' | 'number' | 'keyword' | 'shadow' | 'transform' | 'font'
 /** Что выбирается вместе: набор цвета, набор ритма, ширина холста, углы,
- *  тени, шрифт, стиль кнопок, отметка текущего пункта меню. */
-export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker'
+ *  тени, шрифт, стиль кнопок, отметка текущего пункта меню; ручки карты
+ *  товара — доля ряда под галерею, пропорция снимка, место миниатюр (И278). */
+export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker' | 'pdp-gallery' | 'pdp-frame' | 'pdp-thumbs'
 /** Свойство вида: род значения, группа и умолчание стилей сайта. */
 export type Slot = { type: SlotType; group: Group; value: string }
 export type Slots = Readonly<Record<string, Slot>>
@@ -38,7 +39,7 @@ const WORDS: Readonly<Record<SlotType, readonly string[]>> = {
   colour: ['transparent', 'currentcolor', 'in', 'srgb', 'oklab', 'oklch'],
   length: ['normal'],
   number: [],
-  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block'],
+  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block', 'below', 'side', 'dots'],
   shadow: ['none', 'inset', 'transparent', 'in', 'srgb', 'oklab'],
   transform: ['none'],
   font: [],
@@ -102,7 +103,7 @@ const FONT_URL = /^\/fonts\/[a-z0-9-]{1,80}\.woff2$/
 const WEIGHT = /^[1-9]00( [1-9]00)?$/
 const RANGE = /^U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?(, ?U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?)*$/
 const LABEL = /^[\p{L}\p{N} .+-]{1,60}$/u
-const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'header', 'card'])
+const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'header', 'card', 'pdp-gallery', 'pdp-frame', 'pdp-thumbs'])
 /** Оси кнопки — поля `btn-<ось>`: каталог кнопки растёт осями данными (И273). */
 const AXIS = /^btn-[a-z0-9-]{1,30}$/
 

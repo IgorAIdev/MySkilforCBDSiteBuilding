@@ -6,7 +6,7 @@ import type { Address, Contact } from '../lib/source/contract.ts'
 
 const CONTACT: Contact = { email: 'ion@example.com', firstName: 'Ion', lastName: 'Ionescu', phone: '0722 000 000' }
 const ADDRESS: Address = { street: 'Str. Test 2', city: 'Cluj-Napoca', region: 'Cluj', postalCode: '400001', country: 'RO' }
-const RON = (minor: number) => ({ minor, currency: 'RON' })
+const EUR = (minor: number) => ({ minor, currency: 'EUR' })
 
 beforeEach(() => resetSample())
 
@@ -22,9 +22,9 @@ test('add: the first item opens a session, a line and totals from the source', a
   const cart = r.change.value
   assert.equal(cart.lines.length, 1)
   assert.equal(cart.quantity, 2)
-  assert.deepEqual(cart.subtotal, RON(43980))
+  assert.deepEqual(cart.subtotal, EUR(12980))
   assert.equal(cart.delivery, null)
-  assert.deepEqual(cart.total, RON(43980))
+  assert.deepEqual(cart.total, EUR(12980))
   assert.equal(r.change.added, undefined)
   assert.deepEqual(cart.lines[0].options.map((o) => `${o.group}=${o.code}:${o.name}`), ['putere=20:20 %', 'volum=10:10 ml'])
 })
@@ -69,8 +69,8 @@ test('coupons: the source takes the discount; wrong and expired codes are told a
   const s = await fresh('uf-20-10', 1)
   const applied = await c.applyCoupon(s, 'ro', ' cbd10 ')
   assert.ok(applied.ok)
-  assert.deepEqual(applied.value.discounts, [{ code: 'CBD10', amount: RON(2199) }])
-  assert.deepEqual(applied.value.total, RON(19791))
+  assert.deepEqual(applied.value.discounts, [{ code: 'CBD10', amount: EUR(649) }])
+  assert.deepEqual(applied.value.total, EUR(5841))
   assert.deepEqual(await c.applyCoupon(s, 'ro', 'EXPIRAT'), { ok: false, error: 'coupon-expired' })
   assert.deepEqual(await c.applyCoupon(s, 'ro', 'constructor'), { ok: false, error: 'coupon-invalid' })
   const removed = await c.removeCoupon(s, 'ro', 'CBD10')
@@ -99,13 +99,13 @@ test('setDelivery: a foreign point is refused, a one-point method is chosen whol
   const shop = await c.setDelivery(s, 'ro', { methodId: 'magazin', address: null, pointId: null })
   assert.ok(shop.ok)
   assert.equal(shop.value.delivery?.point?.id, 'mg-buc')
-  assert.deepEqual(shop.value.cart.delivery, RON(0))
+  assert.deepEqual(shop.value.cart.delivery, EUR(0))
   const door = await c.setDelivery(s, 'ro', { methodId: 'curier', address: ADDRESS, pointId: null })
   assert.ok(door.ok)
   const again = await c.setDelivery(s, 'ro', { methodId: 'curier', address: null, pointId: null })
   assert.ok(again.ok)
   assert.deepEqual(again.value.delivery?.address, ADDRESS)
-  assert.deepEqual(again.value.cart.delivery, RON(1999))
+  assert.deepEqual(again.value.cart.delivery, EUR(499))
 })
 
 test('payments: a method over its limit is shown with a reason, not hidden', async () => {
@@ -115,14 +115,14 @@ test('payments: a method over its limit is shown with a reason, not hidden', asy
   const cod = r.value.find((p) => p.code === 'ramburs')
   assert.ok(cod)
   assert.equal(cod.eligible, false)
-  assert.equal(cod.reason, 'Plata la livrare este disponibilă pentru comenzi de până la 2.000,00\u00a0lei.')
+  assert.equal(cod.reason, 'Plata la livrare este disponibilă pentru comenzi de până la 400,00\u00a0€.')
   assert.equal(r.value.find((p) => p.code === 'transfer')?.eligible, true)
 })
 
 test('placeOrder: every precondition is checked by the source, then the cart is emptied', async () => {
   const empty = (await c.add(null, 'ro', 'uf-20-10', 1)).session
   assert.ok(empty)
-  const shown = RON(21990 + 1999)
+  const shown = EUR(6490 + 499)
   assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'no-contact' })
   await c.setContact(empty, 'ro', CONTACT)
   assert.deepEqual(await c.placeOrder(empty, 'ro', 'ramburs', shown), { ok: false, error: 'no-delivery' })
@@ -131,7 +131,7 @@ test('placeOrder: every precondition is checked by the source, then the cart is 
   const placed = await c.placeOrder(empty, 'ro', 'ramburs', shown)
   assert.ok(placed.ok)
   assert.match(placed.value.code, /^RO[0-9A-F]{8}$/)
-  assert.deepEqual(placed.value.cart.total, RON(21990 + 1999))
+  assert.deepEqual(placed.value.cart.total, EUR(6490 + 499))
   const after = await c.checkout(empty, 'ro')
   assert.ok(after.ok && after.value)
   assert.equal(after.value.cart.lines.length, 0)
@@ -152,14 +152,14 @@ test('placeOrder: only at the total the buyer saw', async () => {
   const s = await fresh('uf-20-10', 1)
   await c.setContact(s, 'ro', CONTACT)
   await c.setDelivery(s, 'ro', { methodId: 'curier', address: ADDRESS, pointId: null })
-  const shown = RON(21990 + 1999)
+  const shown = EUR(6490 + 499)
   await c.add(s, 'ro', 'uf-20-10', 1)
   assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', shown), { ok: false, error: 'changed' })
-  const now = 2 * 21990 + 1999
-  assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', { minor: now, currency: 'EUR' }), { ok: false, error: 'changed' })
-  const placed = await c.placeOrder(s, 'ro', 'ramburs', RON(now))
+  const now = 2 * 6490 + 499
+  assert.deepEqual(await c.placeOrder(s, 'ro', 'ramburs', { minor: now, currency: 'RON' }), { ok: false, error: 'changed' })
+  const placed = await c.placeOrder(s, 'ro', 'ramburs', EUR(now))
   assert.ok(placed.ok)
-  assert.deepEqual(placed.value.cart.total, RON(now))
+  assert.deepEqual(placed.value.cart.total, EUR(now))
 })
 
 /* Окно заказа: «спасибо» показывает заказ два часа — столько гость Vendure
@@ -173,7 +173,7 @@ test('the last order is shown for two hours; an empty cart within them is «plac
   const s = await fresh('uf-20-10', 1)
   await c.setContact(s, 'ro', CONTACT)
   await c.setDelivery(s, 'ro', { methodId: 'curier', address: ADDRESS, pointId: null })
-  const shown = RON(21990 + 1999)
+  const shown = EUR(6490 + 499)
   const placed = await c.placeOrder(s, 'ro', 'ramburs', shown)
   assert.ok(placed.ok)
   assert.equal(placed.value.placedAt, '2026-09-23T10:00:00.000Z')
@@ -193,7 +193,7 @@ test('the placed fixture shows its order at any hour of the store clock', async 
   assert.ok(last.ok && last.value)
   assert.equal(last.value.code, 'EXEMPLU1')
   assert.equal(last.value.placedAt, '2030-12-31T23:50:00.000Z')
-  assert.deepEqual(await c.placeOrder(FIXTURES.placed, 'ro', 'ramburs', RON(0)), { ok: false, error: 'placed' })
+  assert.deepEqual(await c.placeOrder(FIXTURES.placed, 'ro', 'ramburs', EUR(0)), { ok: false, error: 'placed' })
 })
 
 /* Заготовка — только для чтения: запись в неё (товар, заказ) ложится на
@@ -203,7 +203,7 @@ test('fixtures are read-only: an add and an order never empty them', async () =>
   const add = await c.add(FIXTURES.ready, 'ro', 'uf-20-10', 1)
   assert.equal(add.session, FIXTURES.ready)
   assert.ok(add.change.ok)
-  const full = RON(49970 - 4997 + 1999)
+  const full = EUR(14470 - 1447 + 499)
   const placed = await c.placeOrder(FIXTURES.ready, 'ro', 'ramburs', full)
   assert.ok(placed.ok)
   const after = await c.checkout(FIXTURES.ready, 'ro')
@@ -226,7 +226,7 @@ test('fixtures: the prepared sessions stand at their steps', async () => {
   assert.equal((await at(FIXTURES.pickup))?.delivery?.method.id, 'locker')
   const ready = await at(FIXTURES.ready)
   assert.equal(stepFor(ready, 'payment'), 'payment')
-  assert.deepEqual(ready?.cart.total, RON(49970 - 4997 + 1999))
+  assert.deepEqual(ready?.cart.total, EUR(14470 - 1447 + 499))
   const last = await c.lastOrder(FIXTURES.placed, 'ro')
   assert.ok(last.ok)
   assert.equal(last.value?.code, 'EXEMPLU1')
