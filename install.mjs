@@ -32,12 +32,12 @@
 
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
-import { basename, join, resolve } from 'node:path'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, rmdirSync, writeFileSync, statSync } from 'node:fs'
+import { basename, dirname, join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
-import { toCss as ritmToCss } from './tools/scale.mjs'
+import { toCss as ritmToCss, alone as ritmAlone } from './tools/scale.mjs'
 import { availability as buttonAvailability, toCss as buttonsToCss } from './tools/buttons.mjs'
 
 const SRC = resolve(fileURLToPath(new URL('.', import.meta.url)))
@@ -290,6 +290,8 @@ for (const [flag, value, file] of [
 
 const moved = []
 const kept = []
+/** Что переустановка витрины сняла и что оставила (И340) — для отчёта. */
+let templateReport = null
 const installRecord = '.site-kit-install.json'
 const normalizedHash = path => createHash('sha256').update(readFileSync(path, 'utf8').replace(/\r\n/g, '\n')).digest('hex')
 const previousRecord = has(installRecord) ? JSON.parse(readFileSync(join(OUT, installRecord), 'utf8')) : {}
@@ -338,14 +340,21 @@ function copyDir(name, keep = () => false) {
 
 const isBaseline = (p) => /^tools\/[\w-]+-baseline\.json$/.test(p.replace(/\\/g, '/'))
 
-/* Инструменты едут всегда. Базы: новому сайту — нули из набора; проекту с
-   долгом — его собственные, иначе долг «прощён» и первый же прогон зелёный
-   на том, что вчера было красным. */
-copyDir('tools', MODE === 'new' ? () => false : isBaseline)
+/* Инструменты едут всегда. Базы храповиков — состояние сайта, а не набора:
+   есть у сайта своя — она и остаётся, в любом режиме; только недостающая
+   берётся из набора (новому сайту — нули). Раньше новая постановка поверх
+   сайта (`--storefront --force`, переустановка витрины) клала базы набора
+   поверх сайтовых: долг, записанный сайтом, «прощался» или, наоборот,
+   сайт краснел на чужих числах (И341). */
+copyDir('tools', isBaseline)
 /* Роль витрины — в той же записи: ставится `--storefront [--shop]`, а
-   обновление набора её не теряет (без записи панель не снимается нигде). */
+   обновление набора её не теряет (без записи панель не снимается нигде).
+   Список файлов шаблона (`template`) переписывает только постановка
+   витрины — в самом конце, когда шаблон лёг; до того (и при обновлении,
+   аудите, упавшей на полпути постановке) остаётся прежний. */
 const role = ROLE ?? previousRecord.role
-writeFileSync(join(OUT, installRecord), JSON.stringify({ version: 1, ...(role ? { role } : {}), files: Object.fromEntries(toolFiles.filter(path => !isBaseline(path)).map(path => [path, normalizedHash(join(SRC, path))])) }, null, 2) + '\n')
+const record = { version: 1, ...(role ? { role } : {}), files: Object.fromEntries(toolFiles.filter(path => !isBaseline(path)).map(path => [path, normalizedHash(join(SRC, path))])), ...(previousRecord.template ? { template: previousRecord.template } : {}) }
+writeFileSync(join(OUT, installRecord), JSON.stringify(record, null, 2) + '\n')
 
 /* Обновление не трогает проектные документы, но отсутствующий документ не
    является проектным: без него скилл ссылается в пустоту, а check:rules
@@ -490,7 +499,12 @@ if (MODE === 'new') {
     const наборы = JSON.parse(readFileSync(join(OUT, 'styles/scale.json'), 'utf8'))
     const [имя, набор] = Object.entries(наборы)[0]
     const роли = набор.текст ?? Object.values(JSON.parse(readFileSync(join(SRC, 'styles/scale.json'), 'utf8')))[0]?.текст
-    const один = { [имя]: { ...набор, ...(роли ? { текст: роли } : {}) } }
+    /* Ряд ступеней у наборов общий, и оставшийся один набор его сохраняет:
+       по нему панель передаёт сайту любой набор каталога. Просителей общих
+       ступеней из ушедших наборов он называет сам (`каталог`, И343) —
+       иначе `--sp-11`, который просит воздух «Тихого», на витрине был
+       «ступенью без просителя», и check:scale сайта краснел с постановки. */
+    const один = { [имя]: ritmAlone({ ...наборы, [имя]: { ...набор, ...(роли ? { текст: роли } : {}) } }, имя) }
     writeFileSync(join(OUT, 'styles/scale.json'), JSON.stringify(один, null, 2) + '\n')
     writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(один))
     const краски = JSON.parse(readFileSync(join(OUT, 'styles/palette.json'), 'utf8'))
@@ -516,25 +530,73 @@ if (STOREFRONT) {
   const SITE_DATA = ['lib/source/sample/look.json', 'lib/source/sample/look.draft.json', 'public/fonts', '.env', '.env.local']
   const siteData = SITE_DATA.filter(has)
   const isData = (rel) => siteData.some((d) => rel === d || rel.startsWith(`${d}/`))
-  const lay = (from) => {
-    const rel = from.slice(join(SRC, 'templates/storefront').length + 1).replace(/\\/g, '/')
-    if (rel && isData(rel)) return
-    if (statSync(from).isDirectory()) { for (const name of readdirSync(from)) lay(join(from, name)); return }
+  /* Что кладёт шаблон: путь на сайте → откуда. Файлы шаблона и копии
+     помощников набора (Vendure, коммерция), которые шаблон ввозит. */
+  const TEMPLATE = join(SRC, 'templates/storefront')
+  const laid = new Map()
+  const walkTemplate = (dir) => {
+    for (const name of readdirSync(dir)) {
+      const from = join(dir, name)
+      const rel = from.slice(TEMPLATE.length + 1).replace(/\\/g, '/')
+      if (statSync(from).isDirectory()) walkTemplate(from)
+      else laid.set(rel, from)
+    }
+  }
+  walkTemplate(TEMPLATE)
+  const vendure = join(SRC, 'skills/site-building/assets/vendure')
+  for (const f of ['request.mjs', 'result.mjs', 'money.mjs', 'search.mjs', 'asset.mjs', 'product.mjs', 'INTEGRATION.md', 'VENDURE-STARTER-LICENSE.md']) laid.set(`lib/source/vendure/core/${f}`, join(vendure, f))
+  const commerce = join(SRC, 'skills/site-building/assets/commerce')
+  for (const f of ['variant-selection.mjs', 'mutation-lane.mjs', 'VERCEL-LICENSE.md']) laid.set(`lib/commerce/${f}`, join(commerce, f))
+  /* Данные сайта (опубликованный вид, черновик, шрифты, окружение) — не
+     файлы шаблона, даже если шаблон кладёт им умолчание: в список они не
+     входят, и снять их нечем. */
+  const isSiteData = (rel) => SITE_DATA.some((d) => rel === d || rel.startsWith(`${d}/`))
+
+  /* Снять то, что шаблон больше не везёт (И340). Переустановка клала шаблон
+     поверх сайта и ничего не снимала: касса переехала в
+     `app/(checkout)/[lang]/checkout/*`, а прежние
+     `app/[lang]/checkout/{contact,delivery,payment}/page.tsx` остались в
+     витрине — два маршрута на один адрес, сборка не прошла бы. Снимается
+     только файл из списка прошлой постановки, которого нет в нынешнем
+     шаблоне, и только нетронутый — тем же хешем, каким постановка его
+     оставила; тронутый сайтом остаётся и называется. Данные сайта, файлы
+     не из шаблона и всё, что эта постановка кладёт сама (инструменты,
+     правила, шкалы), не трогаются. */
+  const removed = []
+  const changed = []
+  const previousTemplate = previousRecord.template ?? null
+  const safe = (rel) => typeof rel === 'string' && rel && !rel.startsWith('/') && !/^[A-Za-z]:/.test(rel) && !rel.split('/').some((p) => p === '..' || p === '.' || !p)
+  if (previousTemplate) {
+    for (const [rel, hash] of Object.entries(previousTemplate)) {
+      if (!safe(rel) || laid.has(rel) || isSiteData(rel) || existsSync(join(SRC, rel))) continue
+      const at = join(OUT, rel)
+      if (!existsSync(at) || !statSync(at).isFile()) continue
+      if (createHash('sha256').update(readFileSync(at)).digest('hex') !== hash) { changed.push(rel); continue }
+      rmSync(at)
+      removed.push(rel)
+      /* Папка, опустевшая со снятым файлом, уходит вместе с ним: пустая
+         папка маршрута — не маршрут, но читать дерево она мешает. */
+      for (let dir = dirname(at); dir.length > OUT.length && existsSync(dir) && !readdirSync(dir).length; dir = dirname(dir)) rmdirSync(dir)
+    }
+    /* Типы прошлого `next dev` ссылаются на снятые страницы, а tsconfig
+       шаблона их читает (`.next/dev/types`, так пишет его Next 16): сборка
+       валилась бы на странице, которой уже нет. Это выпуск Next, а не данные:
+       он соберётся заново при следующем `next dev`. */
+    if (removed.some((rel) => rel.startsWith('app/')) && has('.next/dev/types')) {
+      rmSync(join(OUT, '.next/dev/types'), { recursive: true, force: true })
+      removed.push('.next/dev/types (типы прошлого next dev о снятых страницах)')
+    }
+  }
+
+  for (const [rel, from] of laid) {
+    if (isData(rel)) continue
     mkdirSync(join(OUT, rel, '..'), { recursive: true })
     copyFileSync(from, join(OUT, rel))
   }
-  lay(join(SRC, 'templates/storefront'))
   if (siteData.length) moved.push(`данные сайта оставлены как были: ${siteData.join(', ')}`)
   moved.push(ROLE === 'shop' ? 'роль — магазин из шаблона: панель вида снимается (npm run look:remove)' : 'роль — витрина шаблона: панель вида не снимается')
-  const vendure = join(SRC, 'skills/site-building/assets/vendure')
-  for (const f of ['request.mjs', 'result.mjs', 'money.mjs', 'search.mjs', 'asset.mjs', 'product.mjs', 'INTEGRATION.md', 'VENDURE-STARTER-LICENSE.md']) {
-    copy(join(vendure, f), join(OUT, 'lib/source/vendure/core', f))
-  }
-  const commerce = join(SRC, 'skills/site-building/assets/commerce')
-  for (const f of ['variant-selection.mjs', 'mutation-lane.mjs', 'VERCEL-LICENSE.md']) {
-    copy(join(commerce, f), join(OUT, 'lib/commerce', f))
-  }
   moved.push('шаблон витрины и помощники Vendure и коммерции')
+  templateReport = { first: !previousTemplate, removed, changed }
   /* Вид — значения, источник один (И270, И272): закрытый список свойств
      выпускается из стилей сайта, каталог панели вида — из полного каталога
      набора его же строителями, опубликованный вид образца — умолчание
@@ -565,6 +627,13 @@ if (STOREFRONT) {
     writeFileSync(marketFile, readFileSync(marketFile, 'utf8').replace(/(currency: ')[A-Z]{3}(')/, `$1${CURRENCY}$2`))
     moved.push(`валюта витрины — ${CURRENCY}`)
   }
+  /* Список файлов шаблона — в запись ставщика, хешем того, что постановка
+     оставила на диске (с языком и валютой, если их переписал ключ): по нему
+     следующая переустановка узнает, что шаблон перестал везти, и что сайт
+     успел поправить. */
+  record.template = Object.fromEntries([...laid.keys()].filter((rel) => !isSiteData(rel) && has(rel)).sort()
+    .map((rel) => [rel, createHash('sha256').update(readFileSync(join(OUT, rel))).digest('hex')]))
+  writeFileSync(join(OUT, installRecord), JSON.stringify(record, null, 2) + '\n')
 }
 
 /* Аудиту — конфиг путей: чужой проект лежит не там и зовёт шкалы не так,
@@ -626,13 +695,22 @@ if (existsSync(pkgPath)) {
 
 const title = { new: 'Новый сайт', update: 'Обновление набора', audit: 'Аудит чужого сайта' }[MODE]
 console.log(`${title}: набор разложен в ${OUT} — ${moved.join(', ')}`)
-if (kept.length) console.log(`  · оставлены свои: ${kept.join(', ')} (долг проекта не прощается)`)
+if (kept.length) console.log(`  · оставлены свои: ${kept.join(', ')} (долг сайта не прощается и не подменяется базой набора)`)
+/* Что переустановка сняла — словами, по файлу (И340): удаление, о котором
+   не сказано, — то же, что удаление без спроса. */
+if (templateReport) {
+  const { first, removed, changed } = templateReport
+  if (first) console.log('  · файлы шаблона записаны в .site-kit-install.json впервые: прежняя постановка их не записала, снимать было не по чему')
+  else if (removed.length) console.log(`  · снято — шаблон этого больше не везёт (${removed.length}):\n${removed.map((r) => `      ${r}`).join('\n')}`)
+  else console.log('  · снимать нечего: всё, что шаблон вёз прежде, он везёт и теперь')
+  if (changed.length) console.log(`  · шаблон больше не везёт, но сайт это поправил — оставлено, решить руками:\n${changed.map((r) => `      ${r}`).join('\n')}`)
+}
 if (MODE === 'new') {
   console.log('  · CLAUDE.md — правила, читаются раньше кода каждой сессией')
   console.log('  · .claude/skills — шесть предметных скиллов; сторонние только с --extras')
   console.log('  · .claude/settings.json — хуки: брифинг этапа сам в начале сессии, проверка сама после правки')
   console.log('  · .github/workflows/check.yml — проверки падают сами, без чьей-либо памяти')
-  console.log('  · базы храповиков на нулях — на новом проекте долга нет')
+  if (!kept.some(isBaseline)) console.log('  · базы храповиков на нулях — на новом проекте долга нет')
 }
 /* Проверка, ставшая строже, — новость, а не сюрприз на первом прогоне: сайт,
    зелёный вчера, сегодня красный на том же коде. */

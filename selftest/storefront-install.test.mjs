@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdtempSync, mkdirSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
@@ -186,5 +186,111 @@ test('--storefront opens in English; --lang ro makes Romanian the main language'
     assert.match(readFileSync(join(ro, 'next.config.ts'), 'utf8'), /destination: '\/ro'/)
     assert.notEqual(install('--storefront', '--lang', 'bg', join(root, 'bg')).status, 0, 'языка нет в LOCALES')
     assert.notEqual(install('--lang', 'ro', join(root, 'bare')).status, 0, 'без --storefront')
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+/* Переустановка витрины (`--storefront --force`) снимает то, что шаблон
+   перестал везти (И340), и не трогает ничего сайтового: данные, свои
+   файлы, файлы шаблона, которые сайт поправил, и базы храповиков (И341).
+   «Шаблон, который уронил файл», — копия набора: между двумя постановками
+   из её шаблона убраны три файла. */
+const copyTree = (from, to) => {
+  if (statSync(from).isDirectory()) {
+    mkdirSync(to, { recursive: true })
+    for (const name of readdirSync(from)) copyTree(join(from, name), join(to, name))
+  } else copyFileSync(from, to)
+}
+const HEAVY = new Set(['research', 'elements', 'selftest', 'node_modules', ['.', 'git'].join('')])
+test('--storefront --force removes what the template dropped, and keeps site data, site files, site edits and site baselines', () => {
+  const root = mkdtempSync(join(tmpdir(), 'storefront-drop-'))
+  const kit = join(root, 'kit')
+  const dir = join(root, 'site')
+  try {
+    for (const name of readdirSync(KIT)) if (!HEAVY.has(name)) copyTree(join(KIT, name), join(kit, name))
+    const T = join(kit, 'templates/storefront')
+    const fromKit = (...args) => spawnSync(process.execPath, [join(kit, 'install.mjs'), ...args], { encoding: 'utf8' })
+    const read = (p) => readFileSync(join(dir, p), 'utf8')
+    mkdirSync(join(T, 'app/[lang]/gone'), { recursive: true })
+    writeFileSync(join(T, 'app/[lang]/gone/page.tsx'), 'export default function Gone() { return null }\n')
+    writeFileSync(join(T, 'components/Dropped.tsx'), 'export const Dropped = () => null\n')
+    writeFileSync(join(T, 'lib/edited.ts'), 'export const edited = 1\n')
+
+    const first = fromKit('--storefront', dir)
+    assert.equal(first.status, 0, first.stderr)
+    const record = JSON.parse(read('.site-kit-install.json'))
+    for (const f of ['app/[lang]/gone/page.tsx', 'components/Dropped.tsx', 'lib/edited.ts', 'app/[lang]/layout.tsx', 'lib/source/vendure/core/money.mjs']) {
+      assert.match(record.template[f] ?? '', /^[0-9a-f]{64}$/, `в записи ставщика нет ${f}`)
+    }
+    assert.ok(!Object.keys(record.template).some((f) => /^(lib\/source\/sample\/look|public\/fonts|\.env$)/.test(f)), 'данные сайта попали в список файлов шаблона')
+    assert.match(first.stdout, /записаны в \.site-kit-install\.json впервые/)
+
+    /* Сайт живёт: свой файл, свои данные, правка файла шаблона, свой долг,
+       типы прошлого next dev; одной базы нет вовсе. */
+    const own = {
+      'components/Mine.tsx': 'export const Mine = () => null\n',
+      'lib/edited.ts': 'export const edited = 2 // сайт поправил\n',
+      '.env': 'LOOK_PICKER=on\nREVALIDATE_SECRET=s\n',
+      'public/fonts/manrope-latin-400.woff2': 'woff2',
+      'lib/source/sample/look.draft.json': read('lib/source/sample/look.json').replace('"header"', '"header" '),
+      'tools/css-baseline.json': JSON.stringify({ ...JSON.parse(read('tools/css-baseline.json')), fontPx: 3 }, null, 2) + '\n',
+      'tools/craft-baseline.json': JSON.stringify({ ...JSON.parse(read('tools/craft-baseline.json')), contrast: 2 }, null, 2) + '\n',
+      'tools/detect-baseline.json': JSON.stringify({ '/en': { firstScreen: 1 } }, null, 2) + '\n',
+    }
+    mkdirSync(join(dir, 'public/fonts'), { recursive: true })
+    for (const [p, text] of Object.entries(own)) writeFileSync(join(dir, p), text)
+    const look = read('lib/source/sample/look.json')
+    rmSync(join(dir, 'tools/design-baseline.json'))
+    mkdirSync(join(dir, '.next/dev/types'), { recursive: true })
+    writeFileSync(join(dir, '.next/dev/types/routes.d.ts'), '// про /[lang]/gone\n')
+
+    /* Шаблон роняет три файла. */
+    rmSync(join(T, 'app/[lang]/gone'), { recursive: true })
+    rmSync(join(T, 'components/Dropped.tsx'))
+    rmSync(join(T, 'lib/edited.ts'))
+    const again = fromKit('--storefront', '--force', dir)
+    assert.equal(again.status, 0, again.stderr)
+
+    assert.ok(!existsSync(join(dir, 'components/Dropped.tsx')), 'файл, который шаблон перестал везти, остался')
+    assert.ok(!existsSync(join(dir, 'app/[lang]/gone')), 'опустевшая папка маршрута осталась')
+    assert.ok(!existsSync(join(dir, '.next/dev/types')), 'типы прошлого next dev о снятой странице остались')
+    assert.match(again.stdout, /снято — шаблон этого больше не везёт/)
+    for (const f of ['components/Dropped.tsx', 'app/[lang]/gone/page.tsx']) assert.ok(again.stdout.includes(f), `в отчёте не названо снятое: ${f}`)
+    assert.match(again.stdout, /сайт это поправил — оставлено[\s\S]*lib\/edited\.ts/, 'поправленный сайтом файл не назван')
+    for (const [p, text] of Object.entries(own)) assert.equal(read(p), text, `${p} — не как было`)
+    assert.equal(read('lib/source/sample/look.json'), look, 'опубликованный вид тронут')
+    assert.equal(read('tools/design-baseline.json'), readFileSync(join(kit, 'tools/design-baseline.json'), 'utf8'), 'недостающая база — не из набора')
+    assert.match(again.stdout, /оставлены свои: [^\n]*tools[\\/]css-baseline\.json/, 'базы сайта не названы оставленными')
+
+    const after = JSON.parse(read('.site-kit-install.json'))
+    assert.ok(!('components/Dropped.tsx' in after.template) && !('lib/edited.ts' in after.template), 'снятое осталось в списке шаблона')
+    assert.ok('app/[lang]/layout.tsx' in after.template)
+
+    const third = fromKit('--storefront', '--force', dir)
+    assert.equal(third.status, 0, third.stderr)
+    assert.match(third.stdout, /снимать нечего/)
+    assert.equal(read('lib/edited.ts'), own['lib/edited.ts'])
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+/* Любой из четырёх наборов ритма, поставленный витрине одним (`--scale`),
+   проходит check:scale сайта: общие ступени ряда, которые просят только
+   ушедшие в каталог наборы, оставшийся называет сам (И343). */
+test('--storefront with any of the four scale sets passes the site check:scale', () => {
+  const sets = JSON.parse(readFileSync(join(KIT, 'styles/scale.json'), 'utf8'))
+  const root = mkdtempSync(join(tmpdir(), 'storefront-scale-'))
+  try {
+    for (const [i, name] of Object.keys(sets).entries()) {
+      const dir = join(root, String(i))
+      const r = install('--storefront', '--scale', name, dir)
+      assert.equal(r.status, 0, r.stderr)
+      const one = JSON.parse(readFileSync(join(dir, 'styles/scale.json'), 'utf8'))
+      assert.deepEqual(Object.keys(one), [name])
+      assert.deepEqual(Object.keys(one[name].ритм), Object.keys(sets[name].ритм), `${name}: ряд ступеней общий, у витрины тот же`)
+      for (const [step, who] of Object.entries(one[name].каталог ?? {})) {
+        for (const w of who) assert.ok(Object.keys(sets).includes(w.split(':')[0]) && w.split(':')[0] !== name, `${name}: ${step} — проситель «${w}» не из каталога`)
+      }
+      const scale = spawnSync(process.execPath, [join(dir, 'tools/check-scale.mjs')], { cwd: dir, encoding: 'utf8' })
+      assert.equal(scale.status, 0, `${name}: check:scale сайта красный:\n${scale.stdout}${scale.stderr}`)
+    }
   } finally { rmSync(root, { recursive: true, force: true }) }
 })

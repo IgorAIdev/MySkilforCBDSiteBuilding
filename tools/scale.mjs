@@ -752,23 +752,83 @@ export const auditSheets = (sheets, sets) => {
  * (docs/layers.md, §3.2). Так жил `--sp-11`: выпускался, не читался никем и
  * промахивался мимо своего конца — и никто не видел.
  */
+/**
+ * Кто просит ступень: имя ступени → «набор: роль». Просители собираются по
+ * ВСЕМ наборам файла: ступени у них общие («один и тот же ряд ступеней у
+ * всех», references/sets.md), и ступень, которую просит воздух хотя бы
+ * одного набора, живая.
+ *
+ * Третий проситель, кроме роли и файла стилей, — набор каталога, которого в
+ * файле нет (`каталог`, И343). Витрина носит один вид (И270): ставщик
+ * оставляет в её `styles/scale.json` один набор, остальные уходят в каталог
+ * панели вида. Ряд у набора остаётся общим — по нему панель передаёт сайту
+ * любой набор каталога, и опубликованный вид несёт весь ряд, — а просители
+ * ушедших наборов из файла пропадали: `--sp-11`, который просит воздух
+ * разделов «Тихого», на витрине стал «ступенью без просителя». Оставшийся
+ * набор называет их сам: `"каталог": { "--sp-11": ["Тихий: воздух page"] }`
+ * — пишет ставщик, считая этой же функцией (`alone`).
+ */
+export const requesters = (sets) => {
+  const by = new Map()
+  const put = (step, who) => {
+    if (!by.has(step)) by.set(step, [])
+    if (!by.get(step).includes(who)) by.get(step).push(who)
+  }
+  for (const name of Object.keys(sets)) {
+    const rs = resolve(sets[name])
+    for (const [role, p] of Object.entries(rs.поле)) if (p.step) put(`${PREFIX.space}${p.step}`, `${name}: поле ${role}`)
+    for (const [role, a] of Object.entries(rs.воздух)) for (const st of a.steps) put(`${PREFIX.space}${st}`, `${name}: воздух ${role}`)
+    for (const [role, g] of Object.entries(rs.зазор)) if (g.step) put(`${PREFIX.space}${g.step}`, `${name}: зазор ${role}`)
+    if (rs.край) for (const st of rs.край.steps) put(`${PREFIX.space}${st}`, `${name}: край`)
+    for (const [role, r] of Object.entries(rolesOf(sets, name))) {
+      if (typeof r.размер === 'string') put(r.размер, `${name}: текст ${role}`)
+    }
+    for (const [step, who] of Object.entries(sets[name].каталог ?? {})) {
+      for (const w of [].concat(who)) put(step, `каталог — ${w}`)
+    }
+  }
+  return by
+}
+
+/**
+ * Набор, который остаётся в файле один (витрина, И270), — с просителями
+ * общего ряда из наборов, ушедших в каталог (И343). Ступень, которую просят
+ * его собственные роли, называть не нужно; ступень, которую не просит никто
+ * и в каталоге, не называется — её найдёт «ступень без просителя», и это
+ * верно: она мёртвая везде.
+ */
+export const alone = (sets, name) => {
+  if (!sets[name]) throw new Error(`набора «${name}» в файле нет`)
+  const { каталог: _was, ...set } = sets[name]
+  /* Роли текста набор без своих берёт у первого в файле (`rolesOf`) —
+     поэтому просители считаются по всему файлу, а своими считаются те, что
+     названы именем набора. */
+  const all = requesters({ ...sets, [name]: set })
+  const r = resolve(set)
+  const каталог = {}
+  for (const step of [...Object.keys(r.размер).map((n) => `${PREFIX.font}${n}`), ...Object.keys(r.ритм).map((n) => `${PREFIX.space}${n}`)]) {
+    const who = all.get(step) ?? []
+    if (who.some((w) => w.startsWith(`${name}:`))) continue
+    const others = who.filter((w) => !w.startsWith('каталог — '))
+    if (others.length) каталог[step] = others
+  }
+  return Object.keys(каталог).length ? { ...set, каталог } : set
+}
+
 export const auditReaders = (sheets, sets) => {
   const findings = []
   const first = Object.values(sets)[0]
   if (!first) return findings
   const r = resolve(first)
   const css = sheets.map((s) => s.css).join('\n')
-  /* Просители собираются по ВСЕМ наборам: ступени у них общие, и ступень,
-     которую просит воздух хотя бы одного набора, живая. */
-  const asked = new Set()
-  for (const name of Object.keys(sets)) {
-    const rs = resolve(sets[name])
-    for (const p of Object.values(rs.поле)) if (p.step) asked.add(`${PREFIX.space}${p.step}`)
-    for (const a of Object.values(rs.воздух)) for (const st of a.steps) asked.add(`${PREFIX.space}${st}`)
-    for (const g of Object.values(rs.зазор)) if (g.step) asked.add(`${PREFIX.space}${g.step}`)
-    if (rs.край) for (const st of rs.край.steps) asked.add(`${PREFIX.space}${st}`)
-    for (const role of Object.values(rolesOf(sets, name))) {
-      if (typeof role.размер === 'string') asked.add(role.размер)
+  const asked = requesters(sets)
+  /* Названный набором каталога проситель — ступенью ряда: имя, которого в
+     ряду нет, — опечатка или ряд, ушедший из-под записи. */
+  for (const [name, set] of Object.entries(sets)) {
+    const own = resolve(set)
+    for (const step of Object.keys(set.каталог ?? {})) {
+      const known = step.startsWith(PREFIX.font) ? step.slice(PREFIX.font.length) in own.размер : step.startsWith(PREFIX.space) && step.slice(PREFIX.space.length) in own.ритм
+      if (!known) findings.push({ rule: 'проситель ступени, которой нет', got: `${name}: каталог ${step}`, need: 'ключ «каталог» называет ступень ряда этого набора' })
     }
   }
   const names = [
@@ -781,7 +841,7 @@ export const auditReaders = (sheets, sets) => {
     /* Лестница управления берёт верх ступени размера числом: орган, читающий
        --ctrl-fs-sm, просит и ступень --fs-sm. */
     if (name.startsWith(PREFIX.font) && new RegExp(`var\\(--ctrl-fs-${name.slice(PREFIX.font.length)}[,)]`).test(css)) continue
-    findings.push({ rule: 'ступень без просителя', got: name, need: 'ступень заводится там, где её просит роль или файл стилей — уберите из styles/scale.json или назовите просителя' })
+    findings.push({ rule: 'ступень без просителя', got: name, need: 'ступень заводится там, где её просит роль, файл стилей или набор каталога (ключ «каталог», И343) — уберите из styles/scale.json или назовите просителя' })
   }
   return findings
 }
