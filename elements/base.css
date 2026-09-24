@@ -512,7 +512,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    пунктам без скрипта. Выбранный — `:has(> input:checked)`, застывшим —
    `data-on`; фокус — кольцо у пункта. Как отмечен выбранный — `data-pick`
    группы: плашка пола (по умолчанию), tone — тон, tint — тон марки, ink —
-   заливка чернил, mark —
+   заливка чернил, flag — закладка с кромки (у нижнего меню data-dock), mark —
    знак краской марки в ячейке с волоском, sheet — лист, сливающийся с
    панелью под ним. Переезд плашки у источников снят: плашка встаёт на
    место, а не едет (И338). */
@@ -529,6 +529,17 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .tabs[data-pick='tone'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--quiet)}
 .tabs[data-pick='tint'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--pop-tint);--fg:var(--pop-ink)}
 .tabs[data-pick='ink'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--ink);--fg:var(--surface)}
+/* Нижнее меню телефона (data-dock): лист пола со скруглённым верхом и
+   волоском по верхней кромке; пункты во всю ширину — знак над словом,
+   невыбранные — краской подписи, выбранный — чернилами. */
+.tabs[data-dock]{display:flex;inline-size:100%;gap:0;padding:0 calc(var(--h-md) * .1);border-radius:var(--r-sheet, 20px) var(--r-sheet, 20px) 0 0;background:var(--surface);box-shadow:inset 0 var(--line) 0 var(--rule)}
+.tabs[data-dock] > .el{--fg:var(--ink-soft);flex:1 1 0;flex-direction:column;gap:2px;block-size:auto;min-inline-size:0;padding:calc(var(--h-md) * .5) 0 calc(var(--h-md) * .2);font-size:var(--note-size, .875rem);font-weight:500}
+.tabs[data-dock] > .el svg{inline-size:calc(var(--h-md) * .55);block-size:calc(var(--h-md) * .55)}
+.tabs[data-dock] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--ink);font-weight:600}
+/* Закладка (data-pick flag): лента краской чернил с вырезом «ласточкин
+   хвост» висит с верхней кромки над выбранным пунктом. */
+.tabs[data-pick='flag'] > .el::before{content:'';position:absolute;inset-block-start:0;inset-inline-start:50%;translate:-50% 0;inline-size:calc(var(--h-md) * .45);block-size:calc(var(--h-md) * .38);background:var(--ink);clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 70%, 0 100%);opacity:0}
+.tabs[data-pick='flag'] > .el:is(:has(> input:checked), [data-on])::before{opacity:1}
 .tabs[data-pick='mark'] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--pop-ink);box-shadow:inset 0 0 0 var(--line) var(--rule)}
 /* Встык: сегменты без подложки, каждый в волоске края, угол — у крайних;
    выбранный — тон марки в кромке марки. Нажатый не сжимается — встык он
@@ -649,6 +660,9 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
 .live:has(.card[data-layout='row']){inline-size:min(360px, 100% - 32px)}
 .states figure:has(> .card){inline-size:min(320px, 100%)}
 .states figure:has(> .card[data-layout='row']){inline-size:min(360px, 100%)}
+/* Нижнее меню на стенде — ширина телефона, как у живого. */
+.states figure:has(> .tabs[data-dock]){inline-size:min(360px, 100%)}
+.live:has(> .tabs[data-dock]){inline-size:min(360px, 100% - 32px)}
 /* Несколько вариантов элемента рядом — сетка стенда. */
 .forms{display:grid;grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr));gap:24px;align-items:start;inline-size:100%}
 .live:has(> .forms){inline-size:min(1000px, 100% - 32px)}
