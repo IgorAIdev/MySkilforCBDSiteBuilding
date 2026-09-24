@@ -217,6 +217,7 @@
     "--menu-mark-ink": "var(--ink)",
     "--menu-mark-r": "0",
     "--menu-mark-pad": "0",
+    "--menu-mark-side": "0",
     "--shot-frame": "1 / 1",
     "--shelf-cols": "4",
     "--card-buy": "full",

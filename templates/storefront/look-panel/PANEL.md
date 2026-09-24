@@ -99,7 +99,7 @@
 | System | Fields | Field | вид поля ввода `--ctrl-field-fill`, `-edge`, `-side` — одно поле на весь сайт: поиск, почта, касса; кромка — у каждого вида (И390) | Framed (умолчание), Outline (светлая поверхность, кромка краской подписи — элемент 43), Tone (тихая плашка, черта снизу — элемент 41) |
 | System | Fields | Ticked boxes | краска отмеченной галочки и радио `--ctrl-tick-fill` — одна на весь сайт: фильтры, касса, формы; сами органы браузерные (И392) | Brand (умолчание), Ink (элемент 60) |
 | Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique |
-| Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`) | Underline, Pill, Ink pill |
+| Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`; `-side` — черта у начала строки, в шапке и в шторке) | Underline, Pill, Ink pill, Side bar (тон и черта марки у начала строки — элемент 52) |
 | Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined, Toned (снимок до краёв, под ним поле тоном — по образцу заказчика, элемент 64 набора), Tinted (вся карточка тоном марки, угол листа — элемент 62 набора) |
 | Admin | Card | Picture | пропорция снимка товара `--shot-frame` — одна на полку и карту товара: снимки у товара одни (И400) | 1:1 (умолчание), 4:3, 4:5, 3:4 |
 | Admin | Card | Cart button | где на карточке полки кнопка «в корзину» `--card-buy`: под ценой во всю ширину или ростом поменьше в строке цены — в тесной карточке она сама встаёт под цену | Full width (умолчание), Beside the price |

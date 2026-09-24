@@ -149,6 +149,10 @@ export function problems(vars: Readonly<Record<string, string>>, fonts: readonly
       if (r < need.visible) add('marker', 'palette', `the current-item pill fades into the header: ${say(r, need.visible)}`)
       const ink = get('--menu-mark-ink')
       if (ink) { const t = contrast(over(ink, under), under); if (t < need.text) add('marker', 'palette', `the current item's label is too faint on its pill: ${say(t, need.text)}`) }
+      /* Черта у начала строки (И393) — краской марки для текста, 3 : 1 к
+         тону, на котором стоит: без неё отметка — только тон. */
+      const bar = Number(vars['--menu-mark-side']) > 0 ? get('--pop-ink') : null
+      if (bar) { const b = contrast(over(bar, under), under); if (b < need.control) add('marker', 'palette', `the current item's side bar is too faint on its pill: ${say(b, need.control)}`) }
     }
     /* Поле ввода (И390, styles/form.module.css) — на каждом полу, где поле
        стоит: страница (поиск, корзина), шапка, лист (касса). Кромка — вокруг

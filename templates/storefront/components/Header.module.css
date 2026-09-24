@@ -79,7 +79,14 @@
 }
 @media (hover:hover){ .links a:hover{text-decoration-line:underline} }
 .links a:active{text-decoration-line:underline}
-.links a[aria-current='page']{text-decoration-line:var(--menu-mark-line);text-decoration-thickness:var(--ring-w);text-decoration-color:var(--pop);background:var(--menu-mark-fill);color:var(--menu-mark-ink)}
+/* Черта у начала строки (`--menu-mark-side`, 0 или 1; элемент 52, И393) —
+   слоем фона, а не краем: строка не сдвигается. Краска марки для текста —
+   3 : 1 к тону отметки; толщина — кольца. В шторке — та же черта на её тоне. */
+.links a[aria-current='page']{
+  text-decoration-line:var(--menu-mark-line);text-decoration-thickness:var(--ring-w);text-decoration-color:var(--pop);background:var(--menu-mark-fill);color:var(--menu-mark-ink);
+  background-image:linear-gradient(var(--pop-ink), var(--pop-ink));background-repeat:no-repeat;background-position:0 50%;
+  background-size:calc(var(--ring-w) * var(--menu-mark-side, 0)) 50%
+}
 /* Кадр, строка о полке и стрелка — у шторки и у панели полок, не у строки. */
 .thumb,.line,.chev,.sheetHead,.sheetLang{display:none}
 
@@ -176,7 +183,7 @@
 .nav:popover-open .name{flex:1 1 auto}
 .nav:popover-open .chev{display:grid;color:var(--ink-soft)}
 .nav:popover-open .chev svg{inline-size:1.25em;block-size:1.25em}
-.nav:popover-open .links a[aria-current='page']{background:var(--quiet);font-weight:600}
+.nav:popover-open .links a[aria-current='page']{background-color:var(--quiet);font-weight:600}
 .nav:popover-open .sheetLang{display:block;margin-block-start:auto;padding-block-start:var(--air-row);border-block-start:var(--line-w) solid var(--rule)}
 
 /* look-header:boutique:start */

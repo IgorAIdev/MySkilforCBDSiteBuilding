@@ -42,7 +42,7 @@ const PUBLISHED = 'lib/source/sample/look.json'
 const FILES = { palette: 'styles/palette.css', buttons: 'styles/buttons.css', scale: 'styles/scale.css', look: 'styles/look.css' }
 
 /** Род свойства отметки текущего пункта меню. */
-const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length' }
+const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length', side: 'number' }
 /** Род свойства вида поля ввода (И390, styles/form.module.css): заливка,
  *  кромка и 1 / 0 — кромка вокруг или только черта снизу. */
 const FIELD = { fill: 'colour', edge: 'colour', side: 'number' }
