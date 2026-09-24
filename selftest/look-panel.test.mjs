@@ -55,6 +55,24 @@ test('the storefront template keeps the whole look panel: folder, entry, include
   assert.match(read(T, '.env.example'), /^LOOK_PICKER=/m)
 })
 
+/* И344: пилюля «Look» в правом нижнем углу закрывала на 375 сводку
+   корзины. Вход — язычок в поле страницы: у правого края окна, шириной с
+   поле (`--gut`, у окна с вырезом — `--edge-x`), без угла у низа окна;
+   кольцо фокуса внутрь. Раскладку сайта он не трогает: всё — в стилях
+   панели. */
+test('the panel launcher is an edge tab inside the page gutter, never a corner pill over the page', () => {
+  const css = read(T, 'look-panel/ui/look.css').replace(/\/\*[\s\S]*?\*\//g, '')
+  const rule = css.match(/\.lp \.lp-open\{([^}]*)\}/)?.[1] ?? ''
+  assert.match(rule, /position:fixed/)
+  assert.match(rule, /inset-inline-end:0/, 'язычок — у края окна')
+  assert.match(rule, /inline-size:max\(var\(--gut, [^)]*\), var\(--edge-x, [^)]*\)\)/, 'ширина — поле страницы, не шире')
+  assert.doesNotMatch(rule, /inset-block-end/, 'угол у низа окна — там суммы и кнопка оформления')
+  assert.doesNotMatch(css, /\.lp-open\{[^}]*(?:padding:0 |min-inline-size)/, 'пилюля с полем по бокам шире поля страницы')
+  assert.match(css, /\.lp \.lp-open:focus-visible\{outline-offset:-/, 'кольцо фокуса — внутри язычка')
+  assert.match(read(T, 'look-panel/ui/look.js'), /class: 'lp-open'[^\n]*'aria-label': 'Look — open the panel'/, 'имя для чтения вслух — у кнопки')
+  for (const f of ['styles/storefront.css', 'components/Shell.tsx']) assert.doesNotMatch(read(T, f), /lp-open/, `${f}: сайт о язычке не знает`)
+})
+
 test('the panel does not come off in the kit template: a hard refusal, no key overrides it', async () => {
   const { refusal } = await import(pathToFileURL(join(T, 'look-panel/scripts/remove.mjs')).href)
   assert.match(refusal(T), /шаблон витрины в наборе/)

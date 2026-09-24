@@ -612,7 +612,13 @@
         status,
       ]),
     ])
-    var open = el('button', { class: 'lp-open', type: 'button', popovertarget: 'lp-panel', text: 'Look' })
+    /* Вход в панель — язычок на правом краю окна, в поле страницы (look.css,
+       «Язычок»): слово, где поле его вмещает, и черта-ручка, где нет. Имя
+       для чтения вслух — у самой кнопки. */
+    var open = el('button', { class: 'lp-open', type: 'button', popovertarget: 'lp-panel', 'aria-label': 'Look — open the panel', title: 'Look' }, [
+      el('span', { class: 'lp-open-word', 'aria-hidden': 'true', text: 'Look' }),
+      el('span', { class: 'lp-open-grip', 'aria-hidden': 'true' }),
+    ])
     document.body.appendChild(el('div', { class: 'lp' }, [open, panel]))
     wide(keptWide())
     show(recall(TAB) === 'admin' ? 'admin' : 'system')

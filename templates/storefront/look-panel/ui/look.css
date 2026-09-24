@@ -51,12 +51,40 @@
 .lp :focus-visible{outline:2px solid var(--lp-focus);outline-offset:2px}
 .lp ::selection{background:color-mix(in srgb, var(--lp-focus) 28%, transparent)}
 
-.lp-open{
-  position:fixed;inset-block-end:var(--lp-edge);inset-inline-end:var(--lp-edge);z-index:90;
-  display:inline-flex;align-items:center;min-block-size:40px;padding:0 var(--lp-s5);
-  border:1px solid var(--lp-line);border-radius:var(--lp-pill);background:var(--lp-bg);color:var(--lp-ink);
-  box-shadow:0 2px 4px rgb(0 0 0 / .08), 0 12px 28px -10px rgb(0 0 0 / .35);font-weight:600
+/* ── Язычок — вход в панель ────────────────────────────────────────────
+   Вход не ложится на страницу: он живёт в поле страницы — полосе у края
+   окна, которую каждая страница держит пустой (`--gut` сайта, а у окна с
+   вырезом — не уже выреза, `--edge-x`). Под ним нет ни текста, ни органа,
+   только фон и край снимка во всю ширину; раскладка сайта не меняется ни
+   на пиксель, и заказчик видит ту же страницу, что покупатель. Стояла
+   пилюля 48 px в правом нижнем углу — и на 375 закрывала сводку корзины:
+   скидку и итог (24.09.2026, И344). Правый край, середина высоты: туда
+   достаёт большой палец, и там нет шапки, нижних полос и кнопки
+   оформления. Ширина — ровно поле страницы, высота — от пальца; у края окна
+   цель к тому же не кончается: палец, ушедший за край, попадает в неё.
+   Слово «Look» стоит, где поле его вмещает (стол, поле 24), иначе —
+   черта-ручка (телефон, поле 12). */
+.lp .lp-open{
+  position:fixed;z-index:90;
+  inset-inline-end:0;inset-block-start:50%;translate:0 -50%;
+  inline-size:max(var(--gut, 16px), var(--edge-x, 0px));block-size:96px;padding:0;
+  display:grid;place-items:center;container-type:inline-size;
+  border:1px solid var(--lp-line);border-inline-end:0;
+  border-start-start-radius:var(--lp-r2);border-end-start-radius:var(--lp-r2);
+  background:var(--lp-bg);color:var(--lp-ink);
+  box-shadow:-2px 1px 6px -2px rgb(0 0 0 / .22);
+  transition:background-color var(--lp-quick) ease, color var(--lp-quick) ease
 }
+.lp-open-word{writing-mode:vertical-rl;rotate:180deg;font-size:var(--lp-t1);font-weight:700;letter-spacing:.06em;line-height:1}
+.lp-open-grip{display:none;inline-size:2px;block-size:32px;border-radius:var(--lp-pill);background:currentColor;opacity:.6}
+@container (inline-size < 18px){
+  .lp-open-word{display:none}
+  .lp-open-grip{display:block}
+}
+@media (hover:hover){ .lp .lp-open:hover{background:var(--lp-on);color:var(--lp-on-ink)} }
+.lp .lp-open:active{background:var(--lp-on);color:var(--lp-on-ink)}
+/* Кольцо фокуса — внутри язычка: снаружи оно легло бы на страницу. */
+.lp .lp-open:focus-visible{outline-offset:-4px}
 .lp-panel{
   position:fixed;inset:auto;margin:0;
   inset-block:var(--anchor-top) var(--lp-edge);inset-inline-end:var(--lp-edge);
@@ -288,7 +316,7 @@
 @media (pointer:coarse){
   .lp{--lp-target:44px;--lp-target-lg:44px}
   .lp-tab,.lp-sub,.lp-segb{min-block-size:44px}
-  .lp-open{min-block-size:48px}
+  .lp .lp-open{block-size:120px}
 }
 /* Телефон: развёрнутая — шторка во всю высоту окна, плитки в две колонки. */
 @media (max-width:560px){
