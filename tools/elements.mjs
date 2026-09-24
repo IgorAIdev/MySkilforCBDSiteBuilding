@@ -71,6 +71,29 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ranges)
   else ranges()
   document.addEventListener('input', (e) => { if (e.target.matches?.('input.range')) range(e.target) })
+  /* Стенд с ручками вида (data-stand): вход с data-attr ставит стенду
+     атрибут, с data-var — переменную (с единицей data-unit). Так стенд
+     показывает будущие ручки панели вида, не заводя своих стилей. */
+  const stand = (el) => {
+    const st = el.closest?.('[data-stand]')
+    if (!st || (el.type === 'radio' && !el.checked)) return
+    if (el.dataset.attr) st.setAttribute('data-' + el.dataset.attr, el.value)
+    if (el.dataset.var) st.style.setProperty(el.dataset.var, el.value + (el.dataset.unit || ''))
+  }
+  const stands = () => document.querySelectorAll('[data-stand] input').forEach(stand)
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', stands)
+  else stands()
+  document.addEventListener('input', (e) => stand(e.target))
+  document.addEventListener('change', (e) => stand(e.target))
+  /* «В корзину» на стенде: нажатие кладёт ещё штуку — кнопка говорит
+     «добавлено» и сколько. */
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-add]')
+    if (!b) return
+    const q = b.querySelector('.qty')
+    if (q) q.textContent = String(Number(q.textContent || 0) + 1)
+    b.setAttribute('data-on', '')
+  })
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */

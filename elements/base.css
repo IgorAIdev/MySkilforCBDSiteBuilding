@@ -63,6 +63,11 @@
  *    .cost .ticks · .mark data-size lg  цена крупно · список с галкой · знак марки крупно
  *    data-spread                        слово у начала, знак у конца
  *    .card data-tone tint               лист тоном товара; .frame data-cutout — снимок без фона до кромки
+ *    .card data-shelf                   карточка товара полки: кадр, .stack, .row с ценой и «в корзину»;
+ *                                       одежда — data-card у предка: outlined | framed | bare; data-view list — строкой
+ *    .say + data-on · .qty · data-add   две надписи в одной клетке · число плиткой · «в корзину» на стенде
+ *    .tag data-tone sale | warn         плашка скидки и наличия на кадре
+ *    .stand data-stand · .knobs > .ctl  стенд с ручками вида: у входа data-attr — атрибут, data-var — переменная
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -721,3 +726,137 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
 .set figcaption{font-size:.8125rem;text-align:center;color:var(--ink-soft)}
 .set figcaption b{display:block;font-weight:600;color:var(--ink)}
 .set h2{grid-column:1 / -1;margin:16px 0 4px;font-size:1.0625rem;font-weight:600}
+
+/* ── карточка товара полки (64): .card data-shelf ───────────────────────
+   Та же карточка основы, атрибутом. Три группы в порядке решения
+   покупателя (shop, «Каталог и полка»): кадр; что это — .stack: марка
+   (.label), имя (.title), строки фактов (.text); за сколько — .row: цена и
+   «в корзину». Ссылка одна — имя, её область растянута на всю карточку;
+   сердце и кнопка стоят над ней. Наличие и скидка — плашкой на кадре и
+   только исключением, внутри ссылки. Одежда — атрибутом `data-card` у
+   предка, как вид на сайте (значения — как у вида: outlined, framed,
+   bare); раскладку одежда не меняет (craft: «Виды предмета — это
+   одежда»). Пропорция кадра — ручка `--frame` примитива frame набора,
+   потолок — от малого окна (запрет 4). Размеры — роли шкал: ритм вида
+   двигает поле и воздух карточки вместе со всем сайтом. */
+.card[data-shelf]{
+  --in:var(--pad-inner, .75rem);
+  position:relative;container-type:inline-size;min-inline-size:0;
+  padding:var(--in);background:var(--plate, var(--surface));color:var(--on-plate, var(--ink));
+  transition:transform var(--press-t) var(--ease)
+}
+.card[data-shelf] .frame{
+  overflow:hidden;aspect-ratio:var(--frame, 1 / 1);max-block-size:var(--frame-cap, 60svh);
+  border-radius:max(4px, calc(var(--r-card, 16px) - var(--in)));background:var(--plate-2, var(--quiet));color:var(--ink-soft)
+}
+.card[data-shelf] .frame > img{inline-size:100%;block-size:100%;object-fit:cover;display:block}
+/* Сердце — в углу кадра; рисунок знака — как у всякого органа, а не
+   крупный знак кадра-заглушки. */
+.card[data-shelf] .frame > .el{position:absolute;inset-block-start:var(--in);inset-inline-end:var(--in)}
+.card[data-shelf] .frame > .el svg{inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5)}
+/* Органы — над растянутой ссылкой. */
+.card[data-shelf] .el{z-index:1}
+.card[data-shelf] .label{font-weight:600;color:var(--pop-ink)}
+/* Имя — тело, жирнее фактов; не больше двух строк: третья сдвигала бы цену
+   ниже, чем у соседей по ряду. Целиком оно на карте товара. */
+.card[data-shelf] .title{
+  font-size:var(--body-size, 1rem);line-height:var(--body-lead, 1.45);font-weight:600;overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden
+}
+.card[data-shelf] .title a{color:inherit;text-decoration:none;outline:0}
+.card[data-shelf] .title a::after{content:'';position:absolute;inset:0;border-radius:var(--r-card, 16px)}
+/* Плашки на кадре — внутри ссылки, от угла кадра. */
+.card[data-shelf] .flags{position:absolute;inset-block-start:calc(var(--in) * 2);inset-inline-start:calc(var(--in) * 2);display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.tag[data-tone='sale']{background:var(--sale-fill);color:var(--on-sale)}
+.tag[data-tone='warn']{background:var(--warn-tint);color:var(--warn)}
+/* Факты строками: что это — чернилами, количества — краской подписи. */
+.card[data-shelf] .text{color:var(--on-plate-2, var(--ink-soft));font-variant-numeric:tabular-nums}
+.card[data-shelf] .stack > .text{padding-block-start:var(--sp-1, 4px)}
+.card[data-shelf] .text b{font-weight:500;color:var(--on-plate, var(--ink))}
+/* Цена и «в корзину»: стопкой, кнопка во всю ширину; рядом — только когда
+   карточке хватает места на цену и самую длинную надпись кнопки на самом
+   длинном языке рынка. Цены ряда стоят на одной линии: растёт «что это». */
+.card[data-shelf] .row{margin-block-start:auto;flex-direction:column;align-items:stretch}
+.card[data-shelf] .row > .el{inline-size:100%}
+.card[data-shelf] .price{display:flex;flex-direction:column;align-items:flex-start;gap:1px;margin:0;white-space:nowrap;font-variant-numeric:tabular-nums}
+.card[data-shelf] .price b{font-weight:700;line-height:1.1}
+.card[data-shelf] .price s{font-size:var(--note-size, .875rem);font-weight:400;color:var(--on-plate-2, var(--ink-soft))}
+@container (min-width: 420px){
+  .card[data-shelf] .row{flex-direction:row;align-items:flex-end}
+  .card[data-shelf] .row > .el{inline-size:auto}
+}
+/* В тесной карточке с числом знак корзины уходит: слову с числом нужно всё
+   место. Имя кнопки — на aria-label, не на знаке. */
+@container (max-width: 200px){ .card[data-shelf] .el[data-on] .say svg{display:none} }
+
+/* Ответ руке: под рукой имя подчёркнуто — вся карточка ведёт на товар;
+   нажатая — на пиксель ниже, без сжатия: карточка большая. Фокус — кольцо
+   вокруг карточки. Над сердцем и кнопкой отвечают они сами. */
+@media (hover:hover){ .card[data-shelf] .title a:hover{text-decoration:underline;text-decoration-thickness:var(--line);text-underline-offset:.15em} }
+.card[data-shelf][data-state='hover'] .title a{text-decoration:underline;text-decoration-thickness:var(--line);text-underline-offset:.15em}
+.card[data-shelf]:has(.title a:active), .card[data-shelf][data-state='press']{transform:translateY(1px)}
+.card[data-shelf] .title a:focus-visible::after, .card[data-shelf][data-state='focus'] .title a::after{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+@media (prefers-reduced-motion:reduce){ .card[data-shelf]{transition:none} .card[data-shelf]:has(.title a:active){transform:none} }
+
+/* «В корзину»: две надписи в одной клетке — «Add» и «Added N» меняются
+   видимостью, ширина кнопки одна на оба состояния. Положено (`data-on`) —
+   та же громкая кнопка, в которую жмут ещё раз: состояние несут слово и
+   число, а не краска. Число — плиткой краски надписи, как .tile. */
+.el .say{display:grid}
+.el .say > span{grid-area:1 / 1;display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--h) * .2)}
+.el .say > span + span, .el[data-on] .say > span:first-child{visibility:hidden}
+.el[data-on] .say > span + span{visibility:visible}
+.el .qty{display:inline-grid;place-items:center;box-sizing:border-box;min-inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5);padding-inline:calc(var(--h) * .1);border-radius:999px;background:var(--fg);color:var(--bg);font-size:var(--note-size, .875rem);font-variant-numeric:tabular-nums}
+
+/* Одежда. Outlined — это сама карточка основы с полем покороче: лист с
+   волоском, кадр вписан в поле, угол кадра — угол карточки минус поле
+   (концентрический), текст — по краю кадра. Своих правил не нужно. */
+/* Framed — лист, кадр до верхнего края, текст в поле карточки. Тень
+   одежды снята (И336): лист от пола отделяет его тон. */
+[data-card='framed'] .card[data-shelf]{--in:0px;box-shadow:none}
+[data-card='framed'] .card[data-shelf] .frame{border-radius:var(--r-card, 16px) var(--r-card, 16px) 0 0}
+[data-card='framed'] .card[data-shelf] > :not(.frame){margin-inline:var(--pad-card, 1.25rem)}
+[data-card='framed'] .card[data-shelf] > :last-child{margin-block-end:var(--pad-card, 1.25rem)}
+[data-card='framed'] .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
+[data-card='framed'] .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
+/* Bare — коробки нет: кадр со своим углом на полу, текст под ним без
+   поля, по краю кадра. */
+[data-card='bare'] .card[data-shelf]{--in:0px;background:transparent;box-shadow:none}
+[data-card='bare'] .card[data-shelf] .frame{border-radius:var(--r-card, 16px)}
+[data-card='bare'] .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
+[data-card='bare'] .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
+
+/* Полка сеткой: ширина ячейки — ручка стенда (на сайте — пол ячейки
+   примитива grid, число колонок считается). Списком — одна колонка,
+   карточка строкой: кадр у начала на обе строки, справа «что это» и «за
+   сколько». Кадру в строке не до чего доставать краем — Framed и Bare в
+   строке берут поле, как Outlined. */
+.live.shelf{display:grid;grid-template-columns:repeat(auto-fill, var(--cell, 240px));justify-content:center;align-items:stretch;gap:var(--gap-grid, 16px);inline-size:min(1100px, 100% - 32px)}
+[data-view='list'] .shelf{grid-template-columns:minmax(0, 720px)}
+[data-view='list'] .shelf .card[data-shelf]{--in:var(--pad-inner, .75rem);display:grid;grid-template-columns:clamp(6rem, 30%, 11rem) minmax(0, 1fr);grid-template-rows:auto 1fr;align-items:start;gap:var(--in) var(--gap-row, 12px);padding:var(--in)}
+[data-view='list'] .shelf .card[data-shelf] .frame{grid-row:1 / span 2;border-radius:max(4px, calc(var(--r-card, 16px) - var(--in)))}
+[data-view='list'] .shelf .card[data-shelf] > :not(.frame){margin:0}
+[data-view='list'] .shelf .card[data-shelf] > .row{align-self:end}
+[data-view='list'] .shelf .card[data-shelf] .flags{inset-block-start:calc(var(--in) * 2);inset-inline-start:calc(var(--in) * 2)}
+
+/* ── стенд с ручками вида ────────────────────────────────────────────────
+   `data-stand` держит выбор: группа с data-attr ставит атрибут, с data-var
+   и ползунок — переменную (../stage.js). Ручки стенда — те, что встанут в
+   панель вида, когда элемент выберут; сайт получит одно значение. */
+body:has(> .stand){background:var(--page, var(--surface))}
+.stand{display:flex;flex-direction:column;align-items:center;gap:32px;inline-size:100%}
+.knobs{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:16px 28px;inline-size:min(1100px, 100% - 32px)}
+.knobs > .ctl{display:flex;flex-direction:column;gap:6px;font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.knobs > .ctl > .row{display:flex;align-items:center;gap:12px;block-size:calc(var(--h-sm) + var(--h-md) * .2)}
+.knobs .range{inline-size:12rem}
+.knobs output{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.states figure:has(> .card[data-shelf]){inline-size:var(--cell, 240px)}
+/* Ширины источника: где карточка стоит на сайте. */
+.states.widths{align-items:flex-start}
+.states.widths > figure{align-items:stretch}
+.states.widths > figure[data-w='179']{inline-size:179px}
+.states.widths > figure[data-w='210']{inline-size:210px}
+.states.widths > figure[data-w='240']{inline-size:240px}
+.states.widths > figure[data-w='265']{inline-size:265px}
+.states.widths > figure[data-w='307']{inline-size:307px}
+.states.widths figcaption{text-align:start}
