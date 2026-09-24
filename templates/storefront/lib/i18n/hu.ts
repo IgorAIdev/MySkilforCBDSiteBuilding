@@ -201,4 +201,7 @@ export const HU: Record<keyof typeof RO, string> = {
   'done.more': 'Vásárlás folytatása',
   'lab.open': 'A laborjegyzőkönyv megnyitása',
   'home.delivery.terms': 'Minden szállítási és fizetési feltétel',
+  'shelf.remove': 'Szűrő törlése: {name}',
+  'shelf.popular': 'Legnépszerűbb termékek',
+  'shelf.pcs': 'db',
 }

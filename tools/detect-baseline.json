@@ -2,9 +2,7 @@
   "/en": {},
   "/en/cart": {},
   "/en/cart#as=sample-cart": {},
-  "/en/catalog": {
-    "firstScreen": 1
-  },
+  "/en/catalog": {},
   "/en/catalog/animale": {},
   "/en/catalog/uleiuri": {},
   "/en/checkout/contact": {},
@@ -25,9 +23,7 @@
   "/hu": {},
   "/hu/cart": {},
   "/hu/cart#as=sample-cart": {},
-  "/hu/catalog": {
-    "firstScreen": 1
-  },
+  "/hu/catalog": {},
   "/hu/catalog/animale": {},
   "/hu/catalog/uleiuri": {},
   "/hu/checkout/contact": {},
@@ -48,9 +44,7 @@
   "/ro": {},
   "/ro/cart": {},
   "/ro/cart#as=sample-cart": {},
-  "/ro/catalog": {
-    "firstScreen": 1
-  },
+  "/ro/catalog": {},
   "/ro/catalog/animale": {},
   "/ro/catalog/uleiuri": {},
   "/ro/checkout/contact": {},

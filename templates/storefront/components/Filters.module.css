@@ -1,70 +1,118 @@
-/* ── Панель фильтров: колонка на широком контейнере, шторка на узком ───────
-   Шов — 820 по КОНТЕЙНЕРУ каталога, а не по окну: «панель становится
-   выдвижной» — пример шва из правила 3, и мерит его коробка (правило 6).
-   Контейнер — ряд `sidebar` (primitives.module.css), он и так `inline-size`;
-   кнопку над полкой на узком ставит строкой сам каталог (Catalog.module.css).
+/* ── Грани: строка раскрытий на широкой коробке, шторка на узкой ──────────
+   Шов — 820 по КОНТЕЙНЕРУ органов полки (Catalog.module.css, `.tools`), а
+   не по окну: «панель становится выдвижной» — пример шва из правила 3, и
+   мерит его коробка (правило 6).
 
-   Форма носит `popover`, и у браузера на такой элемент своя коробка:
-   `fixed`, `inset:0`, `margin:auto`, рамка, поле .25em, `fit-content`,
-   `Canvas`. Правило автора сильнее правила браузера при ЛЮБОЙ силе
-   селектора — и `[popover]:not(:popover-open){display:none}` тоже: форму
-   показывает `display` примитива `stack`. Поэтому колонка объявляет всю
-   коробку сама; что не объявлено, досталось бы от браузера. */
+   Форма и каждая грань носят `popover`, и у браузера на такой элемент своя
+   коробка: `fixed`, `inset:0`, `margin:auto`, рамка, поле .25em,
+   `fit-content`, `Canvas`. Правило автора сильнее правила браузера при
+   ЛЮБОЙ силе селектора — и `[popover]:not(:popover-open){display:none}`
+   тоже: форму в строке показывает `display` примитива `cluster`. Поэтому
+   что показано в потоке, объявляет свою коробку само; что не объявлено,
+   досталось бы от браузера. */
+
+/* Широкая: форма — строка кнопок-раскрытий в потоке. */
 .filters{
-  --stack:var(--air-group);
-  background:var(--surface);color:inherit;
-  border:0;border-radius:var(--r-card);
-  margin:0;padding:var(--pad-card);
-  inline-size:auto;block-size:auto;
-  /* Позицию и верх держит `pinned`; низ и бока браузерного `inset:0`
-     сняты, иначе приклеенная колонка держалась бы и за низ окна. */
-  inset-inline:auto;inset-block-end:auto;
-  /* Под потолком `pinned` прокручивается вся панель (правило 9), и
-     остаток прокрутки не уезжает на страницу под ней. */
-  overflow:auto;overscroll-behavior:contain
+  --cluster:var(--gap-targets);
+  position:static;inset:auto;margin:0;padding:0;border:0;
+  inline-size:auto;block-size:auto;overflow:visible;
+  background:none;color:inherit
 }
-/* Поля сброшены по бокам, а не целиком: `margin:0` стоит позже примитива
-   `stack` той же силы и гасил его ритм — группа «Concentrație» вставала
-   вплотную под последней галочкой «Formă» (снимок приёмки). */
-.set{border:0;padding:0;margin-inline:0}
-.legend{font-weight:600;margin-block-end:var(--air-row)}
-
-/* Кнопка открытия — только там, где панели нет в потоке. Сила — атрибутом:
+/* Кнопка шторки — только там, где формы в строке нет. Сила — атрибутом:
    у кнопки `.btn{display:inline-flex}` той же силы, что голый класс, и
    решать, кто виден, порядку кусков сборки нельзя. */
 @container (min-width:820px){
   .open[popovertarget]{display:none}
 }
-/* Узкий контейнер: закрытой панели в потоке нет — её место над полкой
-   занимает кнопка. */
+/* Узкая: закрытой шторки в потоке нет — её место в полосе занимает кнопка. */
 @container (max-width:819px){
   .filters:not(:popover-open){display:none}
 }
 
-/* Шапка шторки — заголовок и крестик — есть только у шторки: в колонке
-   закрывать нечего. Спрятанная, она остаётся первым ребёнком `stack`, и
-   ритм лёг бы над первой группой колонки — его снимает сосед шапки. */
-.head{display:none}
-.filters:not(:popover-open) > .head + *{margin-block-start:0}
+/* Шапка шторки и её низ («применить», «сбросить») есть только у шторки: в
+   строке закрывать нечего, а применяет каждое раскрытие своей кнопкой. */
+.head,.actions{display:none}
 
-/* Шторка — от того же края, где на широком стоит колонка: панель живёт
-   слева и выезжает оттуда. Верхний слой браузера, номера нет (правило 8);
-   Escape и щелчок мимо закрывают сами, третий выход — крестик в шапке.
-   Высота — от окна, `dvh`, и прокручивается содержимое, а не страница
-   (правило 9). Ширина — та же, что у колонки, но не больше окна за вычетом
-   полосы под палец: мимо шторки должно быть куда нажать (M2, «ширина
-   экрана минус 56»). Правила не спрятаны под шов: открытая шторка остаётся
+/* Кнопка раскрытия — створка: пока грань открыта, кнопка стоит нажатой и
+   стрелка смотрит вверх (craft, controls.md, «Лоток»: у створки «включено»
+   значит «открыто»). Цвет — ручкой кнопки (`--press-bg`), а не своей
+   краской: ответ на руку у кнопки один (styles/btn.module.css). */
+.trigger svg{transition:rotate var(--open-t) var(--ease)}
+.facet:has(.drop:popover-open) .trigger{--press-bg:var(--quiet-on)}
+.facet:has(.drop:popover-open) .trigger svg{rotate:.5turn}
+
+/* Раскрытие — бумага всплывающего (`menu`) под своей кнопкой; одно на
+   грани и на порядок полки (SortMenu.tsx). Неявная привязка поповера к
+   тому, кто его открыл (`position-area` без имени якоря), — как у списка
+   языков в шапке; без привязки — по центру окна. Выше окна не растёт
+   (правило 9): прокручивается само, и остаток прокрутки не уезжает на
+   страницу. */
+.drop{border:0;margin:0;min-inline-size:0;color:inherit}
+.drop:popover-open{
+  inset:auto;margin-block-start:var(--sp-1);padding:var(--pad-inner);
+  inline-size:max-content;min-inline-size:min(16rem, 100%);max-inline-size:100%;
+  max-block-size:70svh;overflow:auto;overscroll-behavior:contain
+}
+@supports (position-area:block-end){
+  .drop:popover-open{position-area:block-end span-inline-end;position-try-fallbacks:flip-inline}
+  /* Раскрытие у правого края полосы (порядок) растёт влево, от правого
+     края своей кнопки: вправо ему места до края окна нет. Пометка на том же
+     узле (И230). */
+  .drop[data-align='end']:popover-open{position-area:block-end span-inline-start}
+}
+@supports not (position-area:block-end){
+  .drop:popover-open{inset:0;margin:auto}
+}
+/* Раскрытие грани: имя, галочки, «применить» столбиком. Имя грани —
+   `legend`, и браузер кладёт его НА верхнюю кромку набора: в раскрытии оно
+   висело над бумагой. Плавающий `legend` становится обычным ребёнком
+   столбика и встаёт внутрь. */
+.values:popover-open{display:flex;flex-direction:column;gap:var(--air-row)}
+.legend{float:inline-start;inline-size:100%;font-weight:600;padding:0}
+/* Галочки — в колонки, число которых отвечает коробка, а не номер
+   (cbd-facet, §8): узкому раскрытию — одна, шторке и широкому — две.
+   Ручки примитива `grid` — силой места (0,2,0): у самого `.grid` они
+   объявлены с весом голого класса, и на равном весе решал бы порядок
+   кусков сборки. */
+.values .ticks{--cols:2;--cols-min:1;--cell-min:7.5rem;--grid-gap:var(--gap-targets)}
+
+/* ── Шторка ────────────────────────────────────────────────────────────────
+   От того же края, откуда пришла бы колонка: слева. Верхний слой браузера,
+   номера нет (правило 8); Escape и щелчок мимо закрывают сами, третий
+   выход — крестик в шапке. Высота — от окна, `dvh`, и прокручивается
+   содержимое, а не страница (правило 9). Ширина — не больше окна за вычетом
+   полосы под палец: мимо шторки должно быть куда нажать (M2, «ширина экрана
+   минус 56»). Правила не спрятаны под шов: открытая шторка остаётся
    шторкой, даже если окно раздвинули, пока она открыта. */
 .filters:popover-open{
-  position:fixed;
-  inset-block:0;inset-inline:0 auto;
+  --cluster:var(--air-group);
+  position:fixed;inset-block:0;inset-inline:0 auto;
+  flex-direction:column;flex-wrap:nowrap;align-items:stretch;
   inline-size:min(22.5rem, 100% - var(--ctrl-h-lg));
   max-block-size:100dvh;
-  padding:var(--pad-sheet);
-  border-radius:0;
-  border-start-end-radius:var(--r-sheet);border-end-end-radius:var(--r-sheet);
-  box-shadow:var(--sh-overlay)
+  padding:var(--pad-sheet) var(--pad-sheet) 0;
+  background:var(--surface);
+  border-radius:0;border-start-end-radius:var(--r-sheet);border-end-end-radius:var(--r-sheet);
+  box-shadow:var(--sh-overlay);
+  overflow:auto;overscroll-behavior:contain
 }
 .filters::backdrop{background:var(--scrim)}
 .filters:popover-open > .head{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row)}
-.title{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
+/* В шторке грани — разделы столбиком, без раскрытий: кнопки раскрытий и
+   их «применить» уходят, бумага всплывающего снята. Сила — местом
+   (потомок открытой шторки, 0,3,0), а не порядком: `menu` взят классом. */
+.filters:popover-open .trigger,
+.filters:popover-open .apply{display:none}
+.filters:popover-open .values{
+  display:flex;flex-direction:column;gap:var(--air-row);
+  position:static;inline-size:auto;block-size:auto;padding:0;overflow:visible;
+  background:none;box-shadow:none;border-radius:0
+}
+/* Низ шторки: «применить» и «сбросить» приклеены к низу окна шторки —
+   палец находит их, не докручивая. */
+.filters:popover-open > .actions{
+  display:flex;flex-direction:column;gap:var(--gap-targets);
+  position:sticky;inset-block-end:0;margin-block-start:auto;
+  padding-block:var(--pad-inner) var(--pad-sheet);
+  background:var(--surface)
+}

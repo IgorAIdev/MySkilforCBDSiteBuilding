@@ -14,7 +14,22 @@ export type LabReport = { batch: string; lab: string; date: string; cbdPercent: 
  *  за ним `assets` без него; план 4). */
 export type Product = { id: string; category: string; name: string; summary: string; description: string; images: Image[]; optionGroups: OptionGroup[]; variants: Variant[]; labReports: LabReport[] }
 export type Price = { kind: 'single'; value: Money } | { kind: 'range'; min: Money; max: Money }
-export type Card = { id: string; category: string; name: string; image: Image; price: Price; stock: Stock }
+/** Упаковка варианта — то, что покупатель CBD сравнивает на полке (shop,
+ *  «Сила — две шкалы, проценты и миллиграммы»): CBD во всей упаковке, мг, и
+ *  её мера — число и единица данных (`ml`, `g`, `pcs`). Процент не хранится:
+ *  его считает `percentOf` (lib/facts.ts) из мг и мл — одна арифметика на
+ *  полку, грань фильтра и проверку. `mg: null` — упаковка силы не заявляет. */
+export type Pack = { mg: number | null; size: number; unit: 'ml' | 'g' | 'pcs' }
+/** Чем товар продаётся (ось силы — свойство товара, а не категории;
+ *  cbd-facet, §1): `percent` — концентрацией (масла), `mg` — содержанием
+ *  (крем, капсулы). */
+export type Strength = 'percent' | 'mg'
+/** Товар на полке. `packs` — упаковки вариантов по порядку; у Vendure —
+ *  поля варианта (план 4). */
+export type Card = { id: string; category: string; name: string; image: Image; price: Price; stock: Stock; strength: Strength; packs: Pack[] }
+/** Грань фильтра. `count` — сколько товаров даст значение ПРИ ВСЕХ ДРУГИХ
+ *  гранях (cbd-facet, §3): счёт по текущей выборке гасил соседние значения
+ *  той же грани, и выбрать «масло ИЛИ капсулы» было нечем. */
 export type Facet = { code: string; name: string; values: { code: string; name: string; count: number; selected: boolean }[] }
 /** Полка. `image` — кадр полки на главной (4 : 3); у полки без снимка — null. */
 export type Collection = { slug: string; name: string; description: string; image: Image | null }

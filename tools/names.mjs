@@ -47,7 +47,7 @@ export const CONCEPTS = {
   text: ['hero', 'pagehead', 'h2', 'h3', 'intro', 'lede', 'body', 'note', 'eyebrow', 'measure', 'face', 'fs', 'page'],
   shape: ['r'],
   depth: ['sh'],
-  motion: ['ease', 'rise', 'nudge', 'open'],
+  motion: ['ease', 'rise', 'nudge', 'creep', 'open'],
   state: ['state'],
   layer: ['layer'],
   control: ['ctrl', 'chan', 'chip', 'tab', 'dock', 'edge'],
@@ -85,7 +85,7 @@ const ROLE = [
   { rx: /^--(hero|pagehead|h2|h3|intro|lede|body|note|eyebrow)-(size|lead|weight|track|measure)$/, family: 'роль текста', by: 'tools/scale.mjs' },
   { rx: /^--(r-[a-z]+|round)$/, family: 'скругление', by: 'styles/tokens.css' },
   { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/tokens.css' },
-  { rx: /^--(ease|hover-t|rise|nudge)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
+  { rx: /^--(ease|hover-t|rise|nudge|creep)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
   { rx: /^--layer-[a-z]+$/, family: 'слой', by: 'styles/tokens.css' },
   { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-[bx])$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
   { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css' },
@@ -127,6 +127,7 @@ export const REQUIRED = {
   '--plate-2': 'утопленное: кадр снимка, подвал карточки, жёлоб лотка (roles.md, «Поверхности»)',
   '--rule': 'разделитель — волосок между строками (roles.md, «Линии»)', '--field': 'поле ввода: почта, промокод, поиск (roles.md, «Поверхности»)', '--scrim': 'затемнение под окном и шторкой (roles.md, «Подъём и постоянные»)',
   '--scrim-deck': 'вуаль под текстом на снимке — герой витрины, текст поверх кадра (templates/storefront, blocks.module.css)',
+  '--creep': 'наплыв снимка под рукой — карточка товара на полке (templates/storefront, ProductCard.module.css; controls.md, «рама стоит, движется снимок»)',
   '--layer-helper': 'слой кружка помощника (FLOATING)', '--layer-toast': 'слой всплывающего сообщения (FLOATING)',
 }
 

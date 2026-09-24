@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { sample } from '../lib/source/sample/catalog.ts'
+import { sample, sampleSource } from '../lib/source/sample/catalog.ts'
 import type { ListingQuery } from '../lib/source/contract.ts'
 
 const q = (over: Partial<ListingQuery> = {}): ListingQuery => ({ facets: {}, sort: 'popular', page: null, ...over })
@@ -28,11 +28,29 @@ test('two values of one facet are alternatives, two facets narrow, unknown value
 })
 
 test('page numbers: junk is a bad request, past the end is not found', async () => {
-  assert.deepEqual(await sample.listing('ro', q({ page: 'abc' })), { ok: false, reason: 'bad-request' })
-  assert.deepEqual(await sample.listing('ro', q({ page: '999' })), { ok: false, reason: 'not-found' })
-  const second = await sample.listing('ro', q({ page: '2' }))
+  const eights = sampleSource(8)
+  assert.deepEqual(await eights.listing('ro', q({ page: 'abc' })), { ok: false, reason: 'bad-request' })
+  assert.deepEqual(await eights.listing('ro', q({ page: '999' })), { ok: false, reason: 'not-found' })
+  const second = await eights.listing('ro', q({ page: '2' }))
   assert.ok(second.ok)
   assert.deepEqual([second.value.page, second.value.pages, second.value.items.length], [2, 2, 4])
+})
+
+test('the sample shelf reads as one page', async () => {
+  const all = await sample.listing('ro', q())
+  assert.ok(all.ok)
+  assert.deepEqual([all.value.pages, all.value.items.length], [1, 12])
+})
+
+/* cbd-facet, §3: значение считается против всех граней, кроме своей, — иначе
+   выбранная «Масло» гасила «Капсулы» до нуля, и «или» внутри грани пропадало. */
+test('a facet value counts against every other facet but its own', async () => {
+  const r = await sample.listing('en', q({ facets: { forma: ['ulei'] } }))
+  assert.ok(r.ok)
+  const count = (facet: string, value: string) => r.value.facets.find((f) => f.code === facet)?.values.find((v) => v.code === value)?.count
+  assert.equal(count('forma', 'capsule'), 2, 'соседнее значение своей грани не гаснет')
+  assert.equal(count('putere', '30'), 2, 'чужая грань считается по выбранному')
+  assert.equal(count('putere', '2.5'), 0, 'масло для кошек — не масло для людей')
 })
 
 test('sorting by price is by the lowest variant price', async () => {

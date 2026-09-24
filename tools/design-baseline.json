@@ -1,7 +1,7 @@
 {
   "eyebrow": 0,
   "bareHeading": 0,
-  "headRole": 1,
+  "headRole": 0,
   "navSmall": 0,
   "flatRhythm": 1,
   "iconCards": 0,
@@ -14,5 +14,7 @@
   "glowHalo": 0,
   "trackTight": 0,
   "glyphIcon": 0,
-  "monoCostume": 0
+  "monoCostume": 0,
+  "docValue": 0,
+  "docDead": 0
 }
