@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · Тёмная в рамке марки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 08 — «Тёмная в рамке марки». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: блик градиента в углу рамки; свечение под рукой.
+  Приведено к единой форме: заливка — чернила палитры, надпись — пол; в тёмной теме пара переворачивается сама; рамка — марка 35 %, под рукой 80 %; значок из листа набора, .42 высоты вместо 27 пикселей; угол из Shape.
+  Наведение: рамка марки плотнее, заливка + 5 % светлого. Нажатие: заливка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="ink" data-frame data-size="lg" type="button"><svg data-sign="user"></svg>Profile</button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="ink" data-frame data-size="lg"><svg data-sign="user"></svg>Profile</span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="ink" data-frame data-size="lg" data-state="hover"><svg data-sign="user"></svg>Profile</span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="ink" data-frame data-size="lg" data-state="press"><svg data-sign="user"></svg>Profile</span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="ink" data-frame data-size="lg" data-state="focus"><svg data-sign="user"></svg>Profile</span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

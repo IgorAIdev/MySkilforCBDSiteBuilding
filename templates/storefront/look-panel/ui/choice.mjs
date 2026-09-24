@@ -10,7 +10,7 @@
    копия skills/site-building/assets/studio/engine набора, её кладёт сборка
    каталога; второй математики у панели нет): три краски на тему → семь
    семей по двенадцать ступеней → роли → замер. */
-import { apca, auditPalette, difference, fitPalette, GROUNDS, inkOn, intentOf, NEED, ratio, roles, scale, STATUS, withSale } from './engine/palette.mjs'
+import { apca, auditPalette, difference, fitPalette, GROUNDS, groundChecks, inkOn, intentOf, NEED, ratio, roles, scale, STATUS, withSale } from './engine/palette.mjs'
 /* Строитель заказчика верен по построению (И275): намерение → набор, который
    проходит замер набора; та же функция у мастерской набора. */
 export { fitPalette, intentOf }
@@ -78,6 +78,17 @@ export function paletteVars(paints) {
   const dark = roles(paints.dark, 'dark')
   return Object.fromEntries(Object.keys(light).map((k) => [k, `light-dark(${light[k]}, ${dark[k] ?? light[k]})`]))
 }
+/** Краски карточки товара для образца палитры в развёрнутой панели — те же
+ *  роли, которыми сайт красит карточку (`steps` каталога — какими ступенями),
+ *  по теме: пол страницы, лист, чернила, тихий текст, главная кнопка и знак
+ *  на ней, плашка скидки, вуаль под снимком (И295: краски — строителя). */
+export function tileOf(paints, steps) {
+  return Object.fromEntries(['light', 'dark'].map((mode) => {
+    const r = roles(paints[mode], mode)
+    const at = (role) => r[steps[role][mode]]
+    return [mode, { page: at('page'), plate: at('plate'), ink: at('ink'), soft: at('inkSoft'), pop: at('pop'), onPop: at('onPop'), sale: r['--sale-9'], onSale: r['--on-sale-9'], pic: r['--quiet-on-paper'] }]
+  }))
+}
 /** Семь семей по двенадцать ступеней в теме — для сетки шкалы. */
 export function families(paints, mode) {
   const set = withSale(paints[mode], mode)
@@ -107,9 +118,21 @@ export function paletteChecks(paints, steps) {
     row('apart', 'Brand apart from signals', Math.min(...['error', 'sale', 'warn', 'ok', 'info'].map((j) => difference(set.accent, set[j]))), NEED.brandApart, 'ΔE')
     row('sale', 'Sale badge text', ratio(r['--on-sale-9'], r['--sale-9']), NEED.text)
     row('ring', 'Focus ring on every surface', Math.min(...GROUNDS(n).map((bg) => ratio(r['--ring'], bg))), NEED.control)
+    /* Роли кнопки и сцены — строки замера строителя (groundChecks, И295): те
+       же числа, что у check:palette, из той же копии движка. */
+    const g = Object.fromEntries(groundChecks(paints[mode], mode).map((c) => [c.id, c]))
+    for (const [id, label] of Object.entries(GROUND_LABELS)) row(id, label, g[id].got, g[id].need, g[id].unit)
     for (const f of auditPalette(paints[mode], mode)) extra.push({ label: f.rule, mode, got: f.got, need: f.need, pass: false })
   }
   return { rows, extra, ok: rows.every((x) => x.pass) && !extra.length }
+}
+
+/** Строки замера ролей по полу — по-английски для заказчика. */
+const GROUND_LABELS = {
+  quiet: 'Quiet button on the page and cards', 'quiet-deck': 'Quiet button on the dark band',
+  trail: "Main button's trail chevrons on the page and cards", 'trail-deck': "Main button's trail chevrons on the dark band",
+  'edge-off': "Disabled button's edge on the page and cards", 'edge-off-deck': "Disabled button's edge on the dark band",
+  'pop-deck': 'Main button on the dark band, under the hand', scrim: 'Hero text over a white photo',
 }
 
 /** Обещания палитры для заказчика — спокойным списком: что гарантировано и
@@ -119,7 +142,12 @@ export function guarantees(paints, steps) {
   const of = (ids) => m.rows.filter((r) => ids.includes(r.id))
   return [
     { id: 'text', label: 'Text reads on the page and on cards', rows: of(['page', 'card', 'card-lc', 'muted', 'muted-lc']) },
-    { id: 'buttons', label: 'Button and badge labels read', rows: of(['loud', 'sale']) },
+    { id: 'buttons', label: 'Button and badge labels read', rows: of(['loud', 'sale', 'pop-deck']) },
+    /* Кнопка по полу (И295): роли выпускает строитель, и каждая держит своё. */
+    { id: 'quiet', label: 'The quiet button shows on the page, on cards and on the dark band', rows: of(['quiet', 'quiet-deck']) },
+    { id: 'trail', label: "The main button's trail chevrons show on every surface", rows: of(['trail', 'trail-deck']) },
+    { id: 'edge-off', label: 'A disabled button keeps a visible edge', rows: of(['edge-off', 'edge-off-deck']) },
+    { id: 'hero', label: 'Hero text reads over any photo', rows: of(['scrim']) },
     { id: 'apart', label: 'The brand stands apart from sale and stock colours', rows: of(['apart']) },
     { id: 'ring', label: 'The focus ring shows on every surface', rows: of(['ring']) },
   ].map((g) => ({ ...g, ok: g.rows.every((r) => r.pass) && (g.id !== 'text' || !m.extra.length) }))

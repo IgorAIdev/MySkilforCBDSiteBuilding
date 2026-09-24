@@ -71,13 +71,28 @@ test('every kit set passes the whole audit, and the builder leaves a three-paint
     assert.deepEqual(fit.notes, [], `${name}: строитель ничего не двигает`)
   }
   const old = fitPalette(intentOf(sets['Аптека']), { light: { ...sets['Аптека'].light, ink: '#24352B' }, dark: sets['Аптека'].dark })
-  assert.deepEqual(old.notes.map((n) => [n.what, n.mode, n.to]), [['ink', 'light', sets['Аптека'].light.ink]], 'прежние чернила «Аптеки» доводятся ровно до нынешних')
+  /* С 24.09.2026 вуаль меряется той долей, какую покажет экран (21/255,
+     И295), и прежним чернилам хватает меньшего сдвига, чем был у доводки
+     И285: строитель ведёт их к ближайшим, при которых вуаль видна, — не
+     глубже нынешних чернил набора. */
+  assert.deepEqual(old.notes.map((n) => [n.what, n.mode]), [['ink', 'light']], 'двигаются только чернила светлой темы')
   assert.match(old.notes[0].why, /quiet buttons show/)
+  assert.deepEqual(auditPalette(old.seed.light, 'light'), [], 'доведённые чернила проходят замер')
+  assert.ok(oklch(old.notes[0].to)[0] >= oklch(sets['Аптека'].light.ink)[0], `не глубже нынешних чернил набора: ${old.notes[0].to}`)
 })
 
-test('the quiet veil the audit measures is the one the site paints: STATE.quiet is the share of --quiet in tokens.css', async () => {
+/* С 24.09.2026 (И295) вуаль выпускает строитель: доля одна — STATE.quiet,
+   её же меряет замер; tokens.css только называет роль и числа не держит. */
+test('the quiet veil the audit measures is the one the site paints: the builder emits it at STATE.quiet, tokens.css only names the role', async () => {
   const { STATE } = await import('../tools/thresholds.mjs')
+  const { roles } = await import('../tools/palette.mjs')
   const tokens = readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8')
-  const share = tokens.match(/--quiet:color-mix\(in srgb, var\(--ink\) (\d+(?:\.\d+)?)%, transparent\)/)?.[1]
-  assert.equal(Number(share) / 100, STATE.quiet)
+  assert.match(tokens, /--quiet:var\(--quiet-paper\);/)
+  for (const [name, set] of Object.entries(sets)) {
+    for (const mode of ['light', 'dark']) {
+      const r = roles(set[mode], mode)
+      /* доля не ниже STATE.quiet в восьми битах экрана: 8 % → 21/255 */
+      assert.equal(r['--quiet-paper'], `${r['--n-12']}${Math.ceil(STATE.quiet * 255).toString(16).toUpperCase()}`, `${name} · ${mode}`)
+    }
+  }
 })

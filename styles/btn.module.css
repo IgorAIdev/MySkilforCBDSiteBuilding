@@ -108,8 +108,13 @@
   background-color:var(--press-fill, var(--press-bg));
   transition:background-color var(--hover-t) var(--ease);
 }
-/* Хвост за остриём (И276): шевроны, каждый на ступень светлее — марка,
-   смешанная с полом на 60 и 30 %. Шеврон параллелен острию хвостовых форм
+/* Хвост за остриём (И276): шевроны, каждый на тон ближе к полу. Тоны —
+   роли палитры `--pop-trail-near` / `--pop-trail-far` (И295): их выпускает
+   строитель по полу — на бумаге ступени марки, на палубе нейтраль к её полу,
+   — и дальний виден на каждом полу (APCA Lc ≥ 15). Здесь краска не
+   мешается: до 24.09.2026 тоны смешивались на месте (`color-mix(… 60 % …)`
+   с полом страницы) — контраст не считал никто, и на тёмном герое светлой
+   темы хвост выходил светлым. Шеврон параллелен острию хвостовых форм
    (глубина .33 высоты, толщина .3), сдвиг от кромки стрелки — `-trail-1`,
    `-trail-2`; место под хвост кнопка держит своим полем — точка острия
    стоит на `-tip-at` от правого края. Слой лежит ПОД заливкой и на весь
@@ -117,8 +122,8 @@
    (угол 56.6°). Наведение темнит только кнопку; нажатие хвост не сдвигает —
    он отвечает обратным преобразованием. */
 .btn[data-voice='loud']::after{
-  --btn-trail-near:color-mix(in oklab, var(--press-bg) 60%, var(--btn-ground, var(--page)));
-  --btn-trail-far:color-mix(in oklab, var(--press-bg) 30%, var(--btn-ground, var(--page)));
+  --btn-trail-near:var(--pop-trail-near);
+  --btn-trail-far:var(--pop-trail-far);
   --btn-trail-1:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .33 - var(--ctrl-btn-trail-1, 0)));
   --btn-trail-2:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .03 - var(--ctrl-btn-trail-1, 0)));
   --btn-trail-3:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) - .3 - var(--ctrl-btn-trail-1, 0)));
@@ -156,6 +161,8 @@
 
 .btn:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
 
-/* Выключенная — ролью (И229), не своим числом; видна кромкой, не только тоном. */
+/* Выключенная — ролью (И229), не своим числом; видна кромкой, не только
+   тоном. Кромка — роль палитры `--edge-off` (И295): ступень нейтрали, видная
+   на каждом полу и под прозрачностью выключенного. */
 .btn:disabled,
-.btn[aria-disabled='true']{opacity:var(--state-off);cursor:not-allowed;--btn-edge:color-mix(in srgb, var(--ink) 20%, transparent)}
+.btn[aria-disabled='true']{opacity:var(--state-off);cursor:not-allowed;--btn-edge:var(--edge-off)}

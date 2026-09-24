@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Лоток значков: пять движений</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 09 — «Лоток значков: пять движений». Источник — разметка Tailwind от заказчика 24.09.2026 (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тень и размытие панели; тень под значком; красный значок; своё кольцо фокуса у каждого значка.
+  Приведено к единой форме: панель — лоток тона набора; значки — из листа набора: сердце, звезда, плюс, корзина, солнце вместо картинки, руки, плюса, стопа, трёх точек; у всех значков одна подложка под рукой, движение — своё; подъём на 3 пикселя, как сдвиг знаков набора.
+  Наведение: подложка 5 % чернил; значок: подрастает · наклоняется · — · приподнимается · пол-оборота. Нажатие: подложка 9 %, значок 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="tray" data-shape="pill"><button class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="grow" type="button" aria-label="Рост"><svg data-sign="heart"></svg></button><button class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="tilt" type="button" aria-label="Наклон"><svg data-sign="star"></svg></button><button class="el" data-voice="ghost" data-shape="pill" data-icon type="button" aria-label="Подложка"><svg data-sign="plus"></svg></button><button class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="lift" type="button" aria-label="Подъём"><svg data-sign="shopping-cart"></svg></button><button class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="spin" type="button" aria-label="Оборот"><svg data-sign="sun"></svg></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tray" data-shape="pill"><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="grow"><svg data-sign="heart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="tilt"><svg data-sign="star"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="lift"><svg data-sign="shopping-cart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="spin"><svg data-sign="sun"></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tray" data-shape="pill"><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="grow" data-state="hover"><svg data-sign="heart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="tilt" data-state="hover"><svg data-sign="star"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-state="hover"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="lift" data-state="hover"><svg data-sign="shopping-cart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="spin" data-state="hover"><svg data-sign="sun"></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tray" data-shape="pill"><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="grow" data-state="press"><svg data-sign="heart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="tilt" data-state="press"><svg data-sign="star"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-state="press"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="lift" data-state="press"><svg data-sign="shopping-cart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="spin" data-state="press"><svg data-sign="sun"></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tray" data-shape="pill"><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="grow" data-state="focus"><svg data-sign="heart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="tilt" data-state="focus"><svg data-sign="star"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-state="focus"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="lift" data-state="focus"><svg data-sign="shopping-cart"></svg></span><span class="el" data-voice="ghost" data-shape="pill" data-icon data-motion="spin" data-state="focus"><svg data-sign="sun"></svg></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

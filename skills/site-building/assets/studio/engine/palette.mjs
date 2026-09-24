@@ -34,7 +34,7 @@ export const SOLID_GAP = { light: 4.2, dark: 5.5 }
 /* Четвёртый и пятый — обещание САМОГО эталона, снятое с его файлов: 11-я
    ступень даёт Lc 60 на 2-й той же шкалы, 12-я — Lc 90. Это единственная
    метрика, в которой эталон вообще что-то обещает (И191). */
-export const NEED = { text: CONTRAST.text, control: CONTRAST.control, brandApart: COLOUR.brandApart, mutedLc: COLOUR.mutedLc, mainLc: COLOUR.mainLc }
+export const NEED = { text: CONTRAST.text, control: CONTRAST.control, brandApart: COLOUR.brandApart, mutedLc: COLOUR.mutedLc, mainLc: COLOUR.mainLc, decorLc: COLOUR.decorLc }
 
 /* ── Краски: перевод и замер ─────────────────────────────────────────── */
 
@@ -383,12 +383,14 @@ export function press(accent, mode) {
 }
 
 /** Первая ступень, которая берёт порог. Именно так выбираются кольцо фокуса и
- *  граница органа управления: у эталона седьмая даёт 1.49 при требуемых трёх. */
-export function firstReaching(row, against, need, from) {
+ *  граница органа управления: у эталона седьмая даёт 1.49 при требуемых трёх.
+ *  Мера — WCAG по умолчанию; хвост кнопки меряется APCA, кромка выключенного
+ *  — под прозрачностью выключенного (И295): ступень та же, мерка своя. */
+export function firstReaching(row, against, need, from, measure = ratio) {
   let found = row[from]
   for (let i = from; i < row.length; i += 1) {
     found = row[i]
-    if ([against].flat().every((bg) => ratio(row[i], bg) >= need)) break
+    if ([against].flat().every((bg) => measure(row[i], bg) >= need)) break
   }
   return found
 }
@@ -398,6 +400,205 @@ export function firstReaching(row, against, need, from) {
  *  каждой: в тёмной теме карточка — ступень 4, и кольцо, подобранное против
  *  одной первой, давало на ней 2,31 : 1 (И246). */
 export const GROUNDS = (n) => n.slice(0, 5)
+
+/* ── Роли по полу: кнопка, вуали, тени, сцена героя (И295) ───────────────
+
+   До 24.09.2026 эти краски рождались в стилях: хвост главной кнопки —
+   `color-mix(… 60% …)` в btn.module.css, кромка выключенной — 20 % чернил
+   там же, вуаль героя — 86 / 72 % в стилях блока, тени, черта, тихая вуаль
+   и вся палуба — долями в tokens.css и base.css. Их контраст не считал
+   никто, панель не могла их гарантировать, а смена палитры меняла их по
+   чужой формуле. Слово заказчика: «цвета для кнопок — это в палитре цветов
+   должно быть описано». Теперь каждую выпускает строитель ролью, а стили её
+   только читают (CLAUDE.md, «Делается только правильно»); цвет, рождённый в
+   стилях, — находка семьи `colorOut` в check:css.
+
+   Полов два рода. БУМАГА — страница, полоса, лист, карточка (ступени 1–5):
+   на ней пишут чернила. ПАЛУБА — тёмная полоса шапки, подвала и сцены
+   героя: на ней пишет её знак. У каждой роли, которая за полом идёт, две
+   краски — `-paper` и `-deck`; роль переназначает пол (`data-ground`,
+   `data-plate` в base.css), значения выпускаются здесь. */
+
+/** Краска с прозрачностью — вуаль, которую браузер кладёт поверх любого
+ *  пола: `#RRGGBBAA`. Ровно так она и уходит на экран: сборщик стилей
+ *  (Lightning CSS) сворачивает `color-mix(… p%, transparent)` с постоянной
+ *  краской в те же восемь бит, и доля 8 % становится 20/255 = 7.84 % —
+ *  тихая вуаль «Аптеки» теряла на этом порог. Поэтому доля переводится в
+ *  восьмибитную ВВЕРХ (`seen`: 8 % → 21/255) и меряется та, что покажет
+ *  экран. Доля — число строителя, в стилях сайта её нет (семья `colorOut`). */
+const seen = (share) => Math.ceil(share * 255 - 1e-9) / 255
+const translucent = (hex, share) => `${hex.toUpperCase()}${Math.round(seen(share) * 255).toString(16).padStart(2, '0').toUpperCase()}`
+
+/** Палуба. Светлая тема: обратная пара нейтрали — пол из чернил, знак из
+ *  бумаги. Тёмная: знак — чернила; полы — седьмая ступень у шапки
+ *  (`--chrome-bg`), вторая у подвала (`--page-deck`, И293) и первая у сцены
+ *  героя (`--scrim-deck`, самая тёмная нейтраль темы). Замер палубы берёт
+ *  все её полы; `stage` — сцена героя, под текстом на снимке. */
+export const deckOf = (n, mode) => (mode === 'light'
+  ? { bg: n[11], ink: n[0], stage: n[11], grounds: [n[11]], edges: n.slice(0, 11).reverse() }
+  : { bg: n[6], ink: n[11], stage: n[0], grounds: [n[6], n[1], n[0]], edges: n.slice(7) })
+
+/** Вуали — краска пола долей поверх того, что под ней: на бумаге — чернила
+ *  (ступень 12), на палубе — её знак. Доли перенесены из tokens.css и
+ *  base.css, где стояли числом (И295), и не менялись; обещание есть у тихой
+ *  вуали (видна на каждом полу, STATE.visible) — его меряет замер ниже.
+ *    paper: тихая кнопка — порог STATE.quiet; выбранная тихая — вдвое
+ *           глубже; черта — 16 %; вдавленная тень (`--sh-in`) — 18 %.
+ *    deck:  орган в покое 10 % (`--chrome-hover`), под рукой 18, нажатый 30;
+ *           тихая 12, выбранная 22; черта 14; строка под рукой 8, нажатая
+ *           14; вдавленная тень 18; знак в покое — 78 % (`--chrome-fg-2`:
+ *           «степень реагирования … единый источник, чтоб системно», слово
+ *           заказчика).
+ *    жёлоб (лоток над полкой, оба пола): половина под рукой 12 % — шаг
+ *           состояния в 5 % давал 1.12 против жёлоба, 8 % заказчик не
+ *           отличил от молчания; открытая створка 14 %, под рукой 20 % —
+ *           открытое заметнее наведения (`--ctrl-hand`, `--ctrl-in`,
+ *           `--ctrl-in-hand`; лежат поверх жёлоба `--ctrl`). */
+const TROUGH = { 'ctrl-hand': 0.12, 'ctrl-in': 0.14, 'ctrl-in-hand': 0.2 }
+export const VEIL = {
+  paper: { quiet: STATE.quiet, 'quiet-on': 2 * STATE.quiet, rule: 0.16, 'sh-inset': 0.18, ...TROUGH },
+  deck: { quiet: 0.12, 'quiet-on': 0.22, rule: 0.14, 'hover-row': 0.08, 'press-row': 0.14, 'hover-ctrl': 0.18, 'press-ctrl': 0.3, 'sh-inset': 0.18, ...TROUGH },
+  ctrl: 0.1,
+  dim: 0.78,
+}
+/** Тени: в светлой теме — марка долями (волосок, ближний слой, три дальних
+ *  по высоте), в тёмной и на палубе — белый волосок и чёрные слои: тень
+ *  цвета своего пола не отбрасывает тени (И100, И114). */
+export const SHADE = {
+  names: ['ring', 'near', 'far-1', 'far-2', 'far-3'],
+  brand: [0.18, 0.18, 0.4, 0.55, 0.7],
+  deep: [['#FFFFFF', 0.05], ['#000000', 0.5], ['#000000', 0.6], ['#000000', 0.68], ['#000000', 0.75]],
+}
+/** Затемнение под окном и шторкой: самая тёмная нейтраль темы долей — в
+ *  обеих темах тёмное (из чернил вышла бы белая вуаль в тёмной), в тёмной
+ *  гуще: у тёмной страницы меньше своего контраста. */
+export const SCRIM = { light: 0.55, dark: 0.72 }
+
+const lcApart = (a, b) => Math.abs(apca(a, b))
+const offSeen = (edge, bg) => ratio(veil(edge, bg, STATE.off[0]), bg)
+
+/** Хвост главной кнопки (И276): два тона ряда марки рядом с заливкой (a9) —
+ *  на том полу, где кнопка стоит. Дальний — первая ступень марки ОТ ПОЛА К
+ *  ЗАЛИВКЕ, которая видна на каждом полу (APCA Lc ≥ COLOUR.decorLc —
+ *  украшение от 5px) и отстоит от заливки не меньше её шага (SOLID_GAP — шаг
+ *  заливки к наведению); ближний — ступень, которой в шкале нет: середина
+ *  светлоты между дальним и заливкой (так же выведено нажатие, `press`).
+ *  Сторона пола — по светлоте: на светлой бумаге — ступени светлее a9, на
+ *  тёмной палубе светлой темы — темнее.
+ *
+ *  Заливка может стоять вплотную к полу — светлая марка на светлой бумаге,
+ *  тёмная на тёмной, — и тогда со стороны пола видной ступени нет, или она
+ *  той же светлоты, что заливка. Хвост тогда идёт по другую сторону
+ *  заливки: украшение подстраивается под марку, а не марка под украшение.
+ *  Иначе строитель двигал бы саму марку ради шеврона — жёлтая #FFE600
+ *  уходила в горчицу на ΔE 21. */
+function trailOf(a, grounds, mode) {
+  const fill = a[8]
+  const lf = lightness(fill)
+  const far = (c) => Math.abs(lightness(c) - lf)
+  const up = grounds.reduce((s, bg) => s + lightness(bg), 0) / grounds.length > lf
+  const steps = a.filter((_, i) => i !== 8)
+  const toward = steps.filter((c) => lightness(c) > lf === up).sort((x, y) => far(y) - far(x))
+  const beyond = steps.filter((c) => lightness(c) > lf !== up).sort((x, y) => far(x) - far(y))
+  const apart = (c, bg) => (far(c) >= SOLID_GAP[mode] ? lcApart(c, bg) : 0)
+  const tone = firstReaching([...toward, ...beyond], grounds, NEED.decorLc, 0, apart)
+  return { near: atLightness(fill, tone, (lightness(tone) + lf) / 2), far: tone, got: Math.min(...grounds.map((bg) => apart(tone, bg))) }
+}
+
+/** Вуаль героя (И280): текст сцены лежит на снимке заказчика, и снимок
+ *  может быть любым, вплоть до белого. Дальняя ступень — наименьшая доля
+ *  (шагом в сотую), при которой самая тихая строка героя — знак палубы
+ *  долей `VEIL.dim` — держит 4.5 : 1 на белом снимке под вуалью; ближняя —
+ *  на полпути от неё к сплошной. До 24.09.2026 стояли 86 / 72 % на все
+ *  палитры, и у трёх наборов из семи тихая строка героя проваливала порог
+ *  (Аптека — 4.15 : 1). */
+function scrimOf(deck) {
+  const on = (share) => {
+    const bg = veil(deck.stage, '#FFFFFF', seen(share))
+    return ratio(veil(deck.ink, bg, seen(VEIL.dim)), bg)
+  }
+  let far = 1
+  for (let k = 50; k <= 100; k += 1) if (on(k / 100) >= NEED.text) { far = k / 100; break }
+  const near = Math.round((far + (1 - far) / 2) * 100) / 100
+  return { far, near, got: on(far) }
+}
+
+/** Роли по полу и их замер — одним расчётом: выпуск (`roles`), замер
+ *  (`auditPalette`) и панель вида («Guaranteed») читают одни и те же
+ *  краски и одни и те же числа. `checks` — строки замера: id для панели,
+ *  имя для отчёта, число и норма. */
+export function groundRoles(n, a, mode) {
+  const out = {}
+  const checks = []
+  const check = (id, rule, got, need, unit = ':1') => checks.push({ id, rule, got, need, unit })
+  const deck = deckOf(n, mode)
+  const G = GROUNDS(n)
+  const ink = n[11]
+
+  /* Палуба: пол, знак, знак в покое, орган в покое; сцена героя. */
+  out['--chrome-bg'] = deck.bg
+  out['--chrome-fg'] = deck.ink
+  out['--chrome-fg-2'] = translucent(deck.ink, VEIL.dim)
+  out['--chrome-hover'] = translucent(deck.ink, VEIL.ctrl)
+  out['--scrim-deck'] = deck.stage
+
+  /* Вуали обоих полов. */
+  for (const [job, share] of Object.entries(VEIL.paper)) out[`--${job}-paper`] = translucent(ink, share)
+  for (const [job, share] of Object.entries(VEIL.deck)) out[`--${job}-deck`] = translucent(deck.ink, share)
+  check('quiet', 'тихая вуаль видна на всех поверхностях', Math.min(...G.map((bg) => ratio(veil(ink, bg, seen(VEIL.paper.quiet)), bg))), STATE.visible)
+  check('quiet-deck', 'тихая вуаль видна на палубе', Math.min(...deck.grounds.map((bg) => ratio(veil(deck.ink, bg, seen(VEIL.deck.quiet)), bg))), STATE.visible)
+
+  /* Тени обоих полов. */
+  SHADE.names.forEach((job, i) => {
+    const deep = translucent(...SHADE.deep[i])
+    out[`--sh-${job}-paper`] = mode === 'light' ? translucent(a[8], SHADE.brand[i]) : deep
+    out[`--sh-${job}-deck`] = deep
+  })
+
+  /* Затемнение под окном и вуаль героя. */
+  out['--scrim'] = translucent(deck.stage, SCRIM[mode])
+  const scrim = scrimOf(deck)
+  out['--scrim-near'] = translucent(deck.stage, scrim.near)
+  out['--scrim-far'] = translucent(deck.stage, scrim.far)
+  check('scrim', 'текст героя читается на любом снимке', scrim.got, NEED.text)
+
+  /* Кнопка. Громкая — `--pop` / `--on-pop` (ступень 9 марки и знак на ней;
+     на палубе — обратная пара), их роли уже есть. Под рукой на палубе —
+     знак палубы на шаг заливки к её полу, как ступень 10 от 9. */
+  out['--pop-hover-deck'] = atLightness(deck.ink, deck.bg, lightness(deck.ink) - SOLID_GAP[mode])
+  check('pop-deck', 'светлая пилюля палубы под рукой читается', ratio(deck.bg, out['--pop-hover-deck']), NEED.text)
+
+  /* Хвост — ступени марки на обоих полах: заливка главной кнопки и на
+     палубе — марка (роль кнопки из каталога посчитана на корне), меняется
+     только пол, к которому хвост сходит. */
+  const paper = trailOf(a, G, mode)
+  const onDeck = trailOf(a, deck.grounds, mode)
+  out['--pop-trail-near-paper'] = paper.near
+  out['--pop-trail-far-paper'] = paper.far
+  out['--pop-trail-near-deck'] = onDeck.near
+  out['--pop-trail-far-deck'] = onDeck.far
+  check('trail', 'хвост главной кнопки виден на полу', paper.got, NEED.decorLc, 'Lc')
+  check('trail-deck', 'хвост на палубе виден', onDeck.got, NEED.decorLc, 'Lc')
+
+  /* Кромка выключенного органа: видна и под прозрачностью выключенного —
+     на нижнем краю коридора STATE.off; первая ступень нейтрали от пола,
+     которая это держит. Выключенное читается кромкой, не только тоном. */
+  out['--edge-off-paper'] = firstReaching(n.slice(5), G, STATE.visible, 0, offSeen)
+  out['--edge-off-deck'] = firstReaching(deck.edges, deck.grounds, STATE.visible, 0, offSeen)
+  check('edge-off', 'кромка выключенного органа видна на всех поверхностях', Math.min(...G.map((bg) => offSeen(out['--edge-off-paper'], bg))), STATE.visible)
+  check('edge-off-deck', 'кромка выключенного органа видна на палубе', Math.min(...deck.grounds.map((bg) => offSeen(out['--edge-off-deck'], bg))), STATE.visible)
+
+  return { roles: out, checks }
+}
+
+/** Замер ролей по полу для одного набора в теме — то же, что меряет
+ *  `auditPalette`, числами: его строки читает панель вида («Guaranteed»). */
+export function groundChecks(rawSet, mode) {
+  const set = withSale(rawSet, mode)
+  const n = scale(set.paper, set.ink, null, mode)
+  const a = scale(set.paper, set.ink, set.accent, mode, n[1])
+  return groundRoles(n, a, mode).checks
+}
 
 /* ── Роли: что из лестницы чем работает ──────────────────────────────── */
 
@@ -504,6 +705,9 @@ export function roles(rawSet, mode) {
      органы на полу берут эту роль (И252). */
   out['--edge'] = firstReaching(n, GROUNDS(n), NEED.control, 6)
   out['--ring'] = firstReaching(a, GROUNDS(n), NEED.control, 7)
+  /* Палуба, вуали, тени, сцена героя, хвост и кромка выключенной кнопки —
+     роли по полу (И295). */
+  Object.assign(out, groundRoles(n, a, mode).roles)
   return out
 }
 
@@ -621,12 +825,12 @@ export function auditPalette(rawSeed, mode) {
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
   const edge = firstReaching(n, GROUNDS(n), NEED.control, 6)
   want('кромка органа на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(edge, bg))), NEED.control)
-  /* Тихий голос — вуаль чернил (`--quiet`, STATE.quiet) на любом полу 1–5:
-     орган без кромки виден только ею. До 24.09.2026 это мерил лишь замер
-     кнопки на наборах, и «Аптека» выходила с тихой кнопкой, которой не
-     видно на полу страницы (1.14 : 1), — строитель заказчика собирал такую
-     же молча (И285). */
-  want('тихая вуаль видна на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(veil(n[11], bg, STATE.quiet), bg))), STATE.visible)
+  /* Роли по полу (И295) — тем же расчётом, что их выпускает: тихая вуаль
+     на бумаге и на палубе (орган без кромки виден только ею; «Аптека» до
+     24.09.2026 выходила с тихой кнопкой 1.14 : 1 на полу страницы, И285),
+     хвост главной кнопки на обоих полах, кромка выключенной, пилюля палубы
+     под рукой и текст героя на любом снимке. */
+  for (const c of groundRoles(n, a, mode).checks) want(c.rule, c.got, c.need)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
      Красный до 20.09.2026 не мерил никто (И190), а скидка, «мало осталось»

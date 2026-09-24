@@ -23,7 +23,7 @@ import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
-import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
+import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING, PALETTE,
   BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
 import { deadSeams } from './seams.mjs'
 
@@ -1459,6 +1459,122 @@ for (const path of files) {
       const off = css.match(/(?:^|[;{])\s*--state-off\s*:\s*([\d.]+)/)
       if (!off) add('stateOut', `${TOKENS}  нет роли --state-off`)
       else if (Number(off[1]) < STATE.off[0] || Number(off[1]) > STATE.off[1]) add('stateOut', `${at(off.index)}  --state-off: ${off[1]} вне ${STATE.off.join('…')}`)
+    }
+  }
+
+  /* Цвет, рождённый вне палитры (И295; CLAUDE.md, «Делается только
+   * правильно — сразу, а не по вопросу заказчика»: «краска и её оттенок —
+   * строитель палитры → роль»).
+   *
+   * Дефект, купивший семью: тона хвоста главной кнопки смешивались прямо в
+   * её стилях (`color-mix(… 60% …)`), кромка выключенной — 20 % чернил, вуаль
+   * героя — 86 / 72 %, тени, черта и вся палуба — долями в tokens.css и
+   * base.css. Их контраст не считал никто, панель вида не могла их
+   * гарантировать, а смена палитры меняла их по чужой формуле. Проверки были
+   * зелёные — нарушение просто не мерилось.
+   *
+   * Находка — объявление, в значении которого краска родилась на месте:
+   *   · литерал — `#hex`, `rgb()`/`hsl()`/`hwb()`/`lab()`/`lch()`/`oklab()`/
+   *     `oklch()`/`color()`, имя краски (`white`, `red`…); `transparent`,
+   *     `currentColor`, `inherit` и системные краски (`Canvas`, `Highlight`)
+   *     — не краски палитры и не находка;
+   *   · `color-mix()` с долей числом или без доли вовсе (молчаливые 50 %).
+   *     Доля ролью — `var(--state-hover)` — законна: это механизм состояния
+   *     набора (И229); доля ручкой узла (`--leaf-in: 14%`) — тот же литерал,
+   *     спрятанный в переменную.
+   * Не меряются: файл палитры (`styles/palette.css` — его выпускает
+   * строитель, это единственное место, где цвет рождается); маска
+   * (`mask`, `mask-image` — берёт у краски только прозрачность); панель вида
+   * (`look-panel/`) — она вне сайта, рисует саму себя своими красками и
+   * после финала снимается целиком (PANEL.md). */
+  {
+    const NAMED = new Set(('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen').split(' '))
+    /* Свойства, в значениях которых имя — не краска: гарнитура, имя
+       анимации, область сетки, имя контейнера, текст. Маска — см. выше. */
+    const NOT_PAINT = /^(?:font|animation|transition|grid-area|grid-template|grid-row|grid-column|container|content|quotes|counter-|view-transition|will-change|list-style-type|mask|-webkit-mask)/
+    /** Тело вызова `name(` с уравновешенными скобками: [начало тела, конец]. */
+    const callsOf = (text, name) => {
+      const out = []
+      const rx = new RegExp(`(?<![\\w-])${name}\\(`, 'gi')
+      for (const m of text.matchAll(rx)) {
+        let depth = 1, i = m.index + m[0].length
+        const from = i
+        while (i < text.length && depth) { if (text[i] === '(') depth++; else if (text[i] === ')') depth--; i++ }
+        out.push(text.slice(from, i - 1))
+      }
+      return out
+    }
+    /** Верхние запятые списка аргументов. */
+    const topArgs = (body) => {
+      const out = []
+      let depth = 0, from = 0
+      for (let i = 0; i < body.length; i++) {
+        if (body[i] === '(') depth++
+        else if (body[i] === ')') depth--
+        else if (body[i] === ',' && depth === 0) { out.push(body.slice(from, i).trim()); from = i + 1 }
+      }
+      out.push(body.slice(from).trim())
+      return out
+    }
+    /** Почему значение рождает краску, или null. */
+    const bornHere = (value) => {
+      const v = value.replace(/url\([^)]*\)/gi, ' ')
+      const hex = v.match(/#[0-9a-f]{3,8}(?![\w-])/i)
+      if (hex) return `литерал ${hex[0]}`
+      const fn = v.match(/(?<![\w-])(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(/i)
+      if (fn) return `литерал ${fn[1]}()`
+      for (const m of v.replace(/var\(\s*--[\w-]+/g, ' ').matchAll(/(?<![\w-])([a-z]+)(?![\w-])/gi)) {
+        if (NAMED.has(m[1].toLowerCase())) return `имя краски ${m[1]}`
+      }
+      for (const body of callsOf(v, 'color-mix')) {
+        const colours = topArgs(body).slice(1)
+        let shares = 0
+        for (const arg of colours) {
+          const plain = arg.replace(/var\([^()]*(?:\([^()]*\)[^()]*)*\)/g, (r) => r.replace(/[\d%]/g, ' '))
+          const pct = plain.match(/(\d*\.?\d+)%/)
+          if (pct) return `color-mix с долей числом ${pct[0]}`
+          const refs = [...arg.matchAll(/var\(\s*(--[\w-]+)/g)].map((r) => r[1])
+          /* Доля — вторая ссылка аргумента (`var(--ink) var(--state-hover)`)
+             или ссылка после краски-литерала. */
+          const share = refs.length > 1 ? refs[refs.length - 1] : null
+          if (!share) continue
+          shares++
+          const p = parseName(share)
+          if (!p || p.tier !== 'role') return `color-mix с долей ручкой узла ${share}`
+        }
+        if (!shares) return 'color-mix без доли — молчаливые 50 %'
+      }
+      return null
+    }
+    /** Объявления файла на любой глубине — и во вложенных правилах
+     *  (`:root{ … &:lang(bg){ … } … }`): текст между `;`, `{` и `}` вне
+     *  скобок; то, что стоит перед `{`, — селектор, не объявление. */
+    const declsOf = (css) => {
+      const out = []
+      let from = 0, depth = 0, paren = 0
+      for (let i = 0; i < css.length; i++) {
+        const c = css[i]
+        if (c === '(') paren++
+        else if (c === ')') paren = Math.max(0, paren - 1)
+        else if (paren === 0 && (c === ';' || c === '{' || c === '}')) {
+          const text = css.slice(from, i)
+          if (c !== '{' && depth > 0 && text.includes(':')) out.push({ text, at: from + (text.length - text.trimStart().length) })
+          if (c === '{') depth++
+          if (c === '}') depth = Math.max(0, depth - 1)
+          from = i + 1
+        }
+      }
+      return out
+    }
+    for (const { rel, css, at } of sheets) {
+      if (rel === PALETTE || rel.split('/').includes('look-panel')) continue
+      for (const { text, at: here } of declsOf(css)) {
+        const colon = text.indexOf(':')
+        const prop = text.slice(0, colon).trim().toLowerCase()
+        if (!prop || NOT_PAINT.test(prop)) continue
+        const why = bornHere(text.slice(colon + 1))
+        if (why) add('colorOut', `${at(here)}  ${prop} — ${why}: краску выпускает строитель палитры ролью (tools/palette.mjs), стили её читают`)
+      }
     }
   }
 
