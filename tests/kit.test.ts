@@ -903,8 +903,10 @@ test('форма: радиусы из набора и лестницы, полн
   assert.match(ladderCss, /--r-pop: 999px;/, 'полный круг не 999px')
   assert.match(ladderCss, new RegExp(`--line-w: ${SHAPE.line.hair}px;`))
   assert.match(ladderCss, new RegExp(`--ring-w: ${SHAPE.ring.width}px;`))
+  /* Роли тени — вид сайта: styles/look.css (И385). */
+  const look = read('styles/look.css')
   for (const name of ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']) {
-    assert.ok(new RegExp(`^\\s*${name}\\s*:`, 'm').test(tokens), `тени без роли ${name}`)
+    assert.ok(new RegExp(`^\\s*${name}\\s*:`, 'm').test(look), `тени без роли ${name}`)
   }
   const styles = tokens + '\n' + primitives + '\n' + read('styles/base.css')
   assert.ok(!/--r-pill|--round\b|--sh-[123]\b/.test(styles.replace(/\/\*[\s\S]*?\*\//g, '')), 'старые имена формы ещё в стилях')
@@ -979,7 +981,7 @@ test('утилиты и исключения: ярлыки на месте, ва
 
 /* И231: имя без объявления рушит всю запись — набор стоит на системном шрифте. */
 test('шрифт: в наборе своего нет, --face разрешается в системный стек, имён без объявления нет', () => {
-  const files = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css']
+  const files = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/look.css', 'styles/base.css', 'styles/primitives.module.css']
   const texts = files.map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, ''))
   const declared = new Set<string>()
   for (const css of texts) for (const m of css.matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) declared.add(m[1]!)
@@ -988,9 +990,31 @@ test('шрифт: в наборе своего нет, --face разрешает
     if (!declared.has(m[1]!)) missing.push(m[1]!)
   }
   assert.deepEqual([...new Set(missing)], [], 'имя читается без запасного значения и без объявления')
-  const bare = tokens.replace(/\/\*[\s\S]*?\*\//g, '')
-  assert.match(bare, /--face:\s*var\(--face-stack\)/, 'набор не стоит на системном стеке')
-  assert.ok(!/--face:\s*var\(--f-[a-z]+\)/.test(bare), 'набор называет шрифт, которого у него нет')
+  /* Набор стоит на системном стеке; сайт, назвавший шрифт, — на нём и том же
+     стеке запасным списком (`'Manrope', var(--face-stack)`). */
+  const look = read('styles/look.css').replace(/\/\*[\s\S]*?\*\//g, '')
+  assert.match(look, /--face:\s*(?:'[^']+',\s*)?var\(--face-stack\)/, 'шрифт не стоит на системном стеке запасным списком')
+  assert.ok(!/--face:\s*var\(--f-[a-z]+\)/.test(look), 'набор называет шрифт, которого у него нет')
+})
+
+/* И385: шрифт и тени — вид сайта, одно место на свойство: styles/look.css.
+   Основа их не объявляет, палуба и лист переназначают только ингредиенты, а
+   роль тени стоит одной записью на списке полов. */
+test('вид основы: шрифт и роли тени объявлены один раз — в styles/look.css, на корне, палубе и листе', () => {
+  const strip = (f: string) => read(f).replace(/\/\*[\s\S]*?\*\//g, '')
+  const LOOK = ['--face', '--face-head', '--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']
+  for (const f of ['styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/scale.css', 'styles/palette.css']) {
+    const twice = LOOK.filter((n) => new RegExp(`(?:^|[;{])\\s*${n}\\s*:`).test(strip(f)))
+    assert.deepEqual(twice, [], `${f} объявляет свойство вида — второй источник`)
+  }
+  const look = strip('styles/look.css')
+  const floors = look.match(/([^{}]+)\{[^{}]*--sh-raised\s*:/)?.[1]?.trim() ?? ''
+  assert.deepEqual(floors.split(',').map((s) => s.trim()), [':root', "[data-ground='deck']", '[data-plate]'], 'роль тени не на всех полах, что меняют ингредиенты')
+  const base = strip('styles/base.css')
+  for (const floor of ["[data-ground='deck']", '[data-plate]']) {
+    const body = base.slice(base.indexOf(`${floor}{`)).split('}')[0]
+    assert.match(body, /--sh-inset\s*:/, `${floor}: вдавленная тень без своего ингредиента`)
+  }
 })
 
 /* И232: каркас приложения не отбирает номер у узлов. */

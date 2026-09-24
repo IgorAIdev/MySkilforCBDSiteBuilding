@@ -219,10 +219,15 @@ export function reresolve(look, catalog) {
       else hold(f, id, `«${id}» is no longer in the catalog`)
       continue
     }
-    const def = option(catalog, f, catalog.defaults[f])?.vars ?? {}
+    const base = option(catalog, f, catalog.defaults[f])
+    const def = base?.vars ?? {}
     const had = Object.fromEntries([...keysOf(catalog, f)].filter((k) => Object.hasOwn(old, k)).map((k) => [k, old[k]]))
-    if (Object.keys(had).some((k) => had[k] !== def[k])) hold(f, null, 'no name, and its values are not the catalog default')
-    else Object.assign(vars, def)
+    const is = (vs) => !Object.keys(had).some((k) => had[k] !== vs[k])
+    /* Умолчание, чьи значения набор переписал, узнаётся по прежним (`was` —
+       псевдоним со сроком, как у переименованного имени): группа без имени
+       стояла на умолчании и остаётся на нём (И385). */
+    if (is(def) || (base?.was ?? []).some(is)) Object.assign(vars, def)
+    else hold(f, null, 'no name, and its values are not the catalog default')
   }
   const added = Object.keys(vars).filter((k) => !Object.hasOwn(old, k))
   const changed = Object.keys(vars).filter((k) => Object.hasOwn(old, k) && old[k] !== vars[k])

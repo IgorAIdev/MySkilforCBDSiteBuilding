@@ -33,7 +33,7 @@ import { fileURLToPath } from 'node:url'
 import { ROLES as BUTTON, tokenMap } from '../tools/buttons.mjs'
 import { rolesOf } from '../tools/scale.mjs'
 import { CONTRAST, STATE } from '../tools/thresholds.mjs'
-import { acceptValues, lookCss } from '../lib/look-values.ts'
+import { acceptValues, lookCss, SHADOWS, FLOORS } from '../lib/look-values.ts'
 import { settle } from '../lib/look-rule.ts'
 
 const TO = 'lib/look-slots.json'
@@ -51,10 +51,10 @@ export const PRODUCT = {
   '--pdp-frame': { type: 'number', value: '1 / 1' },
   '--pdp-thumbs': { type: 'keyword', value: 'below' },
 }
-/** Роли тени — по работе (И228): предмет в покое, подъём под рукой,
- *  всплывающее, вдавленное. Основа объявляет их в tokens.css, вид — в
- *  styles/look.css. */
-export const SHADOWS = ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']
+/* Роли тени — по работе (И228): предмет в покое, подъём под рукой,
+   всплывающее, вдавленное. Объявлены ОДИН раз — в styles/look.css, на
+   списке полов `FLOORS` (lib/look-values.ts): основа набора их больше не
+   объявляет (И385). */
 /** Группа свойства из styles/scale.css: углы и холст выбираются отдельно от
  *  ритма (Shape и Layout панели) — ритм углов не меняет. */
 const scaleGroup = (name) => (/^--r-(xs|ctrl|card|sheet)$/.test(name) ? 'corners' : name === '--wrap' ? 'width' : 'scale')
@@ -74,12 +74,21 @@ function rootBlock(css) {
   if (!r) return {}
   return Object.fromEntries([...text.slice(r[0], r[1]).matchAll(/(--[\w-]+)\s*:\s*([^;]+);?/g)].map((m) => [m[1], m[2].trim()]))
 }
+/** Объявления блока ролей тени — того, чей селектор — список полов `FLOORS`. */
+function floorBlock(css) {
+  const text = bare(css)
+  const at = text.indexOf(`${FLOORS}{`)
+  if (at < 0) return {}
+  const from = at + FLOORS.length + 1
+  return Object.fromEntries([...text.slice(from, text.indexOf('}', from)).matchAll(/(--[\w-]+)\s*:\s*([^;]+);?/g)].map((m) => [m[1], m[2].trim()]))
+}
 /** Имена, переобъявленные внутри @media. */
 const inMedia = (css) => new Set([...bare(css).matchAll(/@media[^{]*\{([^{}]*\{[^}]*\})/g)].flatMap((m) => [...m[1].matchAll(/(--[\w-]+)\s*:/g)].map((x) => x[1])))
 
-/** Список свойств и факты — из текстов стилей и чисел набора. Шрифт и
- *  отметка — из styles/look.css; пока его нет — из основы (tokens.css) и
- *  прежнего места отметки (styles/storefront.css). */
+/** Список свойств и факты — из текстов стилей и чисел набора. Шрифт, тени и
+ *  отметка — из styles/look.css (у набора он лежит рукой, у витрины
+ *  выпущен); отметка, пока файла нет, — из прежнего места
+ *  (styles/storefront.css). Шрифта и теней основа не объявляет (И385). */
 export function lookSlots({ palette, buttons, scale, tokens, storefront, look, scales }) {
   const slots = {}
   const put = (name, type, group, value) => { slots[name] = { type, group, value } }
@@ -93,9 +102,13 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, look, s
   const coarse = inMedia(scale)
   for (const [k, v] of Object.entries(rootBlock(scale))) if (!coarse.has(k)) put(k, /^-?[\d.]+$/.test(v) ? 'number' : 'length', scaleGroup(k), v)
   const map = tokenMap(tokens)
-  const own = look ? rootBlock(look) : {}
-  for (const k of ['--face', '--face-head']) put(k, 'font', 'face', own[k] ?? map[k])
-  for (const k of SHADOWS) put(k, 'shadow', 'shadow', own[k] ?? map[k])
+  const own = look ? { ...rootBlock(look), ...floorBlock(look) } : {}
+  for (const [keys, type, group] of [[['--face', '--face-head'], 'font', 'face'], [SHADOWS, 'shadow', 'shadow']]) {
+    for (const k of keys) {
+      if (!own[k]) throw new Error(`${k}: его не объявляет styles/look.css — шрифт и тени сайта живут там (И385)`)
+      put(k, type, group, own[k])
+    }
+  }
   const marks = look ? own : rootBlock(storefront)
   for (const [k, v] of Object.entries(marks)) {
     if (!k.startsWith('--menu-mark-')) continue
@@ -154,7 +167,10 @@ export function lookStyles(site, raw) {
     palette: `${HEAD('краски обеих тем — ступени и линии')}:root{\n  color-scheme: light dark;\n${decls('palette')}\n}\n`,
     buttons: `${HEAD('роли одной кнопки основы (styles/btn.module.css)')}:root{\n${decls('button')}\n}\n`,
     scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
-    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, ручки карты товара и шрифты вида со своего адреса')}:root{\n${['face', 'shadow', 'marker', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
+    /* Роли тени — своим блоком на списке полов (И385): на палубе и листе
+       геометрия вида пересчитывается из их ингредиентов. */
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, ручки карты товара и шрифты вида со своего адреса')}:root{\n${['face', 'marker', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
+      `${FLOORS}{\n${decls('shadow')}\n}\n` +
       (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
   }
   const after = lookSlots({ ...site, ...out })

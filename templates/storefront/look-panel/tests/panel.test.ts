@@ -118,6 +118,14 @@ test('published look re-resolved from its names: new properties get values of th
   const unnamed = reresolve({ ...old, vars: { ...old.vars, ...width.vars } }, catalog)
   assert.deepEqual(unnamed.kept.map((k) => k.field), ['width'])
   assert.equal(unnamed.look.vars['--wrap'], width.vars!['--wrap'])
+  /* Умолчание, которое набор переписал (И385): прежние значения «Soft»
+     узнаются по `was` — группа без имени пересчитывается на нынешнее. */
+  const soft = catalog.groups.shadow.find((o) => o.id === catalog.defaults.shadow)!
+  const was = (soft as { was?: Record<string, string>[] }).was?.[0]
+  assert.ok(was, 'у умолчания теней нет прежних значений')
+  const moved = reresolve({ ...old, vars: { ...old.vars, ...was } }, catalog)
+  assert.deepEqual(moved.kept, [])
+  assert.equal(moved.look.vars['--sh-in'], soft.vars!['--sh-in'])
   /* Своя палитра — из её трёх красок на тему, тем же движком. */
   const own = { light: { paper: '#FBFAF7', ink: '#1F1E1C', accent: '#2F6B4F' }, dark: { paper: '#121110', ink: '#EDEBE8', accent: '#7FB89A' } }
   const custom = reresolve({ ...old, names: { ...names, palette: CUSTOM }, paints: { name: 'Mine', ...own } }, catalog)

@@ -4,10 +4,6 @@
 :root{
   --face: var(--face-stack);
   --face-head: var(--face);
-  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
-  --sh-in: inset 0 1px 2px var(--sh-inset-paper);
   --menu-mark-line: underline;
   --menu-mark-fill: transparent;
   --menu-mark-ink: var(--ink);
@@ -16,4 +12,10 @@
   --pdp-gallery: 50%;
   --pdp-frame: 1 / 1;
   --pdp-thumbs: below;
+}
+:root,[data-ground='deck'],[data-plate]{
+  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
+  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
+  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-in: inset 0 1px 2px var(--sh-inset);
 }

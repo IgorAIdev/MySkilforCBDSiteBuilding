@@ -40,9 +40,11 @@
  *  токен назван. Видно только на отрисованной странице. */
 /* Край у окна — не уже выреза устройства (`--edge-x`, tokens.css): окно во
    весь экран (`viewport-fit=cover`) в альбомной ориентации кладёт страницу
-   под вырез камеры, и край страницы его обходит сам (И301). */
+   под вырез камеры, и край страницы его обходит сам (И301). Ширина — роль
+   `--page-box` (tokens.css): по ней же равняется всё, что стоит поверх
+   страницы шириной коробки, и формула у них одна (И382). */
 .wrap{
-  inline-size:min(calc(var(--wrap) - var(--gut) * 2), calc(100% - max(var(--gut), var(--edge-x)) * 2));
+  inline-size:var(--page-box);
   margin-inline:auto;
   padding-inline:var(--page-line);
   /* Сколько пересекает полоса, чтобы дотянуться до СВОЕГО края — не всегда
@@ -1141,23 +1143,11 @@
   min-inline-size:0
 }
 
-/* the "more" link — the arrow sits in its own circle, not bare beside text */
-/* Тень и подъём сняты (И114 в docs/rules.md): кнопка отвечает только
-   краской — поверх листа ложится вуаль выбранной тихой кнопки
-   (`--quiet-on`, роль палитры), которая держит порог видимости на обеих
-   темах. До 24.09.2026 та же доля (16 %) была смешана здесь числом (И295). */
-.more{
-  display:inline-flex;align-items:center;gap:calc(var(--ctrl-h) * .25);flex:none;
-  block-size:var(--ctrl-h);padding:0 calc(var(--ctrl-h) * .125) 0 calc(var(--ctrl-h) * .4);border-radius:var(--r-ctrl);
-  background:var(--surface);
-  font-size:var(--more-fs,var(--ctrl-fs-sm));font-weight:600;color:var(--pop-ink-hover);
-  transition:background var(--hover-t) var(--ease)
-}
-@media (hover:hover){ .more:hover{background-image:linear-gradient(var(--quiet-on) 0 0)} }
-.more:active{background-image:linear-gradient(var(--quiet-on) 0 0)}
-.more svg{width:calc(var(--ctrl-h) * .7);height:calc(var(--ctrl-h) * .7);padding:calc(var(--ctrl-h) * .175);border-radius:50%;background:var(--pop-tint);fill:none;stroke:var(--pop-ink);transition:transform var(--hover-t) var(--ease)}
-@media (hover:hover){ .more:hover svg{transform:translateX(var(--nudge))} }
-.more:active svg{transform:translateX(var(--nudge))}
+/* Выход «ко всему» у шапки блока — не здесь: всё, что ведёт, живёт в
+   `styles/go.module.css` (`data-around='quiet'` — стрелка в тихой плашке).
+   Здесь стоял `.more` — вторая копия того же органа со своим движением
+   стрелки, без единого потребителя (`twiceDrawn` 2); снят, а не отложен
+   «до потребителя»: мёртвое удаляется (И383). */
 
 /* Строка навигации над содержимым страницы. Расстояние до этого содержимого
    объявлено ЗДЕСЬ и только здесь — на всех пяти страницах, где крошки стоят.

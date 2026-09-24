@@ -70,7 +70,7 @@ export const MODIFIERS = new Set([
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',
-  'pin', 'tray', 'leaf', 'chip', 'qty', 'more', 'chan', 'side', 'prose', 'pinned', 'sidebar', 'frame', 'btn', 'seg', 'gallery']
+  'pin', 'tray', 'leaf', 'chip', 'qty', 'chan', 'side', 'prose', 'pinned', 'sidebar', 'frame', 'btn', 'seg', 'gallery']
 
 const VALUE = [
   { rx: new RegExp(`^--${FAMS(COLOUR_FAMILIES)}-\\d{1,2}$`), family: 'ступень цвета', by: 'tools/palette.mjs' },
@@ -84,12 +84,15 @@ const ROLE = [
   { rx: /^--ctrl-fs-[a-z0-9]+$/, family: 'надпись органа', by: 'tools/scale.mjs' },
   { rx: /^--(hero|pagehead|h2|h3|intro|lede|body|note|eyebrow)-(size|lead|weight|track|measure)$/, family: 'роль текста', by: 'tools/scale.mjs' },
   { rx: /^--(r-[a-z]+|round)$/, family: 'скругление', by: 'styles/tokens.css' },
-  { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/tokens.css' },
+  { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/look.css (роли), styles/tokens.css (ингредиенты)' },
   { rx: /^--(ease|hover-t|rise|nudge|creep)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
   { rx: /^--layer-[a-z]+$/, family: 'слой', by: 'styles/tokens.css' },
   { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-[bx])$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
-  { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css' },
-  { rx: /^--(wrap|gut(-base)?|page-(line|gut)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
+  { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css, гарнитура — styles/look.css' },
+  /* Коробка страницы (И382): `--page-edge` — край у окна не уже выреза,
+     `--page-box` — ширина коробки; читают `.wrap` и всё, что стоит поверх
+     страницы шириной коробки. */
+  { rx: /^--(wrap|gut(-base)?|page-(line|gut|edge|box)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
   /* Карта товара — ручки вида галереи (И278): доля ряда, пропорция снимка,
      место миниатюр. Роли, а не узлы: их ставит вид сайта на корне (панель
      «Look»), читает узел `gallery` карты. Список закрытый — по имени. */
@@ -122,6 +125,7 @@ export const REQUIRED = {
   '--warn': 'текст сигнала «внимание»', '--warn-fill': 'плашка «осталось 2»', '--on-warn': 'знак на плашке', '--warn-tint': 'тихая полоса',
   '--sale': 'текст скидки', '--sale-fill': 'плашка «−20 %»', '--on-sale': 'знак на плашке', '--sale-tint': 'тихая полоса скидки',
   '--pop-press': 'кнопка покупки под пальцем (roles.md, «Заливки»)',
+  '--pop-ink-hover': 'марочный текст под курсором (roles.md, «Текст и знаки») — читал его `.more`, снятый как вторая копия органа «ко всему» (И383)',
   '--r-pop': 'полный круг главного действия — кнопка покупки, придёт с магазином (shape.md; Spectrum)',
   '--ease-exit': 'кривая ухода всплывающего (ease-in) — шторка и меню придут с магазином (states.md; Atlassian)',
   '--plate-2': 'утопленное: кадр снимка, подвал карточки, жёлоб лотка (roles.md, «Поверхности»)',

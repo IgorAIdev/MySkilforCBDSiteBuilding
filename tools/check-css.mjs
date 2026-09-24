@@ -2313,10 +2313,15 @@ for (const path of files) {
    светлом полу — только глазом на витрине и только на палубе.
 
    ВТОРОЙ — разметка: предмет красится `--plate`, а атрибут `data-plate` ему
-   никто не поставил. Проверка грубая нарочно — она смотрит, есть ли атрибут
-   хоть где-то в разметке, которая этот модуль берёт, а не на том ли он
-   предмете. Точнее без разбора JSX не скажешь, а «совсем забыли» — как раз
-   тот случай, который и случается. */
+   никто не поставил. Проверка грубая нарочно — без разбора JSX не сказать,
+   на том ли предмете атрибут, — но привязана к КЛАССУ, а не к модулю: каждое
+   правило, красящее листом, называет свои классы, и атрибут ищется в
+   разметке, которая берёт именно этот класс. Прежде хватало атрибута хоть
+   где-то в файле, берущем модуль: `data-plate` листа лаборатории погасил
+   находку о лотке-листе примитивов, которого он не касается (И384).
+   Правило, чей селектор сам несёт `[data-plate]`, объявлено в стиле; класс,
+   которого не берёт никто, на странице не стоит — это забота `deadDress`,
+   а не щель пола. */
 {
   const basePath = BASE ? join(ROOT, BASE) : null
   if (basePath && existsSync(basePath)) {
@@ -2357,12 +2362,23 @@ for (const path of files) {
     const rel = relative(ROOT, path)
     if (!rel.endsWith('.module.css')) continue
     const css = strip(readFileSync(path, 'utf8'))
-    const m = /background:\s*var\(--plate\)/.exec(css)
-    if (!m) continue
     const takers = users.get(rel.split('/').pop()) ?? []
-    if (takers.some((code) => code.includes('data-plate'))) continue
-    const at = `${rel}:${css.slice(0, m.index).split('\n').length}`
-    found.plateGap.push(`${at}  красится листом, а полом себя не объявил (нужен data-plate)`)
+    const told = new Set()
+    for (const m of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      if (!/(?:^|;)\s*background\s*:\s*var\(--plate\)/.test(m[2])) continue
+      const sel = m[1].trim()
+      if (sel.includes('[data-plate]')) continue
+      /* Классы правила — те, что стоят перед пробелом, `>` или концом
+         составной части: `.tray[data-tray='plate'] > *` называет `tray`. */
+      const classes = [...new Set([...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].map((x) => x[1]))]
+      const users_ = takers.filter((code) => classes.some((c) => new RegExp(`\\.${c}\\b`).test(code)))
+      if (!users_.length || users_.some((code) => code.includes('data-plate'))) continue
+      const key = classes.join(' ')
+      if (told.has(key)) continue
+      told.add(key)
+      const at = `${rel}:${css.slice(0, m.index + m[0].indexOf(m[1].trim())).split('\n').length}`
+      found.plateGap.push(`${at}  ${sel.slice(0, 48)} — красится листом, а полом себя не объявил (нужен data-plate)`)
+    }
   }
 }
 
