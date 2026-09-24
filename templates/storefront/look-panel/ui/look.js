@@ -612,14 +612,17 @@
         status,
       ]),
     ])
-    /* Вход в панель — язычок на правом краю окна, в поле страницы (look.css,
-       «Язычок»): слово, где поле его вмещает, и черта-ручка, где нет. Имя
-       для чтения вслух — у самой кнопки. */
-    var open = el('button', { class: 'lp-open', type: 'button', popovertarget: 'lp-panel', 'aria-label': 'Look — open the panel', title: 'Look' }, [
-      el('span', { class: 'lp-open-word', 'aria-hidden': 'true', text: 'Look' }),
-      el('span', { class: 'lp-open-grip', 'aria-hidden': 'true' }),
+    /* Вход в панель — полоса после страницы, своим местом в потоке (look.css,
+       «Полоса входа»): поверх страницы она не лежит, и ни одна сумма под
+       ней не прячется. Открытая панель помнится за зрителем и открывается
+       сама на следующей странице — спускаться за ней не нужно, пока её не
+       закрыли. */
+    var open = el('button', { class: 'lp-open lp-act lp-main', type: 'button', popovertarget: 'lp-panel', text: 'Open the panel' })
+    var dock = el('div', { class: 'lp-dock', role: 'region', 'aria-label': 'Look panel' }, [
+      el('p', { class: 'lp-dock-text' }, [el('b', { text: 'Look' }), ' — colours, type, buttons and layout. Choices show only in this browser until you publish.']),
+      open,
     ])
-    document.body.appendChild(el('div', { class: 'lp' }, [open, panel]))
+    document.body.appendChild(el('div', { class: 'lp' }, [dock, panel]))
     wide(keptWide())
     show(recall(TAB) === 'admin' ? 'admin' : 'system')
     if (custom() && paints) { preview(); guard() }
