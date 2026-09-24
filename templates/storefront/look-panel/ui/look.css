@@ -9,7 +9,8 @@
    «панель не меняет размер от содержания, но может менять размер, чтоб под
    высоту экрана подстроиться»). Верх (заголовок, разделы, подразделы) и низ
    (действия) стоят, прокручивается середина. На макете — 360 в ширину и вся
-   высота от шапки сайта до нижнего поля; на телефоне — шторка на 85 % окна.
+   высота от шапки сайта до полосы «Look» у низа окна; на телефоне — шторка
+   на 85 % окна, стоящая на этой полосе.
    Развёрнутая («Expand», помнится за зрителем) — до 1120 в ширину, варианты
    крупными образцами; на телефоне — шторка во всю высоту (ниже,
    «Развёрнутая панель»).
@@ -51,30 +52,55 @@
 .lp :focus-visible{outline:2px solid var(--lp-focus);outline-offset:2px}
 .lp ::selection{background:color-mix(in srgb, var(--lp-focus) 28%, transparent)}
 
-/* ── Полоса входа — вход в панель своим местом ─────────────────────────
-   Вход в панель не лежит поверх страницы: он стоит в потоке, полосой после
-   неё (после подвала), и занимает своё место. Стояла пилюля 48 px в правом
-   нижнем углу окна — и на 375 закрывала сводку корзины: скидку и итог
-   (24.09.2026, И344). Что прибито к окну поверх страницы, рано или поздно
-   ложится на то, что покупатель читает; единственное место окна, которое
-   страница держит пустым, — поле у края, 12 px на телефоне, — пальцу мало
-   (цель под пальцем 44, `check:craft`). Полоса — своё место: раскладка
-   страницы над ней та же, что у покупателя, цель — полного роста.
-   Открытая панель помнится за зрителем и сама открывается на следующей
-   странице — к полосе спускаются, только чтобы открыть её снова. Цвета не
-   переворачиваются на ходу: наведение — ступень кнопки панели, без перехода
-   (переход «чернила ↔ бумага» проваливал контраст посередине). */
-.lp-dock{
-  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--lp-s3) var(--lp-s5);
-  padding:var(--lp-s4) var(--lp-s5) calc(var(--lp-s4) + env(safe-area-inset-bottom, 0px));
-  border-block-start:1px solid var(--lp-line);background:var(--lp-well);color:var(--lp-ink)
+/* ── Полоса «Look» — нижняя полоса страницы со своим местом (И354) ───────
+   Вход в панель — тонкая полоса у нижнего края окна: видна с любого места
+   любой страницы, и место под неё страница держит сама. Полоса объявлена
+   нижней полосой набора (И268): резерв `--dock` включён здесь, рядом с ней,
+   и считается от её роста на любой ширине; его читают отступ тела
+   (styles/base.css — конец страницы встаёт над полосой), прокрутка к фокусу
+   и потолок приклеенной колонки (сводка корзины, галерея товара встают над
+   ней). Сайт о полосе не знает: снята панель — снят и резерв.
+
+   Прежде вход дважды мешал: пилюля в углу окна легла на итог корзины (375),
+   полоса после подвала заставляла докручивать страницу до конца, чтобы
+   открыть панель снова (И344). В полосе — одна тихая цель у её конца, под
+   панелью: знак, «Look», выбор словами, «Open»; открыта панель — полоса
+   остаётся её низом, и та же цель её закрывает. Слой — нижней полосы сайта (`--layer-tabbar`):
+   всё, что открыто поверх страницы, ложится и поверх неё. */
+:root{
+  --lp-band-h:36px;
+  /* рост цели, черта сверху и вырез устройства */
+  --lp-band:calc(var(--lp-band-h) + 1px + env(safe-area-inset-bottom, 0px));
+  --dock-on:1;
+  --dock:calc(var(--lp-band) * var(--dock-on, 0))
 }
-.lp-dock-text{margin:0;max-inline-size:60ch;color:var(--lp-soft);font-size:var(--lp-t2)}
-.lp-dock-text b{color:var(--lp-ink);font-weight:700}
-.lp .lp-open{border-radius:var(--lp-pill);padding:0 var(--lp-s5)}
+@media (pointer:coarse){ :root{--lp-band-h:44px} }
+/* Полоса — место во всю ширину окна; цель в ней — одна кнопка по своему
+   содержимому у конца полосы, под открытой панелью: кнопка во всю ширину
+   макета шире меры строки (`check:craft`, орган в полэкрана). */
+.lp .lp-band{
+  position:fixed;inset-inline:0;inset-block-end:0;z-index:var(--layer-tabbar);
+  display:flex;align-items:flex-start;justify-content:flex-end;
+  block-size:var(--lp-band);
+  padding:0 max(var(--lp-s4), env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(var(--lp-s4), env(safe-area-inset-left, 0px));
+  border-block-start:1px solid var(--lp-line);background:var(--lp-well);color:var(--lp-soft)
+}
+.lp .lp-band-btn{
+  display:flex;align-items:center;gap:var(--lp-s3);min-inline-size:0;max-inline-size:100%;
+  block-size:var(--lp-band-h);padding:0 var(--lp-s3);
+  border:0;border-radius:var(--lp-r1);background:none;color:var(--lp-soft);font-size:var(--lp-t2);text-align:start
+}
+.lp .lp-band-btn:hover{background:var(--lp-chip);color:var(--lp-ink)}
+.lp .lp-band-btn:focus-visible{outline-offset:-2px}
+.lp-band-name{flex:none;color:var(--lp-ink);font-weight:700;font-size:var(--lp-t3)}
+.lp-band-words{flex:0 1 auto;min-inline-size:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.lp-band-draft{flex:none;padding:1px var(--lp-s2);border:1px solid var(--lp-line);border-radius:var(--lp-pill);color:var(--lp-ink);font-size:var(--lp-t1);font-weight:600}
+.lp-band-act{flex:none;display:inline-flex;align-items:center;gap:var(--lp-s1);margin-inline-start:var(--lp-s3);color:var(--lp-ink);font-weight:600}
+.lp-band-act svg{transition:transform var(--lp-quick) ease}
+.lp-band-btn[aria-expanded='true'] .lp-band-act svg{transform:rotate(180deg)}
 .lp-panel{
   position:fixed;inset:auto;margin:0;
-  inset-block:var(--anchor-top) var(--lp-edge);inset-inline-end:var(--lp-edge);
+  inset-block:var(--anchor-top) calc(var(--lp-band) + var(--lp-edge));inset-inline-end:var(--lp-edge);
   inline-size:min(var(--lp-w), 100% - 2 * var(--lp-edge));block-size:auto;max-block-size:none;
   padding:0;overflow:hidden;
   border:1px solid var(--lp-line);border-radius:var(--lp-r3);background:var(--lp-bg);color:var(--lp-ink);
@@ -84,10 +110,12 @@
 /* Низкое окно: шапки сайта над панелью нет места ждать. */
 @media (max-height:560px){ .lp-panel{inset-block-start:var(--lp-edge)} }
 /* Телефон: шторка снизу во всю ширину — страница над ней видна, изменения
-   видно сразу; окно меняется с поворотом и с панелью браузера — шторка тоже. */
+   видно сразу; окно меняется с поворотом и с панелью браузера — шторка тоже.
+   Шторка стоит на полосе «Look», а не на краю окна: полоса — её низ, и
+   закрывают её тем же местом под большим пальцем, где открыли. */
 @media (max-width:560px){
-  .lp-panel{inset-inline:0;inset-block:auto 0;inline-size:100%;block-size:85vh;block-size:var(--lp-sheet);
-    border-radius:var(--lp-r3) var(--lp-r3) 0 0;border-block-end:0;padding-block-end:env(safe-area-inset-bottom)}
+  .lp-panel{inset-inline:0;inset-block:auto var(--lp-band);inline-size:100%;block-size:85vh;block-size:min(var(--lp-sheet), 100dvh - var(--lp-band) - var(--lp-edge));
+    border-radius:var(--lp-r3) var(--lp-r3) 0 0;border-block-end:0}
 }
 
 /* ── верх: заголовок и разделы, подразделы ─────────────────────────── */
@@ -306,7 +334,7 @@
 }
 /* Телефон: развёрнутая — шторка во всю высоту окна, плитки в две колонки. */
 @media (max-width:560px){
-  .lp-panel[data-wide]{inset:0;inline-size:100%;block-size:100dvh;border:0;border-radius:0}
+  .lp-panel[data-wide]{inset:0;inline-size:100%;block-size:100dvh;border:0;border-radius:0;padding-block-end:env(safe-area-inset-bottom)}
   .lp-panel[data-wide] .lp-chips,.lp-panel[data-wide] .lp-group[data-field='palette'] .lp-chips{--lp-tile:148px;gap:var(--lp-s3)}
   .lp-panel[data-wide] .lp-group[data-field^='btn-'] .lp-chips{--lp-tile:100%}
   .lp-panel[data-wide] .lp-body{padding:var(--lp-s4)}

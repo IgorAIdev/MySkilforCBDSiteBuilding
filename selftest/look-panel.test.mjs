@@ -9,8 +9,9 @@
  *   · снять её нельзя ни в шаблоне, ни в витрине шаблона — только в
  *     магазине, и только словом `--yes`, с копией рядом;
  *   · вернуть — одной командой ставщика; вид сайта при этом тот же;
- *   · переустановка не трогает данные сайта: опубликованный вид, черновик,
- *     шрифты, окружение;
+ *   · переустановка не трогает данные сайта: имена опубликованного вида,
+ *     черновик, шрифты, окружение; значения вида выводятся из имён (И352);
+ *   · вход — полоса у низа окна со своим местом (резерв `--dock`, И354);
  *   · строитель палитры панели — копия движка набора, а не своя математика.
  */
 import { test } from 'node:test'
@@ -55,22 +56,87 @@ test('the storefront template keeps the whole look panel: folder, entry, include
   assert.match(read(T, '.env.example'), /^LOOK_PICKER=/m)
 })
 
-/* И344: пилюля «Look», прибитая к правому нижнему углу окна, закрывала на
-   375 сводку корзины. Вход — полоса после страницы, своим местом в потоке:
-   ничто в панели, кроме открытой панели (верхний слой), не прибито к окну
-   поверх страницы; кнопка — полного роста (цель панели); сайт о ней не
-   знает. */
-test('the panel entry takes its own place after the page: nothing of the closed panel is pinned over the page', () => {
+/* И354 (вместо полосы после подвала, И344): пилюля «Look» в углу окна
+   закрывала на 375 итог корзины, полоса после подвала заставляла
+   докручивать страницу до конца. Вход — тонкая полоса у низа окна, объявленная
+   нижней полосой набора: резерв `--dock` включён рядом с ней и считается от её
+   роста на любой ширине, слой — нижней полосы сайта; прибиты к окну только
+   она и открытая панель; сайт о ней не знает. */
+test('the panel entry is a slim bottom band with its own reserved place: the reserve is switched on beside it, the site knows nothing of it', () => {
   const css = read(T, 'look-panel/ui/look.css').replace(/\/\*[\s\S]*?\*\//g, '')
   const pinned = [...css.matchAll(/([^{}]+)\{([^{}]*position:(?:fixed|sticky)[^{}]*)\}/g)].map((m) => m[1].trim())
-  assert.deepEqual(pinned, ['.lp-panel'], `прибито к окну не только окно панели: ${pinned.join(', ')}`)
+  assert.deepEqual(pinned, ['.lp .lp-band', '.lp-panel'], `прибиты к окну только полоса и окно панели: ${pinned.join(', ')}`)
   assert.match(css, /\.lp-panel:popover-open\{/, 'окно панели — в верхнем слое, только открытым')
-  const dock = css.match(/\.lp-dock\{([^}]*)\}/)?.[1] ?? ''
-  assert.ok(dock && !/position:/.test(dock), 'полоса входа — в потоке, своим местом')
+  const root = css.match(/:root\{([^}]*--dock-on:1[^}]*)\}/)?.[1] ?? ''
+  assert.ok(root, 'полоса объявлена нижней полосой: :root{--dock-on:1} рядом с ней')
+  assert.match(root, /--dock:calc\(var\(--lp-band\) \* var\(--dock-on, 0\)\)/, 'резерв — рост полосы на любой ширине, под выключателем набора')
+  assert.match(css, /@media \(pointer:coarse\)\{ :root\{--lp-band-h:44px\} \}/, 'под пальцем полоса — 44')
+  const band = css.match(/\.lp \.lp-band\{([^}]*)\}/)?.[1] ?? ''
+  assert.match(band, /inset-block-end:0/)
+  assert.match(band, /z-index:var\(--layer-tabbar\)/, 'слой — нижней полосы сайта, именем')
+  assert.match(band, /block-size:var\(--lp-band\)/, 'рост полосы — тот, что зарезервирован')
+  assert.match(band, /safe-area-inset-bottom/, 'полоса знает про вырез устройства')
+  /* Цель — по своему содержимому, не во всю ширину макета (мера строки). */
+  const btn = css.match(/\.lp \.lp-band-btn\{([^}]*)\}/)?.[1] ?? ''
+  assert.match(btn, /block-size:var\(--lp-band-h\)/, 'цель — полного роста полосы: 36 под курсором, 44 под пальцем')
+  assert.doesNotMatch(btn, /(?<![-\w])inline-size:100%|flex:\s*1/, 'цель не растянута во всю ширину')
+  assert.match(css, /\.lp-panel\{[^}]*inset-block:var\(--anchor-top\) calc\(var\(--lp-band\) \+ var\(--lp-edge\)\)/, 'открытая панель стоит над полосой')
   const js = read(T, 'look-panel/ui/look.js')
-  assert.match(js, /class: 'lp-open lp-act lp-main'[^\n]*text: 'Open the panel'/, 'кнопка — ступень кнопки панели с целью полного роста и именем')
-  assert.match(js, /el\('div', \{ class: 'lp' \}, \[dock, panel\]\)/, 'вход — полоса, а не кнопка поверх страницы')
-  for (const f of ['styles/storefront.css', 'components/Shell.tsx']) assert.doesNotMatch(read(T, f), /lp-open|lp-dock/, `${f}: сайт о входе в панель не знает`)
+  assert.match(js, /el\('button', \{ class: 'lp-band-btn', type: 'button', popovertarget: 'lp-panel'/, 'в полосе одна цель, открывает и закрывает панель')
+  assert.match(js, /el\('div', \{ class: 'lp' \}, \[band, panel\]\)/)
+  assert.doesNotMatch(js, /lp-dock|lp-open/, 'полосы после подвала больше нет')
+  /* Читатели резерва — основа набора, а не панель: полосы нет — ноль. */
+  assert.match(read(KIT, 'styles/base.css'), /body\{padding-bottom:var\(--dock\)\}/)
+  assert.match(read(KIT, 'styles/base.css'), /scroll-padding-bottom:var\(--dock\)/)
+  assert.match(read(KIT, 'styles/primitives.module.css'), /--pin-fit:calc\([^;]*- var\(--dock\)\)/)
+  assert.match(read(KIT, 'styles/tokens.css'), /--dock:0px;/, 'умолчание резерва — ноль')
+  for (const f of ['styles/storefront.css', 'components/Shell.tsx']) assert.doesNotMatch(read(T, f), /lp-band|--dock-on/, `${f}: сайт о входе в панель не знает`)
+})
+
+/* И352: опубликованный вид хранит ИМЕНА выбора и значения, выведенные из них.
+   Каталог вырос (новые роли палитры) — сборка каталога пересчитывает значения
+   из имён: имена те же, прежний файл — копией рядом, отчёт — словами; имя,
+   которого в каталоге нет, не угадывается. */
+test('install re-resolves the published look from its names: values fill in, names stay, the old file is kept once, a vanished name keeps its group', () => {
+  const root = mkdtempSync(join(tmpdir(), 'look-names-'))
+  const dir = join(root, 'site')
+  try {
+    assert.equal(install('--storefront', dir).status, 0)
+    const file = join(dir, 'lib/source/sample/look.json')
+    const fresh = JSON.parse(read(dir, 'lib/source/sample/look.json'))
+    /* Вид, опубликованный до ролей шапки, вуали героя и хвоста кнопки. */
+    const newer = Object.keys(fresh.vars).filter((k) => /^--(chrome-|scrim|pop-trail-)/.test(k))
+    assert.ok(newer.length >= 5, newer.join(', '))
+    const old = { ...fresh, vars: Object.fromEntries(Object.entries(fresh.vars).filter(([k]) => !newer.includes(k))) }
+    const oldText = JSON.stringify(old, null, 2) + '\n'
+    writeFileSync(file, oldText)
+    const draft = JSON.stringify({ ...old, header: 'boutique' }, null, 2) + '\n'
+    writeFileSync(join(dir, 'lib/source/sample/look.draft.json'), draft)
+
+    const again = install('--storefront', '--force', dir)
+    assert.equal(again.status, 0, again.stderr)
+    assert.match(again.stdout, new RegExp(`Опубликованный вид пересчитан из имён \\(И352\\): значения получили ${newer.length} свойств`))
+    const now = JSON.parse(read(dir, 'lib/source/sample/look.json'))
+    assert.deepEqual(now.names, old.names, 'имена — те же')
+    assert.deepEqual(now.vars, fresh.vars, 'значения — из выбора, как у свежей публикации')
+    assert.equal(read(dir, 'lib/source/sample/look.before-refresh.json'), oldText, 'прежний вид — копией рядом')
+    assert.equal(read(dir, 'lib/source/sample/look.draft.json'), draft, 'черновик не тронут')
+    const slots = JSON.parse(read(dir, 'lib/look-slots.json')).slots
+    assert.deepEqual(Object.keys(slots).filter((k) => !Object.hasOwn(now.vars, k)), [], 'каждое свойство сайта — со значением')
+
+    /* Второй пересчёт ничего не меняет, копию не затирает. */
+    const same = node(dir, 'look-panel/scripts/build-catalog.mjs', '--from', KIT)
+    assert.equal(same.status, 0, same.stderr)
+    assert.match(same.stdout, /сходится с каталогом/)
+    assert.equal(read(dir, 'lib/source/sample/look.before-refresh.json'), oldText)
+
+    /* Имени в каталоге больше нет: не угадывается, группа держит прежнее. */
+    writeFileSync(file, JSON.stringify({ ...now, names: { ...now.names, face: 'gone' } }, null, 2) + '\n')
+    const gone = node(dir, 'look-panel/scripts/build-catalog.mjs', '--from', KIT)
+    assert.equal(gone.status, 0, gone.stderr)
+    assert.match(gone.stdout, /⚠ вид: face «gone» — «gone» is no longer in the catalog; группа держит прежние значения/)
+    assert.equal(JSON.parse(read(dir, 'lib/source/sample/look.json')).vars['--face'], now.vars['--face'])
+  } finally { rmSync(root, { recursive: true, force: true }) }
 })
 
 test('the panel does not come off in the kit template: a hard refusal, no key overrides it', async () => {

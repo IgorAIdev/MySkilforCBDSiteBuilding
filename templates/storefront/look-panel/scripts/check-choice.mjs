@@ -2,7 +2,8 @@
 
    Отдельно от `check:look` (та доказывает, что панель снимается). Здесь —
    годится ли сочетание. Сначала правило сайта по значениям
-   (lib/look-values.ts, lib/look-rule.ts) — без отрисовки, сразу. Потом
+   (lib/look-values.ts, lib/look-rule.ts) и покрытие — вид даёт значение
+   каждому свойству сайта (lib/look-slots.json, И353), без отрисовки, сразу. Потом
    `check:craft` на трёх страницах основного языка — главная, первая полка
    (масла), первый товар полки — в обеих темах, на всех ширинах, с видом,
    поставленным черновым режимом Next и черновиком источника, как его видит
@@ -23,7 +24,7 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { acceptLook } from '../../lib/look-rule.ts'
 import { lookCss } from '../../lib/look-values.ts'
-import { compose, clashes, complete, title } from '../ui/choice.mjs'
+import { compose, clashes, complete, title, uncovered } from '../ui/choice.mjs'
 import { fetchFonts } from './fonts.mjs'
 
 const ROOT = fileURLToPath(new URL('../..', import.meta.url))
@@ -96,6 +97,11 @@ async function check(mode, args) {
   /* Правило сайта — то же, что принимает вид на сервере. */
   const { look, notes } = acceptLook(raw, slots, facts)
   if (notes.length) fail(notes.map((n) => `${n.what} ${n.why}`))
+  /* Вид покрывает каждое свойство сайта (И353): не данное взяло бы
+     умолчание стилей — краску другой палитры рядом с выбранной. */
+  const bare = uncovered(raw.vars, slots)
+  if (bare.length) fail([`вид не даёт значения ${bare.length} свойствам сайта (${bare.slice(0, 6).join(', ')}${bare.length > 6 ? ' …' : ''}): они взяли бы умолчания стилей — чужие этому выбору`,
+    mode === 'published' ? 'пересчитать опубликованный вид из его имён: npm run look:catalog -- --from <папка набора> (И352)' : 'выбрать ещё раз в панели: черновик соберётся из имён нынешним каталогом'])
   console.log(`Проверяю вид: ${Object.entries(look.names).map(([f, id]) => `${f} ${title(catalog, f, id)}`).join(' · ') || '(имена не записаны)'}`)
 
   const { CATEGORIES, PRODUCTS } = await import('../../tools/routes.mjs')

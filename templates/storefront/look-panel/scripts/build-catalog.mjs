@@ -19,9 +19,15 @@
    что выпускает `npm run studio:sync`; краски наборов в каталоге посчитаны
    этой копией.
 
+   Каталог собран — опубликованный вид сайта пересчитывается из своих имён
+   этим каталогом (И352, `reresolvePublished`): каталог или движок вырос —
+   значения выводятся заново из выбора заказчика, а не берутся умолчаниями
+   стилей другой палитры.
+
      node look-panel/scripts/build-catalog.mjs --from ../SkillSiteBuilding
        --from   папка набора: откуда брать полный каталог (ставщик передаёт сам)
-       --look   заодно записать опубликованный вид образца = умолчание каталога */
+       --look   записать опубликованный вид образца = умолчание каталога
+                (новая установка; без ключа вид пересчитывается из имён) */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -223,6 +229,42 @@ export async function buildCatalog({ site, kit }) {
   return { about: 'Собран look-panel/scripts/build-catalog.mjs из каталога набора. Руками не правят.', defaults, groups, axes, pairs, steps }
 }
 
+/** Опубликованный вид и его копия до первого пересчёта — рядом. */
+export const PUBLISHED = 'lib/source/sample/look.json'
+export const BEFORE = 'lib/source/sample/look.before-refresh.json'
+
+/** Опубликованный вид — заново из его имён нынешним каталогом и движком
+ *  (И352; ui/choice.mjs, `reresolve`). Идёт со сборкой каталога — при
+ *  установке, переустановке, возврате панели и `npm run look:catalog`, — а не
+ *  на запросе страницы. Имена не трогаются; файл пишется, только если
+ *  значения изменились; прежний — копией рядом при первой перемене (копию
+ *  следующий пересчёт не затирает: в ней вид, каким его опубликовал
+ *  заказчик). Черновик не трогается — он пересчитается первым же щелчком в
+ *  панели. */
+export async function reresolvePublished(site, catalog) {
+  const file = join(site, PUBLISHED)
+  if (!existsSync(file)) return null
+  const text = readFileSync(file, 'utf8')
+  const { reresolve } = await import(pathToFileURL(join(site, 'look-panel/ui/choice.mjs')).href)
+  const r = reresolve(JSON.parse(text), catalog)
+  if (r.same) return { ...r, wrote: false, backup: null }
+  const first = !existsSync(join(site, BEFORE))
+  if (first) writeFileSync(join(site, BEFORE), text)
+  writeFileSync(file, JSON.stringify(r.look, null, 2) + '\n')
+  return { ...r, wrote: true, backup: first ? BEFORE : null }
+}
+
+/** Отчёт пересчёта словами — строки для людей (ставщик их передаёт). */
+export function reresolveReport(r) {
+  if (!r) return []
+  const list = (keys) => keys.join(', ')
+  const lines = r.wrote
+    ? [`Опубликованный вид пересчитан из имён (И352): значения получили ${r.added.length} свойств${r.added.length ? ` (${list(r.added)})` : ''}; изменились ${r.changed.length}${r.changed.length ? ` (${list(r.changed)})` : ''}; ушли ${r.dropped.length}${r.dropped.length ? ` (${list(r.dropped)})` : ''}. Имена не тронуты.${r.backup ? ` Прежний вид — ${r.backup}.` : ''}`]
+    : ['Опубликованный вид сходится с каталогом: пересчёт из имён ничего не меняет.']
+  for (const k of r.kept) lines.push(`⚠ вид: ${k.field}${k.id ? ` «${k.id}»` : ''} — ${k.why}; группа держит прежние значения — выбрать заново в панели`)
+  return lines
+}
+
 /** Список пар для PANEL.md — между метками `pairs:start` и `pairs:end`. */
 export function pairsMarkdown(catalog) {
   const name = (field, id) => catalog.groups[field].find((o) => o.id === id)?.name ?? id
@@ -245,11 +287,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const text = readFileSync(md, 'utf8')
     writeFileSync(md, text.replace(/(<!-- pairs:start -->\n)[\s\S]*?(\n<!-- pairs:end -->)/, `$1${pairsMarkdown(catalog)}$2`))
   }
+  const count = Object.fromEntries(Object.entries(catalog.groups).map(([g, l]) => [g, l.length]))
+  console.log(`Каталог панели: ${Object.entries(count).map(([g, n]) => `${g} ${n}`).join(' · ')} · пар, которые не носятся: ${catalog.pairs.length}`)
   if (process.argv.includes('--look')) {
     const { compose } = await import('../ui/choice.mjs')
     const { look } = compose(catalog.defaults, catalog)
-    writeFileSync(join(ROOT, 'lib/source/sample/look.json'), JSON.stringify(look, null, 2) + '\n')
+    writeFileSync(join(ROOT, PUBLISHED), JSON.stringify(look, null, 2) + '\n')
+  } else {
+    for (const line of reresolveReport(await reresolvePublished(ROOT, catalog))) console.log(line)
   }
-  const count = Object.fromEntries(Object.entries(catalog.groups).map(([g, l]) => [g, l.length]))
-  console.log(`Каталог панели: ${Object.entries(count).map(([g, n]) => `${g} ${n}`).join(' · ')} · пар, которые не носятся: ${catalog.pairs.length}`)
 }

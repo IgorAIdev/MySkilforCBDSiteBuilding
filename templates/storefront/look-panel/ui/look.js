@@ -59,6 +59,9 @@
   /* Развернуть — уголки наружу, свернуть — внутрь. */
   var GROW = 'M9.5 2.5h4v4M13.5 2.5l-4.5 4.5M6.5 13.5h-4v-4M2.5 13.5l4.5-4.5'
   var SHRINK = 'M13 7h-4V3M9 7l4.5-4.5M3 9h4v4M7 9l-4.5 4.5'
+  /* Полоса «Look»: настройка — два движка на двух линиях; открыть — уголок вверх. */
+  var SLIDERS = 'M2.5 5h11M2.5 11h11M6 3.25v3.5M10 9.25v3.5'
+  var UP = 'M4 10l4-4 4 4'
   function remember(key, value) {
     try { value === null ? sessionStorage.removeItem(key) : sessionStorage.setItem(key, value) } catch (e) { /* без памяти */ }
   }
@@ -113,6 +116,10 @@
     var status = el('output', { class: 'lp-status', 'aria-live': 'polite' })
     var groups = []
     var pairs = function () { return catalog.pairs.concat(own) }
+    /* Черновик на экране: полоса «Look» говорит «Draft», пока страница
+       показывает не опубликованное. Сама полоса строится ниже. */
+    var drafting = Boolean(state.previewing && state.draft)
+    var bandSync = function () {}
 
     function preview() {
       var tag = document.getElementById('look-preview')
@@ -123,6 +130,8 @@
       return Object.assign({}, names, custom() ? { paints: paints } : {})
     }
     function draft(reload) {
+      drafting = true
+      bandSync()
       status.textContent = 'Saving draft…'
       return send('POST', 'draft', body()).then(function (r) {
         status.textContent = r.ok ? 'Draft saved — only you see it.' : 'Draft not saved: ' + (r.error || 'error')
@@ -133,6 +142,7 @@
     function refresh() {
       groups.forEach(function (g) { g.refresh() })
       promises.refresh()
+      bandSync()
       var bad = choice.clashes(names, pairs())
       publish.disabled = Boolean(bad.length)
       publish.title = bad.length ? bad[0].why : ''
@@ -612,23 +622,36 @@
         status,
       ]),
     ])
-    /* Вход в панель — полоса после страницы, своим местом в потоке (look.css,
-       «Полоса входа»): поверх страницы она не лежит, и ни одна сумма под
-       ней не прячется. Открытая панель помнится за зрителем и открывается
-       сама на следующей странице — спускаться за ней не нужно, пока её не
-       закрыли. */
-    var open = el('button', { class: 'lp-open lp-act lp-main', type: 'button', popovertarget: 'lp-panel', text: 'Open the panel' })
-    var dock = el('div', { class: 'lp-dock', role: 'region', 'aria-label': 'Look panel' }, [
-      el('p', { class: 'lp-dock-text' }, [el('b', { text: 'Look' }), ' — colours, type, buttons and layout. Choices show only in this browser until you publish.']),
-      open,
+    /* Вход в панель — полоса «Look» у низа окна со своим местом (look.css,
+       «Полоса «Look»», И354): видна с любого места страницы, страница держит
+       место под неё сама (резерв нижней полосы), ни одна сумма под ней не
+       прячется. В полосе одна цель у её конца, по своему содержимому:
+       «Look», выбор словами, «Open». Открытая панель стоит на полосе, и та
+       же цель её закрывает («Close»). */
+    var bandWords = el('span', { class: 'lp-band-words' })
+    var bandDraft = el('span', { class: 'lp-band-draft', text: 'Draft', hidden: true })
+    var bandAct = el('span', { class: 'lp-band-act' })
+    var bandBtn = el('button', { class: 'lp-band-btn', type: 'button', popovertarget: 'lp-panel', 'aria-expanded': 'false' }, [
+      icon(SLIDERS, 16), el('span', { class: 'lp-band-name', text: 'Look' }), bandWords, bandDraft, bandAct,
     ])
-    document.body.appendChild(el('div', { class: 'lp' }, [dock, panel]))
+    var band = el('div', { class: 'lp-band' }, [bandBtn])
+    bandSync = function () {
+      var open = bandBtn.getAttribute('aria-expanded') === 'true'
+      var words = [custom() ? (paints && paints.name) || 'Custom' : choice.title(catalog, 'palette', names.palette), choice.title(catalog, 'face', names.face), choice.title(catalog, 'scale', names.scale)].join(' · ')
+      bandWords.textContent = words
+      bandDraft.hidden = !drafting
+      bandAct.replaceChildren(el('span', { text: open ? 'Close' : 'Open' }), icon(UP, 14))
+      bandBtn.setAttribute('aria-label', 'Look: ' + words + (drafting ? ', draft' : '') + '. ' + (open ? 'Close' : 'Open') + ' the panel')
+    }
+    document.body.appendChild(el('div', { class: 'lp' }, [band, panel]))
     wide(keptWide())
     show(recall(TAB) === 'admin' ? 'admin' : 'system')
     if (custom() && paints) { preview(); guard() }
     refresh()
     panel.addEventListener('toggle', function (e) {
       remember(OPEN, e.newState === 'open' ? '1' : null)
+      bandBtn.setAttribute('aria-expanded', String(e.newState === 'open'))
+      bandSync()
       if (e.newState === 'open') sections.forEach(function (s) { fade(s.bar) })
     })
     addEventListener('resize', later(function () { sections.forEach(function (s) { fade(s.bar) }) }, 100))

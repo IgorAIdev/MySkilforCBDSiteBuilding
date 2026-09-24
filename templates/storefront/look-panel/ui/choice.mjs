@@ -175,6 +175,67 @@ export function compose(names, catalog, paints = null) {
   return { look: { header: chosen.header, card: chosen.card, vars, fonts: [], names: chosen, ...(meta ? { paints: meta } : {}) }, need }
 }
 
+/* ── Опубликованный вид — заново из имён (И352) ──────────────────────── */
+
+/** Свойства, которые пишет поле: всё, что несут его варианты. */
+const keysOf = (catalog, field) => new Set((catalog.groups[field] ?? []).flatMap((o) => Object.keys(o.vars ?? {})))
+const same = (a, b) => Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v)
+
+/** Опубликованный вид, пересчитанный из ИМЁН нынешним каталогом и движком.
+ *  Решение заказчика — имена; значения из них выводит набор, и когда каталог
+ *  или движок меняются (у палитры появилась роль, у кнопки — ось), значения
+ *  выводятся заново — из его выбора, а не из умолчаний стилей другой
+ *  палитры. Имена, шапка, карточка, шрифты и краски — как были; меняются
+ *  только значения.
+ *
+ *  Имя, которого в каталоге больше нет, не угадывается: группа держит
+ *  прежние значения, имя называется (`kept`). Поле, которого при публикации
+ *  ещё не было (в именах его нет), берёт умолчание каталога — то же, что
+ *  показывает панель (`complete`); если прежние значения этой группы не
+ *  совпадают с умолчанием, они остаются и называются: без слова заказчика
+ *  видимое не меняется.
+ *  @param {{ vars?: Record<string, string>, names?: Record<string, string>, paints?: Paints }} look @param {any} catalog */
+export function reresolve(look, catalog) {
+  const old = look?.vars ?? {}
+  const names = look?.names ?? {}
+  /** @type {{ field: string, id: string | null, why: string }[]} */
+  const kept = []
+  /** @type {Record<string, string>} */
+  const vars = {}
+  const hold = (field, id, why) => {
+    kept.push({ field, id, why })
+    for (const k of keysOf(catalog, field)) if (Object.hasOwn(old, k)) vars[k] = old[k]
+  }
+  for (const f of valuesOf(catalog)) {
+    const id = names[f]
+    if (f === 'palette' && id === CUSTOM) {
+      if (validPaints(look?.paints)) Object.assign(vars, paletteVars(look.paints))
+      else hold(f, id, 'own palette without its three paints per theme')
+      continue
+    }
+    if (id !== undefined) {
+      const o = option(catalog, f, id)
+      if (o) Object.assign(vars, o.vars ?? {})
+      else hold(f, id, `«${id}» is no longer in the catalog`)
+      continue
+    }
+    const def = option(catalog, f, catalog.defaults[f])?.vars ?? {}
+    const had = Object.fromEntries([...keysOf(catalog, f)].filter((k) => Object.hasOwn(old, k)).map((k) => [k, old[k]]))
+    if (Object.keys(had).some((k) => had[k] !== def[k])) hold(f, null, 'no name, and its values are not the catalog default')
+    else Object.assign(vars, def)
+  }
+  const added = Object.keys(vars).filter((k) => !Object.hasOwn(old, k))
+  const changed = Object.keys(vars).filter((k) => Object.hasOwn(old, k) && old[k] !== vars[k])
+  const dropped = Object.keys(old).filter((k) => !Object.hasOwn(vars, k))
+  return { look: { ...look, vars }, added, changed, dropped, kept, same: same(old, vars) }
+}
+
+/** Свойства сайта, которым вид не даёт значения (И353): каждое из них взяло
+ *  бы умолчание стилей сайта — краску или меру другого выбора рядом с
+ *  выбранным. Годный вид не оставляет ни одного. */
+/** @param {Record<string, string> | undefined} vars @param {Record<string, unknown>} slots */
+export const uncovered = (vars, slots) => Object.keys(slots).filter((k) => !Object.hasOwn(vars ?? {}, k))
+
 /** Пары, которые выбор нарушает. */
 export const clashes = (names, pairs) => pairs.filter((p) => names[p.x.field] === p.x.id && names[p.y.field] === p.y.id)
 
