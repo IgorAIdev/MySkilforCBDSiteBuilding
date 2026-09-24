@@ -70,6 +70,8 @@
 | открыть меню полок (шапка, узкий экран) | Meniu | Menu | Menü |
 | закрыть меню полок | Închide meniul | Close menu | Menü bezárása |
 | открыть панель полок (шапка «Boutique») | Magazin | Shop | Bolt |
+| открыть протокол партии (главная, лаборатория) | Deschideți buletinul de analiză | Open the lab report | A laborjegyzőkönyv megnyitása |
+| к полным условиям доставки (главная, доставка) | Toate condițiile de livrare și plată | All delivery and payment terms | Minden szállítási és fizetési feltétel |
 
 Кнопка заказа называет обязанность платить — Директива 2011/83/ЕС, ст. 8(2) (И262). Формулировку внутри этой рамки утверждает заказчик.
 
