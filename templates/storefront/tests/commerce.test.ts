@@ -28,7 +28,7 @@ test('add: the first item opens a session, a line and totals from the source', a
   assert.equal(cart.delivery, null)
   assert.deepEqual(cart.total, EUR(12980))
   assert.equal(r.change.added, undefined)
-  assert.deepEqual(cart.lines[0].options.map((o) => `${o.group}=${o.code}:${o.name}`), [`putere=20:20${NB}%`, 'volum=10:10 ml'])
+  assert.deepEqual(cart.lines[0].options.map((o) => `${o.group}=${o.code}:${o.name}`), [`putere=20:20${NB}%`, `volum=10:10${NB}ml`])
 })
 
 test('add: the same variant twice is one line; limits are loud', async () => {

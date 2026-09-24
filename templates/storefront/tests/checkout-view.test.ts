@@ -41,20 +41,32 @@ test('contact: fields keep what the checkout already knows, name and surname sid
   assert.equal(v.submit, 'Continuă')
 })
 
+/* Порядок имени — факт языка (И381): по-венгерски фамилия первой, и поле
+   фамилии стоит первым; токены автозаполнения при этом те же. */
+test('contact: the name pair follows the page language — Hungarian asks for the family name first', async () => {
+  const known = (await at(FIXTURES.contact, 'hu')).contact
+  const hu = contactView('hu', known)
+  assert.deepEqual(hu.rows[1].map((f) => [f.name, f.autoComplete, f.label]), [
+    ['lastName', 'family-name', 'Vezetéknév'],
+    ['firstName', 'given-name', 'Keresztnév'],
+  ])
+  assert.deepEqual(contactView('en', known).rows[1].map((f) => f.name), ['firstName', 'lastName'])
+})
+
 test('days count by the upper end, in every language', () => {
-  assert.equal(daysText('ro', { min: 1, max: 1 }), '1 zi lucrătoare')
-  assert.equal(daysText('ro', { min: 2, max: 2 }), '2 zile lucrătoare')
-  assert.equal(daysText('ro', { min: 1, max: 3 }), '1–3 zile lucrătoare')
-  assert.equal(daysText('en', { min: 1, max: 1 }), '1 working day')
-  assert.equal(daysText('hu', { min: 1, max: 2 }), '1–2 munkanap')
+  assert.equal(daysText('ro', { min: 1, max: 1 }), `1${NB}zi lucrătoare`)
+  assert.equal(daysText('ro', { min: 2, max: 2 }), `2${NB}zile lucrătoare`)
+  assert.equal(daysText('ro', { min: 1, max: 3 }), `1–\u20603${NB}zile lucrătoare`)
+  assert.equal(daysText('en', { min: 1, max: 1 }), `1${NB}working day`)
+  assert.equal(daysText('hu', { min: 1, max: 2 }), `1–\u20602${NB}munkanap`)
   assert.equal(daysText('ro', null), null)
 })
 
 test('delivery: methods speak their kind, carrier and days; nothing chosen — no details', async () => {
   const v = deliveryView('ro', { methods: await methods(), delivery: null, pickup: null })
   assert.deepEqual(v.methods.map((m) => [m.id, m.meta, m.price, m.checked]), [
-    ['curier', 'La adresă · FAN Courier · 1–2 zile lucrătoare', `4,99${NB}€`, false],
-    ['locker', 'Punct de ridicare · Sameday · 1–2 zile lucrătoare', `3,49${NB}€`, false],
+    ['curier', `La adresă · FAN Courier · 1–\u20602${NB}zile lucrătoare`, `4,99${NB}€`, false],
+    ['locker', `Punct de ridicare · Sameday · 1–\u20602${NB}zile lucrătoare`, `3,49${NB}€`, false],
     ['magazin', 'Punct de ridicare', 'Gratuit', false],
   ])
   assert.equal(v.details, null)
@@ -107,7 +119,7 @@ test('payment: eligible first, the rest disabled with the reason; the review and
   ])
   assert.equal(v.recaps[1].change!.href, '/ro/checkout/delivery')
   assert.equal(v.recaps[1].change!.aria, 'Modifică: Livrare')
-  assert.deepEqual([v.items[0].name, v.items[0].facts, v.items[1].facts], ['Ulei CBD full spectrum', `20${NB}% · 10 ml · Cant. 1`, '30 buc. · Cant. 2'])
+  assert.deepEqual([v.items[0].name, v.items[0].facts, v.items[1].facts], ['Ulei CBD full spectrum', `20${NB}% · 10${NB}ml · Cant. 1`, `30${NB}buc. · Cant. 2`])
   assert.deepEqual(v.pledges.items.map((i) => i.text), ['Retur în 14 zile'], 'by the order button: the return deadline from the data')
   assert.equal(v.totals.total.value, `135,22${NB}€`)
   assert.equal(v.submit, 'Comandă cu obligație de plată')
@@ -127,7 +139,7 @@ test('done: the order number, what happens next from this order’s methods, who
   assert.doesNotMatch(v.title, /!/, 'the voice has no exclamation marks (docs/words.md)')
   assert.equal(v.next.title, 'Ce urmează')
   assert.deepEqual(v.next.steps.map((x) => [x.title, x.lines]), [
-    ['Livrare', ['Curier la domiciliu · FAN Courier · 1–2 zile lucrătoare', 'Curierul vă sună înainte de livrare.']],
+    ['Livrare', [`Curier la domiciliu · FAN Courier · 1–\u20602${NB}zile lucrătoare`, 'Curierul vă sună înainte de livrare.']],
     ['Plată', ['Plata la livrare (ramburs)', 'Plătiți la primirea coletului.']],
   ])
   assert.equal(v.review, 'Detaliile comenzii')

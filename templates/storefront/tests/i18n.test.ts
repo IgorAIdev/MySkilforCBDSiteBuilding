@@ -45,9 +45,9 @@ test('the order button names the obligation to pay', () => {
 })
 
 test('a range of days counts by its upper end', () => {
-  assert.equal(tn('ro', 'delivery.span', 3, { min: 1 }), '1–3 zile lucrătoare')
-  assert.equal(tn('ro', 'delivery.day', 1), '1 zi lucrătoare')
-  assert.equal(tn('ro', 'delivery.day', 20), '20 de zile lucrătoare')
-  assert.equal(tn('en', 'delivery.day', 1), '1 working day')
-  assert.equal(tn('hu', 'delivery.span', 2, { min: 1 }), '1–2 munkanap')
+  assert.equal(tn('ro', 'delivery.span', 3, { min: 1 }), '1–\u20603\u00a0zile lucrătoare')
+  assert.equal(tn('ro', 'delivery.day', 1), '1\u00a0zi lucrătoare')
+  assert.equal(tn('ro', 'delivery.day', 20), '20\u00a0de zile lucrătoare')
+  assert.equal(tn('en', 'delivery.day', 1), '1\u00a0working day')
+  assert.equal(tn('hu', 'delivery.span', 2, { min: 1 }), '1–\u20602\u00a0munkanap')
 })

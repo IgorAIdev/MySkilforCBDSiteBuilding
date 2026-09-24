@@ -11,7 +11,7 @@ test('a shelf card carries ready strings: address, "from" price, facts, stock on
   assert.equal(oil.href, '/ro/product/ulei-cbd-full-spectrum')
   assert.equal(oil.price, 'de la 34,90 €')
   assert.equal(oil.flag, null, '«în stoc» на полке не печатается')
-  assert.equal(oil.facts, '5–30 % · 10/30 ml')
+  assert.equal(oil.facts, '5–\u206030 % · 10/30 ml')
   assert.equal(serum.price, '32,90 €')
   assert.deepEqual(serum.flag, { level: 'out', text: 'Stoc epuizat' })
   assert.deepEqual(cats.flag?.level, 'low')

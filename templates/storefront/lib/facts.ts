@@ -1,6 +1,6 @@
 import type { Lang } from './locale.ts'
 import type { Card, Pack } from './source/contract.ts'
-import { BIND, num } from './format.ts'
+import { BIND, RANGE, num } from './format.ts'
 import { t } from './i18n/index.ts'
 
 /* Факты товара на полке — сила, мера, миллиграммы — одной строкой из данных
@@ -32,7 +32,7 @@ const distinct = (xs: (number | null)[]): number[] =>
    на этикетке, разрядка с пяти. */
 function nums(lang: Lang, xs: number[]): string {
   const [lo, hi] = [num(lang, xs[0]), num(lang, xs[xs.length - 1])]
-  return xs.length === 1 ? lo : xs.length === 2 ? `${lo}/${hi}` : `${lo}–${hi}`
+  return xs.length === 1 ? lo : xs.length === 2 ? `${lo}/${hi}` : `${lo}${RANGE}${hi}`
 }
 const span = (lang: Lang, xs: number[], unit: string): string | null => (xs.length ? `${nums(lang, xs)}${BIND}${unit}` : null)
 
