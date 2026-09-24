@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>37 · Карточка товара: мини</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 37 — «Карточка товара: мини». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: блеск, свечение и подъём карточки; рост и подъём снимка; сдвиг названия и цены, пульс знака; градиент и штриховка снимка; появление метки только под рукой.
+  Приведено к единой форме: кадр под снимок — тон марки, место занято заранее; метка «New» — тон успеха, видна всегда; кнопка «добавить» — главная набора кругом со знаком плюса; название — роль h3, описание — роль сноски.
+  Наведение: у кнопки: марка + 5 %. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card"><div class="frame"><span class="tag" data-tone="ok">New</span><svg data-sign="leaf"></svg></div><div class="stack"><p class="title">Hemp balm</p><p class="text">Soothing balm with 500 mg CBD.</p></div><div class="row"><span class="price">24,00 €</span><button class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" type="button" aria-label="Add to cart"><svg data-sign="plus"></svg></button></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card"><div class="frame"><span class="tag" data-tone="ok">New</span><svg data-sign="leaf"></svg></div><div class="stack"><p class="title">Hemp balm</p><p class="text">Soothing balm with 500 mg CBD.</p></div><div class="row"><span class="price">24,00 €</span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm"><svg data-sign="plus"></svg></span></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card"><div class="frame"><span class="tag" data-tone="ok">New</span><svg data-sign="leaf"></svg></div><div class="stack"><p class="title">Hemp balm</p><p class="text">Soothing balm with 500 mg CBD.</p></div><div class="row"><span class="price">24,00 €</span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-state="hover"><svg data-sign="plus"></svg></span></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card"><div class="frame"><span class="tag" data-tone="ok">New</span><svg data-sign="leaf"></svg></div><div class="stack"><p class="title">Hemp balm</p><p class="text">Soothing balm with 500 mg CBD.</p></div><div class="row"><span class="price">24,00 €</span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-state="press"><svg data-sign="plus"></svg></span></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card"><div class="frame"><span class="tag" data-tone="ok">New</span><svg data-sign="leaf"></svg></div><div class="stack"><p class="title">Hemp balm</p><p class="text">Soothing balm with 500 mg CBD.</p></div><div class="row"><span class="price">24,00 €</span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-state="focus"><svg data-sign="plus"></svg></span></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

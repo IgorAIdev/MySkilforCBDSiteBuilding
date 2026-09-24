@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>31 · Всплывающее сообщение: ошибка</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 31 — «Всплывающее сообщение: ошибка». Источник — разметка Tailwind от заказчика 24.09.2026 (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тёмная плашка своей краской; размытие под знаком; мелкий текст 10 пикселей.
+  Приведено к единой форме: лист с волоском; знак — на тоне семьи «ошибка», краской ошибки (--bad-tint, --bad); знак — треугольник из листа набора; выход — кнопка-знак «закрыть»; заголовок — роль h3, текст — роль сноски.
+  Наведение: у «закрыть»: вуаль 5 %. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card" data-tone="bad" data-layout="row"><span class="mark"><svg data-sign="triangle-alert"></svg></span><div class="stack"><p class="title">Please try again</p><p class="text">The payment did not go through.</p></div><button class="el" data-voice="ghost" data-icon data-size="sm" type="button" aria-label="Close"><svg data-sign="x"></svg></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-tone="bad" data-layout="row"><span class="mark"><svg data-sign="triangle-alert"></svg></span><div class="stack"><p class="title">Please try again</p><p class="text">The payment did not go through.</p></div><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="x"></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-tone="bad" data-layout="row"><span class="mark"><svg data-sign="triangle-alert"></svg></span><div class="stack"><p class="title">Please try again</p><p class="text">The payment did not go through.</p></div><span class="el" data-voice="ghost" data-icon data-size="sm" data-state="hover"><svg data-sign="x"></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-tone="bad" data-layout="row"><span class="mark"><svg data-sign="triangle-alert"></svg></span><div class="stack"><p class="title">Please try again</p><p class="text">The payment did not go through.</p></div><span class="el" data-voice="ghost" data-icon data-size="sm" data-state="press"><svg data-sign="x"></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-tone="bad" data-layout="row"><span class="mark"><svg data-sign="triangle-alert"></svg></span><div class="stack"><p class="title">Please try again</p><p class="text">The payment did not go through.</p></div><span class="el" data-voice="ghost" data-icon data-size="sm" data-state="focus"><svg data-sign="x"></svg></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

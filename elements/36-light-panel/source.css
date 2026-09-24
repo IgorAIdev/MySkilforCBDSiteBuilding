@@ -1,0 +1,294 @@
+/* Источник 36 — CSS от заказчика 24.09.2026, как прислан. */
+/* Note: dropdown is functional, to see click the dropdown.. */
+.glass-card {
+  width: 290px;
+  background: rgba(36, 36, 36, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.3s ease;
+}
+
+/* dropdown*/
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.header-dropdown-container {
+  position: relative;
+}
+
+.hidden-toggle {
+  display: none;
+}
+
+.header-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-dropdown:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.icon-circle {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #8e8e93;
+  border-radius: 50%;
+  transition: border-color 0.2s ease;
+}
+
+.header-dropdown:hover .icon-circle {
+  border-color: #0a84ff;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.arrow-down {
+  color: #8e8e93;
+  margin-left: 2px;
+  transition: transform 0.3s ease;
+}
+
+/* dropdown Logic */
+.dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  position: absolute;
+  top: 120%;
+  left: 0;
+  background: rgba(40, 40, 40, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 120px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hidden-toggle:checked ~ .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.hidden-toggle:checked + .header-dropdown .arrow-down {
+  transform: rotate(180deg);
+  color: #ffffff;
+}
+
+.dropdown-item {
+  padding: 6px 8px;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #e0e0e0;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: #0a84ff;
+  color: white;
+}
+
+.dropdown-item.active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* elements */
+.beta-tag {
+  font-size: 11px;
+  color: #8e8e93;
+  font-weight: 500;
+}
+
+.close-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #8e8e93;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 8px 0;
+}
+
+.control-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.group-label {
+  font-size: 12px;
+  color: #8e8e93;
+  width: 65px;
+  margin-top: 6px;
+}
+
+.light-controls {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.light-preview {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at top left, #a1a1a1, #1a1a1a 70%);
+}
+.pin-icon {
+  position: relative;
+}
+.torch-svg {
+  height: 20px;
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  transform: rotate(-140deg);
+}
+.input-box {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 5px 8px;
+  width: 90px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #e0e0e0;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Range Slider Section */
+.sliders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.slider-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(36, 36, 36, 0.75);
+  height: 35px;
+  padding-inline: 10px;
+  border-radius: 5px;
+}
+.slider-divider {
+  height: 50%;
+  width: 2px;
+  background-color: #cccccc77;
+}
+.slider-value {
+  font-weight: 600;
+  color: #8e8e93;
+}
+
+.slider-row label {
+  font-size: 12px;
+  color: #8e8e93;
+  width: 70px;
+}
+
+/* The Secret to the Pure CSS Blue Fill */
+.slider-wrapper {
+  flex: 1;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: #1a1a1a;
+}
+
+.custom-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: transparent;
+  outline: none;
+  cursor: grab;
+}
+
+.custom-slider:active {
+  cursor: grabbing;
+}
+
+/* Chrome, Safari, Edge Thumb */
+.custom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  box-shadow: -407px 0 0 400px #0a84ff;
+  transition: transform 0.2s ease;
+}
+
+.custom-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+
+/* Firefox Fill */
+.custom-slider::-moz-range-progress {
+  background-color: #0a84ff;
+}
+
+.custom-slider::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+}

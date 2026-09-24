@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>34 · Меню учётной записи</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 34 — «Меню учётной записи». Источник — разметка Tailwind от заказчика 24.09.2026 (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: градиент шапки; полоса слева у строки под рукой; подчёркивание адреса под рукой; тени меню; синие и красные оттенки.
+  Приведено к единой форме: шапка — краской марки: «кто вошёл», круг со знаком и адрес; строки — органы во всю ширину, знак в плитке тона марки, шеврон у конца; «Выйти» — краской ошибки и её плиткой; бумага всплывающего — лист с волоском, на сайте — popover.
+  Наведение: строка: вуаль 5 % своей краски. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="menu"><header><span class="label">Signed in as</span><span class="who"><span class="mark"><svg data-sign="user"></svg></span><span>john.parker@example.com</span></span></header><button class="el" data-voice="ghost" data-row type="button"><span class="mark" data-shape="tile"><svg data-sign="user"></svg></span>Profile<svg class="end" data-sign="chevron-right"></svg></button><button class="el" data-voice="ghost" data-row type="button"><span class="mark" data-shape="tile"><svg data-sign="sliders-horizontal"></svg></span>Settings<svg class="end" data-sign="chevron-right"></svg></button><button class="el" data-voice="ghost" data-row data-tone="bad" type="button"><span class="mark" data-shape="tile" data-tone="bad"><svg data-sign="log-out"></svg></span>Log out<svg class="end" data-sign="chevron-right"></svg></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="menu"><header><span class="label">Signed in as</span><span class="who"><span class="mark"><svg data-sign="user"></svg></span><span>john.parker@example.com</span></span></header><span class="el" data-voice="ghost" data-row><span class="mark" data-shape="tile"><svg data-sign="user"></svg></span>Profile<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row><span class="mark" data-shape="tile"><svg data-sign="sliders-horizontal"></svg></span>Settings<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row data-tone="bad"><span class="mark" data-shape="tile" data-tone="bad"><svg data-sign="log-out"></svg></span>Log out<svg class="end" data-sign="chevron-right"></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="menu"><header><span class="label">Signed in as</span><span class="who"><span class="mark"><svg data-sign="user"></svg></span><span>john.parker@example.com</span></span></header><span class="el" data-voice="ghost" data-row data-state="hover"><span class="mark" data-shape="tile"><svg data-sign="user"></svg></span>Profile<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row><span class="mark" data-shape="tile"><svg data-sign="sliders-horizontal"></svg></span>Settings<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row data-tone="bad"><span class="mark" data-shape="tile" data-tone="bad"><svg data-sign="log-out"></svg></span>Log out<svg class="end" data-sign="chevron-right"></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="menu"><header><span class="label">Signed in as</span><span class="who"><span class="mark"><svg data-sign="user"></svg></span><span>john.parker@example.com</span></span></header><span class="el" data-voice="ghost" data-row data-state="press"><span class="mark" data-shape="tile"><svg data-sign="user"></svg></span>Profile<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row><span class="mark" data-shape="tile"><svg data-sign="sliders-horizontal"></svg></span>Settings<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row data-tone="bad"><span class="mark" data-shape="tile" data-tone="bad"><svg data-sign="log-out"></svg></span>Log out<svg class="end" data-sign="chevron-right"></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="menu"><header><span class="label">Signed in as</span><span class="who"><span class="mark"><svg data-sign="user"></svg></span><span>john.parker@example.com</span></span></header><span class="el" data-voice="ghost" data-row data-state="focus"><span class="mark" data-shape="tile"><svg data-sign="user"></svg></span>Profile<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row><span class="mark" data-shape="tile"><svg data-sign="sliders-horizontal"></svg></span>Settings<svg class="end" data-sign="chevron-right"></svg></span><span class="el" data-voice="ghost" data-row data-tone="bad"><span class="mark" data-shape="tile" data-tone="bad"><svg data-sign="log-out"></svg></span>Log out<svg class="end" data-sign="chevron-right"></svg></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

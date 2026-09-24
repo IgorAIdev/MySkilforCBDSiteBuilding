@@ -60,6 +60,17 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill)
   else fill()
+  /* Ползунок значения: доля заполнения и число рядом идут за ручкой. */
+  const range = (el) => {
+    const f = (el.value - (el.min || 0)) / ((el.max || 100) - (el.min || 0))
+    el.style.setProperty('--fill', \`\${Math.round(f * 100)}%\`)
+    const out = el.parentElement?.querySelector('output')
+    if (out) out.textContent = el.value
+  }
+  const ranges = () => document.querySelectorAll('input.range').forEach(range)
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ranges)
+  else ranges()
+  document.addEventListener('input', (e) => { if (e.target.matches?.('input.range')) range(e.target) })
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
@@ -73,7 +84,7 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
 `
 
 /** Подключения каждой отрисовки: палитры набора, роли, основа, сцена. */
-export const LINKS = ['<link rel="stylesheet" href="../palettes.css">', '<link rel="stylesheet" href="../../styles/tokens.css">', '<link rel="stylesheet" href="../base.css">', '<script src="../stage.js"></script>']
+export const LINKS = ['<link rel="stylesheet" href="../palettes.css">', '<link rel="stylesheet" href="../../styles/scale.css">', '<link rel="stylesheet" href="../../styles/tokens.css">', '<link rel="stylesheet" href="../base.css">', '<script src="../stage.js"></script>']
 /** Род, у которого нет состояний и меток органа: это рисунки, а не орган. */
 export const DRAWINGS = 'набор значков'
 

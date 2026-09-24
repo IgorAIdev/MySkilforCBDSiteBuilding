@@ -17,6 +17,17 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill)
   else fill()
+  /* Ползунок значения: доля заполнения и число рядом идут за ручкой. */
+  const range = (el) => {
+    const f = (el.value - (el.min || 0)) / ((el.max || 100) - (el.min || 0))
+    el.style.setProperty('--fill', `${Math.round(f * 100)}%`)
+    const out = el.parentElement?.querySelector('output')
+    if (out) out.textContent = el.value
+  }
+  const ranges = () => document.querySelectorAll('input.range').forEach(range)
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ranges)
+  else ranges()
+  document.addEventListener('input', (e) => { if (e.target.matches?.('input.range')) range(e.target) })
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
