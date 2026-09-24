@@ -97,7 +97,7 @@ export const MARKERS = [
 const CARD_LINES = {
   framed: { name: 'Framed', line: 'Own surface with a shadow: the card sits above the page' },
   bare: { name: 'Bare', line: 'No box: the picture with its own corners on the page, text below' },
-  outlined: { name: 'Outlined', line: 'A hairline instead of a shadow, inner field: a denser shelf' },
+  outlined: { name: 'Outlined', line: 'A hairline instead of a shadow; the picture sits inside the card field' },
 }
 /** Карта товара (И278): варианты — значения ручек `--pdp-*`, которые сайт
  *  объявляет у себя (scripts/look-slots.mjs, PRODUCT). Доля ряда под
