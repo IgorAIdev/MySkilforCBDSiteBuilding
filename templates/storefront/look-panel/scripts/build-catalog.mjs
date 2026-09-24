@@ -120,7 +120,8 @@ const CARD_LINES = {
 /** Полка (И400, «Admin → Card»): пропорция снимка — одна на полку и карту
  *  товара, снимки у товара одни; плотность — сколько карточек в ряд на
  *  полке каталога и поиска (shop: «4–5 простых карточек по 260–325px»),
- *  меньше на узком окне считает сетка. Варианты — значения ручек, которые
+ *  меньше на узком окне считает сетка; кнопка «в корзину» — во всю ширину
+ *  или рядом с ценой (элемент 64 набора). Варианты — значения ручек, которые
  *  сайт объявляет у себя (scripts/look-slots.mjs, PRODUCT). Пропорция —
  *  дробью 'a / b': из неё же карта считает высоту галереи. */
 export const SHELF = {
@@ -129,6 +130,10 @@ export const SHELF = {
     { id: 'wide', name: '4:3', line: 'Landscape pictures: shorter cards, more rows on a screen', vars: { '--shot-frame': '4 / 3' } },
     { id: 'portrait', name: '4:5', line: 'Upright pictures, 4 : 5 — taller bottles and boxes', vars: { '--shot-frame': '4 / 5' } },
     { id: 'tall', name: '3:4', line: 'Tall pictures, 3 : 4 — the product stands the whole height', vars: { '--shot-frame': '3 / 4' } },
+  ],
+  'card-buy': [
+    { id: 'full', name: 'Full width', line: 'The cart button under the price, the whole width of the card', vars: { '--card-buy': 'full' } },
+    { id: 'beside', name: 'Beside the price', line: 'A smaller cart button at the end of the price row; it moves under the price when the card is narrow', vars: { '--card-buy': 'beside' } },
   ],
   'shelf-cols': [
     { id: '4', name: '4 in a row', line: 'Four cards in a row on a wide screen: larger pictures', vars: { '--shelf-cols': '4' } },

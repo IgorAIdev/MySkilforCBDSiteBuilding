@@ -45,7 +45,8 @@ const FILES = { palette: 'styles/palette.css', buttons: 'styles/buttons.css', sc
 const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length' }
 /** Ручки товара: карта (И278, «Admin → Product page») и полка (И400,
  *  «Admin → Card») — пропорция снимка одна на полку и карту, плотность —
- *  сколько карточек в ряд на полке каталога. Каждое свойство — своя
+ *  сколько карточек в ряд на полке каталога, место кнопки «в корзину» на
+ *  карточке — во всю ширину или рядом с ценой. Каждое свойство — своя
  *  настройка панели, группа — имя свойства без `--`. Род и умолчание — на
  *  случай, когда styles/look.css сайта старше группы и их ещё не несёт;
  *  дальше значение приходит из опубликованного вида. */
@@ -55,6 +56,7 @@ export const PRODUCT = {
   '--pdp-edge': { type: 'keyword', value: 'inset' },
   '--shot-frame': { type: 'number', value: '1 / 1' },
   '--shelf-cols': { type: 'number', value: '4' },
+  '--card-buy': { type: 'keyword', value: 'full' },
 }
 /* Роли тени — по работе (И228): предмет в покое, подъём под рукой,
    всплывающее, вдавленное. Объявлены ОДИН раз — в styles/look.css, на

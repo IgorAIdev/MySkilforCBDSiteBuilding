@@ -1,12 +1,12 @@
 import type { Lang } from './locale.ts'
-import type { Card, Collection, Image, LabReport, Money, Product } from './source/contract.ts'
+import type { Card, Collection, Image, LabReport, Product } from './source/contract.ts'
 import { t } from './i18n/index.ts'
 import { money } from './money.ts'
 import { hrefFor } from './href.ts'
 import { intlLocale } from './market.ts'
 import { percent } from './format.ts'
 import { pickState, optionLinks, type OptionGroupLinks } from './variant.ts'
-import { shelfCard, stockText, type ShelfCard } from './view.ts'
+import { saleOf, shelfCard, stockText, type ShelfCard, type WasView } from './view.ts'
 import { QTY_MAX } from './cart-view.ts'
 
 /** Протокол готовыми строками. `batch` — номер партии отдельно от заголовка:
@@ -36,9 +36,9 @@ export type Slide = Image & { id: string; show: string }
 /** Галерея готовыми строками: снимки по порядку (первый — главный), плашка
  *  скидки, имена стрелок и ленты. */
 export type GalleryView = { label: string; prev: string; next: string; slides: Slide[]; badge: string | null }
-/** Прежняя цена: `text` — видимая, зачёркнутая; `said` — она же словами для
- *  чтения вслух (зачёркивание голосом не читается). */
-export type WasView = { text: string; said: string }
+/* Прежняя цена (`WasView`) и скидка (`saleOf`) — одни на полку и карту,
+   lib/view.ts. */
+export type { WasView }
 /** `choose` — «Choose an option» у групп выбора: покупатель нажал «в
  *  корзину», не выбрав варианта (адрес с `choose=1`), и выбора всё ещё нет.
  *  `message` — строка под кнопкой, когда купить нельзя: сочетания нет. */
@@ -58,15 +58,6 @@ export function galleryView(lang: Lang, images: Image[], badge: string | null): 
   }
 }
 
-/** Скидка показанной цены: прежняя цена строкой и плашка «−15 %» записью
- *  языка страницы (`percent`, lib/format.ts, И347). Считает вид, а не
- *  компонент (И248): блок получает готовые строки. Прежней цены нет или она
- *  не выше — скидки нет. */
-function saleOf(lang: Lang, price: Money, was: Money | null): { was: WasView; badge: string } | null {
-  if (!was || was.minor <= price.minor) return null
-  const text = money(was, lang)
-  return { was: { text, said: t(lang, 'product.was', { price: text }) }, badge: t(lang, 'product.off', { pct: percent(lang, (1 - price.minor / was.minor) * 100, 0) }) }
-}
 
 /** Протокол партии: цифры анализа — записью языка страницы (`percent`,
  *  «10.2 %» / «10,2 %», И347); дата — порядком рынка (`intlLocale`). */

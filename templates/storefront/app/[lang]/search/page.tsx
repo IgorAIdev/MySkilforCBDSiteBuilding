@@ -8,6 +8,7 @@ import { catalogView } from '@/lib/catalog-view.ts'
 import { hrefFor, type Query } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { toMetadata } from '@/lib/seo.ts'
+import { cartSubmit, cartCall } from '@/lib/actions/cart.ts'
 import { Catalog } from '@/components/Catalog.tsx'
 import { SearchForm } from '@/components/SearchForm.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
@@ -44,5 +45,5 @@ export default async function SearchPage({ params, searchParams }: Props) {
   const empty = { title: null, step: t(lang, q ? 'search.noneStep' : 'catalog.emptyStep'), href: hrefFor(lang, { catalog: true }) }
   const more = best?.ok ? { title: t(lang, 'shelf.popular'), cards: best.value.items.slice(0, BEST) } : null
   const view = catalogView(lang, { title, lede: q ? null : t(lang, 'search.prompt'), listing, asked, at, filters: false, empty, more })
-  return <Catalog view={view} search={<SearchForm action={hrefFor(lang, { search: '' })} q={q} label={t(lang, 'search.label')} submit={t(lang, 'search.submit')} />} />
+  return <Catalog view={view} search={<SearchForm action={hrefFor(lang, { search: '' })} q={q} label={t(lang, 'search.label')} submit={t(lang, 'search.submit')} />} cart={{ submit: cartSubmit, call: cartCall }} />
 }

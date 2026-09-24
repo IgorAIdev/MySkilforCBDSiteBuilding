@@ -26,8 +26,11 @@ export type Pack = { mg: number | null; size: number; unit: 'ml' | 'g' | 'pcs' }
  *  (крем, капсулы). */
 export type Strength = 'percent' | 'mg'
 /** Товар на полке. `packs` — упаковки вариантов по порядку; у Vendure —
- *  поля варианта (план 4). */
-export type Card = { id: string; category: string; name: string; image: Image; price: Price; stock: Stock; strength: Strength; packs: Pack[] }
+ *  поля варианта (план 4). `was` — цена до скидки у товара одной цены
+ *  (у диапазона «от» прежней цены нет: неясно, чья она); `variant` — вариант,
+ *  который кладётся в корзину прямо с полки, когда он у товара один;
+ *  вариантов несколько — null, и кнопка полки ведёт к выбору (И284). */
+export type Card = { id: string; category: string; name: string; image: Image; price: Price; was: Money | null; variant: string | null; stock: Stock; strength: Strength; packs: Pack[] }
 /** Грань фильтра. `count` — сколько товаров даст значение ПРИ ВСЕХ ДРУГИХ
  *  гранях (cbd-facet, §3): счёт по текущей выборке гасил соседние значения
  *  той же грани, и выбрать «масло ИЛИ капсулы» было нечем. */

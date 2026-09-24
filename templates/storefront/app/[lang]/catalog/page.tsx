@@ -7,6 +7,7 @@ import { catalogView, emptyFor } from '@/lib/catalog-view.ts'
 import { hrefFor, type Query } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { toMetadata } from '@/lib/seo.ts'
+import { cartSubmit, cartCall } from '@/lib/actions/cart.ts'
 import { Catalog } from '@/components/Catalog.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 
@@ -26,5 +27,5 @@ export default async function CatalogPage({ params, searchParams }: Props) {
     notFound()
   }
   const at = (q: Query) => hrefFor(lang, { catalog: true, ...q })
-  return <Catalog view={catalogView(lang, { title: t(lang, 'catalog.title'), lede: t(lang, 'catalog.lede'), listing: r.value, asked, at, filters: true, empty: emptyFor(lang, asked, at) })} />
+  return <Catalog view={catalogView(lang, { title: t(lang, 'catalog.title'), lede: t(lang, 'catalog.lede'), listing: r.value, asked, at, filters: true, empty: emptyFor(lang, asked, at) })} cart={{ submit: cartSubmit, call: cartCall }} />
 }

@@ -6,6 +6,7 @@ import { readQuery, type Params } from '@/lib/listing.ts'
 import { catalogView, emptyFor } from '@/lib/catalog-view.ts'
 import { hrefFor, type Query } from '@/lib/href.ts'
 import { toMetadata } from '@/lib/seo.ts'
+import { cartSubmit, cartCall } from '@/lib/actions/cart.ts'
 import { Catalog } from '@/components/Catalog.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 
@@ -28,5 +29,5 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!r.ok && r.reason !== 'unavailable') notFound()
   if (!col.ok || !r.ok) return <Unavailable lang={lang} />
   const at = (q: Query) => hrefFor(lang, { category: cat, ...q })
-  return <Catalog view={catalogView(lang, { title: col.value.name, lede: col.value.description, listing: r.value, asked, at, filters: true, empty: emptyFor(lang, asked, at) })} />
+  return <Catalog view={catalogView(lang, { title: col.value.name, lede: col.value.description, listing: r.value, asked, at, filters: true, empty: emptyFor(lang, asked, at) })} cart={{ submit: cartSubmit, call: cartCall }} />
 }

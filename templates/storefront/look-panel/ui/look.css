@@ -190,6 +190,11 @@
 .lp-edge[data-at='bleed']{padding:0}
 .lp-edge[data-at='bleed'] .lp-pic{block-size:14px;border-radius:3px 3px 0 0}
 .lp-edge[data-at='bleed'] b{block-size:8px;border-radius:3px 3px 0 0}
+.lp-buy{display:inline-grid;grid-template-columns:10px;grid-template-rows:4px 5px;gap:2px;opacity:.8}
+.lp-buy i{display:block;inline-size:8px;background:currentColor;opacity:.5;border-radius:1px}
+.lp-buy b{display:block;background:currentColor;border-radius:3px}
+.lp-buy[data-at='beside']{grid-template-columns:8px 8px;grid-template-rows:5px;align-items:center}
+.lp-buy[data-at='beside'] i{inline-size:auto;block-size:3px}
 .lp-cols{display:inline-flex;gap:1px;opacity:.8}
 .lp-cols i{display:block;inline-size:3px;block-size:12px;border-radius:1px;background:currentColor}
 .lp-thumbs[data-at='over']{grid-template-rows:12px}

@@ -195,6 +195,7 @@
       /* Полка (И400): пропорция снимка — кадр; плотность — столько столбиков,
          сколько карточек в ряд. */
       if (field === 'shot-frame') return el('i', { class: 'lp-pic', style: 'aspect-ratio:' + o.vars['--shot-frame'], 'aria-hidden': 'true' })
+      if (field === 'card-buy') return el('span', { class: 'lp-buy', 'data-at': o.vars['--card-buy'], 'aria-hidden': 'true' }, [el('i'), el('b')])
       if (field === 'shelf-cols') return el('span', { class: 'lp-cols', 'aria-hidden': 'true' }, Array.from({ length: Number(o.vars['--shelf-cols']) || 4 }, function () { return el('i') }))
       if (field === 'pdp-thumbs') {
         var at = o.vars['--pdp-thumbs']

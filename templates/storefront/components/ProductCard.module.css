@@ -6,12 +6,16 @@
    всю), и цены стоят у всех на одной линии: растёт группа «что это», а не
    воздух над ценой.
 
-   Ритм — лестница из трёх шагов, а не один (разбор 24.09.2026, X1, X3):
-   внутри «что это» (имя и факты) — оптика `--sp-1`, они читаются одной
-   вещью; от фактов к цене — оптика `--sp-2`, текст карточки — один блок; от
-   снимка к тексту — воздух строки; между рядами карточек — воздух группы
-   (Catalog.module.css). Всё стояло одним шагом `--air-row`, и имя, цена и
-   «В наличии» висели на равных расстояниях — группа не читалась. */
+   Ритм — лестница, а не один шаг (разбор 24.09.2026, X1, X3): внутри «что
+   это» (имя и факты) — оптика `--sp-1`, они читаются одной вещью; внутри
+   «за сколько» (цена и «в корзину») — `--sp-2`; между этими группами —
+   зазор `--gap-row`; от снимка к тексту — воздух строки; между рядами карточек —
+   воздух группы (Catalog.module.css). Всё стояло одним шагом `--air-row`, и
+   имя, цена и «В наличии» висели на равных расстояниях — группа не
+   читалась. С кнопкой (25.09.2026) шаг между группами вырос с `--sp-2` до
+   `--gap-row`: равный шагу внутри «за сколько», он сливал цену с фактами, а
+   равный воздуху от снимка — текст карточки со снимком (check:design,
+   `flatRhythm`). Каждая ступень лестницы больше той, что внутри неё. */
 .card{position:relative;block-size:100%;display:flex;flex-direction:column;gap:var(--air-row)}
 /* Пропорция — ручкой кадра, силой места (0,2,0): `.frame` объявляет свою
    `--frame` весом голого класса, и на равном весе решал бы порядок кусков
@@ -20,7 +24,7 @@
    `1 / 1` рядом с ручкой карты — карта показывала 4 : 5, полка резала тот
    же снимок в квадрат. Угол снимка — одежда, его задаёт вариант (ниже). */
 .card .shot{--frame:var(--shot-frame)}
-.body{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-2)}
+.body{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--gap-row)}
 .what{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-1)}
 
 /* Ответ на руку — наплыв снимка; рама стоит (craft, controls.md, «Плавающее
@@ -66,6 +70,35 @@
    цены ряда читались столбцом. Сноска фактов между ними — роль `note`
    (primitives.module.css). */
 .price{font-size:var(--body-size);line-height:var(--body-lead);font-weight:700;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
+/* Прежняя цена — над ценой, мельче и краской подписи: рядом с новой в одну
+   строку две цены читались диапазоном, над ней зачёркнутая — ясно «было».
+   Для чтения вслух — словами рядом (`p.said`): зачёркивание голосом не
+   читается. */
+.price{display:flex;flex-direction:column;margin:0}
+.was{font-size:var(--note-size);line-height:var(--note-lead);font-weight:400;color:var(--ink-soft)}
+
+/* «За сколько» — цена и «в корзину» одной группой внизу карточки (слово
+   заказчика 25.09.2026). Кнопка — главная кнопка сайта (`b.btn`
+   data-voice="loud"): рисунок и ответ на руку — из её модуля, здесь только
+   место. Во всю ширину под ценой — по умолчанию: в тесной ячейке телефона
+   цене и слову рядом не хватает места. Кнопка стоит над растянутой ссылкой
+   имени — иначе нажатие ушло бы на карту товара. */
+.foot{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2)}
+.buy{position:relative;display:flex;flex-direction:column}
+.add{position:relative;inline-size:100%;justify-content:center}
+/* Надпись до записи и после: «Add» → «Added» по исходу формы корзины
+   (`data-said`, CartForm quiet). Обе в кнопке, видна одна. */
+.done{display:none}
+.buy[data-said='ok'] .done,.buy[data-said='partial'] .done{display:inline}
+.buy[data-said='ok'] .word,.buy[data-said='partial'] .word{display:none}
+/* Рядом с ценой (`--card-buy: beside`, «Admin → Card → Cart button»):
+   кнопка ростом поменьше встаёт у правого края строки цены; не помещается —
+   переносится под цену сама (`flex-wrap`), без порога ширины. */
+@container style(--card-buy: beside){
+  .foot{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .foot > :last-child{margin-inline-start:auto}
+  .add{--btn-h:var(--ctrl-h-sm);inline-size:auto}
+}
 
 /* Варианты карточки — одежда одной раскладки (craft, «Виды предмета — это
    одежда, а не разная раскладка»): поверхность, линия, поле; группы и их

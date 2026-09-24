@@ -40,6 +40,8 @@ function card(p: SampleProduct, lang: Lang): Card {
   return {
     id: p.id, category: p.cat, name: p.name[lang], image: image(p, lang),
     price: min === max ? { kind: 'single', value: money(min) } : { kind: 'range', min: money(min), max: money(max) },
+    was: min === max && p.variants.length === 1 && p.variants[0].was ? money(p.variants[0].was) : null,
+    variant: p.variants.length === 1 ? p.variants[0].id : null,
     stock: overall(p.variants.map((v) => v.stock)),
     strength: p.strength, packs: p.variants.map((v) => v.pack),
   }

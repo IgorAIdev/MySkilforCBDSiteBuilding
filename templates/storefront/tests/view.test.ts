@@ -24,6 +24,26 @@ test('a shelf card binds a number to its unit in the name', async () => {
   assert.equal(shelfCard('en', r.value[0]).name, 'CBD oil 30 % forte')
 })
 
+/* «В корзину» с полки (слово заказчика 25.09.2026): вариант один — кладётся
+   сразу; вариантов несколько — кнопка ведёт к выбору (И284); распродано —
+   на карту словом «View». Прежняя цена — у товара одной цены. */
+test('a shelf card buys one variant directly, sends a choice to the product page, shows the old price', async () => {
+  const r = await sample.cards('en', ['ulei-cbd-30-forte', 'ulei-cbd-full-spectrum', 'ser-fata-cbd'])
+  assert.ok(r.ok)
+  const [forte, oil, serum] = r.value.map((c) => shelfCard('en', c))
+  assert.equal(forte.buy.variant, 'uf30-10')
+  assert.equal(forte.buy.add, 'Add')
+  assert.equal(forte.buy.name, 'Add to cart: CBD oil 30 % forte')
+  assert.equal(forte.was?.text, '€104.90')
+  assert.equal(forte.sale, '−14 %')
+  assert.equal(oil.buy.variant, null)
+  assert.equal(oil.buy.choose, 'Choose')
+  assert.equal(oil.buy.ask, '/en/product/ulei-cbd-full-spectrum?choose=1')
+  assert.equal(oil.was, null, 'у цены «от» прежней цены нет')
+  assert.equal(serum.buy.variant, null, 'распродано — с полки не купить')
+  assert.equal(serum.buy.choose, 'View')
+})
+
 test('FAQ markup lists exactly the questions it is given', () => {
   const ld = faqLd([{ q: 'Q1', a: 'A1' }, { q: 'Q2', a: 'A2' }])
   assert.equal(ld['@type'], 'FAQPage')

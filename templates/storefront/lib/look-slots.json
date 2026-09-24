@@ -1080,6 +1080,11 @@
       "type": "number",
       "group": "shelf-cols",
       "value": "4"
+    },
+    "--card-buy": {
+      "type": "keyword",
+      "group": "card-buy",
+      "value": "full"
     }
   },
   "facts": {

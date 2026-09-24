@@ -2,13 +2,14 @@
 import { useState, useSyncExternalStore, type FormEvent, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import f from '@/styles/form.module.css'
+import p from '@/styles/primitives.module.css'
 import s from './Cart.module.css'
 import { cartLane, isTimeout } from '@/lib/cart-lane.ts'
 import type { Outcome } from '@/lib/cart-ops.ts'
 
 type Said = Pick<Outcome, 'kind' | 'message'>
 type Props = {
-  lang: string; className?: string; refresh?: boolean
+  lang: string; className?: string; refresh?: boolean; quiet?: boolean
   submit: (form: FormData) => Promise<void>
   call: (form: FormData) => Promise<Outcome>
   initial: Said | null; timeout: string; failed: string
@@ -21,7 +22,11 @@ const idle = () => false
  *  корзину вкладки: пока запись идёт, вторая отклоняется (поля выключены);
  *  нет ответа 15 секунд — исход неизвестен, корзина перечитывается, запись
  *  сама не повторяется (references/commerce-patterns.md). */
-export function CartForm({ lang, className, refresh = true, submit, call, initial, timeout, failed, after, children }: Props) {
+/* `quiet` — форма в тесном месте (кнопка на карточке полки): удачный исход
+   читается вслух, но строки под кнопкой не занимает — его показывает сама
+   кнопка по `data-said` формы («Add» → «Added»). Ошибка видна всегда: её
+   нельзя сказать надписью кнопки. */
+export function CartForm({ lang, className, refresh = true, quiet = false, submit, call, initial, timeout, failed, after, children }: Props) {
   const router = useRouter()
   const pending = useSyncExternalStore(cartLane.subscribe, () => cartLane.pending, idle)
   const [said, setSaid] = useState<Said | null>(initial)
@@ -45,10 +50,10 @@ export function CartForm({ lang, className, refresh = true, submit, call, initia
     if (refresh && unsure) router.refresh()
   }
   return (
-    <form className={className} action={submit} onSubmit={onSubmit} aria-busy={pending}>
+    <form className={className} action={submit} onSubmit={onSubmit} aria-busy={pending} data-said={said?.kind}>
       <input type="hidden" name="lang" value={lang} />
       <fieldset className={s.bare} disabled={pending}>{children}</fieldset>
-      <p className={f.say} data-state={said?.kind === 'error' ? 'error' : undefined} role="status">{said?.message}</p>
+      <p className={quiet && said?.kind !== 'error' ? `${f.say} ${p.said}` : f.say} data-state={said?.kind === 'error' ? 'error' : undefined} role="status">{said?.message}</p>
       {said && said.kind !== 'error' ? after : null}
     </form>
   )

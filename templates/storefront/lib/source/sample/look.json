@@ -214,6 +214,7 @@
     "--menu-mark-pad": "0",
     "--shot-frame": "1 / 1",
     "--shelf-cols": "4",
+    "--card-buy": "full",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -234,6 +235,7 @@
     "marker": "underline",
     "card": "framed",
     "shot-frame": "square",
+    "card-buy": "full",
     "shelf-cols": "4",
     "pdp-gallery": "50",
     "pdp-thumbs": "below",

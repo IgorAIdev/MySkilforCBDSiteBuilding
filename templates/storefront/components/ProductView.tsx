@@ -45,7 +45,7 @@ export function ProductView({ view, lang, submit, call }: { view: ProductPageVie
       {view.related.length ? (
         <section className={p.section}>
           <div className={p.sectionHead}><h2>{view.relatedTitle}</h2></div>
-          <ul className={`${p.grid} ${s.related}`}>{view.related.map((c) => <li key={c.id}><ProductCard card={c} /></li>)}</ul>
+          <ul className={`${p.grid} ${s.related}`}>{view.related.map((c) => <li key={c.id}><ProductCard card={c} cart={{ submit, call }} /></li>)}</ul>
         </section>
       ) : null}
     </>

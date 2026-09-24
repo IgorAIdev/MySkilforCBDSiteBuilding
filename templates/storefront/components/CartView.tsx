@@ -18,14 +18,14 @@ type Actions = { submit: (form: FormData) => Promise<void>; call: (form: FormDat
 /* Полка пустой корзины — ходовые товары из данных (сортировка источника
    «popular»), той же карточкой и сеткой, что полка главной: пустая корзина —
    не тупик, а следующий шаг (разбор 24.09.2026, K5). */
-function Popular({ shelf }: { shelf: ShelfView }) {
+function Popular({ shelf, cart }: { shelf: ShelfView; cart: Actions }) {
   return (
     <section className={p.section} aria-labelledby="cart-popular">
       <div className={p.sectionHead} data-row>
         <h2 id="cart-popular">{shelf.title}</h2>
         <a className={go.go} href={shelf.all.href}>{shelf.all.label}<Icon id="arrow-right" /></a>
       </div>
-      <ul className={`${p.grid} ${s.shelf}`}>{shelf.cards.map((c) => <li key={c.id}><ProductCard card={c} /></li>)}</ul>
+      <ul className={`${p.grid} ${s.shelf}`}>{shelf.cards.map((c) => <li key={c.id}><ProductCard card={c} cart={cart} /></li>)}</ul>
     </section>
   )
 }
@@ -49,7 +49,7 @@ export function CartView({ lang, view, submit, call }: { lang: string; view: Car
       <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
         {view.notice ? <p className={p.muted} role="status">{view.notice.message}</p> : null}
         <StateScreen level={1} kind="empty" title={view.empty.title} step={view.empty.step} href={view.empty.href} icon="shopping-cart" loud />
-        {view.empty.shelf ? <Popular shelf={view.empty.shelf} /> : null}
+        {view.empty.shelf ? <Popular shelf={view.empty.shelf} cart={{ submit, call }} /> : null}
       </main>
     )
   }

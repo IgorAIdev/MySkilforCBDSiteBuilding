@@ -29,7 +29,7 @@ export function Featured({ block, ctx, place }: { block: Extract<Block, { type: 
         <h2>{block.title}</h2>
         <a className={go.go} href={hrefFor(ctx.lang, { catalog: true })}>{t(ctx.lang, 'nav.catalog')}<Icon id="arrow-right" /></a>
       </div>
-      <ul className={`${p.grid} ${s.shelf}`}>{cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < eager} /></li>)}</ul>
+      <ul className={`${p.grid} ${s.shelf}`}>{cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < eager} cart={ctx.cart} /></li>)}</ul>
     </section>
   )
 }

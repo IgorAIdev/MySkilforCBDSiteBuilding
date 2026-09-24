@@ -96,7 +96,7 @@ export const PRODUCTS: SampleProduct[] = [
     description: { ro: 'Pentru cine folosește deja uleiuri CBD.', en: 'For those who already use CBD oils.', hu: 'Azoknak, akik már használnak CBD olajat.' },
     facets: { forma: ['ulei'] },
     groups: [],
-    variants: [{ id: 'uf30-10', sku: 'UF30-10', options: {}, price: 8990, stock: 'in', batch: 'RO-2409-F30', pack: { mg: 3000, size: 10, unit: 'ml' } }] },
+    variants: [{ id: 'uf30-10', sku: 'UF30-10', options: {}, price: 8990, was: 10490, stock: 'in', batch: 'RO-2409-F30', pack: { mg: 3000, size: 10, unit: 'ml' } }] },
   { id:'capsule-cbd-25', cat:'capsule', family:'capsule', label: '25 mg', hue: 30, popular: 2, strength: 'mg',
     name: { ro: 'Capsule CBD 25 mg', en: 'CBD capsules 25 mg', hu: 'CBD kapszula 25 mg' },
     summary: { ro: 'Capsule vegane, 25 mg CBD fiecare.', en: 'Vegan capsules, 25 mg CBD each.', hu: 'Vegán kapszulák, egyenként 25 mg CBD.' },

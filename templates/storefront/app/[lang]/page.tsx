@@ -14,6 +14,7 @@ import { Blocks } from '@/components/blocks/registry.tsx'
 import { JsonLd } from '@/components/JsonLd.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 import type { BlockCtx } from '@/components/blocks/types.ts'
+import { cartSubmit, cartCall } from '@/lib/actions/cart.ts'
 
 type Props = { params: Promise<{ lang: string }> }
 
@@ -44,7 +45,7 @@ export default async function Home({ params }: Props) {
      а корзины у главной нет. */
   const pledges = pledgesView(lang, { payments: null, methods: methods.ok ? methods.value : null, returnDays: facts.ok ? facts.value.returnDays : null })
   const ctx: BlockCtx = {
-    lang, home: look.home, collections: cols.value, pledges, cards: Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)])),
+    lang, home: look.home, collections: cols.value, pledges, cart: { submit: cartSubmit, call: cartCall }, cards: Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)])),
     delivery: {
       methods: methods.ok ? deliveryView(lang, { methods: methods.value, delivery: null, pickup: null }).methods : [],
       terms: terms ? hrefFor(lang, { doc: terms.slug }) : null,

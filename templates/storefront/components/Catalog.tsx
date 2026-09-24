@@ -5,7 +5,7 @@ import go from '@/styles/go.module.css'
 import s from './Catalog.module.css'
 import type { CatalogView } from '@/lib/catalog-view.ts'
 import type { ShelfCard } from '@/lib/view.ts'
-import { ProductCard } from './ProductCard.tsx'
+import { ProductCard, type CartActions } from './ProductCard.tsx'
 import { StateScreen } from './StateScreen.tsx'
 import { Filters } from './Filters.tsx'
 import { SortMenu } from './SortMenu.tsx'
@@ -21,10 +21,10 @@ const FIRST_SCREEN = 8
 /* Полка товаров — договор товарного каталога (shop, «Каталог и полка»):
    `data-catalog-grid` без панели сбоку — 4–5 карточек по 260–325px; меряет
    отрисованная семья `catalogueColumns`. */
-function Shelf({ cards, eager }: { cards: ShelfCard[]; eager: number }) {
+function Shelf({ cards, eager, cart }: { cards: ShelfCard[]; eager: number; cart: CartActions }) {
   return (
     <ul className={`${p.grid} ${s.shelf}`} data-catalog-grid="">
-      {cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < eager} /></li>)}
+      {cards.map((c, i) => <li key={c.id}><ProductCard card={c} eager={i < eager} cart={cart} /></li>)}
     </ul>
   )
 }
@@ -44,7 +44,7 @@ function Shelf({ cards, eager }: { cards: ShelfCard[]; eager: number }) {
       «Фильтры» (шторка) и порядок.
    3. Полка — вся ширина холста.
    4. Листание, а у пустого поиска — лучшее магазина, куда идти дальше. */
-export function Catalog({ view, search }: { view: CatalogView; search?: ReactNode }) {
+export function Catalog({ view, search, cart }: { view: CatalogView; search?: ReactNode; cart: CartActions }) {
   const tools = Boolean(view.filters || view.sort)
   const state = Boolean(view.count || view.chips.length)
   return (
@@ -79,7 +79,7 @@ export function Catalog({ view, search }: { view: CatalogView; search?: ReactNod
             коробкой со списком — чтобы ритм `stack` не лёг между невидимым
             заголовком и полкой. */}
         {view.cards.length
-          ? <div><h2 className={p.said}>{view.shelf}</h2><Shelf cards={view.cards} eager={FIRST_SCREEN} /></div>
+          ? <div><h2 className={p.said}>{view.shelf}</h2><Shelf cards={view.cards} eager={FIRST_SCREEN} cart={cart} /></div>
           : view.empty.title
             ? <StateScreen level={2} kind="none" title={view.empty.title} step={view.empty.step} href={view.empty.href} />
             : <p><a className={go.go} href={view.empty.href}>{view.empty.step}<Icon id="arrow-right" /></a></p>}
@@ -87,7 +87,7 @@ export function Catalog({ view, search }: { view: CatalogView; search?: ReactNod
         {view.more ? (
           <section className={s.more} aria-labelledby="shelf-more">
             <div className={p.sectionHead}><h2 id="shelf-more">{view.more.title}</h2></div>
-            <Shelf cards={view.more.cards} eager={0} />
+            <Shelf cards={view.more.cards} eager={0} cart={cart} />
           </section>
         ) : null}
       </div>
