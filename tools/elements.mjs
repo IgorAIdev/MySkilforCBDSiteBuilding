@@ -191,7 +191,7 @@ export function toHtml(cat, palettes = []) {
         <dl>${Object.entries(e.состояния).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}${e.снято.length ? `<dt>снято</dt><dd>${esc(e.снято.join('; '))}</dd>` : ''}${e.приведено.length ? `<dt>приведено</dt><dd>${esc(e.приведено.join('; '))}</dd>` : ''}</dl>
         <div class="pair">
           <figure><div class="src">${[e.источник].flat().map((src) => source(e, src)).join('')}</div><figcaption>Источник — ${esc(e.откуда)}</figcaption></figure>
-          <figure><iframe data-src="${esc(e.папка)}/element.html" src="${esc(e.папка)}/element.html" height="${Number(e.высота) || 240}" title="${esc(e.имя)}"></iframe><figcaption>Нарисовано — <a href="${esc(e.папка)}/element.html">${esc(e.папка)}/element.html</a></figcaption></figure>
+          <figure><iframe data-src="${esc(e.папка)}/element.html" src="${esc(e.папка)}/element.html" height="${Number(e.высота) || 240}" loading="lazy" title="${esc(e.имя)}"></iframe><figcaption>Нарисовано — <a href="${esc(e.папка)}/element.html">${esc(e.папка)}/element.html</a></figcaption></figure>
         </div>
       </article>`
   const families = Object.entries(cat.семьи).map(([id, f]) => {
