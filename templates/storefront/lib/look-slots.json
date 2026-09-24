@@ -835,6 +835,21 @@
       "type": "length",
       "group": "marker",
       "value": "0"
+    },
+    "--pdp-gallery": {
+      "type": "length",
+      "group": "pdp-gallery",
+      "value": "50%"
+    },
+    "--pdp-frame": {
+      "type": "number",
+      "group": "pdp-frame",
+      "value": "1 / 1"
+    },
+    "--pdp-thumbs": {
+      "type": "keyword",
+      "group": "pdp-thumbs",
+      "value": "below"
     }
   },
   "facts": {

@@ -16,7 +16,7 @@ test('every language has every key, and no key is empty', () => {
 })
 
 test('placeholders are filled and a missing variable is loud', () => {
-  assert.equal(t('ro', 'product.from', { price: '9,90 lei' }), 'de la 9,90 lei')
+  assert.equal(t('ro', 'product.from', { price: '9,90 €' }), 'de la 9,90 €')
   assert.throws(() => t('ro', 'product.from'), /price/)
 })
 

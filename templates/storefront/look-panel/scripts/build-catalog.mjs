@@ -7,8 +7,8 @@
    наборы ритма (styles/scale.json) — строителями набора, которые уже лежат
    в сайте (tools/): каждый вариант — готовые значения тех же свойств, что
    сайт объявляет у себя (lib/look-slots.json). Варианты самого сайта идут
-   первыми — это умолчания каталога. Шрифты-кандидаты и отметка пункта меню
-   — здесь же, данными.
+   первыми — это умолчания каталога. Шрифты-кандидаты, отметка пункта меню
+   и ручки карты товара — здесь же, данными.
 
    Пары, которые не носятся, считает правило сайта (lib/look-rule.ts) на
    каждой паре вариантов двух групп — панель гасит по ним, сайт судит тем
@@ -99,6 +99,24 @@ const CARD_LINES = {
   bare: { name: 'Bare', line: 'No box: the picture with its own corners on the page, text below' },
   outlined: { name: 'Outlined', line: 'A hairline instead of a shadow, inner field: a denser shelf' },
 }
+/** Карта товара (И278): варианты — значения ручек `--pdp-*`, которые сайт
+ *  объявляет у себя (scripts/look-slots.mjs, PRODUCT). Доля ряда под
+ *  галерею — вокруг нормы живых магазинов 45–57 % (образец заказчика ≈ 40 %);
+ *  выше экрана галерею не вытянет ни одна: потолок по высоте окна у неё
+ *  свой. Пропорция — квадрат или 4 : 5; миниатюры — ряд под кадром, полоса
+ *  сбоку (в две колонки) или точки. */
+export const PRODUCT_PAGE = {
+  'pdp-gallery': [40, 50, 60].map((pct) => ({ id: String(pct), name: `${pct} %`, line: `The gallery takes ${pct} % of the row; the buy column takes the rest`, vars: { '--pdp-gallery': `${pct}%` } })),
+  'pdp-frame': [
+    { id: 'square', name: 'Square', line: 'Square pictures, 1 : 1', vars: { '--pdp-frame': '1 / 1' } },
+    { id: 'portrait', name: '4:5', line: 'Upright pictures, 4 : 5 — taller bottles and boxes', vars: { '--pdp-frame': '4 / 5' } },
+  ],
+  'pdp-thumbs': [
+    { id: 'below', name: 'Below', line: 'A row of four thumbnails under the picture', vars: { '--pdp-thumbs': 'below' } },
+    { id: 'side', name: 'Side', line: 'A strip of thumbnails beside the picture, on wide screens', vars: { '--pdp-thumbs': 'side' } },
+    { id: 'dots', name: 'Dots', line: 'Dots under the picture instead of thumbnails', vars: { '--pdp-thumbs': 'dots' } },
+  ],
+}
 /** Шапки: id — HEADERS в lib/headers.ts. */
 const HEADER_LINES = {
   classic: { name: 'Classic', line: 'Categories beside the logo' },
@@ -188,6 +206,7 @@ export async function buildCatalog({ site, kit }) {
     shadow: siteFirst(SHADOW_SETS(tokens).map((o) => ({ ...o, vars: check('shadow', o.id, o.vars) }))),
     ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
+    ...Object.fromEntries(Object.entries(PRODUCT_PAGE).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
     card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),
   }
@@ -208,6 +227,7 @@ export async function buildCatalog({ site, kit }) {
 export function pairsMarkdown(catalog) {
   const name = (field, id) => catalog.groups[field].find((o) => o.id === id)?.name ?? id
   const lines = catalog.pairs.map((p) => `| ${p.x.field} · ${name(p.x.field, p.x.id)} | ${p.y.field} · ${name(p.y.field, p.y.id)} | ${p.why} |`)
+  if (!lines.length) lines.push('| — | — | каждое сочетание каталога носится |')
   return ['| вариант | не носится с | почему |', '| --- | --- | --- |', ...lines].join('\n')
 }
 

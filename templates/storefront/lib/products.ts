@@ -2,7 +2,9 @@ import type { Lang } from './locale.ts'
 
 type T = Record<Lang, string>
 export type SampleCategory = { slug: string; name: T; description: T }
-export type SampleVariant = { id: string; sku: string; options: Record<string, string>; price: number; stock: 'in' | 'low' | 'out'; batch: string }
+/** `price` — в минорных единицах валюты рынка (у образца — евроцентах);
+ *  `was` — цена до скидки, если вариант продаётся со скидкой. */
+export type SampleVariant = { id: string; sku: string; options: Record<string, string>; price: number; was?: number; stock: 'in' | 'low' | 'out'; batch: string }
 export type SampleProduct = {
   id: string; cat: string; family?: string; label: string; hue: number; popular: number
   name: T; summary: T; description: T
@@ -48,11 +50,11 @@ export const PRODUCTS: SampleProduct[] = [
     facets: { forma: ['ulei'], putere: ['5', '10', '20', '30'] },
     groups: [strength(['5', '10', '20', '30']), volume(['10', '30'])],
     variants: [
-      { id: 'uf-5-10', sku: 'UF-5-10', options: { putere: '5', volum: '10' }, price: 8990, stock: 'in', batch: 'RO-2409-05' },
-      { id: 'uf-10-10', sku: 'UF-10-10', options: { putere: '10', volum: '10' }, price: 12990, stock: 'in', batch: 'RO-2409-10' },
-      { id: 'uf-10-30', sku: 'UF-10-30', options: { putere: '10', volum: '30' }, price: 29990, stock: 'low', batch: 'RO-2409-10' },
-      { id: 'uf-20-10', sku: 'UF-20-10', options: { putere: '20', volum: '10' }, price: 21990, stock: 'in', batch: 'RO-2409-20' },
-      { id: 'uf-30-10', sku: 'UF-30-10', options: { putere: '30', volum: '10' }, price: 29990, stock: 'out', batch: 'RO-2409-30' },
+      { id: 'uf-5-10', sku: 'UF-5-10', options: { putere: '5', volum: '10' }, price: 3490, stock: 'in', batch: 'RO-2409-05' },
+      { id: 'uf-10-10', sku: 'UF-10-10', options: { putere: '10', volum: '10' }, price: 4490, stock: 'in', batch: 'RO-2409-10' },
+      { id: 'uf-10-30', sku: 'UF-10-30', options: { putere: '10', volum: '30' }, price: 8990, stock: 'low', batch: 'RO-2409-10' },
+      { id: 'uf-20-10', sku: 'UF-20-10', options: { putere: '20', volum: '10' }, price: 6490, stock: 'in', batch: 'RO-2409-20' },
+      { id: 'uf-30-10', sku: 'UF-30-10', options: { putere: '30', volum: '10' }, price: 8490, stock: 'out', batch: 'RO-2409-30' },
     ] },
   { id:'ulei-cbd-izolat-10', cat:'uleiuri', label: '10 %', hue: 190, popular: 4,
     name: { ro: 'Ulei CBD izolat 10 %', en: 'CBD isolate oil 10 %', hu: 'CBD izolátum olaj 10 %' },
@@ -60,14 +62,14 @@ export const PRODUCTS: SampleProduct[] = [
     description: { ro: 'CBD izolat, dizolvat în ulei de semințe de cânepă presat la rece.', en: 'CBD isolate dissolved in cold-pressed hemp seed oil.', hu: 'Hidegen sajtolt kendermagolajban oldott CBD izolátum.' },
     facets: { forma: ['ulei'], putere: ['10'] },
     groups: [],
-    variants: [{ id: 'ui-10-10', sku: 'UI-10-10', options: {}, price: 11990, stock: 'in', batch: 'RO-2408-I10' }] },
+    variants: [{ id: 'ui-10-10', sku: 'UI-10-10', options: {}, price: 3990, stock: 'in', batch: 'RO-2408-I10' }] },
   { id:'ulei-cbd-5-incepatori', cat:'uleiuri', label: '5 %', hue: 120, popular: 3,
     name: { ro: 'Ulei CBD 5 % pentru început', en: 'CBD oil 5 % starter', hu: 'CBD olaj 5 % kezdőknek' },
     summary: { ro: 'Concentrație blândă, 10 ml.', en: 'A gentle strength, 10 ml.', hu: 'Enyhe erősség, 10 ml.' },
     description: { ro: 'Pentru cine încearcă un ulei CBD pentru prima dată.', en: 'For those trying a CBD oil for the first time.', hu: 'Azoknak, akik először próbálnak CBD olajat.' },
     facets: { forma: ['ulei'], putere: ['5'] },
     groups: [],
-    variants: [{ id: 'us-5-10', sku: 'US-5-10', options: {}, price: 6990, stock: 'in', batch: 'RO-2409-S05' }] },
+    variants: [{ id: 'us-5-10', sku: 'US-5-10', options: {}, price: 2990, stock: 'in', batch: 'RO-2409-S05' }] },
   { id:'ulei-cbd-20-seara', cat:'uleiuri', family:'ulei-seara', label: '20 %', hue: 250, popular: 6,
     name: { ro: 'Ulei CBD 20 % cu lavandă', en: 'CBD oil 20 % with lavender', hu: 'CBD olaj 20 % levendulával' },
     summary: { ro: 'Cu ulei esențial de lavandă.', en: 'With lavender essential oil.', hu: 'Levendula illóolajjal.' },
@@ -75,8 +77,8 @@ export const PRODUCTS: SampleProduct[] = [
     facets: { forma: ['ulei'], putere: ['20'] },
     groups: [volume(['10', '30'])],
     variants: [
-      { id: 'ul-20-10', sku: 'UL-20-10', options: { volum: '10' }, price: 22990, stock: 'in', batch: 'RO-2409-L20' },
-      { id: 'ul-20-30', sku: 'UL-20-30', options: { volum: '30' }, price: 49990, stock: 'in', batch: 'RO-2409-L20' },
+      { id: 'ul-20-10', sku: 'UL-20-10', options: { volum: '10' }, price: 6990, stock: 'in', batch: 'RO-2409-L20' },
+      { id: 'ul-20-30', sku: 'UL-20-30', options: { volum: '30' }, price: 8990, stock: 'in', batch: 'RO-2409-L20' },
     ] },
   { id:'ulei-cbd-30-forte', cat:'uleiuri', label: '30 %', hue: 10, popular: 8,
     name: { ro: 'Ulei CBD 30 % forte', en: 'CBD oil 30 % forte', hu: 'CBD olaj 30 % forte' },
@@ -84,7 +86,7 @@ export const PRODUCTS: SampleProduct[] = [
     description: { ro: 'Pentru cine folosește deja uleiuri CBD.', en: 'For those who already use CBD oils.', hu: 'Azoknak, akik már használnak CBD olajat.' },
     facets: { forma: ['ulei'], putere: ['30'] },
     groups: [],
-    variants: [{ id: 'uf30-10', sku: 'UF30-10', options: {}, price: 31990, stock: 'in', batch: 'RO-2409-F30' }] },
+    variants: [{ id: 'uf30-10', sku: 'UF30-10', options: {}, price: 8990, stock: 'in', batch: 'RO-2409-F30' }] },
   { id:'capsule-cbd-25', cat:'capsule', family:'capsule', label: '25 mg', hue: 30, popular: 2,
     name: { ro: 'Capsule CBD 25 mg', en: 'CBD capsules 25 mg', hu: 'CBD kapszula 25 mg' },
     summary: { ro: 'Capsule vegane, 25 mg CBD fiecare.', en: 'Vegan capsules, 25 mg CBD each.', hu: 'Vegán kapszulák, egyenként 25 mg CBD.' },
@@ -92,8 +94,8 @@ export const PRODUCTS: SampleProduct[] = [
     facets: { forma: ['capsule'], putere: ['10'] },
     groups: [count(['30', '60'])],
     variants: [
-      { id: 'cc-30', sku: 'CC-30', options: { bucati: '30' }, price: 13990, stock: 'in', batch: 'RO-2409-C25' },
-      { id: 'cc-60', sku: 'CC-60', options: { bucati: '60' }, price: 24990, stock: 'low', batch: 'RO-2409-C25' },
+      { id: 'cc-30', sku: 'CC-30', options: { bucati: '30' }, price: 3990, was: 4690, stock: 'in', batch: 'RO-2409-C25' },
+      { id: 'cc-60', sku: 'CC-60', options: { bucati: '60' }, price: 5990, stock: 'low', batch: 'RO-2409-C25' },
     ] },
   { id:'capsule-cbd-10', cat:'capsule', label: '10 mg', hue: 45, popular: 9,
     name: { ro: 'Capsule CBD 10 mg', en: 'CBD capsules 10 mg', hu: 'CBD kapszula 10 mg' },
@@ -101,28 +103,28 @@ export const PRODUCTS: SampleProduct[] = [
     description: { ro: 'Fiecare capsulă conține 10 mg CBD.', en: 'Each capsule contains 10 mg CBD.', hu: 'Minden kapszula 10 mg CBD-t tartalmaz.' },
     facets: { forma: ['capsule'], putere: ['5'] },
     groups: [],
-    variants: [{ id: 'cm-30', sku: 'CM-30', options: {}, price: 7990, stock: 'in', batch: 'RO-2408-C10' }] },
+    variants: [{ id: 'cm-30', sku: 'CM-30', options: {}, price: 3490, stock: 'in', batch: 'RO-2408-C10' }] },
   { id:'crema-cbd', cat:'cosmetice', label: 'crema', hue: 20, popular: 5,
     name: { ro: 'Cremă cu CBD', en: 'CBD cream', hu: 'CBD krém' },
     summary: { ro: '50 ml, 500 mg CBD.', en: '50 ml, 500 mg CBD.', hu: '50 ml, 500 mg CBD.' },
     description: { ro: 'Cremă cu CBD și mentol.', en: 'Cream with CBD and menthol.', hu: 'Krém CBD-vel és mentollal.' },
     facets: { forma: ['crema'] },
     groups: [],
-    variants: [{ id: 'cr-50', sku: 'CR-50', options: {}, price: 9990, stock: 'in', batch: 'RO-2409-CR' }] },
+    variants: [{ id: 'cr-50', sku: 'CR-50', options: {}, price: 2490, stock: 'in', batch: 'RO-2409-CR' }] },
   { id:'balsam-buze-cbd', cat:'cosmetice', label: 'balsam', hue: 340, popular: 10,
     name: { ro: 'Balsam de buze cu CBD', en: 'CBD lip balm', hu: 'CBD ajakbalzsam' },
     summary: { ro: '5 g, 50 mg CBD.', en: '5 g, 50 mg CBD.', hu: '5 g, 50 mg CBD.' },
     description: { ro: 'Balsam cu ceară de albine și CBD.', en: 'Beeswax balm with CBD.', hu: 'Méhviaszos balzsam CBD-vel.' },
     facets: { forma: ['crema'] },
     groups: [],
-    variants: [{ id: 'bb-5', sku: 'BB-5', options: {}, price: 2990, stock: 'in', batch: 'RO-2408-BB' }] },
+    variants: [{ id: 'bb-5', sku: 'BB-5', options: {}, price: 1190, stock: 'in', batch: 'RO-2408-BB' }] },
   { id:'ser-fata-cbd', cat:'cosmetice', label: 'ser', hue: 300, popular: 11,
     name: { ro: 'Ser de față cu CBD', en: 'CBD face serum', hu: 'CBD arcszérum' },
     summary: { ro: 'Ser ușor, 30 ml.', en: 'A light serum, 30 ml.', hu: 'Könnyű szérum, 30 ml.' },
     description: { ro: 'Ser cu CBD și acid hialuronic.', en: 'Serum with CBD and hyaluronic acid.', hu: 'Szérum CBD-vel és hialuronsavval.' },
     facets: { forma: ['crema'] },
     groups: [],
-    variants: [{ id: 'sf-30', sku: 'SF-30', options: {}, price: 15990, stock: 'out', batch: 'RO-2407-SF' }] },
+    variants: [{ id: 'sf-30', sku: 'SF-30', options: {}, price: 3290, stock: 'out', batch: 'RO-2407-SF' }] },
   { id:'ulei-caini-cbd', cat:'animale', family:'animale-caini', label: 'dog', hue: 90, popular: 7,
     name: { ro: 'Ulei CBD pentru câini', en: 'CBD oil for dogs', hu: 'CBD olaj kutyáknak' },
     summary: { ro: 'Cu ulei de somon.', en: 'With salmon oil.', hu: 'Lazacolajjal.' },
@@ -130,8 +132,8 @@ export const PRODUCTS: SampleProduct[] = [
     facets: { forma: ['pentru-animale'], putere: ['5'] },
     groups: [volume(['10', '30'])],
     variants: [
-      { id: 'ac-10', sku: 'AC-10', options: { volum: '10' }, price: 7990, stock: 'in', batch: 'RO-2409-AC' },
-      { id: 'ac-30', sku: 'AC-30', options: { volum: '30' }, price: 17990, stock: 'in', batch: 'RO-2409-AC' },
+      { id: 'ac-10', sku: 'AC-10', options: { volum: '10' }, price: 2290, stock: 'in', batch: 'RO-2409-AC' },
+      { id: 'ac-30', sku: 'AC-30', options: { volum: '30' }, price: 2990, stock: 'in', batch: 'RO-2409-AC' },
     ] },
   { id:'ulei-pisici-cbd', cat:'animale', label: 'cat', hue: 60, popular: 12,
     name: { ro: 'Ulei CBD pentru pisici', en: 'CBD oil for cats', hu: 'CBD olaj macskáknak' },
@@ -139,7 +141,7 @@ export const PRODUCTS: SampleProduct[] = [
     description: { ro: 'Concentrație redusă, pentru pisici.', en: 'A low strength, for cats.', hu: 'Alacsony erősség, macskáknak.' },
     facets: { forma: ['pentru-animale'], putere: ['5'] },
     groups: [],
-    variants: [{ id: 'ap-10', sku: 'AP-10', options: {}, price: 6990, stock: 'low', batch: 'RO-2409-AP' }] },
+    variants: [{ id: 'ap-10', sku: 'AP-10', options: {}, price: 1990, stock: 'low', batch: 'RO-2409-AP' }] },
 ]
 
 export const LAB_REPORTS: Record<string, { lab: string; date: string; cbdPercent: number; thcPercent: number }> = {

@@ -168,7 +168,10 @@
     "--menu-mark-fill": "transparent",
     "--menu-mark-ink": "var(--ink)",
     "--menu-mark-r": "0",
-    "--menu-mark-pad": "0"
+    "--menu-mark-pad": "0",
+    "--pdp-gallery": "50%",
+    "--pdp-frame": "1 / 1",
+    "--pdp-thumbs": "below"
   },
   "fonts": [],
   "names": {
@@ -184,7 +187,10 @@
     "btn-shape": "standard",
     "header": "classic",
     "marker": "underline",
-    "card": "framed"
+    "card": "framed",
+    "pdp-gallery": "50",
+    "pdp-frame": "square",
+    "pdp-thumbs": "below"
   },
   "paints": {
     "name": "Brass on charcoal",

@@ -18,8 +18,8 @@ test('a cart line: link back to its variant, unit price, quantity steps', async 
   const [oil, caps] = v.lines
   assert.equal(oil.href, '/ro/product/ulei-cbd-full-spectrum?option.putere=20&option.volum=10')
   assert.equal(oil.options, '20 % · 10 ml')
-  assert.equal(oil.unit, `219,90${NB}lei / buc.`)
-  assert.equal(oil.total, `219,90${NB}lei`)
+  assert.equal(oil.unit, `64,90${NB}€ / buc.`)
+  assert.equal(oil.total, `64,90${NB}€`)
   assert.deepEqual([oil.less, oil.more, oil.remove], [null, 'set:l1:2', 'remove:l1'])
   assert.deepEqual([caps.less, caps.quantity], ['set:l2:1', 2])
   assert.equal(caps.labels.less, 'Scade cantitatea: Capsule CBD 25 mg')
@@ -28,11 +28,11 @@ test('a cart line: link back to its variant, unit price, quantity steps', async 
 test('totals are the source’s, as ready strings', async () => {
   const v = cartView('ro', await fixtureCart(), null)
   assert.deepEqual(v.totals.rows, [
-    { label: 'Subtotal', value: `499,70${NB}lei` },
-    { label: 'Reducere CBD10', value: `−49,97${NB}lei` },
+    { label: 'Subtotal', value: `144,70${NB}€` },
+    { label: 'Reducere CBD10', value: `−14,47${NB}€` },
     { label: 'Livrare', value: 'Se alege la pasul următor' },
   ])
-  assert.deepEqual(v.totals.total, { label: 'Total', value: `449,73${NB}lei` })
+  assert.deepEqual(v.totals.total, { label: 'Total', value: `130,23${NB}€` })
   assert.equal(v.totals.note, 'Prețurile includ TVA.')
   assert.deepEqual(v.coupon.applied, [{ code: 'CBD10', op: 'uncoupon:CBD10', label: 'Elimină codul CBD10' }])
   assert.equal(v.checkout.href, '/ro/checkout/contact')
@@ -45,7 +45,7 @@ test('the notice comes from a known code only; an empty cart says what next', ()
   assert.equal(empty.notice?.message, 'Produsul a fost scos din coș.')
   assert.deepEqual(empty.empty, { title: 'Coșul este gol', step: 'Vedeți produsele', href: '/ro/catalog' })
   assert.equal(cartView('ro', null, 'nonsense').notice, null)
-  assert.equal(priceOrFree('ro', { minor: 0, currency: 'RON' }), 'Gratuit')
+  assert.equal(priceOrFree('ro', { minor: 0, currency: 'EUR' }), 'Gratuit')
 })
 
 test('a coupon outcome and a line outcome show in different places', () => {

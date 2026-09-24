@@ -1,7 +1,32 @@
-.state{--stack:var(--air-group);padding-block:var(--air-band);display:flex;flex-direction:column;align-items:flex-start}
-.title{font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight)}
-/* Экран-страница — по центру: знак в тонированном круге (полтора роста
-   крупного органа), заголовок, одна громкая кнопка. */
+/* Экран состояния — заголовок и пути дальше. Между ними воздух группы,
+   внутри путей (поле поиска и шаг) — воздух строки: пути читаются одной
+   группой под заголовком, а не тремя равными строками.
+
+   Экран — столбик флекса с просветом, а не `stack`: пути внутри — свой
+   `stack` со своей ручкой, а ручка, объявленная на ребёнке `stack`,
+   переписывает и его собственный верхний отступ (`var()` раскрывается у
+   того, на ком стоит): заголовок вставал к путям на воздух строки вместо
+   воздуха группы. Флекс свой просвет у ребёнка не спрашивает. Был он
+   флексом и раньше — вместе со `stack`, и тогда `display` двух классов
+   равной силы решал порядок кусков сборки.
+
+   Коробка объявлена: имя страницы меряет её (`cqi`), как у примитива
+   `pagehead`, — иначе оно мерило бы окно. */
+.state{padding-block:var(--air-band);display:flex;flex-direction:column;align-items:flex-start;gap:var(--air-group);container-type:inline-size}
+/* Пути — во всю ширину экрана (поле поиска меряет её), столбиком `stack`. */
+.ways{--stack:var(--air-row);align-self:stretch}
+/* Экран-страница начинается там же, где каждая страница: верхний воздух
+   даёт раздел (`section`, `data-air='head'`), своего поля у экрана нет —
+   «не найдено» вставало на полосу ниже имени каталога. Воздух снизу платит
+   подвал. */
+.state:has(> h1){padding-block:0}
+/* Поле поиска — мерой строки, а не во всю коробку: поле на 1300px читается
+   полосой, а не местом, куда вписать слово. */
+.ways > form{max-inline-size:var(--measure)}
+/* Экран-страница без поля — по центру: знак в тихом круге (полтора роста
+   крупного органа), заголовок, одна громкая кнопка. Круг — тихая вуаль
+   чернил, а не тон марки: тон марки в тёмной теме становится ржавчиной и
+   читается сигналом ошибки (разбор 24.09.2026, X2). */
 .state[data-center]{align-items:center;text-align:center}
-.mark{display:grid;place-items:center;inline-size:calc(var(--ctrl-h-lg) * 1.5);block-size:calc(var(--ctrl-h-lg) * 1.5);border-radius:50%;background:var(--pop-tint);color:var(--pop-ink)}
+.mark{display:grid;place-items:center;inline-size:calc(var(--ctrl-h-lg) * 1.5);block-size:calc(var(--ctrl-h-lg) * 1.5);border-radius:50%;background:var(--quiet);color:var(--ink-soft)}
 .mark svg{inline-size:45%;block-size:45%}

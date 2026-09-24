@@ -9,8 +9,8 @@
      1. стили — значения свойств вида в styles/palette.css, styles/buttons.css
         и styles/scale.css заменяются опубликованными, блоков чужих наборов
         (`[data-palette]`, `[data-button]`, `[data-scale]`) в них нет;
-        шрифт, тени, отметка пункта меню и `@font-face` опубликованных
-        шрифтов — в styles/look.css. Устройство файлов (имена, порядок, блок
+        шрифт, тени, отметка пункта меню, ручки карты товара (`--pdp-*`) и
+        `@font-face` опубликованных шрифтов — в styles/look.css. Устройство файлов (имена, порядок, блок
         `@media (pointer:coarse)`) берётся из них самих: имена выпускают
         строители набора, значения — вид;
      2. закрытый список свойств — lib/look-slots.json: у каждого свойства
@@ -42,6 +42,15 @@ const FILES = { palette: 'styles/palette.css', buttons: 'styles/buttons.css', sc
 
 /** Род свойства отметки текущего пункта меню. */
 const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length' }
+/** Ручки карты товара (И278): каждое свойство — своя настройка панели
+ *  («Admin → Product page»), группа — имя свойства без `--`. Род и
+ *  умолчание — на случай, когда styles/look.css сайта старше группы и их
+ *  ещё не несёт; дальше значение приходит из опубликованного вида. */
+export const PRODUCT = {
+  '--pdp-gallery': { type: 'length', value: '50%' },
+  '--pdp-frame': { type: 'number', value: '1 / 1' },
+  '--pdp-thumbs': { type: 'keyword', value: 'below' },
+}
 /** Роли тени — по работе (И228): предмет в покое, подъём под рукой,
  *  всплывающее, вдавленное. Основа объявляет их в tokens.css, вид — в
  *  styles/look.css. */
@@ -94,6 +103,7 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, look, s
     if (!type) throw new Error(`${k}: род свойства отметки неизвестен — дописать в MARKER (scripts/look-slots.mjs)`)
     put(k, type, 'marker', v)
   }
+  for (const [k, { type, value }] of Object.entries(PRODUCT)) put(k, type, k.slice(2), own[k] ?? value)
   /* Роли, на которых правило мерит кнопку и отметку: замыкание ссылок от
      полов и ролей кнопки до ступеней палитры (они — свойства вида). */
   const refs = (v) => [...String(v).matchAll(/var\((--[\w-]+)\)/g)].map((m) => m[1])
@@ -144,7 +154,7 @@ export function lookStyles(site, raw) {
     palette: `${HEAD('краски обеих тем — ступени и линии')}:root{\n  color-scheme: light dark;\n${decls('palette')}\n}\n`,
     buttons: `${HEAD('роли одной кнопки основы (styles/btn.module.css)')}:root{\n${decls('button')}\n}\n`,
     scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
-    look: `${HEAD('шрифт, тени, отметка текущего пункта меню и шрифты вида со своего адреса')}:root{\n${decls('face')}\n${decls('shadow')}\n${decls('marker')}\n}\n` +
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, ручки карты товара и шрифты вида со своего адреса')}:root{\n${['face', 'shadow', 'marker', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
       (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
   }
   const after = lookSlots({ ...site, ...out })

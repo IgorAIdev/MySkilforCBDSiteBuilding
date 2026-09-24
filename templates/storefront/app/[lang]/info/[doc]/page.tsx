@@ -10,7 +10,7 @@ import { toMetadata } from '@/lib/seo.ts'
 import { breadcrumbLd } from '@/lib/ld.ts'
 import { Breadcrumbs } from '@/components/Breadcrumbs.tsx'
 import { DeliveryTable } from '@/components/DeliveryTable.tsx'
-import { DocView } from '@/components/DocView.tsx'
+import { DocView, DOC_TABLE } from '@/components/DocView.tsx'
 import { JsonLd } from '@/components/JsonLd.tsx'
 import { Unavailable } from '@/components/StateScreen.tsx'
 
@@ -41,12 +41,13 @@ export default async function DocPage({ params }: Props) {
   /* Документ просит таблицу способов — она из списка оформления; источник
      покупки молчит — документ стоит без таблицы, а не падает. */
   const methods = r.value.table === 'delivery' ? await commerce().deliveryMethods(null, lang) : null
-  const table = methods?.ok ? <DeliveryTable view={deliveryTable(lang, methods.value)} /> : null
+  const view = methods?.ok ? deliveryTable(lang, methods.value) : null
+  const table = view ? <DeliveryTable view={view} labelledBy={DOC_TABLE} /> : null
   return (
     <main id="main" className={`${p.wrap} ${p.section}`} data-air="head">
       <JsonLd data={breadcrumbLd([home, { name: r.value.title, href: hrefFor(lang, { doc }) }])} />
       <Breadcrumbs trail={docTrail(home, r.value.title)} label={t(lang, 'crumb.label')} />
-      <DocView doc={r.value} table={table} />
+      <DocView doc={r.value} table={table} tableTitle={view?.caption} />
     </main>
   )
 }

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { langOf } from '@/lib/route.ts'
-import { source, content } from '@/lib/source/index.ts'
+import { source, content, commerce } from '@/lib/source/index.ts'
 import { shelfCard } from '@/lib/view.ts'
+import { deliveryView } from '@/lib/checkout-view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { toMetadata } from '@/lib/seo.ts'
 import { organizationLd, websiteLd } from '@/lib/ld.ts'
@@ -25,9 +26,22 @@ export default async function Home({ params }: Props) {
   const page = await content().page(lang, 'home')
   if (!page.ok) return <Unavailable lang={lang} />
   const ids = page.value.blocks.flatMap((b) => (b.type === 'featured' ? b.ids : []))
-  const [cols, cards] = await Promise.all([source().collections(lang), source().cards(lang, ids)])
+  /* Способы доставки — тот же список, что выбор на оформлении (И95); и
+     страница условий доставки — та, что просит таблицу способов. Молчит
+     источник покупки — блок стоит без строк способов, а не падает. */
+  const [cols, cards, methods, docs] = await Promise.all([
+    source().collections(lang), source().cards(lang, ids),
+    commerce().deliveryMethods(null, lang), content().docs(lang),
+  ])
   if (!cols.ok || !cards.ok) return <Unavailable lang={lang} />
-  const ctx: BlockCtx = { lang, collections: cols.value, cards: Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)])) }
+  const terms = docs.ok ? docs.value.find((d) => d.table === 'delivery') : undefined
+  const ctx: BlockCtx = {
+    lang, collections: cols.value, cards: Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)])),
+    delivery: {
+      methods: methods.ok ? deliveryView(lang, { methods: methods.value, delivery: null, pickup: null }).methods : [],
+      terms: terms ? hrefFor(lang, { doc: terms.slug }) : null,
+    },
+  }
   return (
     <main id="main">
       {/* Сведения об организации машина читает как факт: образец компании в

@@ -500,10 +500,11 @@
    и внутри колонки (правило 6).
 
    Ручки: `--side-w` (ширина узкой колонки, пока она рядом), `--side-at`
-   (доля, ниже которой гибкая колонка уходит вниз), `--side-gap` (просвет).
-   Какая из двух узкая — решает класс `aside` на ней самой, а не порядок:
-   в подвале она вторая, в вопросах первая, и переставлять разметку под
-   раскладку нельзя. */
+   (доля, ниже которой гибкая колонка уходит вниз), `--side-gap` (просвет;
+   двумя значениями — «сложенным» и «рядом»: строка переноса у флекса и есть
+   «сложилось», отдельного шва не нужно). Какая из двух узкая — решает класс
+   `aside` на ней самой, а не порядок: в подвале она вторая, в вопросах
+   первая, и переставлять разметку под раскладку нельзя. */
 .sidebar{
   display:flex;flex-wrap:wrap;align-items:var(--side-align, flex-start);
   gap:var(--side-gap, var(--air-band));
@@ -571,6 +572,16 @@
 }
 
 .muted{color:var(--ink-soft)}
+
+/* Сноска — справка при предмете: счёт товаров, вторая строка способа
+   доставки, наличие на карточке. Роль `note` целиком и тихая краска.
+   Заведена по счёту разбора (X1): внутри карточки всё стояло одним кеглем
+   тела, и имя, цена и «В наличии» различались только весом; справка под
+   именем страницы шла кеглем лида. */
+.note{
+  font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);
+  letter-spacing:var(--note-track);color:var(--ink-soft)
+}
 
 /* A group label — sentence case, not capitals with tracking. */
 .eyebrow{
@@ -1101,11 +1112,10 @@
    справа — «Поле ввода» занимало 19% колонки и стояло в две строки
    (отрисованная проверка, семья `measure`). В столбике ужиматься не от
    чего, но правило остаётся: оно про заголовок, а не про раскладку. */
-.sectionHead h2{
-  font-size:var(--h2-size);font-weight:var(--h2-weight);
-  letter-spacing:var(--h2-track);line-height:var(--h2-lead);
-  flex:none
-}
+/* Размер, вес и межстрочье — у элемента, роль h2 (base.css, «Лестница
+   заголовков»): второй записью здесь на вопрос «где решается заголовок
+   раздела» стало бы два ответа. */
+.sectionHead h2{flex:none}
 .sectionHead p{
   color:var(--ink-soft);max-width:var(--measure-lede);
   font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);letter-spacing:var(--lede-track);
@@ -1148,18 +1158,21 @@
 /* Коробка объявлена, потому что заголовок внутри берёт ступень `--fs-page`,
    а та меряет `cqi` — свою коробку, а не окно (см. tokens.css). Без этой
    строки ступень молча вернулась бы к ширине окна. */
+/* Имя страницы набирает сам элемент — роль h1 в base.css («Лестница
+   заголовков»); примитив даёт ему коробку, которую мерит `cqi`. */
 .pagehead{padding-bottom:var(--air-head);container-type:inline-size}
-.pagehead h1{
-  font-size:var(--pagehead-size);line-height:var(--pagehead-lead);
-  font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track)
-}
 /* Строка под именем страницы — тот же лид, что у первого экрана и у
    документов, и кегль у неё тот же: `--intro-size`. Стоял основной текст, то
    есть роль была набрана размером соседней роли. */
-.pagehead p{
+.pagehead p:not(.note){
   color:var(--ink-soft);margin-top:var(--sp-2);
   font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);max-width:var(--measure)
 }
+/* СПРАВКА под именем страницы — счёт, число, срок — место сноски, а не лида.
+   «12 товаров» стояло кеглем ввода (21px, `.pagehead p` бил класс строки
+   весом 0,1,1 против 0,1,0) и читалось вторым лидом. Роль строки даёт
+   `.note`; здесь только её место — строкой ниже лида. */
+.pagehead .note{margin-top:var(--air-row)}
 
 /* Осталась одна вещь, которая здесь и должна остаться: шапка раздела
    меняет СМЫСЛ раскладки — имя и кнопка выхода перестают быть строкой и

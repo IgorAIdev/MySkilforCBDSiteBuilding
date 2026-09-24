@@ -2015,8 +2015,12 @@ async function visit(path, w, { finger, dark = false }) {
           const b = el.getBoundingClientRect()
           if (!b.height || cs.display === 'none') continue
           const top = parseFloat(cs.top) || 0
-          if (top + b.height > innerHeight + 1) {
-            out.push(`${name(el)} — ${Math.round(b.height)}px при верхе ${Math.round(top)}: в окне ${innerHeight} приклеенное не помещается`)
+          /* Потолок коробки (`pinned`) не прячет того, что из неё вылезло:
+             галерея выше своего потолка переливалась вниз при коробке ровно
+             в окно (И278). Прокручиваемое внутри — не перелив: его досмотрят. */
+          const h = Math.max(b.height, cs.overflowY === 'visible' ? el.scrollHeight : 0)
+          if (top + h > innerHeight + 1) {
+            out.push(`${name(el)} — ${Math.round(h)}px при верхе ${Math.round(top)}: в окне ${innerHeight} приклеенное не помещается`)
           }
         }
         return out
@@ -2090,8 +2094,13 @@ async function visit(path, w, { finger, dark = false }) {
              остаться ровно то, на чём он лежит */
           window.__was = el.style.color
           el.style.color = 'transparent'
+          /* Снимаются ЧУЖИЕ плавающие слои, а не тот, в котором текст лежит
+             сам: кнопка «Apply filters» в приклеенной колонке фильтров
+             пряталась вместе с колонкой, и под «её» буквами снимался пол
+             страницы — белое по бежевому, 1.31 : 1, при кнопке, залитой
+             маркой (замер 24.09.2026, глаз с ним не сошёлся). */
           window.__hid = [...document.querySelectorAll('*')]
-            .filter((e) => { const p = getComputedStyle(e).position; return p === 'fixed' || p === 'sticky' })
+            .filter((e) => { const p = getComputedStyle(e).position; return (p === 'fixed' || p === 'sticky') && !e.contains(el) })
           window.__hidWas = window.__hid.map((e) => e.style.visibility)
           window.__hid.forEach((e) => { e.style.visibility = 'hidden' })
           const b = el.getBoundingClientRect()

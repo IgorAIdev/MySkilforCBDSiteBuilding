@@ -1,0 +1,21 @@
+/* Протокол партии — плоский, один на карте товара и на главной
+   (LabReport.tsx). Заголовок — ролью имени (тело, полужирное), а не
+   ступенью h3: крупный заголовок протокола спорил с заголовком раздела над
+   ним. Строки — через волосок, поле строки — `--pad-inner`, как у строк
+   способов доставки: все строки «подпись — значение» сайта одного роста.
+   Воздух между заголовком, строками и ссылкой на документ — строка группы.
+
+   Прежде протокол был карточкой (`--surface`, поле, угол) в
+   ProductView.module.css, и обе страницы снимали с него лист снаружи —
+   карта товара силой места `.info .lab`, главная обёрткой блока
+   `.labDoc > section` («заплатка с именем», docs/open.md). Теперь вид
+   протокола решается здесь и только здесь. */
+.report{--stack:var(--air-row)}
+.title{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:var(--body-track)}
+.batch{white-space:nowrap}
+/* Верхнее поле списка — просвет столбика (`stack`), его не трогаем: тем же
+   весом `margin:0` отменил бы его в зависимости от порядка кусков сборки. */
+.facts{display:grid;margin-inline:0;margin-block-end:0;border-block-start:var(--line-w) solid var(--rule)}
+.fact{display:flex;justify-content:space-between;gap:var(--gap-row);padding-block:var(--pad-inner);border-block-end:var(--line-w) solid var(--rule)}
+.fact dt{color:var(--ink-soft)}
+.fact dd{margin:0;font-weight:600;text-align:end}

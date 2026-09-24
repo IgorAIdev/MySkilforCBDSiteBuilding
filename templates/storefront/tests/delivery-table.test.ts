@@ -14,8 +14,8 @@ test('the delivery page table is the checkout list itself', async () => {
   const v = deliveryTable('ro', m.value)
   assert.deepEqual(v.head, ['Mod de livrare', 'Termen', 'Cost'])
   assert.deepEqual(v.rows.map((r) => [r.name, r.kind, r.days, r.price]), [
-    ['Curier la domiciliu · FAN Courier', 'La adresă', '1–2 zile lucrătoare', `19,99${NB}lei`],
-    ['Locker · Sameday', 'Punct de ridicare', '1–2 zile lucrătoare', `12,99${NB}lei`],
+    ['Curier la domiciliu · FAN Courier', 'La adresă', '1–2 zile lucrătoare', `4,99${NB}€`],
+    ['Locker · Sameday', 'Punct de ridicare', '1–2 zile lucrătoare', `3,49${NB}€`],
     ['Ridicare din magazin', 'Punct de ridicare', '—', 'Gratuit'],
   ])
   const doc = await sampleContent.doc('ro', 'livrare-si-plata')

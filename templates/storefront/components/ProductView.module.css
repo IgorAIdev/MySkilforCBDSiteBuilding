@@ -1,72 +1,121 @@
 /* Воздух над картой товара платят крошки (Breadcrumbs.module.css) — у
-   шва один хозяин. Коробку объявляет карта: имя товара берёт ступень
-   заголовка страницы, а та меряет `cqi` — ряд карты, а не узкую колонку
-   покупки. Мерилась бы колонка — на 900…1100 окна имя выходило мельче
-   заголовка «Produse similare» ниже по странице (check:craft, ladder). */
-.pdp{--switch-at:820px;container-type:inline-size;align-items:start}
+   шва один хозяин. Коробку объявляет карта (контейнер `pdp`): имя товара
+   берёт ступень заголовка страницы, а та меряет `cqi` — ряд карты, а не
+   узкую колонку покупки. Мерилась бы колонка — на 900…1100 окна имя
+   выходило мельче заголовка «Similar products» ниже (check:craft, ladder).
 
-/* Снимок товара — норма живых магазинов (замер 23.09.2026, четырнадцать
-   магазинов: byredo, lelabo, aesop, glossier, cuyana, muji, apple, diptyque,
-   cos, cibdol, formulaswiss, hempico.bg, mamakana.ro, mycbd.bg). Заказчик
-   показал снимком: на ширине планшета карта стояла одной колонкой, кадр во
-   всю ширину ряда, и имя с ценой уезжали под сгиб.
+   ДВЕ КОЛОНКИ — с 820px ряда (шов «телефон», `--switch-at` у switcher и
+   запрос ниже: одно решение двумя записями, условие `@container`
+   переменную не принимает). Галерея слева, колонка покупки справа, верхние
+   края на одной линии (`align-items:start`). Ниже 820 — одна колонка в
+   порядке чтения: галерея, имя и цена, выбор, покупка, сведения.
 
-   ОДНА КОЛОНКА (ряд уже `--switch-at`): кадр не выше 55 % малого окна и
-   не шире `--frame-max`, по середине ряда. Замер: телефон ≈ 58 % высоты
-   окна, планшет ≈ 48 % и ≈ 620px в ширину; имя в первом экране у всех.
-   Ширина считается из потолка высоты (у квадрата ширина равна высоте) —
-   кадр остаётся квадратом, а не режется в полосу.
+   ГАЛЕРЕЯ ПОМЕЩАЕТСЯ В ЭКРАН (И278). Блок — кадр, зазор и ряд миниатюр —
+   не выше бюджета окна: в две колонки это `--pin-fit` примитива `pinned`
+   (окно за вычетом прилипшей шапки `--anchor-top` и воздуха под колонкой),
+   в одну — `--gallery-fold` (58 % малого окна: так на телефоне под
+   галереей остаются имя и цена — норма живых магазинов, замер 23.09.2026).
+   Ширина колонки галереи — меньшее из доли ряда (`--pdp-gallery`) и ширины,
+   при которой блок влезает по высоте (`--gallery-fit`). Миниатюр в ряду
+   четыре во всю ширину кадра (как у образца заказчика: кадр 615, миниатюры
+   по 135), значит высота блока — кадр × 1.25 плюс доля зазора; отсюда
+   коэффициенты ниже (вывод — docs/rules.md, И278). Остаток ряда забирает
+   колонка покупки: у галереи рост заведомо больше (`--switch-bias`), и она
+   упирается в свой потолок первой.
 
-   ДВЕ КОЛОНКИ — с 820px ряда, как у живых магазинов (вторая колонка
-   появляется при содержимом ≈ 820px; ниже — одна): кадр берёт ≈ 55 % ряда
-   (`--switch-bias` 1.22 к 1 у покупки) и может быть высоким — потолок
-   85 % окна (замер 1024–1440: галерея 51–57 % ширины, снимок 75–86 %
-   высоты окна, текст рядом). Ряд не тянет кадр во
-   всю высоту колонки покупки (`align-items:start`): растянутый, он
-   становился полосой 366×540 и резал квадратный снимок на треть.
+   Ручки вида — свойства опубликованного вида (панель «Look», «Admin →
+   Product page»; выпущены в styles/look.css): `--pdp-gallery` — доля ряда,
+   `--pdp-frame` — пропорция снимка, `--pdp-thumbs` — где миниатюры:
+   `below`, `side`, `dots` (точки вместо миниатюр). */
+.pdp{
+  --switch-at:820px;--switch-gap:var(--air-block);
+  --gallery-gap:var(--gap-row);
+  --gallery-r:calc(var(--pdp-frame));
+  --gallery-fold:58svh;
+  --frame-max:620px;
+  container-type:inline-size;container-name:pdp;
+  align-items:start
+}
+.pin{--switch-bias:999}
 
-   Порог 820 — шов набора, у `--switch-at` выше и у запроса ниже: одно
-   решение двумя записями, условие `@container` переменную не принимает.
-   Стоял 720, и ряд 720…819 (окно ≈ 760…900) держал две колонки по
-   половине: кадр 366px, растянутый в 540 по высоте колонки покупки. На
-   пороге колонка покупки получает ≈ 350px (45 % ряда за вычетом просвета)
-   — имя, цена и кнопка стоят в ней без обрывков. */
-.pin{--switch-bias:1.22}
-.gallery{--frame:1 / 1;--frame-cap:55svh;--frame-max:620px;inline-size:100%;max-inline-size:min(var(--frame-max), var(--frame-cap));margin-inline:auto}
-/* Одна колонка: клеить не к чему — кадр в потоке, и потолка приклеенного
-   у него нет (`pinned`, ручки `--pin-pos` и `--pin-max`). Две: кадр едет
-   рядом с колонкой покупки, и его потолок — бюджет высоты приклеенного
-   (`--pin-fit`), а не 85 % окна: приклеенное выше окна не показывает низ
-   никогда (правило 9). */
-@container (max-width:819px){
+@container pdp (min-width:820px){
+  .pin{
+    --gallery-fit:calc((var(--pin-fit) - var(--gallery-gap)) * var(--gallery-r) * .8 + var(--gallery-gap) * .6);
+    max-inline-size:min(calc(var(--pdp-gallery) - var(--switch-gap) / 2), var(--gallery-fit))
+  }
+  /* Один снимок — ряда миниатюр нет, кадр берёт всю высоту. */
+  .pin:not(:has([data-many])){--gallery-fit:calc(var(--pin-fit) * var(--gallery-r))}
+  /* Колонка покупки не шире меры строки: цена, кнопка и абзац читаются
+     одним взглядом, а не расползаются по широкому окну. */
+  .offer{max-inline-size:var(--measure)}
+}
+/* Миниатюры сбоку: полоса слева шириной в пятую часть кадра, высота блока —
+   высота кадра. Точки: под кадром строка ростом с цель. */
+@container pdp (min-width:820px) and style(--pdp-thumbs: side){
+  .pin:has([data-many]){--gallery-fit:calc(var(--pin-fit) * var(--gallery-r) * 1.25 + var(--gallery-gap) * (1 - var(--gallery-r) * .75))}
+}
+@container pdp (min-width:820px) and style(--pdp-thumbs: dots){
+  .pin:has([data-many]){--gallery-fit:calc((var(--pin-fit) - var(--gallery-gap) - var(--ctrl-target)) * var(--gallery-r))}
+}
+
+/* Одна колонка: клеить не к чему — галерея в потоке (`--pin-pos:static`,
+   потолок приклеенного снят). Галерея и колонка покупки под ней — ОДНА
+   колонка по середине ряда: ширина не больше `--frame-max` и такая, что
+   блок галереи не выше `--gallery-fold` (`--gallery-w`). Края кадра и
+   текста совпадают на любой ширине: узкий по высоте кадр над широким
+   текстом стоял бы «ступенькой». Считается на самой карте, а не в
+   запросе: контейнер свой размер не спрашивает. */
+.pdp{--gallery-w:calc((var(--gallery-fold) - var(--gallery-gap)) * var(--gallery-r) * .8 + var(--gallery-gap) * .6)}
+.pdp:not(:has([data-many])){--gallery-w:calc(var(--gallery-fold) * var(--gallery-r))}
+@container style(--pdp-thumbs: dots){
+  .pdp:has([data-many]){--gallery-w:calc((var(--gallery-fold) - var(--gallery-gap) - var(--ctrl-target)) * var(--gallery-r))}
+}
+/* Меру держат ДЕТИ колонок, а не сами колонки: `max-inline-size` на
+   ребёнке switcher ужимает его основу, и две узкие колонки вставали в
+   один ряд там, где запрос уже считал ряд одной колонкой (замер 900×700:
+   ряд 816, колонки по 322). */
+@container pdp (max-width:819px){
   .pin{--pin-pos:static;--pin-max:none}
+  .pin > *,.offer > *{max-inline-size:min(var(--frame-max), var(--gallery-w));margin-inline:auto}
 }
-@container (min-width:820px){
-  .gallery{--frame-cap:var(--pin-fit);max-inline-size:none;margin-inline:0}
-}
+
+/* ── колонка покупки ──────────────────────────────────────────────────────
+   Четыре группы через `--air-group`; внутри группы — теснее: имя и цена
+   ступенью оптики `--sp-2`, группы опций — строкой `--air-row`. Первая
+   строка колонки стоит на верхнем крае кадра. */
 .offer{--stack:var(--air-group)}
-.name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);overflow-wrap:anywhere}
-.price{font-size:var(--h3-size);font-weight:var(--h3-weight);color:var(--ink)}
-/* Поля сброшены по бокам и снизу, а не целиком: `margin:0` стоит позже
-   примитива `stack` той же силы и гасил его ритм — «În stoc», «Concentrație»
-   и «Volum» стояли вплотную (снимок приёмки). Верхнее поле — от `stack`. */
+.identity{display:grid;gap:var(--sp-2)}
+.name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:balance;overflow-wrap:anywhere}
+/* Цена у имени (Baymard): сейчас — крупно, прежняя — зачёркнута рядом,
+   наличие — тихо в той же строке, по базовой линии. */
+.price{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--gap-row);row-gap:var(--sp-1)}
+.now{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track);font-variant-numeric:tabular-nums;color:var(--ink)}
+.was{font-size:var(--body-size);color:var(--ink-soft);font-variant-numeric:tabular-nums;text-decoration-thickness:var(--line-w)}
+.stock{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+
+/* Выбор: группа — подпись и опции вплотную, между группами — строка. */
+.choice{display:grid;gap:var(--air-row)}
 /* Опции варианта — органы ростом с кнопку (`--seg-h` сегмента: `--ctrl-h`,
    40 под мышью, 48 под пальцем), а не малые фишки: это выбор, без которого
    не купить. */
-.group{--seg-h:var(--ctrl-h);border:0;padding:0;margin-inline:0}
-.legend{font-weight:600;margin-block-end:var(--air-row)}
-.lab{--stack:var(--air-row);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
-.labTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight)}
-/* Номер партии — одним куском: «RO-2409-05» не рвётся на дефисе. */
-.batch{white-space:nowrap}
-.facts{display:grid;gap:var(--gap-row);margin-inline:0;margin-block-end:0}
-.fact{display:flex;justify-content:space-between;gap:var(--gap-row)}
-.fact dd{margin:0;font-weight:600;text-align:end}
-.related{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}
+.group{--seg-h:var(--ctrl-h);border:0;padding:0;margin:0;min-inline-size:0}
+.legend{padding:0;margin-block-end:var(--sp-2);font-size:var(--ctrl-fs-sm);font-weight:600;color:var(--ink)}
+/* «Choose an option» — строка ошибки поля (form.module.css, `.say`) под
+   опциями первой невыбранной группы, на той же ступени оптики, что подпись
+   над ними. */
+.choose{margin-block:var(--sp-2) 0}
 
-/* Строка покупки: количество и кнопка в ряд, под пальцем — столбиком сами
-   (перенос, не шов). Ширина поля количества — от высоты органа. */
-.buy{display:flex;flex-wrap:wrap;align-items:end;gap:var(--gap-row)}
-.qty{inline-size:calc(var(--ctrl-h) * 2.2)}
-/* Подсказка у выключенной кнопки — на её высоте и приглушённая. */
-.hint{display:flex;align-items:center;min-block-size:var(--ctrl-h);color:var(--ink-soft)}
+/* Покупка: количество и кнопка в одну строку ростом крупного органа, кнопка
+   забирает остаток; подсказка, исход записи и «View cart» — строками под
+   ней. Ширина поля количества — от высоты органа. */
+.buy{display:flex;flex-wrap:wrap;align-items:stretch;gap:var(--sp-2) var(--gap-row)}
+.buy > :is(p, a){flex-basis:100%}
+.buy > p:empty{display:none}
+.qty{display:flex;flex:none;inline-size:calc(var(--ctrl-h-lg) * 1.6)}
+.count{min-block-size:var(--ctrl-h-lg);text-align:center;font-variant-numeric:tabular-nums}
+.add{flex:1 1 auto;font-variant-numeric:tabular-nums}
+.hint{flex-basis:100%;margin:0;font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+
+/* Сведения: абзац и протокол партии (плоский — LabReport.module.css). */
+.info{display:grid;gap:var(--air-row)}
+.related{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}

@@ -11,7 +11,7 @@ const FIRST = new RegExp(`^/(${LOCALES.join('|')})(?=/|$)`)
 export function LangSwitch({ lang, label }: { lang: Lang; label: string }) {
   const path = usePathname()
   return (
-    <nav className={p.stack} aria-labelledby="lang-title">
+    <nav className={`${p.stack} ${s.col}`} aria-labelledby="lang-title">
       <p className={p.eyebrow} id="lang-title">{label}</p>
       <ul className={s.list}>
         {LOCALES.map((l) => (

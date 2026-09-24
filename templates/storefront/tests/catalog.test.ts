@@ -64,3 +64,20 @@ test('search finds by name in the asked language', async () => {
   const none = await sample.listing('ro', q({ q: 'zzzz' }))
   assert.ok(none.ok && none.value.total === 0)
 })
+
+/* Снимки образца: три-четыре вида одного предмета (лицо, задник, упаковка,
+   деталь), каждый помечен «sample» и детерминирован — те же данные дают тот
+   же SVG байт в байт; первый — тот же, что на полке. */
+test('every sample product has three or four images, marked and deterministic', async () => {
+  const ids = await sample.productIds()
+  assert.ok(ids.ok)
+  for (const id of ids.value) {
+    const [a, b, card] = await Promise.all([sample.product('en', id), sample.product('en', id), sample.cards('en', [id])])
+    assert.ok(a.ok && b.ok && card.ok)
+    assert.ok(a.value.images.length >= 3 && a.value.images.length <= 4, `${id}: ${a.value.images.length}`)
+    assert.deepEqual(a.value.images, b.value.images, id)
+    assert.equal(a.value.images[0].src, card.value[0].image.src, `${id}: главный снимок — тот же, что на полке`)
+    assert.equal(new Set(a.value.images.map((i) => i.src)).size, a.value.images.length, `${id}: снимки разные`)
+    assert.ok(a.value.images.every((i) => decodeURIComponent(i.src).includes('>sample</text>')), `${id}: пометка «sample»`)
+  }
+})

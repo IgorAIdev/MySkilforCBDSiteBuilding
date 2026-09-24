@@ -35,6 +35,10 @@ export const SECTIONS = [
   { id: 'admin', name: 'Admin', subs: [
     { id: 'header', name: 'Header', hint: 'The layout of the header, and how the current shelf is marked in it.', fields: [['header', 'Layout'], ['marker', 'Current menu item']] },
     { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf.', fields: [['card', 'Product card']] },
+    /* Карта товара (И278): доля ряда под галерею, пропорция снимка, место
+       миниатюр — значения `--pdp-*`; галерея при любом выборе помещается в
+       экран. */
+    { id: 'product', name: 'Product page', hint: 'How the product page shows its pictures. The gallery always fits the screen; open a product to see the change.', fields: [['pdp-gallery', 'Gallery width'], ['pdp-frame', 'Image'], ['pdp-thumbs', 'Thumbnails']] },
   ] },
 ]
 /** Поля-разметка: другой вариант — другая разметка страницы, черновик и перезагрузка. */

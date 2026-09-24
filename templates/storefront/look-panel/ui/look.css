@@ -125,6 +125,19 @@
 .lp-shape-sample{position:relative;display:inline-block;inline-size:44px;block-size:18px}
 .lp-shaped,.lp-echo{position:absolute;inset:0}
 .lp-shaped{background:var(--pop, #9a7b3f);border-radius:min(var(--r-ctrl, 8px), 5px)}
+/* Образцы карты товара: доля ряда — полоса, где залита доля галереи;
+   пропорция — кадр той пропорции; миниатюры — кадр с рядом под ним, полосой
+   сбоку или точками. Рисуются чернилами фишки (`currentColor`). */
+.lp-row-split{display:block;inline-size:28px;block-size:12px;border-radius:2px;box-shadow:inset 0 0 0 1px currentColor;opacity:.8}
+.lp-row-split i{display:block;block-size:100%;border-radius:2px 0 0 2px;background:currentColor}
+.lp-pic{display:block;block-size:16px;inline-size:auto;aspect-ratio:1;border-radius:2px;box-shadow:inset 0 0 0 1.5px currentColor;opacity:.8}
+.lp-thumbs{display:inline-grid;grid-template-columns:repeat(3, 4px);grid-template-rows:12px 4px;gap:1px;opacity:.8}
+.lp-thumbs .lp-pic{grid-column:1 / -1;block-size:12px;inline-size:auto;opacity:1}
+.lp-thumbs b{display:block;background:currentColor;border-radius:1px}
+.lp-thumbs[data-at='side']{grid-template-columns:4px 14px;grid-template-rows:repeat(3, 4px)}
+.lp-thumbs[data-at='side'] .lp-pic{grid-column:2;grid-row:1 / -1;block-size:auto}
+.lp-thumbs[data-at='side'] b{grid-column:1}
+.lp-thumbs[data-at='dots'] b{border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:center}
 .lp-link{padding:0 2px;border:0;background:none;color:var(--lp-ink);font-size:var(--lp-t2);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-block-size:24px}
 
 /* Строитель палитры из намерения (И275): марка, бумага, чернила; тонкая

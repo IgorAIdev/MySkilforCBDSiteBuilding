@@ -9,9 +9,9 @@ test('a shelf card carries ready strings: address, "from" price, stock', async (
   assert.ok(r.ok)
   const [oil, serum] = r.value.map((c) => shelfCard('ro', c))
   assert.equal(oil.href, '/ro/product/ulei-cbd-full-spectrum')
-  assert.equal(oil.price, 'de la 89,90\u00a0lei')
+  assert.equal(oil.price, 'de la 34,90\u00a0€')
   assert.equal(oil.stock, 'În stoc')
-  assert.equal(serum.price, '159,90\u00a0lei')
+  assert.equal(serum.price, '32,90\u00a0€')
   assert.equal(serum.stock, 'Stoc epuizat')
 })
 

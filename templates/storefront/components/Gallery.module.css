@@ -1,0 +1,93 @@
+/* Галерея товара — главный кадр и ряд миниатюр одним блоком (И278).
+
+   Ширину блока назначает колонка (ProductView.module.css, `--gallery-fit`):
+   там же высота окна, под которую блок подогнан. Здесь — устройство: кадр
+   берёт всю ширину, миниатюр в ряду четыре во всю ширину кадра, зазор —
+   роль `--gap-row` (`--gallery-gap` карты). Пропорция снимка — ручка вида
+   `--pdp-frame`, у кадра и у миниатюр одна.
+
+   Главный кадр — лента слайдов с прилипанием (`scroll-snap`): палец листает
+   её свайпом, колесо и клавиатура — прокруткой, миниатюра — ссылкой на
+   якорь слайда. Всё это без скрипта; скрипт добавляет стрелки и отметку. */
+.gallery{display:grid;grid-template-columns:minmax(0, 1fr);grid-template-areas:'stage' 'thumbs';gap:var(--gallery-gap)}
+
+/* Кадр — примитив `frame`: пропорция ручкой, потолок — бюджет высоты
+   колонки (в две колонки `--pin-fit`, в одну `--gallery-fold`). Ширина
+   колонки уже посчитана так, что потолок не достигается; он страхует. */
+.gallery .stage{--frame:var(--pdp-frame);--frame-cap:var(--gallery-fold);grid-area:stage;position:relative;border-radius:var(--r-card)}
+@container pdp (min-width:820px){ .gallery .stage{--frame-cap:var(--pin-fit)} }
+
+.strip{
+  display:flex;inline-size:100%;block-size:100%;
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+  scroll-snap-type:x mandatory;scrollbar-width:none
+}
+.strip::-webkit-scrollbar{display:none}
+.strip:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:calc(var(--ring-w) * -1)}
+.slide{flex:none;inline-size:100%;block-size:100%;scroll-snap-align:start;scroll-snap-stop:always}
+
+/* Плашка скидки — примитив `cut` (верхний левый угол кадра). */
+.badge{pointer-events:none}
+
+/* Стрелки — стрелки листания набора (`go`, кромкой), по середине боков
+   кадра. Есть при любом указателе: палец листает и свайпом, но видимость
+   по устройству ввода не меняется (check:css, семья о раскладке по
+   указателю) — под пальцем растёт цель, а не пропадает орган. */
+.arrow{position:absolute;inset-block-start:50%;translate:0 -50%}
+.arrow[data-to='back']{inset-inline-start:var(--pad-inner)}
+.arrow:not([data-to]){inset-inline-end:var(--pad-inner)}
+
+/* Ряд миниатюр: четыре во всю ширину кадра; больше четырёх — ряд
+   листается вбок, а не сжимает миниатюры. */
+.thumbs{
+  grid-area:thumbs;display:grid;grid-auto-flow:column;
+  grid-auto-columns:calc((100% - 3 * var(--gallery-gap)) / 4);
+  gap:var(--gallery-gap);
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:thin;
+  list-style:none;margin:0;padding:0
+}
+.thumbs li{scroll-snap-align:start}
+/* Миниатюра — тот же кадр, мельче: пропорция вида, снимок кадрируется.
+   Кромка — волосок; текущая — кольцом чернил поверх снимка (`::after`:
+   тень внутри рамки ушла бы под картинку). */
+.gallery .thumb{--frame:var(--pdp-frame);position:relative;border-radius:var(--r-ctrl);background:var(--plate-2)}
+.thumb::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 0 0 var(--line-w) var(--line);
+  transition:box-shadow var(--hover-t) var(--ease)
+}
+@media (hover:hover){ .thumb:not([aria-current='true']):hover::after{box-shadow:inset 0 0 0 var(--line-w) var(--border)} }
+/* Кольцо чернил и под ним кольцо пола: светлое чернило тёмной темы на
+   светлом снимке иначе не видно. */
+.thumb[aria-current='true']::after{box-shadow:inset 0 0 0 var(--ring-w) var(--ink),inset 0 0 0 calc(var(--ring-w) * 2) var(--page)}
+.thumb:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:calc(var(--ring-w) * -1)}
+
+/* Точки вместо миниатюр (`--pdp-thumbs: dots`): строка целей по середине
+   под кадром, рисунок точки — треть цели. */
+.dots{display:none;grid-area:thumbs;justify-content:center;gap:var(--sp-1);list-style:none;margin:0;padding:0}
+.dot{display:grid;place-items:center;inline-size:var(--ctrl-target);block-size:var(--ctrl-target)}
+.dot::before{
+  content:'';inline-size:calc(var(--ctrl-target) * .33);aspect-ratio:1;max-block-size:100%;border-radius:50%;
+  background:var(--border);transition:background-color var(--hover-t) var(--ease)
+}
+.dot[aria-current='true']::before{background:var(--ink)}
+.dot:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:calc(var(--ring-w) * -1);border-radius:50%}
+
+@container style(--pdp-thumbs: dots){
+  .thumbs{display:none}
+  .dots{display:flex}
+}
+/* Сбоку — только в две колонки: полоса миниатюр слева шириной в пятую
+   часть блока (без доли зазора), высотой с кадр; больше четырёх —
+   листается вниз. В одну колонку ряд остаётся под кадром. */
+@container pdp (min-width:820px) and style(--pdp-thumbs: side){
+  .gallery[data-many]{
+    grid-template-columns:calc((100% - var(--gallery-gap)) * .2 - var(--gallery-gap) * var(--gallery-r) * .6) minmax(0, 1fr);
+    grid-template-areas:'thumbs stage'
+  }
+  .thumbs{grid-auto-flow:row;grid-auto-columns:auto;contain:size;overflow:hidden auto;overscroll-behavior-y:contain;scroll-snap-type:y proximity}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .thumb::after,.dot::before{transition:none}
+}
