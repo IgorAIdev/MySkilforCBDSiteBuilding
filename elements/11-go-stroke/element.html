@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · Знак «куда ведёт»: штрих</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 11 — «Знак «куда ведёт»: штрих». Источник — дизайн-система cbdin.bg (страница /bg/design, styles/go.module.css) (../cbdin-sources/design-signs.png, ../cbdin-sources/go.module.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Приведено к единой форме: стрелка — из листа набора; нажатие 0.97 и пиксель вместо уменьшения на 7 %; краска под рукой — краска марки.
+  Наведение: знак едет вперёд на 3 пикселя, краска — марка. Нажатие: то же, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="bare" data-shape="pill" data-icon data-motion="slide" type="button" aria-label="Вперёд"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="bare" data-shape="pill" data-icon data-motion="slide"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="bare" data-shape="pill" data-icon data-motion="slide" data-state="hover"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="bare" data-shape="pill" data-icon data-motion="slide" data-state="press"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="bare" data-shape="pill" data-icon data-motion="slide" data-state="focus"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

@@ -44,7 +44,18 @@ test('an element with its own style, its own colour or a sign outside the kit sh
   assert.match(own(page.replace('</head>', '<style>.x{padding:3px}</style></head>')), /свои стили/)
   assert.match(own(page.replace('<body>', '<body style="color:#ff0000">')), /своя краска/)
   assert.match(own(page.replace('../base.css', 'my.css')), /не на основе/)
-  assert.match(own(page.replace('#arrow-right"', '#rocket"')), /значка «rocket» нет в листе набора/)
+  assert.match(own(page.replace('data-sign="arrow-right"', 'data-sign="rocket"')), /значка «rocket» нет в листе набора/)
+  assert.match(own(page.replace('<link rel="stylesheet" href="../palettes.css">', '')), /нет подключения \.\.\/palettes\.css/)
+  assert.match(own(page.replace('<svg data-sign="arrow-right"></svg>', '<svg><use href="#arrow-right"/></svg>')), /через <use>/)
+  assert.match(own(page.replace('<svg data-sign="arrow-right"></svg>', '<svg><path d="M5 12h14"/></svg>')), /свой рисунок значка/)
+})
+
+/* Лист значков — рисунки, а не орган: состояний и меток органа у него нет,
+   свои рисунки ему положены. */
+test('an icon set carries its own drawings and needs no control states', () => {
+  const set = catalog.элементы.find((e) => e.род.includes('набор значков'))
+  assert.ok(set, 'в каталоге есть лист значков')
+  assert.deepEqual(auditElements({ ...catalog, элементы: [set] }, read, ids), [])
 })
 
 test('the page lists every element under its family, with its tags', () => {
@@ -52,4 +63,5 @@ test('the page lists every element under its family, with its tags', () => {
   for (const e of catalog.элементы) assert.ok(html.includes(`${e.папка}/element.html`), e.папка)
   assert.match(html, /Мягкий тон/)
   assert.match(html, /поворот знака/)
+  assert.match(toHtml(catalog, ['Латунь на угле', 'Аптека']), /data-set="palette"[\s\S]*data-value="Аптека"/, 'палитры набора — переключателем')
 })

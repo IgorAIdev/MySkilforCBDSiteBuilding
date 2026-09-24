@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Главная со стрелкой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 03 — «Главная со стрелкой». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: прокрутка на второй слой при наведении; второй слой зелёного цвета; цветная тень.
+  Приведено к единой форме: краски — марка палитры и надпись на ней вместо синего и белого; рост 48 вместо 50; угол из Shape; нажатие 0.97 и пиксель вместо 0.95; надпись 600 вместо 700.
+  Наведение: марка + 5 % краски надписи. Нажатие: марка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" data-size="lg" type="button">Continue<svg data-sign="arrow-right"></svg></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-size="lg">Continue<svg data-sign="arrow-right"></svg></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="hover">Continue<svg data-sign="arrow-right"></svg></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="press">Continue<svg data-sign="arrow-right"></svg></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="focus">Continue<svg data-sign="arrow-right"></svg></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

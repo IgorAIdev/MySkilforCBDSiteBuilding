@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>16 · Главная пилюля, стрелка едет</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 16 — «Главная пилюля, стрелка едет». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Приведено к единой форме: краски — марка и надпись на ней вместо лаймового и чёрного; стрелка из листа набора, .42 высоты вместо 34 пикселей; сдвиг на 3 пикселя вместо 5 — как у знаков набора; нажатие 0.97 и пиксель вместо 0.95; надпись 600 вместо 700.
+  Наведение: марка + 5 % краски надписи, стрелка едет вперёд на 3 пикселя. Нажатие: марка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" data-shape="pill" data-motion="slide" type="button">Get started<svg data-sign="arrow-right"></svg></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-motion="slide">Get started<svg data-sign="arrow-right"></svg></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-motion="slide" data-state="hover">Get started<svg data-sign="arrow-right"></svg></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-motion="slide" data-state="press">Get started<svg data-sign="arrow-right"></svg></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-motion="slide" data-state="focus">Get started<svg data-sign="arrow-right"></svg></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

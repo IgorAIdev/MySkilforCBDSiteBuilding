@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>19 · Градиент марки со знаком в круге</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 19 — «Градиент марки со знаком в круге». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: толстая выпуклая рамка; свечение; размытие круга; внутренняя тень и бледнеющая надпись под рукой.
+  Приведено к единой форме: градиент из палитры: от нажатой краски марки к обычной; круг значка — плитка краски надписи, концентричная пилюле; значок из листа набора; надпись 1rem вместо 25 пикселей.
+  Наведение: поверх градиента 5 % краски надписи. Нажатие: 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" data-fill="gradient" data-shape="pill" data-size="lg" type="button"><span class="tile lead"><svg data-sign="star"></svg></span>Favourites</button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-fill="gradient" data-shape="pill" data-size="lg"><span class="tile lead"><svg data-sign="star"></svg></span>Favourites</span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-fill="gradient" data-shape="pill" data-size="lg" data-state="hover"><span class="tile lead"><svg data-sign="star"></svg></span>Favourites</span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-fill="gradient" data-shape="pill" data-size="lg" data-state="press"><span class="tile lead"><svg data-sign="star"></svg></span>Favourites</span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-fill="gradient" data-shape="pill" data-size="lg" data-state="focus"><span class="tile lead"><svg data-sign="star"></svg></span>Favourites</span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>
