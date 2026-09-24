@@ -80,6 +80,7 @@ async function shows(look, cookie) {
   if ((html.match(/<style[^>]*data-href="look"[^>]*>([\s\S]*?)<\/style>/)?.[1] ?? null) !== lookCss(look)) fail([`сайт рисует не этот вид: блок <style href="look"> на /${LANG} не совпал с проверяемым`])
   if (!html.includes(`data-variant="${look.header}"`)) fail([`на /${LANG} не та шапка: ждали «${look.header}»`])
   if (!html.includes(`data-card="${look.card}"`)) fail([`на /${LANG} не та карточка товара: ждали «${look.card}»`])
+  if (!html.includes(`data-home="${look.home}"`)) fail([`на /${LANG} не та главная: ждали «${look.home}»`])
 }
 
 /** check:craft на трёх страницах → находки по семьям. */

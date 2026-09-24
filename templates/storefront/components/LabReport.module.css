@@ -19,3 +19,16 @@
 .fact{display:flex;justify-content:space-between;gap:var(--gap-row);padding-block:var(--pad-inner);border-block-end:var(--line-w) solid var(--rule)}
 .fact dt{color:var(--ink-soft)}
 .fact dd{margin:0;font-weight:600;text-align:end}
+/* look-home:proof:start */
+/* Номер партии крупно (`code`) — размером героя: у главной «протокол сразу»
+   это самый крупный знак страницы. Но вес — тела, а не героя: крупная
+   светлая цифра — надпись на этикетке, заголовку страницы она не соперник
+   (check:craft, семья `ladder`: жирное не бывает крупнее h1). Роль мерит
+   свою колонку, поэтому протокол с крупным номером — контейнер; цифры одной
+   ширины, номер не рвётся. */
+.report:has(> .code){container-type:inline-size}
+.code{
+  font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--body-weight);letter-spacing:var(--hero-track);
+  font-variant-numeric:tabular-nums;white-space:nowrap
+}
+/* look-home:proof:end */

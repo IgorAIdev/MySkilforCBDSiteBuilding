@@ -131,6 +131,17 @@ export const PRODUCT_PAGE = {
     { id: 'over', name: 'On the picture', line: 'No thumbnails: swipe the picture, dots lie on it', vars: { '--pdp-thumbs': 'over' } },
   ],
 }
+/** Главные: id — HOMES в lib/homes.ts (docs/design/home.md). `plan` —
+ *  первый экран схемой для образца панели, сверху вниз: из чего он сложен
+ *  (look.js рисует полосы — сцену, заголовок, фишки, ряд, лист, ящики,
+ *  снимок). Строка — как вариант ощущается, словами заказчика. */
+const HOME_LINES = {
+  scene: { name: 'Scene', line: 'A dark photo scene first, then shelves, best sellers and the lab sheet', plan: ['scene', 'tiles', 'row'] },
+  counter: { name: 'Shop first', line: 'The promise in one line, every shelf and the best sellers on the first screen', plan: ['title', 'chips', 'row'] },
+  proof: { name: 'Lab report first', line: 'The batch report opens the page: the batch number is the largest thing on it', plan: ['title', 'sheet', 'row'] },
+  journal: { name: 'Headline first', line: 'The promise set large across the page, a wide photo under it, shelves as an index', plan: ['headline', 'photo', 'index'] },
+  cabinet: { name: 'Cabinet', line: 'A calm centred heading, shelves as apothecary drawers, a photo as a pause', plan: ['calm', 'drawers', 'row'] },
+}
 /** Шапки: id — HEADERS в lib/headers.ts. */
 const HEADER_LINES = {
   classic: { name: 'Classic', line: 'Categories beside the logo' },
@@ -182,6 +193,7 @@ export async function buildCatalog({ site, kit }) {
   const list = (file, name) => [...(readFileSync(join(site, file), 'utf8').match(new RegExp(`${name} = \\[([\\s\\S]*?)\\]`))?.[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((m) => m[1])
   const headers = list('lib/headers.ts', 'HEADERS')
   const cards = list('lib/cards.ts', 'CARDS')
+  const homes = list('lib/homes.ts', 'HOMES')
   const ofGroup = (group, vars) => Object.fromEntries(Object.entries(vars).filter(([k]) => slots[k]?.group === group))
   /** Вариант сайта — первым: он умолчание каталога. */
   const siteFirst = (list) => {
@@ -223,6 +235,7 @@ export async function buildCatalog({ site, kit }) {
     ...Object.fromEntries(Object.entries(PRODUCT_PAGE).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
     card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),
+    home: homes.map((id) => ({ id, ...(HOME_LINES[id] ?? { name: id, line: '', plan: [] }) })),
   }
   const defaults = Object.fromEntries(Object.entries(groups).map(([g, list]) => [g, list[0].id]))
 

@@ -1,33 +1,99 @@
+import type { ReactNode } from 'react'
 import p from '@/styles/primitives.module.css'
 import s from './blocks.module.css'
 import type { Block } from '@/lib/source/contract.ts'
+import type { HomeVariant } from '@/lib/homes.ts'
 import { hrefFor } from '@/lib/href.ts'
-import type { BlockCtx } from './types.ts'
+import go from '@/styles/go.module.css' // look-home:journal
+import { Icon } from '../Icon.tsx' // look-home:journal
+import type { BlockCtx, Place } from './types.ts'
 
-/* Полки — МЕСТА, а не товары: кадр во всю плитку и имя под ним, без листа,
-   тени и строки описания. Карточка товара ниже на странице — предмет на
-   листе с ценой; плитка полки от неё отличается тем, чего у неё нет. Строка
-   описания ушла: на телефоне она ложилась в три строки с переносом слога
-   («sev-/eral»), а имя полки уже говорит, что там (то же правило, что у
-   выдвижного меню: «только названия»). Ссылка одна — имя; её область
-   нажатия растянута на всю плитку, кадр — картинка без подписи. */
-export function Categories({ block, ctx }: { block: Extract<Block, { type: 'categories' }>; ctx: BlockCtx }) {
-  if (!ctx.collections.length) return null
-  return (
-    <section className={`${p.wrap} ${p.section}`}>
-      <div className={p.sectionHead}><h2>{block.title}</h2></div>
-      <ul className={`${p.grid} ${s.tiles}`}>
+type Props = { block: Extract<Block, { type: 'categories' }>; ctx: BlockCtx; place: Place }
+
+/* Полки по варианту главной (lib/homes.ts). Полки — МЕСТА, а не товары: у
+   них имя и кадр, без листа, цены и строки описания; ссылка одна — имя, её
+   область нажатия растянута на всю плитку или строку.
+   look-home:* Пока вид выбирается, в коде стоят все варианты (lib/homes.ts);
+   look-home:* `npm run look:remove` оставляет выбранный.
+   Все полки стоят на главной в каждом варианте: по ним покупатель на
+   телефоне понимает, что продаётся (Baymard, docs/design/home.md). */
+
+/* look-home:scene,proof,cabinet:start */
+/* Плитки — кадр во всю плитку и имя под ним. Карточка товара ниже на
+   странице — предмет с ценой; плитка полки от неё отличается тем, чего у
+   неё нет. Строки описания нет: на телефоне она ложилась в три строки с
+   переносом слога, а имя полки уже говорит, что там. У аптеки (`cabinet`)
+   плитки — ящики шкафа: тот же список, одетый атрибутом `data-shelf`. */
+const tiles = ({ block, ctx, place }: Props, shelf?: 'drawers') => (
+  <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
+    <div className={p.sectionHead}><h2>{block.title}</h2></div>
+    <ul className={`${p.grid} ${s.tiles}`} data-shelf={shelf}>
+      {ctx.collections.map((c) => (
+        <li key={c.slug} className={`${p.stack} ${s.tile}`}>
+          {c.image ? (
+            <div className={`${p.frame} ${s.tileShot}`}>
+              <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
+            </div>
+          ) : null}
+          <h3 className={s.name}><a href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}</a></h3>
+        </li>
+      ))}
+    </ul>
+  </section>
+)
+/* look-home:scene,proof,cabinet:end */
+
+/* look-home:counter:start */
+/* Фишки — все полки одной строкой, сразу под обещанием: на телефоне это
+   первый экран, и весь охват магазина виден без меню. Фишка — контрол
+   набора (`chip`), не своя кнопка. Заголовок раздела есть для чтения
+   вслух: глазу строку объясняет само соседство с обещанием. */
+const chips = ({ block, ctx, place }: Props) => (
+  <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
+    <h2 className={p.said}>{block.title}</h2>
+    <ul className={`${p.cluster} ${s.chips}`}>
+      {ctx.collections.map((c) => (
+        <li key={c.slug}><a className={p.chip} href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}</a></li>
+      ))}
+    </ul>
+  </section>
+)
+/* look-home:counter:end */
+
+/* look-home:journal:start */
+/* Оглавление — полки строками через волосок, как справка ниже: имя слева
+   ролью подзаголовка, миниатюра полки, стрелка «куда ведёт». Заголовок —
+   своей колонкой слева (`sidebar`), в узкой коробке — над строками. */
+const index = ({ block, ctx, place }: Props) => (
+  <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
+    <div className={`${p.sidebar} ${s.split}`}>
+      <div className={p.aside}><div className={p.sectionHead}><h2>{block.title}</h2></div></div>
+      <ul className={`${s.rows} ${s.splitBody}`}>
         {ctx.collections.map((c) => (
-          <li key={c.slug} className={`${p.stack} ${s.tile}`}>
+          <li key={c.slug} className={s.entry}>
             {c.image ? (
-              <div className={`${p.frame} ${s.tileShot}`}>
+              <div className={`${p.frame} ${s.entryShot}`}>
                 <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
               </div>
             ) : null}
-            <h3 className={s.name}><a href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}</a></h3>
+            <h3 className={s.entryName}><a className={go.go} href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}<Icon id="arrow-right" /></a></h3>
           </li>
         ))}
       </ul>
-    </section>
-  )
+    </div>
+  </section>
+)
+/* look-home:journal:end */
+
+const SHELVES: Record<HomeVariant, (props: Props) => ReactNode> = {
+  scene: (props) => tiles(props), // look-home:scene
+  counter: chips, // look-home:counter
+  proof: (props) => tiles(props), // look-home:proof
+  journal: index, // look-home:journal
+  cabinet: (props) => tiles(props, 'drawers'), // look-home:cabinet
+}
+
+export function Categories(props: Props) {
+  if (!props.ctx.collections.length) return null
+  return SHELVES[props.ctx.home](props)
 }

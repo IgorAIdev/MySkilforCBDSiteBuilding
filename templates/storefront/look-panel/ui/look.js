@@ -198,6 +198,16 @@
         return el('span', { class: 'lp-thumbs', 'data-at': at, 'aria-hidden': 'true' }, [el('i', { class: 'lp-pic' })].concat([0, 1, 2].map(function () { return el('b') })))
       }
       if (field === 'shadow') return el('i', { class: 'lp-shape lp-lit', style: 'box-shadow:' + o.vars['--sh-raised'], 'aria-hidden': 'true' })
+      /* Главная: первый экран схемой — из чего он сложен сверху вниз
+         (catalog.json, `plan`): сцена, заголовок, фишки полок, ряд товара,
+         лист, ящики, снимок, оглавление. */
+      if (field === 'home') {
+        /* Ряд, фишки, плитки и ящики — клетками; оглавление — строками. */
+        var cells = { row: 4, tiles: 4, drawers: 4, chips: 4, index: 3 }
+        return el('span', { class: 'lp-plan', 'aria-hidden': 'true' }, (o.plan || []).map(function (k) {
+          return el('i', { 'data-k': k }, Array.from({ length: cells[k] || 0 }, function () { return el('b') }))
+        }))
+      }
       return null
     }
 

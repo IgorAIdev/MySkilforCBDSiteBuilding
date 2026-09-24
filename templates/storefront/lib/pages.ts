@@ -14,6 +14,14 @@ const HERO: Image = { src: scene(), alt: '', width: 1600, height: 1000 }
 const LOT = 'RO-2409-10'
 const REPORT: LabReport = { batch: LOT, ...LAB_REPORTS[LOT], url: `/sample/lab-${LOT}.pdf` }
 const FEATURED = ['ulei-cbd-full-spectrum', 'capsule-cbd-25', 'crema-cbd', 'ulei-caini-cbd']
+/* МЕСТО ЗАКАЗЧИКА — «слово магазина» (docs/design/home.md, «Пустые места»):
+   заголовок, два-три предложения о магазине своими словами и снимок с
+   подписью. Нужно варианту главной Journal (стоит сразу за ходовыми), в
+   остальных встаёт перед справкой. Пока пусто — блок молчит: на витрине ни
+   заглушки, ни рамки (скилл shop, «Пустое состояние молчит»). Слова не
+   сочиняются за магазин — их пишет владелец (CLAUDE.md, «Граница
+   ответственности»). */
+const STORY: Block = { type: 'story', title: '', body: '', image: null }
 
 /* Блоки главной — как придут из Payload (план 4): тип и поля, без вида.
    Способы доставки, их срок и цену блок «delivery» берёт из данных
@@ -35,6 +43,7 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'categories', title: 'Categorii' },
         { type: 'featured', title: 'Cele mai vândute', ids: FEATURED },
         { type: 'lab', title: 'Buletin de analiză pentru fiecare lot', body: 'Laboratorul măsoară CBD, THC, metale grele, pesticide și solvenți. Buletinul fiecărui lot este pe pagina produsului.', report: REPORT },
+        STORY,
         { type: 'delivery', title: 'Livrare și plată', items: [
           { title: 'Plata ramburs', body: 'Plătiți la primirea coletului.' },
         ] },
@@ -50,6 +59,7 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'categories', title: 'Categories' },
         { type: 'featured', title: 'Best sellers', ids: FEATURED },
         { type: 'lab', title: 'A lab report for every batch', body: 'The lab measures CBD, THC, heavy metals, pesticides and solvents. Every batch report is on the product page.', report: REPORT },
+        STORY,
         { type: 'delivery', title: 'Delivery and payment', items: [
           { title: 'Cash on delivery', body: 'Pay when the parcel arrives.' },
         ] },
@@ -65,6 +75,7 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'categories', title: 'Kategóriák' },
         { type: 'featured', title: 'Legnépszerűbb termékek', ids: FEATURED },
         { type: 'lab', title: 'Minden tételhez laborjegyzőkönyv', body: 'A labor méri a CBD- és THC-tartalmat, a nehézfémeket, a növényvédő szereket és az oldószereket. Minden tétel jegyzőkönyve a termékoldalon található.', report: REPORT },
+        STORY,
         { type: 'delivery', title: 'Szállítás és fizetés', items: [
           { title: 'Utánvét', body: 'Fizessen a csomag átvételekor.' },
         ] },

@@ -6,9 +6,10 @@
    входит двумя местами с меткой `look-panel` — адрес app/look-panel/ и
    строка подключения в components/Shell.tsx. Снять — значит удалить папку,
    адрес и строку, свои команды в package.json, флаг LOOK_PICKER, черновик
-   вида и шрифты, которых опубликованный вид не носит, варианты шапки и
-   карточки товара, кроме выбранных (метки `look-header:` и `look-card:` в
-   коде; lib/headers.ts, lib/cards.ts), — и выпустить стили из
+   вида и шрифты, которых опубликованный вид не носит, варианты шапки,
+   карточки товара и главной, кроме выбранных (метки `look-header:`,
+   `look-card:` и `look-home:` в коде; lib/headers.ts, lib/cards.ts,
+   lib/homes.ts), — и выпустить стили из
    опубликованного вида (scripts/look-slots.mjs). Вид сайта от этого не
    меняется: он — значения в источнике данных.
 
@@ -39,7 +40,7 @@ export const OWNED = ['look-panel', 'app/look-panel']
 const CODE = ['app', 'components', 'lib', 'styles', 'scripts', 'public', 'tests']
 const ROOT_FILES = ['package.json', 'next.config.ts', 'proxy.ts', 'tsconfig.json', 'kit.config.json', '.env', '.env.local', '.env.example', '.gitignore']
 /** Следы панели, которых после снятия быть не должно. */
-export const TRACES = [TAG, 'LOOK_PICKER', 'look:remove', 'check:look', 'check:choice', 'look-header', 'look-card']
+export const TRACES = [TAG, 'LOOK_PICKER', 'look:remove', 'check:look', 'check:choice', 'look-header', 'look-card', 'look-home']
 
 /** Код без панели: строки с меткой и блоки `look-panel:start … end`. */
 export function stripPanel(text) {
@@ -52,7 +53,10 @@ export function stripPanel(text) {
 export const VARIANTS = [
   { tag: 'look-header', field: 'header', list: 'lib/headers.ts', name: 'HEADERS' },
   { tag: 'look-card', field: 'card', list: 'lib/cards.ts', name: 'CARDS' },
+  { tag: 'look-home', field: 'home', list: 'lib/homes.ts', name: 'HOMES' },
 ]
+/** Как вариант разметки называется в плане снятия — словами для заказчика. */
+const WHAT = { header: 'варианты шапки', card: 'варианты карточки товара', home: 'варианты главной' }
 
 /** Код с одним вариантом разметки: блоки и строки `<метка>:<варианты>`
  *  остальных удалены, у выбранного сняты сами метки; строки `<метка>:*`
@@ -165,7 +169,7 @@ export function describe(p) {
   const fonts = p.files.filter((f) => f.startsWith('public/fonts/'))
   if (fonts.length) lines.push(`шрифты, которых опубликованный вид не носит: ${fonts.join(', ')}`)
   for (const v of VARIANTS) {
-    const what = v.field === 'header' ? 'варианты шапки' : 'варианты карточки товара'
+    const what = WHAT[v.field]
     if (p.dropped[v.tag].length) lines.push(`${what}, кроме выбранного «${p.chosen[v.tag]}»: ${p.dropped[v.tag].join(', ')} (${where(v.tag)})`)
   }
   return lines
@@ -223,7 +227,7 @@ export function backup(root, p, to) {
     '',
     'Вернуть панель:',
     '',
-    `1. Из набора — одной командой: \`node install.mjs --look-panel "${resolve(root)}"\`. Вернёт панель, все варианты шапки и карточки из шаблона набора, флаг и команды; опубликованный вид сайта останется как есть.`,
+    `1. Из набора — одной командой: \`node install.mjs --look-panel "${resolve(root)}"\`. Вернёт панель, все варианты шапки, карточки и главной из шаблона набора, флаг и команды; опубликованный вид сайта останется как есть.`,
     '2. Или ровно как было до снятия: скопировать содержимое этой папки поверх сайта (кроме README.md) и выполнить `npm run build`.',
     '',
   ].join('\n'))
@@ -372,8 +376,9 @@ async function check(root) {
         if (got !== inline) fail.push(`/${lang}: блок <style href="look"> не тот, что выпускает опубликованный вид`)
         if (!html.includes(`data-variant="${want.header}"`)) fail.push(`/${lang}: шапка не «${want.header}»`)
         if (!html.includes(`data-card="${want.card}"`)) fail.push(`/${lang}: карточка товара не «${want.card}»`)
+        if (!html.includes(`data-home="${want.home}"`)) fail.push(`/${lang}: главная не «${want.home}»`)
         if (html.includes(`/${TAG}/`)) fail.push(`/${lang} всё ещё подключает панель`)
-        console.log(`· /${lang}: статическая, вид тот же (${Object.keys(look.vars ?? {}).length} значений опубликовано, шапка ${want.header}, карточка ${want.card}, шрифтов ${look.fonts?.length ?? 0})`)
+        console.log(`· /${lang}: статическая, вид тот же (${Object.keys(look.vars ?? {}).length} значений опубликовано, шапка ${want.header}, карточка ${want.card}, главная ${want.home}, шрифтов ${look.fonts?.length ?? 0})`)
       }
       /* Чужих вариантов в отгружаемых стилях нет, и значения вида в них —
          опубликованные (сжатыми, как их пишет сборщик). */

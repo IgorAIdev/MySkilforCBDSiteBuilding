@@ -187,6 +187,24 @@
 .lp-thumbs[data-at='over']{grid-template-rows:12px}
 .lp-thumbs[data-at='over'] .lp-pic{grid-row:1}
 .lp-thumbs[data-at='over'] b{grid-row:1;border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:end;margin-block-end:2px;background:var(--lp-bg)}
+/* Главная схемой: страница-рамка и полосы первого экрана сверху вниз.
+   Клетки — элементами, не узором градиента: стили панели грузятся в
+   страницу, и детектор судит их вместе с ней (И362). */
+.lp-plan{display:grid;align-content:start;gap:2px;inline-size:30px;block-size:24px;padding:2px;border-radius:3px;box-shadow:inset 0 0 0 1px currentColor;opacity:.85}
+.lp-plan i{display:block;block-size:4px;border-radius:1px;background:currentColor;opacity:.4}
+.lp-plan i:is([data-k='title'],[data-k='headline'],[data-k='calm']){opacity:.95}
+.lp-plan i[data-k='scene']{block-size:9px;opacity:.95}
+.lp-plan i[data-k='title']{inline-size:70%}
+.lp-plan i[data-k='headline']{block-size:6px}
+.lp-plan i[data-k='calm']{inline-size:60%;justify-self:center}
+.lp-plan i:has(b){display:flex;gap:1px;background:none;opacity:1}
+.lp-plan i b{flex:1;border-radius:1px;background:currentColor;opacity:.45}
+.lp-plan i[data-k='chips']{block-size:2px;inline-size:80%}
+.lp-plan i:is([data-k='row'],[data-k='tiles']){block-size:6px}
+.lp-plan i[data-k='drawers']{block-size:7px}
+.lp-plan i:is([data-k='sheet'],[data-k='photo']){block-size:7px;opacity:.6}
+.lp-plan i[data-k='index']{flex-direction:column;justify-content:space-between;block-size:6px}
+.lp-plan i[data-k='index'] b{flex:none;block-size:1px}
 .lp-link{padding:0 2px;border:0;background:none;color:var(--lp-ink);font-size:var(--lp-t2);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-block-size:24px}
 
 /* Строитель палитры из намерения (И275): марка, бумага, чернила; тонкая

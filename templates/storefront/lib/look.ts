@@ -6,6 +6,7 @@ import type { Look } from './source/contract.ts'
 import { content } from './source/index.ts'
 import { HEADERS } from './headers.ts'
 import { CARDS } from './cards.ts'
+import { HOMES } from './homes.ts'
 import type { Slots } from './look-values.ts'
 import { acceptLook, type Facts } from './look-rule.ts'
 
@@ -31,7 +32,7 @@ const slots = SLOTS.slots as Slots
 const facts = SLOTS.facts as Facts
 
 /** Вид по умолчанию — пустой: всё берут стили сайта. */
-export const FALLBACK: Look = { header: HEADERS[0], card: CARDS[0], vars: {}, fonts: [], names: {} }
+export const FALLBACK: Look = { header: HEADERS[0], card: CARDS[0], home: HOMES[0], vars: {}, fonts: [], names: {} }
 
 /** Сохранённое → вид, которым рисуется страница. Отброшенное называется
  *  в журнале сервера: свойство, род или группа и почему. */

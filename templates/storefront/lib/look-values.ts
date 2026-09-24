@@ -13,6 +13,7 @@
    сайта, и отброшенное называется. Чистый модуль: ни next, ни диска. */
 import { HEADERS, type HeaderVariant } from './headers.ts'
 import { CARDS, type CardVariant } from './cards.ts'
+import { HOMES, type HomeVariant } from './homes.ts'
 import type { Look, LookFont } from './source/contract.ts'
 
 export type SlotType = 'colour' | 'length' | 'number' | 'keyword' | 'shadow' | 'transform' | 'font'
@@ -103,13 +104,14 @@ const FONT_URL = /^\/fonts\/[a-z0-9-]{1,80}\.woff2$/
 const WEIGHT = /^[1-9]00( [1-9]00)?$/
 const RANGE = /^U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?(, ?U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?)*$/
 const LABEL = /^[\p{L}\p{N} .+-]{1,60}$/u
-const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'header', 'card', 'pdp-gallery', 'pdp-frame', 'pdp-thumbs'])
+const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'header', 'card', 'home', 'pdp-gallery', 'pdp-frame', 'pdp-thumbs'])
 /** Оси кнопки — поля `btn-<ось>`: каталог кнопки растёт осями данными (И273). */
 const AXIS = /^btn-[a-z0-9-]{1,30}$/
 
-/** Разметка, которую сайт умеет рисовать: варианты шапки и карточки товара. */
-export type Structure = { headers: readonly HeaderVariant[]; cards: readonly CardVariant[] }
-export const STRUCTURE: Structure = { headers: HEADERS, cards: CARDS }
+/** Разметка, которую сайт умеет рисовать: варианты шапки, карточки товара
+ *  и главной. */
+export type Structure = { headers: readonly HeaderVariant[]; cards: readonly CardVariant[]; homes: readonly HomeVariant[] }
+export const STRUCTURE: Structure = { headers: HEADERS, cards: CARDS, homes: HOMES }
 
 const record = (x: unknown): Record<string, unknown> | null => (x && typeof x === 'object' && !Array.isArray(x) ? (x as Record<string, unknown>) : null)
 
@@ -134,6 +136,10 @@ export function acceptValues(raw: unknown, slots: Slots, known: Structure = STRU
      первая, без слова. */
   const card = known.cards.find((c) => c === r?.card)
   if (r && r.card !== undefined && !card) dropped.push({ what: 'card', why: `«${String(r.card)}» is not a product card this site draws` })
+  /* Главной в сохранённом виде может не быть (вид старше поля) — тогда
+     первая, нынешняя, без слова. */
+  const home = known.homes.find((h) => h === r?.home)
+  if (r && r.home !== undefined && !home) dropped.push({ what: 'home', why: `«${String(r.home)}» is not a home page this site draws` })
   const vars: Record<string, string> = {}
   for (const [name, value] of Object.entries(record(r?.vars) ?? {})) {
     const slot = Object.hasOwn(slots, name) ? slots[name] : null
@@ -149,7 +155,7 @@ export function acceptValues(raw: unknown, slots: Slots, known: Structure = STRU
   }
   const names: Record<string, string> = {}
   for (const [k, v] of Object.entries(record(r?.names) ?? {})) if ((FIELDS.has(k) || AXIS.test(k)) && typeof v === 'string' && LABEL.test(v)) names[k] = v
-  return { look: { header: header ?? known.headers[0], card: card ?? known.cards[0], vars, fonts, names }, dropped }
+  return { look: { header: header ?? known.headers[0], card: card ?? known.cards[0], home: home ?? known.homes[0], vars, fonts, names }, dropped }
 }
 
 /** Роли тени — по работе (И228). Их геометрия замешана на ингредиентах пола
