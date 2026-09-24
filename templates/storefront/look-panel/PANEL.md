@@ -8,13 +8,15 @@
 ## Шаги
 
 1. **Каталог.** Ставщик набора собирает `ui/catalog.json` из полного каталога
-   набора его строителями: `node look-panel/scripts/build-catalog.mjs --from
-   <набор>` (`npm run look:catalog -- --from <набор>`). Каждый вариант —
+   набора его строителями и кладёт рядом копию движка палитры набора
+   (`ui/engine/`, та же, что у мастерской): `node look-panel/scripts/build-catalog.mjs
+   --from <набор>` (`npm run look:catalog -- --from <набор>`). Каждый вариант —
    значения свойств, которые сайт объявляет у себя (`lib/look-slots.json`).
-2. **Выбор.** Панель на витрине (`LOOK_PICKER=on`), кнопка «Look». Щелчок по
-   варианту сразу красит страницу и пишет черновик вида; черновой режим видит
-   только этот браузер. Вариант, который с текущими не носится, погашен, и
-   причина — одной строкой под группой.
+2. **Выбор.** Панель на витрине (`LOOK_PICKER=on`), кнопка «Look». Раздел —
+   System или Admin, подраздел — строкой под ним. Щелчок по варианту сразу
+   красит страницу и пишет черновик вида; черновой режим видит только этот
+   браузер. Вариант, который с текущими не носится, погашен, и причина —
+   одной строкой под группой.
 3. **Проверка.** `npm run check:choice -- '<скопированный выбор>'` (без
    аргумента — опубликованный вид): правило сайта по значениям, затем
    `check:craft` на главной, первой полке и первом товаре основного языка,
@@ -22,25 +24,99 @@
    причинами.
 4. **Публикация.** Кнопка «Publish»: черновик проверяется (шаг 3), шрифт
    скачивается в `public/fonts/` (страница покупателя к Google не ходит),
-   вид пишется в опубликованный, кэш вида сбрасывается — без сборки.
-5. **Снятие.** `npm run look:remove` удаляет `look-panel/`, вход
-   `app/look-panel/` и строку подключения в `components/Shell.tsx`, свои
-   команды, флаг `LOOK_PICKER`, черновик, лишние шрифты и варианты шапки,
-   кроме выбранного. `npm run check:look` доказывает это на копии: сборка,
-   тот же вид, ни чужих вариантов в отгружаемых стилях, ни следов панели.
+   вид пишется в опубликованный, кэш вида сбрасывается — без сборки. Стили
+   сайта выпускаются из опубликованного вида при следующей сборке (И272).
+5. **Снятие — только в магазине и только словом заказчика.**
+   `npm run look:remove` ничего не удаляет: показывает, что уйдёт, — папку
+   `look-panel/`, вход `app/look-panel/`, строку подключения в
+   `components/Shell.tsx`, свои команды в `package.json`, флаг `LOOK_PICKER`,
+   черновик, шрифты, которых опубликованный вид не носит, варианты шапки и
+   карточки товара, кроме выбранных. Снять: `npm run look:remove -- --yes` —
+   сперва всё удаляемое, опубликованный вид и черновик копируются в соседнюю
+   папку `<сайт>.look-backup-<ГГГГММДД-ЧЧмм>/` (в ней README — как вернуть),
+   а если сайт в git — ставится метка `look-panel-before-remove-<время>`;
+   затем снятие и выпуск стилей из опубликованного вида. `npm run check:look`
+   доказывает снятие на копии рядом: сборка, тот же вид, ни чужих вариантов в
+   отгружаемых стилях, ни следов панели.
+6. **Возврат.** Из набора одной командой: `node install.mjs --look-panel
+   <папка сайта>` — вернёт панель, все варианты шапки и карточки из шаблона
+   набора, флаг (выключенным: включить — `LOOK_PICKER=on` в `.env`) и
+   команды, соберёт каталог; опубликованный вид сайта не тронет. Файл с
+   метками, который магазин успел поправить после снятия, затирается только
+   по слову `--force`. Ровно прежнее состояние — из папки копии (README).
+
+## Шаблон и магазин
+
+Шаблон витрины — основа для многих магазинов, и в нём панель нужна всегда
+(слово заказчика 24.09.2026: «в шаблоне панель удалять нельзя даже случайно,
+потому что вложим туда много сил сейчас»). Поэтому снять её нельзя — без
+ключа, который бы это перебил:
+
+- в шаблоне набора (`templates/storefront`);
+- в витрине шаблона — установке `node install.mjs --storefront <папка>`: на
+  ней настраивается сам шаблон (демо `cbd-storefront-demo` — такая витрина);
+- там, где у сайта нет записи ставщика о роли (`.site-kit-install.json`).
+
+Снимается она только в МАГАЗИНЕ, построенном из шаблона: `node install.mjs
+--storefront --shop <папка магазина>` пишет роль `shop`, и `look:remove` её
+читает. Переустановка (`--force`) данные сайта не трогает: опубликованный вид,
+черновик, `public/fonts/`, `.env` остаются как были (И277).
 
 ## Разделы и настройки
 
-| раздел | настройка | что меняет на сайте | значения |
-| --- | --- | --- | --- |
-| System | Palette | краски обеих тем: ступени нейтрали и марки, сигналы, линии (`--n-*`, `--a-*`, `--sale-*` …) | наборы `styles/palette.json` и образцы набора |
-| System | Typeface | `--face`, `--face-head` и шрифты со своего адреса | System, Manrope, IBM Plex Sans, Inter, Source Serif + Plex |
-| System | Spacing | кегль, ритм, поле, воздух, радиусы (`--fs-*`, `--sp-*`, `--air-*`, `--r-*` …) | наборы `styles/scale.json` |
-| System | Buttons | форма и голос кнопки (`--ctrl-btn-*`) | стили `styles/buttons.json` |
-| Admin | Header | разметка шапки (`header`) | Classic, Search first, Boutique |
-| Admin | Current item | отметка текущей полки в шапке (`--menu-mark-*`) | Underline, Pill |
+| раздел | подраздел | настройка | что меняет на сайте | варианты |
+| --- | --- | --- | --- | --- |
+| System | Color | Palette | краски обеих тем: семь семей по двенадцать ступеней, роли | семь наборов; своя палитра из строителя |
+| System | Type | Typeface | `--face`, `--face-head` и шрифты со своего адреса | System, Manrope, IBM Plex Sans, Inter, Source Serif + Plex |
+| System | Spacing | Rhythm | кегль, ритм, поле, воздух (`--fs-*`, `--sp-*`, `--air-*`, `--pad-*`) — углов не меняет | Standard, Compact, Spacious, Quiet |
+| System | Layout | Width | холст `--wrap` | 1440 (умолчание), 1280, 1600 |
+| System | Shape | Corners | `--r-xs`, `--r-ctrl`, `--r-card`, `--r-sheet`; вложенность «орган ≤ карточка ≤ лист» держит каждый набор | Standard 8/8/24/28, Round 8/8/28/32, Crisp 4/4/12/16 |
+| System | Shape | Shadows | роли тени `--sh-raised`, `--sh-lift`, `--sh-overlay`, `--sh-in` | Soft (роли набора), Flat (линия, тень — только у всплывающего), Lifted (на ступень выше) |
+| System | Buttons | Letters | `--ctrl-btn-case`, `-weight`, `-track` | Sentence case (умолчание), CAPITALS |
+| System | Buttons | Main button | заливка главной `--ctrl-btn-fill-pop`, `-ink-pop`, `-edge-pop` | Fill |
+| System | Buttons | Quiet button | вуаль тихой `--ctrl-btn-fill`, `-ink`, `-edge` | Veil |
+| System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping |
+| Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique |
+| Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`) | Underline, Pill |
+| Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined |
 
-Позже в System — ширина холста и радиусы отдельно от ритма.
+Раздел Buttons строится из осей каталога кнопки (`styles/buttons.json`
+набора, И273): новая ось или вариант — запись в каталоге, панель показывает
+его сама. Нажатие у всех кнопок одно (цвет, чуть меньше, на пиксель ниже),
+угол — из Corners; формы (стрелка, шеврон, хвост) носит только главная
+кнопка.
+
+## Color: палитра из намерения
+
+Свою палитру заказчик строит не тремя красками, а намерением (И275):
+
+- **Brand** — цвет марки: образец с выбором краски, код с логотипа, тон
+  ползунком. Строитель держит тон и ищет ближайшую светлоту и насыщенность,
+  при которой проходят все роли марки — надпись на главной кнопке, кольцо
+  фокуса, отличие от скидки и наличия. Подвинул — показывает «ваш цвет →
+  для кнопок» двумя образцами и одной строкой почему.
+- **Paper** — Warm, Neutral или Cool, тон None или Light.
+- **Ink** — сам: темнеет, пока текст не сдержит обещание эталона (Lc 90 для
+  основного, WCAG для текста и органов); по желанию — с уходом в марку.
+- **Dark** — выводится из тех же намерений.
+- **Fine-tune exact colours** — свои коды бумаги, чернил и марки по темам;
+  они тоже доводятся до замера.
+
+Движок — копия `skills/site-building/assets/studio/engine/` набора в
+`ui/engine/` (`fitPalette`, `roles`, `auditPalette` из `tools/palette.mjs`);
+второй математики у панели нет. Семь наборов — готовые начала: «Build your
+own» переносит намерение набора в строитель. Вместо списка ошибок —
+«Guaranteed»: текст читается на странице и карточках, надписи кнопок и плашек
+читаются, марка отличима от скидки и наличия, кольцо фокуса видно, обе темы;
+числа (WCAG, APCA Lc, ΔE) — под раскрытием «The numbers». Опубликованный вид
+хранит готовые значения и рядом — три краски на тему и намерение, чтобы
+строитель открыл палитру снова.
+
+## Дальше
+
+- **Motion** — скорость ответа на руку и раскрытий (подраздел System).
+- **Hero** и **Footer** — разметка героя и подвала (подразделы Admin).
+- **Main button pill** — полный круг главной кнопки отдельной настройкой.
 
 ## Пары, которые не носятся
 
@@ -50,38 +126,18 @@
 <!-- pairs:start -->
 | вариант | не носится с | почему |
 | --- | --- | --- |
-| palette · Brass on charcoal | button · Soft tone | the loud button fades into the page: 1.06 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Pill | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Soft tone | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Outline | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Capitals | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Quiet luxury | the outline is too faint on the page: 2.21 : 1 in the light theme, needs 3 |
-| palette · Apothecary | button · Pharmacy | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Rounded | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Apothecary | button · Dense | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
-| palette · Olive | button · Soft tone | the loud button fades into the page: 1.07 : 1 in the light theme, needs 1.15 |
-| palette · Olive | button · Outline | the outline is too faint on the card: 2.48 : 1 in the dark theme, needs 3 |
-| palette · Olive | button · Quiet luxury | the outline is too faint on the card: 2.48 : 1 in the dark theme, needs 3 |
-| palette · Soft island | button · Soft tone | the loud button fades into the page: 1.07 : 1 in the light theme, needs 1.15 |
-| palette · Soft island | button · Outline | the outline is too faint on the card: 2.98 : 1 in the dark theme, needs 3 |
-| palette · Soft island | button · Quiet luxury | the outline is too faint on the card: 2.98 : 1 in the dark theme, needs 3 |
-| palette · Warm leaf | button · Soft tone | the loud button fades into the page: 1.07 : 1 in the light theme, needs 1.15 |
-| palette · Warm leaf | button · Outline | the outline is too faint on the card: 2.36 : 1 in the dark theme, needs 3 |
-| palette · Warm leaf | button · Quiet luxury | the outline is too faint on the card: 2.36 : 1 in the dark theme, needs 3 |
-| palette · Icy sage | button · Soft tone | the loud button fades into the page: 1.06 : 1 in the light theme, needs 1.15 |
-| palette · Icy sage | button · Outline | the outline is too faint on the page: 2.99 : 1 in the light theme, needs 3 |
-| palette · Icy sage | button · Quiet luxury | the outline is too faint on the page: 2.99 : 1 in the light theme, needs 3 |
-| palette · Pharmacy blue | button · Soft tone | the loud button fades into the page: 1.06 : 1 in the light theme, needs 1.15 |
-| scale · Quiet | button · Rounded | button corners (16 px) are rounder than the cards they sit on (12 px) |
+| palette · Apothecary | btn-quiet · Veil | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
 <!-- pairs:end -->
 
 ## Где что лежит
 
 | что | где |
 | --- | --- |
-| каталог и расчёт | `look-panel/ui/catalog.json`, `look-panel/ui/choice.mjs` |
+| каталог и расчёт | `look-panel/ui/catalog.json`, `look-panel/ui/choice.mjs`, движок палитры `look-panel/ui/engine/` |
 | черновик, пока выбирается | `lib/source/sample/look.draft.json` (у Payload — черновая версия global «look») |
-| опубликованный вид | `lib/source/sample/look.json` (у Payload — global «look», план 4) |
+| опубликованный вид — единственное место, где значения вида пишутся рукой | `lib/source/sample/look.json` (у Payload — global «look», план 4) |
+| стили сайта — выпущены из опубликованного вида, руками не правят | `styles/palette.css`, `styles/buttons.css`, `styles/scale.css`, `styles/look.css`, `lib/look-slots.json` (`scripts/look-slots.mjs`, в сборке) |
 | шрифты опубликованного вида | `public/fonts/` |
 | вход панели в сайт | `app/look-panel/[...path]/route.ts`, строка в `components/Shell.tsx` |
 | проверка значений и сочетаний | сайт: `lib/look-values.ts`, `lib/look-rule.ts`, `lib/look-slots.json` |
+| роль установки (витрина или магазин) | `.site-kit-install.json`, поле `role` |
