@@ -177,4 +177,6 @@ export const EN: Record<keyof typeof RO, string> = {
   'done.none': 'There is no recent order to show',
   'done.noneStep': 'Go to the products',
   'done.more': 'Continue shopping',
+  'home.lab.open': 'Open the lab report',
+  'home.delivery.terms': 'All delivery and payment terms',
 }

@@ -1,88 +1,127 @@
-.tiles,.shelf,.points{list-style:none;padding:0;margin:0}
-/* Полки — плитки: четыре в ряд на широком, две на телефоне; число колонок
-   считает сетка (`grid`: `--cols` сверху, пол ряда — две). */
+/* Главная — один пол и два возвышения (разбор 24.09.2026, И271–И275): тёмная
+   сцена героя наверху и светлый лист лаборатории посередине. Остальное
+   стоит прямо на полу страницы без коробок, и разделы отбивает один
+   воздух `--air-page` (`.section`). Внутри листа ничего не поднимается. */
+.tiles,.shelf,.rows{list-style:none;padding:0;margin:0}
+/* Полки — четыре в ряд на широком, две на телефоне; число колонок считает
+   сетка (`grid`: `--cols` сверху, пол ряда — две). */
 .tiles{--cols:4;--cell-min:200px}
 .shelf{--cols:4;--cell-min:200px}
-.points{--cols:3;--cell-min:220px;--cols-min:1}
-/* Плитка полки — карточка той же породы, что карточка товара: поверхность,
-   угол карточки, тень `--sh-raised`, одна ссылка на всю плитку. Кадр 4 : 3
-   с потолком примитива `frame`, угол кадра — концентрический. */
-.tile{--stack:var(--air-row);position:relative;background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
-.tileShot{--frame:4 / 3;border-radius:var(--r-ctrl)}
-/* Имя плитки и имя пункта доставки — роль имени карточки (тело,
-   полужирное), как у карточки товара: ступень подзаголовка здесь кричала. */
-.title{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600}
-.title a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
-.title a::after{content:'';position:absolute;inset:0}
 
-/* Лаборатория — полоса тона марки: слова слева, протокол справа (белая
-   карточка на тоне). Колонки — `switcher` по ширине полосы; в узкой одна. */
-.labBand{--switch-at:820px;--switch-gap:var(--air-block);align-items:center;background:var(--pop-tint)}
-.labText{margin-block-end:0}
-/* Доставка — полоса поверхности: заголовок и пункты читаются одним
-   предметом. Знак — в тонированном круге ростом с крупный орган
-   (`--ctrl-h-lg`, 48), а не 16px в воздухе; знак внутри — половина круга. */
-.band{background:var(--surface)}
-.point{--stack:var(--air-row)}
-.disc{display:grid;place-items:center;inline-size:var(--ctrl-h-lg);block-size:var(--ctrl-h-lg);border-radius:50%;background:var(--pop-tint);color:var(--pop-ink)}
-.disc svg{inline-size:50%;block-size:50%}
-/* ГЕРОЙ — снимок во всю коробку страницы, текст ПОВЕРХ него внизу слева.
-   Замер 23.09.2026: текст на снимке у 11–12 магазинов из 13, снимок —
-   70–80 % высоты окна. Большим снимок бывает только здесь; кадра под
-   текстом (флакон во весь экран под заголовком) больше нет.
+/* ПЛИТКА ПОЛКИ — место, а не предмет: без листа, тени и поля; кадр во
+   всю плитку, имя под ним. Так плитка не спорит с карточкой товара ниже —
+   та стоит на листе и несёт цену. Кадр 4 : 3 с потолком примитива `frame`,
+   угол — карточки: плитка сама себе кадр. */
+.tile{--stack:var(--air-row);position:relative}
+.tileShot{--frame:4 / 3;border-radius:var(--r-card)}
+/* Имя плитки — роль имени карточки (тело, полужирное), как у товара. */
+.name{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600}
+.name a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target)}
+.name a::after{content:'';position:absolute;inset:0}
+/* Рама стоит, движется снимок: под рукой он наплывает внутри кадра на
+   четыре сотых, имя подчёркивается; нажатие отвечает тоном имени. */
+.tileShot img{transition:scale var(--hover-t) var(--ease)}
+@media (hover:hover){ .tile:hover .name a{text-decoration-line:underline} }
+@media (hover:hover) and (prefers-reduced-motion:no-preference){ .tile:hover .tileShot img{scale:1.04} }
+.tile:active .name a{color:var(--ink-soft)}
 
-   Пол героя стоит на внешнем крае страницы (`flush` на коробке), линия
-   текста внутри — его поле, как у листа. Высота — 72 % малого окна;
-   тексту, которому мало (телефон в альбоме), герой уступает и растёт.
-   Воздух под героем платит раздел ниже (`.section` ставит просвет над
-   собой) — снизу у полосы ноль, иначе шов оплачен дважды (check:craft,
-   twoAir).
+/* ГЕРОЙ — тёмная сцена во всю коробку страницы (`flush`: пол на внешнем
+   крае). Устройство решает ширина СЦЕНЫ (контейнер `.hero`), шов 820 из
+   реестра: там меняется смысл — текст поверх снимка становится текстом под
+   ним.
 
-   Вуаль — роль `--scrim-deck` (styles/tokens.css): самая тёмная нейтраль
-   темы, в светлой — чернила, в тёмной — бумага. На ней пишет палуба
-   (`data-ground="deck"`, styles/base.css): светлые чернила и светлая
-   громкая кнопка в обеих темах. Под текстом
-   вуаль не прозрачнее 72 %: белый лист под ней дал бы 6.3 : 1 для
-   заголовка и 4.6 : 1 для тихой строки — порог 4.5 держится на ЛЮБОМ
-   снимке заказчика, не только на образце. Сверху полосы — растворение на
-   воздух полосы, там текста нет. На узком (< 820 коробки) текст идёт во
-   всю ширину, и вуаль ровная; на широком текст держит колонку
-   `--hero-w` слева, а вуаль сходит на нет к правому краю, открывая
-   снимок. Снимок кадрируется вокруг правой трети (`object-position`):
-   там предметы сцены, левый нижний угол — под текстом. */
+   Узкая сцена: снимок — кадр 4 : 3 сверху (потолок — доля малого окна;
+   высота — от пропорции, `block-size:auto`, иначе атрибут `height`
+   снимка упирает его в потолок), текст под ним на полу сцены. Заголовок
+   больше не лежит на флаконе, и вуаль не нужна вовсе.
+
+   Широкая сцена: снимок во всю сцену, текст — своя колонка `--hero-w`
+   внизу слева (поле у неё одно — своё; прежнее правое поле в 60 % ширины
+   ловил `lane`). Вуаль живёт на коробке снимка ОДНА, во всю высоту, и идёт
+   слева направо: под колонкой текста не прозрачнее 72 % (белый лист под
+   ней дал бы 6.3 : 1 заголовку и 4.6 : 1 тихой строке — порог держится на
+   ЛЮБОМ снимке заказчика), дальше сходит на нет за треть сцены и открывает
+   предметы. Прежняя вуаль лежала под текстом и растворялась сверху за
+   воздух полосы — отсюда резкий шов поперёк снимка на трети высоты.
+
+   Вуаль — роль `--scrim-deck`: самая тёмная нейтраль темы; на ней пишет
+   палуба (`data-ground="deck"`), светлые чернила в обеих темах. Воздух под
+   героем платит раздел ниже (`.section`), снизу у полосы ноль (twoAir). */
 .heroBand{padding-block-start:var(--air-group)}
 .hero{
-  --hero-w:36rem;
-  position:relative;display:flex;align-items:flex-end;
-  min-block-size:72svh;overflow:hidden;
+  --hero-w:calc(36rem + var(--pad-sheet) * 2);
+  position:relative;overflow:hidden;
   border-radius:var(--r-sheet);background:var(--scrim-deck);
   container-type:inline-size
 }
-.heroShot{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:cover;object-position:72% 50%}
+.heroShot img{inline-size:100%;block-size:auto;aspect-ratio:4 / 3;max-block-size:48svh;object-fit:cover;object-position:72% 50%}
 .heroText{
-  position:relative;isolation:isolate;inline-size:100%;
   display:flex;flex-direction:column;align-items:flex-start;gap:var(--air-group);
-  padding:calc(var(--air-band) + var(--pad-sheet)) var(--pad-sheet) var(--pad-sheet)
-}
-.heroText::before{
-  content:'';position:absolute;inset:0;z-index:-1;
-  background:color-mix(in srgb, var(--scrim-deck) 80%, transparent);
-  mask-image:linear-gradient(to top, #000 calc(100% - var(--air-band)), transparent)
+  padding:var(--pad-sheet)
 }
 .heroText h1{font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
 .heroText p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede);text-wrap:pretty}
 @container (min-width:820px){
-  .heroText{padding-inline-end:max(var(--pad-sheet), 100% - var(--hero-w))}
-  .heroText::before{background:linear-gradient(to right,
-    color-mix(in srgb, var(--scrim-deck) 86%, transparent),
-    color-mix(in srgb, var(--scrim-deck) 72%, transparent) 70%,
-    transparent)}
+  .heroShot{position:absolute;inset:0}
+  .heroShot img{block-size:100%;aspect-ratio:auto;max-block-size:none}
+  .heroShot::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(to right,
+      color-mix(in srgb, var(--scrim-deck) 86%, transparent),
+      color-mix(in srgb, var(--scrim-deck) 72%, transparent) var(--hero-w),
+      transparent calc(var(--hero-w) + 35%))
+  }
+  .heroText{position:relative;inline-size:min(100%, var(--hero-w));min-block-size:72svh;justify-content:flex-end}
 }
-/* Вопросы — строки во всю ширину, разделённые линией; цель нажатия —
-   вся строка вопроса (у `summary` рост цели уже в styles/base.css). Знак
-   раскрытия поворачивается ролью раскрытия. Ответ — в мере строки тела:
-   на широком окне он не растягивается во всю полосу. */
-.faq{border-block-start:var(--line-w) solid var(--rule)}
+
+/* ЛАБОРАТОРИЯ — единственный лист страницы: `--surface` и пол
+   (`data-plate`), а не тон марки — тон в тёмной теме становился ржавым и
+   читался тревогой. Слова стоят по середине высоты протокола; протокол
+   держит свою меру (30rem), чтобы подпись и значение не разъезжались на
+   полстраницы. Колонки — `switcher` по ширине листа; в узком одна. */
+.labBand{--switch-at:820px;--switch-gap:var(--air-block);align-items:center;background:var(--surface)}
+/* Шапка слов — не последний ребёнок листа, и отбивка `sectionHead`
+   легла бы вторым просветом поверх просвета колонок: снимается силой
+   места, а не порядком файлов. */
+.labBand .labText{margin-block-end:0}
+.labDoc{--stack:var(--air-group);max-inline-size:30rem}
+/* ЗАПЛАТКА С ИМЕНЕМ (docs/open.md). Протокол нарисован стилями карты
+   товара (`ProductView.module.css`, `.lab`): там он отдельный лист с полем.
+   Здесь он лежит НА листе, и лист в листе — вложенная карточка. Пока стили
+   протокола не переехали в свой модуль (после вливания карты товара),
+   второй лист снимается здесь, обёрткой блока: протокол становится плоским
+   — строки через волосок, заголовок ролью имени, а не ступенью h3, которая
+   спорила с h2 раздела. */
+.labDoc > section{background:none;padding:0;border-radius:0}
+.labDoc h3{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600}
+.labDoc dl{gap:0;border-block-start:var(--line-w) solid var(--rule)}
+.labDoc dl > div{padding-block:var(--pad-inner);border-block-end:var(--line-w) solid var(--rule)}
+
+/* СПРАВОЧНЫЕ РАЗДЕЛЫ — доставка и вопросы: заголовок своей колонкой слева,
+   строки справа через волосок (`sidebar`); в узкой коробке — столбиком, и
+   от заголовка до строк тот же воздух, что у любой шапки блока. Колонки у
+   двух разделов одни и те же, и они стоят друг под другом одной сеткой. */
+.split{--side-w:22rem;--side-gap:var(--air-head)}
+.splitBody{--stack:var(--air-group)}
+.rows{border-block-start:var(--line-w) solid var(--rule)}
+/* Способ доставки — строка: имя и под ним вид, служба и срок тихой строкой;
+   цена справа, по середине строки. Всё — готовыми словами из вида
+   оформления (`deliveryView`): «Бесплатно», а не «0,00». */
+.rate{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--gap-row);padding-block:var(--pad-inner);border-block-end:var(--line-w) solid var(--rule)}
+.rateName{font-weight:600}
+.rateMeta{grid-column:1;font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);letter-spacing:var(--note-track);color:var(--ink-soft)}
+.ratePrice{grid-column:2;grid-row:1 / span 2;align-self:center;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Заметки об оплате — слова владельца: имя полужирным, пояснение тише.
+   Воздух над ними ставит колонка (`stack`); свои поля списка браузера
+   снимаются все, кроме верхнего, — иначе `margin:0` тем же весом отменял
+   просвет колонки, и заметка липла к последней строке способа. */
+.notes{display:grid;gap:var(--air-row);margin-inline:0;margin-block-end:0}
+.notes:first-child{margin-block-start:0}
+.notes dt{font-weight:600}
+.notes dd{margin:0;color:var(--ink-soft)}
+/* Вопрос — строка во всю колонку, цель нажатия — вся строка (у `summary`
+   рост цели уже в styles/base.css). Знак раскрытия поворачивается ролью
+   раскрытия. Ответ — в мере строки тела. */
 .q{border-block-end:var(--line-w) solid var(--rule)}
 .ask{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);padding-block:var(--pad-inner);list-style:none;font-weight:600}
 .ask::-webkit-details-marker{display:none}

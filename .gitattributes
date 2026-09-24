@@ -10,5 +10,7 @@
 *.json text eol=lf
 *.html text eol=lf
 *.yml text eol=lf
+# A PDF can be pure ASCII and still carry byte offsets (xref): never convert.
+*.pdf binary
 # Research is an immutable snapshot, including original line endings.
 research/** !text !eol

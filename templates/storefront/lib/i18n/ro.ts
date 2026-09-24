@@ -175,4 +175,6 @@ export const RO = {
   'done.none': 'Nu există o comandă recentă de afișat',
   'done.noneStep': 'Mergeți la produse',
   'done.more': 'Continuați cumpărăturile',
+  'home.lab.open': 'Deschideți buletinul de analiză',
+  'home.delivery.terms': 'Toate condițiile de livrare și plată',
 } as const
