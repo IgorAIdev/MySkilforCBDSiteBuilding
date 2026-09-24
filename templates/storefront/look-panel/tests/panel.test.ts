@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { blockedBy, clashes, complete, compose, CUSTOM, fieldsOf, paletteChecks, paletteVars, ruleGroup, sectionsOf, STRUCTURE } from '../ui/choice.mjs'
 import { toCss } from '../../tools/palette.mjs'
 import { stripHeaders, stripPanel, stripVariants, OWNED } from '../scripts/remove.mjs'
+import { pairsOf } from '../scripts/pairs.mjs'
 import { parseFaces } from '../scripts/fonts.mjs'
 import { acceptLook, problems, type Facts } from '../../lib/look-rule.ts'
 import { valid, type Slots } from '../../lib/look-values.ts'
@@ -40,7 +41,15 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   assert.deepEqual([...placed].sort(), [...FIELDS].sort())
   assert.equal(new Set(placed).size, placed.length)
   assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons'])
-  assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card'])
+  assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card', 'Product page'])
+  /* Карта товара (И278): доля ряда, пропорция, миниатюры — значения `--pdp-*`,
+     умолчание — то, что стоит у сайта. */
+  const product = SECTIONS[1].subs.find((s) => s.id === 'product')!
+  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Image', 'Thumbnails'])
+  assert.deepEqual(catalog.groups['pdp-gallery'].map((o) => o.id).sort(), ['40', '50', '60'])
+  assert.deepEqual(catalog.groups['pdp-frame'].map((o) => o.name).sort(), ['4:5', 'Square'])
+  assert.deepEqual(catalog.groups['pdp-thumbs'].map((o) => o.name).sort(), ['Below', 'Dots', 'Side'])
+  for (const f of ['pdp-gallery', 'pdp-frame', 'pdp-thumbs']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
   const buttons = SECTIONS[0].subs.find((s) => s.id === 'buttons')!
   assert.deepEqual(buttons.fields.map((f) => f[0]), catalog.axes.map((a) => a.field), 'Buttons — оси каталога кнопки')
   assert.deepEqual(catalog.axes.map((a) => a.name), ['Letters', 'Main button', 'Quiet button', 'Main button shape'])
@@ -85,8 +94,14 @@ test('panel catalog: the default look is what the site publishes and it is accep
 })
 
 test('panel pairs: each listed pair is a problem of the site rule, and the guard finds it from both sides', () => {
-  assert.ok(catalog.pairs.length > 0)
   const base = Object.fromEntries(Object.entries(slots).map(([k, s]) => [k, s.value]))
+  /* Наборы набора доведены строителем (И285), и каталог может не нести ни
+     одной пары. Сторож при этом жив: бледная палитра — «Аптека» до
+     24.09.2026 — не носится с вуалью тихой кнопки, и та же функция, что у
+     /look-panel/guard, это находит. */
+  const pale = { light: { paper: '#FEFCF5', ink: '#24352B', accent: '#B79339' }, dark: { paper: '#0C1510', ink: '#EDECE9', accent: '#B79339' } }
+  const guard = pairsOf({ groups: { ...catalog.groups, palette: [{ id: CUSTOM, vars: paletteVars(pale) }] }, fields: FIELDS.filter((f) => !STRUCTURE.includes(f)), base, facts, problems, only: 'palette' })
+  assert.ok(guard.some((p) => p.y.field === 'btn-quiet' && /quiet button fades/.test(p.why)), JSON.stringify(guard))
   const opt = (field: string, id: string) => catalog.groups[field].find((o) => o.id === id)!
   for (const p of catalog.pairs) {
     const x = opt(p.x.field, p.x.id)

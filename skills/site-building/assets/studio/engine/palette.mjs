@@ -17,7 +17,7 @@
  */
 
 import profile from './palette-profile.json' with { type: 'json' }
-import { CONTRAST, COLOUR } from './thresholds.mjs'
+import { CONTRAST, COLOUR, STATE } from './thresholds.mjs'
 
 /* Профиль светлоты ступеней — L* эталонной шкалы `sand` пакета
    @radix-ui/colors 3.0.0. Числа снятые, а не назначенные. */
@@ -49,6 +49,9 @@ const channels = (hex) => {
 }
 const toHex = (parts) =>
   `#${parts.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase()}`
+/** Вуаль поверх пола так, как её кладёт браузер: `color-mix(in srgb, X p%,
+ *  transparent)` на полу — доля краски в каналах sRGB, целыми. */
+const veil = (top, floor, share) => { const [t, f] = [channels(top), channels(floor)]; return toHex(t.map((v, i) => v * share + f[i] * (1 - share))) }
 const linear = (v) => (v / 255 <= 0.04045 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4)
 const unlinear = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055)
 const luminance = (hex) => {
@@ -618,6 +621,12 @@ export function auditPalette(rawSeed, mode) {
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
   const edge = firstReaching(n, GROUNDS(n), NEED.control, 6)
   want('кромка органа на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(edge, bg))), NEED.control)
+  /* Тихий голос — вуаль чернил (`--quiet`, STATE.quiet) на любом полу 1–5:
+     орган без кромки виден только ею. До 24.09.2026 это мерил лишь замер
+     кнопки на наборах, и «Аптека» выходила с тихой кнопкой, которой не
+     видно на полу страницы (1.14 : 1), — строитель заказчика собирал такую
+     же молча (И285). */
+  want('тихая вуаль видна на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(veil(n[11], bg, STATE.quiet), bg))), STATE.visible)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
      Красный до 20.09.2026 не мерил никто (И190), а скидка, «мало осталось»
@@ -713,6 +722,21 @@ function groundOf(intent, mode) {
   return { paper, ink }
 }
 
+/** Свои чернила темы, доведённые до замера НАИМЕНЬШИМ сдвигом: тон и
+ *  насыщенность те же, светлота уходит от бумаги шагом 0.005 OKLCH, пока
+ *  нейтральная часть замера не станет чистой. null — не дошли и за 0.2:
+ *  тогда чернила подбирает намерение (`groundOf`). Так же доводятся и
+ *  готовые наборы набора (И285): верен по построению не только строитель. */
+function deeperInk(ground, accent, mode) {
+  const [L, C, H] = oklch(ground.ink)
+  const way = mode === 'light' ? -1 : 1
+  for (let d = 0.005; d <= 0.2; d += 0.005) {
+    const ink = hexOf([L + way * d, C, H])
+    if (!auditPalette({ ...ground, ink, accent }, mode).some((f) => partOf(f.rule) === 'neutral')) return ink
+  }
+  return null
+}
+
 /** Ближайшая к `brand` краска марки, при которой замер темы чист целиком. */
 function brandFor(brand, ground, mode) {
   const [L, C, H] = oklch(brand)
@@ -753,10 +777,13 @@ export function fitPalette(intent, exact = null) {
   const used = {}
   for (const mode of ['light', 'dark']) {
     let ground = exact?.[mode] ? { paper: exact[mode].paper, ink: exact[mode].ink } : groundOf(intent, mode)
-    if (exact?.[mode] && auditPalette({ ...ground, accent: exact[mode].accent ?? intent.brand }, mode).some((f) => partOf(f.rule) === 'neutral')) {
-      const auto = groundOf({ ...intent, ...(exact[mode].paper ? {} : {}) }, mode)
-      notes.push({ what: 'ink', mode, from: ground.ink, to: auto.ink, why: 'the ink was made deeper, so body text reads' })
-      ground = { paper: ground.paper, ink: auto.ink }
+    const accent = exact?.[mode]?.accent ?? intent.brand
+    const weak = exact?.[mode] ? auditPalette({ ...ground, accent }, mode).filter((f) => partOf(f.rule) === 'neutral') : []
+    if (weak.length) {
+      const ink = deeperInk(ground, accent, mode) ?? groundOf(intent, mode).ink
+      const why = weak.every((f) => /вуаль/.test(f.rule)) ? 'the ink was made a touch deeper, so quiet buttons show on the page' : 'the ink was made deeper, so body text reads'
+      notes.push({ what: 'ink', mode, from: ground.ink, to: ink, why })
+      ground = { paper: ground.paper, ink }
     }
     const want = exact?.[mode]?.accent ?? intent.brand
     const found = brandFor(want, ground, mode)

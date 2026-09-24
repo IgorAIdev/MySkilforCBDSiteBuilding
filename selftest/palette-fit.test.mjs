@@ -55,3 +55,29 @@ test('the panel and the studio run the same fitter: the engine copy gives the sa
   }
   for (const set of Object.values(sets)) assert.deepEqual(engine.intentOf(set), intentOf(set))
 })
+
+/* Готовые наборы набора — тоже верны по построению (И285): каждый проходит
+   весь замер в обеих темах, и строитель, получив его как «свои точные
+   краски», ничего в нём не двигает. «Аптека» до 24.09.2026 выходила с тихой
+   вуалью 1.14 : 1 на полу страницы — строитель довёл её чернила до
+   ближайших, при которых вуаль видна (#24352B → #1E2F25). Своих сигналов
+   строитель не несёт, поэтому неподвижность меряется у наборов из трёх
+   красок. */
+test('every kit set passes the whole audit, and the builder leaves a three-paint set exactly as it is', () => {
+  for (const [name, set] of Object.entries(sets)) {
+    for (const mode of ['light', 'dark']) assert.deepEqual(auditPalette(set[mode], mode), [], `${name} · ${mode}`)
+    if (['light', 'dark'].some((m) => Object.keys(set[m]).some((k) => !['paper', 'ink', 'accent'].includes(k)))) continue
+    const fit = fitPalette(intentOf(set), { light: set.light, dark: set.dark })
+    assert.deepEqual(fit.notes, [], `${name}: строитель ничего не двигает`)
+  }
+  const old = fitPalette(intentOf(sets['Аптека']), { light: { ...sets['Аптека'].light, ink: '#24352B' }, dark: sets['Аптека'].dark })
+  assert.deepEqual(old.notes.map((n) => [n.what, n.mode, n.to]), [['ink', 'light', sets['Аптека'].light.ink]], 'прежние чернила «Аптеки» доводятся ровно до нынешних')
+  assert.match(old.notes[0].why, /quiet buttons show/)
+})
+
+test('the quiet veil the audit measures is the one the site paints: STATE.quiet is the share of --quiet in tokens.css', async () => {
+  const { STATE } = await import('../tools/thresholds.mjs')
+  const tokens = readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8')
+  const share = tokens.match(/--quiet:color-mix\(in srgb, var\(--ink\) (\d+(?:\.\d+)?)%, transparent\)/)?.[1]
+  assert.equal(Number(share) / 100, STATE.quiet)
+})

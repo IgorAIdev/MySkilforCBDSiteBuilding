@@ -8,12 +8,19 @@ type SamplePage = { title: Record<Lang, string>; description: Record<Lang, strin
    подпись пустая — смысл несут заголовок и абзац, картинка их не повторяет. */
 const HERO: Image = { src: scene(), alt: '', width: 1600, height: 1000 }
 /* Протокол рядом с текстом блока «лаборатория» — образец партии из данных
-   образца (products.ts), тот же, что стоит на карте товара. */
+   образца (products.ts), тот же, что стоит на карте товара. `url` — сам
+   документ: блок ведёт к нему ссылкой. У образца это заглушка, помеченная
+   «SAMPLE» (public/sample/), — настоящий протокол лаборатории даёт магазин. */
 const LOT = 'RO-2409-10'
-const REPORT: LabReport = { batch: LOT, ...LAB_REPORTS[LOT], url: `#lab-${LOT}` }
+const REPORT: LabReport = { batch: LOT, ...LAB_REPORTS[LOT], url: `/sample/lab-${LOT}.pdf` }
 const FEATURED = ['ulei-cbd-full-spectrum', 'capsule-cbd-25', 'crema-cbd', 'ulei-caini-cbd']
 
-/* Блоки главной — как придут из Payload (план 4): тип и поля, без вида. */
+/* Блоки главной — как придут из Payload (план 4): тип и поля, без вида.
+   Способы доставки, их срок и цену блок «delivery» берёт из данных
+   магазина — того же списка, что выбор на оформлении (И95), — а в своих
+   словах (`items`) несёт только то, чего в том списке нет: заметки об
+   оплате. Способ словами здесь — второй источник срока и цены: «1–3 дня»
+   стояли рядом с «1–2» из данных (И279). */
 export const PAGES: Record<string, SamplePage> = {
   home: {
     title: { ro: 'Magazin CBD — uleiuri, capsule, cosmetice', en: 'CBD shop — oils, capsules, cosmetics', hu: 'CBD bolt — olajok, kapszulák, kozmetikumok' },
@@ -29,8 +36,6 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'featured', title: 'Cele mai vândute', ids: FEATURED },
         { type: 'lab', title: 'Buletin de analiză pentru fiecare lot', body: 'Laboratorul măsoară CBD, THC, metale grele, pesticide și solvenți. Buletinul fiecărui lot este pe pagina produsului.', report: REPORT },
         { type: 'delivery', title: 'Livrare și plată', items: [
-          { title: 'Curier la domiciliu', body: 'Livrare în 1–3 zile lucrătoare.' },
-          { title: 'Locker sau punct de ridicare', body: 'Ridicați coletul când vă convine.' },
           { title: 'Plata ramburs', body: 'Plătiți la primirea coletului.' },
         ] },
         { type: 'faq', title: 'Întrebări frecvente', items: [
@@ -46,8 +51,6 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'featured', title: 'Best sellers', ids: FEATURED },
         { type: 'lab', title: 'A lab report for every batch', body: 'The lab measures CBD, THC, heavy metals, pesticides and solvents. Every batch report is on the product page.', report: REPORT },
         { type: 'delivery', title: 'Delivery and payment', items: [
-          { title: 'Courier to your door', body: 'Delivered in 1–3 working days.' },
-          { title: 'Parcel locker', body: 'Pick up the parcel when it suits you.' },
           { title: 'Cash on delivery', body: 'Pay when the parcel arrives.' },
         ] },
         { type: 'faq', title: 'Frequently asked questions', items: [
@@ -63,8 +66,6 @@ export const PAGES: Record<string, SamplePage> = {
         { type: 'featured', title: 'Legnépszerűbb termékek', ids: FEATURED },
         { type: 'lab', title: 'Minden tételhez laborjegyzőkönyv', body: 'A labor méri a CBD- és THC-tartalmat, a nehézfémeket, a növényvédő szereket és az oldószereket. Minden tétel jegyzőkönyve a termékoldalon található.', report: REPORT },
         { type: 'delivery', title: 'Szállítás és fizetés', items: [
-          { title: 'Futár házhoz', body: 'Kiszállítás 1–3 munkanapon belül.' },
-          { title: 'Csomagautomata', body: 'Vegye át a csomagot, amikor Önnek kényelmes.' },
           { title: 'Utánvét', body: 'Fizessen a csomag átvételekor.' },
         ] },
         { type: 'faq', title: 'Gyakori kérdések', items: [

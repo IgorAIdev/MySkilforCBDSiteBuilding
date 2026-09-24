@@ -28,9 +28,10 @@ export type Facts = {
 export type Problem = { groups: readonly [Group, Group]; why: string; roles?: readonly string[] }
 export type Fell = { group: Group; why: string }
 
-/** Старшинство: уступает младшая группа — стиль кнопок раньше отметки
- *  пункта меню, шрифта, теней, углов, ширины, ритма и цвета. */
-export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'button']
+/** Старшинство: уступает младшая группа — ручки карты товара раньше стиля
+ *  кнопок, стиль кнопок раньше отметки пункта меню, шрифта, теней, углов,
+ *  ширины, ритма и цвета. */
+export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'button', 'pdp-gallery', 'pdp-frame', 'pdp-thumbs']
 
 type Rgba = readonly [number, number, number, number]
 const THEMES = ['light', 'dark'] as const

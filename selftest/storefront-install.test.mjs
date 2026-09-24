@@ -100,7 +100,12 @@ test('--storefront installs one look in the site and the whole kit catalogue in 
     assert.deepEqual(ids('palette'), [...new Set([...Object.keys(kitPalette), ...Object.keys(samples)])].sort(), 'все палитры набора — у панели')
     for (const [axis, a] of Object.entries(kitButtons)) assert.deepEqual(ids(`btn-${axis}`), Object.keys(a.варианты).sort(), `${axis}: все варианты оси кнопки — у панели`)
     assert.deepEqual(ids('scale'), Object.keys(kitScales).sort(), 'все наборы ритма — у панели')
-    assert.ok(catalog.pairs.length > 0, 'пары, которые не носятся, посчитаны')
+    /* Пары посчитаны — список может быть и пуст: наборы набора доведены
+       строителем (И285), и сейчас каждое сочетание каталога носится. */
+    assert.ok(Array.isArray(catalog.pairs), 'пары, которые не носятся, посчитаны')
+    assert.match(readFileSync(join(plain, 'look-panel/PANEL.md'), 'utf8'), /<!-- pairs:start -->\n\| вариант \| не носится с \| почему \|\n\| --- \| --- \| --- \|\n\|/, 'список пар — в PANEL.md')
+    /* Карта товара (И278): три ручки — группы каталога, умолчание — значение сайта. */
+    for (const [g, id] of [['pdp-gallery', '50'], ['pdp-frame', 'square'], ['pdp-thumbs', 'below']]) assert.equal(catalog.defaults[g], id, g)
     assert.deepEqual(json('lib/source/sample/look.json').names, catalog.defaults, 'опубликован вид по умолчанию')
 
     const named = join(root, 'named')

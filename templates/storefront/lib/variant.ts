@@ -21,6 +21,14 @@ export function readSelection(params: Params, product: Product): Record<string, 
   return out
 }
 
+/** Покупатель нажал «в корзину», не выбрав варианта (адрес от `hrefFor`
+ *  с `choose`): без скрипта это переход формы, со скриптом — тот же адрес
+ *  мягким переходом. */
+export function askedToChoose(params: Params): boolean {
+  const raw = params.choose
+  return (Array.isArray(raw) ? raw[0] : raw) === '1'
+}
+
 export function pickState(product: Product, selected: Record<string, string>): { status: SelectionStatus; variant: Variant | null } {
   const options = product.optionGroups.map((g) => ({ id: g.code, values: g.options.map((o) => o.code) }))
   const variants = product.variants.map((v) => ({ id: v.id, options: v.options, available: v.stock !== 'out' }))

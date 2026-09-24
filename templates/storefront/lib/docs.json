@@ -36,7 +36,7 @@
       { "heading": { "ro": "Comanda", "en": "The order", "hu": "A rendelés" },
         "body": { "ro": "Text de exemplu — termenii îi redactează magazinul împreună cu juristul său.", "en": "Sample text — the shop writes the terms with its lawyer.", "hu": "Mintaszöveg — a feltételeket a bolt a jogászával együtt írja meg." } },
       { "heading": { "ro": "Prețuri", "en": "Prices", "hu": "Árak" },
-        "body": { "ro": "Prețurile sunt în lei și includ TVA.", "en": "Prices are in lei and include VAT.", "hu": "Az árak lejben értendők, és tartalmazzák az áfát." } }
+        "body": { "ro": "Prețurile sunt în euro și includ TVA.", "en": "Prices are in euros and include VAT.", "hu": "Az árak euróban értendők, és tartalmazzák az áfát." } }
     ] },
   { "slug": "confidentialitate",
     "title": { "ro": "Politica de confidențialitate", "en": "Privacy policy", "hu": "Adatvédelmi tájékoztató" },

@@ -1,0 +1,43 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 753 >>
+stream
+BT
+/F1 24 Tf 1 0 0 1 56 780 Tm (SAMPLE - not a laboratory certificate) Tj
+/F1 14 Tf 1 0 0 1 56 741.6 Tm () Tj
+/F1 14 Tf 1 0 0 1 56 719.2 Tm (Buletin de analiza / Lab report) Tj
+/F1 14 Tf 1 0 0 1 56 696.8000000000001 Tm (Lot / Batch: RO-2409-10) Tj
+/F1 14 Tf 1 0 0 1 56 674.4000000000001 Tm () Tj
+/F1 11 Tf 1 0 0 1 56 652.0000000000001 Tm (This file stands in for the certificate that the laboratory issues for this batch.) Tj
+/F1 11 Tf 1 0 0 1 56 634.4000000000001 Tm (The shop replaces it with the real document; the batch number on the label) Tj
+/F1 11 Tf 1 0 0 1 56 616.8000000000001 Tm (is the same as the number in the certificate.) Tj
+/F1 11 Tf 1 0 0 1 56 599.2 Tm () Tj
+/F1 9 Tf 1 0 0 1 56 581.6 Tm (Sample data of the storefront template.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001045 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1115
+%%EOF

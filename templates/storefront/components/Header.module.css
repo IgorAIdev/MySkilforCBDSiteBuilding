@@ -55,9 +55,15 @@
    Навигация носит `popover` (шторка на узком), и у браузера на такой элемент
    своя коробка: `fixed`, `inset:0`, рамка, поле, `Canvas`, `display:none`.
    Правило автора сильнее правила браузера при любой силе селектора,
-   поэтому строка объявляет всю коробку сама. Полка — надписью органа
-   средней толщины; текущая — отметкой вида (`--menu-mark-*`, styles/storefront.css:
-   черта краской марки или плашка), под рукой — чертой. */
+   поэтому строка объявляет всю коробку сама. Полка — надписью тела
+   средней толщины; текущая — отметкой вида (`--menu-mark-*`, styles/look.css:
+   черта краской марки или плашка), под рукой — чертой.
+
+   Кегль полки — роль тела (`--body-size`), а не ступень лестницы органов:
+   меню не мельче тела ни в одном наборе ритма (impeccable, typeset.md:46 —
+   «1rem / 16px as the ordinary web body floor»; `check:design`, семья
+   `navSmall`). На ступени органа `xs` «Тесный» ронял полки до 13.5 px —
+   меню читалось сноской рядом с текстом страницы (24.09.2026). */
 .nav{
   position:static;inset:auto;margin:0;padding:0;border:0;
   inline-size:auto;block-size:auto;overflow:visible;
@@ -68,7 +74,7 @@
 .links a{
   display:inline-flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-target);
   padding-inline:var(--menu-mark-pad);border-radius:var(--menu-mark-r);
-  font-size:var(--ctrl-fs-xs);font-weight:500;color:var(--ink);
+  font-size:var(--body-size);font-weight:500;color:var(--ink);
   text-underline-offset:.45em;text-decoration-thickness:var(--line-w)
 }
 @media (hover:hover){ .links a:hover{text-decoration-line:underline} }
@@ -155,7 +161,7 @@
 .sheetTitle{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
 .nav:popover-open .links{flex-direction:column;align-items:stretch;flex-wrap:nowrap;column-gap:0}
 .nav:popover-open .links li + li{border-block-start:var(--line-w) solid var(--rule)}
-.nav:popover-open .links a{display:flex;min-block-size:var(--ctrl-h-lg);padding:var(--sp-2) var(--pad-inner);border-radius:var(--r-ctrl);font-size:var(--ctrl-fs-sm);text-decoration-line:none}
+.nav:popover-open .links a{display:flex;min-block-size:var(--ctrl-h-lg);padding:var(--sp-2) var(--pad-inner);border-radius:var(--r-ctrl);font-size:var(--body-size);text-decoration-line:none}
 .nav:popover-open .thumb{display:grid;place-items:center;flex:none;inline-size:calc(var(--ctrl-h-lg) * .8);block-size:calc(var(--ctrl-h-lg) * .8);border-radius:var(--r-ctrl);object-fit:cover;background:var(--quiet);color:var(--ink-soft)}
 .nav:popover-open .thumb svg{inline-size:50%;block-size:50%}
 .nav:popover-open .name{flex:1 1 auto}

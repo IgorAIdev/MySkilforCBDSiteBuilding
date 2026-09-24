@@ -181,6 +181,12 @@ test('check:design · меню мельче тела; крошки — не ме
   const crumbs = nav('--ctrl-fs-xs')
   only(measure({ 'components/Breadcrumbs.tsx': crumbs['components/X.tsx'].replace(/\.\/X\.module\.css/, './Breadcrumbs.module.css'),
     'components/Breadcrumbs.module.css': crumbs['components/X.module.css'] }), null, 0)
+  /* Правило с отметкой метит только ссылку с отметкой: голая стрелка
+     страниц в `nav` — не плашка «куда ведёт». */
+  const marked = (around) => component(`export const A = () => <nav className={s.pages}><a className={s.go}${around} href="/2">Next</a></nav>`,
+    `.go{font:inherit}\n.go:is([data-around='quiet'], [data-around='edge']){font-size:var(--ctrl-fs-xs)}`)
+  only(measure(marked('')), null, 0)
+  only(measure(marked(' data-around="quiet"')), 'navSmall')
 })
 
 test('check:design · ритм группы и карточки «значок + заголовок + текст»', () => {

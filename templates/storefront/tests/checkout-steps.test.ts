@@ -3,12 +3,12 @@ import assert from 'node:assert/strict'
 import { stepFor, deliveryReady } from '../lib/checkout-steps.ts'
 import type { Checkout, Delivery, DeliveryMethod } from '../lib/source/contract.ts'
 
-const RON = (minor: number) => ({ minor, currency: 'RON' })
+const EUR = (minor: number) => ({ minor, currency: 'EUR' })
 const cart = (n: number): Checkout['cart'] => ({
-  lines: Array.from({ length: n }, (_, i) => ({ id: `l${i}`, productId: 'p', variantId: 'v', name: 'P', options: [], image: { src: '', alt: '', width: 1, height: 1 }, unit: RON(100), quantity: 1, total: RON(100) })),
-  quantity: n, subtotal: RON(100 * n), discounts: [], delivery: null, total: RON(100 * n),
+  lines: Array.from({ length: n }, (_, i) => ({ id: `l${i}`, productId: 'p', variantId: 'v', name: 'P', options: [], image: { src: '', alt: '', width: 1, height: 1 }, unit: EUR(100), quantity: 1, total: EUR(100) })),
+  quantity: n, subtotal: EUR(100 * n), discounts: [], delivery: null, total: EUR(100 * n),
 })
-const door: DeliveryMethod = { id: 'd', kind: 'address', carrier: null, name: 'D', description: '', price: RON(0), days: null }
+const door: DeliveryMethod = { id: 'd', kind: 'address', carrier: null, name: 'D', description: '', price: EUR(0), days: null }
 const pick: DeliveryMethod = { ...door, id: 'p', kind: 'pickup' }
 const contact = { email: 'a@example.com', firstName: 'A', lastName: 'B', phone: '0722000000' }
 const address = { street: 'S 1', city: 'C', region: 'R', postalCode: '010011', country: 'RO' }

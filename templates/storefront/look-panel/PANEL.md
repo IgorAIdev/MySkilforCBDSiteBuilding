@@ -79,6 +79,9 @@
 | Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique |
 | Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`) | Underline, Pill |
 | Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined |
+| Admin | Product page | Gallery width | доля ряда под галерею в две колонки `--pdp-gallery`; выше экрана галерею не вытянет ни одна (И278) | 40 %, 50 % (умолчание), 60 % |
+| Admin | Product page | Image | пропорция снимка и миниатюр `--pdp-frame` | Square (1 : 1), 4:5 |
+| Admin | Product page | Thumbnails | где миниатюры `--pdp-thumbs` | Below (ряд из четырёх под кадром), Side (полоса слева — только в две колонки), Dots (точки под кадром) |
 
 Раздел Buttons строится из осей каталога кнопки (`styles/buttons.json`
 набора, И273): новая ось или вариант — запись в каталоге, панель показывает
@@ -126,7 +129,7 @@ own» переносит намерение набора в строитель. 
 <!-- pairs:start -->
 | вариант | не носится с | почему |
 | --- | --- | --- |
-| palette · Apothecary | btn-quiet · Veil | the quiet button fades into the page: 1.14 : 1 in the light theme, needs 1.15 |
+| — | — | каждое сочетание каталога носится |
 <!-- pairs:end -->
 
 ## Где что лежит
@@ -136,7 +139,7 @@ own» переносит намерение набора в строитель. 
 | каталог и расчёт | `look-panel/ui/catalog.json`, `look-panel/ui/choice.mjs`, движок палитры `look-panel/ui/engine/` |
 | черновик, пока выбирается | `lib/source/sample/look.draft.json` (у Payload — черновая версия global «look») |
 | опубликованный вид — единственное место, где значения вида пишутся рукой | `lib/source/sample/look.json` (у Payload — global «look», план 4) |
-| стили сайта — выпущены из опубликованного вида, руками не правят | `styles/palette.css`, `styles/buttons.css`, `styles/scale.css`, `styles/look.css`, `lib/look-slots.json` (`scripts/look-slots.mjs`, в сборке) |
+| стили сайта — выпущены из опубликованного вида, руками не правят | `styles/palette.css`, `styles/buttons.css`, `styles/scale.css`, `styles/look.css` (шрифт, тени, отметка, ручки карты товара `--pdp-*`), `lib/look-slots.json` (`scripts/look-slots.mjs`, в сборке) |
 | шрифты опубликованного вида | `public/fonts/` |
 | вход панели в сайт | `app/look-panel/[...path]/route.ts`, строка в `components/Shell.tsx` |
 | проверка значений и сочетаний | сайт: `lib/look-values.ts`, `lib/look-rule.ts`, `lib/look-slots.json` |

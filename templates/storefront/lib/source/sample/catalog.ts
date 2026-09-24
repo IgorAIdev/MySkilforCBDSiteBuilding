@@ -3,7 +3,7 @@ import type { Card, Collection, Facet, Listing, Product, Result, SortKey, Source
 import { CATEGORIES, FACETS, LAB_REPORTS, PRODUCTS, type SampleProduct } from '../../products.ts'
 import { facetValueFilters, pageVariables, pageCount } from '../vendure/core/search.mjs'
 import { MARKET } from '../../market.ts'
-import { categoryArt, productArt } from './art.ts'
+import { categoryArt, productArt, productImages, type ArtView } from './art.ts'
 
 /* Помощники набора — JavaScript; тип их ответа записан здесь один раз. */
 type Filter = { and: string } | { or: string[] }
@@ -14,6 +14,19 @@ const ok = <T,>(value: T): Result<T> => ({ ok: true, value })
 const money = (minor: number) => ({ minor, currency: MARKET.currency })
 const overall = (stocks: Stock[]): Stock => (stocks.every((s) => s === 'out') ? 'out' : stocks.some((s) => s === 'in') ? 'in' : 'low')
 const image = (p: SampleProduct, lang: Lang) => ({ src: productArt(p.cat, p.hue, p.label), alt: p.name[lang], width: 800, height: 800 })
+/* Подпись снимка — имя товара и что на снимке; у главного — одно имя. Это
+   данные образца: настоящие снимки приходят из админки с готовым `alt`. */
+const VIEW: Record<Exclude<ArtView, 'front'>, Record<Lang, string>> = {
+  back: { ro: 'eticheta din spate', en: 'the back label', hu: 'a hátoldali címke' },
+  box: { ro: 'cu cutia', en: 'with its box', hu: 'dobozzal' },
+  detail: { ro: 'detaliu', en: 'close-up', hu: 'közelről' },
+}
+/* Задник этикетки образца: подпись, состав по полке, партия. */
+const INSIDE: Record<string, string> = { uleiuri: 'hemp extract · MCT oil', capsule: 'hemp extract · vegan', cosmetice: 'CBD · shea · menthol', animale: 'hemp extract · salmon oil' }
+const images = (p: SampleProduct, lang: Lang) =>
+  productImages(p.cat, p.hue, p.label, [p.label, INSIDE[p.cat] ?? 'hemp extract', `lot ${p.variants[0].batch}`]).map(({ view, src }) => ({
+    src, alt: view === 'front' ? p.name[lang] : `${p.name[lang]}, ${VIEW[view][lang]}`, width: 800, height: 800,
+  }))
 const low = (p: SampleProduct) => Math.min(...p.variants.map((v) => v.price))
 
 function card(p: SampleProduct, lang: Lang): Card {
@@ -88,9 +101,9 @@ export const sample: Source = {
     const batches = [...new Set(p.variants.map((v) => v.batch))].filter((b) => LAB_REPORTS[b])
     const product: Product = {
       id: p.id, category: p.cat, name: p.name[lang], summary: p.summary[lang], description: p.description[lang],
-      images: [image(p, lang)],
+      images: images(p, lang),
       optionGroups: p.groups.map((g) => ({ code: g.code, name: g.name[lang], options: g.options.map((o) => ({ code: o.code, name: o.name[lang] })) })),
-      variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), stock: v.stock, options: v.options, batch: v.batch })),
+      variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), was: v.was ? money(v.was) : null, stock: v.stock, options: v.options, batch: v.batch })),
       labReports: batches.map((b) => {
         const r = LAB_REPORTS[b]
         return { batch: b, lab: r.lab, date: r.date, cbdPercent: r.cbdPercent, thcPercent: r.thcPercent, url: `#lab-${b}` }
