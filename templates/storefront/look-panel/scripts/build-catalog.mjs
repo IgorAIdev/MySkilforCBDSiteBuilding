@@ -128,6 +128,7 @@ export const PRODUCT_PAGE = {
     { id: 'below', name: 'Below', line: 'A row of four thumbnails under the picture', vars: { '--pdp-thumbs': 'below' } },
     { id: 'side', name: 'Side', line: 'A strip of thumbnails beside the picture, on wide screens', vars: { '--pdp-thumbs': 'side' } },
     { id: 'dots', name: 'Dots', line: 'Dots under the picture instead of thumbnails', vars: { '--pdp-thumbs': 'dots' } },
+    { id: 'over', name: 'On the picture', line: 'No thumbnails: swipe the picture, dots lie on it', vars: { '--pdp-thumbs': 'over' } },
   ],
 }
 /** Шапки: id — HEADERS в lib/headers.ts. */

@@ -26,7 +26,8 @@
    Ручки вида — свойства опубликованного вида (панель «Look», «Admin →
    Product page»; выпущены в styles/look.css): `--pdp-gallery` — доля ряда,
    `--pdp-frame` — пропорция снимка, `--pdp-thumbs` — где миниатюры:
-   `below`, `side`, `dots` (точки вместо миниатюр). */
+   `below`, `side`, `dots` (точки вместо миниатюр), `over` (точки на самом
+   кадре — ряда под кадром нет, блок ростом с кадр). */
 .pdp{
   --switch-at:820px;--switch-gap:var(--air-block);
   --gallery-gap:var(--gap-row);
@@ -57,6 +58,9 @@
 @container pdp (min-width:820px) and style(--pdp-thumbs: dots){
   .pin:has([data-many]){--gallery-fit:calc((var(--pin-fit) - var(--gallery-gap) - var(--ctrl-target)) * var(--gallery-r))}
 }
+@container pdp (min-width:820px) and style(--pdp-thumbs: over){
+  .pin:has([data-many]){--gallery-fit:calc(var(--pin-fit) * var(--gallery-r))}
+}
 
 /* Одна колонка: клеить не к чему — галерея в потоке (`--pin-pos:static`,
    потолок приклеенного снят). Галерея и колонка покупки под ней — ОДНА
@@ -69,6 +73,9 @@
 .pdp:not(:has([data-many])){--gallery-w:calc(var(--gallery-fold) * var(--gallery-r))}
 @container style(--pdp-thumbs: dots){
   .pdp:has([data-many]){--gallery-w:calc((var(--gallery-fold) - var(--gallery-gap) - var(--ctrl-target)) * var(--gallery-r))}
+}
+@container style(--pdp-thumbs: over){
+  .pdp:has([data-many]){--gallery-w:calc(var(--gallery-fold) * var(--gallery-r))}
 }
 /* Меру держат ДЕТИ колонок, а не сами колонки: `max-inline-size` на
    ребёнке switcher ужимает его основу, и две узкие колонки вставали в

@@ -10,6 +10,9 @@
    её свайпом, колесо и клавиатура — прокруткой, миниатюра — ссылкой на
    якорь слайда. Всё это без скрипта; скрипт добавляет стрелки и отметку. */
 .gallery{display:grid;grid-template-columns:minmax(0, 1fr);grid-template-areas:'stage' 'thumbs';gap:var(--gallery-gap)}
+/* Места ряда — ручка `--pdp-thumbs`: `below` (миниатюры под кадром),
+   `side` (полоса сбоку в две колонки), `dots` (точки под кадром), `over`
+   (точки на самом кадре). */
 
 /* Кадр — примитив `frame`: пропорция ручкой, потолок — бюджет высоты
    колонки (в две колонки `--pin-fit`, в одну `--gallery-fold`). Ширина
@@ -76,6 +79,30 @@
 @container style(--pdp-thumbs: dots){
   .thumbs{display:none}
   .dots{display:flex}
+}
+/* Точки на кадре (`--pdp-thumbs: over`, образец заказчика 24.09.2026):
+   маленьких снимков нет, кадр листается пальцем, строка точек лежит на
+   самом кадре внизу по середине — в той же клетке сетки, что кадр; разметка
+   та же, место меняет вид. Снимок под точкой любой, поэтому точка — пол
+   страницы с волоском кромки (видна и на светлом снимке, и на тёмном), а
+   текущая — чернила с кольцом пола, как у текущей миниатюры, и длиннее:
+   длина читается без цвета. Скругление — от высоты точки, не круг главного
+   действия. В одну колонку стрелок нет: листает палец, цель — точка; в две
+   стрелки остаются для мыши. */
+@container style(--pdp-thumbs: over){
+  .gallery{grid-template-areas:'stage'}
+  .thumbs{display:none}
+  .dots{display:flex;grid-area:stage;align-self:end;position:relative;z-index:1;margin-block-end:var(--sp-1)}
+  .dot::before{background:var(--page);box-shadow:0 0 0 var(--line-w) var(--border)}
+  .dot[aria-current='true']::before{
+    inline-size:calc(var(--ctrl-target) * .8);block-size:calc(var(--ctrl-target) * .33);aspect-ratio:auto;
+    border-radius:calc(var(--ctrl-target) * .165);background:var(--ink);box-shadow:0 0 0 var(--line-w) var(--page)
+  }
+}
+/* Сила места (0,2,0): стрелка — орган `go`, и его `display` весом голого
+   класса иначе решал бы порядок кусков сборки. */
+@container pdp (max-width:819px) and style(--pdp-thumbs: over){
+  .gallery .arrow{display:none}
 }
 /* Сбоку — только в две колонки: полоса миниатюр слева шириной в пятую
    часть блока (без доли зазора), высотой с кадр; больше четырёх —

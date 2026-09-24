@@ -39,7 +39,7 @@ const WORDS: Readonly<Record<SlotType, readonly string[]>> = {
   colour: ['transparent', 'currentcolor', 'in', 'srgb', 'oklab', 'oklch'],
   length: ['normal'],
   number: [],
-  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block', 'below', 'side', 'dots'],
+  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block', 'below', 'side', 'dots', 'over'],
   shadow: ['none', 'inset', 'transparent', 'in', 'srgb', 'oklab'],
   transform: ['none'],
   font: [],

@@ -184,6 +184,9 @@
 .lp-thumbs[data-at='side'] .lp-pic{grid-column:2;grid-row:1 / -1;block-size:auto}
 .lp-thumbs[data-at='side'] b{grid-column:1}
 .lp-thumbs[data-at='dots'] b{border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:center}
+.lp-thumbs[data-at='over']{grid-template-rows:12px}
+.lp-thumbs[data-at='over'] .lp-pic{grid-row:1}
+.lp-thumbs[data-at='over'] b{grid-row:1;border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:end;margin-block-end:2px;background:var(--lp-bg)}
 .lp-link{padding:0 2px;border:0;background:none;color:var(--lp-ink);font-size:var(--lp-t2);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-block-size:24px}
 
 /* Строитель палитры из намерения (И275): марка, бумага, чернила; тонкая

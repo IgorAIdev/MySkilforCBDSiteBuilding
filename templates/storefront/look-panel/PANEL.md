@@ -101,7 +101,7 @@
 | Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined |
 | Admin | Product page | Gallery width | доля ряда под галерею в две колонки `--pdp-gallery`; выше экрана галерею не вытянет ни одна (И278) | 40 %, 50 % (умолчание), 60 % |
 | Admin | Product page | Image | пропорция снимка и миниатюр `--pdp-frame` | Square (1 : 1), 4:5 |
-| Admin | Product page | Thumbnails | где миниатюры `--pdp-thumbs` | Below (ряд из четырёх под кадром), Side (полоса слева — только в две колонки), Dots (точки под кадром) |
+| Admin | Product page | Thumbnails | где миниатюры `--pdp-thumbs` | Below (ряд из четырёх под кадром), Side (полоса слева — только в две колонки), Dots (точки под кадром), On the picture (точки на самом кадре, листается пальцем) |
 
 Раздел Buttons строится из осей каталога кнопки (`styles/buttons.json`
 набора, И273): новая ось или вариант — запись в каталоге, панель показывает
