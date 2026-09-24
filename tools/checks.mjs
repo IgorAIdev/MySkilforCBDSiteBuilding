@@ -303,12 +303,18 @@ export const DESIGN = {
           'выглядит дешево', 'дешево выгляд', 'как у всех', 'шаблонн', 'ритм', 'воздух', 'отступ',
           'переделай', 'переделать', 'композиц', 'иерархи',
           'design', 'redesign', 'ugly', 'looks bad', 'spacing'],
+  /* Шаг 1 читает контекст ФАЙЛАМИ: запускатель impeccable (`impeccable
+     context`) набор не везёт, и шаг, называвший его, ссылался в пустоту
+     (И300). Шаг 3 — метод референсов Refero, без подписки. Тот же порядок
+     нумерованным списком — CLAUDE.md; сходятся по числу шагов
+     (selftest/design.test.mjs). */
   order: [
-    'impeccable context',
-    'impeccable critique (новая поверхность — shape)',
-    'пространственный тезис письменно',
+    'контекст: PRODUCT.md и DESIGN.md',
+    'impeccable critique по check:detect и check:design (новая поверхность — shape)',
+    'референсы и замок: 3–5 живых магазинов, бриф docs/design/',
+    'пространственный тезис письменно (и одна вещь, которую запомнят)',
     'impeccable layout / typeset / … по находкам',
-    'impeccable polish',
+    'impeccable polish: каждое решение — из референса, брифа или правила',
   ],
   /** разбор готовой страницы целиком */
   audit: 'redesign-skill',

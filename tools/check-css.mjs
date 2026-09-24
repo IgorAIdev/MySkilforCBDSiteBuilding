@@ -1678,6 +1678,25 @@ for (const file of files) {
   for (const m of css.matchAll(/(?<![-a-z])(?:transition|animation)[a-z-]*\s*:\s*([^;}]*\bease-in\b(?!-out)[^;}]*)/g)) {
     found.motion.push(`${at(m.index)}  ease-in на интерфейсе: ${m[1].trim().slice(0, 40)}`)
   }
+  /* «Переход на всё» — `transition: all` или сокращение без свойства (тогда
+     браузер подставляет `all`): под руку едет всё, что поменялось, — и
+     раскладка, и то, что двигаться не должно, а следующая правка стиля
+     молча добавит в движение новое свойство (Refero, craft-details.md §9
+     #50). Свойства называются по одному. */
+  for (const m of css.matchAll(/(?<![-a-z])transition(-property)?\s*:\s*([^;}]+)/g)) {
+    for (const part of m[2].split(',')) {
+      const first = part.trim().split(/\s+/)[0] ?? ''
+      if (first === 'all' || (!m[1] && /^[\d.]+m?s$/.test(first))) {
+        found.motion.push(`${at(m.index)}  переход на всё: ${part.trim().slice(0, 40)} — свойства называются по одному`)
+      }
+    }
+  }
+  /* Появление из ничего — `scale(0)`: в мире ничто не возникает из точки,
+     и глаз читает это как вспышку (Эмиль Ковальский, STANDARDS.md,
+     «Physicality»: «Never scale(0)»). Появление — от 0.9…0.97 с прозрачностью. */
+  for (const m of css.matchAll(/(?<![-\w])scale(?:3d)?\(\s*0(?:\.0*)?\s*(?:,\s*0(?:\.0*)?\s*)*\)|(?<![-\w])scale\s*:\s*0(?:\.0*)?\s*[;}]/g)) {
+    found.motion.push(`${at(m.index)}  появление из scale(0): ${m[0].replace(/[;}]$/, '').trim()} — от 0.9…0.97 с прозрачностью`)
+  }
 
   /* ── фокус, убранный и не заменённый ────────────────────────────────────
    *
@@ -1713,6 +1732,23 @@ for (const file of files) {
     }
     if (!replaced) {
       for (const m of kills) found.focusGone.push(`${at(m.index)}  кольцо фокуса снято, замены в файле нет`)
+    }
+  }
+}
+
+/* Пружина с перелётом — кривая, проскакивающая цель: `cubic-bezier` с y
+   вне коридора `MOTION.overshoot` (impeccable, bounce-easing; Эмиль
+   Ковальский, STANDARDS.md, «Springs»: «avoid bounce in most UI»). Меряется
+   и в файле шкал: роль `--ease` живёт там, и пружина ролью — та же пружина. */
+for (const file of files) {
+  const rel = relative(ROOT, file)
+  if (EXEMPT.includes(rel) && rel !== TOKENS) continue
+  const css = strip(readFileSync(file, 'utf8'))
+  const at = (i) => `${rel}:${css.slice(0, i).split('\n').length}`
+  const [lo, hi] = MOTION.overshoot
+  for (const m of css.matchAll(/cubic-bezier\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)/g)) {
+    if ([Number(m[2]), Number(m[4])].some((y) => y < lo || y > hi)) {
+      found.motion.push(`${at(m.index)}  пружина с перелётом: ${m[0]} — y вне ${lo}…${hi}`)
     }
   }
 }

@@ -1144,6 +1144,13 @@
      Заведено вычиткой живого списка Vercel: `env(safe-area-inset-*)` не
      встречался в проекте ни разу. */
   --edge-b:env(safe-area-inset-bottom, 0px);
+  /* И сколько устройство занимает СБОКУ: вырез камеры и скруглённые углы
+     в альбомной ориентации. Отдаёт их браузер только окну во весь экран
+     (`viewport-fit=cover` — мета окна у корневого макета), а такое окно
+     уже не отодвигает страницу от выреза само: край страницы обязан быть не
+     уже того, что занято (`.wrap` в styles/primitives.module.css). Факт
+     устройства, симметричный — коробка страницы стоит по центру (И301). */
+  --edge-x:max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
 
   --float:10px;
   /* the height the working row settles to once the strip above it has

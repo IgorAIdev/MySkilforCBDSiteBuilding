@@ -83,7 +83,7 @@ const ROLE = [
   { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/tokens.css' },
   { rx: /^--(ease|hover-t|rise|nudge)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
   { rx: /^--layer-[a-z]+$/, family: 'слой', by: 'styles/tokens.css' },
-  { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-b)$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
+  { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-[bx])$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
   { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css' },
   { rx: /^--(wrap|gut(-base)?|page-(line|gut)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
   /* Карта товара — ручки вида галереи (И278): доля ряда, пропорция снимка,

@@ -25,7 +25,7 @@ const load = (spec) => import(isAbsolute(spec) ? pathToFileURL(spec).href : spec
 const missing = (what, error) => {
   console.error(`\n✗ Нет ${what} — отрисованная проверка НЕ ПРОВЕДЕНА.`)
   console.error(`    Поставить: ${INSTALL}`)
-  console.error('    Свой Playwright: PLAYWRIGHT=путь/к/playwright/index.mjs; свой Chrome: BROWSER_EXECUTABLE=путь')
+  console.error('    Свой Playwright: PLAYWRIGHT=путь/к/playwright/index.mjs; свой sharp: SHARP=путь/к/sharp/dist/index.mjs; свой Chrome: BROWSER_EXECUTABLE=путь')
   if (error?.message) console.error(`    Причина: ${error.message.split('\n')[0]}`)
   process.exit(2)
 }
@@ -39,10 +39,14 @@ export async function loadPlaywright() {
   }
 }
 
+/* `SHARP=` — как `PLAYWRIGHT=`: свой путь к модулю, когда у проекта своих
+   node_modules нет (самопроверка набора прогоняет отрисованную проверку на
+   модулях витрины, selftest/craft-fields.test.mjs). */
 export async function loadSharp() {
+  const spec = process.env.SHARP || 'sharp'
   try {
-    return (await load('sharp')).default
+    return (await load(spec)).default
   } catch (error) {
-    return missing('sharp', error)
+    return missing(`sharp (${spec})`, error)
   }
 }

@@ -93,6 +93,12 @@ const DEFAULTS = {
   /* Личные страницы (И263): без cookie сессии в проекте их нет вовсе — они
    *  меряются только деревом, пустыми. */
   sessions: { cookie: null, pages: {} },
+  /** Контекст дизайна (И300): правда о продукте и описание вида ролями —
+   *  схема impeccable (`PRODUCT.md`) и формат DESIGN.md без шапки. Их читает
+   *  шаг 1 порядка дизайна (CLAUDE.md), DESIGN.md меряет `check:design`
+   *  (`docValue`, `docDead`), наличие обоих — ворота этапа 2. */
+  productDoc: 'PRODUCT.md',
+  designDoc: 'DESIGN.md',
 }
 
 const FILE = join(ROOT, 'kit.config.json')
@@ -185,6 +191,9 @@ export const PROBES = CONFIG.probes
 /** Личные страницы полными (И263): cookie сессии проверки и сессии образца
  *  по форме маршрута. */
 export const SESSIONS = CONFIG.sessions
+/** Контекст дизайна: файл правды о продукте и описание вида (И300). */
+export const PRODUCT_DOC = CONFIG.productDoc
+export const DESIGN_DOC = CONFIG.designDoc
 
 /** Полные имена шкал: `--fs-`, `--sp-`, `--layer-`. */
 export const PREFIX = {

@@ -151,3 +151,38 @@ test('contactScheme: «tel:» внутри слова после не-латин
     assert.match(out, /Call\.tsx.*tel:/, 'настоящий tel: мимо lib/contacts.ts — находка')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+/* Движение (семья `motion`), три приёма из внешнего разбора 24.09.2026:
+   «переход на всё» (Refero, craft-details.md §9 #50), появление из
+   scale(0) (Эмиль Ковальский, STANDARDS.md, «Physicality») и пружина с
+   перелётом — кривая с y вне коридора MOTION.overshoot (impeccable,
+   bounce-easing). Названные свойства, кривая в коридоре, появление от 0.96
+   и полоса из scaleX(0) — не находки. */
+test('motion: переход на всё, появление из scale(0), пружина с перелётом — находки; названное и в коридоре — нет', () => {
+  const dir = project({
+    'components/Pop.module.css': [
+      '.a { transition: all var(--hover-t) var(--ease) }',
+      '.b { transition: .2s }',
+      '.c { transition-property: all }',
+      '@keyframes grow { from { transform: scale(0) } to { transform: scale(1) } }',
+      '.d { scale: 0 }',
+      '.e { transition: transform var(--press-t) cubic-bezier(.34, 1.56, .64, 1) }',
+      '.ok { transition: opacity var(--hover-t) var(--ease), transform var(--press-t) cubic-bezier(.23, 1, .32, 1) }',
+      '@keyframes in { from { transform: scale(.96); opacity: 0 } }',
+      '.bar { transform: scaleX(0) }',
+    ].join('\n') + '\n',
+  })
+  try {
+    const r = spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'motion'], { cwd: dir, encoding: 'utf8' })
+    const lines = r.stdout.split('\n').filter((l) => l.includes('Pop.module.css'))
+    const at = (n) => lines.filter((l) => l.includes(`Pop.module.css:${n} `))
+    assert.equal(at(1).length, 1, 'transition: all')
+    assert.equal(at(2).length, 1, 'сокращение без свойства — тоже all')
+    assert.equal(at(3).length, 1, 'transition-property: all')
+    assert.match(at(4).join('\n'), /scale\(0\)/)
+    assert.match(at(5).join('\n'), /scale: 0/)
+    assert.match(at(6).join('\n'), /пружина с перелётом/)
+    for (const n of [7, 8, 9]) assert.deepEqual(at(n), [], `строка ${n} — не находка`)
+    assert.match(r.stdout, /переход «на всё»/, 'подпись семьи называет новый приём')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

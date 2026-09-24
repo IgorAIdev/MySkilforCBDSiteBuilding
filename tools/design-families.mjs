@@ -21,6 +21,7 @@ export const DESIGN_FAMILIES = [
   'eyebrow', 'bareHeading', 'headRole', 'navSmall', 'flatRhythm', 'iconCards',
   'browserSurface', 'proseLink', 'gradientText', 'glassBlur', 'sideStripe',
   'hardShadow', 'glowHalo', 'trackTight', 'glyphIcon', 'monoCostume',
+  'docValue', 'docDead',
 ]
 
 /** Пустая база: ноль по каждой семье — новый проект долга не несёт. */
@@ -46,6 +47,8 @@ export const DESIGN_LABELS = {
   trackTight: 'разрядка туже −0.04em',
   glyphIcon: 'символ или эмодзи вместо знака из листа (→ ✓ ★ ×)',
   monoCostume: 'моноширинный шрифт как костюм «технологичности» вне кода, данных и замеров',
+  docValue: 'DESIGN.md несёт число (#код, rgb/oklch, px, ms): вид описывается ролями, числа выпускают строители',
+  docDead: 'DESIGN.md называет роль (--имя), которой нет ни в одном файле стилей — описание разошлось с системой',
 }
 
 /** Откуда запрет: файл и строка справочника impeccable
@@ -67,4 +70,6 @@ export const DESIGN_SOURCES = {
   trackTight: 'craft-floor.md:12 — «tracking floor -0.04em»',
   glyphIcon: 'craft-floor.md:40 — «Unicode glyphs or emoji standing in for an icon system»',
   monoCostume: 'craft-floor.md:38 — «Monospace as a costume for "technical"»',
+  docValue: 'document.md:46 — «Never split the source of truth without explicit reason»; спецификация google-labs-code/design.md: «The frontmatter is optional»; CLAUDE.md, «Делается только правильно» — краска → строитель палитры → роль',
+  docDead: 'doctor.md:11 — «Truth drift. The code moved on and the document no longer describes it»',
 }

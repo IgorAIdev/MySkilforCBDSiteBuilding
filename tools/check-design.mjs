@@ -38,7 +38,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, relative as nativeRelative, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { COMPONENT_DIRS, STYLE_DIRS, PAGES, TOKENS, LADDER, PRIMITIVES, EXEMPT } from './kit-config.mjs'
+import { COMPONENT_DIRS, STYLE_DIRS, PAGES, TOKENS, LADDER, PRIMITIVES, EXEMPT, DESIGN_DOC } from './kit-config.mjs'
 import { DESIGN_FAMILIES, DESIGN_LABELS as NAMES, DESIGN_SOURCES as SOURCES } from './design-families.mjs'
 import { declarations } from './names.mjs'
 
@@ -471,11 +471,48 @@ if (cssFiles.length) {
   if (stripped && !restored) add('proseLink', stripped, 'a { text-decoration: none } — и в абзаце, пункте, определении подчёркивание не возвращено')
 }
 
+/* ── DESIGN.md: вид описан ролями, а не числами (И300) ─────────────────────
+ *
+ * Шаг 1 порядка дизайна (CLAUDE.md) читает `DESIGN.md` — как устроен вид.
+ * Формат Google Labs разрешает файл без шапки («The frontmatter is
+ * optional»), и у набора шапки нет нарочно: краски выпускает строитель
+ * палитры, размер и ритм — строитель шкал, и число в описании было бы
+ * второй правдой рядом с ними (CLAUDE.md, «Делается только правильно»:
+ * краска → строитель палитры → роль). Поэтому две семьи:
+ *
+ *   docValue — число вида в описании: #код, rgb()/oklch()…, px, rem, ms;
+ *   docDead  — названная роль `--имя`, которой не объявляет ни один файл
+ *              стилей (`--имя-*` — ни одна с такой приставкой): описание
+ *              разошлось с системой («truth drift», impeccable doctor.md).
+ *
+ * У набора файл лежит в образцовой витрине; у сайта — `designDoc` в
+ * kit.config.json (по умолчанию `DESIGN.md` в корне). Нет файла — нечего
+ * мерить: наличие спрашивают ворота этапа 2 (tools/stages.mjs). */
+const DOC = KIT ? `${TEMPLATE}/DESIGN.md` : DESIGN_DOC
+const docPath = DOC ? join(ROOT, DOC) : null
+let docLines = 0
+if (docPath && existsSync(docPath)) {
+  const declared = new Set()
+  for (const { text } of css.values()) for (const m of text.matchAll(/(?:^|[;{\s])(--[a-z][\w-]*)\s*:/g)) declared.add(m[1])
+  const VALUE = /#[0-9a-f]{3,8}\b|(?<![\w.-])\d+(?:\.\d+)?(?:px|rem|em|ms|s|vw|vh|svh|dvh|cqi)\b|\b(?:rgba?|hsla?|oklch|oklab|lab|lch|hwb|color)\(/gi
+  const lines = readFileSync(docPath, 'utf8').split('\n')
+  docLines = lines.length
+  lines.forEach((line, i) => {
+    const at = `${rel(docPath)}:${i + 1}`
+    for (const m of line.matchAll(VALUE)) add('docValue', `${at} ${m[0]}`, `«${m[0]}» — число вида в описании: называется роль, число выпускает строитель`)
+    for (const m of line.matchAll(/(?<![\w-])(--[a-z][a-z0-9]*(?:-[a-z0-9]+)*)(-\*)?/g)) {
+      const [, name, wild] = m
+      const alive = wild ? [...declared].some((d) => d.startsWith(`${name}-`)) : declared.has(name)
+      if (!alive) add('docDead', `${at} ${name}${wild ?? ''}`, `${name}${wild ?? ''} — такой роли не объявляет ни один файл стилей`)
+    }
+  })
+}
+
 /* ── вердикт ───────────────────────────────────────────────────────────── */
 
 const counts = Object.fromEntries(Object.entries(found).map(([k, v]) => [k, v.length]))
 const total = Object.values(counts).reduce((a, b) => a + b, 0)
-const scope = `${tsxFiles.length} файлов разметки, ${cssFiles.length} стилей${KIT ? ` (набор: основа и ${TEMPLATE})` : ''}`
+const scope = `${tsxFiles.length} файлов разметки, ${cssFiles.length} стилей${docLines ? `, ${DOC}` : ''}${KIT ? ` (набор: основа и ${TEMPLATE})` : ''}`
 
 /* `--json` — счёт и находки данными: им проверяют саму проверку. */
 if (process.argv.includes('--json')) {
