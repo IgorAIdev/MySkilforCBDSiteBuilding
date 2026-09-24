@@ -78,7 +78,10 @@ test('panel catalog: the default look is what the site publishes and it is accep
   const { look } = compose(catalog.defaults, catalog)
   const published = JSON.parse(read('lib/source/sample/look.json'))
   assert.deepEqual(acceptLook(look, slots, facts).notes, [])
-  assert.deepEqual(Object.keys(published.vars).sort(), Object.keys(look.vars).sort(), 'опубликованный вид — те же свойства')
+  /* Вид, опубликованный до того, как каталог вырос (новые группы — тени,
+     форма кнопки), свойств новых групп не несёт: их держат стили сайта. Всё,
+     что он несёт, — свойства сайта, и умолчание каталога их покрывает. */
+  for (const k of Object.keys(published.vars)) assert.ok(slots[k] && Object.hasOwn(look.vars, k), `опубликованный вид: ${k} — свойство сайта и каталога`)
 })
 
 test('panel pairs: each listed pair is a problem of the site rule, and the guard finds it from both sides', () => {
