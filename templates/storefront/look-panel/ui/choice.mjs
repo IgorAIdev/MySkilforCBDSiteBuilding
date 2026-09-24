@@ -41,7 +41,7 @@ export const SECTIONS = [
     /* Карта товара (И278): доля ряда под галерею, пропорция снимка, место
        миниатюр — значения `--pdp-*`; галерея при любом выборе помещается в
        экран. */
-    { id: 'product', name: 'Product page', hint: 'How the product page shows its pictures. The gallery always fits the screen; open a product to see the change.', fields: [['pdp-gallery', 'Gallery width'], ['pdp-frame', 'Image'], ['pdp-thumbs', 'Thumbnails']] },
+    { id: 'product', name: 'Product page', hint: 'How the product page shows its pictures. The gallery always fits the screen; open a product to see the change.', fields: [['pdp-gallery', 'Gallery width'], ['pdp-frame', 'Image'], ['pdp-edge', 'Picture edge'], ['pdp-thumbs', 'Thumbnails']] },
   ] },
 ]
 /** Поля-разметка: другой вариант — другая разметка страницы, черновик и перезагрузка. */

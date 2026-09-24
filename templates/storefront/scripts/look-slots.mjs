@@ -50,6 +50,7 @@ export const PRODUCT = {
   '--pdp-gallery': { type: 'length', value: '50%' },
   '--pdp-frame': { type: 'number', value: '1 / 1' },
   '--pdp-thumbs': { type: 'keyword', value: 'below' },
+  '--pdp-edge': { type: 'keyword', value: 'inset' },
 }
 /* Роли тени — по работе (И228): предмет в покое, подъём под рукой,
    всплывающее, вдавленное. Объявлены ОДИН раз — в styles/look.css, на

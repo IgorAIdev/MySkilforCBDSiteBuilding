@@ -197,6 +197,9 @@
         var at = o.vars['--pdp-thumbs']
         return el('span', { class: 'lp-thumbs', 'data-at': at, 'aria-hidden': 'true' }, [el('i', { class: 'lp-pic' })].concat([0, 1, 2].map(function () { return el('b') })))
       }
+      /* Край снимка: в полях страницы — кадр со скруглением внутри рамки;
+         во всю ширину — кадр от края до края рамки, лист наезжает снизу. */
+      if (field === 'pdp-edge') return el('span', { class: 'lp-edge', 'data-at': o.vars['--pdp-edge'], 'aria-hidden': 'true' }, [el('i', { class: 'lp-pic' }), el('b')])
       if (field === 'shadow') return el('i', { class: 'lp-shape lp-lit', style: 'box-shadow:' + o.vars['--sh-raised'], 'aria-hidden': 'true' })
       /* Главная: первый экран схемой — из чего он сложен сверху вниз
          (catalog.json, `plan`): сцена, заголовок, фишки полок, ряд товара,

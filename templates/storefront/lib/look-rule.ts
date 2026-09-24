@@ -31,7 +31,7 @@ export type Fell = { group: Group; why: string }
 /** Старшинство: уступает младшая группа — ручки карты товара раньше стиля
  *  кнопок, стиль кнопок раньше отметки пункта меню, шрифта, теней, углов,
  *  ширины, ритма и цвета. */
-export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'button', 'pdp-gallery', 'pdp-frame', 'pdp-thumbs']
+export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'button', 'pdp-gallery', 'pdp-frame', 'pdp-thumbs', 'pdp-edge']
 
 type Rgba = readonly [number, number, number, number]
 const THEMES = ['light', 'dark'] as const

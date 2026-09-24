@@ -104,6 +104,22 @@
 @container pdp (max-width:819px) and style(--pdp-thumbs: over){
   .gallery .arrow{display:none}
 }
+/* Снимок во всю ширину (`--pdp-edge: bleed`, ширину даёт колонка —
+   ProductView.module.css): у края окна скругления нет. С точками на снимке
+   лист покупки наезжает на низ кадра на `--gallery-lap` — точки
+   поднимаются на тот же нахлёст, чтобы лист их не закрыл. */
+@container pdp (max-width:819px) and style(--pdp-edge: bleed){
+  /* Ширина кадра — вся: при потолке высоты (`--gallery-fold`) пропорция
+     сжимала бы кадр по ширине (замер 700: 490 из 690), а во всю ширину
+     снимок кадрируется внутри по высоте потолка. */
+  .gallery .stage{border-radius:0;inline-size:100%}
+  /* Во всю ширину уходит только кадр: ряд миниатюр остаётся в полях
+     страницы, по линии текста под ним (`--gallery-bleed` — нахлёст колонки). */
+  .thumbs{justify-self:center;inline-size:min(100% - var(--gallery-bleed) * 2, var(--frame-max), var(--gallery-w))}
+}
+@container pdp (max-width:819px) and style(--pdp-edge: bleed) and style(--pdp-thumbs: over){
+  .dots{margin-block-end:calc(var(--sp-1) + var(--gallery-lap))}
+}
 /* Сбоку — только в две колонки: полоса миниатюр слева шириной в пятую
    часть блока (без доли зазора), высотой с кадр; больше четырёх —
    листается вниз. В одну колонку ряд остаётся под кадром. */

@@ -130,6 +130,10 @@ export const PRODUCT_PAGE = {
     { id: 'dots', name: 'Dots', line: 'Dots under the picture instead of thumbnails', vars: { '--pdp-thumbs': 'dots' } },
     { id: 'over', name: 'On the picture', line: 'No thumbnails: swipe the picture, dots lie on it', vars: { '--pdp-thumbs': 'over' } },
   ],
+  'pdp-edge': [
+    { id: 'inset', name: 'Within the margins', line: 'The picture keeps the page margins and rounded corners', vars: { '--pdp-edge': 'inset' } },
+    { id: 'bleed', name: 'Full width', line: 'On phones the picture runs edge to edge; with dots on the picture the details slide over it', vars: { '--pdp-edge': 'bleed' } },
+  ],
 }
 /** Главные: id — HOMES в lib/homes.ts (docs/design/home.md). `plan` —
  *  первый экран схемой для образца панели, сверху вниз: из чего он сложен

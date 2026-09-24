@@ -67,6 +67,9 @@ export const MODIFIERS = new Set([
      давно, а объявить её было нечем — первым объявил документ, чтобы строки
      заголовка и текста стояли на одной линии шрифта (разбор 24.09.2026, D3) */
   'align',
+  /* нахлёст: на сколько лист покупки наезжает на снимок во всю ширину
+     (`--gallery-lap`, карта товара, бриф docs/design/карта-товара.md) */
+  'lap',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',
@@ -96,7 +99,7 @@ const ROLE = [
   /* Карта товара — ручки вида галереи (И278): доля ряда, пропорция снимка,
      место миниатюр. Роли, а не узлы: их ставит вид сайта на корне (панель
      «Look»), читает узел `gallery` карты. Список закрытый — по имени. */
-  { rx: /^--pdp-(gallery|frame|thumbs)$/, family: 'карта товара: вид галереи', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--pdp-(gallery|frame|thumbs|edge)$/, family: 'карта товара: вид галереи', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
 ]
 const ALL_CONCEPTS = [...new Set(Object.values(CONCEPTS).flat())]
 const concept = new RegExp(`^--${FAMS(ALL_CONCEPTS)}(-[a-z0-9]+)*$`)

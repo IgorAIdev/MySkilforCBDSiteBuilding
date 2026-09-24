@@ -1478,9 +1478,22 @@ const measure = ({ phone, catalogue, target, contrast, vector, iosZoom, h1Lines,
        Поэтому «не доехал» спрашивается только с того, что человек СЕЙЧАС
        видит: сеть уже успокоилась, анимации кончились, и пустое место в
        видимой части — это пустое место. */
+    /* «Видит» — по обеим осям и внутри каждого обрезающего предка (И410):
+       слайд ленты галереи за правым краем полосы на экране не стоит, и
+       ленивый снимок там не доехал по замыслу. Мерка по одной высоте
+       назвала «пустым местом» четвёртый слайд карты товара, когда кадр
+       встал во всю ширину окна и слайд уехал дальше порога ленивой
+       загрузки. */
     if (!img.complete) {
       const b = img.getBoundingClientRect()
-      if (!(b.top < innerHeight && b.bottom > 0 && b.width > 1)) continue
+      let [top, right, bottom, left] = [Math.max(b.top, 0), Math.min(b.right, innerWidth), Math.min(b.bottom, innerHeight), Math.max(b.left, 0)]
+      for (let el = img.parentElement; el && el !== document.documentElement; el = el.parentElement) {
+        const cs = getComputedStyle(el)
+        if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue
+        const c = el.getBoundingClientRect()
+        top = Math.max(top, c.top); right = Math.min(right, c.right); bottom = Math.min(bottom, c.bottom); left = Math.max(left, c.left)
+      }
+      if (!(bottom > top && right - left > 1)) continue
     }
     const key = `b:${img.currentSrc || src}`
     if (seen.has(key)) continue

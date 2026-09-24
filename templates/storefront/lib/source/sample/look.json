@@ -214,7 +214,8 @@
     "--menu-mark-pad": "0",
     "--pdp-gallery": "50%",
     "--pdp-frame": "1 / 1",
-    "--pdp-thumbs": "below"
+    "--pdp-thumbs": "below",
+    "--pdp-edge": "inset"
   },
   "fonts": [],
   "names": {
@@ -233,7 +234,8 @@
     "card": "framed",
     "pdp-gallery": "50",
     "pdp-frame": "square",
-    "pdp-thumbs": "below"
+    "pdp-thumbs": "below",
+    "pdp-edge": "inset"
   },
   "paints": {
     "name": "Brass on charcoal",

@@ -27,13 +27,21 @@
    Product page»; выпущены в styles/look.css): `--pdp-gallery` — доля ряда,
    `--pdp-frame` — пропорция снимка, `--pdp-thumbs` — где миниатюры:
    `below`, `side`, `dots` (точки вместо миниатюр), `over` (точки на самом
-   кадре — ряда под кадром нет, блок ростом с кадр). */
+   кадре — ряда под кадром нет, блок ростом с кадр); `--pdp-edge` — край
+   снимка в одну колонку: `inset` (в полях страницы) или `bleed` (во всю
+   ширину окна, бриф docs/design/карта-товара.md). */
 .pdp{
   --switch-at:820px;--switch-gap:var(--air-block);
   --gallery-gap:var(--gap-row);
   --gallery-r:calc(var(--pdp-frame));
   --gallery-fold:58svh;
   --frame-max:620px;
+  /* Сколько лист наезжает на снимок во всю ширину: ровно на свой угол —
+     дуга угла ложится на снимок, а не на пол страницы. */
+  --gallery-lap:var(--r-sheet);
+  /* Сколько снимок во всю ширину пересекает до окна: край коробки `.wrap`
+     и линию текста в ней — теми же ролями, что держат коробку. */
+  --gallery-bleed:calc(var(--page-edge) + var(--page-line));
   container-type:inline-size;container-name:pdp;
   align-items:start
 }
@@ -84,6 +92,29 @@
 @container pdp (max-width:819px){
   .pin{--pin-pos:static;--pin-max:none}
   .pin > *,.offer > *{max-inline-size:min(var(--frame-max), var(--gallery-w));margin-inline:auto}
+}
+/* Снимок во всю ширину (`--pdp-edge: bleed`), пока колонка одна: галерея
+   пересекает край страницы до окна — край коробки `.wrap` и линию текста в
+   ней (`--gallery-bleed`). Ширина — явная: колонка `pinned` ребёнка не
+   растягивает, и без неё галерея вставала шириной своего кадра (замер
+   700: 490 из 700). */
+@container pdp (max-width:819px) and style(--pdp-edge: bleed){
+  .pin > *{max-inline-size:none;inline-size:calc(100% + var(--gallery-bleed) * 2);margin-inline:calc(var(--gallery-bleed) * -1)}
+}
+/* С точками на снимке лист покупки наезжает на его низ: колонка покупки
+   становится листом во всю ширину окна — пол страницы, скруглённый верх,
+   поле листа сверху, текст по линии края страницы. Воздух между колонками
+   (`--switch-gap`) и нахлёст снимаются одним отрицательным отступом. С рядом
+   под кадром листа нет: ряд он бы закрыл (бриф, тезис). */
+@container pdp (max-width:819px) and style(--pdp-edge: bleed) and style(--pdp-thumbs: over){
+  .offer{
+    position:relative;z-index:1;
+    margin-block-start:calc((var(--switch-gap) + var(--gallery-lap)) * -1);
+    margin-inline:calc(var(--gallery-bleed) * -1);
+    padding:var(--pad-card) var(--gallery-bleed) 0;
+    background:var(--page);
+    border-start-start-radius:var(--r-sheet);border-start-end-radius:var(--r-sheet)
+  }
 }
 
 /* ── колонка покупки ──────────────────────────────────────────────────────

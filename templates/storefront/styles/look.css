@@ -12,6 +12,7 @@
   --pdp-gallery: 50%;
   --pdp-frame: 1 / 1;
   --pdp-thumbs: below;
+  --pdp-edge: inset;
 }
 :root,[data-ground='deck'],[data-plate]{
   --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);

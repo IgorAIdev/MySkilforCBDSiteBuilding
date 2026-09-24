@@ -102,6 +102,7 @@
 | Admin | Home | Layout | состав главной (`home`): порядок блоков и раскладка каждого; слова, снимки, протокол и способы доставки — данные страницы, одни на все варианты (бриф — `docs/design/home.md` набора) | Scene (умолчание), Shop first, Lab report first, Headline first, Cabinet |
 | Admin | Product page | Gallery width | доля ряда под галерею в две колонки `--pdp-gallery`; выше экрана галерею не вытянет ни одна (И278) | 40 %, 50 % (умолчание), 60 % |
 | Admin | Product page | Image | пропорция снимка и миниатюр `--pdp-frame` | Square (1 : 1), 4:5 |
+| Admin | Product page | Picture edge | край снимка, пока колонка одна, `--pdp-edge`; две колонки не меняет (бриф `docs/design/карта-товара.md` набора) | Within the margins (умолчание), Full width (во всю ширину окна; вместе с «On the picture» лист покупки наезжает на низ снимка) |
 | Admin | Product page | Thumbnails | где миниатюры `--pdp-thumbs` | Below (ряд из четырёх под кадром), Side (полоса слева — только в две колонки), Dots (точки под кадром), On the picture (точки на самом кадре, листается пальцем) |
 
 Раздел Buttons строится из осей каталога кнопки (`styles/buttons.json`

@@ -1065,6 +1065,11 @@
       "type": "keyword",
       "group": "pdp-thumbs",
       "value": "below"
+    },
+    "--pdp-edge": {
+      "type": "keyword",
+      "group": "pdp-edge",
+      "value": "inset"
     }
   },
   "facts": {

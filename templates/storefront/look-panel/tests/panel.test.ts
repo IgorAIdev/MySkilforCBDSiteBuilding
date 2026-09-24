@@ -51,11 +51,11 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   /* Карта товара (И278): доля ряда, пропорция, миниатюры — значения `--pdp-*`,
      умолчание — то, что стоит у сайта. */
   const product = SECTIONS[1].subs.find((s) => s.id === 'product')!
-  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Image', 'Thumbnails'])
+  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Image', 'Picture edge', 'Thumbnails'])
   assert.deepEqual(catalog.groups['pdp-gallery'].map((o) => o.id).sort(), ['40', '50', '60'])
   assert.deepEqual(catalog.groups['pdp-frame'].map((o) => o.name).sort(), ['4:5', 'Square'])
   assert.deepEqual(catalog.groups['pdp-thumbs'].map((o) => o.name).sort(), ['Below', 'Dots', 'On the picture', 'Side'])
-  for (const f of ['pdp-gallery', 'pdp-frame', 'pdp-thumbs']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
+  for (const f of ['pdp-gallery', 'pdp-frame', 'pdp-thumbs', 'pdp-edge']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
   const buttons = SECTIONS[0].subs.find((s) => s.id === 'buttons')!
   assert.deepEqual(buttons.fields.map((f) => f[0]), catalog.axes.map((a) => a.field), 'Buttons — оси каталога кнопки')
   assert.deepEqual(catalog.axes.map((a) => a.name), ['Letters', 'Main button', 'Quiet button', 'Main button shape'])
