@@ -35,6 +35,9 @@ export const SECTIONS = [
   { id: 'admin', name: 'Admin', subs: [
     { id: 'header', name: 'Header', hint: 'The layout of the header, and how the current shelf is marked in it.', fields: [['header', 'Layout'], ['marker', 'Current menu item']] },
     { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf.', fields: [['card', 'Product card']] },
+    /* Главная (lib/homes.ts): порядок и раскладка блоков; слова и снимки —
+       данные страницы, одни на все варианты. */
+    { id: 'home', name: 'Home', hint: 'How the home page is composed: what comes first and how each part is laid out. Your texts and pictures stay the same.', fields: [['home', 'Layout']] },
     /* Карта товара (И278): доля ряда под галерею, пропорция снимка, место
        миниатюр — значения `--pdp-*`; галерея при любом выборе помещается в
        экран. */
@@ -42,7 +45,7 @@ export const SECTIONS = [
   ] },
 ]
 /** Поля-разметка: другой вариант — другая разметка страницы, черновик и перезагрузка. */
-export const STRUCTURE = ['header', 'card']
+export const STRUCTURE = ['header', 'card', 'home']
 /** Разделы этого каталога: подраздел Buttons — оси кнопки каталога. */
 /** @param {{ axes?: { field: string, name: string }[] }} catalog @returns {{ id: string, name: string, subs: Sub[] }[]} */
 export const sectionsOf = (catalog) => SECTIONS.map((s) => ({ ...s, subs: s.subs.map((sub) => (sub.axes ? { ...sub, fields: (catalog.axes ?? []).map((a) => [a.field, a.name]) } : sub)) }))
@@ -155,7 +158,7 @@ export function guarantees(paints, steps) {
 
 /* ── Вид значениями ──────────────────────────────────────────────────── */
 
-/** Вид значениями: свойства вариантов, шапка, карточка, имена; шрифты —
+/** Вид значениями: свойства вариантов, шапка, карточка, главная, имена; шрифты —
  *  какие семейства и толщины загрузить (`need`); файлы кладёт публикация
  *  (scripts/fonts.mjs), до того `fonts` пуст. Своя палитра (`paints`) —
  *  значения из строителя и три краски на тему рядом, чтобы строитель её
@@ -172,7 +175,7 @@ export function compose(names, catalog, paints = null) {
   const need = option(catalog, 'face', chosen.face)?.fonts ?? []
   const set = option(catalog, 'palette', chosen.palette)
   const meta = custom ? { name: paints.name || 'Custom', light: paints.light, dark: paints.dark, ...(paints.intent ? { intent: paints.intent } : {}) } : set?.seed ? { name: set.name, ...set.seed } : null
-  return { look: { header: chosen.header, card: chosen.card, vars, fonts: [], names: chosen, ...(meta ? { paints: meta } : {}) }, need }
+  return { look: { header: chosen.header, card: chosen.card, home: chosen.home, vars, fonts: [], names: chosen, ...(meta ? { paints: meta } : {}) }, need }
 }
 
 /* ── Опубликованный вид — заново из имён (И352) ──────────────────────── */

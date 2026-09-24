@@ -10,12 +10,13 @@ import { acceptLook, problems, type Facts } from '../../lib/look-rule.ts'
 import { valid, type Slots } from '../../lib/look-values.ts'
 import { HEADERS } from '../../lib/headers.ts'
 import { CARDS } from '../../lib/cards.ts'
+import { HOMES } from '../../lib/homes.ts'
 import { availability } from '../../tools/buttons.mjs'
 
 /* Тесты панели вида — уходят вместе с ней (`npm run test:panel`). */
 const read = (p: string) => readFileSync(new URL(`../../${p}`, import.meta.url), 'utf8')
 type Paints = { light: Record<string, string>; dark: Record<string, string> }
-type Option = { id: string; name: string; vars?: Record<string, string>; fonts?: { family: string; weights: number[] }[]; seed?: Paints; style?: unknown }
+type Option = { id: string; name: string; line?: string; plan?: string[]; vars?: Record<string, string>; fonts?: { family: string; weights: number[] }[]; seed?: Paints; style?: unknown }
 type Pair = { x: { field: string; id: string }; y: { field: string; id: string }; why: string }
 const catalog = JSON.parse(read('look-panel/ui/catalog.json')) as { defaults: Record<string, string>; groups: Record<string, Option[]>; axes: { field: string; name: string }[]; pairs: Pair[]; steps: Record<string, Record<string, string>> }
 const FIELDS = fieldsOf(catalog) as string[]
@@ -41,7 +42,12 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   assert.deepEqual([...placed].sort(), [...FIELDS].sort())
   assert.equal(new Set(placed).size, placed.length)
   assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons'])
-  assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card', 'Product page'])
+  assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card', 'Home', 'Product page'])
+  /* Главная — разметка вида (lib/homes.ts): варианты каталога — все главные
+     сайта, по порядку; первая, нынешняя, — умолчание. */
+  assert.deepEqual(catalog.groups.home.map((o) => o.id), [...HOMES])
+  assert.equal(catalog.defaults.home, HOMES[0])
+  for (const o of catalog.groups.home) assert.ok(o.name && o.line && o.plan?.length, `${o.id}: имя, строка и схема первого экрана`)
   /* Карта товара (И278): доля ряда, пропорция, миниатюры — значения `--pdp-*`,
      умолчание — то, что стоит у сайта. */
   const product = SECTIONS[1].subs.find((s) => s.id === 'product')!
@@ -187,6 +193,20 @@ test('panel removal: the panel lines go, the chosen header stays without its mar
     for (const c of CARDS) assert.equal(css.includes(`[data-card='${c}']`), c === chosen, `${chosen}: ${c}`)
     assert.ok(!/\/\*[^*]*$/.test(css.replace(/\/\*[\s\S]*?\*\//g, '')), `${chosen}: комментарии закрыты`)
     assert.match(stripVariants(read('lib/cards.ts'), 'look-card', chosen), new RegExp(`CARDS = \\[\\n  '${chosen}',\\n\\] as const`))
+  }
+  /* Главная: снятие оставляет рецепт, раскладки блоков и правила только
+     выбранной; метки и следы снятия уходят, комментарии закрыты. */
+  const HOME_FILES = ['lib/homes.ts', 'components/blocks/registry.tsx', 'components/blocks/Hero.tsx', 'components/blocks/Categories.tsx', 'components/blocks/Featured.tsx',
+    'components/blocks/Lab.tsx', 'components/blocks/blocks.module.css', 'components/LabReport.tsx', 'components/LabReport.module.css']
+  for (const chosen of HOMES) {
+    for (const f of HOME_FILES) {
+      const text = stripVariants(read(f), 'look-home', chosen)
+      assert.ok(!text.includes('look-home') && !text.includes('look:remove'), `${chosen}: ${f} — меток не осталось`)
+      assert.ok(!/\/\*[^*]*$/.test(text.replace(/\/\*[\s\S]*?\*\//g, '')), `${chosen}: ${f} — комментарии закрыты`)
+      for (const other of HOMES.filter((h) => h !== chosen)) assert.ok(!new RegExp(`^\\s+${other}: `, 'm').test(text), `${chosen}: ${f} — нет строки варианта ${other}`)
+    }
+    assert.match(stripVariants(read('lib/homes.ts'), 'look-home', chosen), new RegExp(`HOMES = \\[\\n  '${chosen}',\\n\\] as const`))
+    assert.equal(stripVariants(read('components/blocks/registry.tsx'), 'look-home', chosen).includes('Still'), chosen === 'cabinet', `${chosen}: пауза снимком — только у аптеки`)
   }
 })
 

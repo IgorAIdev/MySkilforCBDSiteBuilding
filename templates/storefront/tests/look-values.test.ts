@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { acceptValues, lookCss, valid, validFont, type Slots } from '../lib/look-values.ts'
 import { HEADERS } from '../lib/headers.ts'
 import { CARDS } from '../lib/cards.ts'
+import { HOMES } from '../lib/homes.ts'
 
 /* Вид приходит данными и ложится в страницу блоком <style>: значение,
    которым можно закрыть объявление, блок или тег, не проходит (И270). */
@@ -55,14 +56,21 @@ test('look values: a bad property falls back alone and is named; the rest of the
   assert.equal(acceptValues({ header: 'mega' }, slots).look.header, HEADERS[0])
   assert.equal(acceptValues({ header: HEADERS[0] }, slots).look.card, CARDS[0], 'без карточки — первая, без слова')
   assert.deepEqual(acceptValues({ header: HEADERS[0], card: 'mega' }, slots).dropped.map((d) => d.what), ['card'])
+  /* Главная — разметка вида, как шапка и карточка: вид старше поля берёт
+     первую, нынешнюю, без слова; незнакомая называется и уступает первой. */
+  assert.equal(acceptValues({ header: HEADERS[0] }, slots).look.home, HOMES[0], 'без главной — первая, без слова')
+  assert.equal(acceptValues({ header: HEADERS[0], home: HOMES.at(-1) }, slots).look.home, HOMES.at(-1))
+  const odd = acceptValues({ header: HEADERS[0], home: 'mega' }, slots)
+  assert.equal(odd.look.home, HOMES[0])
+  assert.deepEqual(odd.dropped.map((d) => d.what), ['home'])
 })
 
 test('look values: the style block carries the values and the self-hosted fonts', () => {
   const font = { family: 'Inter', files: [{ url: '/fonts/inter-latin-0123456789.woff2', weight: '400 700', range: 'U+0000-00FF, U+0131' }] }
   assert.ok(validFont(font))
   assert.ok(!validFont({ ...font, family: 'Inter}' }))
-  const css = lookCss({ header: HEADERS[0], card: CARDS[0], vars: { '--a-9': '#112233' }, fonts: [font], names: {} })
+  const css = lookCss({ header: HEADERS[0], card: CARDS[0], home: HOMES[0], vars: { '--a-9': '#112233' }, fonts: [font], names: {} })
   assert.match(css, /^:root\{--a-9:#112233\}/)
   assert.match(css, /@font-face\{font-family:'Inter';src:url\(\/fonts\/inter-latin-0123456789\.woff2\) format\('woff2'\);font-weight:400 700;/)
-  assert.equal(lookCss({ header: HEADERS[0], card: CARDS[0], vars: {}, fonts: [], names: {} }), '')
+  assert.equal(lookCss({ header: HEADERS[0], card: CARDS[0], home: HOMES[0], vars: {}, fonts: [], names: {} }), '')
 })

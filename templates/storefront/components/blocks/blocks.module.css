@@ -2,11 +2,20 @@
    сцена героя наверху и светлый лист лаборатории посередине. Остальное
    стоит прямо на полу страницы без коробок, и разделы отбивает один
    воздух `--air-page` (`.section`). Внутри листа ничего не поднимается. */
-.tiles,.shelf,.rows{list-style:none;padding:0;margin:0}
-/* Полки — четыре в ряд на широком, две на телефоне; число колонок считает
+/* Варианты главной (lib/homes.ts) раскладывают те же блоки по-своему; их
+   правила стоят блоками с меткой варианта.
+   look-home:* Пока вид выбирается, здесь стоят все варианты; `npm run
+   look-home:* look:remove` оставляет правила выбранного.
+   Краска — роли палитры, размер — роли шкал, раскладка — примитивы. */
+.shelf,.rows{list-style:none;padding:0;margin:0}
+/* Ходовые — четыре в ряд на широком, две на телефоне; число колонок считает
    сетка (`grid`: `--cols` сверху, пол ряда — две). */
-.tiles{--cols:4;--cell-min:200px}
 .shelf{--cols:4;--cell-min:200px}
+
+/* look-home:scene,proof,cabinet:start */
+.tiles{list-style:none;padding:0;margin:0}
+/* Полки — четыре в ряд на широком, две на телефоне. */
+.tiles{--cols:4;--cell-min:200px}
 
 /* ПЛИТКА ПОЛКИ — место, а не предмет: без листа, тени и поля; кадр во
    всю плитку, имя под ним. Так плитка не спорит с карточкой товара ниже —
@@ -24,7 +33,9 @@
 @media (hover:hover){ .tile:hover .name a{text-decoration-line:underline} }
 @media (hover:hover) and (prefers-reduced-motion:no-preference){ .tile:hover .tileShot img{scale:1.04} }
 .tile:active .name a{color:var(--ink-soft)}
+/* look-home:scene,proof,cabinet:end */
 
+/* look-home:scene:start */
 /* ГЕРОЙ — тёмная сцена во всю коробку страницы (`flush`: пол на внешнем
    крае). Устройство решает ширина СЦЕНЫ (контейнер `.hero`), шов 820 из
    реестра: там меняется смысл — текст поверх снимка становится текстом под
@@ -78,7 +89,9 @@
   }
   .heroText{position:relative;inline-size:min(100%, var(--hero-w));min-block-size:72svh;justify-content:flex-end}
 }
+/* look-home:scene:end */
 
+/* look-home:scene,counter,proof:start */
 /* ЛАБОРАТОРИЯ — единственный лист страницы: `--surface` и пол
    (`data-plate`), а не тон марки — тон в тёмной теме становился ржавым и
    читался тревогой. Слова стоят по середине высоты протокола; протокол
@@ -89,7 +102,10 @@
    легла бы вторым просветом поверх просвета колонок: снимается силой
    места, а не порядком файлов. */
 .labBand .labText{margin-block-end:0}
+/* look-home:scene,counter,proof:end */
+/* look-home:scene,counter:start */
 .labDoc{max-inline-size:30rem}
+/* look-home:scene,counter:end */
 
 /* СПРАВОЧНЫЕ РАЗДЕЛЫ — доставка и вопросы: заголовок своей колонкой слева,
    строки справа через волосок (`sidebar`); в узкой коробке — столбиком, и
@@ -122,3 +138,98 @@
 .ask svg{flex:none;inline-size:1.25em;block-size:1.25em;color:var(--ink-soft);transition:transform var(--open-t) var(--ease)}
 .q[open] .ask svg{transform:rotate(180deg)}
 .answer{max-inline-size:var(--measure);padding-block-end:var(--pad-card);color:var(--ink-soft)}
+
+/* СЛОВО МАГАЗИНА — место заказчика, во всех вариантах (Story.tsx): слова и
+   снимок рядом, в узкой коробке столбиком (`switcher`); пустое молчит. */
+.story{--switch-at:820px;--switch-gap:var(--air-block);align-items:center}
+.storyText{--stack:var(--air-head)}
+/* Абзацы — теснее, чем заголовок до них: одна мысль, а не разделы. */
+.storyBody{--stack:var(--air-row)}
+.storyShot{--frame:4 / 3;border-radius:var(--r-card)}
+
+/* look-home:counter,proof:start */
+/* Обещание ролью заголовка страницы — у вариантов, где первый экран
+   делит обещание с товаром или протоколом: заголовок не отнимает экран у
+   того, ради чего вариант. Перенос — `pretty`, не `balance`: заголовок
+   добирает строку до края колонки (И363). */
+.introTitle{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:pretty}
+/* look-home:counter,proof:end */
+
+/* look-home:counter:start */
+/* МАГАЗИН СРАЗУ — обещание и рядом его слова с обещаниями покупки
+   (`sidebar`: слова — узкой колонкой справа, в узкой коробке под
+   заголовком; верхом к верху заголовка). Полки фишками и ходовые идут
+   следующими воздухом группы (lib/homes.ts). */
+.intro{--side-w:26rem;--side-gap:var(--air-block)}
+.introText{--stack:var(--air-row)}
+.introText > p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede)}
+/* Полки фишками — строка, которая переносится; просвет — зазор между
+   целями (под пальцем шире). */
+.chips{--cluster:var(--gap-targets);list-style:none;padding:0;margin:0}
+/* look-home:counter:end */
+
+/* look-home:proof:start */
+/* ПРОТОКОЛ СРАЗУ — обещание столбиком и кнопка к товару; лист протокола
+   следующим, воздухом группы. В листе колонка протокола вдвое шире
+   колонки слов (`bias`), слова — по верху, а не по середине: крупный номер
+   партии тянет высоту, и слова на середине повисали бы. */
+.claim{--stack:var(--air-group)}
+.claimLede{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede)}
+.certificate{--switch-bias:2;align-items:flex-start}
+/* look-home:proof:end */
+
+/* look-home:journal:start */
+/* ЗАГОЛОВОК СРАЗУ — обещание ролью героя во всю ширину коробки: роль мерит
+   свою колонку, и колонка здесь — вся коробка (контейнер `.headline`).
+   Под ним строкой абзац и кнопка у дальнего края (`cluster`: тесно —
+   кнопка переносится под абзац к началу строки), ниже — снимок широкой
+   полосой: кадр `frame` с потолком от малого окна, угол листа. В узкой
+   коробке (шов «телефон») полоса становится кадром 4 : 3 — широкая полоса
+   на телефоне была бы щелью. */
+.headline{--stack:var(--air-block);container-type:inline-size}
+.headline h1{font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
+.headlineRow{--cluster:var(--air-block);justify-content:space-between}
+.headlineRow > p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede)}
+/* Ширина — вся коробка: у пропорции, упёршейся в потолок, иначе ужалась бы
+   ширина, и полоса встала бы уже текста над ней. Упёрлась — снимок
+   кадрируется внутри (`object-fit`; И364). */
+.plate{--frame:21 / 9;inline-size:100%;border-radius:var(--r-sheet)}
+@container (max-width:819px){
+  .plate{--frame:4 / 3}
+}
+/* ОГЛАВЛЕНИЕ ПОЛОК — строки через волосок тем же порядком, что справка
+   (`.split`, `.rows`): миниатюра полки и имя ролью подзаголовка со стрелкой
+   «куда ведёт» (`go` — контрол набора, стрелку он и сдвигает). Ссылка одна —
+   имя; её область растянута на всю строку. Миниатюра — кадр от высоты
+   крупного органа: строка — цель нажатия, а не картинка. */
+.entry{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:var(--gap-row);padding-block:var(--pad-inner);border-block-end:var(--line-w) solid var(--rule)}
+.entryShot{--frame:4 / 3;inline-size:calc(var(--ctrl-h-lg) * 1.5);border-radius:var(--r-xs)}
+.entryName{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
+.entryName a::after{content:'';position:absolute;inset:0}
+.entryShot img{transition:scale var(--hover-t) var(--ease)}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){ .entry:hover .entryShot img{scale:1.04} }
+.entry:active .entryName a{color:var(--ink-soft)}
+/* look-home:journal:end */
+
+/* look-home:cabinet:start */
+/* ТИХАЯ АПТЕКА — заголовок, абзац и кнопка по середине узкой мерой; роль
+   героя мерит эту узкую колонку (контейнер `.calm`) и встаёт ниже, чем во
+   всю ширину. */
+.calm{--stack:var(--air-group);container-type:inline-size;max-inline-size:var(--measure-lede);margin-inline:auto;text-align:center}
+.calm h1{font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:pretty}
+.calm p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);text-wrap:pretty}
+.calmAct{justify-content:center}
+/* Ящики — полки квадратными кадрами, имя по середине под кадром; ряд
+   считает сетка, как у плиток. */
+.tiles[data-shelf='drawers']{--cell-min:160px}
+.tiles[data-shelf='drawers'] .tileShot{--frame:1 / 1}
+.tiles[data-shelf='drawers'] .tile{text-align:center}
+/* Пауза — снимок героя без слов во всю коробку страницы (Hero.tsx,
+   `Still`): кадр `frame` с потолком от малого окна, угол листа. */
+.still{--frame:16 / 9;inline-size:100%;border-radius:var(--r-sheet)}
+/* Этикетка — узкий лист по середине: слова над протоколом одной колонкой.
+   Шапка слов встаёт по середине силой места: у `sectionHead` своё
+   выравнивание по краю. */
+.label{--stack:var(--air-block);max-inline-size:var(--measure);margin-inline:auto;text-align:center}
+.label > :first-child{align-items:center;margin-block-end:0}
+/* look-home:cabinet:end */

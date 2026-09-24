@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react'
 import type { Block } from '@/lib/source/contract.ts'
-import type { BlockCtx } from './types.ts'
+import type { Placed } from '@/lib/homes.ts'
+import type { BlockCtx, Place } from './types.ts'
 import { Hero } from './Hero.tsx'
+import { Still } from './Hero.tsx' // look-home:cabinet
 import { Categories } from './Categories.tsx'
 import { Featured } from './Featured.tsx'
 import { Lab } from './Lab.tsx'
 import { Delivery } from './Delivery.tsx'
 import { Faq } from './Faq.tsx'
+import { Story } from './Story.tsx'
 
-type Renderers = { [K in Block['type']]: (props: { block: Extract<Block, { type: K }>; ctx: BlockCtx }) => ReactNode }
+type Renderers = { [K in Block['type']]: (props: { block: Extract<Block, { type: K }>; ctx: BlockCtx; place: Place }) => ReactNode }
 
 /* Реестр блоков (references/payload.md): тип блока → отрисовка. Новый тип
    в договоре без строки здесь — ошибка сборки через satisfies; строка без
@@ -20,14 +23,17 @@ export const RENDERERS = {
   lab: Lab,
   delivery: Delivery,
   faq: Faq,
+  story: Story,
 } satisfies Renderers
 
-/* Ключ — тип плюс заголовок блока, не индекс массива (check:lint,
-   react/no-array-index-key): порядок блоков на странице неизменен, но имя
-   должно отличать блоки, а не место, где они стоят. */
-export function Blocks({ blocks, ctx }: { blocks: Block[]; ctx: BlockCtx }) {
-  return blocks.map((block) => {
-    const Render = RENDERERS[block.type] as (props: { block: Block; ctx: BlockCtx }) => ReactNode
-    return <Render key={`${block.type}-${block.title}`} block={block} ctx={ctx} />
+/* Порядок и воздух — у варианта главной (lib/homes.ts, `arrange`); здесь
+   только отрисовка места. Ключ — место рецепта, а не индекс массива
+   (check:lint, react/no-array-index-key). `still` — снимок героя отдельной
+   паузой: место, а не тип блока данных. */
+export function Blocks({ placed, ctx }: { placed: Placed[]; ctx: BlockCtx }) {
+  return placed.map(({ slot, block, air, key }) => {
+    if (slot === 'still') return block.type === 'hero' ? <Still key={key} block={block} ctx={ctx} place={{ air }} /> : null // look-home:cabinet
+    const Render = RENDERERS[block.type] as (props: { block: Block; ctx: BlockCtx; place: Place }) => ReactNode
+    return <Render key={key} block={block} ctx={ctx} place={{ air }} />
   })
 }

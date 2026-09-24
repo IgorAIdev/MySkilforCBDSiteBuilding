@@ -4,16 +4,16 @@ import type { Block } from '@/lib/source/contract.ts'
 import { faqLd } from '@/lib/ld.ts'
 import { JsonLd } from '../JsonLd.tsx'
 import { Icon } from '../Icon.tsx'
-import type { BlockCtx } from './types.ts'
+import type { BlockCtx, Place } from './types.ts'
 
 /* Вопросы — тот же порядок, что у доставки над ними: заголовок слева,
    строки справа через волосок; в узкой коробке — столбиком (`sidebar`).
    Знак раскрытия поворачивается, ответ — в удобной мере строки. Одна
    FAQPage на страницу и ровно столько вопросов, сколько нарисовано
    (check:seo, faqPage) — разметка строится из тех же пунктов. */
-export function Faq({ block }: { block: Extract<Block, { type: 'faq' }>; ctx: BlockCtx }) {
+export function Faq({ block, place }: { block: Extract<Block, { type: 'faq' }>; ctx: BlockCtx; place: Place }) {
   return (
-    <section className={`${p.wrap} ${p.section}`}>
+    <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
       <div className={`${p.sidebar} ${s.split}`}>
         <div className={p.aside}><div className={p.sectionHead}><h2>{block.title}</h2></div></div>
         <div className={`${s.rows} ${s.splitBody}`}>

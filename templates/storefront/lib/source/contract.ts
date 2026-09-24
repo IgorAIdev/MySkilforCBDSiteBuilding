@@ -1,6 +1,7 @@
 import type { Lang } from '../locale.ts'
 import type { HeaderVariant } from '../headers.ts'
 import type { CardVariant } from '../cards.ts'
+import type { HomeVariant } from '../homes.ts'
 
 export type Money = { minor: number; currency: string }
 export type Stock = 'in' | 'low' | 'out'
@@ -46,6 +47,10 @@ export type Block =
   | { type: 'lab'; title: string; body: string; report: LabReport | null }
   | { type: 'delivery'; title: string; items: { title: string; body: string }[] }
   | { type: 'faq'; title: string; items: { q: string; a: string }[] }
+  /** Слово магазина — заголовок, несколько предложений своими словами и
+   *  снимок с подписью. Место заказчика (docs/design/home.md, «Пустые
+   *  места»): пустое молчит — ни заглушки, ни рамки на витрине. */
+  | { type: 'story'; title: string; body: string; image: Image | null }
 export type Page = { slug: string; title: string; description: string; blocks: Block[] }
 /** Обещания магазина, которые витрина печатает у кнопки заказа, — числом из
  *  данных, а не словом в коде. `returnDays` — срок возврата в днях (закон ЕС
@@ -56,12 +61,13 @@ export type ShopFacts = { returnDays: number | null }
 /** Вид витрины — ОДИН, готовыми значениями (CLAUDE.md, «Панель настройки
  *  физически отделена от сайта»; И270): свойства CSS обеих тем (`vars`,
  *  имя → значение из закрытого списка lib/look-slots.json), варианты шапки
- *  и карточки товара (`header`, `card` — разметка из lib/headers.ts, lib/cards.ts),
+ *  и карточки товара, состав главной (`header`, `card`, `home` — разметка из
+ *  lib/headers.ts, lib/cards.ts, lib/homes.ts),
  *  шрифты со своих адресов (`fonts`, пусто — системный) и имена вариантов,
  *  из которых вид собран (`names`, для людей и панели; сайт их не читает).
  *  Каталога вариантов в сайте нет — он у панели вида. */
 export type LookFont = { family: string; files: { url: string; weight: string; range: string }[] }
-export type Look = { header: HeaderVariant; card: CardVariant; vars: Record<string, string>; fonts: LookFont[]; names: Record<string, string> }
+export type Look = { header: HeaderVariant; card: CardVariant; home: HomeVariant; vars: Record<string, string>; fonts: LookFont[]; names: Record<string, string> }
 export type Result<T> = { ok: true; value: T } | { ok: false; reason: 'unavailable' | 'not-found' | 'bad-request' }
 
 /** Торговля: Vendure в плане 4, образец — сейчас. */

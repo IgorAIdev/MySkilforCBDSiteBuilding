@@ -15,7 +15,9 @@ import { QTY_MAX } from './cart-view.ts'
  *  главной (shop, «Лаборатория — процесс»: «где посмотреть»); адреса
  *  документа нет — нет и ссылки: якорь `#lab-…` образца документом не
  *  является (docs/open.md). */
-export type LabView = { title: string; batch: string; rows: [string, string][]; open: { label: string; href: string } | null }
+/** `batch` — номер партии словами («Batch RO-2409-10»), `code` — сам номер,
+ *  как на этикетке: его сверяют глазом с флаконом. */
+export type LabView = { title: string; batch: string; code: string; rows: [string, string][]; open: { label: string; href: string } | null }
 /** `add` — надпись кнопки: с ценой выбранного варианта («Add to cart ·
  *  €39.90») — цена за штуку, количество её не пересчитывает (как у Shopify);
  *  без варианта — одно действие. `ask` — варианта ещё не выбрали: кнопка
@@ -73,6 +75,7 @@ export function labView(lang: Lang, r: LabReport): LabView {
   return {
     title: t(lang, 'product.lab'),
     batch: t(lang, 'product.batch', { batch: r.batch }),
+    code: r.batch,
     rows: [
       [t(lang, 'lab.lab'), r.lab],
       [t(lang, 'lab.date'), date.format(new Date(r.date))],
