@@ -46,6 +46,9 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
      или чертой снизу (WCAG 1.4.11); умолчание — то, что стоит у сайта. */
   assert.deepEqual(catalog.groups.field.map((o) => o.id), ['framed', 'outline', 'tone'])
   for (const o of catalog.groups.field) assert.ok(/^var\(--/.test(o.vars!['--ctrl-field-edge']), `${o.id}: кромка — роль палитры`)
+  /* Галочка (И392): одна краска отмеченного на сайт, умолчание — марка. */
+  assert.deepEqual(catalog.groups.tick.map((o) => o.id), ['brand', 'ink'])
+  assert.deepEqual(SECTIONS[0].subs.find((s) => s.id === 'fields')!.fields.map((f) => f[0]), ['field', 'tick'])
   assert.deepEqual(SECTIONS[1].subs.map((s) => s.name), ['Header', 'Card', 'Home', 'Product page'])
   /* Главная — разметка вида (lib/homes.ts): варианты каталога — все главные
      сайта, по порядку; первая, нынешняя, — умолчание. */

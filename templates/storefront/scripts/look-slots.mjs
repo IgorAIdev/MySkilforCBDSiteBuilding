@@ -46,6 +46,8 @@ const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pa
 /** Род свойства вида поля ввода (И390, styles/form.module.css): заливка,
  *  кромка и 1 / 0 — кромка вокруг или только черта снизу. */
 const FIELD = { fill: 'colour', edge: 'colour', side: 'number' }
+/** Род свойства отмеченной галочки и радио (И392, styles/base.css). */
+const TICK = { fill: 'colour' }
 /** Ручки товара: карта (И278, «Admin → Product page») и полка (И400,
  *  «Admin → Card») — пропорция снимка одна на полку и карту, плотность —
  *  сколько карточек в ряд на полке каталога, место кнопки «в корзину» на
@@ -126,11 +128,13 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, look, s
     if (!type) throw new Error(`${k}: род свойства отметки неизвестен — дописать в MARKER (scripts/look-slots.mjs)`)
     put(k, type, 'marker', v)
   }
-  for (const [k, v] of Object.entries(own)) {
-    if (!k.startsWith('--ctrl-field-')) continue
-    const type = FIELD[k.replace(/^--ctrl-field-/, '')]
-    if (!type) throw new Error(`${k}: род свойства поля неизвестен — дописать в FIELD (scripts/look-slots.mjs)`)
-    put(k, type, 'field', v)
+  for (const [prefix, kinds, group, table] of [['--ctrl-field-', FIELD, 'field', 'FIELD'], ['--ctrl-tick-', TICK, 'tick', 'TICK']]) {
+    for (const [k, v] of Object.entries(own)) {
+      if (!k.startsWith(prefix)) continue
+      const type = kinds[k.slice(prefix.length)]
+      if (!type) throw new Error(`${k}: род свойства неизвестен — дописать в ${table} (scripts/look-slots.mjs)`)
+      put(k, type, group, v)
+    }
   }
   for (const [k, { type, value }] of Object.entries(PRODUCT)) put(k, type, k.slice(2), own[k] ?? value)
   /* Роли, на которых правило мерит кнопку, отметку и поле: замыкание ссылок от
@@ -139,7 +143,7 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, look, s
      плашка (кромка и заливка поля, И390). */
   const refs = (v) => [...String(v).matchAll(/var\((--[\w-]+)\)/g)].map((m) => m[1])
   const queue = ['--page', '--plate', '--surface', '--ink', '--ink-soft', '--plate-quiet', '--quiet', '--pop', '--on-pop', '--pop-ink', '--rule',
-    ...Object.values(slots).filter((s) => ['button', 'marker', 'field', 'shadow'].includes(s.group)).flatMap((s) => refs(s.value))]
+    ...Object.values(slots).filter((s) => ['button', 'marker', 'field', 'tick', 'shadow'].includes(s.group)).flatMap((s) => refs(s.value))]
   const roles = {}
   while (queue.length) {
     const name = queue.shift()
@@ -187,7 +191,7 @@ export function lookStyles(site, raw) {
     scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
     /* Роли тени — своим блоком на списке полов (И385): на палубе и листе
        геометрия вида пересчитывается из их ингредиентов. */
-    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, вид поля ввода, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', 'marker', 'field', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, вид поля ввода и галочки, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', 'marker', 'field', 'tick', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
       `${FLOORS}{\n${decls('shadow')}\n}\n` +
       (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
   }

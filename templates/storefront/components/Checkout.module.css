@@ -94,12 +94,15 @@
   border-radius:var(--r-card);box-shadow:inset 0 0 0 var(--line-w) var(--edge);
   outline:var(--line-w) solid transparent;outline-offset:calc(var(--line-w) * -1)
 }
-.option:has(input:checked){box-shadow:inset 0 0 0 var(--ring-w) var(--pop)}
+/* Выбранный способ — кольцо той же краской, что отмеченная точка радио
+   (`--ctrl-tick-fill`, И392): одно «выбрано» на всю кассу, и оно держит
+   3 : 1 к полу, а заливка марки на пяти образцах из семи — нет. */
+.option:has(input:checked){box-shadow:inset 0 0 0 var(--ring-w) var(--ctrl-tick-fill, var(--pop-ink))}
 .option:has(input:disabled){cursor:not-allowed}
 .option:has(input:disabled) .optionName{opacity:var(--state-off)}
 .option input{
   flex:none;margin:0;inline-size:calc(var(--ctrl-h) * .45);block-size:calc(var(--ctrl-h) * .45);
-  margin-block-start:calc((1lh - var(--ctrl-h) * .45) / 2);accent-color:var(--pop)
+  margin-block-start:calc((1lh - var(--ctrl-h) * .45) / 2)
 }
 .optionBody{display:grid;gap:var(--sp-1);min-inline-size:0;flex:1}
 .optionHead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--gap-row)}

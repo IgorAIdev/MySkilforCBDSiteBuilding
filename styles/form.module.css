@@ -87,8 +87,9 @@ textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--c
 .say[data-state='error']{color:var(--bad)}
 
 /* Галочка и радио — браузерные нарочно: клавиатура, чтец, промежуточное
-   состояние. Сайт даёт им цвет (`accent-color`), рамку (`base.css`, одна
-   строка на все места) и цель нажатия — всю строку с подписью. */
+   состояние. Сайт даёт им цвет отмеченного и рамку (`base.css`, одна
+   строка на все места; цвет — роль вида, И392) и цель нажатия — всю строку
+   с подписью. */
 .tick{
   display:flex;align-items:center;gap:calc(var(--ctrl-h) * .25);
   min-block-size:var(--ctrl-target);
@@ -96,7 +97,6 @@ textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--c
 }
 .tick input{
   flex:none;margin:0;
-  inline-size:calc(var(--ctrl-h) * .45);block-size:calc(var(--ctrl-h) * .45);
-  accent-color:var(--pop)
+  inline-size:calc(var(--ctrl-h) * .45);block-size:calc(var(--ctrl-h) * .45)
 }
 .tick:has(input:disabled){opacity:var(--state-off);cursor:not-allowed}

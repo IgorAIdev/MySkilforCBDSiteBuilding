@@ -18,11 +18,11 @@ import type { Look, LookFont } from './source/contract.ts'
 
 export type SlotType = 'colour' | 'length' | 'number' | 'keyword' | 'shadow' | 'transform' | 'font'
 /** Что выбирается вместе: набор цвета, набор ритма, ширина холста, углы,
- *  тени, шрифт, стиль кнопок, вид поля ввода, отметка текущего пункта меню; ручки карты
+ *  тени, шрифт, стиль кнопок, вид поля ввода и галочки, отметка текущего пункта меню; ручки карты
  *  товара — доля ряда под галерею, место миниатюр, край снимка (И278); ручки
  *  товара на полке и карте — пропорция снимка, плотность полки и место
  *  кнопки «в корзину» на карточке (И400). */
-export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker' | 'field' | 'pdp-gallery' | 'pdp-thumbs' | 'pdp-edge' | 'shot-frame' | 'shelf-cols' | 'card-buy'
+export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker' | 'field' | 'tick' | 'pdp-gallery' | 'pdp-thumbs' | 'pdp-edge' | 'shot-frame' | 'shelf-cols' | 'card-buy'
 /** Свойство вида: род значения, группа и умолчание стилей сайта. */
 export type Slot = { type: SlotType; group: Group; value: string }
 export type Slots = Readonly<Record<string, Slot>>
@@ -106,7 +106,7 @@ const FONT_URL = /^\/fonts\/[a-z0-9-]{1,80}\.woff2$/
 const WEIGHT = /^[1-9]00( [1-9]00)?$/
 const RANGE = /^U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?(, ?U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?)*$/
 const LABEL = /^[\p{L}\p{N} .+-]{1,60}$/u
-const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'field', 'header', 'card', 'home', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy'])
+const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'field', 'tick', 'header', 'card', 'home', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy'])
 /** Оси кнопки — поля `btn-<ось>`: каталог кнопки растёт осями данными (И273). */
 const AXIS = /^btn-[a-z0-9-]{1,30}$/
 

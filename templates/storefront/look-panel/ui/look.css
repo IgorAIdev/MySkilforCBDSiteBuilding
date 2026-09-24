@@ -177,6 +177,8 @@
 /* Образец вида поля: полоска поля ввода, кромка вокруг или чертой снизу. */
 .lp-field{display:block;inline-size:36px;block-size:16px;border:1px solid;border-radius:min(var(--r-ctrl, 8px), 6px)}
 .lp-field[data-side='0']{border-width:0 0 1px;border-end-start-radius:0;border-end-end-radius:0}
+/* Образец галочки: отмеченный квадрат краской варианта. */
+.lp-tick{display:block;inline-size:14px;block-size:14px;border-radius:3px}
 /* Образец формы главной кнопки: заливка марки, вырез той же формулой. */
 .lp-shape-sample{position:relative;display:inline-block;inline-size:44px;block-size:18px}
 .lp-shaped,.lp-echo{position:absolute;inset:0}

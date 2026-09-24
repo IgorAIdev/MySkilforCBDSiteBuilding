@@ -1071,6 +1071,11 @@
       "group": "field",
       "value": "1"
     },
+    "--ctrl-tick-fill": {
+      "type": "colour",
+      "group": "tick",
+      "value": "var(--pop-ink)"
+    },
     "--pdp-gallery": {
       "type": "length",
       "group": "pdp-gallery",

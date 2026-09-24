@@ -121,6 +121,15 @@ export const FIELD_LOOKS = [
   { id: 'outline', name: 'Outline', line: 'The card surface inside a darker full edge (element 43)', vars: { '--ctrl-field-fill': 'var(--surface)', '--ctrl-field-edge': 'var(--ink-soft)', '--ctrl-field-side': '1' } },
   { id: 'tone', name: 'Tone', line: 'A tone fill with one line underneath, no box (element 41)', vars: { '--ctrl-field-fill': 'var(--plate-quiet)', '--ctrl-field-edge': 'var(--ink-soft)', '--ctrl-field-side': '0' } },
 ]
+/** Краска отмеченной галочки и радио (И392): одна на весь сайт — фильтры
+ *  полки, касса, формы (styles/base.css, `accent-color`). Сами органы
+ *  браузерные; галку на заливке браузер красит под контраст. Марка — краской
+ *  марки для текста: заливка марки на пяти образцах из семи тонет в полу
+ *  (до 2.21 : 1), а квадрат опознаётся только заливкой (замер 25.09.2026). */
+export const TICKS = [
+  { id: 'brand', name: 'Brand', line: 'Ticked boxes and radios in the brand colour', vars: { '--ctrl-tick-fill': 'var(--pop-ink)' } },
+  { id: 'ink', name: 'Ink', line: 'Ticked boxes and radios in ink (element 60)', vars: { '--ctrl-tick-fill': 'var(--ink)' } },
+]
 /** Карточки товара: id — CARDS в lib/cards.ts. Каждая — простая карточка
  *  полки (shop: «Полная полка на десктопе держит 4–5 простых карточек по
  *  260–325px»), вариант — одежда одной раскладки (craft: «Вид меняет
@@ -276,6 +285,7 @@ export async function buildCatalog({ site, kit }) {
     ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
+    tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
     ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
     card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),

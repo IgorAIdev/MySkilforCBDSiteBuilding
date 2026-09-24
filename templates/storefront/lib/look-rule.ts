@@ -29,9 +29,9 @@ export type Problem = { groups: readonly [Group, Group]; why: string; roles?: re
 export type Fell = { group: Group; why: string }
 
 /** Старшинство: уступает младшая группа — ручки полки и карты товара раньше
- *  стиля кнопок, стиль кнопок раньше вида поля, вид поля раньше отметки
- *  пункта меню, шрифта, теней, углов, ширины, ритма и цвета. */
-export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'field', 'button', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy']
+ *  стиля кнопок, стиль кнопок раньше краски галочки, галочка раньше
+ *  вида поля, вид поля раньше отметки пункта меню, шрифта, теней, углов, ширины, ритма и цвета. */
+export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'field', 'tick', 'button', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy']
 
 type Rgba = readonly [number, number, number, number]
 const THEMES = ['light', 'dark'] as const
@@ -170,6 +170,13 @@ export function problems(vars: Readonly<Record<string, string>>, fonts: readonly
         if (!ink) continue
         const t = contrast(over(ink, under), under)
         if (t < need.text) add('field', 'palette', `the field's ${what} is too faint on its fill on the ${where}: ${say(t, need.text)}`, ['--ctrl-field-fill'])
+      }
+      /* Отмеченная галочка и радио (И392): заливка отмеченного — 3 : 1 к
+         полу (WCAG 1.4.11); галку на ней браузер красит сам под контраст. */
+      const tick = get('--ctrl-tick-fill')
+      if (tick && tick[3] > 0) {
+        const r = contrast(over(tick, floor), floor)
+        if (r < need.control) add('tick', 'palette', `a ticked box fades into the ${where}: ${say(r, need.control)}`, ['--ctrl-tick-fill'])
       }
     }
   }

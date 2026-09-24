@@ -102,7 +102,14 @@
   var hexOf = function (v) { v = v.trim(); return HEX.test(v) ? (v[0] === '#' ? v : '#' + v).toUpperCase() : null }
 
   function build(catalog, choice, state) {
-    document.head.appendChild(el('link', { rel: 'stylesheet', href: new URL('look.css', base).href }))
+    /* Стили панели страница ставит сама, до первой отрисовки (Shell.tsx):
+       в них резерв нижней полосы `--dock`, и пришедший со скриптом он
+       сдвигал бы готовую страницу — галерея товара сжималась на рост
+       полосы после показа (25.09.2026). Здесь — только если страница их не
+       поставила. */
+    var sheet = new URL('look.css', base).href
+    var have = [].some.call(document.querySelectorAll('link[rel="stylesheet"]'), function (l) { return l.href === sheet })
+    if (!have) document.head.appendChild(el('link', { rel: 'stylesheet', href: sheet }))
     /* Шрифты-кандидаты — только в предпросмотре панели: образцы шрифтов
        набраны своим шрифтом. Опубликованный вид несёт свой шрифт с адреса
        сайта, к Google страница покупателя не ходит. */
@@ -195,6 +202,8 @@
         var ff = fv['--ctrl-field-fill'] || 'transparent'
         return el('span', { class: 'lp-field', 'data-side': fv['--ctrl-field-side'], style: 'background:linear-gradient(' + ff + ',' + ff + '),var(--page, #fff);border-color:' + (fv['--ctrl-field-edge'] || 'currentColor'), 'aria-hidden': 'true' })
       }
+      /* Галочка (И392): отмеченный квадрат краской варианта. */
+      if (field === 'tick') return el('i', { class: 'lp-tick', style: 'background:' + o.vars['--ctrl-tick-fill'], 'aria-hidden': 'true' })
       if (field === 'corners') { var r = Math.round(parseFloat(o.vars['--r-card']) / 3) + 'px'; return el('i', { class: 'lp-shape', style: 'border-radius:' + r + ' ' + r + ' 0 0', 'aria-hidden': 'true' }) }
       /* Карта товара: доля ряда — полоса с долей галереи; пропорция — кадр;
          миниатюры — кадр с рядом под ним, полосой сбоку или точками. */
