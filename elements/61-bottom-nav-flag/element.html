@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>61 · Нижнее меню с закладкой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 61 — «Нижнее меню с закладкой». Источник — скриншот от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»: «нижнее меню и подтверждение выбора посмотри — удачное» (source.png).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: полоса «домой» телефона и карточка товара под меню — обёртка показа; тень листа — волосок по верхней кромке.
+  Приведено к единой форме: лист пола со скруглённым верхом; пункты во всю ширину: знак над словом, невыбранные — краской подписи; выбранный — чернилами и полужирным; закладка чернил с вырезом «ласточкин хвост» висит с кромки над ним; пункты — радио: выбор держит браузер, стрелки ходят без скрипта; значки из листа набора: магазин (лист), корзина, предложения (звезда), избранное, кабинет — дома и знака скидки в листе нет.
+  Наведение: подложка 5 % чернил. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="tabs" data-dock data-pick="flag" role="radiogroup" aria-label="Main menu"><label class="el"><input type="radio" name="dock" checked><svg data-sign="leaf"></svg>Shop</label><label class="el"><input type="radio" name="dock"><svg data-sign="shopping-cart"></svg>Cart</label><label class="el"><input type="radio" name="dock"><svg data-sign="star"></svg>Offers</label><label class="el"><input type="radio" name="dock"><svg data-sign="heart"></svg>Saved</label><label class="el"><input type="radio" name="dock"><svg data-sign="user"></svg>Account</label></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tabs" data-dock data-pick="flag"><span class="el" data-on><svg data-sign="leaf"></svg>Shop</span><span class="el"><svg data-sign="shopping-cart"></svg>Cart</span><span class="el"><svg data-sign="star"></svg>Offers</span><span class="el"><svg data-sign="heart"></svg>Saved</span><span class="el"><svg data-sign="user"></svg>Account</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tabs" data-dock data-pick="flag"><span class="el" data-on><svg data-sign="leaf"></svg>Shop</span><span class="el" data-state="hover"><svg data-sign="shopping-cart"></svg>Cart</span><span class="el"><svg data-sign="star"></svg>Offers</span><span class="el"><svg data-sign="heart"></svg>Saved</span><span class="el"><svg data-sign="user"></svg>Account</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tabs" data-dock data-pick="flag"><span class="el" data-on><svg data-sign="leaf"></svg>Shop</span><span class="el" data-state="press"><svg data-sign="shopping-cart"></svg>Cart</span><span class="el"><svg data-sign="star"></svg>Offers</span><span class="el"><svg data-sign="heart"></svg>Saved</span><span class="el"><svg data-sign="user"></svg>Account</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tabs" data-dock data-pick="flag"><span class="el" data-on><svg data-sign="leaf"></svg>Shop</span><span class="el" data-state="focus"><svg data-sign="shopping-cart"></svg>Cart</span><span class="el"><svg data-sign="star"></svg>Offers</span><span class="el"><svg data-sign="heart"></svg>Saved</span><span class="el"><svg data-sign="user"></svg>Account</span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

@@ -17,7 +17,7 @@
  *    нажатие     9 %, 0.97 и на пиксель ниже                 (--state-press)
  *
  *  Атрибуты элемента — всё, чем элементы отличаются:
- *    data-voice  quiet | loud | ink | ghost | bare | line
+ *    data-voice  quiet | loud | ink | ghost | bare | line | paper
  *                                       заливка: тон, марка, чернила; без фона — подложка под рукой,
  *                                       без фона — краска под рукой, контур
  *    data-hover  loud                   под рукой встаёт в голос марки (переворот — сразу)
@@ -61,6 +61,8 @@
  *    aria-disabled | data-state off     выключенный орган: прозрачность --state-off
  *    .split .options .link .tick        формы: два поля в строку · способы оплаты · ссылка строкой · флажок
  *    .cost .ticks · .mark data-size lg  цена крупно · список с галкой · знак марки крупно
+ *    data-spread                        слово у начала, знак у конца
+ *    .card data-tone tint               лист тоном товара; .frame data-cutout — снимок без фона до кромки
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -104,6 +106,10 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .el[data-voice='ink']{--bg:var(--ink);--fg:var(--surface)}
 .el:is([data-voice='ghost'], [data-voice='bare']){--bg:transparent}
 .el[data-voice='line']{--bg:transparent;box-shadow:inset 0 0 0 var(--line) var(--edge)}
+/* Пол страницы — орган на тонированном листе: светлая пилюля на тоне. */
+.el[data-voice='paper']{--bg:var(--surface)}
+/* Слово у начала, знак у конца — пилюля во всю ширину листа. */
+.el[data-spread]{justify-content:space-between}
 .el[data-fill='gradient']{--img:linear-gradient(30deg, var(--pop-press), var(--pop))}
 .el[data-frame]{box-shadow:0 0 0 var(--frame-w) var(--pop-tint)}
 .el[data-case='caps']{text-transform:uppercase;letter-spacing:var(--caps)}
@@ -131,6 +137,9 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .el:has(> .lead){padding-inline:calc(var(--h) * .125) calc(var(--h) * .45)}
 .el .ring{box-shadow:inset 0 0 0 var(--line) currentColor}
 .el .tile{background:var(--fg);color:var(--bg)}
+/* Тон полупрозрачен (8 % чернил): знак краской тона на плитке чернил пропал
+   бы. У тона, без фона и контура знак в плитке — краской пола. */
+.el:is(:not([data-voice]), [data-voice='ghost'], [data-voice='bare'], [data-voice='line']) .tile{color:var(--surface)}
 
 /* Черта перед словом — краской надписи, толщиной линии. */
 .el .dash{inline-size:calc(var(--h) * .6);block-size:var(--line);background:currentColor;flex:none}
@@ -512,7 +521,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    пунктам без скрипта. Выбранный — `:has(> input:checked)`, застывшим —
    `data-on`; фокус — кольцо у пункта. Как отмечен выбранный — `data-pick`
    группы: плашка пола (по умолчанию), tone — тон, tint — тон марки, ink —
-   заливка чернил, mark —
+   заливка чернил, flag — закладка с кромки (у нижнего меню data-dock), mark —
    знак краской марки в ячейке с волоском, sheet — лист, сливающийся с
    панелью под ним. Переезд плашки у источников снят: плашка встаёт на
    место, а не едет (И338). */
@@ -529,6 +538,17 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .tabs[data-pick='tone'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--quiet)}
 .tabs[data-pick='tint'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--pop-tint);--fg:var(--pop-ink)}
 .tabs[data-pick='ink'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--ink);--fg:var(--surface)}
+/* Нижнее меню телефона (data-dock): лист пола со скруглённым верхом и
+   волоском по верхней кромке; пункты во всю ширину — знак над словом,
+   невыбранные — краской подписи, выбранный — чернилами. */
+.tabs[data-dock]{display:flex;inline-size:100%;gap:0;padding:0 calc(var(--h-md) * .1);border-radius:var(--r-sheet, 20px) var(--r-sheet, 20px) 0 0;background:var(--surface);box-shadow:inset 0 var(--line) 0 var(--rule)}
+.tabs[data-dock] > .el{--fg:var(--ink-soft);flex:1 1 0;flex-direction:column;gap:2px;block-size:auto;min-inline-size:0;padding:calc(var(--h-md) * .5) 0 calc(var(--h-md) * .2);font-size:var(--note-size, .875rem);font-weight:500}
+.tabs[data-dock] > .el svg{inline-size:calc(var(--h-md) * .55);block-size:calc(var(--h-md) * .55)}
+.tabs[data-dock] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--ink);font-weight:600}
+/* Закладка (data-pick flag): лента краской чернил с вырезом «ласточкин
+   хвост» висит с верхней кромки над выбранным пунктом. */
+.tabs[data-pick='flag'] > .el::before{content:'';position:absolute;inset-block-start:0;inset-inline-start:50%;translate:-50% 0;inline-size:calc(var(--h-md) * .45);block-size:calc(var(--h-md) * .38);background:var(--ink);clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 70%, 0 100%);opacity:0}
+.tabs[data-pick='flag'] > .el:is(:has(> input:checked), [data-on])::before{opacity:1}
 .tabs[data-pick='mark'] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--pop-ink);box-shadow:inset 0 0 0 var(--line) var(--rule)}
 /* Встык: сегменты без подложки, каждый в волоске края, угол — у крайних;
    выбранный — тон марки в кромке марки. Нажатый не сжимается — встык он
@@ -580,6 +600,17 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    главное первым. */
 .card .stack[data-align='center']{align-items:center;text-align:center}
 .card[data-form] .entry{inline-size:100%}
+/* Карточка на тоне товара: лист — тон (у магазина — тон товара из его
+   данных через строитель палитры, на образце — тон марки), скругление листа;
+   фишка категории — на полу; название крупно; снимок без фона уходит к
+   правой кромке; внизу — пилюля пола с ценой и кругом корзины (тот же орган,
+   что «Shop now» у 02). */
+.card[data-tone='tint']{background:var(--pop-tint);box-shadow:none;border-radius:var(--r-sheet, 20px)}
+.card > .tag{align-self:flex-start}
+.card[data-tone='tint'] .tag{background:var(--surface);color:var(--ink)}
+.card .title[data-size='lg']{font-size:var(--h2-size, 1.75rem);line-height:var(--h2-lead, 1.15)}
+.card .frame[data-cutout]{background:transparent;margin-inline-end:calc(var(--pad-card, 1.25rem) * -1);border-start-end-radius:0;border-end-end-radius:0}
+.card .frame[data-cutout] svg{inline-size:5rem;block-size:5rem}
 /* Строка сноской по центру или у конца: «нет учётной записи? создать»,
    «забыли пароль?». Ссылка в ней — краской марки, подчёркнута всегда (И289). */
 .card p[data-align='center']{text-align:center}
@@ -649,6 +680,9 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
 .live:has(.card[data-layout='row']){inline-size:min(360px, 100% - 32px)}
 .states figure:has(> .card){inline-size:min(320px, 100%)}
 .states figure:has(> .card[data-layout='row']){inline-size:min(360px, 100%)}
+/* Нижнее меню на стенде — ширина телефона, как у живого. */
+.states figure:has(> .tabs[data-dock]){inline-size:min(360px, 100%)}
+.live:has(> .tabs[data-dock]){inline-size:min(360px, 100% - 32px)}
 /* Несколько вариантов элемента рядом — сетка стенда. */
 .forms{display:grid;grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr));gap:24px;align-items:start;inline-size:100%}
 .live:has(> .forms){inline-size:min(1000px, 100% - 32px)}
