@@ -136,6 +136,9 @@ export type CommerceError =
   | 'changed'
   /** Корзина пуста, а заказ этой сессии поставлен недавно — второе нажатие. */
   | 'placed'
+  /** Источник заказов не ставит: витрина подключена к действующему магазину
+   *  для показа (у Vendure — без `VENDURE_PLACE_ORDERS=on`). */
+  | 'orders-off'
 /** Запись. `added` — только у частичного успеха: сколько на самом деле в
  *  строке после записи, когда просили больше, чем есть на складе. */
 export type Change<T> = { ok: true; value: T; added?: number } | { ok: false; error: CommerceError }

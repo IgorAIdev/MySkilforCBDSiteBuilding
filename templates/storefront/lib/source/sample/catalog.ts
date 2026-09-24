@@ -1,8 +1,9 @@
 import type { Lang } from '../../locale.ts'
-import type { Card, Collection, Facet, Listing, Product, Result, SortKey, Source, Stock } from '../contract.ts'
+import type { Card, Collection, Facet, Listing, Product, Result, SortKey, Source } from '../contract.ts'
 import { CATEGORIES, FACETS, LAB_REPORTS, PRODUCTS, type SampleProduct } from '../../products.ts'
 import { facetValueFilters, pageVariables, pageCount } from '../vendure/core/search.mjs'
 import { MARKET } from '../../market.ts'
+import { overallStock } from '../stock.ts'
 import { percentOf } from '../../facts.ts'
 import { categoryArt, productArt, productImages, type ArtView } from './art.ts'
 
@@ -17,7 +18,6 @@ type Paging = { ok: true; page: number; take: number; skip: number } | { ok: fal
 const PAGE = 24
 const ok = <T,>(value: T): Result<T> => ({ ok: true, value })
 const money = (minor: number) => ({ minor, currency: MARKET.currency })
-const overall = (stocks: Stock[]): Stock => (stocks.every((s) => s === 'out') ? 'out' : stocks.some((s) => s === 'in') ? 'in' : 'low')
 const image = (p: SampleProduct, lang: Lang) => ({ src: productArt(p.cat, p.hue, p.label), alt: p.name[lang], width: 800, height: 800 })
 /* Подпись снимка — имя товара и что на снимке; у главного — одно имя. Это
    данные образца: настоящие снимки приходят из админки с готовым `alt`. */
@@ -42,7 +42,7 @@ function card(p: SampleProduct, lang: Lang): Card {
     price: min === max ? { kind: 'single', value: money(min) } : { kind: 'range', min: money(min), max: money(max) },
     was: min === max && p.variants.length === 1 && p.variants[0].was ? money(p.variants[0].was) : null,
     variant: p.variants.length === 1 ? p.variants[0].id : null,
-    stock: overall(p.variants.map((v) => v.stock)),
+    stock: overallStock(p.variants.map((v) => v.stock)),
     strength: p.strength, packs: p.variants.map((v) => v.pack),
   }
 }

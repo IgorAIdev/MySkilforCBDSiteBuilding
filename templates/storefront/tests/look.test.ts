@@ -68,7 +68,8 @@ test('look: the header and the product card draw each variant the site keeps; th
   for (const c of CARDS) assert.match(card, new RegExp(`\[data-card='${c}'\]`), c)
   assert.match(read('components/ProductCard.tsx'), /data-card=\{variant\}/)
   const route = read('app/api/revalidate/route.ts')
-  assert.match(route, /const TAGS = \['look'\] as const/)
+  /* Теги — закрытый список: вид и каталог движка (SOURCE=vendure); чужое слово ничего не сбрасывает. */
+  assert.match(route, /const TAGS = \['look', 'catalog'\] as const/)
   assert.match(route, /REVALIDATE_SECRET/)
   /* `expire: 0` стирает запись статической страницы языка, и при
      `dynamicParams = false` Next отвечает «не найдено» (И270). */

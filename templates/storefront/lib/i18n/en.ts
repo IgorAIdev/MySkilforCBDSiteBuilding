@@ -188,6 +188,7 @@ export const EN: Record<keyof typeof RO, string> = {
   'payment.title': 'How you pay',
   'payment.missing': 'Choose a payment method.',
   'payment.declined': 'The payment was not accepted — choose another method.',
+  'payment.ordersOff': 'This shop does not take orders yet: the catalogue is connected for viewing, and placing orders is switched off.',
   'payment.changed': 'Your order total has changed — check it again before placing the order.',
   'payment.ineligible': 'This payment method is not available for this order — choose another.',
   'order.review': 'Review your order',

@@ -9,7 +9,7 @@ import { revalidateTag } from 'next/cache'
    у языков `dynamicParams = false` (app/[lang]/layout.tsx) — и Next,
    не найдя записи, отвечает «не найдено» вместо пересчёта (NoFallbackError,
    поймано на `next start` 24.09.2026; И270). */
-const TAGS = ['look'] as const
+const TAGS = ['look', 'catalog'] as const
 
 const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b))
 

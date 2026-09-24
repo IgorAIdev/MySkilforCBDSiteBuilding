@@ -16,6 +16,7 @@ const MESSAGE: Partial<Record<CommerceError, Key>> = {
   'out-of-stock': 'cart.error.outOfStock',
   'payment-ineligible': 'payment.ineligible',
   'payment-declined': 'payment.declined',
+  'orders-off': 'payment.ordersOff',
 }
 
 function langFrom(raw: string): Lang {
