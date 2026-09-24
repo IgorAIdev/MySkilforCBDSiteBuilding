@@ -186,4 +186,7 @@ export const EN: Record<keyof typeof RO, string> = {
   'done.more': 'Continue shopping',
   'lab.open': 'Open the lab report',
   'home.delivery.terms': 'All delivery and payment terms',
+  'shelf.remove': 'Remove filter {name}',
+  'shelf.popular': 'Best sellers',
+  'shelf.pcs': 'pcs',
 }

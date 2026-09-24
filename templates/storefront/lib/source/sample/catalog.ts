@@ -3,13 +3,18 @@ import type { Card, Collection, Facet, Listing, Product, Result, SortKey, Source
 import { CATEGORIES, FACETS, LAB_REPORTS, PRODUCTS, type SampleProduct } from '../../products.ts'
 import { facetValueFilters, pageVariables, pageCount } from '../vendure/core/search.mjs'
 import { MARKET } from '../../market.ts'
+import { percentOf } from '../../facts.ts'
 import { categoryArt, productArt, productImages, type ArtView } from './art.ts'
 
 /* Помощники набора — JavaScript; тип их ответа записан здесь один раз. */
 type Filter = { and: string } | { or: string[] }
 type Paging = { ok: true; page: number; take: number; skip: number } | { ok: false }
 
-const PAGE = 8
+/* Страница полки — 24 товара, как у стандартной темы Shopify: двенадцать
+   товаров образца стояли двумя страницами по восемь, и полка читалась
+   обрывком (разбор 24.09.2026, C4). Двадцать четыре делятся на две, три и
+   четыре колонки — последний ряд страницы полный на любой ширине. */
+const PAGE = 24
 const ok = <T,>(value: T): Result<T> => ({ ok: true, value })
 const money = (minor: number) => ({ minor, currency: MARKET.currency })
 const overall = (stocks: Stock[]): Stock => (stocks.every((s) => s === 'out') ? 'out' : stocks.some((s) => s === 'in') ? 'in' : 'low')
@@ -36,14 +41,24 @@ function card(p: SampleProduct, lang: Lang): Card {
     id: p.id, category: p.cat, name: p.name[lang], image: image(p, lang),
     price: min === max ? { kind: 'single', value: money(min) } : { kind: 'range', min: money(min), max: money(max) },
     stock: overall(p.variants.map((v) => v.stock)),
+    strength: p.strength, packs: p.variants.map((v) => v.pack),
   }
+}
+
+/* Грани товара. Форма набрана в данных; концентрация выводится из упаковок
+   той же функцией, что печатает её на карточке (`percentOf`), — и только у
+   того, что продаётся концентрацией. Набранная рукой, она расходилась с
+   этикеткой (products.ts, `SampleProduct`). */
+const facetsOf = (p: SampleProduct): Record<string, string[]> => {
+  const putere = p.strength === 'percent' ? [...new Set(p.variants.map((v) => percentOf(v.pack)).filter((x) => x !== null))].map(String) : []
+  return putere.length ? { ...p.facets, putere } : p.facets
 }
 
 /* Словарь «код → id» — как у адаптера Vendure; в образце id — это «грань:значение». */
 const DICTIONARY = Object.fromEntries(FACETS.map((f) => [f.code, Object.fromEntries(f.values.map((v) => [v.code, `${f.code}:${v.code}`]))]))
 const carries = (p: SampleProduct, id: string) => {
   const [facet, value] = id.split(':')
-  return (p.facets[facet] ?? []).includes(value)
+  return (facetsOf(p)[facet] ?? []).includes(value)
 }
 const matches = (p: SampleProduct, filters: Filter[]) =>
   filters.every((f) => ('and' in f ? carries(p, f.and) : f.or.some((id) => carries(p, id))))
@@ -59,64 +74,78 @@ const collection = (c: (typeof CATEGORIES)[number], lang: Lang): Collection => (
   image: { src: categoryArt(c.slug), alt: c.name[lang], width: 800, height: 600 },
 })
 
-export const sample: Source = {
-  async collections(lang) {
-    return ok(CATEGORIES.map((c) => collection(c, lang)))
-  },
-  async collection(lang, slug) {
-    const c = CATEGORIES.find((x) => x.slug === slug)
-    return c ? ok(collection(c, lang)) : { ok: false, reason: 'not-found' }
-  },
-  async listing(lang, query) {
-    const paging = pageVariables({ page: query.page ?? undefined }, { pageSize: PAGE }) as Paging
-    if (!paging.ok) return { ok: false, reason: 'bad-request' }
-    const { filters, invalid } = facetValueFilters(query.facets, DICTIONARY) as unknown as { filters: Filter[]; invalid: string[] }
-    const words = (query.q ?? '').trim().toLocaleLowerCase(lang)
-    const found = PRODUCTS
-      .filter((p) => (!query.category || p.cat === query.category) && (!words || p.name[lang].toLocaleLowerCase(lang).includes(words)))
-      .filter((p) => matches(p, filters))
-      .sort(ORDER[query.sort])
-    const pages = pageCount(found.length, PAGE) as number
-    if (paging.page > pages) return { ok: false, reason: 'not-found' }
-    const facets: Facet[] = FACETS.map((f) => ({
-      code: f.code, name: f.name[lang],
-      values: f.values.map((v) => ({
-        code: v.code, name: v.name[lang],
-        count: found.filter((p) => (p.facets[f.code] ?? []).includes(v.code)).length,
-        selected: (query.facets[f.code] ?? []).includes(v.code),
-      })),
-    }))
-    const listing: Listing = { items: found.slice(paging.skip, paging.skip + paging.take).map((p) => card(p, lang)), total: found.length, page: paging.page, pages, facets, invalid }
-    return ok(listing)
-  },
-  async cards(lang, ids) {
-    return ok(ids.flatMap((id) => {
+type Filtered = { filters: Filter[]; invalid: string[] }
+const filtersOf = (facets: Record<string, string[]>) => facetValueFilters(facets, DICTIONARY) as unknown as Filtered
+const without = (facets: Record<string, string[]>, code: string) => Object.fromEntries(Object.entries(facets).filter(([k]) => k !== code))
+
+/** Образец торговли. Размер страницы — ручкой: полка образца держит одну
+ *  страницу, а листание проверяется тестом на странице поменьше. */
+export function sampleSource(pageSize = PAGE): Source {
+  return {
+    async collections(lang) {
+      return ok(CATEGORIES.map((c) => collection(c, lang)))
+    },
+    async collection(lang, slug) {
+      const c = CATEGORIES.find((x) => x.slug === slug)
+      return c ? ok(collection(c, lang)) : { ok: false, reason: 'not-found' }
+    },
+    async listing(lang, query) {
+      const paging = pageVariables({ page: query.page ?? undefined }, { pageSize }) as Paging
+      if (!paging.ok) return { ok: false, reason: 'bad-request' }
+      const { filters, invalid } = filtersOf(query.facets)
+      const words = (query.q ?? '').trim().toLocaleLowerCase(lang)
+      const pool = PRODUCTS.filter((p) => (!query.category || p.cat === query.category) && (!words || p.name[lang].toLocaleLowerCase(lang).includes(words)))
+      const found = pool.filter((p) => matches(p, filters)).sort(ORDER[query.sort])
+      const pages = pageCount(found.length, pageSize) as number
+      if (paging.page > pages) return { ok: false, reason: 'not-found' }
+      /* Счёт значения — против всех граней, КРОМЕ своей (cbd-facet, §3): «Масло»
+         выбрано — «Капсулы» считаются так, будто формы не выбирали, и остаются
+         выбором «или», а не нулём. */
+      const facets: Facet[] = FACETS.map((f) => {
+        const others = pool.filter((p) => matches(p, filtersOf(without(query.facets, f.code)).filters))
+        return {
+          code: f.code, name: f.name[lang],
+          values: f.values.map((v) => ({
+            code: v.code, name: v.name[lang],
+            count: others.filter((p) => (facetsOf(p)[f.code] ?? []).includes(v.code)).length,
+            selected: (query.facets[f.code] ?? []).includes(v.code),
+          })),
+        }
+      })
+      const listing: Listing = { items: found.slice(paging.skip, paging.skip + paging.take).map((p) => card(p, lang)), total: found.length, page: paging.page, pages, facets, invalid }
+      return ok(listing)
+    },
+    async cards(lang, ids) {
+      return ok(ids.flatMap((id) => {
+        const p = PRODUCTS.find((x) => x.id === id)
+        return p ? [card(p, lang)] : []
+      }))
+    },
+    async product(lang, id) {
       const p = PRODUCTS.find((x) => x.id === id)
-      return p ? [card(p, lang)] : []
-    }))
-  },
-  async product(lang, id) {
-    const p = PRODUCTS.find((x) => x.id === id)
-    if (!p) return { ok: false, reason: 'not-found' }
-    const batches = [...new Set(p.variants.map((v) => v.batch))].filter((b) => LAB_REPORTS[b])
-    const product: Product = {
-      id: p.id, category: p.cat, name: p.name[lang], summary: p.summary[lang], description: p.description[lang],
-      images: images(p, lang),
-      optionGroups: p.groups.map((g) => ({ code: g.code, name: g.name[lang], options: g.options.map((o) => ({ code: o.code, name: o.name[lang] })) })),
-      variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), was: v.was ? money(v.was) : null, stock: v.stock, options: v.options, batch: v.batch })),
-      labReports: batches.map((b) => {
-        const r = LAB_REPORTS[b]
-        return { batch: b, lab: r.lab, date: r.date, cbdPercent: r.cbdPercent, thcPercent: r.thcPercent, url: `#lab-${b}` }
-      }),
-    }
-    return ok(product)
-  },
-  async related(lang, id, limit) {
-    const p = PRODUCTS.find((x) => x.id === id)
-    if (!p) return { ok: false, reason: 'not-found' }
-    return ok(PRODUCTS.filter((x) => x.cat === p.cat && x.id !== id).slice(0, limit).map((x) => card(x, lang)))
-  },
-  async productIds() {
-    return ok(PRODUCTS.map((p) => p.id))
-  },
+      if (!p) return { ok: false, reason: 'not-found' }
+      const batches = [...new Set(p.variants.map((v) => v.batch))].filter((b) => LAB_REPORTS[b])
+      const product: Product = {
+        id: p.id, category: p.cat, name: p.name[lang], summary: p.summary[lang], description: p.description[lang],
+        images: images(p, lang),
+        optionGroups: p.groups.map((g) => ({ code: g.code, name: g.name[lang], options: g.options.map((o) => ({ code: o.code, name: o.name[lang] })) })),
+        variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), was: v.was ? money(v.was) : null, stock: v.stock, options: v.options, batch: v.batch })),
+        labReports: batches.map((b) => {
+          const r = LAB_REPORTS[b]
+          return { batch: b, lab: r.lab, date: r.date, cbdPercent: r.cbdPercent, thcPercent: r.thcPercent, url: `#lab-${b}` }
+        }),
+      }
+      return ok(product)
+    },
+    async related(lang, id, limit) {
+      const p = PRODUCTS.find((x) => x.id === id)
+      if (!p) return { ok: false, reason: 'not-found' }
+      return ok(PRODUCTS.filter((x) => x.cat === p.cat && x.id !== id).slice(0, limit).map((x) => card(x, lang)))
+    },
+    async productIds() {
+      return ok(PRODUCTS.map((p) => p.id))
+    },
+  }
 }
+
+export const sample: Source = sampleSource()

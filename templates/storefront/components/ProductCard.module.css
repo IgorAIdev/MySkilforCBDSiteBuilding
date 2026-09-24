@@ -3,52 +3,102 @@
    второй ссылкой, скрытой от чтения, — и был органом без имени (check:craft,
    name). */
 /* Карточки ряда — одной высоты (ячейка сетки тянет, карточка берёт её
-   всю), и цена с наличием стоят у всех на одной линии: растёт имя, а не
-   воздух над ценой. */
-.card{--stack:var(--air-row);position:relative;block-size:100%;display:flex;flex-direction:column}
-.shot{--frame:1 / 1;border-radius:var(--r-ctrl)}
+   всю), и цены стоят у всех на одной линии: растёт группа «что это», а не
+   воздух над ценой.
 
-/* Варианты карточки — одежда одной раскладки (craft, «Виды предмета — это
-   одежда, а не разная раскладка»): поверхность, линия, поле. Все три —
-   простая карточка полки, договор плотности один (shop, «Плотность товарной
-   полки зависит от занятой ширины»: 4–5 карточек по 260–325px). Вариант
-   выбирает вид (`card`, lib/cards.ts).
-   look-card:* Пока вид выбирается, стоят все; `npm run look:remove` оставляет выбранный.
-*/
-/* look-card:framed:start */
-/* framed — своя поверхность с тенью: карточка лежит над полом страницы. */
-.card[data-card='framed']{background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card);box-shadow:var(--sh-raised)}
-/* look-card:framed:end */
-/* look-card:bare:start */
-/* bare — коробки нет: снимок со своим углом прямо на полу, текст под ним. */
-.card[data-card='bare'] .shot{border-radius:var(--r-card)}
-/* look-card:bare:end */
-/* look-card:outlined:start */
-/* outlined — волосок вместо тени и поле внутреннее: полка плотнее, а карточка
-   остаётся карточкой. */
-.card[data-card='outlined']{border:var(--line-w) solid var(--rule);border-radius:var(--r-card);padding:var(--pad-inner)}
-/* look-card:outlined:end */
+   Ритм — лестница из трёх шагов, а не один (разбор 24.09.2026, X1, X3):
+   внутри «что это» (имя и факты) — оптика `--sp-1`, они читаются одной
+   вещью; от фактов к цене — оптика `--sp-2`, текст карточки — один блок; от
+   снимка к тексту — воздух строки; между рядами карточек — воздух группы
+   (Catalog.module.css). Всё стояло одним шагом `--air-row`, и имя, цена и
+   «В наличии» висели на равных расстояниях — группа не читалась. */
+.card{position:relative;block-size:100%;display:flex;flex-direction:column;gap:var(--air-row)}
+/* Пропорция — ручкой кадра, силой места (0,2,0): `.frame` объявляет свою
+   `--frame` весом голого класса, и на равном весе решал бы порядок кусков
+   сборки. Угол снимка — одежда, его задаёт вариант (ниже). */
+.card .shot{--frame:1 / 1}
+.body{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-2)}
+.what{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-1)}
+
+/* Ответ на руку — наплыв снимка; рама стоит (craft, controls.md, «Плавающее
+   со снимком: рама стоит, движется снимок»). На столе — наведением, на
+   телефоне — нажатием. Одежда с тенью вдобавок берёт следующую тень (ниже).
+   При «поменьше движения» снимок стоит: наплыв объявлен только без неё. */
+@media (prefers-reduced-motion:no-preference){
+  .shot img{transition:scale var(--hover-t) var(--ease)}
+  .card:active .shot img{scale:var(--creep)}
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){ .card:hover .shot img{scale:var(--creep)} }
+
+/* Ссылка — имя и плашка наличия; её область нажатия растянута на всю
+   карточку (`::after` от карточки: она `position:relative`). Цель не ниже
+   пальца держит имя (ниже): стоя на ссылке, высота вставала пустотой между
+   заголовком и фактами, и заголовок читался прижатым к снимку
+   (check:detect, `headCrowd`, 375). */
+.link{display:block;color:inherit}
+.link::after{content:'';position:absolute;inset:0}
+
+/* Плашка наличия — примитив `cut` (метка на кадре, primitives.module.css):
+   краску даёт `data-cut` — «мало» и «нет» ролями палитры. Стоит от угла
+   карточки — у одежд, где снимок начинается в углу; у вписанного снимка
+   сдвинута на поле (ниже, `outlined`). Слова плашки — одной строкой. */
+.flag{white-space:nowrap}
+
 /* Имя — тело, а не ступень подзаголовка: на полке каталога оно стояло
    ростом с заголовок подвала «Ajutor» (h2), и лестница заголовков
    перекрещивалась (check:craft, ladder). Так же набрана карточка на стенде
    шкал (tools/scale-stand.mjs, `.nm`). */
 /* Роль тела целиком, с разрядкой: элемент — h3, и недописанное брал бы у
-   роли h3 (base.css), то есть сжатую разрядку заголовка на кегле тела. */
-.name{flex:1 0 auto;font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:var(--body-track);overflow-wrap:anywhere}
-/* Имя — не больше двух строк: длинное имя третьей строкой сдвигало цену
-   ниже, чем у соседей. Целиком оно на карте товара. */
-.name a{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;min-block-size:var(--ctrl-target)}
-.name a::after{content:'';position:absolute;inset:0}
-/* Цена и наличие — две строки, всегда: в одну строку они вставали там, где
-   помещались, и «În stoc» стояло то рядом с ценой, то под ней.
+   роли h3 (base.css), то есть сжатую разрядку заголовка на кегле тела.
+   Не больше двух строк: длинное имя третьей строкой сдвигало цену ниже,
+   чем у соседей. Целиком оно на карте товара. */
+.name{
+  font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:var(--body-track);overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
+  min-block-size:var(--ctrl-target)
+}
 
-   Три ступени внутри карточки, а не одна: имя — тело 600, цена — тело 700,
-   наличие — сноска (`note`, тихая). Всё стояло кеглем тела, и имя, цену и
-   «В наличии» различал только вес (разбор 24.09.2026, X1). */
-.buy{display:flex;flex-direction:column;gap:var(--sp-2)}
-/* Цена — одна фраза: «de la 89,90 lei» не рвётся на «de la» и сумму.
-   Ступенью подзаголовка фраза в узкой карточке (320 окна — 108px поля,
-   полка у фильтров — 193) не помещалась и рвалась посередине; строка тела,
-   жирная и неразрывная, помещается на любой ширине свипа. Жирнее имени —
-   этим и отличается от него. */
-.price{font-size:var(--body-size);font-weight:700;white-space:nowrap;color:var(--ink)}
+/* Цена — одна фраза: «from €34.90» не рвётся на «from» и сумму. Строка
+   тела, жирнее имени — этим и отличается от него; цифры табличные, чтобы
+   цены ряда читались столбцом. Сноска фактов между ними — роль `note`
+   (primitives.module.css). */
+.price{font-size:var(--body-size);line-height:var(--body-lead);font-weight:700;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* Варианты карточки — одежда одной раскладки (craft, «Виды предмета — это
+   одежда, а не разная раскладка»): поверхность, линия, поле; группы и их
+   порядок у всех трёх одни. Договор плотности один (shop, «Плотность
+   товарной полки зависит от занятой ширины»: 4–5 карточек по 260–325px).
+   Вариант выбирает вид (`card`, lib/cards.ts).
+   look-card:* Пока вид выбирается, стоят все; `npm run look:remove` оставляет выбранный.
+*/
+/* look-card:framed:start */
+/* framed — своя поверхность с тенью: карточка лежит над полом страницы.
+   Снимок — во всю ширину карточки, до её верхнего края, текст — в поле
+   карточки. Снимок стоял вписанным в поле, и на телефоне от 163px карточки
+   ему доставалось 130 — карточка в карточке (разбор, X3). Под рукой рама
+   берёт следующую тень, снимок наплывает. */
+.card[data-card='framed']{
+  gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-raised);
+  transition:box-shadow var(--hover-t) var(--ease)
+}
+.card[data-card='framed'] .shot{border-start-start-radius:var(--r-card);border-start-end-radius:var(--r-card)}
+.card[data-card='framed'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
+@media (hover:hover){ .card[data-card='framed']:hover{box-shadow:var(--sh-lift)} }
+.card[data-card='framed']:active{box-shadow:var(--sh-lift)}
+/* look-card:framed:end */
+/* look-card:bare:start */
+/* bare — коробки нет: снимок со своим углом прямо на полу, текст под ним
+   без поля — строка текста встаёт по краю снимка. */
+.card[data-card='bare'] .shot{border-radius:var(--r-card)}
+/* look-card:bare:end */
+/* look-card:outlined:start */
+/* outlined — плотная: волосок вместо тени и внутреннее поле; снимок вписан
+   в поле, и угол у него — угол карточки минус поле (концентрический), а не
+   угол органа: 24 снаружи и 8 внутри при поле 12 читались двумя чужими
+   рамками. От снимка к тексту — поле, а не воздух строки: полка плотнее. */
+.card[data-card='outlined']{gap:var(--pad-inner);border:var(--line-w) solid var(--rule);border-radius:var(--r-card);padding:var(--pad-inner)}
+/* Разность ролей, не число: у набора с углом карточки меньше поля calc
+   уходит в минус, а браузер сам держит радиус не ниже нуля. */
+.card[data-card='outlined'] .shot{border-radius:calc(var(--r-card) - var(--pad-inner))}
+.card[data-card='outlined'] .flag{translate:var(--pad-inner) var(--pad-inner)}
+/* look-card:outlined:end */
