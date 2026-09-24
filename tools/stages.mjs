@@ -205,6 +205,8 @@ const seams = () => {
    docs/gate.md. Заведено 20.09.2026 по слову заказчика: «эти шаги понять,
    прописать, чтоб понять, какие шаги последующие и предыдущие». */
 const tokensSrc = () => src(TOKENS ?? 'styles/tokens.css')
+/* Вид сайта — шрифт и тени (И385): рядом с основой, в styles/look.css. */
+const lookSrc = () => src('styles/look.css')
 const primitivesSrc = () => src(PRIMITIVES ?? 'styles/primitives.module.css')
 const scaleJson = () => json(LADDER?.replace(/\.css$/, '.json') ?? 'styles/scale.json') ?? json('styles/scale.json')
 /* Слой считается СДЕЛАННЫМ не тогда, когда файлы на месте, а когда он
@@ -324,8 +326,10 @@ export const STAGES = [
           for (const name of ['--r-ctrl', '--r-card', '--r-sheet', '--r-pop', '--line-w', '--ring-w']) {
             if (!new RegExp(`${name}\\s*:`).test(l)) return `строитель не выпускает ${name} (styles/scale.css)`
           }
+          /* Роли тени — вид сайта: объявлены один раз в styles/look.css
+             (И385), ингредиенты — в tokens.css. */
           for (const name of ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']) {
-            if (!new RegExp(`${name}\\s*:`).test(tokensSrc())) return `тени без роли по работе: нет ${name} (styles/tokens.css)`
+            if (!new RegExp(`${name}\\s*:`).test(lookSrc())) return `тени без роли по работе: нет ${name} (styles/look.css)`
           }
           const bare = (tokensSrc() + primitivesSrc()).replace(/\/\*[\s\S]*?\*\//g, '')
           if (/--r-pill|--round\b|--sh-[123]\b/.test(bare)) return 'старые имена формы (--r-pill, --round, --sh-1…3) ещё читаются'

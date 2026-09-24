@@ -300,7 +300,11 @@ function rootDecls(css) {
     }
     if (media < 0) flat += c
   }
-  return [...flat.matchAll(/(?:^|[}\s]):root\{([^}]*)\}/g)].flatMap((m) => [...m[1].matchAll(/(--[\w-]+):([^;]*)/g)].map((d) => [d[1], d[2]]))
+  /* Корень — и один, и первым в списке полов: роли тени стоят блоком
+     `:root,[data-ground=deck],[data-plate]{…}` (lib/look-values.ts, И385)
+     сразу за корнем вида — граница `}` смотрится назад, не съедается
+     совпадением: иначе второй из двух соседних блоков корня не находился. */
+  return [...flat.matchAll(/(?<=^|[}\s]):root(?:,[^{}]*)?\{([^}]*)\}/g)].flatMap((m) => [...m[1].matchAll(/(--[\w-]+):([^;]*)/g)].map((d) => [d[1], d[2]]))
 }
 /** Значение так, как его пишет сборщик: light-dark() — парой переменных
  *  lightningcss, краски короче и строчными, без пробелов и кавычек. */
@@ -314,9 +318,6 @@ function squeeze(v) {
   if (ld) s = `var(--lightningcss-light,${ld[1]})var(--lightningcss-dark,${ld[2]})`
   return s.replace(/[\s"']/g, '').replace(/(^|[(,])0\./g, '$1.')
 }
-/** Свойства, которые основа набора объявляет у себя (tokens.css), а вид
- *  перекрывает в styles/look.css: шрифт и тени. */
-const BASE_TOKENS = ['--face', '--face-head', '--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']
 
 async function check(root) {
   const tmp = join(dirname(root), `.${basename(root)}-look-check`)
@@ -395,7 +396,9 @@ async function check(root) {
       for (const [name, value] of Object.entries(published_)) {
         const got = (shipped.get(name) ?? []).map(squeeze)
         if (!got.includes(squeeze(value))) fail.push(`отгружаемый стиль: ${name} не «${value}» (${(shipped.get(name) ?? ['нет']).join(' | ')})`)
-        else if (new Set(got).size > 1 && !BASE_TOKENS.includes(name)) fail.push(`отгружаемый стиль: у ${name} два значения — ${shipped.get(name).join(' | ')}`)
+        /* Два значения — второй источник, без исключений: шрифт и тени основа
+           больше не объявляет (И385), и пропускать их нечего. */
+        else if (new Set(got).size > 1) fail.push(`отгружаемый стиль: у ${name} два значения — ${shipped.get(name).join(' | ')}`)
       }
       console.log(`· отгружаемые стили: ${Object.keys(published_).length} свойств вида — опубликованными значениями, чужих наборов нет`)
       const media = existsSync(join(tmp, '.next/static/media')) ? readdirSync(join(tmp, '.next/static/media')).filter((n) => /\.(woff2?|ttf|otf)$/.test(n)) : []

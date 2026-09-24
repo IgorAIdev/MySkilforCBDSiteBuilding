@@ -22,7 +22,7 @@ test('a cart line: link back to its variant, facts, unit price, one stepper, a w
   assert.equal(v.count, '3 produse')
   const [oil, caps] = v.lines
   assert.equal(oil.href, '/ro/product/ulei-cbd-full-spectrum?option.putere=20&option.volum=10')
-  assert.equal(oil.facts, `20${NB}% · 10 ml`, 'сила — записью языка страницы и неразрывно (И347)')
+  assert.equal(oil.facts, `20${NB}% · 10${NB}ml`, 'сила — записью языка страницы и неразрывно (И347)')
   assert.equal(oil.unit, `64,90${NB}€ / buc.`)
   assert.equal(oil.total, `64,90${NB}€`)
   assert.deepEqual([oil.stepper.less.op, oil.stepper.more.op, oil.remove.op], [null, 'set:l1:2', 'remove:l1'])

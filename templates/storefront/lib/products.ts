@@ -1,5 +1,5 @@
 import { LOCALES, type Lang } from './locale.ts'
-import { percent } from './format.ts'
+import { BIND, percent } from './format.ts'
 import type { Pack, Strength } from './source/contract.ts'
 
 type T = Record<Lang, string>
@@ -44,8 +44,10 @@ export const FACETS: { code: string; name: T; values: { code: string; name: T }[
 ]
 
 const strength = (codes: string[]) => ({ code: 'putere', name: { ro: 'Concentrație', en: 'Strength', hu: 'Erősség' }, options: codes.map((c) => ({ code: c, name: each((l) => percent(l, Number(c))) })) })
-const volume = (codes: string[]) => ({ code: 'volum', name: { ro: 'Volum', en: 'Volume', hu: 'Térfogat' }, options: codes.map((c) => ({ code: c, name: { ro: `${c} ml`, en: `${c} ml`, hu: `${c} ml` } })) })
-const count = (codes: string[]) => ({ code: 'bucati', name: { ro: 'Bucăți', en: 'Count', hu: 'Darab' }, options: codes.map((c) => ({ code: c, name: { ro: `${c} buc.`, en: `${c} pcs`, hu: `${c} db` } })) })
+/* Объём и счёт штук — число с единицей неразрывно (`BIND`, lib/format.ts):
+   «10 / ml» рвалось в сводке заказа на телефоне (И387). */
+const volume = (codes: string[]) => ({ code: 'volum', name: { ro: 'Volum', en: 'Volume', hu: 'Térfogat' }, options: codes.map((c) => ({ code: c, name: { ro: `${c}${BIND}ml`, en: `${c}${BIND}ml`, hu: `${c}${BIND}ml` } })) })
+const count = (codes: string[]) => ({ code: 'bucati', name: { ro: 'Bucăți', en: 'Count', hu: 'Darab' }, options: codes.map((c) => ({ code: c, name: { ro: `${c}${BIND}buc.`, en: `${c}${BIND}pcs`, hu: `${c}${BIND}db` } })) })
 
 /* Первым стоит товар с самым большим выбором вариантов: дерево адресов
    (tools/routes.mjs) берёт в дорогие проверки первую семью и первый товар

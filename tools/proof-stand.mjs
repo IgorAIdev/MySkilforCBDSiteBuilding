@@ -34,7 +34,9 @@ if (missing.length) {
 /* `composes` — единственное, чем модуль отличается от простого CSS; снимается,
    а взятые классы ставит в разметку tools/stand-modules.mjs (И335). */
 const plain = (p) => plainCss(read(p))
-const css = need.map(plain).join('\n')
+/* Шрифт и тени — вид сайта, `styles/look.css` рядом с основой (И385);
+   у сайта, поставленного до него, они ещё в tokens.css, и файла нет. */
+const css = [...need, 'styles/look.css'].map(plain).join('\n')
 
 const img = (label, hue) => `data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue} 30% 88%)"/><stop offset="1" stop-color="hsl(${hue} 35% 72%)"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><rect x="160" y="90" width="80" height="30" rx="6" fill="hsl(${hue} 25% 30%)"/><rect x="140" y="120" width="120" height="200" rx="18" fill="hsl(${hue} 30% 42%)"/><text x="200" y="230" font-family="sans-serif" font-size="22" fill="#fff" text-anchor="middle">${label}</text></svg>`)}`

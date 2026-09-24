@@ -1024,7 +1024,7 @@
     "--sh-in": {
       "type": "shadow",
       "group": "shadow",
-      "value": "inset 0 1px 2px var(--sh-inset-paper)"
+      "value": "inset 0 1px 2px var(--sh-inset)"
     },
     "--menu-mark-line": {
       "type": "keyword",
@@ -1083,6 +1083,7 @@
       "--sh-far-1": "var(--sh-far-1-paper)",
       "--sh-far-2": "var(--sh-far-2-paper)",
       "--sh-far-3": "var(--sh-far-3-paper)",
+      "--sh-inset": "var(--sh-inset-paper)",
       "--accent-solid": "var(--a-9)",
       "--on-accent": "var(--on-a-9)"
     },

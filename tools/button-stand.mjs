@@ -79,6 +79,7 @@ const head = `<title>Стенд кнопок</title>
 ${read('styles/palette.css')}
 ${scaleCss}
 ${read('styles/tokens.css')}
+${read('styles/look.css')}
 ${read('styles/base.css')}
 ${plain('styles/primitives.module.css')}
 ${plain('styles/btn.module.css')}

@@ -86,11 +86,12 @@
 /* ── Язык: «EN ▾» и список ───────────────────────────────────────────────
    Список — верхний слой браузера, без номера (правило 8); встаёт под своей
    кнопкой (привязка к вызвавшему), а где браузер привязывать не умеет — у
-   правого края под строкой шапки. Лист (`data-plate`) — на палубе полосы
-   обещания его роли не темнеют. */
+   правого края под строкой шапки — у края коробки страницы, не уже выреза
+   (`--page-edge`, И382). Лист (`data-plate`) — на палубе полосы обещания
+   его роли не темнеют. */
 .langBtn{padding-inline:calc(var(--ctrl-target) * .25)}
 .langList{
-  position:fixed;inset:auto;inset-block-start:var(--head-h);inset-inline-end:var(--gut);
+  position:fixed;inset:auto;inset-block-start:var(--head-h);inset-inline-end:var(--page-edge);
   margin:0;padding:var(--sp-1);border:0;list-style:none;
   min-inline-size:calc(var(--ctrl-target) * 6);
   background:var(--surface);color:var(--ink);border-radius:var(--r-ctrl);box-shadow:var(--sh-overlay)
@@ -177,10 +178,12 @@
    шапкой во всю ширину холста (привязка к шапке; без неё — на её высоте),
    на узкой — шторка от левого края, где кнопка «Shop». Число плиток в ряду
    считает перенос по основе плитки (правило 5): полок четыре — четыре в
-   ряд на всю ширину, в шторке телефона — по две. */
+   ряд на всю ширину, в шторке телефона — по две. Ширина панели — коробка
+   страницы (`--page-box`, та же роль, что у `.wrap`): своя копия формулы
+   здесь не брала вырез камеры (И382). */
 .head[data-variant='boutique'] .nav:popover-open{
   inset:auto;inset-inline:0;inset-block-start:var(--head-h);
-  margin-inline:auto;inline-size:min(var(--wrap) - var(--gut) * 2, 100% - var(--gut) * 2);
+  margin-inline:auto;inline-size:var(--page-box);
   block-size:auto;max-block-size:calc(100dvh - var(--head-h) - var(--gut));
   border-radius:0 0 var(--r-card) var(--r-card)
 }

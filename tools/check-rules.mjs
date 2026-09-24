@@ -335,7 +335,7 @@ const layoutFacts = () => {
   return rows.join('\n')
 }
 /* Форма — из кода (И228): радиусы каждого набора, лестница, линия и кольцо,
-   роли тени из tokens.css, кто читает полный круг. */
+   роли тени из styles/look.css (вид сайта, И385), кто читает полный круг. */
 const shapeFacts = () => {
   const rows = ['| Факт | Значение | Откуда |', '| --- | --- | --- |']
   if (has('styles/scale.json')) {
@@ -345,9 +345,9 @@ const shapeFacts = () => {
   }
   rows.push(`| лестница радиусов | ${THR.SHAPE.radii.join(', ')} (M3 ∪ Carbon) | \`SHAPE.radii\` в \`tools/thresholds.mjs\` |`)
   rows.push(`| линия и кольцо | линия ${THR.SHAPE.line.hair}px, сильная ${THR.SHAPE.line.strong}px; кольцо ${THR.SHAPE.ring.width}px с отступом ${THR.SHAPE.ring.offset}px — не текут | \`SHAPE.line\`, \`SHAPE.ring\`; \`--line-w\`, \`--ring-w\`, \`--ring-off\` в \`styles/scale.css\` |`)
-  const tokens = has('styles/tokens.css') ? read('styles/tokens.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
-  const shadows = [...new Set([...tokens.matchAll(/(?:^|[;{])\s*(--sh-[a-z]+)\s*:/g)].map((m) => m[1]))].filter((n) => !/^--sh-(ring|near|far)$/.test(n))
-  rows.push(`| роли тени | ${shadows.map((n) => `\`${n}\``).join(', ')} — по работе; ингредиенты \`--sh-ring\`, \`--sh-near\`, \`--sh-far-N\` несут light-dark() | \`styles/tokens.css\` |`)
+  const look = has('styles/look.css') ? read('styles/look.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
+  const shadows = [...new Set([...look.matchAll(/(?:^|[;{])\s*(--sh-[a-z]+)\s*:/g)].map((m) => m[1]))]
+  rows.push(`| роли тени | ${shadows.map((n) => `\`${n}\``).join(', ')} — по работе, одной записью на корне, палубе и листе; ингредиенты \`--sh-ring\`, \`--sh-near\`, \`--sh-far-N\`, \`--sh-inset\` несут light-dark() (\`styles/tokens.css\`) | \`styles/look.css\` |`)
   const files = ['styles/base.css', 'styles/primitives.module.css'].filter(has)
   const readers = (name) => files.flatMap((f) => (read(f).match(new RegExp(`var\\(${name}[,)]`, 'g')) ?? []).map(() => f))
   const pop = readers('--r-pop'), ctrl = readers('--r-ctrl')

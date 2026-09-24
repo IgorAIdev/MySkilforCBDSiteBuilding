@@ -88,8 +88,15 @@
     var t = 0
     return function () { clearTimeout(t); t = setTimeout(fn, ms) }
   }
-  var cssText = function (vars) {
-    return ':root{' + Object.keys(vars).map(function (k) { return k + ':' + vars[k] }).join(';') + '}'
+  /* Роли тени — на списке полов, как их кладёт сайт (`floors` каталога,
+     lib/look-values.ts, И385): на палубе и листе предпросмотр пересчитывает
+     их из своих ингредиентов, а не наследует корневую строку. */
+  var cssText = function (vars, floors) {
+    var on = function (keep) { return Object.keys(vars).filter(keep).map(function (k) { return k + ':' + vars[k] }).join(';') }
+    var shadow = function (k) { return Boolean(floors) && floors.names.indexOf(k) >= 0 }
+    var rest = on(function (k) { return !shadow(k) })
+    var roles = on(shadow)
+    return ':root{' + rest + '}' + (roles ? '\n' + floors.selector + '{' + roles + '}' : '')
   }
   var HEX = /^#?[0-9a-f]{6}$/i
   var hexOf = function (v) { v = v.trim(); return HEX.test(v) ? (v[0] === '#' ? v : '#' + v).toUpperCase() : null }
@@ -124,7 +131,7 @@
     function preview() {
       var tag = document.getElementById('look-preview')
       if (!tag) { tag = el('style', { id: 'look-preview' }); document.head.appendChild(tag) }
-      tag.textContent = cssText(choice.compose(names, catalog, custom() ? paints : null).look.vars)
+      tag.textContent = cssText(choice.compose(names, catalog, custom() ? paints : null).look.vars, catalog.floors)
     }
     function body() {
       return Object.assign({}, names, custom() ? { paints: paints } : {})

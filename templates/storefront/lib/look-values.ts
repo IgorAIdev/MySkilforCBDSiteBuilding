@@ -158,14 +158,26 @@ export function acceptValues(raw: unknown, slots: Slots, known: Structure = STRU
   return { look: { header: header ?? known.headers[0], card: card ?? known.cards[0], home: home ?? known.homes[0], vars, fonts, names }, dropped }
 }
 
+/** Роли тени — по работе (И228). Их геометрия замешана на ингредиентах пола
+ *  (`--sh-ring`, `--sh-near`, `--sh-far-*`, `--sh-inset`), а `var()` внутри
+ *  свойства раскрывается там, где свойство объявлено: роль объявляется на
+ *  каждом полу, который меняет ингредиенты, — одной записью на список полов
+ *  `FLOORS`, а не копией геометрии на каждом (И385). Тот же список держит
+ *  основа набора в `styles/look.css`. */
+export const SHADOWS = ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in'] as const
+export const FLOORS = ":root,[data-ground='deck'],[data-plate]"
+const isShadow = (name: string): boolean => (SHADOWS as readonly string[]).includes(name)
+
 /** Проверенный вид → текст блока `<style href="look">`: свойства на корне
  *  (краски — `light-dark()`, как в styles/palette.css, тема решается
- *  `color-scheme`) и шрифты со своих адресов. */
+ *  `color-scheme`), роли тени — на списке полов, шрифты со своих адресов. */
 export function lookCss(look: Look): string {
-  const vars = Object.entries(look.vars).map(([k, v]) => `${k}:${v}`).join(';')
+  const decl = (keep: (name: string) => boolean) => Object.entries(look.vars).filter(([k]) => keep(k)).map(([k, v]) => `${k}:${v}`).join(';')
+  const vars = decl((k) => !isShadow(k))
+  const shadows = decl(isShadow)
   const faces = look.fonts.flatMap((f) => f.files.map((x) =>
     `@font-face{font-family:'${f.family}';src:url(${x.url}) format('woff2');font-weight:${x.weight};font-style:normal;font-display:swap;unicode-range:${x.range}}`))
-  return [vars ? `:root{${vars}}` : '', ...faces].filter(Boolean).join('\n')
+  return [vars ? `:root{${vars}}` : '', shadows ? `${FLOORS}{${shadows}}` : '', ...faces].filter(Boolean).join('\n')
 }
 
 /** Толщины, загруженные у семейства вида; null — семейство не загружается

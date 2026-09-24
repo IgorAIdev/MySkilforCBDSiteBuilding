@@ -10,6 +10,14 @@ export type Lang = (typeof LOCALES)[number]
 export const DEFAULT_LANG: Lang = 'en'
 /** Имя языка на нём самом — так его ищет тот, кто его читает. */
 export const LANG_NAMES: Record<Lang, string> = { ro: 'Română', en: 'English', hu: 'Magyar' }
+/** Порядок имени человека — факт языка, а не вёрстки: по-венгерски фамилия
+ *  идёт первой («Kovács Anna»), по-румынски и по-английски — имя. Его читают
+ *  двое: форма контактов (в каком порядке стоят поля) и сверка заказа (как
+ *  имя пишется строкой), — и порядок у них один, отсюда (И381). */
+export type NamePart = 'given' | 'family'
+export const NAME_ORDER: Record<Lang, readonly [NamePart, NamePart]> = {
+  ro: ['given', 'family'], en: ['given', 'family'], hu: ['family', 'given'],
+}
 export const isLang = (value: string): value is Lang => (LOCALES as readonly string[]).includes(value)
 
 /** Язык адреса — первый сегмент пути; чужой или пустой — основной язык. */

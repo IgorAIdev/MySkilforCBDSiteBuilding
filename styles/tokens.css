@@ -543,21 +543,20 @@
 
      С 24.09.2026 краски слоёв выпускает строитель палитры (`--sh-*-paper`,
      на палубе `--sh-*-deck`; И295): доли те же, но краска марки в них —
-     краска выпущенного набора, а не формула в стилях. Здесь — роль и её
-     значение на бумаге, геометрия. */
+     краска выпущенного набора, а не формула в стилях. Здесь — ингредиенты
+     на бумаге; палуба и лист переназначают их у себя (styles/base.css).
+
+     Сами роли тени (`--sh-raised`, `--sh-lift`, `--sh-overlay`, `--sh-in`) и
+     шрифт (`--face`, `--face-head`) — вид сайта, и объявлены они ОДИН раз, в
+     `styles/look.css`: у набора — рукой, у витрины — выпущенные из
+     опубликованного вида. До 24.09.2026 они стояли и здесь, и вид витрины
+     перекрывал их вторым значением (И385). */
   --sh-ring: var(--sh-ring-paper);
   --sh-near: var(--sh-near-paper);
   --sh-far-1: var(--sh-far-1-paper);
   --sh-far-2: var(--sh-far-2-paper);
   --sh-far-3: var(--sh-far-3-paper);
-  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
-  /* Роли тени — по работе, не по номеру (И228): raised — предмет над полом
-     в покое; lift — подъём под рукой; overlay — всплывающее и закрываемое
-     (Spectrum: «Shadows are reserved for transient components»); in —
-     вдавленное. Геометрия одна, источник света один (Refactoring UI). */
-  --sh-in: inset 0 1px 2px var(--sh-inset-paper);
+  --sh-inset: var(--sh-inset-paper);
   /* Одна манера первичной пилюли. При наведении фон делает шаг к
      собственному мастилу, и пилюля стоит на тени своего же цвета — и то и
      другое смешано из акцента, поэтому «Accent» в панели тянет за собой
@@ -588,11 +587,12 @@
      держит край почти постоянным, системы растят до ×2.2. */
   /* Шрифт витрины. В наборе его НЕТ и быть не может: шрифт называет
      заказчик, посмотрев на свой же текст (стенд `face:stand`, шаг 6
-     основания). Набор стоит на системном стеке, а проект, когда шрифт
-     назван, переобъявляет `--face` ОДНОЙ строкой вместе со своим запасным
+     основания). Набор стоит на системном стеке — `--face` объявлен в
+     `styles/look.css`, вместе с тенями, одной строкой (И385), — а проект,
+     когда шрифт назван, переобъявляет его ТАМ вместе со своим запасным
      списком: `--face: var(--f-plex), var(--face-stack)`.
 
-     Стояла эта строка прямо здесь — и `--f-plex` не объявлял никто. `var()`
+     Стояла такая строка прямо здесь — и `--f-plex` не объявлял никто. `var()`
      без запасного значения делает всю переменную недействительной, а
      `font-family: var(--face)` тогда падает не на стек, а на унаследованное,
      то есть на умолчание браузера. Замер на чистых стилях набора:
@@ -601,13 +601,9 @@
      `varMissing` больше такого не пропустит.
 
      `--face-stack`, не `--stack`: под именем --stack живёт ручка примитива
-     stack, и стек шрифтов на корне делал его отступ нулём (И224). */
+     stack, и стек шрифтов на корне делал его отступ нулём (И224). Стек —
+     ингредиент, а не выбор, и остаётся здесь. */
   --face-stack: ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --face: var(--face-stack);
-  /* The headings can be set in a second face, and by default are not: one
-     face is a decision, two is a system, and both are choices the panel
-     offers rather than something a component decides. */
-  --face-head: var(--face);
 
   /* What every heading on the site is set at. They are here rather than in
      the six stylesheets that draw a heading, because a page whose headings
@@ -1189,6 +1185,17 @@
      уже того, что занято (`.wrap` в styles/primitives.module.css). Факт
      устройства, симметричный — коробка страницы стоит по центру (И301). */
   --edge-x:max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  /* Коробка страницы — одним фактом на всех, кто по ней равняется: край у
+     окна не уже выреза (`--page-edge`) и ширина коробки (`--page-box`).
+     Читают её `.wrap` (styles/primitives.module.css) и всё, что стоит
+     поверх страницы шириной коробки или у её края, — панель полок шапки,
+     список языка там, где браузер не привязывает всплывающее к кнопке.
+     Шапка витрины считала эту ширину сама, копией формулы `.wrap` без
+     выреза, и в альбомной ориентации iPhone панель полок вставала под вырез
+     камеры (финальный проход 24.09.2026, И382). `100%` внутри подставляется
+     там, где свойство читают, — коробкой того, кто берёт роль. */
+  --page-edge:max(var(--gut), var(--edge-x));
+  --page-box:min(var(--wrap) - var(--gut) * 2, 100% - var(--page-edge) * 2);
 
   --float:10px;
   /* the height the working row settles to once the strip above it has

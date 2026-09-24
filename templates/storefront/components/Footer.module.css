@@ -29,19 +29,21 @@
    столбца (выбор языка) оно ноль, в столбце его ставит `stack`. */
 .list{list-style:none;padding:0;margin-inline:0;margin-block-end:0}
 :where(.list){margin-block-start:0}
-/* Цель — квадрат, а не только высота: «Retur» под пальцем выходило 38×44
-   (check:craft, target и coarse). */
-.list a,.addr a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}
+/* Цель ссылки подвала — квадрат, а не только высота: «Retur» под пальцем
+   выходило 38×44 (check:craft, target и coarse). Одна запись на обе полосы —
+   подвал магазина и подвал кассы: у кассы стояла своя, с одной высотой, и
+   то же «Retur» там выходило 32×44 на 390 (финальный проход, И380). */
+.list a,.addr a,.legal a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}
 .list a[aria-current='true']{color:var(--ink);font-weight:600}
 .addr{font-style:normal;color:var(--ink-soft);line-height:var(--body-lead)}
 
 /* Подвал кассы — строка на полу страницы под волоском: помощь, закон,
    данные — кеглем сноски, группами через воздух блока, внутри группы —
-   зазор ряда. Цель у ссылки — та же, что у ссылок подвала. */
+   зазор ряда. Цель у ссылки — та же запись, что у ссылок подвала (выше). */
 .legal{
   margin-block-start:var(--air-page);padding-block:var(--air-group);border-block-start:var(--line-w) solid var(--rule);
   font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)
 }
 .legalRow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-row) var(--air-block)}
 .legalLinks{display:flex;flex-wrap:wrap;column-gap:var(--gap-row);list-style:none;padding:0;margin:0}
-.legal a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);color:var(--ink);text-decoration-line:underline;text-underline-offset:.2em}
+.legal a{color:var(--ink);text-decoration-line:underline;text-underline-offset:.2em}

@@ -33,7 +33,7 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { axesOf, resolver, tokenMap } from '../../tools/buttons.mjs'
 import { variables, inputCss, resolve as resolveScale } from '../../tools/scale.mjs'
-import { valid } from '../../lib/look-values.ts'
+import { valid, FLOORS, SHADOWS } from '../../lib/look-values.ts'
 import { problems } from '../../lib/look-rule.ts'
 import { pairsOf } from './pairs.mjs'
 
@@ -70,11 +70,18 @@ export const WIDTHS = [1440, 1280, 1600]
 /** Наборы углов — из лестницы набора (M3 ∪ Carbon, SHAPE.radii), взятые из
  *  наборов ритма; вложенность «орган ≤ карточка ≤ лист» держит каждый. */
 const CORNER_NAMES = { '4/4/12/16': 'Crisp', '8/8/24/28': 'Standard', '8/8/28/32': 'Round' }
-/** Тени — роли по работе (И228). Soft — роли основы (tokens.css); Flat —
- *  без тени, одной линией (всплывающее тень оставляет); Lifted — на ступень
- *  выше: покой берёт подъём, подъём — всплывающее. */
+/** Тени — роли по работе (И228). Soft — роли основы набора (его
+ *  styles/look.css: у сайта этот файл выпущен из опубликованного вида, и
+ *  «Soft» из него значил бы «как сейчас», И385); Flat — без тени, одной
+ *  линией (всплывающее тень оставляет); Lifted — на ступень выше: покой
+ *  берёт подъём, подъём — всплывающее. */
+/* `was` у «Soft» — его значения до И385: вдавленная тень брала краску бумаги
+   (`--sh-inset-paper`) прямо, а не ингредиент пола (`--sh-inset`). Вид,
+   опубликованный на умолчании без имени группы, узнаётся по ним и
+   пересчитывается (`reresolve`, ui/choice.mjs). Псевдоним со сроком: снять,
+   когда опубликованные виды пересчитаны (план 4, global «look»). */
 const SHADOW_SETS = (t) => [
-  { id: 'soft', name: 'Soft', line: 'The kit shadow roles: a quiet lift at rest, more under the hand', vars: { '--sh-raised': t['--sh-raised'], '--sh-lift': t['--sh-lift'], '--sh-overlay': t['--sh-overlay'], '--sh-in': t['--sh-in'] } },
+  { id: 'soft', name: 'Soft', line: 'The kit shadow roles: a quiet lift at rest, more under the hand', vars: { '--sh-raised': t['--sh-raised'], '--sh-lift': t['--sh-lift'], '--sh-overlay': t['--sh-overlay'], '--sh-in': t['--sh-in'] }, was: [{ '--sh-raised': t['--sh-raised'], '--sh-lift': t['--sh-lift'], '--sh-overlay': t['--sh-overlay'], '--sh-in': 'inset 0 1px 2px var(--sh-inset-paper)' }] },
   { id: 'flat', name: 'Flat', line: 'No shadow: a hairline marks the card; only overlays keep a shadow', vars: { '--sh-raised': '0 0 0 1px var(--rule)', '--sh-lift': '0 0 0 1px var(--rule)', '--sh-overlay': t['--sh-overlay'], '--sh-in': 'inset 0 0 0 1px var(--rule)' } },
   { id: 'lifted', name: 'Lifted', line: 'One step higher: cards rest lifted, hover rises further', vars: { '--sh-raised': t['--sh-lift'], '--sh-lift': t['--sh-overlay'], '--sh-overlay': t['--sh-overlay'], '--sh-in': t['--sh-in'] } },
 ]
@@ -221,7 +228,7 @@ export async function buildCatalog({ site, kit }) {
       const name = CORNER_NAMES[key] ?? key
       return [key, { id: name.toLowerCase(), name, line: `Controls ${set.радиус?.ctrl} px · cards ${set.радиус?.card} px · sheets ${set.радиус?.sheet} px`, vars: check('corners', key, ofGroup('corners', variables(set))) }]
     })))),
-    shadow: siteFirst(SHADOW_SETS(tokens).map((o) => ({ ...o, vars: check('shadow', o.id, o.vars) }))),
+    shadow: siteFirst(SHADOW_SETS(tokenMap(readFileSync(join(kit, 'styles/look.css'), 'utf8'))).map((o) => ({ ...o, vars: check('shadow', o.id, o.vars) }))),
     ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
     ...Object.fromEntries(Object.entries(PRODUCT_PAGE).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
@@ -239,7 +246,10 @@ export async function buildCatalog({ site, kit }) {
   const own = new Set(Object.keys(slots).filter((k) => slots[k].group === 'palette'))
   const steps = Object.fromEntries(Object.entries(STEP_ROLES).map(([role, name]) => [role, Object.fromEntries(['light', 'dark'].map((t) => [t, stepOf(tokens, own, name, t)]))]))
   for (const [role, v] of Object.entries(steps)) for (const t of ['light', 'dark']) if (!v[t]) throw new Error(`роль ${STEP_ROLES[role]}: ступень палитры в теме ${t} не найдена (styles/tokens.css)`)
-  return { about: 'Собран look-panel/scripts/build-catalog.mjs из каталога набора. Руками не правят.', defaults, groups, axes, pairs, steps }
+  /* Предпросмотр панели кладёт роли тени туда же, куда сайт, — на список
+     полов (lib/look-values.ts, И385), а не на один корень. */
+  const floors = { selector: FLOORS, names: [...SHADOWS] }
+  return { about: 'Собран look-panel/scripts/build-catalog.mjs из каталога набора. Руками не правят.', defaults, groups, axes, pairs, steps, floors }
 }
 
 /** Опубликованный вид и его копия до первого пересчёта — рядом. */

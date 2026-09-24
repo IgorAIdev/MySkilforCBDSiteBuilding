@@ -1,4 +1,4 @@
-import type { Lang } from './locale.ts'
+import { NAME_ORDER, type Lang, type NamePart } from './locale.ts'
 import type { Address, Cart, CartLine, Checkout, Contact, Delivery, DeliveryMethod, Image, Order, PaymentMethod, PickupPoint, PointType } from './source/contract.ts'
 import type { Empty } from './catalog-view.ts'
 import { LIMITS, type Field } from './checkout-form.ts'
@@ -75,17 +75,25 @@ const field = (lang: Lang, name: Field, value: string, spec: Spec): FieldView =>
   inputMode: spec.numeric ? 'numeric' : null, max: LIMITS[name], value, short: spec.short ?? false, options: spec.options ?? null,
 })
 
-/** Контакты: почта, имя с фамилией парой, телефон. Автозаполнение — токены
- *  WHATWG (WCAG 1.3.5): браузер подставляет то, что знает. */
+/** Имя человека по частям: поле формы и строка сверки берут часть отсюда. */
+const NAME_FIELD: Record<NamePart, { name: 'firstName' | 'lastName'; key: Key; auto: string }> = {
+  given: { name: 'firstName', key: 'field.firstName', auto: 'given-name' },
+  family: { name: 'lastName', key: 'field.lastName', auto: 'family-name' },
+}
+
+/** Контакты: почта, имя с фамилией парой, телефон. Пара стоит в порядке
+ *  языка страницы (`NAME_ORDER`, lib/locale.ts): по-венгерски фамилия первой,
+ *  как её пишут и ждут (И381). Автозаполнение — токены WHATWG (WCAG 1.3.5):
+ *  браузер подставляет то, что знает, по токену, а не по месту поля. */
 export function contactView(lang: Lang, contact: Contact | null): ContactView {
   const c = contact ?? { email: '', firstName: '', lastName: '', phone: '' }
   return {
     rows: [
       [field(lang, 'email', c.email, { key: 'field.email', type: 'email', auto: 'email' })],
-      [
-        field(lang, 'firstName', c.firstName, { key: 'field.firstName', auto: 'given-name' }),
-        field(lang, 'lastName', c.lastName, { key: 'field.lastName', auto: 'family-name' }),
-      ],
+      NAME_ORDER[lang].map((part) => {
+        const f = NAME_FIELD[part]
+        return field(lang, f.name, c[f.name], { key: f.key, auto: f.auto })
+      }),
       [field(lang, 'phone', c.phone, { key: 'field.phone', type: 'tel', auto: 'tel' })],
     ],
     submit: t(lang, 'checkout.continue'),
@@ -154,7 +162,9 @@ export function deliveryView(lang: Lang, a: { methods: DeliveryMethod[]; deliver
   }
 }
 
-const contactLines = (lang: Lang, c: Contact): string[] => [t(lang, 'order.name', { first: c.firstName, last: c.lastName }), c.email, c.phone]
+/** Имя строкой — в том же порядке, в каком стоят поля формы (`NAME_ORDER`). */
+const personName = (lang: Lang, c: Contact): string => NAME_ORDER[lang].map((part) => c[NAME_FIELD[part].name]).join(' ')
+const contactLines = (lang: Lang, c: Contact): string[] => [personName(lang, c), c.email, c.phone]
 const methodHead = (d: Delivery): string => [d.method.name, d.method.carrier].filter(Boolean).join(' · ')
 function placeLines(lang: Lang, d: Delivery): string[] {
   if (d.address) return [d.address.street, t(lang, 'order.cityLine', { postal: d.address.postalCode, city: d.address.city }), d.address.region]
