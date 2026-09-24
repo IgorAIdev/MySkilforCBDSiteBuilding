@@ -1,7 +1,7 @@
 /* Собран tools/buttons.mjs из styles/buttons.json. Руками не правят.
    Роли одной кнопки основы (styles/btn.module.css) по осям каталога. На
    корне — первый вариант каждой оси; другой — [data-button-<ось>="вариант"].
-   Оси: letters — sentence · caps; loud — fill; quiet — veil; shape — standard · arrow · chevron · double · trail-spaced · trail-overlap. */
+   Оси: letters — sentence · caps; loud — fill · ink; quiet — veil · outline; shape — standard · arrow · chevron · double · trail-spaced · trail-overlap. */
 
 :root{
   --ctrl-btn-case: none;
@@ -39,10 +39,22 @@
   --ctrl-btn-edge-pop: transparent;
 }
 
+[data-button-loud="ink"]{
+  --ctrl-btn-fill-pop: var(--ink);
+  --ctrl-btn-ink-pop: var(--surface);
+  --ctrl-btn-edge-pop: transparent;
+}
+
 [data-button-quiet="veil"]{
   --ctrl-btn-fill: var(--quiet);
   --ctrl-btn-ink: var(--ink);
   --ctrl-btn-edge: transparent;
+}
+
+[data-button-quiet="outline"]{
+  --ctrl-btn-fill: transparent;
+  --ctrl-btn-ink: var(--ink);
+  --ctrl-btn-edge: var(--edge);
 }
 
 [data-button-shape="standard"]{

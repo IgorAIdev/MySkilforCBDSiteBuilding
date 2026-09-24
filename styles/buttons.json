@@ -43,6 +43,17 @@
           "--ctrl-btn-ink-pop": "var(--on-pop)",
           "--ctrl-btn-edge-pop": "transparent"
         }
+      },
+      "ink": {
+        "имя": "Чернила",
+        "name": "Ink",
+        "line": "Dark ink fill, light label",
+        "что": "заливка чернилами, надпись краской пола (элементы 08, 17)",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--ink)",
+          "--ctrl-btn-ink-pop": "var(--surface)",
+          "--ctrl-btn-edge-pop": "transparent"
+        }
       }
     }
   },
@@ -60,6 +71,17 @@
           "--ctrl-btn-fill": "var(--quiet)",
           "--ctrl-btn-ink": "var(--ink)",
           "--ctrl-btn-edge": "transparent"
+        }
+      },
+      "outline": {
+        "имя": "Контур",
+        "name": "Outline",
+        "line": "No fill, a hairline edge, ink label",
+        "что": "без заливки: кромка краской края, надпись чернилами (элементы 07, 43)",
+        "роли": {
+          "--ctrl-btn-fill": "transparent",
+          "--ctrl-btn-ink": "var(--ink)",
+          "--ctrl-btn-edge": "var(--edge)"
         }
       }
     }
