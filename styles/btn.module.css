@@ -96,9 +96,18 @@
   --btn-tip:calc(var(--btn-h) * var(--ctrl-btn-tip, 0));
   --btn-tip-at:calc(var(--btn-h) * var(--ctrl-btn-tip-at, 0));
   --btn-notch:calc(var(--btn-h) * var(--ctrl-btn-notch, 0));
+  /* Кружок у конца (слово заказчика 24.09.2026, «Shop now»: «тут же круглое
+     в кнопке»): `--ctrl-btn-mark` — 0 или 1. Кружок .75 высоты концентричен
+     полному кругу: эта форма — пилюля, как остриё — контур «стрелки»; угол
+     выводится из формы, а не ролью каталога (угол — из Shape, И273). */
+  --btn-mark:var(--ctrl-btn-mark, 0);
+  --btn-r:calc(var(--r-ctrl) * (1 - var(--btn-mark)) + var(--r-pop) * var(--btn-mark));
   position:relative;isolation:isolate;background-color:transparent;
+  /* Под вырезом стрелки — кружок краской заливки: стрелка того же цвета, что
+     пилюля, как у «Shop now». */
+  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-fill, var(--press-bg)) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark)));
   padding-inline-start:calc(var(--btn-h) * .45 + var(--btn-notch));
-  padding-inline-end:calc(var(--btn-h) * .45 + var(--btn-tip) * .7);
+  padding-inline-end:calc(var(--btn-h) * .45 + var(--btn-tip) * .7 + var(--btn-h) * .8 * var(--btn-mark));
 }
 .btn[data-voice='loud']::before,
 .btn[data-voice='loud']::after{content:'';position:absolute;inset:calc(-1 * var(--line-w))}
@@ -106,6 +115,15 @@
   z-index:-1;border-radius:inherit;
   clip-path:polygon(0 0, calc(100% - var(--btn-tip)) 0, calc(100% - var(--btn-tip-at)) 50%, calc(100% - var(--btn-tip)) 100%, 0 100%, var(--btn-notch) 50%);
   background-color:var(--press-fill, var(--press-bg));
+  /* Кружок — слой той же заливки краской НАДПИСИ (она на заливке проходит
+     4.5 : 1 при любом варианте главной); стрелка в нём вырезана маской по
+     знаку ИЗ ЛИСТА (`/icons.svg#arrow-right-view`, tools/icons.mjs), а не
+     нарисована здесь, и сквозь вырез видна заливка под ним. Без кружка
+     (`--btn-mark: 0`) слои и вырез нулевые. */
+  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-ink) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark)));
+  -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat, linear-gradient(currentColor, currentColor);
+  -webkit-mask-composite:xor;
+  mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat exclude, linear-gradient(currentColor, currentColor);
   transition:background-color var(--hover-t) var(--ease);
 }
 /* Хвост за остриём (И276): шевроны, каждый на тон ближе к полу. Тоны —

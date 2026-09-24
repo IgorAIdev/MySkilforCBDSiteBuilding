@@ -102,7 +102,8 @@
           "--ctrl-btn-notch": "0",
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
-          "--ctrl-btn-trail-2": "0"
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0"
         }
       },
       "arrow": {
@@ -116,7 +117,8 @@
           "--ctrl-btn-notch": "0",
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
-          "--ctrl-btn-trail-2": "0"
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0"
         }
       },
       "chevron": {
@@ -130,7 +132,8 @@
           "--ctrl-btn-notch": "0.35",
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
-          "--ctrl-btn-trail-2": "0"
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0"
         }
       },
       "double": {
@@ -144,7 +147,8 @@
           "--ctrl-btn-notch": "0",
           "--ctrl-btn-echo": "block",
           "--ctrl-btn-trail-1": "0.17",
-          "--ctrl-btn-trail-2": "0.17"
+          "--ctrl-btn-trail-2": "0.17",
+          "--ctrl-btn-mark": "0"
         }
       },
       "trail-spaced": {
@@ -158,7 +162,8 @@
           "--ctrl-btn-notch": "0",
           "--ctrl-btn-echo": "block",
           "--ctrl-btn-trail-1": "0.17",
-          "--ctrl-btn-trail-2": "0.54"
+          "--ctrl-btn-trail-2": "0.54",
+          "--ctrl-btn-mark": "0"
         }
       },
       "trail-overlap": {
@@ -172,7 +177,23 @@
           "--ctrl-btn-notch": "0",
           "--ctrl-btn-echo": "block",
           "--ctrl-btn-trail-1": "-0.12",
-          "--ctrl-btn-trail-2": "0.16"
+          "--ctrl-btn-trail-2": "0.16",
+          "--ctrl-btn-mark": "0"
+        }
+      },
+      "circle": {
+        "имя": "Кружок со стрелкой",
+        "name": "Circle arrow",
+        "line": "A full-round pill with a circle and an arrow at the end",
+        "что": "пилюля, у конца — кружок краской надписи, в нём стрелка из листа знаков краской заливки (элемент 02, «Shop now»)",
+        "роли": {
+          "--ctrl-btn-tip": "0",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "1"
         }
       }
     }

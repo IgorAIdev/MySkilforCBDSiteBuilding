@@ -49,6 +49,10 @@ export const ROLES = {
      шум. */
   '--ctrl-btn-tip': 'number', '--ctrl-btn-tip-at': 'number', '--ctrl-btn-notch': 'number', '--ctrl-btn-echo': 'keyword',
   '--ctrl-btn-trail-1': 'number', '--ctrl-btn-trail-2': 'number',
+  /* Кружок у конца главной (слово заказчика 24.09.2026, «Shop now»): есть ли
+     он (0 или 1); форма с кружком — пилюля (угол кнопка выводит сама). Кружок — краской надписи, стрелка — вырез до заливки:
+     их контраст — контраст надписи на заливке, его замер уже держит. */
+  '--ctrl-btn-mark': 'number',
 }
 const CASES = ['none', 'uppercase']
 /** Разрядка заглавных — коридор набора (craft: заглавные без воздуха слипаются). */
@@ -156,6 +160,8 @@ export function auditButtons(catalog, palettes, tokens = null) {
       for (const k of ['--ctrl-btn-tip', '--ctrl-btn-tip-at', '--ctrl-btn-notch']) if (k in r && !(Number(r[k]) >= 0 && Number(r[k]) <= 1.5)) bad(style, `${k}: доля высоты кнопки 0…1.5`, r[k], '0…1.5')
       if ('--ctrl-btn-tip' in r && Number(r['--ctrl-btn-tip-at']) > Number(r['--ctrl-btn-tip'])) bad(style, 'точка острия правее его начала', r['--ctrl-btn-tip-at'], `не больше ${r['--ctrl-btn-tip']}`)
       if ('--ctrl-btn-echo' in r && !['none', 'block'].includes(r['--ctrl-btn-echo'])) bad(style, 'эхо-шеврон — none или block', r['--ctrl-btn-echo'], 'none, block')
+      if ('--ctrl-btn-mark' in r && !['0', '1'].includes(r['--ctrl-btn-mark'])) bad(style, 'кружок у конца — 0 или 1', r['--ctrl-btn-mark'], '0, 1')
+      if (r['--ctrl-btn-mark'] === '1' && (Number(r['--ctrl-btn-tip'] ?? 0) > 0 || Number(r['--ctrl-btn-notch'] ?? 0) > 0 || r['--ctrl-btn-echo'] === 'block')) bad(style, 'кружок у конца не носится с остриём, выемкой и хвостом', 'mark 1', 'tip 0, notch 0, echo none')
       for (const [fill, , edge, voice] of VOICES) {
         if (fill in r && r[fill] === 'transparent' && (r[edge] ?? 'transparent') === 'transparent') bad(style, `${voice}: без заливки и кромки кнопка не видна как орган`, 'transparent', 'заливка, вуаль или кромка')
       }

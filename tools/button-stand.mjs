@@ -27,7 +27,11 @@ if (missing.length) { console.error(`✗ Нет ${missing.join(', ')} — пок
 const catalog = JSON.parse(read('styles/buttons.json'))
 const { off } = availability(catalog, JSON.parse(read('styles/palette.json')))
 const options = axesOf(catalog).flatMap((a) => a.options.map((o) => ({ axis: a, o })))
-const plain = (p) => plainCss(read(p))
+/* Стенд открывается файлом, а модуль кнопки берёт знак из листа сайта
+   (`/icons.svg#<знак>-view`): лист подставляется в стенд, иначе стрелки
+   кружка у главной не видно. */
+const sheetUri = `data:image/svg+xml,${encodeURIComponent(read('styles/icons.svg'))}`
+const plain = (p) => plainCss(read(p)).replaceAll("url('/icons.svg#", "url('" + sheetUri + '#')
 const scaleCss = read('styles/scale.css')
 
 /* Палец — атрибутом, теми же числами, что в блоке @media (pointer:coarse). */

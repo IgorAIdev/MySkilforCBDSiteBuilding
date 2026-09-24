@@ -51,12 +51,23 @@ const symbols = names.map((file) => {
   return `  <symbol id="${id}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${shapes.join('')}</symbol>`
 })
 
+/* Вид знака (`#<имя>-view`): тот же рисунок, поставленный в ряд, и окно на
+   него — лист отдаётся картинкой одного знака по адресу `/icons.svg#<имя>-view`.
+   Так знак берёт стиль, которому нужна картинка, а не разметка: маска
+   кружка главной кнопки (styles/btn.module.css) вырезает стрелку из листа, а
+   не рисует свою. Страничный `<use href="#имя">` видов не касается. */
+const views = names.map((file, i) => {
+  const id = file.replace(/\.svg$/, '')
+  return `  <use href="#${id}" x="${i * 24}" y="0" width="24" height="24" stroke-width="1.75"/><view id="${id}-view" viewBox="${i * 24} 0 24 24"/>`
+})
+
 /* Краска и концы штриха — на КАЖДОМ знаке: `<use>` наследует от места
    вызова, а не от корня листа, и атрибуты корня до знака не доходят. */
 const sheet = `<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <!-- Собран tools/icons.mjs из skills/site-building/assets/icons/lucide (Lucide, ISC; см. LICENSE там же).
        Руками не правят: первый же выпуск сотрёт правку. Знаков: ${names.length}. -->
 ${symbols.join('\n')}
+${views.join('\n')}
 </svg>
 `
 
