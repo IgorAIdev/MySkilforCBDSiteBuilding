@@ -9,6 +9,9 @@
       "/[lang]/checkout/done": ["sample-placed"]
     }
   },
+  "queries": {
+    "/[lang]/search": ["q=cbd", "q=zzzz"]
+  },
   "seams": [
     {
       "at": 1080,

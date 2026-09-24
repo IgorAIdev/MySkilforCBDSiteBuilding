@@ -24,8 +24,12 @@
  *     "scale":       { "font": "text", "space": "space", "layer": "layer" },
  *     "breakpoints": [860],
  *     "probes":      { "notFound": false },
- *     "sessions":    { "cookie": "shop_session", "pages": { "/[lang]/cart": ["sample-cart"] } }
+ *     "sessions":    { "cookie": "shop_session", "pages": { "/[lang]/cart": ["sample-cart"] } },
+ *     "queries":     { "/[lang]/search": ["q=cbd", "q=zzzz"] }
  *   }
+ *
+ * `queries` — страницы с запросом для отрисованных проверок (И345): форма
+ * маршрута из дерева и строки запроса, по адресу на язык и строку.
  *
  * `sessions` называет личные страницы полными для дорогих проверок (И263):
  * cookie сессии проверки и, по форме маршрута, имена заготовленных сессий
@@ -96,6 +100,12 @@ const DEFAULTS = {
   /* Личные страницы (И263): без cookie сессии в проекте их нет вовсе — они
    *  меряются только деревом, пустыми. */
   sessions: { cookie: null, pages: {} },
+  /** Страницы с запросом (И345): форма маршрута → строки запроса, по адресу
+   *  на каждую. Дерево маршрутов строится по файлам `page.tsx`, а запрос к
+   *  файлу не привязан: поиск с запросом (`/[lang]/search?q=…`) — полка
+   *  результатов или «ничего не нашлось» — не мерился ни одной отрисованной
+   *  проверкой. Витрина называет два: с находками и без. */
+  queries: {},
   /** Контекст дизайна (И300): правда о продукте и описание вида ролями —
    *  схема impeccable (`PRODUCT.md`) и формат DESIGN.md без шапки. Их читает
    *  шаг 1 порядка дизайна (CLAUDE.md), DESIGN.md меряет `check:design`
@@ -141,6 +151,20 @@ function load() {
   for (const [shape, list] of Object.entries(ses.pages)) {
     if (!shape.startsWith('/') || !Array.isArray(list) || !list.every((e) => /^[A-Za-z0-9_-]+(\?\S*)?$/.test(String(e)))) {
       console.error(`kit.config.json: «sessions.pages["${shape}"]» — список имён сессий, например ["sample-cart"]`)
+      process.exit(1)
+    }
+  }
+  /* Запросы (И345): объект «форма → строки запроса», как у сессий; строка —
+     пары `имя=значение` через `&`, без `?` и `#`. Кривая запись падает здесь,
+     а не молча выбрасывает страницу из замера. */
+  const asks = cfg.queries
+  if (asks === null || typeof asks !== 'object' || Array.isArray(asks)) {
+    console.error('kit.config.json: «queries» — объект { форма: [запросы] }, например { "/[lang]/search": ["q=cbd", "q=zzzz"] }')
+    process.exit(1)
+  }
+  for (const [shape, list] of Object.entries(asks)) {
+    if (!shape.startsWith('/') || !Array.isArray(list) || !list.length || !list.every((q) => /^[\w.~%-]+=[^\s#&?]*(&[\w.~%-]+=[^\s#&?]*)*$/.test(String(q)))) {
+      console.error(`kit.config.json: «queries["${shape}"]» — непустой список запросов вида "q=cbd" (без «?» и «#»)`)
       process.exit(1)
     }
   }
@@ -195,6 +219,8 @@ export const PROBES = CONFIG.probes
 /** Личные страницы полными (И263): cookie сессии проверки и сессии образца
  *  по форме маршрута. */
 export const SESSIONS = CONFIG.sessions
+/** Страницы с запросом (И345): форма маршрута → строки запроса. */
+export const QUERIES = CONFIG.queries ?? {}
 /** Контекст дизайна: файл правды о продукте и описание вида (И300). */
 export const PRODUCT_DOC = CONFIG.productDoc
 export const DESIGN_DOC = CONFIG.designDoc

@@ -34,7 +34,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { sessionUrls } from './sessions.mjs'
-import { SESSIONS } from './kit-config.mjs'
+import { SESSIONS, QUERIES } from './kit-config.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 /* Файла может не быть вовсе: набор переезжает в новый проект, где `lib/`
@@ -262,18 +262,34 @@ function queried() {
   return LOCALES.length ? LOCALES.map((l) => `/${l}${suffix}`) : [suffix]
 }
 
+/** Страницы с запросом из `kit.config.json` (`queries`, И345): форма
+ *  маршрута → строки запроса. Поиск с запросом — та же страница
+ *  `/[lang]/search`, но другая раскладка: полка результатов или «ничего не
+ *  нашлось»; без записи здесь `check:craft`, `check:detect` и свип мерили
+ *  только поиск без запроса. Форма не из дерева (переименовали, опечатка) не
+ *  меряется — она названа предупреждением. */
+function asked(fill) {
+  const tree = new Set(shapes())
+  const out = []
+  for (const [shape, list] of Object.entries(QUERIES)) {
+    if (!tree.has(shape)) { console.warn(`kit.config.json: форма «${shape}» из «queries» — не из дерева маршрутов app/, не меряется`); continue }
+    for (const url of expand(fill)(shape)) for (const q of list) out.push(`${url}?${q}`)
+  }
+  return out
+}
+
 /** Каждый адрес, который публикует сайт. Для дешёвых проверок: открывается
  *  ли страница, обещана ли она картой сайта. */
 export function all() {
   assertData()
-  return [...new Set([...shapes().flatMap(expand(FILL)), ...queried()])].sort()
+  return [...new Set([...shapes().flatMap(expand(FILL)), ...queried(), ...asked(FILL)])].sort()
 }
 
 /** По одному адресу на форму маршрута и язык. Для дорогих проверок —
  *  отрисованных, где каждая страница стоит шести открытий. */
 export function sample() {
   assertData()
-  return [...new Set([...shapes().flatMap(expand(SAMPLE)), ...queried()])].sort()
+  return [...new Set([...shapes().flatMap(expand(SAMPLE)), ...queried(), ...asked(SAMPLE)])].sort()
 }
 
 /** Личные страницы полными — для дорогих проверок (И263): формы из
