@@ -119,11 +119,15 @@
      4.5 : 1 при любом варианте главной); стрелка в нём вырезана маской по
      знаку ИЗ ЛИСТА (`/icons.svg#arrow-right-view`, tools/icons.mjs), а не
      нарисована здесь, и сквозь вырез видна заливка под ним. Без кружка
-     (`--btn-mark: 0`) слои и вырез нулевые. */
+     (`--btn-mark: 0`) слои и вырез нулевые. Сплошной слой маски — краской
+     чернил, а не `currentColor`: маске нужна только непрозрачность, а
+     `currentColor` гаснет вместе с надписью — проверка контраста снимает дно
+     под буквами, покрасив их в прозрачное, и заливка пропадала вместе с
+     ними: 1.00…1.31 : 1 при кнопке, на глаз верной (находка 25.09.2026). */
   background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-ink) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark)));
-  -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat, linear-gradient(currentColor, currentColor);
+  -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat, linear-gradient(var(--ink), var(--ink));
   -webkit-mask-composite:xor;
-  mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat exclude, linear-gradient(currentColor, currentColor);
+  mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat exclude, linear-gradient(var(--ink), var(--ink));
   transition:background-color var(--hover-t) var(--ease);
 }
 /* Хвост за остриём (И276): шевроны, каждый на тон ближе к полу. Тоны —

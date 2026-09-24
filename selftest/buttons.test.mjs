@@ -51,6 +51,9 @@ test('the button reads every role the catalog may declare, each with a fallback;
   assert.match(btn, /padding-inline-end:calc\(var\(--btn-h\) \* \.45 \+ var\(--btn-tip\) \* \.7 \+ var\(--btn-h\) \* \.8 \* var\(--btn-mark\)\)/, 'надпись не заходит в остриё и в кружок у конца')
   /* Стрелка в кружке — знак из листа (вид `#arrow-right-view`), не свой рисунок. */
   assert.match(btn, /url\('\/icons\.svg#arrow-right-view'\)/, 'стрелка кружка — из листа знаков')
+  /* Маска заливки не держится за краску надписи: проверка контраста красит
+     буквы в прозрачное, чтобы снять дно, — и заливка гасла вместе с ними. */
+  assert.doesNotMatch(btn, /mask:[^;]*currentColor/, 'сплошной слой маски — не currentColor')
   assert.doesNotMatch(btn.match(/\.btn\{[^}]*\}/)[0], /clip-path/, 'сама кнопка не режется')
   assert.match(btn, /:active::after\{transform:scale\(calc\(1 \/ \.97\)\) translateY\(-1px\)\}/, 'хвост при нажатии стоит')
   for (const o of axesOf(catalog)[3].options) for (const k of ['--ctrl-btn-tip', '--ctrl-btn-tip-at', '--ctrl-btn-notch']) assert.ok(Number(o.роли[k]) >= 0 && Number(o.роли[k]) <= 1.5, `${o.id}: ${k} — доля высоты`)
