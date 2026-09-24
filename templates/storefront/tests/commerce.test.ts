@@ -4,6 +4,8 @@ import { sampleCommerce as c, resetSample, FIXTURES } from '../lib/source/sample
 import { stepFor } from '../lib/checkout-steps.ts'
 import type { Address, Contact } from '../lib/source/contract.ts'
 
+const NB = '\u00a0'
+
 const CONTACT: Contact = { email: 'ion@example.com', firstName: 'Ion', lastName: 'Ionescu', phone: '0722 000 000' }
 const ADDRESS: Address = { street: 'Str. Test 2', city: 'Cluj-Napoca', region: 'Cluj', postalCode: '400001', country: 'RO' }
 const EUR = (minor: number) => ({ minor, currency: 'EUR' })
@@ -26,7 +28,7 @@ test('add: the first item opens a session, a line and totals from the source', a
   assert.equal(cart.delivery, null)
   assert.deepEqual(cart.total, EUR(12980))
   assert.equal(r.change.added, undefined)
-  assert.deepEqual(cart.lines[0].options.map((o) => `${o.group}=${o.code}:${o.name}`), ['putere=20:20 %', 'volum=10:10 ml'])
+  assert.deepEqual(cart.lines[0].options.map((o) => `${o.group}=${o.code}:${o.name}`), [`putere=20:20${NB}%`, 'volum=10:10 ml'])
 })
 
 test('add: the same variant twice is one line; limits are loud', async () => {

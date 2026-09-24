@@ -6,6 +6,8 @@ import { hrefFor, type Query } from '../lib/href.ts'
 import type { Asked } from '../lib/listing.ts'
 import type { Facet } from '../lib/source/contract.ts'
 
+const NB = '\u00a0'
+
 const none = { title: '', step: '', href: '' }
 
 test('page links keep the chosen facets and sort; the first page carries no number', async () => {
@@ -80,7 +82,7 @@ test('chosen values become pills that remove only themselves and keep the order'
   const v = catalogView('en', { title: 'T', lede: null, listing: r.value, asked, at, filters: true, empty: none })
   assert.deepEqual(v.chips.map((c) => [c.label, c.href]), [
     ['Oil', '/en/catalog?facet.putere=10&sort=price-asc'],
-    ['10 %', '/en/catalog?facet.forma=ulei&sort=price-asc'],
+    [`10${NB}%`, '/en/catalog?facet.forma=ulei&sort=price-asc'],
   ])
   assert.equal(v.chips[0].said, 'Remove filter Form: Oil')
   assert.equal(v.clear?.href, '/en/catalog?sort=price-asc', 'сброс граней не сбрасывает порядок')

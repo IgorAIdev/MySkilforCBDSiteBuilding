@@ -1,7 +1,11 @@
-import type { Lang } from './locale.ts'
+import { LOCALES, type Lang } from './locale.ts'
+import { percent } from './format.ts'
 import type { Pack, Strength } from './source/contract.ts'
 
 type T = Record<Lang, string>
+/** Одна строка на каждый язык страницы — числом, которое пишет запись языка
+ *  (lib/format.ts, И347), а не набранным рукой по-румынски на всех трёх. */
+const each = (write: (lang: Lang) => string): T => Object.fromEntries(LOCALES.map((l) => [l, write(l)])) as T
 export type SampleCategory = { slug: string; name: T; description: T }
 /** `price` — в минорных единицах валюты рынка (у образца — евроцентах);
  *  `was` — цена до скидки, если вариант продаётся со скидкой; `pack` — CBD
@@ -33,16 +37,13 @@ export const FACETS: { code: string; name: T; values: { code: string; name: T }[
     { code: 'crema', name: { ro: 'Cremă', en: 'Cream', hu: 'Krém' } },
     { code: 'pentru-animale', name: { ro: 'Pentru animale', en: 'For pets', hu: 'Háziállatoknak' } },
   ] },
-  { code: 'putere', name: { ro: 'Concentrație', en: 'Strength', hu: 'Erősség' }, values: [
-    { code: '2.5', name: { ro: '2,5 %', en: '2,5 %', hu: '2,5 %' } },
-    { code: '5', name: { ro: '5 %', en: '5 %', hu: '5 %' } },
-    { code: '10', name: { ro: '10 %', en: '10 %', hu: '10 %' } },
-    { code: '20', name: { ro: '20 %', en: '20 %', hu: '20 %' } },
-    { code: '30', name: { ro: '30 %', en: '30 %', hu: '30 %' } },
-  ] },
+  /* Значение грани «Сила» — число: его имя пишет запись языка страницы
+     («2.5 %» по-английски, «2,5 %» по-румынски и по-венгерски). Набранное
+     рукой, по-английски оно стояло с запятой. */
+  { code: 'putere', name: { ro: 'Concentrație', en: 'Strength', hu: 'Erősség' }, values: ['2.5', '5', '10', '20', '30'].map((code) => ({ code, name: each((l) => percent(l, Number(code))) })) },
 ]
 
-const strength = (codes: string[]) => ({ code: 'putere', name: { ro: 'Concentrație', en: 'Strength', hu: 'Erősség' }, options: codes.map((c) => ({ code: c, name: { ro: `${c} %`, en: `${c} %`, hu: `${c} %` } })) })
+const strength = (codes: string[]) => ({ code: 'putere', name: { ro: 'Concentrație', en: 'Strength', hu: 'Erősség' }, options: codes.map((c) => ({ code: c, name: each((l) => percent(l, Number(c))) })) })
 const volume = (codes: string[]) => ({ code: 'volum', name: { ro: 'Volum', en: 'Volume', hu: 'Térfogat' }, options: codes.map((c) => ({ code: c, name: { ro: `${c} ml`, en: `${c} ml`, hu: `${c} ml` } })) })
 const count = (codes: string[]) => ({ code: 'bucati', name: { ro: 'Bucăți', en: 'Count', hu: 'Darab' }, options: codes.map((c) => ({ code: c, name: { ro: `${c} buc.`, en: `${c} pcs`, hu: `${c} db` } })) })
 

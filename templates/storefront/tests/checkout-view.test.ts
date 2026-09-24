@@ -107,7 +107,7 @@ test('payment: eligible first, the rest disabled with the reason; the review and
   ])
   assert.equal(v.recaps[1].change!.href, '/ro/checkout/delivery')
   assert.equal(v.recaps[1].change!.aria, 'Modifică: Livrare')
-  assert.deepEqual([v.items[0].name, v.items[0].facts, v.items[1].facts], ['Ulei CBD full spectrum', '20 % · 10 ml · Cant. 1', '30 buc. · Cant. 2'])
+  assert.deepEqual([v.items[0].name, v.items[0].facts, v.items[1].facts], ['Ulei CBD full spectrum', `20${NB}% · 10 ml · Cant. 1`, '30 buc. · Cant. 2'])
   assert.deepEqual(v.pledges.items.map((i) => i.text), ['Retur în 14 zile'], 'by the order button: the return deadline from the data')
   assert.equal(v.totals.total.value, `135,22${NB}€`)
   assert.equal(v.submit, 'Comandă cu obligație de plată')

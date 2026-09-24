@@ -1,6 +1,6 @@
 import type { Lang } from './locale.ts'
 import type { Card, Pack } from './source/contract.ts'
-import { intlLocale } from './market.ts'
+import { BIND, num } from './format.ts'
 import { t } from './i18n/index.ts'
 
 /* Факты товара на полке — сила, мера, миллиграммы — одной строкой из данных
@@ -9,10 +9,8 @@ import { t } from './i18n/index.ts'
    цена и «В наличии». Здесь одна арифметика на всё, что их печатает или по
    ним фильтрует, и одна запись числа с единицей. */
 
-/** Неразрывный пробел: число не отрывается от своей единицы («30 / % forte»
- *  рвалось на телефоне посередине, разбор Q5). Тот же знак ставит `money`
- *  между суммой и валютой. */
-const BIND = ' '
+/* Неразрывный пробел между числом и единицей и запись самого числа — одни на
+   витрину (`lib/format.ts`, И347): «2.5» по-английски, «2,5» по-румынски. */
 
 /** Концентрация упаковки, %: мг ÷ (мл × 10), до десятой (cbd-facet, §2.2).
  *  Только у жидкости в мл и только при заявленных мг: у банки капсул объёма
@@ -29,13 +27,12 @@ const distinct = (xs: (number | null)[]): number[] =>
 /** Значения одной меры по вариантам: одно — числом, два — через косую
  *  («10/30 ml» — их ровно два, «10–30» обещал бы непрерывный ряд), больше —
  *  диапазоном от меньшего к большему. */
-/* Число — записью рынка (`intlLocale`, как цена и протокол на карте
-   товара): «2,5» и в английском; четыре знака без разрядки — «1000 mg», как
+/* Число — записью языка страницы (`num`, lib/format.ts): «2.5» в английском,
+   «2,5» в румынском и венгерском; четыре знака без разрядки — «1000 mg», как
    на этикетке, разрядка с пяти. */
 function nums(lang: Lang, xs: number[]): string {
-  const n = new Intl.NumberFormat(intlLocale(lang), { maximumFractionDigits: 1, useGrouping: 'min2' })
-  const [lo, hi] = [xs[0], xs[xs.length - 1]]
-  return xs.length === 1 ? n.format(lo) : xs.length === 2 ? `${n.format(lo)}/${n.format(hi)}` : `${n.format(lo)}–${n.format(hi)}`
+  const [lo, hi] = [num(lang, xs[0]), num(lang, xs[xs.length - 1])]
+  return xs.length === 1 ? lo : xs.length === 2 ? `${lo}/${hi}` : `${lo}–${hi}`
 }
 const span = (lang: Lang, xs: number[], unit: string): string | null => (xs.length ? `${nums(lang, xs)}${BIND}${unit}` : null)
 

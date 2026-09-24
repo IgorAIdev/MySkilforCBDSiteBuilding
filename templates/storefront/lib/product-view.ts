@@ -4,6 +4,7 @@ import { t } from './i18n/index.ts'
 import { money } from './money.ts'
 import { hrefFor } from './href.ts'
 import { intlLocale } from './market.ts'
+import { percent } from './format.ts'
 import { pickState, optionLinks, type OptionGroupLinks } from './variant.ts'
 import { shelfCard, stockText, type ShelfCard } from './view.ts'
 import { QTY_MAX } from './cart-view.ts'
@@ -55,18 +56,19 @@ export function galleryView(lang: Lang, images: Image[], badge: string | null): 
   }
 }
 
-/** Скидка показанной цены: прежняя цена строкой и плашка «−15 %» по записи
- *  языка. Считает вид, а не компонент (И248): блок получает готовые строки.
- *  Прежней цены нет или она не выше — скидки нет. */
+/** Скидка показанной цены: прежняя цена строкой и плашка «−15 %» записью
+ *  языка страницы (`percent`, lib/format.ts, И347). Считает вид, а не
+ *  компонент (И248): блок получает готовые строки. Прежней цены нет или она
+ *  не выше — скидки нет. */
 function saleOf(lang: Lang, price: Money, was: Money | null): { was: WasView; badge: string } | null {
   if (!was || was.minor <= price.minor) return null
-  const pct = new Intl.NumberFormat(intlLocale(lang), { style: 'percent', maximumFractionDigits: 0 })
   const text = money(was, lang)
-  return { was: { text, said: t(lang, 'product.was', { price: text }) }, badge: t(lang, 'product.off', { pct: pct.format(1 - price.minor / was.minor) }) }
+  return { was: { text, said: t(lang, 'product.was', { price: text }) }, badge: t(lang, 'product.off', { pct: percent(lang, (1 - price.minor / was.minor) * 100, 0) }) }
 }
 
+/** Протокол партии: цифры анализа — записью языка страницы (`percent`,
+ *  «10.2 %» / «10,2 %», И347); дата — порядком рынка (`intlLocale`). */
 export function labView(lang: Lang, r: LabReport): LabView {
-  const pct = new Intl.NumberFormat(intlLocale(lang), { style: 'percent', maximumFractionDigits: 2 })
   const date = new Intl.DateTimeFormat(intlLocale(lang), { dateStyle: 'long', timeZone: 'UTC' })
   return {
     title: t(lang, 'product.lab'),
@@ -74,8 +76,8 @@ export function labView(lang: Lang, r: LabReport): LabView {
     rows: [
       [t(lang, 'lab.lab'), r.lab],
       [t(lang, 'lab.date'), date.format(new Date(r.date))],
-      ['CBD', pct.format(r.cbdPercent / 100)],
-      ['THC', pct.format(r.thcPercent / 100)],
+      ['CBD', percent(lang, r.cbdPercent, 2)],
+      ['THC', percent(lang, r.thcPercent, 2)],
     ],
     open: r.url && !r.url.startsWith('#') ? { label: t(lang, 'lab.open'), href: r.url } : null,
   }

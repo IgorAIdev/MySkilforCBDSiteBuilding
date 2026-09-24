@@ -93,7 +93,7 @@ test('the gallery: every image with its anchor and name; the sale badge follows 
   assert.equal(v.gallery.slides[0].alt, 'CBD capsules 25 mg')
   assert.equal(v.gallery.slides[1].alt, 'CBD capsules 25 mg, the back label')
   assert.equal(v.gallery.slides[2].show, 'Image 3 of 4')
-  assert.equal(v.gallery.badge, '−15%', 'без выбора — скидка самой низкой цены')
+  assert.equal(v.gallery.badge, '−15\u00a0%', 'без выбора — скидка самой низкой цены; процент — одной записью с фактами и на английском (И347)')
   assert.deepEqual(v.was, { text: '€46.90', said: 'Was €46.90' })
   const sixty = productView('ro', caps.value, { bucati: '60' }, none)
   assert.equal(sixty.gallery.badge, null)
