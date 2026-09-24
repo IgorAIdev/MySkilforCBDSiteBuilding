@@ -8,6 +8,7 @@ export const CARDS = [
   'framed', // look-card:framed
   'bare', // look-card:bare
   'outlined', // look-card:outlined
+  'toned', // look-card:toned
 ] as const
 
 export type CardVariant = (typeof CARDS)[number]

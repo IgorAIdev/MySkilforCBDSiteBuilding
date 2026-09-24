@@ -9,7 +9,8 @@
      1. стили — значения свойств вида в styles/palette.css, styles/buttons.css
         и styles/scale.css заменяются опубликованными, блоков чужих наборов
         (`[data-palette]`, `[data-button]`, `[data-scale]`) в них нет;
-        шрифт, тени, отметка пункта меню, ручки карты товара (`--pdp-*`) и
+        шрифт, тени, отметка пункта меню, ручки товара (`--pdp-*` карты,
+        кадр снимка `--shot-frame`, плотность полки `--shelf-cols`) и
         `@font-face` опубликованных шрифтов — в styles/look.css. Устройство файлов (имена, порядок, блок
         `@media (pointer:coarse)`) берётся из них самих: имена выпускают
         строители набора, значения — вид;
@@ -42,15 +43,18 @@ const FILES = { palette: 'styles/palette.css', buttons: 'styles/buttons.css', sc
 
 /** Род свойства отметки текущего пункта меню. */
 const MARKER = { line: 'keyword', fill: 'colour', ink: 'colour', r: 'length', pad: 'length' }
-/** Ручки карты товара (И278): каждое свойство — своя настройка панели
- *  («Admin → Product page»), группа — имя свойства без `--`. Род и
- *  умолчание — на случай, когда styles/look.css сайта старше группы и их
- *  ещё не несёт; дальше значение приходит из опубликованного вида. */
+/** Ручки товара: карта (И278, «Admin → Product page») и полка (И400,
+ *  «Admin → Card») — пропорция снимка одна на полку и карту, плотность —
+ *  сколько карточек в ряд на полке каталога. Каждое свойство — своя
+ *  настройка панели, группа — имя свойства без `--`. Род и умолчание — на
+ *  случай, когда styles/look.css сайта старше группы и их ещё не несёт;
+ *  дальше значение приходит из опубликованного вида. */
 export const PRODUCT = {
   '--pdp-gallery': { type: 'length', value: '50%' },
-  '--pdp-frame': { type: 'number', value: '1 / 1' },
   '--pdp-thumbs': { type: 'keyword', value: 'below' },
   '--pdp-edge': { type: 'keyword', value: 'inset' },
+  '--shot-frame': { type: 'number', value: '1 / 1' },
+  '--shelf-cols': { type: 'number', value: '4' },
 }
 /* Роли тени — по работе (И228): предмет в покое, подъём под рукой,
    всплывающее, вдавленное. Объявлены ОДИН раз — в styles/look.css, на
@@ -170,7 +174,7 @@ export function lookStyles(site, raw) {
     scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
     /* Роли тени — своим блоком на списке полов (И385): на палубе и листе
        геометрия вида пересчитывается из их ингредиентов. */
-    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, ручки карты товара и шрифты вида со своего адреса')}:root{\n${['face', 'marker', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', 'marker', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
       `${FLOORS}{\n${decls('shadow')}\n}\n` +
       (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
   }

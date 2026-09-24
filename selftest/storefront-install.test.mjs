@@ -105,7 +105,7 @@ test('--storefront installs one look in the site and the whole kit catalogue in 
     assert.ok(Array.isArray(catalog.pairs), 'пары, которые не носятся, посчитаны')
     assert.match(readFileSync(join(plain, 'look-panel/PANEL.md'), 'utf8'), /<!-- pairs:start -->\n\| вариант \| не носится с \| почему \|\n\| --- \| --- \| --- \|\n\|/, 'список пар — в PANEL.md')
     /* Карта товара (И278): три ручки — группы каталога, умолчание — значение сайта. */
-    for (const [g, id] of [['pdp-gallery', '50'], ['pdp-frame', 'square'], ['pdp-thumbs', 'below']]) assert.equal(catalog.defaults[g], id, g)
+    for (const [g, id] of [['pdp-gallery', '50'], ['shot-frame', 'square'], ['shelf-cols', '4'], ['pdp-thumbs', 'below']]) assert.equal(catalog.defaults[g], id, g)
     assert.deepEqual(json('lib/source/sample/look.json').names, catalog.defaults, 'опубликован вид по умолчанию')
 
     const named = join(root, 'named')

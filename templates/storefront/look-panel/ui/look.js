@@ -192,7 +192,10 @@
       /* Карта товара: доля ряда — полоса с долей галереи; пропорция — кадр;
          миниатюры — кадр с рядом под ним, полосой сбоку или точками. */
       if (field === 'pdp-gallery') return el('span', { class: 'lp-row-split', 'aria-hidden': 'true' }, [el('i', { style: 'inline-size:' + o.vars['--pdp-gallery'] })])
-      if (field === 'pdp-frame') return el('i', { class: 'lp-pic', style: 'aspect-ratio:' + o.vars['--pdp-frame'], 'aria-hidden': 'true' })
+      /* Полка (И400): пропорция снимка — кадр; плотность — столько столбиков,
+         сколько карточек в ряд. */
+      if (field === 'shot-frame') return el('i', { class: 'lp-pic', style: 'aspect-ratio:' + o.vars['--shot-frame'], 'aria-hidden': 'true' })
+      if (field === 'shelf-cols') return el('span', { class: 'lp-cols', 'aria-hidden': 'true' }, Array.from({ length: Number(o.vars['--shelf-cols']) || 4 }, function () { return el('i') }))
       if (field === 'pdp-thumbs') {
         var at = o.vars['--pdp-thumbs']
         return el('span', { class: 'lp-thumbs', 'data-at': at, 'aria-hidden': 'true' }, [el('i', { class: 'lp-pic' })].concat([0, 1, 2].map(function () { return el('b') })))

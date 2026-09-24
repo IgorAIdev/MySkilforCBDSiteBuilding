@@ -25,7 +25,8 @@
 
    Ручки вида — свойства опубликованного вида (панель «Look», «Admin →
    Product page»; выпущены в styles/look.css): `--pdp-gallery` — доля ряда,
-   `--pdp-frame` — пропорция снимка, `--pdp-thumbs` — где миниатюры:
+   `--shot-frame` — пропорция снимка (одна с полкой, «Admin → Card», И400),
+   `--pdp-thumbs` — где миниатюры:
    `below`, `side`, `dots` (точки вместо миниатюр), `over` (точки на самом
    кадре — ряда под кадром нет, блок ростом с кадр); `--pdp-edge` — край
    снимка в одну колонку: `inset` (в полях страницы) или `bleed` (во всю
@@ -33,7 +34,7 @@
 .pdp{
   --switch-at:820px;--switch-gap:var(--air-block);
   --gallery-gap:var(--gap-row);
-  --gallery-r:calc(var(--pdp-frame));
+  --gallery-r:calc(var(--shot-frame));
   --gallery-fold:58svh;
   --frame-max:620px;
   /* Сколько лист наезжает на снимок во всю ширину: ровно на свой угол —

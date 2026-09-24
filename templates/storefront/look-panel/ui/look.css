@@ -190,6 +190,8 @@
 .lp-edge[data-at='bleed']{padding:0}
 .lp-edge[data-at='bleed'] .lp-pic{block-size:14px;border-radius:3px 3px 0 0}
 .lp-edge[data-at='bleed'] b{block-size:8px;border-radius:3px 3px 0 0}
+.lp-cols{display:inline-flex;gap:1px;opacity:.8}
+.lp-cols i{display:block;inline-size:3px;block-size:12px;border-radius:1px;background:currentColor}
 .lp-thumbs[data-at='over']{grid-template-rows:12px}
 .lp-thumbs[data-at='over'] .lp-pic{grid-row:1}
 .lp-thumbs[data-at='over'] b{grid-row:1;border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:end;margin-block-end:2px;background:var(--lp-bg)}
@@ -349,6 +351,12 @@
 .lp-pcard[data-card='framed']{background:var(--plate, var(--lp-bg));box-shadow:var(--sh-raised)}
 .lp-pcard[data-card='bare']{padding:0}
 .lp-pcard[data-card='outlined']{box-shadow:inset 0 0 0 1px var(--rule, var(--lp-line))}
+/* Toned — снимок до краёв, под ним поле тоном; снимок — ступенью темнее
+   поля, иначе он слился бы с полем образца. */
+.lp-pcard[data-card='toned']{padding:0 0 var(--lp-s3);background:var(--plate-2, var(--lp-well))}
+.lp-pcard[data-card='toned'] .lp-card-pic{border-radius:var(--r-card, 12px) var(--r-card, 12px) 0 0;background:var(--plate-3, var(--lp-line))}
+.lp-pcard[data-card='toned'] > :not(.lp-card-pic){margin-inline:var(--lp-s3)}
+.lp-pcard[data-card='toned'] .lp-card-name{font-weight:400}
 
 /* Цвет развёрнутый: наборы во всю ширину, строитель и обещания — рядом. */
 .lp-panel[data-wide] #lp-pane-color{display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));align-items:start;column-gap:var(--lp-s6)}

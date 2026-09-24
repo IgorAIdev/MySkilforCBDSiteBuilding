@@ -96,10 +96,15 @@ const ROLE = [
      `--page-box` — ширина коробки; читают `.wrap` и всё, что стоит поверх
      страницы шириной коробки. */
   { rx: /^--(wrap|gut(-base)?|page-(line|gut|edge|box)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
-  /* Карта товара — ручки вида галереи (И278): доля ряда, пропорция снимка,
-     место миниатюр. Роли, а не узлы: их ставит вид сайта на корне (панель
+  /* Карта товара — ручки вида галереи (И278): доля ряда, место миниатюр,
+     край снимка. Роли, а не узлы: их ставит вид сайта на корне (панель
      «Look»), читает узел `gallery` карты. Список закрытый — по имени. */
-  { rx: /^--pdp-(gallery|frame|thumbs|edge)$/, family: 'карта товара: вид галереи', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--pdp-(gallery|thumbs|edge)$/, family: 'карта товара: вид галереи', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  /* Товар на полке и карте (И400): пропорция снимка — одна на полку и
+     карту, снимки у товара одни; плотность — сколько карточек в ряд на
+     полке каталога. Роли вида («Admin → Card»), читают узлы карточки,
+     галереи и полки. */
+  { rx: /^--(shot-frame|shelf-cols)$/, family: 'товар: кадр снимка и плотность полки', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
 ]
 const ALL_CONCEPTS = [...new Set(Object.values(CONCEPTS).flat())]
 const concept = new RegExp(`^--${FAMS(ALL_CONCEPTS)}(-[a-z0-9]+)*$`)

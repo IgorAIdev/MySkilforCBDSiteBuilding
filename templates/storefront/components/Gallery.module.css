@@ -4,7 +4,8 @@
    там же высота окна, под которую блок подогнан. Здесь — устройство: кадр
    берёт всю ширину, миниатюр в ряду четыре во всю ширину кадра, зазор —
    роль `--gap-row` (`--gallery-gap` карты). Пропорция снимка — ручка вида
-   `--pdp-frame`, у кадра и у миниатюр одна.
+   `--shot-frame`, у кадра и у миниатюр одна; та же — у карточки на полке
+   (И400): снимки у товара одни.
 
    Главный кадр — лента слайдов с прилипанием (`scroll-snap`): палец листает
    её свайпом, колесо и клавиатура — прокруткой, миниатюра — ссылкой на
@@ -17,7 +18,7 @@
 /* Кадр — примитив `frame`: пропорция ручкой, потолок — бюджет высоты
    колонки (в две колонки `--pin-fit`, в одну `--gallery-fold`). Ширина
    колонки уже посчитана так, что потолок не достигается; он страхует. */
-.gallery .stage{--frame:var(--pdp-frame);--frame-cap:var(--gallery-fold);grid-area:stage;position:relative;border-radius:var(--r-card)}
+.gallery .stage{--frame:var(--shot-frame);--frame-cap:var(--gallery-fold);grid-area:stage;position:relative;border-radius:var(--r-card)}
 @container pdp (min-width:820px){ .gallery .stage{--frame-cap:var(--pin-fit)} }
 
 .strip{
@@ -53,7 +54,7 @@
 /* Миниатюра — тот же кадр, мельче: пропорция вида, снимок кадрируется.
    Кромка — волосок; текущая — кольцом чернил поверх снимка (`::after`:
    тень внутри рамки ушла бы под картинку). */
-.gallery .thumb{--frame:var(--pdp-frame);position:relative;border-radius:var(--r-ctrl);background:var(--plate-2)}
+.gallery .thumb{--frame:var(--shot-frame);position:relative;border-radius:var(--r-ctrl);background:var(--plate-2)}
 .thumb::after{
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   box-shadow:inset 0 0 0 var(--line-w) var(--line);

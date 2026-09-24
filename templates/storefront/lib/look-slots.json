@@ -551,6 +551,11 @@
       "group": "button",
       "value": "0"
     },
+    "--ctrl-btn-mark": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
     "--fs-xs": {
       "type": "length",
       "group": "scale",
@@ -1056,11 +1061,6 @@
       "group": "pdp-gallery",
       "value": "50%"
     },
-    "--pdp-frame": {
-      "type": "number",
-      "group": "pdp-frame",
-      "value": "1 / 1"
-    },
     "--pdp-thumbs": {
       "type": "keyword",
       "group": "pdp-thumbs",
@@ -1070,6 +1070,16 @@
       "type": "keyword",
       "group": "pdp-edge",
       "value": "inset"
+    },
+    "--shot-frame": {
+      "type": "number",
+      "group": "shot-frame",
+      "value": "1 / 1"
+    },
+    "--shelf-cols": {
+      "type": "number",
+      "group": "shelf-cols",
+      "value": "4"
     }
   },
   "facts": {

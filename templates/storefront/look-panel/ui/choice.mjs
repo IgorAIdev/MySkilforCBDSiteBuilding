@@ -34,14 +34,16 @@ export const SECTIONS = [
   ] },
   { id: 'admin', name: 'Admin', subs: [
     { id: 'header', name: 'Header', hint: 'The layout of the header, and how the current shelf is marked in it.', fields: [['header', 'Layout'], ['marker', 'Current menu item']] },
-    { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf.', fields: [['card', 'Product card']] },
+    /* Полка (И400): одежда карточки, пропорция снимка — одна с картой
+       товара, — и сколько карточек в ряд на полке каталога. */
+    { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf. The picture shape is the same on the product page: the photos are the same.', fields: [['card', 'Product card'], ['shot-frame', 'Picture'], ['shelf-cols', 'Shelf density']] },
     /* Главная (lib/homes.ts): порядок и раскладка блоков; слова и снимки —
        данные страницы, одни на все варианты. */
     { id: 'home', name: 'Home', hint: 'How the home page is composed: what comes first and how each part is laid out. Your texts and pictures stay the same.', fields: [['home', 'Layout']] },
-    /* Карта товара (И278): доля ряда под галерею, пропорция снимка, место
+    /* Карта товара (И278): доля ряда под галерею, край снимка, место
        миниатюр — значения `--pdp-*`; галерея при любом выборе помещается в
-       экран. */
-    { id: 'product', name: 'Product page', hint: 'How the product page shows its pictures. The gallery always fits the screen; open a product to see the change.', fields: [['pdp-gallery', 'Gallery width'], ['pdp-frame', 'Image'], ['pdp-edge', 'Picture edge'], ['pdp-thumbs', 'Thumbnails']] },
+       экран. Пропорция снимка — в Card: она одна с полкой (И400). */
+    { id: 'product', name: 'Product page', hint: 'How the product page shows its pictures. The gallery always fits the screen; open a product to see the change.', fields: [['pdp-gallery', 'Gallery width'], ['pdp-edge', 'Picture edge'], ['pdp-thumbs', 'Thumbnails']] },
   ] },
 ]
 /** Поля-разметка: другой вариант — другая разметка страницы, черновик и перезагрузка. */
@@ -62,10 +64,17 @@ export const CUSTOM = 'custom'
 
 const option = (catalog, field, id) => (catalog.groups[field] ?? []).find((o) => o.id === id) ?? null
 
+/** Поля, переехавшие под новое имя: новое ← прежнее. Вид, опубликованный до
+ *  переезда, несёт выбор под прежним именем — он переносится, а не
+ *  теряется: пропорция снимка стала одной на полку и карту (И400). */
+export const MOVED = { 'shot-frame': 'pdp-frame' }
+/** Имя поля в выборе — под нынешним именем или, у переехавшего, под прежним. */
+const nameOf = (names, f) => names?.[f] ?? (MOVED[f] ? names?.[MOVED[f]] : undefined)
+
 /** Имена → полный выбор: чего нет или что незнакомо — умолчание каталога.
  *  Своя палитра остаётся своей. */
 export function complete(names, catalog) {
-  return Object.fromEntries(fieldsOf(catalog).map((f) => [f, option(catalog, f, names?.[f]) || (f === 'palette' && names?.[f] === CUSTOM) ? names[f] : catalog.defaults[f]]))
+  return Object.fromEntries(fieldsOf(catalog).map((f) => [f, option(catalog, f, nameOf(names, f)) || (f === 'palette' && names?.[f] === CUSTOM) ? nameOf(names, f) : catalog.defaults[f]]))
 }
 
 /* ── Своя палитра: движок набора ─────────────────────────────────────── */
@@ -210,7 +219,7 @@ export function reresolve(look, catalog) {
     for (const k of keysOf(catalog, field)) if (Object.hasOwn(old, k)) vars[k] = old[k]
   }
   for (const f of valuesOf(catalog)) {
-    const id = names[f]
+    const id = nameOf(names, f)
     if (f === 'palette' && id === CUSTOM) {
       if (validPaints(look?.paints)) Object.assign(vars, paletteVars(look.paints))
       else hold(f, id, 'own palette without its three paints per theme')

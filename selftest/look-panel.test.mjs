@@ -34,7 +34,7 @@ const hash = (p) => createHash('sha256').update(readFileSync(p)).digest('hex')
 
 /** Варианты разметки, которые шаблон держит, — храповик: убыть им нельзя. */
 const HEADERS = ['classic', 'search', 'boutique']
-const CARDS = ['framed', 'bare', 'outlined']
+const CARDS = ['framed', 'bare', 'outlined', 'toned']
 const PANEL = ['PANEL.md', 'ui/look.js', 'ui/look.css', 'ui/choice.mjs', 'routes/index.ts', 'scripts/build-catalog.mjs',
   'scripts/fonts.mjs', 'scripts/check-choice.mjs', 'scripts/remove.mjs', 'scripts/pairs.mjs', 'tests/panel.test.ts']
 
@@ -186,7 +186,7 @@ test('install records the role; removal needs a shop and --yes, backs up first; 
     assert.equal(backups.length, 1, 'копия — соседняя папка <сайт>.look-backup-<ГГГГММДД-ЧЧмм>')
     const bk = join(root, backups[0])
     for (const f of ['README.md', 'lib/source/sample/look.json', 'lib/source/sample/look.draft.json', 'look-panel/PANEL.md', 'app/look-panel/[...path]/route.ts', 'lib/cards.ts', 'components/ProductCard.module.css']) assert.ok(existsSync(join(bk, f)), `в копии: ${f}`)
-    assert.equal(listOf(read(bk, 'lib/cards.ts'), 'CARDS').length, 3, 'в копии — все карточки, как было')
+    assert.equal(listOf(read(bk, 'lib/cards.ts'), 'CARDS').length, CARDS.length, 'в копии — все карточки, как было')
     assert.match(read(bk, 'README.md'), /node install\.mjs --look-panel/)
     assert.match(yes.stdout, /сайт не в git — метки нет/)
     assert.ok(!existsSync(join(shop, 'look-panel')) && !existsSync(join(shop, 'app/look-panel')))

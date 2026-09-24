@@ -48,14 +48,19 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   assert.deepEqual(catalog.groups.home.map((o) => o.id), [...HOMES])
   assert.equal(catalog.defaults.home, HOMES[0])
   for (const o of catalog.groups.home) assert.ok(o.name && o.line && o.plan?.length, `${o.id}: имя, строка и схема первого экрана`)
-  /* Карта товара (И278): доля ряда, пропорция, миниатюры — значения `--pdp-*`,
-     умолчание — то, что стоит у сайта. */
+  /* Карта товара (И278): доля ряда, край снимка, миниатюры — значения
+     `--pdp-*`, умолчание — то, что стоит у сайта. Полка (И400): одежда,
+     пропорция снимка — одна на полку и карту — и плотность полки. */
   const product = SECTIONS[1].subs.find((s) => s.id === 'product')!
-  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Image', 'Picture edge', 'Thumbnails'])
+  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Picture edge', 'Thumbnails'])
+  const card = SECTIONS[1].subs.find((s) => s.id === 'card')!
+  assert.deepEqual(card.fields.map((f) => f[1]), ['Product card', 'Picture', 'Shelf density'])
   assert.deepEqual(catalog.groups['pdp-gallery'].map((o) => o.id).sort(), ['40', '50', '60'])
-  assert.deepEqual(catalog.groups['pdp-frame'].map((o) => o.name).sort(), ['4:5', 'Square'])
+  assert.deepEqual(catalog.groups['shot-frame'].map((o) => o.name).sort(), ['1:1', '3:4', '4:3', '4:5'])
+  for (const o of catalog.groups['shot-frame']) assert.match(o.vars!['--shot-frame'], /^\d+ \/ \d+$/, `${o.id}: дробью a / b — из неё карта считает высоту галереи`)
+  assert.deepEqual(catalog.groups['shelf-cols'].map((o) => o.id).sort(), ['4', '5'], 'плотность — 4 или 5 в ряд (shop: 4–5)')
   assert.deepEqual(catalog.groups['pdp-thumbs'].map((o) => o.name).sort(), ['Below', 'Dots', 'On the picture', 'Side'])
-  for (const f of ['pdp-gallery', 'pdp-frame', 'pdp-thumbs', 'pdp-edge']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
+  for (const f of ['pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
   const buttons = SECTIONS[0].subs.find((s) => s.id === 'buttons')!
   assert.deepEqual(buttons.fields.map((f) => f[0]), catalog.axes.map((a) => a.field), 'Buttons — оси каталога кнопки')
   assert.deepEqual(catalog.axes.map((a) => a.name), ['Letters', 'Main button', 'Quiet button', 'Main button shape'])
@@ -100,12 +105,23 @@ test('panel catalog: the default look is accepted whole, and the published look 
   assert.deepEqual(uncovered(published.vars, slots), [], 'опубликованный вид — значение каждому свойству сайта')
 })
 
+test('a look published before the picture ratio moved to Card keeps its choice: pdp-frame carries over to shot-frame', () => {
+  /* И400: пропорция снимка переехала из «Product page» в «Card» под новым
+     именем. Выбор заказчика под прежним именем переносится, а не теряется. */
+  const names = { 'pdp-frame': 'portrait' }
+  assert.equal(complete(names, catalog)['shot-frame'], 'portrait', 'панель показывает прежний выбор')
+  const r = reresolve({ vars: { '--pdp-frame': '4 / 5' }, names }, catalog)
+  assert.equal(r.look.vars['--shot-frame'], '4 / 5', 'значение — из прежнего выбора')
+  assert.ok(r.dropped.includes('--pdp-frame'), 'прежнего свойства у сайта больше нет')
+  assert.ok(!r.kept.some((k) => k.field === 'shot-frame'), 'группа не держит чужое — выбор узнан')
+})
+
 test('published look re-resolved from its names: new properties get values of the owner\'s choice, names stay, a vanished name keeps its group', () => {
   const palette = catalog.groups.palette.find((o) => o.id !== catalog.defaults.palette)!
   const names = { palette: palette.id, face: catalog.groups.face.at(-1)!.id, marker: catalog.groups.marker.at(-1)!.id }
   const full = compose(names, catalog).look
   /* Вид, опубликованный до новых ролей палитры, теней и формы кнопки. */
-  const newer = [...Object.keys(palette.vars!).slice(-5), '--sh-raised', '--pdp-frame']
+  const newer = [...Object.keys(palette.vars!).slice(-5), '--sh-raised', '--shot-frame']
   const old = { header: 'classic', vars: Object.fromEntries(Object.entries(full.vars).filter(([k]) => !newer.includes(k))), fonts: [], names }
   const r = reresolve(old, catalog)
   assert.deepEqual(r.look.names, names, 'имена — как были')

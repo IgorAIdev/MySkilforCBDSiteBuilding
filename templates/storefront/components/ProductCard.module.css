@@ -15,8 +15,11 @@
 .card{position:relative;block-size:100%;display:flex;flex-direction:column;gap:var(--air-row)}
 /* Пропорция — ручкой кадра, силой места (0,2,0): `.frame` объявляет свою
    `--frame` весом голого класса, и на равном весе решал бы порядок кусков
-   сборки. Угол снимка — одежда, его задаёт вариант (ниже). */
-.card .shot{--frame:1 / 1}
+   сборки. Значение — пропорция снимка товара `--shot-frame`, одна на полку
+   и карту товара (И400): снимки у товара одни, и стояла она здесь числом
+   `1 / 1` рядом с ручкой карты — карта показывала 4 : 5, полка резала тот
+   же снимок в квадрат. Угол снимка — одежда, его задаёт вариант (ниже). */
+.card .shot{--frame:var(--shot-frame)}
 .body{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-2)}
 .what{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-1)}
 
@@ -66,8 +69,9 @@
 
 /* Варианты карточки — одежда одной раскладки (craft, «Виды предмета — это
    одежда, а не разная раскладка»): поверхность, линия, поле; группы и их
-   порядок у всех трёх одни. Договор плотности один (shop, «Плотность
-   товарной полки зависит от занятой ширины»: 4–5 карточек по 260–325px).
+   порядок у всех одни. Договор плотности один (shop, «Плотность товарной
+   полки зависит от занятой ширины»: 4–5 карточек по 260–325px) — сколько в
+   ряд, выбирает вид (`--shelf-cols`, И400), а не одежда.
    Вариант выбирает вид (`card`, lib/cards.ts).
    look-card:* Пока вид выбирается, стоят все; `npm run look:remove` оставляет выбранный.
 */
@@ -105,3 +109,16 @@
 .card[data-card='outlined'] .shot{border-radius:calc(var(--r-card) - var(--pad-inner))}
 .card[data-card='outlined'] .flag{translate:var(--pad-inner) var(--pad-inner)}
 /* look-card:outlined:end */
+/* look-card:toned:start */
+/* toned — по образцу заказчика 24.09.2026 (элемент 64 набора): «без
+   окантовки фото и внизу поле к нему примыкает тоже хорошо, как идея
+   минималистичной карточки». Устройство framed — снимок до верхнего края,
+   текст в поле карточки, — но поле под снимком тоном ступени под листом,
+   отличным и от пола, и от листа; ни линии, ни тени: карточку от пола
+   отделяют тон и угол. Имя — весом тела: «весь дизайн простой и понятный».
+   Под рукой отвечает снимок (наплыв), рама стоит. */
+.card[data-card='toned']{gap:0;background:var(--plate-2);border-radius:var(--r-card)}
+.card[data-card='toned'] .shot{border-start-start-radius:var(--r-card);border-start-end-radius:var(--r-card)}
+.card[data-card='toned'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
+.card[data-card='toned'] .name{font-weight:var(--body-weight)}
+/* look-card:toned:end */

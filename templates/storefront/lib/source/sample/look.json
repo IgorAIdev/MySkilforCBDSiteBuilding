@@ -212,8 +212,9 @@
     "--menu-mark-ink": "var(--ink)",
     "--menu-mark-r": "0",
     "--menu-mark-pad": "0",
+    "--shot-frame": "1 / 1",
+    "--shelf-cols": "4",
     "--pdp-gallery": "50%",
-    "--pdp-frame": "1 / 1",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
   },
@@ -232,8 +233,9 @@
     "header": "classic",
     "marker": "underline",
     "card": "framed",
+    "shot-frame": "square",
+    "shelf-cols": "4",
     "pdp-gallery": "50",
-    "pdp-frame": "square",
     "pdp-thumbs": "below",
     "pdp-edge": "inset"
   },

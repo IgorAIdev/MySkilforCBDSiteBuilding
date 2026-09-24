@@ -98,10 +98,11 @@
 | System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping |
 | Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique |
 | Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`) | Underline, Pill |
-| Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined |
+| Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined, Toned (снимок до краёв, под ним поле тоном — по образцу заказчика, элемент 64 набора) |
+| Admin | Card | Picture | пропорция снимка товара `--shot-frame` — одна на полку и карту товара: снимки у товара одни (И400) | 1:1 (умолчание), 4:3, 4:5, 3:4 |
+| Admin | Card | Shelf density | сколько карточек в ряд на полке каталога и поиска `--shelf-cols`; на узком окне меньше считает сетка (И400) | 4 in a row (умолчание), 5 in a row |
 | Admin | Home | Layout | состав главной (`home`): порядок блоков и раскладка каждого; слова, снимки, протокол и способы доставки — данные страницы, одни на все варианты (бриф — `docs/design/home.md` набора) | Scene (умолчание), Shop first, Lab report first, Headline first, Cabinet |
 | Admin | Product page | Gallery width | доля ряда под галерею в две колонки `--pdp-gallery`; выше экрана галерею не вытянет ни одна (И278) | 40 %, 50 % (умолчание), 60 % |
-| Admin | Product page | Image | пропорция снимка и миниатюр `--pdp-frame` | Square (1 : 1), 4:5 |
 | Admin | Product page | Picture edge | край снимка, пока колонка одна, `--pdp-edge`; две колонки не меняет (бриф `docs/design/карта-товара.md` набора) | Within the margins (умолчание), Full width (во всю ширину окна; вместе с «On the picture» лист покупки наезжает на низ снимка) |
 | Admin | Product page | Thumbnails | где миниатюры `--pdp-thumbs` | Below (ряд из четырёх под кадром), Side (полоса слева — только в две колонки), Dots (точки под кадром), On the picture (точки на самом кадре, листается пальцем) |
 
@@ -202,7 +203,7 @@ numbers». Опубликованный вид хранит готовые зн�
 | опубликованный вид — единственное место, где значения вида пишутся рукой | `lib/source/sample/look.json` (у Payload — global «look», план 4) |
 | опубликованный вид до первого пересчёта из имён (И352) | `lib/source/sample/look.before-refresh.json` |
 | полоса «Look» и резерв под неё (И354) | `look-panel/ui/look.css` (`:root{--dock-on:1}` рядом с `.lp-band`), `look-panel/ui/look.js` |
-| стили сайта — выпущены из опубликованного вида, руками не правят | `styles/palette.css`, `styles/buttons.css`, `styles/scale.css`, `styles/look.css` (шрифт, тени, отметка, ручки карты товара `--pdp-*`), `lib/look-slots.json` (`scripts/look-slots.mjs`, в сборке) |
+| стили сайта — выпущены из опубликованного вида, руками не правят | `styles/palette.css`, `styles/buttons.css`, `styles/scale.css`, `styles/look.css` (шрифт, тени, отметка, ручки карты товара `--pdp-*`, кадр снимка `--shot-frame` и плотность полки `--shelf-cols`), `lib/look-slots.json` (`scripts/look-slots.mjs`, в сборке) |
 | шрифты опубликованного вида | `public/fonts/` |
 | вход панели в сайт | `app/look-panel/[...path]/route.ts`, строка в `components/Shell.tsx` |
 | проверка значений и сочетаний | сайт: `lib/look-values.ts`, `lib/look-rule.ts`, `lib/look-slots.json` |

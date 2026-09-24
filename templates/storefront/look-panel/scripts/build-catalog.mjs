@@ -111,19 +111,34 @@ const CARD_LINES = {
   framed: { name: 'Framed', line: 'Own surface with a shadow: the card sits above the page' },
   bare: { name: 'Bare', line: 'No box: the picture with its own corners on the page, text below' },
   outlined: { name: 'Outlined', line: 'A hairline instead of a shadow; the picture sits inside the card field' },
+  toned: { name: 'Toned', line: 'The picture to the edges, the details on a tone field right under it; no line, no shadow' },
+}
+/** Полка (И400, «Admin → Card»): пропорция снимка — одна на полку и карту
+ *  товара, снимки у товара одни; плотность — сколько карточек в ряд на
+ *  полке каталога и поиска (shop: «4–5 простых карточек по 260–325px»),
+ *  меньше на узком окне считает сетка. Варианты — значения ручек, которые
+ *  сайт объявляет у себя (scripts/look-slots.mjs, PRODUCT). Пропорция —
+ *  дробью 'a / b': из неё же карта считает высоту галереи. */
+export const SHELF = {
+  'shot-frame': [
+    { id: 'square', name: '1:1', line: 'Square pictures, on shelves and on the product page', vars: { '--shot-frame': '1 / 1' } },
+    { id: 'wide', name: '4:3', line: 'Landscape pictures: shorter cards, more rows on a screen', vars: { '--shot-frame': '4 / 3' } },
+    { id: 'portrait', name: '4:5', line: 'Upright pictures, 4 : 5 — taller bottles and boxes', vars: { '--shot-frame': '4 / 5' } },
+    { id: 'tall', name: '3:4', line: 'Tall pictures, 3 : 4 — the product stands the whole height', vars: { '--shot-frame': '3 / 4' } },
+  ],
+  'shelf-cols': [
+    { id: '4', name: '4 in a row', line: 'Four cards in a row on a wide screen: larger pictures', vars: { '--shelf-cols': '4' } },
+    { id: '5', name: '5 in a row', line: 'Five cards in a row on a wide screen: more products at a glance', vars: { '--shelf-cols': '5' } },
+  ],
 }
 /** Карта товара (И278): варианты — значения ручек `--pdp-*`, которые сайт
  *  объявляет у себя (scripts/look-slots.mjs, PRODUCT). Доля ряда под
  *  галерею — вокруг нормы живых магазинов 45–57 % (образец заказчика ≈ 40 %);
  *  выше экрана галерею не вытянет ни одна: потолок по высоте окна у неё
- *  свой. Пропорция — квадрат или 4 : 5; миниатюры — ряд под кадром, полоса
- *  сбоку (в две колонки) или точки. */
+ *  свой. Миниатюры — ряд под кадром, полоса сбоку (в две колонки) или точки.
+ *  Пропорция снимка — одна с полкой (SHELF выше, И400). */
 export const PRODUCT_PAGE = {
   'pdp-gallery': [40, 50, 60].map((pct) => ({ id: String(pct), name: `${pct} %`, line: `The gallery takes ${pct} % of the row; the buy column takes the rest`, vars: { '--pdp-gallery': `${pct}%` } })),
-  'pdp-frame': [
-    { id: 'square', name: 'Square', line: 'Square pictures, 1 : 1', vars: { '--pdp-frame': '1 / 1' } },
-    { id: 'portrait', name: '4:5', line: 'Upright pictures, 4 : 5 — taller bottles and boxes', vars: { '--pdp-frame': '4 / 5' } },
-  ],
   'pdp-thumbs': [
     { id: 'below', name: 'Below', line: 'A row of four thumbnails under the picture', vars: { '--pdp-thumbs': 'below' } },
     { id: 'side', name: 'Side', line: 'A strip of thumbnails beside the picture, on wide screens', vars: { '--pdp-thumbs': 'side' } },
@@ -236,7 +251,7 @@ export async function buildCatalog({ site, kit }) {
     shadow: siteFirst(SHADOW_SETS(tokenMap(readFileSync(join(kit, 'styles/look.css'), 'utf8'))).map((o) => ({ ...o, vars: check('shadow', o.id, o.vars) }))),
     ...Object.fromEntries(buttonAxes.map((a) => [`btn-${a.id}`, siteFirst(a.options.map((o) => ({ id: o.id, name: o.name, line: o.line ?? '', vars: check(`btn-${a.id}`, o.id, ofGroup('button', o.роли)) })))])),
     marker: MARKERS.map((m) => ({ ...m, vars: check('marker', m.id, m.vars) })),
-    ...Object.fromEntries(Object.entries(PRODUCT_PAGE).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
+    ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
     card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),
     home: homes.map((id) => ({ id, ...(HOME_LINES[id] ?? { name: id, line: '', plan: [] }) })),
