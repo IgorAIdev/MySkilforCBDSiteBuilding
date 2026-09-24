@@ -10,24 +10,24 @@
 <link rel="stylesheet" href="../base.css">
 <script src="../stage.js"></script>
 <!--
-  Элемент 02 — «Explore со стрелкой». Источник — код Tailwind от заказчика 24.09.2026 (source.html).
+  Элемент 02 — «Explore со стрелкой». Источник — код Tailwind от заказчика 24.09.2026 и скриншот «Shop Now» («такая кнопка есть ли, если нет — делай»), переслан из сессии «Кнопки и дизайн» (source.html, source-2.png).
   В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
   роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
   Снято: плавная заливка фоном при наведении; белая надпись при ней; большая тень; размытие под кнопкой; рамка цвета заливки.
-  Приведено к единой форме: рост 40 вместо 44; тон 8 % чернил вместо белой; стрелка — из листа набора; кружок .75 высоты у конца пилюли.
+  Приведено к единой форме: рост 40 вместо 44; тон 8 % чернил вместо белой; стрелка — из листа набора; кружок .75 высоты у конца пилюли; вариант второго источника: круг залит чернилами, стрелка краской пилюли, без поворота; на тонированном листе пилюля — пол страницы, как у карточки 62.
   Наведение: тон + 5 % чернил, стрелка встаёт вправо; кружок остаётся. Нажатие: тон + 9 %, кнопка 0.97 и на пиксель ниже, стрелка вправо.
 -->
 </head>
 <body>
   <div class="live one">
-    <button class="el" data-shape="pill" data-motion="turn" type="button">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></button>
+    <div class="column"><button class="el" data-shape="pill" data-motion="turn" type="button">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></button><button class="el" data-shape="pill" type="button">Shop now<span class="tile"><svg data-sign="arrow-right"></svg></span></button></div>
   </div>
 
   <div class="states" aria-hidden="true">
-    <figure><span class="el" data-shape="pill" data-motion="turn">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>покой</figcaption></figure>
-    <figure><span class="el" data-shape="pill" data-motion="turn" data-state="hover">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>наведение</figcaption></figure>
-    <figure><span class="el" data-shape="pill" data-motion="turn" data-state="press">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
-    <figure><span class="el" data-shape="pill" data-motion="turn" data-state="focus">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+    <figure><div class="column"><span class="el" data-shape="pill" data-motion="turn">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><span class="el" data-shape="pill">Shop now<span class="tile"><svg data-sign="arrow-right"></svg></span></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="column"><span class="el" data-shape="pill" data-motion="turn" data-state="hover">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><span class="el" data-shape="pill" data-state="hover">Shop now<span class="tile"><svg data-sign="arrow-right"></svg></span></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="column"><span class="el" data-shape="pill" data-motion="turn" data-state="press">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><span class="el" data-shape="pill" data-state="press">Shop now<span class="tile"><svg data-sign="arrow-right"></svg></span></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="column"><span class="el" data-shape="pill" data-motion="turn" data-state="focus">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><span class="el" data-shape="pill" data-state="focus">Shop now<span class="tile"><svg data-sign="arrow-right"></svg></span></span></div><figcaption>фокус</figcaption></figure>
   </div>
 </body>
 </html>

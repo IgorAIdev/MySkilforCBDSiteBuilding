@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>62 · Карточка товара на тоне</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 62 — «Карточка товара на тоне». Источник — скриншот от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.png).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: сиреневый — тон листа приходит из данных товара через строитель палитры; на образце — тон марки; доллар перед ценой — валюта магазина из данных, по языку у числа.
+  Приведено к единой форме: лист тоном со скруглением листа; фишка категории — на полу, у начала; название крупно, ролью h2; снимок без фона — кадр без подложки до правой кромки; сам снимок — заказчика, место занято заранее; внизу — пилюля пола во всю ширину: цена у начала, круг чернил со знаком корзины у конца; тот же орган, что «Shop now» у 02 (запрет 10); цена — из данных.
+  Наведение: пилюля: пол + 5 % чернил. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card" data-tone="tint"><span class="tag">Oil</span><p class="title" data-size="lg">Hemp seed<br>oil 10 %</p><div class="frame" data-cutout><svg data-sign="leaf"></svg></div><button class="el" data-voice="paper" data-shape="pill" data-spread data-size="lg" type="button" aria-label="Add to cart, 29,90 €">29,90 €<span class="tile"><svg data-sign="shopping-cart"></svg></span></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-tone="tint"><span class="tag">Oil</span><p class="title" data-size="lg">Hemp seed<br>oil 10 %</p><div class="frame" data-cutout><svg data-sign="leaf"></svg></div><span class="el" data-voice="paper" data-shape="pill" data-spread data-size="lg">29,90 €<span class="tile"><svg data-sign="shopping-cart"></svg></span></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-tone="tint"><span class="tag">Oil</span><p class="title" data-size="lg">Hemp seed<br>oil 10 %</p><div class="frame" data-cutout><svg data-sign="leaf"></svg></div><span class="el" data-voice="paper" data-shape="pill" data-spread data-size="lg" data-state="hover">29,90 €<span class="tile"><svg data-sign="shopping-cart"></svg></span></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-tone="tint"><span class="tag">Oil</span><p class="title" data-size="lg">Hemp seed<br>oil 10 %</p><div class="frame" data-cutout><svg data-sign="leaf"></svg></div><span class="el" data-voice="paper" data-shape="pill" data-spread data-size="lg" data-state="press">29,90 €<span class="tile"><svg data-sign="shopping-cart"></svg></span></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-tone="tint"><span class="tag">Oil</span><p class="title" data-size="lg">Hemp seed<br>oil 10 %</p><div class="frame" data-cutout><svg data-sign="leaf"></svg></div><span class="el" data-voice="paper" data-shape="pill" data-spread data-size="lg" data-state="focus">29,90 €<span class="tile"><svg data-sign="shopping-cart"></svg></span></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>
