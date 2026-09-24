@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>25 · Ползунок: ручка крупнее дорожки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 25 — «Ползунок: ручка крупнее дорожки». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тень ручки; вспышка ручки при нажатии.
+  Приведено к единой форме: ручка — марка палитры, знак краской надписи на ней; дорожка — тон, включено — марка 40 %; солнце и луна — из листа набора вместо встроенных картинок; ход за 280 мс вместо 150.
+  Наведение: дорожка + 5 % чернил. Нажатие: дорожка + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" role="switch" data-shape="pill" data-knob="over" aria-checked="false" type="button" aria-label="Тёмная тема"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" role="switch" data-shape="pill" data-knob="over"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-knob="over" data-state="hover"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-knob="over" data-state="press"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-knob="over" data-state="focus"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-knob="over" data-on><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>включено</figcaption></figure>
+  </div>
+</body>
+</html>

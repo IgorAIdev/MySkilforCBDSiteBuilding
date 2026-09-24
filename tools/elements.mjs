@@ -59,6 +59,15 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill)
   else fill()
+  /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
+     переключается нажатием — одно правило на все такие органы папки, а не
+     своё на каждой странице. */
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('button[aria-expanded], button[aria-pressed], button[aria-checked]')
+    if (!b) return
+    const k = ['aria-expanded', 'aria-pressed', 'aria-checked'].find((a) => b.hasAttribute(a))
+    b.setAttribute(k, String(b.getAttribute(k) !== 'true'))
+  })
 })()
 `
 

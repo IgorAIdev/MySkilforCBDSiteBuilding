@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>26 · Сердце «в избранное»</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 26 — «Сердце «в избранное»». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: рост сердца под рукой.
+  Приведено к единой форме: включено — сердце залито краской марки вместо красной: красный в наборе — только необратимое; в покое — контур сердца из листа набора вместо серой заливки; сердце .5 высоты вместо 50 пикселей.
+  Наведение: подложка 5 % чернил. Нажатие: подложка 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="ghost" data-shape="pill" data-icon data-fill-on aria-pressed="false" type="button" aria-label="В избранное"><svg data-sign="heart"></svg></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-fill-on><svg data-sign="heart"></svg></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-fill-on data-state="hover"><svg data-sign="heart"></svg></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-fill-on data-state="press"><svg data-sign="heart"></svg></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-fill-on data-state="focus"><svg data-sign="heart"></svg></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-fill-on data-on><svg data-sign="heart"></svg></span><figcaption>включено</figcaption></figure>
+  </div>
+</body>
+</html>

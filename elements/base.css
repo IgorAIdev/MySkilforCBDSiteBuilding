@@ -35,6 +35,12 @@
  *    .lead                              кружок или плитка у начала, а не у конца
  *    .appear                            знак после слова, появляется под рукой
  *    data-split + .count                кнопка из двух частей: действие и его счёт
+ *    .bars + aria-expanded | data-open  полоски меню; открыто — крест
+ *    data-bars even · data-morph arrow  полоски равной длины · открыто — стрелка «→» (с data-dir down — «↓»)
+ *    .swap + aria-pressed | data-on     два знака в одной клетке; включено — второй
+ *    data-fill-on + aria-pressed        знак заливается маркой, когда включено
+ *    role=switch + .knob, aria-checked  ползунок: дорожка и ручка; data-track theme — дорожка по теме,
+ *                                       data-knob over — ручка крупнее дорожки
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -46,7 +52,7 @@
   --fs:1rem; --weight:600; --caps:.05em;
   --line:1px; --frame-w:2px; --ring-w:2px; --ring-off:3px;
   --state-hover:5%; --state-press:9%;
-  --hover-t:200ms; --press-t:120ms; --ease:cubic-bezier(.32,.72,0,1);
+  --hover-t:200ms; --press-t:120ms; --open-t:280ms; --ease:cubic-bezier(.32,.72,0,1);
   --nudge:3px;
   --face:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
@@ -63,7 +69,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   --paint:var(--bg);
   --veil:transparent;
   --img:none;
-  position:relative;
+  position:relative;box-sizing:border-box;
   display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--h) * .2);
   block-size:var(--h);min-inline-size:var(--h);padding-inline:calc(var(--h) * .45);
   border:0;border-radius:var(--r);
@@ -144,6 +150,70 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   box-shadow:inset 0 0 0 var(--line) var(--bg)
 }
 .el .count::before{content:'';position:absolute;inset-inline-start:calc(var(--h) * -.1);inline-size:calc(var(--h) * .2);block-size:calc(var(--h) * .2);background:var(--surface);rotate:45deg}
+/* Полоски меню: три черты разной длины от левого края; открыто
+   (`aria-expanded="true"`, застывшим — `data-open`) — складываются в крест:
+   крайние встают в середину и поворачиваются, средняя уходит. Черта —
+   толщиной штриха значков, краской надписи; раскрытие — за `--open-t`. */
+.el .bars{position:relative;flex:none;inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5)}
+.el .bars i{
+  position:absolute;inset-inline-start:0;block-size:1.4px;border-radius:1px;background:currentColor;translate:0 -50%;
+  transition:top var(--open-t) var(--ease), inset-inline-start var(--open-t) var(--ease), inline-size var(--open-t) var(--ease), rotate var(--open-t) var(--ease), scale var(--open-t) var(--ease)
+}
+.el .bars i:nth-child(1){top:22%;inline-size:50%}
+.el .bars i:nth-child(2){top:50%;inline-size:75%}
+.el .bars i:nth-child(3){top:78%;inline-size:100%}
+.el[data-bars='even'] .bars i{inline-size:100%}
+.el:is([aria-expanded='true'], [data-open]) .bars i:nth-child(1){top:50%;inline-size:100%;rotate:45deg}
+.el:is([aria-expanded='true'], [data-open]) .bars i:nth-child(2){scale:0 1}
+.el:is([aria-expanded='true'], [data-open]) .bars i:nth-child(3){top:50%;rotate:-45deg}
+/* В стрелку: крайние укорачиваются к правому краю и встают головой, средняя
+   остаётся древком — «→», а не крест. */
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:is(:nth-child(1), :nth-child(3)){top:50%;inset-inline-start:50%;inline-size:50%;transform-origin:right center}
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:nth-child(1){rotate:40deg}
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:nth-child(2){scale:1}
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:nth-child(3){rotate:-40deg}
+/* Стрелка вниз — тот же рисунок, повёрнутый целиком при открытии. */
+.el .bars{transition:rotate var(--open-t) var(--ease)}
+.el[data-morph='arrow'][data-dir='down']:is([aria-expanded='true'], [data-open]) .bars{rotate:90deg}
+
+/* Смена знака: два знака в одной клетке, включено (`aria-pressed="true"`,
+   застывшим — `data-on`) — первый уходит, второй приходит; оба из листа. */
+.el .swap{display:grid;flex:none}
+.el .swap svg{grid-area:1 / 1;transition:scale var(--open-t) var(--ease), opacity var(--open-t) var(--ease)}
+.el .swap svg:last-child{scale:0;opacity:0}
+.el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:first-child{scale:0;opacity:0}
+.el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:last-child{scale:1;opacity:1}
+
+/* Знак заливается, когда включено: контур в покое, фигура краской марки —
+   сердце «в избранное». Отвечает краской, не ростом. */
+.el[data-fill-on]:is([aria-pressed='true'], [data-on]){--fg:var(--pop)}
+.el[data-fill-on]:is([aria-pressed='true'], [data-on]) svg{fill:currentColor}
+
+/* ── ползунок ────────────────────────────────────────────────────────────
+   Дорожка — сам орган (`role="switch"`), ручка — круг на ней; включено
+   (`aria-checked="true"`, застывшим — `data-on`) — ручка у другого края,
+   дорожка краской марки. Ручка едет за `--open-t`. */
+.el[role='switch']{
+  --knob:calc(var(--h) * .75);--knob-bg:var(--surface);--knob-fg:var(--ink);
+  --bg:var(--ink);--fg:var(--surface);
+  inline-size:calc(var(--h) * 1.75);padding-inline:calc(var(--h) * .125);justify-content:flex-start
+}
+.el[role='switch'] .knob{
+  position:relative;display:grid;place-items:center;flex:none;
+  inline-size:var(--knob);block-size:var(--knob);border-radius:max(2px, calc(var(--r) - var(--h) * .125));
+  background:var(--knob-bg);color:var(--knob-fg);
+  translate:var(--knob-x, 0px) 0;transition:translate var(--open-t) var(--ease)
+}
+.el[role='switch'] .knob svg{inline-size:calc(var(--knob) * .55);block-size:calc(var(--knob) * .55)}
+.el[role='switch']:is([aria-checked='true'], [data-on]){--bg:var(--pop);--fg:var(--on-pop);--knob-x:calc(var(--h) * .75)}
+/* Дорожка по теме: выключено — светлая с солнцем, включено — тёмная с луной. */
+.el[role='switch'][data-track='theme']{--bg:var(--quiet);--fg:var(--ink)}
+.el[role='switch'][data-track='theme']:is([aria-checked='true'], [data-on]){--bg:var(--ink);--fg:var(--surface)}
+/* Ручка крупнее дорожки: тонкая дорожка, круглая ручка краской марки поверх. */
+.el[role='switch'][data-knob='over']{--knob:calc(var(--h) * .8);--knob-bg:var(--pop);--knob-fg:var(--on-pop);--bg:var(--quiet);--fg:var(--ink);inline-size:calc(var(--h) * 1.2);padding-inline:0;background:none}
+.el[role='switch'][data-knob='over']::before{content:'';position:absolute;inset-inline:0;inset-block:calc(var(--h) * .25);border-radius:999px;background:var(--paint);transition:background-color var(--hover-t) var(--ease)}
+.el[role='switch'][data-knob='over'] .knob{border-radius:999px}
+.el[role='switch'][data-knob='over']:is([aria-checked='true'], [data-on]){--bg:color-mix(in srgb, var(--pop) 40%, transparent);--fg:var(--ink);--knob-x:calc(var(--h) * .4)}
 .el[data-motion='grow'] svg{scale:var(--grow, 1);transition:scale var(--hover-t) var(--ease)}
 .el[data-motion='tilt'] svg{rotate:var(--tilt, 0deg);transition:rotate var(--hover-t) var(--ease)}
 .el[data-motion='lift'] svg{translate:0 var(--lift, 0px);transition:translate var(--hover-t) var(--ease)}
@@ -182,7 +252,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 @media (prefers-reduced-motion:reduce){
   .el{transition:background-color var(--hover-t) var(--ease), color var(--hover-t) var(--ease)}
   .el:is(:active, [data-state='press']){transform:none}
-  .el svg, .el svg *{transition:none}
+  .el svg, .el svg *, .el .bars, .el .bars i, .el .knob{transition:none}
 }
 
 /* ── страница элемента: живой сверху, состояния застывшими ниже ─────── */

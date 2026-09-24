@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>24 · Ползунок темы</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 24 — «Ползунок темы». Источник — шесть CSS от заказчика 24.09.2026 — после разбора один и тот же ползунок (source.css, source-2.css, source-3.css, source-4.css, source-5.css, source-6.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: облака, звёзды, мерцание, лучи, пятна на луне; заливка всей страницы при включении; пружинящий и подпрыгивающий ход ручки; тени дорожки и ручки; жёлтый, синий и фиолетовый; рисунок луны тенью, солнце градиентом.
+  Приведено к единой форме: солнце и луна — из листа набора, на ручке цвета пола; дорожка: вариант «по теме» — тон и чернила, вариант «марка» — чернила и марка; ход ручки за 280 мс; дорожка 1.75 высоты, ручка .75.
+  Наведение: дорожка + 5 % краски. Нажатие: дорожка + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="group"><button class="el" role="switch" data-shape="pill" data-track="theme" aria-checked="false" type="button" aria-label="Тёмная тема"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></button><button class="el" role="switch" data-shape="pill" aria-checked="false" type="button" aria-label="Тёмная тема"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" role="switch" data-shape="pill" data-track="theme"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-track="theme" data-state="hover"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-track="theme" data-state="press"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-track="theme" data-state="focus"><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="el" role="switch" data-shape="pill" data-track="theme" data-on><span class="knob"><span class="swap"><svg data-sign="sun"></svg><svg data-sign="moon"></svg></span></span></span><figcaption>включено</figcaption></figure>
+  </div>
+</body>
+</html>
