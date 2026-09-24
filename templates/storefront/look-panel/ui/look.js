@@ -18,7 +18,10 @@
    сайта при сборке каталога (для своей палитры — сервером, тем же правилом).
 
    Высота панели — от экрана, не от содержимого: верх (заголовок, разделы,
-   подразделы) и низ (действия) стоят на месте, прокручивается середина. */
+   подразделы) и низ (действия) стоят на месте, прокручивается середина.
+   «Expand» разворачивает её: каждый вариант крупным образцом на том, на чём
+   встанет, — кнопка настоящей кнопкой сайта на полу и на тёмной полосе,
+   палитра карточкой товара; ширина помнится за зрителем. */
 (function () {
   var script = document.currentScript
   var base = new URL('.', script && script.src ? script.src : location.origin + '/look-panel/')
@@ -53,11 +56,23 @@
   var TICK = 'M3.5 8.5l3 3 6-7'
   var CROSS = 'M4 4l8 8M12 4l-8 8'
   var ARROW = 'M3 8h10M9 4l4 4-4 4'
+  /* Развернуть — уголки наружу, свернуть — внутрь. */
+  var GROW = 'M9.5 2.5h4v4M13.5 2.5l-4.5 4.5M6.5 13.5h-4v-4M2.5 13.5l4.5-4.5'
+  var SHRINK = 'M13 7h-4V3M9 7l4.5-4.5M3 9h4v4M7 9l-4.5 4.5'
   function remember(key, value) {
     try { value === null ? sessionStorage.removeItem(key) : sessionStorage.setItem(key, value) } catch (e) { /* без памяти */ }
   }
   function recall(key) {
     try { return sessionStorage.getItem(key) } catch (e) { return null }
+  }
+  /* Ширина панели помнится за зрителем, а не за вкладкой: развернул однажды —
+     в следующий раз панель откроется развёрнутой (localStorage этого браузера). */
+  var WIDE = 'look-panel-wide'
+  function keepWide(on) {
+    try { on ? localStorage.setItem(WIDE, '1') : localStorage.removeItem(WIDE) } catch (e) { /* без памяти */ }
+  }
+  function keptWide() {
+    try { return localStorage.getItem(WIDE) === '1' } catch (e) { return false }
   }
   function send(method, path, body) {
     return fetch(new URL(path, base).href, {
@@ -140,7 +155,8 @@
           var gs = [num('--ctrl-btn-trail-1'), num('--ctrl-btn-trail-2')].filter(function (g, i, all) { return all.indexOf(g) === i })
           gs.forEach(function (g, i) {
             var x = function (k) { return 'calc(100% - ' + (point + k * h - g).toFixed(1) + 'px)' }
-            kids.unshift(el('i', { class: 'lp-echo', style: 'clip-path:polygon(' + x(0.33) + ' 0, ' + x(0.03) + ' 0, ' + x(-0.3) + ' 50%, ' + x(0.03) + ' 100%, ' + x(0.33) + ' 100%, ' + x(0) + ' 50%);background:color-mix(in oklab, var(--pop, #9a7b3f) ' + (60 - i * 30) + '%, var(--lp-bg))' }))
+            /* Тоны хвоста — роли палитры сайта (И295), а не смесь на месте. */
+            kids.unshift(el('i', { class: 'lp-echo', style: 'clip-path:polygon(' + x(0.33) + ' 0, ' + x(0.03) + ' 0, ' + x(-0.3) + ' 50%, ' + x(0.03) + ' 100%, ' + x(0.33) + ' 100%, ' + x(0) + ' 50%);background:var(' + (i ? '--pop-trail-far' : '--pop-trail-near') + ')' }))
           })
         }
         return el('span', { class: 'lp-shape-sample', 'aria-hidden': 'true' }, kids)
@@ -167,13 +183,94 @@
       if (field === 'shadow') return el('i', { class: 'lp-shape lp-lit', style: 'box-shadow:' + o.vars['--sh-raised'], 'aria-hidden': 'true' })
       return null
     }
+
+    /* ── Развёрнутая панель: большие образцы ─────────────────────────────
+       Слово заказчика 24.09.2026: «панель меню делай расширяемой, например
+       чтоб все кнопки показать». Развёрнутая, панель показывает каждый
+       вариант крупно и на том, на чём он встанет: кнопку — настоящей кнопкой
+       сайта на полу страницы и на тёмной полосе, палитру — карточкой
+       товара, одежду карточки — карточкой. Краски — роли сайта; образцы
+       строятся, когда панель развернули впервые. */
+    /* Кнопка сайта — её собственный класс, снятый со страницы: образец
+       рисует тот же модуль (styles/btn.module.css), что и сайт. На странице
+       без кнопки — рисунок панели той же формулой. */
+    var siteButton = (function () {
+      var found = document.querySelector('[data-voice]')
+      var cls = found && typeof found.className === 'string' ? found.className.split(/\s+/).filter(function (c) { return c && c.indexOf('lp-') !== 0 }).join(' ') : ''
+      return cls
+    })()
+    var AXIS_VOICE = { quiet: 'quiet' }
+    function realButton(field, o, voice) {
+      if (siteButton) return el('span', { class: siteButton, 'data-voice': voice, 'data-size': 'lg', text: 'Add to cart' })
+      var drawn = sample(field, o)
+      return el('span', { class: 'lp-zoom' }, drawn ? [drawn] : [])
+    }
+    function stageOf(o, kids) {
+      /* Два пола: страница и тёмная полоса. Полоса — пол палубы сайта
+         (`data-ground="deck"`): роли по полу на ней переназначает сам сайт
+         (base.css), образец ничего не пересчитывает. Роли варианта стоят на
+         самой сцене, ВНЕ полосы, — как на сайте они стоят на корне: ссылка
+         `var(--pop)` в них раскрывается там, где объявлена, и полоса видит
+         ту же заливку, что герой на странице. */
+      var style = Object.keys(o.vars).map(function (k) { return k + ':' + o.vars[k] }).join(';')
+      return el('span', { class: 'lp-stage', style: style, 'aria-hidden': 'true' }, [
+        el('span', { class: 'lp-ground' }, kids()),
+        el('span', { class: 'lp-ground lp-ground-deck', 'data-ground': 'deck' }, kids()),
+      ])
+    }
+    function big(field, o) {
+      if (field.indexOf('btn-') === 0) {
+        var voice = AXIS_VOICE[field.slice(4)] || 'loud'
+        return stageOf(o, function () { return [realButton(field, o, voice)] })
+      }
+      if (field === 'palette') {
+        var t = choice.tileOf(o.seed, catalog.steps)
+        var ld = function (k) { return 'light-dark(' + t.light[k] + ',' + t.dark[k] + ')' }
+        return el('span', { class: 'lp-shop', style: 'background:' + ld('page'), 'aria-hidden': 'true' }, [
+          el('span', { class: 'lp-card', style: 'background:' + ld('plate') + ';color:' + ld('ink') }, [
+            el('i', { class: 'lp-card-pic', style: 'background:' + ld('pic') }, [el('b', { class: 'lp-sale', style: 'background:' + ld('sale') + ';color:' + ld('onSale'), text: '−20%' })]),
+            el('b', { class: 'lp-card-name', text: 'Full-spectrum oil 10%' }),
+            el('small', { style: 'color:' + ld('soft'), text: '30 ml · €1.53 / ml' }),
+            el('span', { class: 'lp-card-row' }, [
+              el('b', { text: '€45.90' }),
+              el('span', { class: 'lp-card-buy', style: 'background:' + ld('pop') + ';color:' + ld('onPop'), text: 'Add to cart' }),
+            ]),
+          ]),
+        ])
+      }
+      if (field === 'card') {
+        return el('span', { class: 'lp-shop lp-shop-site', 'aria-hidden': 'true' }, [
+          el('span', { class: 'lp-pcard', 'data-card': o.id }, [
+            el('i', { class: 'lp-card-pic' }),
+            el('b', { class: 'lp-card-name', text: 'Full-spectrum oil 10%' }),
+            el('small', { text: '30 ml · €45.90' }),
+          ]),
+        ])
+      }
+      if (field === 'face') return el('span', { class: 'lp-big-well lp-face', style: 'font-family:' + o.stack, 'aria-hidden': 'true' }, [el('b', { text: 'Aa Ăă Șș' }), el('span', { text: 'Full-spectrum oil, 30 ml' })])
+      if (field === 'corners') {
+        return el('span', { class: 'lp-big-well lp-radii', 'aria-hidden': 'true' }, ['--r-ctrl', '--r-card', '--r-sheet'].map(function (k) { return el('i', { style: 'border-radius:' + o.vars[k] }) }))
+      }
+      if (field === 'shadow') return el('span', { class: 'lp-big-well lp-shop-site', 'aria-hidden': 'true' }, [el('i', { class: 'lp-lift', style: 'box-shadow:' + o.vars['--sh-raised'] })])
+      var small = sample(field, o)
+      return el('span', { class: 'lp-big-well', 'aria-hidden': 'true' }, [small ? el('span', { class: 'lp-zoom' }, [small]) : el('b', { class: 'lp-big-name', text: o.name })])
+    }
+    var pendingBig = []
+    function buildBig() {
+      pendingBig.splice(0).forEach(function (fn) { fn() })
+    }
     function group(field, label, extra) {
       var id = 'lp-why-' + field
       var line = el('p', { class: 'lp-why', id: id })
       var chips = catalog.groups[field].map(function (o) {
         var attrs = { type: 'button', class: 'lp-chip', 'data-id': o.id, title: o.line || null }
         if (field === 'face') attrs.style = 'font-family:' + o.stack /* образец — своим шрифтом; у пары — шрифтом заголовков */
-        var chip = el('button', attrs, [sample(field, o), el('span', { text: o.name })])
+        var mini = sample(field, o)
+        var cap = el('span', { class: 'lp-cap' }, [el('span', { class: 'lp-cap-name' }, [icon(TICK, 12), el('span', { text: o.name })]), o.line ? el('span', { class: 'lp-line', text: o.line }) : null])
+        var chip = el('button', attrs, [mini ? el('span', { class: 'lp-mini' }, [mini]) : null, el('span', { class: 'lp-label', text: o.name }), cap])
+        chip.label = o.name
+        /* Крупный образец — при первом развороте панели. */
+        pendingBig.push(function () { chip.insertBefore(el('span', { class: 'lp-big' }, [big(field, o)]), cap) })
         var reason = ''
         chip.addEventListener('click', function () {
           if (reason) { line.textContent = o.name + ': ' + reason; return }
@@ -198,10 +295,10 @@
         return chip
       })
       var legend = el('span', { class: 'lp-legend', id: id + '-l', text: label })
-      var node = el('div', { class: 'lp-group' }, [el('div', { class: 'lp-row' }, [legend, extra || null]), el('div', { class: 'lp-chips', role: 'group', 'aria-labelledby': id + '-l' }, chips), line])
+      var node = el('div', { class: 'lp-group', 'data-field': field }, [el('div', { class: 'lp-row' }, [legend, extra || null]), el('div', { class: 'lp-chips', role: 'group', 'aria-labelledby': id + '-l' }, chips), line])
       groups.push({ refresh: function () {
         var first = ''
-        chips.forEach(function (c) { var r = c.update(); if (r && !first) first = c.lastChild.textContent + ': ' + r })
+        chips.forEach(function (c) { var r = c.update(); if (r && !first) first = c.label + ': ' + r })
         line.textContent = first
       } })
       return node
@@ -491,9 +588,23 @@
     tabs.addEventListener('keydown', function (e) { arrows(e, sections, function (x) { show(x.id) }) })
 
     var close = el('button', { class: 'lp-x', type: 'button', popovertarget: 'lp-panel', popovertargetaction: 'hide', 'aria-label': 'Close' }, [icon(CROSS, 16)])
+    /* Развернуть — панель широкая, варианты крупными образцами; свернуть —
+       обратно в 360. На телефоне развёрнутая — шторка во всю высоту. Панель
+       остаётся немодальной: страница под ней живая, изменения видны сразу. */
+    var widen = el('button', { class: 'lp-widen', type: 'button', 'aria-controls': 'lp-panel' })
+    function wide(on) {
+      if (on) buildBig()
+      panel.toggleAttribute('data-wide', on)
+      widen.setAttribute('aria-label', on ? 'Collapse the panel' : 'Expand the panel')
+      widen.replaceChildren(icon(on ? SHRINK : GROW, 14), el('span', { text: on ? 'Collapse' : 'Expand' }))
+      widen.title = on ? 'Back to the narrow panel' : 'Show every option large, on the page and on the dark band'
+      keepWide(on)
+      sections.forEach(function (s) { fade(s.bar) })
+    }
+    widen.addEventListener('click', function () { wide(!panel.hasAttribute('data-wide')) })
     var middle = el('div', { class: 'lp-body' }, sections.flatMap(function (s) { return s.subs.map(function (x) { return x.pane }) }))
     var panel = el('div', { id: 'lp-panel', class: 'lp-panel', popover: 'manual', role: 'region', 'aria-label': 'Look' }, [
-      el('div', { class: 'lp-top' }, [el('div', { class: 'lp-head' }, [el('p', { class: 'lp-title', text: 'Look' }), tabs, close])].concat(sections.map(function (s) { return s.bar }))),
+      el('div', { class: 'lp-top' }, [el('div', { class: 'lp-head' }, [el('p', { class: 'lp-title', text: 'Look' }), tabs, widen, close])].concat(sections.map(function (s) { return s.bar }))),
       middle,
       el('div', { class: 'lp-foot' }, [
         el('div', { class: 'lp-acts' }, [publish, copy, stop]),
@@ -503,6 +614,7 @@
     ])
     var open = el('button', { class: 'lp-open', type: 'button', popovertarget: 'lp-panel', text: 'Look' })
     document.body.appendChild(el('div', { class: 'lp' }, [open, panel]))
+    wide(keptWide())
     show(recall(TAB) === 'admin' ? 'admin' : 'system')
     if (custom() && paints) { preview(); guard() }
     refresh()

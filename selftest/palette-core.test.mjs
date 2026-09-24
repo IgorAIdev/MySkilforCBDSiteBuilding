@@ -117,7 +117,7 @@ test('button and hero roles come from the builder with their guarantees, on ever
       assert.equal(r['--chrome-bg'], deck.bg)
       assert.ok(Math.min(...deck.grounds.map((bg) => Math.abs(apca(r['--pop-trail-far-deck'], bg)))) >= NEED.decorLc, `${at}: хвост на палубе`)
       /* выпущенное — роль, а не формула в стилях: краски, а не ссылки */
-      for (const k of ['--quiet-paper', '--scrim', '--scrim-near', '--scrim-far', '--sh-near-paper', '--chrome-fg-2']) assert.match(r[k], /^color-mix\(in srgb, #[0-9A-F]{6} [\d.]+%, transparent\)$/, `${at}: ${k}`)
+      for (const k of ['--quiet-paper', '--scrim', '--scrim-near', '--scrim-far', '--sh-near-paper', '--chrome-fg-2']) assert.match(r[k], /^#[0-9A-F]{8}$/, `${at}: ${k} — вуаль строителя #RRGGBBAA`)
       for (const k of ['--pop-trail-near-paper', '--pop-trail-far-paper', '--edge-off-paper', '--edge-off-deck', '--pop-hover-deck']) assert.match(r[k], /^#[0-9A-F]{6}$/, `${at}: ${k}`)
       /* замер ролей по полу — весь чистый */
       const failed = groundChecks(paints, mode).filter((c) => c.got < c.need)
@@ -127,7 +127,7 @@ test('button and hero roles come from the builder with their guarantees, on ever
   /* Вуаль героя берётся замером, а не одной долей на все палитры: у «Аптеки»
      в светлой её дальняя ступень плотнее прежних 72 %. */
   const scrim = roles(shipped['Аптека'].light, 'light')['--scrim-far']
-  assert.ok(Number(scrim.match(/ ([\d.]+)%/)[1]) > 72, `Аптека: вуаль героя ${scrim}`)
+  assert.ok(Number.parseInt(scrim.slice(7), 16) / 255 > 0.72, `Аптека: вуаль героя ${scrim}`)
 })
 
 /* Светлая марка вплотную к светлой бумаге: хвост не тянет марку за собой —

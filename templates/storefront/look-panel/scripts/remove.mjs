@@ -302,7 +302,10 @@ function rootDecls(css) {
  *  lightningcss, краски короче и строчными, без пробелов и кавычек. */
 function squeeze(v) {
   const short = (h) => (h[1] === h[2] && h[3] === h[4] && h[5] === h[6] ? `#${h[1]}${h[3]}${h[5]}` : h)
-  let s = String(v).trim().toLowerCase().replace(/#[0-9a-f]{6}\b/g, short)
+  /* Вуаль строителя палитры `#RRGGBBAA` (И295) сборщик тоже укорачивает:
+     `#00000099` → `#0009`. */
+  const short8 = (h) => (h[1] === h[2] && h[3] === h[4] && h[5] === h[6] && h[7] === h[8] ? `#${h[1]}${h[3]}${h[5]}${h[7]}` : h)
+  let s = String(v).trim().toLowerCase().replace(/#[0-9a-f]{8}\b/g, short8).replace(/#[0-9a-f]{6}\b/g, short)
   const ld = s.match(/^light-dark\(\s*([^,]+?)\s*,\s*(.+?)\s*\)$/)
   if (ld) s = `var(--lightningcss-light,${ld[1]})var(--lightningcss-dark,${ld[2]})`
   return s.replace(/[\s"']/g, '').replace(/(^|[(,])0\./g, '$1.')

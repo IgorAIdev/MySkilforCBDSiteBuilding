@@ -10,6 +10,9 @@
    высоту экрана подстроиться»). Верх (заголовок, разделы, подразделы) и низ
    (действия) стоят, прокручивается середина. На макете — 360 в ширину и вся
    высота от шапки сайта до нижнего поля; на телефоне — шторка на 85 % окна.
+   Развёрнутая («Expand», помнится за зрителем) — до 1120 в ширину, варианты
+   крупными образцами; на телефоне — шторка во всю высоту (ниже,
+   «Развёрнутая панель»).
 
    Иерархия (слово заказчика: «подменю тоже подчёркиваниями выделяй»):
    раздел — крупнее и сильнее, подчёркивание 2 px; подраздел — мельче и тише,
@@ -206,8 +209,93 @@
 .lp-note,.lp-status{margin:0;color:var(--lp-soft);font-size:var(--lp-t1);overflow-wrap:anywhere}
 .lp-status:empty{display:none}
 
+/* ── Развёрнутая панель ────────────────────────────────────────────────
+   Слово заказчика 24.09.2026: «панель меню делай расширяемой, например чтоб
+   все кнопки показать». Тезис: панель та же — верх и низ стоят, середина
+   прокручивается, страница слева живая (панель немодальна), — но середина
+   становится витриной вариантов: каждый вариант — плитка с крупным образцом
+   на том, на чём он встанет, и подписью под ним. Выбранная плитка — кольцо
+   чернил панели и галочка, а не заливка: заливка перекрыла бы образец, а
+   образец и есть то, что выбирают. Кнопка — настоящая кнопка сайта на полу
+   страницы и на тёмной полосе; палитра — карточка товара её красками;
+   одежда карточки — карточка. Колонок столько, сколько влезает (auto-fill);
+   на телефоне развёрнутая — шторка во всю высоту. */
+.lp{--lp-w-wide:1120px;--lp-tile:212px}
+.lp-widen{display:inline-flex;align-items:center;gap:var(--lp-s2);min-block-size:var(--lp-target);padding:0 var(--lp-s3);
+  border:1px solid var(--lp-line);border-radius:var(--lp-pill);background:none;color:var(--lp-soft);font-size:var(--lp-t2);font-weight:600}
+.lp-widen:hover{color:var(--lp-ink);background:var(--lp-chip)}
+.lp-panel[data-wide] .lp-widen{color:var(--lp-ink)}
+.lp-big{display:none}
+.lp-panel[data-wide] .lp-big{display:block}
+.lp-panel[data-wide]{inline-size:min(var(--lp-w-wide), 100% - 2 * var(--lp-edge))}
+.lp-cap,.lp-panel[data-wide] .lp-mini,.lp-panel[data-wide] .lp-label{display:none}
+.lp-panel[data-wide] .lp-body{padding:var(--lp-s5) var(--lp-s6) var(--lp-s6)}
+.lp-panel[data-wide] .lp-pane{gap:calc(var(--lp-s6) + var(--lp-s2))}
+.lp-panel[data-wide] .lp-chips{display:grid;grid-template-columns:repeat(auto-fill, minmax(var(--lp-tile), 1fr));gap:var(--lp-s4)}
+.lp-panel[data-wide] .lp-group[data-field='palette'] .lp-chips{--lp-tile:236px}
+/* Кнопка крупного роста с остриём и хвостом просит ширину: плитка не уже
+   надписи «в корзину» в одну строку. */
+.lp-panel[data-wide] .lp-group[data-field^='btn-'] .lp-chips{--lp-tile:236px}
+.lp-panel[data-wide] .lp-chip{display:flex;flex-direction:column;align-items:stretch;gap:0;min-block-size:0;padding:0;overflow:hidden;
+  border-radius:var(--lp-r3);background:var(--lp-bg);white-space:normal;text-align:start;font-weight:400}
+.lp-panel[data-wide] .lp-chip:hover{border-color:color-mix(in srgb, var(--lp-ink) 35%, transparent)}
+.lp-panel[data-wide] .lp-chip[aria-pressed='true']{background:var(--lp-bg);color:var(--lp-ink);border-color:var(--lp-on);box-shadow:0 0 0 1px var(--lp-on)}
+.lp-panel[data-wide] .lp-chip[aria-disabled='true']{text-decoration:none}
+.lp-panel[data-wide] .lp-cap{display:flex;flex-direction:column;gap:2px;padding:var(--lp-s3) var(--lp-s4) var(--lp-s4)}
+.lp-cap-name{display:flex;align-items:center;gap:var(--lp-s2);font-weight:600;font-size:var(--lp-t4)}
+.lp-cap-name svg{display:none;color:var(--lp-ok)}
+.lp-chip[aria-pressed='true'] .lp-cap-name svg{display:block}
+.lp-line{color:var(--lp-soft);font-size:var(--lp-t2);line-height:1.35}
+.lp-chip[aria-disabled='true'] .lp-cap-name span{text-decoration:line-through;text-decoration-thickness:1px}
+
+/* Образцы. Пол образца — пол сайта (`--page`, тёмная полоса — палуба
+   `--page-deck` с её ролями), шрифт — шрифт сайта: кнопка в образце та
+   же, что встанет на странице. */
+.lp-stage{display:grid;grid-template-rows:1fr 1fr;font-family:var(--face, inherit)}
+.lp-ground{display:grid;place-items:center;min-block-size:88px;padding:var(--lp-s5) var(--lp-s4);background:var(--page)}
+.lp-ground-deck{background:var(--page-deck)}
+.lp-zoom{display:inline-block;transform:scale(2);transform-origin:center}
+.lp-big-well{display:grid;place-items:center;gap:var(--lp-s2);min-block-size:132px;padding:var(--lp-s5);background:var(--page, var(--lp-well));color:var(--ink, var(--lp-ink))}
+.lp-big-name{font-size:var(--lp-t5)}
+.lp-face b{font-size:30px;font-weight:600;line-height:1}
+.lp-face span{font-size:var(--lp-t4)}
+.lp-radii{grid-template-columns:repeat(3, auto);align-items:end;gap:var(--lp-s4)}
+.lp-radii i{display:block;inline-size:48px;block-size:36px;background:var(--plate, var(--lp-bg));box-shadow:inset 0 0 0 1.5px currentColor}
+.lp-radii i:nth-child(2){inline-size:64px;block-size:52px}
+.lp-radii i:nth-child(3){inline-size:80px;block-size:64px}
+.lp-lift{display:block;inline-size:60%;block-size:64px;border-radius:var(--r-card, 12px);background:var(--plate, var(--lp-bg))}
+/* Палитра — карточка товара её красками (роли строителя, обе темы). */
+.lp-shop{display:grid;place-items:center;padding:var(--lp-s5) var(--lp-s5) var(--lp-s4);font-family:var(--face, inherit)}
+.lp-shop-site{background:var(--page, var(--lp-well));color:var(--ink, var(--lp-ink))}
+.lp-card,.lp-pcard{display:flex;flex-direction:column;gap:3px;inline-size:100%;max-inline-size:188px;padding:var(--lp-s3);border-radius:var(--r-card, 12px);font-size:var(--lp-t2);line-height:1.3}
+.lp-card-pic{position:relative;display:block;aspect-ratio:4 / 3;margin-block-end:var(--lp-s2);border-radius:calc(var(--r-card, 12px) - 4px)}
+.lp-sale{position:absolute;inset-block-start:6px;inset-inline-start:6px;padding:1px 6px;border-radius:var(--r-xs, 4px);font-size:var(--lp-t1);font-weight:700}
+.lp-card-name{font-size:var(--lp-t3);font-weight:600}
+.lp-card-row{display:flex;align-items:center;justify-content:space-between;gap:var(--lp-s2);margin-block-start:var(--lp-s2)}
+.lp-card-buy{padding:5px 10px;border-radius:var(--r-ctrl, 8px);font-size:var(--lp-t1);font-weight:600;white-space:nowrap}
+/* Одежда карточки — те же роли, что у карточки сайта. */
+.lp-pcard .lp-card-pic{background:var(--plate-2, var(--lp-well))}
+.lp-pcard small{color:var(--ink-soft, var(--lp-soft))}
+.lp-pcard[data-card='framed']{background:var(--plate, var(--lp-bg));box-shadow:var(--sh-raised)}
+.lp-pcard[data-card='bare']{padding:0}
+.lp-pcard[data-card='outlined']{box-shadow:inset 0 0 0 1px var(--rule, var(--lp-line))}
+
+/* Цвет развёрнутый: наборы во всю ширину, строитель и обещания — рядом. */
+.lp-panel[data-wide] #lp-pane-color{display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));align-items:start;column-gap:var(--lp-s6)}
+.lp-panel[data-wide] #lp-pane-color > .lp-hint,
+.lp-panel[data-wide] #lp-pane-color > .lp-group[data-field='palette']{grid-column:1 / -1}
+
 @media (pointer:coarse){
   .lp{--lp-target:44px;--lp-target-lg:44px}
   .lp-tab,.lp-sub,.lp-segb{min-block-size:44px}
   .lp-open{min-block-size:48px}
+}
+/* Телефон: развёрнутая — шторка во всю высоту окна, плитки в две колонки. */
+@media (max-width:560px){
+  .lp-panel[data-wide]{inset:0;inline-size:100%;block-size:100dvh;border:0;border-radius:0}
+  .lp-panel[data-wide] .lp-chips,.lp-panel[data-wide] .lp-group[data-field='palette'] .lp-chips{--lp-tile:148px;gap:var(--lp-s3)}
+  .lp-panel[data-wide] .lp-group[data-field^='btn-'] .lp-chips{--lp-tile:100%}
+  .lp-panel[data-wide] .lp-body{padding:var(--lp-s4)}
+  .lp-panel[data-wide] #lp-pane-color{grid-template-columns:1fr}
+  .lp-widen span{display:none}
 }

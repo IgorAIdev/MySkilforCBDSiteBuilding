@@ -2128,7 +2128,16 @@ async function visit(path, w, { finger, dark = false }) {
             .filter((e) => { const p = getComputedStyle(e).position; return (p === 'fixed' || p === 'sticky') && !e.contains(el) })
           window.__hidWas = window.__hid.map((e) => e.style.visibility)
           window.__hid.forEach((e) => { e.style.visibility = 'hidden' })
-          const b = el.getBoundingClientRect()
+          /* Дно снимается под БУКВАМИ, а не под всей коробкой элемента: у
+             главной кнопки с остриём и хвостом в коробку входят шевроны и
+             срезанный угол с полом страницы, и средний цвет коробки уходил
+             от заливки, на которой надпись лежит на самом деле («See the
+             products» на Латуни с хвостом — 4.08 : 1 при заливке 4.93, И297).
+             Коробка букв — диапазон содержимого; пустой — коробка элемента. */
+          const range = document.createRange()
+          range.selectNodeContents(el)
+          const rb = range.getBoundingClientRect()
+          const b = rb.width >= 2 && rb.height >= 2 ? rb : el.getBoundingClientRect()
           return { x: b.left, y: b.top, w: b.width, h: b.height,
                    vw: innerWidth, vh: innerHeight, dpr: devicePixelRatio }
         }, { i: d.i })

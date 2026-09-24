@@ -420,11 +420,14 @@ export const GROUNDS = (n) => n.slice(0, 5)
    `data-plate` в base.css), значения выпускаются здесь. */
 
 /** Краска с прозрачностью — вуаль, которую браузер кладёт поверх любого
- *  пола: `color-mix(in srgb, #RRGGBB p%, transparent)`, ровно та формула,
- *  которой меряет `veil`. Не `#RRGGBBAA`: восемь бит прозрачности округляют
- *  8 % до 7.84 %, и тихая вуаль «Аптеки» теряла порог на сотую. Доля в
- *  выпуске — число строителя, в стилях сайта её нет (семья `colorOut`). */
-const translucent = (hex, share) => `color-mix(in srgb, ${hex.toUpperCase()} ${Number((share * 100).toFixed(2))}%, transparent)`
+ *  пола: `#RRGGBBAA`. Ровно так она и уходит на экран: сборщик стилей
+ *  (Lightning CSS) сворачивает `color-mix(… p%, transparent)` с постоянной
+ *  краской в те же восемь бит, и доля 8 % становится 20/255 = 7.84 % —
+ *  тихая вуаль «Аптеки» теряла на этом порог. Поэтому доля переводится в
+ *  восьмибитную ВВЕРХ (`seen`: 8 % → 21/255) и меряется та, что покажет
+ *  экран. Доля — число строителя, в стилях сайта её нет (семья `colorOut`). */
+const seen = (share) => Math.ceil(share * 255 - 1e-9) / 255
+const translucent = (hex, share) => `${hex.toUpperCase()}${Math.round(seen(share) * 255).toString(16).padStart(2, '0').toUpperCase()}`
 
 /** Палуба. Светлая тема: обратная пара нейтрали — пол из чернил, знак из
  *  бумаги. Тёмная: знак — чернила; полы — седьмая ступень у шапки
@@ -432,8 +435,8 @@ const translucent = (hex, share) => `color-mix(in srgb, ${hex.toUpperCase()} ${N
  *  героя (`--scrim-deck`, самая тёмная нейтраль темы). Замер палубы берёт
  *  все её полы; `stage` — сцена героя, под текстом на снимке. */
 export const deckOf = (n, mode) => (mode === 'light'
-  ? { bg: n[11], ink: n[0], stage: n[11], grounds: [n[11]], toward: n.slice(1, 11).reverse(), edges: n.slice(0, 11).reverse() }
-  : { bg: n[6], ink: n[11], stage: n[0], grounds: [n[6], n[1], n[0]], toward: n.slice(7, 11), edges: n.slice(7) })
+  ? { bg: n[11], ink: n[0], stage: n[11], grounds: [n[11]], edges: n.slice(0, 11).reverse() }
+  : { bg: n[6], ink: n[11], stage: n[0], grounds: [n[6], n[1], n[0]], edges: n.slice(7) })
 
 /** Вуали — краска пола долей поверх того, что под ней: на бумаге — чернила
  *  (ступень 12), на палубе — её знак. Доли перенесены из tokens.css и
@@ -474,23 +477,32 @@ export const SCRIM = { light: 0.55, dark: 0.72 }
 const lcApart = (a, b) => Math.abs(apca(a, b))
 const offSeen = (edge, bg) => ratio(veil(edge, bg, STATE.off[0]), bg)
 
-/** Хвост главной кнопки (И276): два тона рядом с заливкой. Дальний — первая
- *  ступень ряда от пола к заливке, которая видна на КАЖДОМ полу, где стоит
- *  кнопка (APCA Lc ≥ COLOUR.decorLc — украшение от 5px), и отстоит от
- *  заливки не меньше её шага (SOLID_GAP — шаг заливки к наведению); ближний
- *  — ступень, которой в шкале нет: середина светлоты между дальним и
- *  заливкой (так же выведено нажатие, `press`).
+/** Хвост главной кнопки (И276): два тона ряда марки рядом с заливкой (a9) —
+ *  на том полу, где кнопка стоит. Дальний — первая ступень марки ОТ ПОЛА К
+ *  ЗАЛИВКЕ, которая видна на каждом полу (APCA Lc ≥ COLOUR.decorLc —
+ *  украшение от 5px) и отстоит от заливки не меньше её шага (SOLID_GAP — шаг
+ *  заливки к наведению); ближний — ступень, которой в шкале нет: середина
+ *  светлоты между дальним и заливкой (так же выведено нажатие, `press`).
+ *  Сторона пола — по светлоте: на светлой бумаге — ступени светлее a9, на
+ *  тёмной палубе светлой темы — темнее.
  *
  *  Заливка может стоять вплотную к полу — светлая марка на светлой бумаге,
  *  тёмная на тёмной, — и тогда со стороны пола видной ступени нет, или она
- *  той же светлоты, что заливка. Хвост тогда идёт от заливки к чернилам
- *  (`beyond`: ступени за заливкой): украшение подстраивается под марку, а не
- *  марка под украшение. Иначе строитель двигал бы саму марку ради шеврона —
- *  жёлтая #FFE600 уходила в горчицу на ΔE 21. */
-function trailOf(toward, fill, grounds, mode, beyond = []) {
-  const apart = (c, bg) => (Math.abs(lightness(c) - lightness(fill)) >= SOLID_GAP[mode] ? lcApart(c, bg) : 0)
-  const far = firstReaching([...toward, ...beyond], grounds, NEED.decorLc, 0, apart)
-  return { near: atLightness(fill, far, (lightness(far) + lightness(fill)) / 2), far, got: Math.min(...grounds.map((bg) => apart(far, bg))) }
+ *  той же светлоты, что заливка. Хвост тогда идёт по другую сторону
+ *  заливки: украшение подстраивается под марку, а не марка под украшение.
+ *  Иначе строитель двигал бы саму марку ради шеврона — жёлтая #FFE600
+ *  уходила в горчицу на ΔE 21. */
+function trailOf(a, grounds, mode) {
+  const fill = a[8]
+  const lf = lightness(fill)
+  const far = (c) => Math.abs(lightness(c) - lf)
+  const up = grounds.reduce((s, bg) => s + lightness(bg), 0) / grounds.length > lf
+  const steps = a.filter((_, i) => i !== 8)
+  const toward = steps.filter((c) => lightness(c) > lf === up).sort((x, y) => far(y) - far(x))
+  const beyond = steps.filter((c) => lightness(c) > lf !== up).sort((x, y) => far(x) - far(y))
+  const apart = (c, bg) => (far(c) >= SOLID_GAP[mode] ? lcApart(c, bg) : 0)
+  const tone = firstReaching([...toward, ...beyond], grounds, NEED.decorLc, 0, apart)
+  return { near: atLightness(fill, tone, (lightness(tone) + lf) / 2), far: tone, got: Math.min(...grounds.map((bg) => apart(tone, bg))) }
 }
 
 /** Вуаль героя (И280): текст сцены лежит на снимке заказчика, и снимок
@@ -502,8 +514,8 @@ function trailOf(toward, fill, grounds, mode, beyond = []) {
  *  (Аптека — 4.15 : 1). */
 function scrimOf(deck) {
   const on = (share) => {
-    const bg = veil(deck.stage, '#FFFFFF', share)
-    return ratio(veil(deck.ink, bg, VEIL.dim), bg)
+    const bg = veil(deck.stage, '#FFFFFF', seen(share))
+    return ratio(veil(deck.ink, bg, seen(VEIL.dim)), bg)
   }
   let far = 1
   for (let k = 50; k <= 100; k += 1) if (on(k / 100) >= NEED.text) { far = k / 100; break }
@@ -533,8 +545,8 @@ export function groundRoles(n, a, mode) {
   /* Вуали обоих полов. */
   for (const [job, share] of Object.entries(VEIL.paper)) out[`--${job}-paper`] = translucent(ink, share)
   for (const [job, share] of Object.entries(VEIL.deck)) out[`--${job}-deck`] = translucent(deck.ink, share)
-  check('quiet', 'тихая вуаль видна на всех поверхностях', Math.min(...G.map((bg) => ratio(veil(ink, bg, VEIL.paper.quiet), bg))), STATE.visible)
-  check('quiet-deck', 'тихая вуаль видна на палубе', Math.min(...deck.grounds.map((bg) => ratio(veil(deck.ink, bg, VEIL.deck.quiet), bg))), STATE.visible)
+  check('quiet', 'тихая вуаль видна на всех поверхностях', Math.min(...G.map((bg) => ratio(veil(ink, bg, seen(VEIL.paper.quiet)), bg))), STATE.visible)
+  check('quiet-deck', 'тихая вуаль видна на палубе', Math.min(...deck.grounds.map((bg) => ratio(veil(deck.ink, bg, seen(VEIL.deck.quiet)), bg))), STATE.visible)
 
   /* Тени обоих полов. */
   SHADE.names.forEach((job, i) => {
@@ -556,10 +568,11 @@ export function groundRoles(n, a, mode) {
   out['--pop-hover-deck'] = atLightness(deck.ink, deck.bg, lightness(deck.ink) - SOLID_GAP[mode])
   check('pop-deck', 'светлая пилюля палубы под рукой читается', ratio(deck.bg, out['--pop-hover-deck']), NEED.text)
 
-  /* Хвост: на бумаге — ступени марки от бумаги к заливке (2…8); на палубе
-     заливка — знак палубы, и хвост идёт по нейтрали от пола палубы к нему. */
-  const paper = trailOf(a.slice(1, 8), a[8], G, mode, a.slice(9))
-  const onDeck = trailOf(deck.toward, deck.ink, deck.grounds, mode)
+  /* Хвост — ступени марки на обоих полах: заливка главной кнопки и на
+     палубе — марка (роль кнопки из каталога посчитана на корне), меняется
+     только пол, к которому хвост сходит. */
+  const paper = trailOf(a, G, mode)
+  const onDeck = trailOf(a, deck.grounds, mode)
   out['--pop-trail-near-paper'] = paper.near
   out['--pop-trail-far-paper'] = paper.far
   out['--pop-trail-near-deck'] = onDeck.near

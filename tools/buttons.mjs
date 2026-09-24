@@ -72,12 +72,14 @@ export function tokenMap(text = tokensText()) {
 /** Имя роли → hex в теме: палитра, затем tokens.css, light-dark и var().
  *  Ввозится и панелью вида витрины: плитка набора красится теми же ролями,
  *  что сайт (look-panel/scripts/build-catalog.mjs витрины). */
+/** Краска значением: `#RRGGBB` или вуаль строителя `#RRGGBBAA` (И295). */
+const PAINT = /^#[0-9a-f]{6}([0-9a-f]{2})?$/i
 export function resolver(palette, tokens, theme) {
   const get = (name, depth = 0) => {
     if (depth > 12) throw new Error(`цикл ролей у ${name}`)
     const v = palette[name] ?? tokens[name]
     if (!v) throw new Error(`роль ${name} не объявлена`)
-    if (/^#[0-9a-f]{6}$/i.test(v)) return v
+    if (PAINT.test(v)) return v
     const ld = v.match(/^light-dark\(\s*([^,]+?)\s*,\s*([^)]+\)?)\s*\)$/)
     if (ld) return value(theme === 'light' ? ld[1] : ld[2], depth)
     return value(v, depth)
@@ -85,7 +87,7 @@ export function resolver(palette, tokens, theme) {
   const value = (v, depth) => {
     const ref = v.trim().match(/^var\((--[\w-]+)\)$/)
     if (ref) return get(ref[1], depth + 1)
-    if (/^#[0-9a-f]{6}$/i.test(v.trim())) return v.trim()
+    if (PAINT.test(v.trim())) return v.trim()
     throw new Error(`не краска: ${v}`)
   }
   return get
@@ -98,22 +100,24 @@ const mix = (top, under, share) => {
 /** Краска значения поверх пола: `transparent` — null; вуаль
  *  `color-mix(in srgb|oklab, X p%, transparent)` — X долей p по полу; ссылка
  *  на вуаль (`var(--quiet)` → `var(--quiet-paper)` → вуаль, выпущенная
- *  строителем палитры, И295) — так же, по всей цепочке ссылок. */
+ *  строителем палитры `#RRGGBBAA`, И295) — так же, по всей цепочке ссылок. */
 function painter(palette, tokens, theme) {
   const get = resolver(palette, tokens, theme)
+  /* Вуаль `#RRGGBBAA` кладётся на пол своей долей. */
+  const flat = (hex, floor) => (hex.length === 9 ? mix(hex.slice(0, 7), floor, Number.parseInt(hex.slice(7), 16) / 255) : hex)
   const over = (v, floor, depth = 0) => {
     const s = String(v).trim()
     if (s === 'transparent') return null
     const veil = s.match(/^color-mix\(in (?:srgb|oklab), (.+) (\d+(?:\.\d+)?)%, transparent\)$/)
     if (veil) { const top = over(veil[1], floor, depth + 1); return top ? mix(top, floor, Number(veil[2]) / 100) : null }
-    if (/^#[0-9a-f]{6}$/i.test(s)) return s
+    if (PAINT.test(s)) return flat(s, floor)
     const ref = s.match(/^var\((--[\w-]+)\)$/)
     if (ref && depth < 12) {
       const raw = (palette[ref[1]] ?? tokens[ref[1]] ?? '').trim()
       if (/^color-mix|^transparent$|^var\(/.test(raw)) return over(raw, floor, depth + 1)
-      return get(ref[1])
+      return flat(get(ref[1]), floor)
     }
-    return get(s)
+    return flat(get(s), floor)
   }
   return { get, over }
 }

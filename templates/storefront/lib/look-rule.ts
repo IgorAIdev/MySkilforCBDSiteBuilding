@@ -51,14 +51,20 @@ const args = (s: string): string[] => {
 }
 
 /** Краска роли в теме: значения вида, затем роли сайта. Понимает то, чем
- *  краски вида записаны: `#hex`, `var()`, `light-dark()`, `transparent` и
- *  вуаль `color-mix(in srgb, X p%, transparent)`. Прочее — null. */
+ *  краски вида записаны: `#hex`, вуаль строителя `#RRGGBBAA`, `var()`,
+ *  `light-dark()`, `transparent` и вуаль `color-mix(in srgb, X p%,
+ *  transparent)`. Прочее — null. */
 function painter(vars: Readonly<Record<string, string>>, roles: Facts['roles'], theme: (typeof THEMES)[number]) {
   const parse = (v: string, depth: number): Rgba | null => {
     if (depth > 16) return null
     if (/^#[0-9a-f]{6}$/i.test(v)) {
       const n = Number.parseInt(v.slice(1), 16)
       return [(n >> 16) & 255, (n >> 8) & 255, n & 255, 1]
+    }
+    /* Вуаль строителя палитры — `#RRGGBBAA` (И295): доля в канале прозрачности. */
+    if (/^#[0-9a-f]{8}$/i.test(v)) {
+      const n = Number.parseInt(v.slice(1, 7), 16)
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255, Number.parseInt(v.slice(7), 16) / 255]
     }
     if (v === 'transparent') return [0, 0, 0, 0]
     const ref = v.match(/^var\((--[\w-]+)\)$/)
