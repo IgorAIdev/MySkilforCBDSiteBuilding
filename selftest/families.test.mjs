@@ -228,3 +228,42 @@ test('motion: переход на всё, появление из scale(0), пр
     assert.match(r.stdout, /переход «на всё»/, 'подпись семьи называет новый приём')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+/* И320, И346: галочки шторки фильтров встали одной колонкой — `.ticks`
+   переобъявлял `--cell-min` примитива `.grid` на том же узле голым классом,
+   и победу отдал порядок кусков сборки. Находка — узел и примитив в одном
+   className, ручка у обоих голым классом; сила места (атрибут, предок),
+   `:where()` у примитива и узел на другом элементе — не находка. */
+test('knobTie: ручка примитива, переобъявленная узлом на том же элементе равным весом, — находка; сила места и :where() — нет', () => {
+  const list = (dir) => spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'knobTie'], { cwd: dir, encoding: 'utf8' }).stdout
+  const tsx = [
+    "import p from '@/styles/primitives.module.css'",
+    "import s from './Filters.module.css'",
+    'export const A = () => <ul className={`${p.grid} ${s.ticks}`}><li className={s.tick} /></ul>',
+    'export const B = () => <ul className={[p.grid, s.shelf].join(" ")} data-catalog-grid="" />',
+    'export const C = () => <div className={s.values}><ul className={`${p.grid} ${s.inner}`} /></div>',
+    'export const D = () => <div className={`${p.frame} ${s.shot}`} />',
+  ].join('\n')
+  const node = [
+    '.ticks{--cell-min:10ch;--cols:2}',
+    '.shelf[data-catalog-grid]{--cols:4}',
+    '.values .inner{--cell-min:12ch}',
+    '.tick{--cols:9}',
+    '.shot{--frame:1 / 1}',
+  ].join('\n')
+  const dir = project({
+    'styles/primitives.module.css': '.grid{--cols:3;--cell-min:240px;display:grid}\n.frame{--frame:4 / 3;aspect-ratio:var(--frame)}\n',
+    'components/Filters.module.css': node + '\n',
+    'components/Filters.tsx': tsx + '\n',
+  })
+  try {
+    const out = list(dir)
+    assert.match(out, /— 2\n/, `две находки: .ticks против .grid и .shot против .frame:\n${out}`)
+    assert.match(out, /Filters\.module\.css:1 {2}\.ticks и примитив \.grid на одном узле \(components\/Filters\.tsx:3\): оба задают --cell-min, --cols/)
+    assert.match(out, /\.shot и примитив \.frame на одном узле/)
+    for (const quiet of ['.shelf', '.inner', '.tick ']) assert.ok(!out.includes(`  ${quiet}`), `${quiet} — сила места или другой элемент, не находка`)
+    /* Умолчания примитива под :where() — вес ноль: узел побеждает всегда. */
+    writeFileSync(join(dir, 'styles/primitives.module.css'), ':where(.grid){--cols:3;--cell-min:240px}\n.grid{display:grid}\n:where(.frame){--frame:4 / 3}\n.frame{aspect-ratio:var(--frame)}\n')
+    assert.match(list(dir), /— 0\n/)
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

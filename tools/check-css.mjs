@@ -24,7 +24,7 @@ import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
 import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING, PALETTE,
-  BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
+  BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES, PRIMITIVES } from './kit-config.mjs'
 import { deadSeams } from './seams.mjs'
 
 const relative = (...args) => nativeRelative(...args).split(String.fromCharCode(92)).join('/')
@@ -2363,6 +2363,110 @@ for (const path of files) {
     if (takers.some((code) => code.includes('data-plate'))) continue
     const at = `${rel}:${css.slice(0, m.index).split('\n').length}`
     found.plateGap.push(`${at}  красится листом, а полом себя не объявил (нужен data-plate)`)
+  }
+}
+
+/* ── РУЧКА ПРИМИТИВА НА РАВНОМ ВЕСЕ (knobTie, И320, И346) ─────────────────
+ *
+ * Примитив объявляет свою ручку у себя голым классом: `.grid{--cols:…;
+ * --cell-min:…}`, `.frame{--frame:…}`. Узел, который стоит на том же
+ * элементе, что и примитив (`className={`${p.grid} ${s.ticks}`}`), и
+ * переобъявляет ту же ручку ТОЖЕ голым классом (`.ticks{--cell-min:…}`),
+ * спорит с ним равным весом (0,1,0) — и побеждает тот, чей кусок сборки
+ * встал ниже. Порядок кусков решает сборщик по тому, какая страница их
+ * затребовала первой, — между разработкой и боем он разный.
+ *
+ * Дефект: 24.09.2026, пакет B — галочки шторки фильтров стояли одной
+ * колонкой вместо двух: модуль фильтров собирался раньше примитивов, и
+ * `.grid{--cell-min:240px}` бил `.ticks{--cell-min:…}`. Правило И320
+ * записали, а сторожа к нему не было — полка каталога и кадр карточки
+ * держались на том же везении, и следующий такой узел никто бы не увидел.
+ *
+ * Признак, видимый без браузера: в одном `className` стоят класс
+ * примитива и класс узла; у примитива ручка объявлена голым `.X`, у узла
+ * та же ручка — голым `.Y`. Сила места — атрибут на том же узле
+ * (`.shelf[data-catalog-grid]`) или предок (`.values .ticks`) — спора не
+ * создаёт, и находкой не считается. `:where()` у примитива — вес ноль,
+ * тоже не спор.
+ */
+{
+  const bare = (text) => {
+    const out = []
+    for (const rule of text.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      const names = rule[1].split(',').map((part) => part.trim()).filter((part) => /^\.[A-Za-z_][\w-]*$/.test(part)).map((part) => part.slice(1))
+      if (!names.length) continue
+      const knobs = [...rule[2].matchAll(/(?:^|;)\s*(--[\w-]+)\s*:/g)].map((d) => d[1])
+      if (knobs.length) out.push({ names, knobs, at: rule.index + rule[0].indexOf('{') })
+    }
+    return out
+  }
+  const primFile = PRIMITIVES ? join(ROOT, PRIMITIVES) : null
+  const knobsOf = new Map()
+  if (primFile && existsSync(primFile)) {
+    for (const r of bare(strip(readFileSync(primFile, 'utf8')))) {
+      for (const n of r.names) {
+        if (!knobsOf.has(n)) knobsOf.set(n, new Set())
+        for (const k of r.knobs) knobsOf.get(n).add(k)
+      }
+    }
+  }
+  /* Голые правила узлов — один раз на файл модуля. */
+  const nodeRules = new Map()
+  const rulesOf = (file) => {
+    if (!nodeRules.has(file)) {
+      const css = strip(readFileSync(file, 'utf8'))
+      const line = (i) => `${relative(ROOT, file)}:${css.slice(0, i).split('\n').length}`
+      nodeRules.set(file, bare(css).map((r) => ({ ...r, where: line(r.at) })))
+    }
+    return nodeRules.get(file)
+  }
+  /* Одно правило узла против одного примитива — одна находка: чинится одной
+     правкой, сколько бы ручек в нём ни стояло. */
+  const ties = new Map()
+  if (knobsOf.size) {
+    for (const path of CODE) {
+      const rel = relative(ROOT, path)
+      if (rel.includes('studio')) continue
+      const code = strip(readFileSync(path, 'utf8').replace(/\/\/[^\n]*/g, (m) => ' '.repeat(m.length)))
+      const mods = new Map()
+      for (const m of code.matchAll(/import\s+(\w+)\s+from\s+'([^']+\.module\.css)'/g)) {
+        const file = m[2].startsWith('@/') ? join(ROOT, m[2].slice(2)) : join(dirname(path), m[2])
+        if (existsSync(file)) mods.set(m[1], file)
+      }
+      const prims = [...mods].filter(([, file]) => file === primFile).map(([local]) => local)
+      if (!prims.length) continue
+      /* Выражение `className={…}` целиком: скобки считаются, внутри шаблонной
+         строки стоят свои `${…}`. */
+      for (const m of code.matchAll(/className=\{/g)) {
+        let depth = 1
+        let i = m.index + m[0].length
+        while (i < code.length && depth) {
+          if (code[i] === '{') depth++
+          else if (code[i] === '}') depth--
+          i++
+        }
+        const expr = code.slice(m.index + m[0].length, i - 1)
+        const refs = [...expr.matchAll(/\b(\w+)\.([A-Za-z_]\w*)\b/g)].filter((r) => mods.has(r[1]))
+        const onPrim = refs.filter((r) => prims.includes(r[1]) && knobsOf.has(r[2])).map((r) => r[2])
+        if (!onPrim.length) continue
+        for (const r of refs) {
+          if (prims.includes(r[1])) continue
+          for (const rule of rulesOf(mods.get(r[1]))) {
+            if (!rule.names.includes(r[2])) continue
+            for (const prim of onPrim) {
+              const both = rule.knobs.filter((knob) => knobsOf.get(prim).has(knob))
+              if (!both.length) continue
+              const key = `${rule.where}|${r[2]}|${prim}`
+              if (!ties.has(key)) ties.set(key, { where: rule.where, node: r[2], prim, knobs: new Set(), on: `${rel}:${code.slice(0, m.index).split('\n').length}` })
+              for (const knob of both) ties.get(key).knobs.add(knob)
+            }
+          }
+        }
+      }
+    }
+  }
+  for (const t of ties.values()) {
+    found.knobTie.push(`${t.where}  .${t.node} и примитив .${t.prim} на одном узле (${t.on}): оба задают ${[...t.knobs].join(', ')} голым классом — победит порядок кусков сборки; ручку примитива — под :where(), узлу — силой места`)
   }
 }
 

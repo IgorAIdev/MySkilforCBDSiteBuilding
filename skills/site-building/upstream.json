@@ -712,7 +712,7 @@
     },
     {
       "local": "assets/studio/engine/scale.mjs",
-      "sha256": "d74b23f2e973ba4c0287693a29bc0cf21dcc3929260a42ed9bb9a8f1526935c8",
+      "sha256": "f358ac3b561a245b8e41f07dab9fec7493b6d22760b45867a7b88f9b8bed62dc",
       "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
     },
     {
