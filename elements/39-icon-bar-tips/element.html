@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>39 · Полоса значков с подсказкой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 39 — «Полоса значков с подсказкой». Источник — разметка Tailwind от заказчика 24.09.2026, переслана из сессии «Кнопки и дизайн» (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тень полосы и подсказки; рост подсказки из нуля; градиентный заголовок «Hover Them» — не часть элемента; синий под рукой; поля 16 px вокруг каждого знака.
+  Приведено к единой форме: полоса — лоток с волоском вместо тона; значки из листа набора: поиск, избранное, корзина, кабинет — вместо дома, сообщений, людей и настроек: дома и шестерёнки в листе нет; знак под рукой — краской марки, как у кнопок «без фона»; подсказка — лист с волоском, слово ролью сноски; видна под рукой и на фокусе с клавиатуры; имя знака — и для чтения вслух (aria-label).
+  Наведение: знак — краской марки, над ним подсказка. Нажатие: то же, знак 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="tray" data-voice="line"><button class="el" data-voice="bare" data-icon type="button" aria-label="Search"><svg data-sign="search"></svg><span class="tip" aria-hidden="true">Search</span></button><button class="el" data-voice="bare" data-icon type="button" aria-label="Favourites"><svg data-sign="heart"></svg><span class="tip" aria-hidden="true">Favourites</span></button><button class="el" data-voice="bare" data-icon type="button" aria-label="Cart"><svg data-sign="shopping-cart"></svg><span class="tip" aria-hidden="true">Cart</span></button><button class="el" data-voice="bare" data-icon type="button" aria-label="Account"><svg data-sign="user"></svg><span class="tip" aria-hidden="true">Account</span></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tray" data-voice="line"><span class="el" data-voice="bare" data-icon><svg data-sign="search"></svg><span class="tip" aria-hidden="true">Search</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="heart"></svg><span class="tip" aria-hidden="true">Favourites</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="shopping-cart"></svg><span class="tip" aria-hidden="true">Cart</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="user"></svg><span class="tip" aria-hidden="true">Account</span></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tray" data-voice="line"><span class="el" data-voice="bare" data-icon><svg data-sign="search"></svg><span class="tip" aria-hidden="true">Search</span></span><span class="el" data-voice="bare" data-icon data-state="hover"><svg data-sign="heart"></svg><span class="tip" aria-hidden="true">Favourites</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="shopping-cart"></svg><span class="tip" aria-hidden="true">Cart</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="user"></svg><span class="tip" aria-hidden="true">Account</span></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tray" data-voice="line"><span class="el" data-voice="bare" data-icon><svg data-sign="search"></svg><span class="tip" aria-hidden="true">Search</span></span><span class="el" data-voice="bare" data-icon data-state="press"><svg data-sign="heart"></svg><span class="tip" aria-hidden="true">Favourites</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="shopping-cart"></svg><span class="tip" aria-hidden="true">Cart</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="user"></svg><span class="tip" aria-hidden="true">Account</span></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tray" data-voice="line"><span class="el" data-voice="bare" data-icon><svg data-sign="search"></svg><span class="tip" aria-hidden="true">Search</span></span><span class="el" data-voice="bare" data-icon data-state="focus"><svg data-sign="heart"></svg><span class="tip" aria-hidden="true">Favourites</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="shopping-cart"></svg><span class="tip" aria-hidden="true">Cart</span></span><span class="el" data-voice="bare" data-icon><svg data-sign="user"></svg><span class="tip" aria-hidden="true">Account</span></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

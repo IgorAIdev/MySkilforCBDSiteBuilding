@@ -44,6 +44,12 @@
  *                                       data-knob over — ручка крупнее дорожки
  *    .card .sheet .mark .frame          карточка · окно · знак в круге · кадр под снимок;
  *                                       data-tone ok | bad — сообщение краской смысла, data-layout row — строкой
+ *    .tip                               подсказка над знаком: под рукой и на фокусе
+ *    .tray data-voice line              лоток контуром — волосок вместо тона
+ *    .card data-link                    карточка-ссылка: под рукой — черта марки сверху
+ *    .field + input                     поле ввода; data-voice line — контуром, data-edge pop —
+ *                                       кромка маркой, data-shape pill; .el data-clear — «очистить»
+ *    .join                              поле и кнопка встык
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -268,7 +274,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    убирай сразу»). */
 .card{
   box-sizing:border-box;display:flex;flex-direction:column;gap:var(--air-row, 16px);
-  inline-size:min(320px, 100%);padding:var(--pad-card, 1.25rem);
+  inline-size:320px;max-inline-size:100%;padding:var(--pad-card, 1.25rem);
   border-radius:var(--r-card, 16px);background:var(--surface);color:var(--ink);
   box-shadow:inset 0 0 0 var(--line) var(--rule);font-family:var(--face)
 }
@@ -284,6 +290,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .card .stack{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4)}
 /* Знак и слова рядом: прижаты друг к другу, знак у первой строки. */
 .card .item{display:flex;align-items:flex-start;gap:var(--gap-row, 12px)}
+.card .item > .stack{flex:1;min-inline-size:0}
 /* Кадр под снимок: место занято заранее, пропорция с потолком от окна
    (запрет 4), угол — концентричный полю карточки. */
 .card .frame{
@@ -306,7 +313,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .card[data-tone='bad'] .mark{background:var(--bad-tint);border-radius:var(--r-ctrl, 8px)}
 .card[data-tone] .el[data-voice='ghost']{--fg:var(--tone-ink, var(--ink))}
 /* Строкой: знак, слова, выход — всплывающее сообщение. */
-.card[data-layout='row']{flex-direction:row;align-items:center;inline-size:min(360px, 100%);padding:var(--pad-inner, .75rem)}
+.card[data-layout='row']{flex-direction:row;align-items:center;inline-size:360px;padding:var(--pad-inner, .75rem)}
 .card[data-layout='row'] > .stack{flex:1}
 /* Окно: шапка с именем и выходом, прокручиваемое тело, подвал с действиями.
    Разделители — волоском; над подвалом — дымка: тело продолжается. На сайте
@@ -368,13 +375,85 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .card .control{display:grid;grid-template-columns:5rem 1fr 2.5rem;align-items:center;gap:var(--gap-row, 12px);font-size:var(--note-size, .875rem);color:var(--ink-soft)}
 .card .control output{text-align:end;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
 .card hr{margin:0;border:0;block-size:var(--line);background:var(--rule)}
-.card[data-layout='row'] .title{font-size:var(--body-size, 1rem)}
+/* Сообщение строкой и сжатая карточка — заголовок и цена ростом тела. */
+.card:is([data-layout='row'], [data-size='sm']) :is(.title, .price){font-size:var(--body-size, 1rem)}
 .card[data-tone='ok'] .el[data-voice='loud']{--bg:var(--ok-fill);--fg:var(--on-ok)}
 
 /* Краска смысла у органа: «удалить» — краской ошибки, особое — краской марки;
    вуаль под рукой идёт той же краской. */
 .el[data-tone='bad']{--fg:var(--bad)}
 .el[data-tone='pop']{--fg:var(--pop-ink)}
+
+/* Подсказка над знаком: имя органа словом — под рукой и на фокусе с
+   клавиатуры (WCAG 1.4.13), застывшим — в каждом состоянии. Лист с волоском,
+   как всякое всплывающее; не нажимается. Для чтения вслух имя — у органа. */
+.el .tip{
+  position:absolute;inset-block-end:calc(100% + var(--nudge) * 2);inset-inline-start:50%;translate:-50% 0;
+  padding:.25rem .6rem;border-radius:var(--r-ctrl, 8px);background:var(--surface);color:var(--ink);
+  box-shadow:inset 0 0 0 var(--line) var(--rule);font-size:var(--note-size, .875rem);font-weight:500;white-space:nowrap;
+  pointer-events:none;visibility:hidden;opacity:0;transition:opacity var(--hover-t) var(--ease), visibility var(--hover-t)
+}
+.el:is(:focus-visible, [data-state]) .tip{visibility:visible;opacity:1}
+@media (hover:hover){ .el:hover .tip{visibility:visible;opacity:1} }
+/* Лоток контуром: волосок вместо тона. */
+.tray[data-voice='line']{background:transparent;box-shadow:inset 0 0 0 var(--line) var(--rule)}
+
+/* Карточка-ссылка: нажимается вся. Под рукой сверху встаёт черта марки,
+   нажатая — краской нажатия и на пиксель ниже, без сжатия: карточка
+   большая; фокус — кольцо. */
+.card[data-link]{position:relative;overflow:hidden;cursor:pointer;color:var(--ink);text-decoration:none;transition:transform var(--press-t) var(--ease)}
+.card[data-link]::before{content:'';position:absolute;inset:0 0 auto;block-size:calc(var(--frame-w) * 2);background:var(--mark-c, transparent);transition:background-color var(--hover-t) var(--ease)}
+@media (hover:hover){ .card[data-link]:hover{--mark-c:var(--pop)} }
+.card[data-link][data-state='hover']{--mark-c:var(--pop)}
+.card[data-link]:is(:active, [data-state='press']){--mark-c:var(--pop-press);transform:translateY(1px)}
+.card[data-link]:is(:focus-visible, [data-state='focus']){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.card [data-case='caps']{text-transform:uppercase;letter-spacing:var(--caps);font-weight:600}
+
+/* ── поле ввода ──────────────────────────────────────────────────────────
+   Коробка — `<label class="field">`: знак и `<input>` внутри, состояние
+   встаёт на всю коробку. Рост и угол — как у органа; вписанное — тело не
+   меньше 16px (иначе телефон увеличит страницу), подсказка в поле — краской
+   подписи. Поле не нажимается — в него пишут: нажатие ставит курсор, это
+   фокус (И350). Фокус — кольцо набора, как у всякого органа, кромка —
+   краской кольца, знак — краской марки; у пары «поле и кнопка» кольцо
+   встаёт вокруг пары. */
+.field{
+  --h:var(--h-md);--r:var(--r-ctrl, 8px);--bg:var(--quiet);--paint:var(--bg);
+  --edge-c:transparent;--edge-hover:transparent;--sign:var(--ink-soft);
+  box-sizing:border-box;display:inline-flex;align-items:center;gap:calc(var(--h) * .25);
+  inline-size:min(300px, 100%);block-size:var(--h);padding-inline:calc(var(--h) * .35);
+  border-radius:var(--r);background:var(--paint);box-shadow:inset 0 0 0 var(--line) var(--edge-c);
+  font-family:var(--face);cursor:text;
+  transition:background-color var(--hover-t) var(--ease), box-shadow var(--hover-t) var(--ease)
+}
+.field > svg{inline-size:calc(var(--h) * .45);block-size:calc(var(--h) * .45);flex:none;color:var(--sign);transition:color var(--hover-t) var(--ease)}
+.field input{flex:1;min-inline-size:0;block-size:100%;margin:0;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:max(1rem, var(--body-size, 1rem));outline:none}
+.field input::placeholder{color:var(--ink-soft);opacity:1}
+.field input::-webkit-search-cancel-button{-webkit-appearance:none}
+.field[data-voice='line']{--bg:var(--surface);--edge-c:var(--edge);--edge-hover:var(--ink)}
+.field[data-edge='pop']{--edge-c:var(--pop);--edge-hover:var(--pop-press)}
+.field[data-shape='pill']{--r:999px;padding-inline:calc(var(--h) * .45)}
+/* «Очистить» у конца поля: круг марки, виден, когда вписано; рост 24 — не
+   меньше порога цели WCAG 2.5.8, под пальцем — больше. */
+.field > .el{--h:calc(var(--h-sm) * .75);margin-inline-start:auto}
+.field:has(> .el){padding-inline-end:calc(var(--h) * .2)}
+.field:has(input:placeholder-shown) > .el[data-clear]{visibility:hidden}
+/* Поле и кнопка встык: одна коробка из двух частей, угол — у внешних краёв;
+   нажатая кнопка не сжимается — встык она не отходит от поля. */
+.join{display:inline-flex;inline-size:min(360px, 100%)}
+.join > .field{flex:1;border-start-end-radius:0;border-end-end-radius:0}
+.join > .el{flex:none;border-start-start-radius:0;border-end-start-radius:0}
+.join > .el:is(:active, [data-state='press']){transform:none}
+@media (hover:hover){
+  .field:hover:not(:focus-within){--paint:color-mix(in oklab, var(--bg), var(--ink) var(--state-hover))}
+  .field[data-voice='line']:hover:not(:focus-within){--paint:var(--bg);--edge-c:var(--edge-hover)}
+}
+.field[data-state='hover']{--paint:color-mix(in oklab, var(--bg), var(--ink) var(--state-hover))}
+.field[data-voice='line'][data-state='hover']{--paint:var(--bg);--edge-c:var(--edge-hover)}
+.field:focus-within,
+.field[data-state='focus']{--paint:var(--surface);--edge-c:var(--ring, var(--ink));--sign:var(--pop-ink);outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.join > .field:is(:focus-within, [data-state='focus']){outline:0}
+.join:has(> .field:is(:focus-within, [data-state='focus'])){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off);border-radius:var(--r-ctrl, 8px)}
 
 /* ── страница элемента: живой сверху, состояния застывшими ниже ─────── */
 body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding-block:24px;background:var(--surface);color:var(--ink);font-family:var(--face)}
@@ -385,6 +464,7 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
 .states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 .states figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
 .states figcaption{font-size:.8125rem;color:var(--ink-soft)}
+.states figure:has(.tip){padding-block-start:2.5rem}
 .set{display:grid;grid-template-columns:repeat(auto-fill, minmax(104px, 1fr));gap:8px;inline-size:min(980px, 100% - 32px)}
 .set figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:var(--r-card, 12px);box-shadow:inset 0 0 0 var(--line) var(--rule)}
 .set figure > div{display:flex;align-items:center;gap:12px}

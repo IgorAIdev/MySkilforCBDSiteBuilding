@@ -74,6 +74,13 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
+  /* «Очистить» у поля: вписанное стирается, курсор остаётся в поле. */
+  document.addEventListener('click', (e) => {
+    const input = e.target.closest('button[data-clear]')?.closest('.field')?.querySelector('input')
+    if (!input) return
+    input.value = ''
+    input.focus()
+  })
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button[aria-expanded], button[aria-pressed], button[aria-checked]')
     if (!b) return
@@ -89,6 +96,13 @@ export const LINKS = ['<link rel="stylesheet" href="../palettes.css">', '<link r
 export const BASE = LINKS.find((l) => l.includes('/base.css'))
 /** Род, у которого нет состояний и меток органа: это рисунки, а не орган. */
 export const DRAWINGS = 'набор значков'
+/** Поле не нажимается — в него пишут: нажатие ставит курсор, и это фокус.
+ *  У элемента из одних полей вместо нажатия продумано и показано
+ *  заполненное, застывшими — наведение и фокус (И350). */
+export const FIELD = 'поле'
+const onlyFields = (e) => (e.род ?? []).length > 0 && e.род.every((k) => k === FIELD)
+const thought = (e) => (onlyFields(e) ? ['наведение', 'фокус', 'заполнено'] : ['наведение', 'нажатие', 'фокус'])
+const frozen = (e) => (onlyFields(e) ? [['hover', 'наведение'], ['focus', 'фокус']] : [['hover', 'наведение'], ['press', 'нажатие']])
 
 /** Находки каталога строками «кто: что». `read(путь)` — текст файла из папки
  *  элементов или null; `icons` — имена значков листа набора. Единая форма
@@ -121,12 +135,12 @@ export function auditElements(cat, read, icons = []) {
       for (const x of [v].flat()) if (!vocab[facet].includes(x)) bad(who, `${facet}: «${x}» не из словаря`)
     }
     if (!drawings) for (const facet of facets) if (!(facet in (e.метки ?? {}))) bad(who, `метка «${facet}» не поставлена`)
-    if (!drawings) for (const s of ['наведение', 'нажатие', 'фокус']) if (!e.состояния?.[s]) bad(who, `состояние «${s}» не продумано`)
+    if (!drawings) for (const s of thought(e)) if (!e.состояния?.[s]) bad(who, `состояние «${s}» не продумано`)
     for (const k of ['снято', 'приведено']) if (!Array.isArray(e[k])) bad(who, `«${k}» — список, пусть и пустой`)
     for (const src of [e.источник].flat()) if (read(`${e.папка}/${src}`) == null) bad(who, `нет источника ${src}`)
     const page = read(`${e.папка}/element.html`)
     if (page == null) { bad(who, 'нет отрисовки element.html'); continue }
-    if (!drawings && (!/data-state="hover"/.test(page) || !/data-state="press"/.test(page))) bad(who, 'наведение и нажатие не показаны застывшими (data-state)')
+    if (!drawings && frozen(e).some(([s]) => !page.includes(`data-state="${s}"`))) bad(who, `${frozen(e).map(([, n]) => n).join(' и ')} не показаны застывшими (data-state)`)
     if (!page.includes(BASE)) bad(who, 'отрисовка не на основе ../base.css')
     for (const link of LINKS.filter((l) => l !== BASE)) if (!page.includes(link)) bad(who, `нет подключения ${link.match(/(?:href|src)="([^"]+)"/)[1]}: краски — ролями палитры набора, значки — из листа`)
     const markup = page.replace(/<!--[\s\S]*?-->/g, '')

@@ -31,6 +31,13 @@
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
+  /* «Очистить» у поля: вписанное стирается, курсор остаётся в поле. */
+  document.addEventListener('click', (e) => {
+    const input = e.target.closest('button[data-clear]')?.closest('.field')?.querySelector('input')
+    if (!input) return
+    input.value = ''
+    input.focus()
+  })
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button[aria-expanded], button[aria-pressed], button[aria-checked]')
     if (!b) return

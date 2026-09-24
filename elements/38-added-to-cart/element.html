@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>38 · Сообщение: добавлено в корзину</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 38 — «Сообщение: добавлено в корзину». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: полупрозрачный фон с размытием и тени; белая рамка 3 px и бегущий блик кнопки; рост кнопки 1.05 и сдвиг значка под рукой; z-index 1000 — место в слое решает сайт (запрет 8); подчёркивание имени товара только под рукой; проценты ширины колонок.
+  Приведено к единой форме: лист с волоском; знак корзины из листа набора в круге тона; сжатая карточка всплывающего: заголовок и цена ростом тела; имя товара — ссылка, подчёркнута всегда (И289); цена — рядом с кнопкой; кнопка — чернила пилюлей со стрелкой, рост 32; «закрыть» — кнопка-знак набора.
+  Наведение: кнопка: чернила + 5 % краски надписи; «закрыть» — подложка 5 %. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="card" data-size="sm"><div class="item"><span class="mark"><svg data-sign="shopping-cart"></svg></span><div class="stack"><div class="row"><p class="title">Added to cart</p><button class="el" data-voice="ghost" data-icon data-size="sm" type="button" aria-label="Close"><svg data-sign="x"></svg></button></div><p class="text"><a href="#">Hemp oil 10 %, 30 ml</a></p><div class="row"><span class="price">29,90 €</span><button class="el" data-voice="ink" data-shape="pill" data-size="sm" type="button">View cart<svg data-sign="arrow-right"></svg></button></div></div></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-size="sm"><div class="item"><span class="mark"><svg data-sign="shopping-cart"></svg></span><div class="stack"><div class="row"><p class="title">Added to cart</p><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="x"></svg></span></div><p class="text"><a href="#">Hemp oil 10 %, 30 ml</a></p><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="ink" data-shape="pill" data-size="sm">View cart<svg data-sign="arrow-right"></svg></span></div></div></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-size="sm"><div class="item"><span class="mark"><svg data-sign="shopping-cart"></svg></span><div class="stack"><div class="row"><p class="title">Added to cart</p><span class="el" data-voice="ghost" data-icon data-size="sm" data-state="hover"><svg data-sign="x"></svg></span></div><p class="text"><a href="#">Hemp oil 10 %, 30 ml</a></p><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="ink" data-shape="pill" data-size="sm" data-state="hover">View cart<svg data-sign="arrow-right"></svg></span></div></div></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-size="sm"><div class="item"><span class="mark"><svg data-sign="shopping-cart"></svg></span><div class="stack"><div class="row"><p class="title">Added to cart</p><span class="el" data-voice="ghost" data-icon data-size="sm" data-state="press"><svg data-sign="x"></svg></span></div><p class="text"><a href="#">Hemp oil 10 %, 30 ml</a></p><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="ink" data-shape="pill" data-size="sm" data-state="press">View cart<svg data-sign="arrow-right"></svg></span></div></div></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-size="sm"><div class="item"><span class="mark"><svg data-sign="shopping-cart"></svg></span><div class="stack"><div class="row"><p class="title">Added to cart</p><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="x"></svg></span></div><p class="text"><a href="#">Hemp oil 10 %, 30 ml</a></p><div class="row"><span class="price">29,90 €</span><span class="el" data-voice="ink" data-shape="pill" data-size="sm" data-state="focus">View cart<svg data-sign="arrow-right"></svg></span></div></div></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

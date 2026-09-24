@@ -65,3 +65,18 @@ test('the page lists every element under its family, with its tags', () => {
   assert.match(html, /поворот знака/)
   assert.match(toHtml(catalog, ['Латунь на угле', 'Аптека']), /data-set="palette"[\s\S]*data-value="Аптека"/, 'палитры набора — переключателем')
 })
+
+/* Поле не нажимается — в него пишут (И350): у элемента из одних полей
+   вместо нажатия продумано заполненное, застывшими — наведение и фокус. */
+test('a field needs no press state: it thinks out the filled one and shows hover and focus frozen', () => {
+  const field = catalog.элементы.find((e) => e.род.every((k) => k === 'поле'))
+  assert.ok(field, 'в каталоге есть поле')
+  assert.equal(field.состояния.нажатие, undefined)
+  assert.deepEqual(auditElements({ ...catalog, элементы: [field] }, read, ids), [])
+  const unthought = structuredClone(field)
+  delete unthought.состояния.заполнено
+  assert.match(auditElements({ ...catalog, элементы: [unthought] }, read, ids).join('\n'), /состояние «заполнено» не продумано/)
+  const page = read(`${field.папка}/element.html`)
+  const found = auditElements({ ...catalog, элементы: [field] }, (p) => (p.endsWith('element.html') ? page.replaceAll('data-state="focus"', '') : read(p)), ids).join('\n')
+  assert.match(found, /наведение и фокус не показаны застывшими/)
+})
