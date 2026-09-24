@@ -13,6 +13,7 @@
     "check:css": "node tools/check-css.mjs",
     "check:code": "node tools/check-code.mjs",
     "check:port": "node tools/check-port.mjs",
+    "check:design": "node tools/check-design.mjs",
     "palette": "node tools/palette-css.mjs",
     "icons": "node tools/icons.mjs",
     "buttons": "node tools/buttons.mjs",

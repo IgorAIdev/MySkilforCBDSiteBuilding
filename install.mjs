@@ -209,6 +209,12 @@ const PROJECT_OWNED = ['AGENTS.md', 'CLAUDE.md', 'docs', 'styles', 'tests', '.ox
  *  они не едут: там могут стоять свои. */
 const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
 
+/** Дизайнерские скиллы, которые правило проекта зовёт по имени: CLAUDE.md,
+ *  «Дизайн делается дизайнерскими скиллами» (И271). Чужие, но едут сайту и
+ *  без `--extras` — иначе правило ссылается в пустоту; лицензии рядом. */
+const DESIGN_SKILLS = ['impeccable', 'redesign-skill']
+const DESIGN_LICENSES = ['LICENSE.impeccable', 'LICENSE.taste-skill']
+
 /** Команды, которые нужны аудиту: проверки и этапы. `lint`, `test`,
  *  `typecheck`, `images` у чужого проекта свои — их не трогаем. */
 const AUDIT_SCRIPTS = Object.fromEntries(Object.entries(SCRIPTS)
@@ -343,13 +349,21 @@ if (MODE === 'update') {
   }
 }
 
-/* По умолчанию только собственные предметные инструкции. Сторонний архив
-   вкуса и процесса устанавливается явно; существующие навыки не удаляются. */
+/* По умолчанию только собственные предметные инструкции и два дизайнерских
+   скилла, которые зовёт правило проекта (DESIGN_SKILLS, И271). Остальной
+   сторонний архив вкуса и процесса устанавливается явно; существующие
+   навыки не удаляются. */
 if (!flags.has('--extras') || MODE === 'audit') {
   for (const s of OWN_SKILLS) {
     copy(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s))
   }
   moved.push(`.claude/skills/{${OWN_SKILLS.join(',')}}`)
+  if (MODE !== 'audit') {
+    for (const s of [...DESIGN_SKILLS, ...DESIGN_LICENSES]) {
+      copy(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s))
+    }
+    moved.push(`.claude/skills/{${DESIGN_SKILLS.join(',')}} с лицензиями`)
+  }
 } else {
   copy(join(SRC, '.claude/skills'), join(OUT, '.claude/skills'))
   moved.push('дополнительные скиллы с лицензиями')

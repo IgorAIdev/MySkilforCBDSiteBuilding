@@ -24,6 +24,7 @@
 
 import { relative } from 'node:path'
 import { STAGES, ALWAYS, PLATFORM, currentStage, gateProblems, stepProblems, transitionProblems, ROOT, confirmed } from './stages.mjs'
+import { DESIGN } from './checks.mjs'
 
 const arg = (f) => process.argv.includes(f)
 
@@ -34,6 +35,12 @@ function brief(stage, { full = false } = {}) {
   console.log(`\n${title(stage)}${full ? '' : `   (строка «Этап производства:» в CLAUDE.md)`}`)
   console.log(`  Что строится: ${stage.builds}`)
   console.log(`  Кто работает: ${stage.skills.join(', ')}`)
+  /* Вид правится на любом этапе, а брифинг не знает, про вид ли сегодняшняя
+     работа. Поэтому дизайнерские скиллы названы здесь всегда — оговоркой,
+     где их нет в списке этапа (CLAUDE.md, «Дизайн делается дизайнерскими
+     скиллами»; И271). */
+  const design = DESIGN.skills.filter((s) => !stage.skills.includes(s))
+  if (design.length) console.log(`    + при правке вида: ${design.join(', ')} — по порядку из строки «Всегда»`)
   console.log(`  Перед сдачей, в этом порядке: ${stage.checks.map((c) => `npm run ${c}`).join(' · ')}`)
 
   /* Шаги этапа — что за чем: ✓ по файлам, ✗ с причиной, · без предиката
