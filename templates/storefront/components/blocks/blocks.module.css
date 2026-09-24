@@ -44,9 +44,14 @@
    предметы. Прежняя вуаль лежала под текстом и растворялась сверху за
    воздух полосы — отсюда резкий шов поперёк снимка на трети высоты.
 
-   Вуаль — роль `--scrim-deck`: самая тёмная нейтраль темы; на ней пишет
-   палуба (`data-ground="deck"`), светлые чернила в обеих темах. Воздух под
-   героем платит раздел ниже (`.section`), снизу у полосы ноль (twoAir). */
+   Вуаль — роли палитры: краска `--scrim-deck` (самая тёмная нейтраль
+   темы; на ней пишет палуба, `data-ground="deck"`, светлые чернила в обеих
+   темах) и две её ступени `--scrim-near` у края и `--scrim-far` под концом
+   колонки текста. Ступени подбирает строитель палитры замером: тихая строка
+   героя держит 4.5 : 1 на белом снимке под дальней (И295). До 24.09.2026
+   здесь стояли 86 / 72 % на все палитры, и у трёх наборов из семи тихая
+   строка проваливала порог. Воздух под героем платит раздел ниже
+   (`.section`), снизу у полосы ноль (twoAir). */
 .heroBand{padding-block-start:var(--air-group)}
 .hero{
   --hero-w:calc(36rem + var(--pad-sheet) * 2);
@@ -67,8 +72,8 @@
   .heroShot::after{
     content:'';position:absolute;inset:0;
     background:linear-gradient(to right,
-      color-mix(in srgb, var(--scrim-deck) 86%, transparent),
-      color-mix(in srgb, var(--scrim-deck) 72%, transparent) var(--hero-w),
+      var(--scrim-near),
+      var(--scrim-far) var(--hero-w),
       transparent calc(var(--hero-w) + 35%))
   }
   .heroText{position:relative;inline-size:min(100%, var(--hero-w));min-block-size:72svh;justify-content:flex-end}

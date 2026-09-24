@@ -97,7 +97,8 @@ const mix = (top, under, share) => {
 }
 /** Краска значения поверх пола: `transparent` — null; вуаль
  *  `color-mix(in srgb|oklab, X p%, transparent)` — X долей p по полу; ссылка
- *  на вуаль (`var(--quiet)`) — так же. */
+ *  на вуаль (`var(--quiet)` → `var(--quiet-paper)` → вуаль, выпущенная
+ *  строителем палитры, И295) — так же, по всей цепочке ссылок. */
 function painter(palette, tokens, theme) {
   const get = resolver(palette, tokens, theme)
   const over = (v, floor, depth = 0) => {
@@ -105,10 +106,11 @@ function painter(palette, tokens, theme) {
     if (s === 'transparent') return null
     const veil = s.match(/^color-mix\(in (?:srgb|oklab), (.+) (\d+(?:\.\d+)?)%, transparent\)$/)
     if (veil) { const top = over(veil[1], floor, depth + 1); return top ? mix(top, floor, Number(veil[2]) / 100) : null }
+    if (/^#[0-9a-f]{6}$/i.test(s)) return s
     const ref = s.match(/^var\((--[\w-]+)\)$/)
     if (ref && depth < 12) {
       const raw = (palette[ref[1]] ?? tokens[ref[1]] ?? '').trim()
-      if (/^color-mix|^transparent$/.test(raw)) return over(raw, floor, depth + 1)
+      if (/^color-mix|^transparent$|^var\(/.test(raw)) return over(raw, floor, depth + 1)
       return get(ref[1])
     }
     return get(s)

@@ -685,12 +685,15 @@
   display:inline-flex;align-items:center;gap:2px;min-width:0;flex-wrap:wrap;
   min-block-size:var(--tray-h);padding:var(--tray-pad);
   background:var(--ctrl);border-radius:var(--r-ctrl);
-  /* Чем отвечает под рукой выключенная половина — вуаль в 12% чернил.
-     Выбор заказчика на живой странице из трёх ответов: молчит, вуаль,
-     чернила. Переключатель, которым он выбирал, вместе с выбором и ушёл. */
-  --tray-off-bg:color-mix(in oklab, var(--ctrl), var(--ink) 12%);
+  /* Чем отвечает под рукой выключенная половина — вуаль чернил поверх
+     жёлоба (`--ctrl-hand`, 12 %). Выбор заказчика на живой странице из трёх
+     ответов: молчит, вуаль, чернила. Переключатель, которым он выбирал,
+     вместе с выбором и ушёл. Вуаль — роль палитры (И295): доля и краска у
+     строителя, здесь только выбор роли. Действие («Изчисти») под рукой —
+     тихий голос на шаг глубже, `--quiet-on`, как у всякой тихой кнопки. */
+  --tray-off-bg:var(--ctrl-hand);
   --tray-off-fg:var(--ink);
-  --tray-act-bg:color-mix(in oklab, var(--quiet-on), var(--ink) 12%);
+  --tray-act-bg:var(--quiet-on);
   --tray-act-fg:var(--ink)
 }
 .tray > *{
@@ -758,12 +761,11 @@
    хватало. Вдавленность он выбрал из трёх показанных ответов.
 
    Доля 14% чернил — на ступень выше ответа на руку (12%): открытое обязано
-   быть заметнее наведения, иначе рука спорит с состоянием. */
+   быть заметнее наведения, иначе рука спорит с состоянием. Обе глубины —
+   роли палитры (`--ctrl-in`, `--ctrl-in-hand`; И295): вуаль чернил поверх
+   жёлоба, на котором створка лежит. */
 .tray > [aria-expanded='true']{
-  /* Глубина названа один раз: покой и ответ руки — две ступени одной шкалы,
-     и расходиться им не на чем. */
-  --leaf-in:14%; --leaf-in-hand:20%;
-  background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in));
+  background:var(--ctrl-in);
   color:var(--ink);font-weight:600;
   box-shadow:var(--sh-in)
 }
@@ -771,7 +773,7 @@
    пальца «до» нет — он ставит оба состояния разом, — и без этой строки
    створка на телефоне молчала бы под рукой (семья `noPress`). */
 .tray > [aria-expanded='true']:not(:disabled):active{
-  background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in-hand))
+  background:var(--ctrl-in-hand)
 }
 .tray > [data-act]:not(:disabled){background:var(--quiet);color:var(--ink);font-weight:600}
 .tray > [data-act]:not(:disabled):active{background:var(--quiet-on)}
@@ -813,7 +815,7 @@
      ОСВЕТЛИЛ — вуаль в 12% мельче её собственных 14, — и наведение читалось
      бы как «закрывается». */
   .tray > [aria-expanded='true']:not(:disabled):hover{
-    background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in-hand))
+    background:var(--ctrl-in-hand)
   }
   .tray > [data-act]:not(:disabled):hover{
     background:var(--tray-act-bg, var(--quiet-on));color:var(--tray-act-fg, var(--ink))
@@ -1124,9 +1126,9 @@
 
 /* the "more" link — the arrow sits in its own circle, not bare beside text */
 /* Тень и подъём сняты (И114 в docs/rules.md): кнопка отвечает только
-   краской — фон делает шаг к чернилам, тот же приём (16%), что уже
-   выверен у тихой кнопки (`--quiet-on`, styles/tokens.css) и держит порог
-   видимости на обеих темах. */
+   краской — поверх листа ложится вуаль выбранной тихой кнопки
+   (`--quiet-on`, роль палитры), которая держит порог видимости на обеих
+   темах. До 24.09.2026 та же доля (16 %) была смешана здесь числом (И295). */
 .more{
   display:inline-flex;align-items:center;gap:calc(var(--ctrl-h) * .25);flex:none;
   block-size:var(--ctrl-h);padding:0 calc(var(--ctrl-h) * .125) 0 calc(var(--ctrl-h) * .4);border-radius:var(--r-ctrl);
@@ -1134,8 +1136,8 @@
   font-size:var(--more-fs,var(--ctrl-fs-sm));font-weight:600;color:var(--pop-ink-hover);
   transition:background var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .more:hover{background:color-mix(in oklab, var(--surface), var(--ink) 16%)} }
-.more:active{background:color-mix(in oklab, var(--surface), var(--ink) 16%)}
+@media (hover:hover){ .more:hover{background-image:linear-gradient(var(--quiet-on) 0 0)} }
+.more:active{background-image:linear-gradient(var(--quiet-on) 0 0)}
 .more svg{width:calc(var(--ctrl-h) * .7);height:calc(var(--ctrl-h) * .7);padding:calc(var(--ctrl-h) * .175);border-radius:50%;background:var(--pop-tint);fill:none;stroke:var(--pop-ink);transition:transform var(--hover-t) var(--ease)}
 @media (hover:hover){ .more:hover svg{transform:translateX(var(--nudge))} }
 .more:active svg{transform:translateX(var(--nudge))}
@@ -1214,8 +1216,10 @@
   /* Кромка, а не только заливка. Пилюля стоит на ПОЛУ СТРАНИЦЫ, а ступень
      `--ctrl` над ним — 1.10 при норме 1.15: заливка одна не отделяет орган
      от того, на чём он лежит (семья `sunk` в отрисованной проверке). Та же
-     причина, по которой кромку носят плитки галереи товара. */
-  box-shadow:inset 0 0 0 var(--line-w) color-mix(in srgb, var(--ink) 10%, transparent);
+     причина, по которой кромку носят плитки галереи товара. Кромка — черта
+     (`--rule`, роль палитры по полу): до 24.09.2026 здесь стояли 10 %
+     чернил числом (И295). */
+  box-shadow:inset 0 0 0 var(--line-w) var(--rule);
   font-size:var(--ctrl-fs-sm);font-weight:500;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
              transform var(--press-t) var(--ease)

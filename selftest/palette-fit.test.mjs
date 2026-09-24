@@ -75,9 +75,17 @@ test('every kit set passes the whole audit, and the builder leaves a three-paint
   assert.match(old.notes[0].why, /quiet buttons show/)
 })
 
-test('the quiet veil the audit measures is the one the site paints: STATE.quiet is the share of --quiet in tokens.css', async () => {
+/* С 24.09.2026 (И295) вуаль выпускает строитель: доля одна — STATE.quiet,
+   её же меряет замер; tokens.css только называет роль и числа не держит. */
+test('the quiet veil the audit measures is the one the site paints: the builder emits it at STATE.quiet, tokens.css only names the role', async () => {
   const { STATE } = await import('../tools/thresholds.mjs')
+  const { roles } = await import('../tools/palette.mjs')
   const tokens = readFileSync(new URL('../styles/tokens.css', import.meta.url), 'utf8')
-  const share = tokens.match(/--quiet:color-mix\(in srgb, var\(--ink\) (\d+(?:\.\d+)?)%, transparent\)/)?.[1]
-  assert.equal(Number(share) / 100, STATE.quiet)
+  assert.match(tokens, /--quiet:var\(--quiet-paper\);/)
+  for (const [name, set] of Object.entries(sets)) {
+    for (const mode of ['light', 'dark']) {
+      const r = roles(set[mode], mode)
+      assert.equal(r['--quiet-paper'], `color-mix(in srgb, ${r['--n-12']} ${STATE.quiet * 100}%, transparent)`, `${name} · ${mode}`)
+    }
+  }
 })

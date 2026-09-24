@@ -398,8 +398,10 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      смени и то, на чём знак стоит, иначе половина пары осталась от другого
      фона. Заказчик нашёл это глазом на витрине. */
   --surface:var(--chrome-hover);
-  --hover-ctrl:color-mix(in srgb, var(--chrome-fg) 18%, transparent);
-  --press-ctrl:color-mix(in srgb, var(--chrome-fg) 30%, transparent);
+  /* Краски палубы — строителя палитры (`-deck`, И295): здесь только
+     переназначение ролей, доли и краски в стилях не рождаются. */
+  --hover-ctrl:var(--hover-ctrl-deck);
+  --press-ctrl:var(--press-ctrl-deck);
 
   /* И ещё четыре роли, которые СОСТАВЛЕНЫ из чернил на корне и потому сами
      за полом не пойдут: `var()` внутри объявления своей переменной
@@ -411,11 +413,14 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      Отсюда правило: полоса, переопределяющая чернила, обязана переопределить
      и всё, что из чернил составлено. Сторожит семья `rootRole` в check:css —
      она и нашла эти четыре. */
-  --rule:color-mix(in srgb, var(--chrome-fg) 14%, transparent);
-  --quiet:color-mix(in srgb, var(--chrome-fg) 12%, transparent);
-  --quiet-on:color-mix(in srgb, var(--chrome-fg) 22%, transparent);
-  --hover-row:color-mix(in srgb, var(--chrome-fg) 8%, transparent);
-  --press-row:color-mix(in srgb, var(--chrome-fg) 14%, transparent);
+  --rule:var(--rule-deck);
+  --quiet:var(--quiet-deck);
+  --quiet-on:var(--quiet-on-deck);
+  --hover-row:var(--hover-row-deck);
+  --press-row:var(--press-row-deck);
+  --ctrl-hand:var(--ctrl-hand-deck);
+  --ctrl-in:var(--ctrl-in-deck);
+  --ctrl-in-hand:var(--ctrl-in-hand-deck);
 
   /* Пятая роль той же породы — тень (`--sh-raised`/`--sh-lift`/`--sh-overlay`), и она не
      просто светлая по тёмному, а НЕВИДИМАЯ: в светлой теме её кольцо и слои
@@ -429,11 +434,11 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      Правка не подбирает новый цвет, а берёт готовый: слои теней и так были
      рассчитаны для тёмного пола — это ровно та половина `light-dark()`,
      которую несёт тёмная тема (И100, `docs/rules.md`). */
-  --sh-ring:rgba(255,255,255,.05);
-  --sh-near:rgba(0,0,0,.50);
-  --sh-far-1:rgba(0,0,0,.60);
-  --sh-far-2:rgba(0,0,0,.68);
-  --sh-far-3:rgba(0,0,0,.75);
+  --sh-ring:var(--sh-ring-deck);
+  --sh-near:var(--sh-near-deck);
+  --sh-far-1:var(--sh-far-1-deck);
+  --sh-far-2:var(--sh-far-2-deck);
+  --sh-far-3:var(--sh-far-3-deck);
 
   /* И96/И100 переопределяли ингредиенты, а не саму тень — и `--sh-1`/
      `--sh-lift`/`--sh-overlay` эти четыре строки выше не трогали вовсе. `var()`
@@ -450,7 +455,7 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
   --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
   --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
-  --sh-in:inset 0 1px 2px color-mix(in oklab, var(--chrome-fg) 18%, transparent);
+  --sh-in:inset 0 1px 2px var(--sh-inset-deck);
 
   /* Та же пара, но для СОСТОЯНИЯ, и это второй раз, когда роль оказалась
      переопределена наполовину. Покой пилюли починили выше — под указателем
@@ -462,7 +467,15 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      пол — знаком. Так был собран подвал, теперь это одна пара на весь сайт. */
   --pop:var(--chrome-active-bg);
   --on-pop:var(--chrome-active-fg);
-  --pop-hover:color-mix(in oklab, var(--chrome-active-bg), var(--chrome-active-fg) 8%);
+  --pop-hover:var(--pop-hover-deck);
+
+  /* Кнопка на палубе (И295): хвост главной идёт от её заливки — знака
+     палубы — к полу палубы, а кромка выключенной видна на тёмном. Обе
+     краски строителя; до 24.09.2026 хвост смешивался со светлым полом
+     страницы и на тёмном герое светлой темы выходил светлым. */
+  --pop-trail-near:var(--pop-trail-near-deck);
+  --pop-trail-far:var(--pop-trail-far-deck);
+  --edge-off:var(--edge-off-deck);
 
   /* ── и ЖИВАЯ ЛЕСТНИЦА целиком, а не только серая ──────────────────────
      Третий раз одна и та же порода, и третий раз её нашёл заказчик глазом:
@@ -531,10 +544,15 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      пишет палуба: `var()` внутри объявления своей переменной раскрывается
      ТАМ, ГДЕ ПЕРЕМЕННАЯ ОБЪЯВЛЕНА. На корне они посчитаны от чернил корня,
      на палубе — от чернил палубы; на листе их некому посчитать, кроме
-     листа. Формула одна и та же, входы разные. */
-  --rule:color-mix(in oklab, var(--on-plate) 16%, transparent);
-  --quiet:color-mix(in srgb, var(--on-plate) 8%, transparent);
-  --quiet-on:color-mix(in srgb, var(--on-plate) 16%, transparent);
+     листа. Формула одна и та же, входы разные. Вуали и черта — краски
+     строителя палитры (И295): лист возвращает их значения бумаги; вуали
+     состояния — формулой доли состояния (И229). */
+  --rule:var(--rule-paper);
+  --quiet:var(--quiet-paper);
+  --quiet-on:var(--quiet-on-paper);
+  --ctrl-hand:var(--ctrl-hand-paper);
+  --ctrl-in:var(--ctrl-in-paper);
+  --ctrl-in-hand:var(--ctrl-in-hand-paper);
   --hover-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-hover));
   --hover-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) var(--state-hover));
   --press-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-press));
@@ -546,20 +564,22 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --pop:var(--accent-solid);
   --on-pop:var(--on-accent);
   --pop-hover:var(--hover-solid);
+  --pop-trail-near:var(--pop-trail-near-paper);
+  --pop-trail-far:var(--pop-trail-far-paper);
+  --edge-off:var(--edge-off-paper);
 
   /* Живая лестница — к своим значениям (см. `--live-*` в tokens.css). */
 
-  /* Тень — к своим значениям (И100): формула та же, что у `--sh-ring` /
-     `--sh-near` / `--sh-far-*` в styles/tokens.css, набранная заново, потому
-     что `var()` раскрывается там, где объявлена переменная. Лист светел
-     всегда, поэтому тень у него всегда светлого пола — ровно то, что несёт
-     `light-dark()` при текущей теме, а не тень палубы, на которой он может
-     стоять. */
-  --sh-ring:light-dark(color-mix(in srgb, var(--accent-solid) 18%, transparent), rgba(255,255,255,.05));
-  --sh-near:light-dark(color-mix(in srgb, var(--accent-solid) 18%, transparent), rgba(0,0,0,.50));
-  --sh-far-1:light-dark(color-mix(in srgb, var(--accent-solid) 40%, transparent), rgba(0,0,0,.60));
-  --sh-far-2:light-dark(color-mix(in srgb, var(--accent-solid) 55%, transparent), rgba(0,0,0,.68));
-  --sh-far-3:light-dark(color-mix(in srgb, var(--accent-solid) 70%, transparent), rgba(0,0,0,.75));
+  /* Тень — к своим значениям (И100): краски слоёв бумаги (`--sh-*-paper`
+     строителя палитры, И295), а не тень палубы, на которой лист может
+     стоять. Лист светел всегда, поэтому тень у него всегда светлого пола;
+     вдавленная — та же, что на корне (до 24.09.2026 лист держал её своей
+     долей, 14 % против 18 % корня, — без причины). */
+  --sh-ring:var(--sh-ring-paper);
+  --sh-near:var(--sh-near-paper);
+  --sh-far-1:var(--sh-far-1-paper);
+  --sh-far-2:var(--sh-far-2-paper);
+  --sh-far-3:var(--sh-far-3-paper);
 
   /* Та же вторая половина, что и на палубе выше: `--sh-raised`/`--sh-lift`/`--sh-overlay`
      сами по себе не листовые и не палубные — они замешаны из ингредиентов
@@ -568,5 +588,5 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
   --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
   --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
-  --sh-in:inset 0 1px 2px color-mix(in oklab, var(--on-plate) 14%, transparent);
+  --sh-in:inset 0 1px 2px var(--sh-inset-paper);
 }

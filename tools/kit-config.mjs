@@ -63,6 +63,9 @@ const DEFAULTS = {
   tokens: 'styles/tokens.css',
   /** выпущенные шкалы размера и ритма: их пишет строитель из styles/scale.json */
   ladder: 'styles/scale.css',
+  /** выпущенная палитра: краски и роли цвета пишет строитель из styles/palette.json —
+   *  единственный файл стилей, где цвет рождается (семья colorOut, И295) */
+  palette: 'styles/palette.css',
   /** сброс, земля, режимы переноса, кольцо фокуса */
   base: 'styles/base.css',
   /** примитивы раскладки */
@@ -169,6 +172,7 @@ export const STYLE_DIRS = CONFIG.styles
 export const LIB = CONFIG.lib
 export const TOKENS = CONFIG.tokens
 export const LADDER = CONFIG.ladder
+export const PALETTE = CONFIG.palette
 export const BASE = CONFIG.base
 export const PRIMITIVES = CONFIG.primitives
 export const CONTROLS = CONFIG.controls

@@ -57,5 +57,6 @@
   "dressClass": 0,
   "stateClass": 0,
   "dressGrown": 0,
-  "varMissing": 0
+  "varMissing": 0,
+  "colorOut": 0
 }

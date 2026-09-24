@@ -26,11 +26,13 @@ const project = (files) => {
 const css = (dir) => spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs')], { cwd: dir, encoding: 'utf8' })
 const noPress = (out) => (out.match(/есть :hover, нет отклика на нажатие/g) ?? []).length - 1 // минус строка семьи в итоге
 
+/* Ответ образцов — черта, а не краска: литерал краски в стилях — находка
+   colorOut (И295), а эти тесты — про ответ на нажатие. */
 test('noPress: ответ, взятый через composes из файла контролов, засчитан (И175)', () => {
   const dir = project({
     'components/Control.module.css': '.pressable { cursor: pointer }\n.pressable:active { filter: brightness(.9) }\n',
-    'components/Buy.module.css': ".buy { composes: pressable from './Control.module.css'; background: red }\n@media (hover:hover){ .buy:hover { background: blue } }\n",
-    'components/Mute.module.css': '.mute { background: red }\n@media (hover:hover){ .mute:hover { background: blue } }\n',
+    'components/Buy.module.css': ".buy { composes: pressable from './Control.module.css'; text-decoration-line: none }\n@media (hover:hover){ .buy:hover { text-decoration-line: underline } }\n",
+    'components/Mute.module.css': '.mute { text-decoration-line: none }\n@media (hover:hover){ .mute:hover { text-decoration-line: underline } }\n',
   })
   try {
     const r = css(dir)
@@ -42,7 +44,7 @@ test('noPress: ответ, взятый через composes из файла ко
 
 test('noPress: отрицание состояния в селекторе не прячет ответ (.pill:not([data-current]):hover ↔ .pill:active)', () => {
   const dir = project({
-    'components/Pills.module.css': '.pill { color: red }\n@media (hover:hover){ .pill:not([data-current]):hover { color: blue } }\n.pill:active { filter: brightness(.95) }\n',
+    'components/Pills.module.css': '.pill { text-decoration-line: none }\n@media (hover:hover){ .pill:not([data-current]):hover { text-decoration-line: underline } }\n.pill:active { filter: brightness(.95) }\n',
   })
   try {
     const out = css(dir).stdout + css(dir).stderr
@@ -151,3 +153,44 @@ test('contactScheme: «tel:» внутри слова после не-латин
     assert.match(out, /Call\.tsx.*tel:/, 'настоящий tel: мимо lib/contacts.ts — находка')
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+/* colorOut (И295): цвет рождается у строителя палитры и выпускается в
+   styles/palette.css; стили его только читают. Дефект — тона хвоста главной
+   кнопки, смешанные прямо в её стилях (`color-mix(… 60% …)`), кромка
+   выключенной и вуаль героя: проверки были зелёные, нарушение не мерилось. */
+test('colorOut: литерал и доля числом в стилях — находка; роль, доля состояния, маска, файл палитры и панель вида — нет (И295)', () => {
+  const dir = project({
+    'kit.config.json': JSON.stringify({ styles: ['app', 'components', 'styles', 'look-panel'] }),
+    'tools/css-baseline.json': '{}',
+    'styles/palette.css': ':root{ --n-1: light-dark(#FCFBF9, #121110); --quiet-paper: color-mix(in srgb, #1F1E1C 8%, transparent) }\n',
+    'look-panel/ui/look.css': '.lp{ --lp-ink: light-dark(#1b1b1b, #ececec); box-shadow: 0 2px 4px rgb(0 0 0 / .08) }\n',
+    'components/Bad.module.css': [
+      '.hex { color: #fff }',
+      '.share { --trail: color-mix(in oklab, var(--pop) 60%, var(--page)) }',
+      '.named { border-color: white }',
+      '.fn { background: rgba(0, 0, 0, .5) }',
+      '.knob { --leaf: 14%; background: color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf)) }',
+      '.half { background: color-mix(in oklab, var(--ctrl), var(--ink)) }',
+      ':root { --x: var(--y); &:lang(bg) { --nested: oklch(0.5 0.1 80) } }',
+    ].join('\n') + '\n',
+    'components/Good.module.css': [
+      '.role { color: var(--ink); background: var(--quiet) }',
+      '.state { background: color-mix(in oklab, var(--surface), var(--ink) var(--state-hover)) }',
+      '.words { white-space: nowrap; font-family: Georgia, serif; fill: currentColor; border-color: transparent }',
+      '.mask { mask-image: linear-gradient(to right, #000 80%, transparent) }',
+      '.forced { outline-color: Highlight }',
+      '.svg { clip-path: url(#cut) }',
+    ].join('\n') + '\n',
+  })
+  try {
+    const out = spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'colorOut'], { cwd: dir, encoding: 'utf8' }).stdout
+    const bad = [[1, 'литерал #fff'], [2, 'долей числом 60%'], [3, 'имя краски white'], [4, 'литерал rgba()'], [5, 'ручкой узла --leaf'], [6, 'без доли'], [7, 'литерал oklch()']]
+    for (const [line, why] of bad) {
+      assert.ok(out.split('\n').some((l) => l.includes(`Bad.module.css:${line} `) && l.includes(why)), `строка ${line}: ${why}\n${out}`)
+    }
+    assert.doesNotMatch(out, /Good\.module\.css/, 'роль, доля состояния, слова, маска, системная краска и ссылка url(#) — не находка')
+    assert.doesNotMatch(out, /palette\.css/, 'файл палитры выпускает строитель — там цвет и рождается')
+    assert.doesNotMatch(out, /look-panel/, 'панель вида вне сайта')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+

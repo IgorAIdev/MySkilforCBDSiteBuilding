@@ -17,7 +17,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { roles, ratio, apca, auditPalette } from '../tools/palette.mjs'
+import { roles, ratio, apca, auditPalette, lightness, groundChecks, deckOf, SOLID_GAP, NEED } from '../tools/palette.mjs'
 
 const KIT = fileURLToPath(new URL('..', import.meta.url))
 const shipped = {
@@ -92,4 +92,50 @@ test('--edge — the control edge that holds 3 : 1 on every background 1–5; --
       assert.ok(ratio(r['--border'], r['--n-2']) >= 3, `${name} · ${mode}: --border на поле`)
     }
   }
+})
+
+/* Роли кнопки и сцены (И295): их выпускает строитель, а не стили. Дефект —
+   тона хвоста главной кнопки, кромка выключенной и вуаль героя рождались
+   числом в стилях, и их контраст не считал никто; у «Аптеки» тихая строка
+   героя под прежними 72 % давала 4.15 : 1. */
+test('button and hero roles come from the builder with their guarantees, on every kit set and theme (И295)', () => {
+  const G = (r) => [1, 2, 3, 4, 5].map((i) => r[`--n-${i}`])
+  for (const [name, set] of Object.entries(shipped)) {
+    for (const [mode, paints] of themes(set)) {
+      const r = roles(paints, mode)
+      const at = `${name} · ${mode}`
+      /* хвост: дальний виден на каждом полу бумаги, ближний — между ним и
+         заливкой, оба отстоят от заливки */
+      const [fill, near, far] = [r['--a-9'], r['--pop-trail-near-paper'], r['--pop-trail-far-paper']]
+      assert.ok(Math.min(...G(r).map((bg) => Math.abs(apca(far, bg)))) >= NEED.decorLc, `${at}: дальний тон хвоста ${far} не виден на полу`)
+      assert.ok(Math.abs(lightness(far) - lightness(fill)) >= SOLID_GAP[mode], `${at}: дальний тон слился с заливкой`)
+      const [lf, ln, lr] = [lightness(fill), lightness(near), lightness(far)]
+      assert.ok((ln - lf) * (lr - ln) > 0, `${at}: ближний тон ${near} не между заливкой и дальним`)
+      /* палуба: пара палубы и хвост от её знака к её полу */
+      const n = Array.from({ length: 12 }, (_, i) => r[`--n-${i + 1}`])
+      const deck = deckOf(n, mode)
+      assert.equal(r['--chrome-bg'], deck.bg)
+      assert.ok(Math.min(...deck.grounds.map((bg) => Math.abs(apca(r['--pop-trail-far-deck'], bg)))) >= NEED.decorLc, `${at}: хвост на палубе`)
+      /* выпущенное — роль, а не формула в стилях: краски, а не ссылки */
+      for (const k of ['--quiet-paper', '--scrim', '--scrim-near', '--scrim-far', '--sh-near-paper', '--chrome-fg-2']) assert.match(r[k], /^color-mix\(in srgb, #[0-9A-F]{6} [\d.]+%, transparent\)$/, `${at}: ${k}`)
+      for (const k of ['--pop-trail-near-paper', '--pop-trail-far-paper', '--edge-off-paper', '--edge-off-deck', '--pop-hover-deck']) assert.match(r[k], /^#[0-9A-F]{6}$/, `${at}: ${k}`)
+      /* замер ролей по полу — весь чистый */
+      const failed = groundChecks(paints, mode).filter((c) => c.got < c.need)
+      assert.deepEqual(failed, [], at)
+    }
+  }
+  /* Вуаль героя берётся замером, а не одной долей на все палитры: у «Аптеки»
+     в светлой её дальняя ступень плотнее прежних 72 %. */
+  const scrim = roles(shipped['Аптека'].light, 'light')['--scrim-far']
+  assert.ok(Number(scrim.match(/ ([\d.]+)%/)[1]) > 72, `Аптека: вуаль героя ${scrim}`)
+})
+
+/* Светлая марка вплотную к светлой бумаге: хвост не тянет марку за собой —
+   он идёт от заливки к чернилам (И295). */
+test('a bright brand keeps its colour: the trail steps away from the ground instead of moving the brand', async () => {
+  const { fitPalette } = await import('../tools/palette.mjs')
+  const yellow = fitPalette({ brand: '#FFE600', paper: 'warm', tint: 'light' })
+  const r = roles(yellow.seed.light, 'light')
+  assert.ok(lightness(r['--pop-trail-far-paper']) < lightness(r['--a-9']), 'хвост темнее заливки — со стороны чернил')
+  assert.ok(Math.min(...[1, 2, 3, 4, 5].map((i) => Math.abs(apca(r['--pop-trail-far-paper'], r[`--n-${i}`])))) >= NEED.decorLc)
 })

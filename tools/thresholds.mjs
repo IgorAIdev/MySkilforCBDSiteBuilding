@@ -19,8 +19,14 @@
 export const CONTRAST = { text: 4.5, control: 3, largePx: 24, largeBoldPx: 18.66 }
 
 /** Расстояние между марками палитры (ΔE76) и обещание читаемости по APCA
- *  (Lc): приглушённый текст 60, основной 90 — из строителя палитры (И189). */
-export const COLOUR = { brandApart: 25, mutedLc: 60, mainLc: 90 }
+ *  (Lc): приглушённый текст 60, основной 90 — из строителя палитры (И189).
+ *  Украшение — Lc 15: «the point of invisibility for many users … the
+ *  minimum for any non-semantic non-text that needs to be discernible and
+ *  is at least 5px in its smallest dimension» (APCA Readability Criterion,
+ *  Myndex, таблица уровней Lc «Bronze simple mode»). Им мерятся тона хвоста
+ *  главной кнопки: шеврон толщиной 0.3 высоты кнопки (12px при 40) —
+ *  украшение, смысла не несёт, но обязан быть виден на своём полу (И295). */
+export const COLOUR = { brandApart: 25, mutedLc: 60, mainLc: 90, decorLc: 15 }
 
 /** Цель под пальцем и просвет между целями. WCAG 2.2, 2.5.8 «Target Size
  *  (Minimum)»: 24 — пол, ниже которого не опускается никто; 44 — 2.5.5 (AAA)
@@ -122,10 +128,12 @@ export const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], m
 /*  Орган, закрашенный вуалью или тоном, виден на своём полу от 1.15 : 1 —
  *  замер набора (craft, controls.md, «Кнопка: голос»): 1.10 не видно, 1.15
  *  видно; норматива нет. Им же меряет семья `sunk` в check:craft.
- *  Вуаль тихого голоса — 8 % чернил (`--quiet` в styles/tokens.css, верх
- *  коридора наведения; совпадение держит selftest/palette-core.test.mjs):
- *  по ней замер палитры проверяет, что тихая кнопка видна на каждом полу
- *  (И285). */
+ *  Вуаль тихого голоса — 8 % чернил, верх коридора наведения: её выпускает
+ *  строитель палитры ролью `--quiet-paper` (tools/palette.mjs, VEIL), и
+ *  тот же расчёт меряет, что тихая кнопка видна на каждом полу (И285,
+ *  И295). Выключенное меряется на нижнем краю коридора `off`: кромка
+ *  выключенной кнопки (`--edge-off-*`) видна при любой непрозрачности,
+ *  которую коридор разрешает. */
 export const STATE = { hover: [0.04, 0.08], press: [0.08, 0.16], off: [0.38, 0.5], focus: 0.1, drag: 0.16, ring: 2, visible: 1.15, quiet: 0.08 }
 
 /** Знаки (слой 11): Carbon 16 / 20 / 24 / 32, Spectrum 18 на десктопе / 22 под
