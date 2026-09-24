@@ -222,7 +222,9 @@ const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
  *  «Дизайн делается дизайнерскими скиллами» (И271). Чужие, но едут сайту и
  *  без `--extras` — иначе правило ссылается в пустоту; лицензии рядом. */
 const DESIGN_SKILLS = ['impeccable', 'redesign-skill']
-const DESIGN_LICENSES = ['LICENSE.impeccable', 'LICENSE.taste-skill']
+/* NOTICE.impeccable — отметка Apache 2.0 (§4 d) о справочниках ios.md и
+   android.md: едет вместе с ними, как лицензия. */
+const DESIGN_LICENSES = ['LICENSE.impeccable', 'NOTICE.impeccable', 'LICENSE.taste-skill']
 
 /** Команды, которые нужны аудиту: проверки и этапы. `lint`, `test`,
  *  `typecheck`, `images` у чужого проекта свои — их не трогаем. */

@@ -126,6 +126,10 @@ h1{font-size:40px;margin:0 0 24px} h2{margin:32px 0 12px} p{margin:0 0 16px;max-
 .rail{display:flex;gap:12px;overflow-x:auto;padding:0}
 .rail > div{flex:0 0 240px;background:#eee;border:1px solid #ccc;border-radius:10px;padding:16px;min-height:120px}
 .reveal{opacity:0}
+.doc > * + *{margin-top:44px}.doc > .head + *{margin-top:0}.head{padding-bottom:44px}.head h1{margin:0}.head p{margin:8px 0 0}
+.side{display:flex;flex-wrap:wrap;align-items:baseline;gap:16px 36px}.side > *{flex-basis:0;flex-grow:999;min-inline-size:52%}
+.side > h2{flex-basis:360px;flex-grow:1;min-inline-size:0;margin:0;font-size:28px;line-height:1.15}.text > *{max-width:65ch;margin:0}
+.crowd h2{margin:4px 0 40px}
 </style></head><body><h1>Probe</h1><main>`
 const FIXTURES = (extra = {}) => ({
   '/clean': `<h2>Section</h2><p>${TEXT}</p><p>${TEXT}</p>`,
@@ -133,6 +137,14 @@ const FIXTURES = (extra = {}) => ({
   '/hidden': `<h2>Hidden</h2><section class="reveal"><p>${TEXT.repeat(2)}</p><p>${TEXT.repeat(2)}</p></section>`,
   '/rail': `<h2>Rail</h2><div class="rail">${'<div>Card with some words</div>'.repeat(6)}</div>`,
   '/error': `<h2>Error</h2><p>${TEXT}</p><img src="http://example.invalid/pic.png" width="10" height="10" alt=""><script>throw new Error('boom on load')</script>`,
+  /* Раздел документа — `sidebar`: заголовок слева, текст справа (пакет A).
+     Детектор меряет только вертикаль и без отбора находит здесь два
+     «прижатых» заголовка (замер 24.09.2026: «0px above vs 69px below»);
+     сбоку от своего блока заголовок не прижат — отбор в check-detect.mjs. */
+  '/beside': `<article class="doc"><div class="head"><h1>Doc</h1><p>Summary of the document.</p></div>${
+    [['Hours', 1], ['Contact details', 3], ['Returns', 2]].map(([h, n]) => `<section class="side"><h2>${h}</h2><div class="text"><p>${TEXT.repeat(n)}</p></div></section>`).join('')}</article>`,
+  /* Тот же вопрос в столбик: заголовки прижаты к блоку над собой — находка остаётся. */
+  '/crowd': `<div class="crowd"><p>${TEXT}</p><h2>First</h2><p>${TEXT}</p><h2>Second</h2><p>${TEXT}</p><h2>Third</h2><p>${TEXT}</p></div>`,
 })
 
 const run = (dir, args, env) => new Promise((resolve) => {
@@ -170,6 +182,8 @@ test('образцы: чистая — ноль, остальные — кажд
       assert.equal(data.pages['/hidden'].hiddenAtRest, 1, 'невидимое в покое')
       assert.equal(data.pages['/rail'].edgeFlush, 1, 'прилипшая полоса')
       assert.equal(data.pages['/error'].scriptError, 1, 'ошибка скрипта при загрузке')
+      assert.equal(data.pages['/beside'].headCrowd ?? 0, 0, `заголовок сбоку от своего блока принят за прижатый: ${JSON.stringify(data.found.filter((f) => f.page === '/beside'))}`)
+      assert.equal(data.pages['/crowd'].headCrowd, 3, 'заголовки в столбик, прижатые к блоку над собой, — находки')
       assert.ok(data.net.load.includes('http://example.invalid/pic.png'), 'чужой адрес не закрыт с первого запроса')
 
       const first = await run(dir, [], { SITE })

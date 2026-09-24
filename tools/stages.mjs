@@ -37,7 +37,7 @@
 import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname, relative } from 'node:path'
-import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS, CONTROLS } from './kit-config.mjs'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS, CONTROLS, PRODUCT_DOC, DESIGN_DOC } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
 import { auditWords } from './words.mjs'
@@ -442,8 +442,8 @@ export const STAGES = [
       },
     },
     parked: [
-      { name: 'ui-ux-pro-max --design-system', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill',
-        take: 'только на НОВОМ сайте, где системы ещё нет: режим выбора стиля и палитры в день первый. В проекте с tokens.css не ставится — второй набор чисел.' },
+      { name: 'ui-ux-pro-max — products.csv и typography.csv (только новый сайт)', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/main/.claude/skills/ui-ux-pro-max/data',
+        take: 'на НОВОМ сайте, где системы ещё нет: строки «Pharmacy/Drug Store», «Beauty/Spa/Wellness Service», «E-commerce Luxury» — отправная идея стиля; пары шрифтов — кандидаты в face-stand (он сам проверит кириллицу и latin-ext). Коды цветов не берутся: краски — строителем из трёх красок заказчика. Скрипты на Python не ставятся; --design-system в проекте с tokens.css — второй набор чисел.' },
       { name: 'minimalist · brutalist · soft (taste-skill)', url: '.claude/skills/',
         take: 'за идеей стиля, не за числами: идея переводится в свои токены.' },
       /* Разбор — docs/skills.md, «cbdshop.bg». Обе записи — про то, как
@@ -506,7 +506,7 @@ export const STAGES = [
     builds: 'блоки и страницы, отзывчивость по ширинам, обе темы, вкус и движение. Компонент меряет контейнер, а не окно; число колонок вычисляется.',
     /* Дизайнерские скиллы — первыми: правка вида начинается с них, а не
        с CSS (CLAUDE.md, «Дизайн делается дизайнерскими скиллами»; И271). */
-    skills: ['impeccable', 'redesign-skill', 'craft', 'scale', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'improve-animations', 'stages'],
+    skills: ['impeccable', 'redesign-skill', 'craft', 'scale', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'improve-animations', 'review-animations', 'stages'],
     steps: [
       step(14, 'Узлы', 'атомы → молекулы → организмы: кнопка, поле → карточка, счётчик, поиск → шапка, сетка, полоса покупки; без сырых значений, все состояния, оба указателя, обе темы', 'craft',
         () => has('components') ? null : 'нет components/ — узлов ещё нет'),
@@ -524,6 +524,12 @@ export const STAGES = [
           const bad = clean('tools/css-baseline.json', ['fontPx', 'spacingPx', 'breakpoint', 'ratioNoCap'])
           return bad === null ? 'базы check:css не прочитать' : bad.length ? `четыре запрета вёрстки не на нуле: ${bad.join(', ')}` : null
         },
+        /* Шаг 1 порядка дизайна читает контекст файлами (И300): правду о
+           продукте по схеме impeccable и описание вида ролями. Без них
+           работа над видом начиналась без цели — так и было до 24.09.2026. */
+        () => PRODUCT_DOC && has(PRODUCT_DOC) && /impeccable:product-schema/.test(src(PRODUCT_DOC)) && DESIGN_DOC && has(DESIGN_DOC)
+          ? null
+          : `нет ${PRODUCT_DOC ?? 'PRODUCT.md'} (со схемой impeccable) или ${DESIGN_DOC ?? 'DESIGN.md'} — шаг 1 порядка дизайна читает их (CLAUDE.md, «Дизайн делается дизайнерскими скиллами»)`,
       ],
       human: {
         /* смотрю я: токены, структура, поведение — по CLAUDE.md это
@@ -531,6 +537,7 @@ export const STAGES = [
            перекладывать свою работу (И206). */
         mine: [
           'вычитан живой список Vercel по изменённым файлам (шаг 4 порядка работы craft)',
+          'проверено на настоящем телефоне по локальной сети: клавиатура открыта, альбомная ориентация, прилипшее наведение (mobile-native, Эмиль Ковальский)',
         ],
         /* решает заказчик: как выглядит витрина, что на ней написано,
            чьи снимки и реквизиты. Только это и печатается ему. */
@@ -541,6 +548,12 @@ export const STAGES = [
       },
     },
     parked: [
+      { name: 'ui-ux-pro-max quick-reference.md — вычитывать перед сдачей вёрстки', url: 'https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/main/.claude/skills/ui-ux-pro-max/references/quick-reference.md',
+        take: 'живой список (265+ правил, десять разделов с приоритетом) — как список Vercel: читать по адресу, не копировать. Меряемое уже в check:craft и check:css; вычитка ищет то, что не меряется.' },
+      { name: 'find-animation-opportunities · animation-vocabulary (Эмиль Ковальский)', url: 'https://github.com/emilkowalski/skills',
+        take: 'в день прохода по движению: фильтр частоты — то, что нажимают сотню раз в день (количество, фильтры, «в корзину» на полке), не анимируется; словарь — чтобы переводить слова заказчика («дёргается», «плывёт») в роли --press-t / --hover-t / --open-t и --ease. Длительности и кривые автора не берутся — коридоры MOTION.' },
+      { name: 'awesome-design-md — DESIGN.md Shopify, Nike, Apple, Airbnb, Starbucks', url: 'https://github.com/VoltAgent/awesome-design-md',
+        take: 'вход шага «референсы»: как у них названы роли и что запрещено. Вид марки и числа — чужие; в проект файл целиком не кладётся.' },
       { name: 'Живой список Vercel — вычитывать перед сдачей вёрстки', url: 'https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md',
         take: 'список меняется у авторов; копировать его к себе нельзя — устареет. Читается целиком по изменённым файлам. Последняя вычитка: сентябрь, нашла три дефекта (фокус под шапкой при ходьбе табом, задержка нажатия на телефоне, цифры не равной ширины в столбцах) — все починены слоем, а не местом.' },
     ],
@@ -586,6 +599,8 @@ export const STAGES = [
     parked: [
       { name: 'React Doctor в сборку', url: 'https://ui-skills.com',
         take: 'ставить в CI с порогом «не хуже, чем сегодня», когда находок уровня «ошибка» ноль.' },
+      { name: 'ux-guidelines.csv (ui-ux-pro-max) · craft-details.md §2, §7 (Refero)', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/.claude/skills/ui-ux-pro-max/data/ux-guidelines.csv',
+        take: 'сверочный лист для оформления, поиска и состояний: ошибка у поля с aria-describedby, двойная отправка, «ничего не нашлось» с предложением, вставка не запрещена, фильтры в адресе. Меряемое уже в семьях name и autofill; остальное прочитать один раз.' },
     ],
   },
   {
@@ -636,6 +651,8 @@ export const STAGES = [
     parked: [
       { name: 'seo-content (claude-seo) — E-E-A-T и чистка ИИ-фраз', url: 'https://github.com/AgriciDaniel/claude-seo',
         take: 'тексты — работа заказчика; но перед тем как принять текст на витрину, его можно прогнать: «читается ли как написанное человеком, есть ли кто за ним стоит». Совет, не проверка.' },
+      { name: 'Словесные правила детектора impeccable · copywriting.md (Refero)', url: 'https://github.com/referodesign/refero_skill/blob/master/skills/refero-design/references/copywriting.md',
+        take: 'тексты — работа заказчика: перед приёмом текста на витрину прогнать как совет рядом с seo-content (тире через слово, модные слова, «театр», афоризмы подряд); находки — строкой в docs/open.md, не храповик.' },
     ],
   },
   {
@@ -782,6 +799,13 @@ export const PLATFORM = [
     sleeps: 'пока статьи — массив в lib/blog.json: писать снаружи некуда, и заказчик решил подключать после Payload',
     awake: () => /payload/i.test(src('package.json')),
     take: 'сервис — свой, и пишет он в НАШЕЙ форме, а не мы в его: переходников с WordPress и Shopify не нужно. В день Payload: (1) заказчик правит форму статьи (`Post` в lib/blog.ts — он сказал, что хочет; до этого форму не записывать как договор); (2) форма становится коллекцией статей в Payload — те же поля, обе языковые половины, — и её API есть описание для сервиса; (3) на входе стоит проверка, которая не пускает статью без второго языка, с обещанием действия (lib/claims.ts), со ссылкой на несуществующую статью или товар, без источников, — сервис это программа, а отвечает по закону витрина; (4) тексты статьи — наполнение, не моя работа: проверяется устройство, не слова.',
+  },
+  {
+    name: 'Refero MCP или Mobbin MCP — библиотека живых экранов для шага «референсы»',
+    url: 'https://doc.refero.design/mcp/getting-started',
+    sleeps: 'пока в .mcp.json нет ни refero, ни mobbin — подписка и ключ заказчика (Refero: Pro, Team или Lifetime)',
+    awake: () => /refero|mobbin/i.test(src('.mcp.json')),
+    take: 'шаг «референсы и замок» берёт экраны и потоки из библиотеки вместо ручной съёмки; метод тот же: у главного — черты, у вторых — по детали, числа — в роли; снимки в репозиторий не кладутся.',
   },
 ]
 

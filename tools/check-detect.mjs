@@ -227,11 +227,32 @@ async function measure({ path, env }) {
       window.__IMPECCABLE_CONFIG__ = { autoScan: false, visualContrast: false, disabledRules: off }
     }, OFF_IDS)
     await page.evaluate(SOURCE)
-    const out = await page.evaluate(() => ({
-      core: window.__impeccableCoreError ?? null,
-      groups: window.__impeccableCoreError ? [] : window.impeccableDetect(),
-      hidden: window.__impeccableCoreError ? null : window.impeccableMeasureHiddenText(),
-    }))
+    const out = await page.evaluate(() => {
+      const core = window.__impeccableCoreError ?? null
+      const groups = core ? [] : window.impeccableDetect()
+      /* «Прижатый заголовок» (heading-rhythm) детектор меряет по вертикали:
+         воздух над заголовком против воздуха под ним. Заголовок СБОКУ от
+         своего блока (раздел документа — примитив `sidebar`: имя слева,
+         текст справа) ничего под собой не держит, и его «воздух под» —
+         расстояние до чужого низа. Такой заголовок не прижат: он и его
+         блок не стоят друг над другом — их горизонтали не пересекаются.
+         Следующий блок — ближайший следующий сосед заголовка или его
+         предка. Причина — у правила в tools/detect-families.mjs. */
+      const beside = []
+      for (const g of groups) {
+        if (!g.findings.some((f) => f.type === 'heading-rhythm')) continue
+        let h = null
+        try { h = document.querySelector(g.selector) } catch { continue }
+        if (!h) continue
+        let at = h
+        while (at && !at.nextElementSibling && at.parentElement && at.parentElement !== document.body) at = at.parentElement
+        const next = at?.nextElementSibling
+        if (!next) continue
+        const a = h.getBoundingClientRect(), b = next.getBoundingClientRect()
+        if (Math.min(a.right, b.right) - Math.max(a.left, b.left) <= 1) beside.push(g.selector)
+      }
+      return { core, groups, beside, hidden: core ? null : window.impeccableMeasureHiddenText() }
+    })
     if (out.core) { broken ??= out.core; return }
 
     const found = byPage.get(path)
@@ -243,7 +264,11 @@ async function measure({ path, env }) {
     }
     for (const g of out.groups) {
       if (g.isHidden) continue
-      for (const f of g.findings) if (!OFF_IDS.includes(f.type)) add(f.type, g.isPageLevel ? WHOLE : g.selector, f.detail)
+      for (const f of g.findings) {
+        if (OFF_IDS.includes(f.type)) continue
+        if (f.type === 'heading-rhythm' && out.beside.includes(g.selector)) continue
+        add(f.type, g.isPageLevel ? WHOLE : g.selector, f.detail)
+      }
     }
     const h = out.hidden
     if (h && h.totalChars >= HIDDEN_AT_REST.minChars && h.hiddenChars / h.totalChars >= HIDDEN_AT_REST.share) {

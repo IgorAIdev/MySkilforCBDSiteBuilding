@@ -84,6 +84,19 @@ export const TYPE = {
   displaySpread: 2.5,
 }
 
+/** Поле ввода на телефоне не мельче 16px: iOS Safari при фокусе на поле
+ *  мельче увеличивает страницу и назад не возвращает. Это факт браузера, а
+ *  не вкус (Эмиль Ковальский, mobile-native, исправление 4; тот же порог —
+ *  пол тела `TYPE.floor.base`). Семья `fieldZoom` в check:craft. */
+export const IOS_ZOOM = 16
+
+/** Главный заголовок — не больше трёх строк на любой ширине: мера держится
+ *  ролью заголовка, а не длиной текста (taste-skill, gpt-tasteskill: «The H1
+ *  MUST NEVER exceed 2 to 3 lines»; impeccable, правило oversized-h1).
+ *  Считаются строки, а не размер — со строителем шкал это не спорит. Семья
+ *  `h1Lines` в check:craft. */
+export const H1_LINES = 3
+
 /** Роли текста. Межстрочье заголовка 1.1…1.3 (Spectrum: 1.3 у заголовков),
  *  текста 1.25…1.6 (Butterick: 120…145 % от кегля; Spectrum 1.5; 1.5 обязан
  *  не ломать вёрстку — WCAG 1.4.12). Веса 400…700 (M3: 400 / 500 / 700;
@@ -115,7 +128,12 @@ export const CONTROL = {
  *  {spatial, effects} — не больше шести). Дольше 700 — не переход, а
  *  ожидание. Двигаются только `transform` и `opacity` (Vercel WIG); смена
  *  темы не анимируется (next_theming); отклик на нажатие — INP ≤ 200 мс. */
-export const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700, tokens: 6, curves: 2 }
+/*  Перелёт кривой: `cubic-bezier(x1, y1, x2, y2)` с y вне −0.1…1.1 — пружина,
+ *  проскакивающая цель и возвращающаяся; в интерфейсе магазина это «прыжок»
+ *  (impeccable, правило bounce-easing, коридор его детектора; Эмиль
+ *  Ковальский, STANDARDS.md, «Springs»: «avoid bounce in most UI»). Семья
+ *  `motion` в check:css. */
+export const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700, tokens: 6, curves: 2, overshoot: [-0.1, 1.1] }
 
 /** Состояния (слой 10). Вуаль наведения и нажатия — доля чернил поверх
  *  поверхности: M3 слой состояния 8 % наведение, 10 % фокус и нажатие, 16 %

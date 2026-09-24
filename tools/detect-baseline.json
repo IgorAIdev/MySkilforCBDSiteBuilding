@@ -17,9 +17,7 @@
   "/en/checkout/done#as=sample-placed": {},
   "/en/checkout/payment": {},
   "/en/checkout/payment#as=sample-ready": {},
-  "/en/info/contact": {
-    "headCrowd": 2
-  },
+  "/en/info/contact": {},
   "/en/info/livrare-si-plata": {},
   "/en/product/ulei-cbd-full-spectrum": {},
   "/en/product/ulei-cbd-izolat-10": {},
@@ -42,12 +40,8 @@
   "/hu/checkout/done#as=sample-placed": {},
   "/hu/checkout/payment": {},
   "/hu/checkout/payment#as=sample-ready": {},
-  "/hu/info/contact": {
-    "headCrowd": 2
-  },
-  "/hu/info/livrare-si-plata": {
-    "headCrowd": 3
-  },
+  "/hu/info/contact": {},
+  "/hu/info/livrare-si-plata": {},
   "/hu/product/ulei-cbd-full-spectrum": {},
   "/hu/product/ulei-cbd-izolat-10": {},
   "/hu/search": {},
@@ -69,9 +63,7 @@
   "/ro/checkout/done#as=sample-placed": {},
   "/ro/checkout/payment": {},
   "/ro/checkout/payment#as=sample-ready": {},
-  "/ro/info/contact": {
-    "headCrowd": 2
-  },
+  "/ro/info/contact": {},
   "/ro/info/livrare-si-plata": {},
   "/ro/product/ulei-cbd-full-spectrum": {},
   "/ro/product/ulei-cbd-izolat-10": {},

@@ -13,7 +13,7 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -51,8 +51,29 @@ test('хук на слова про дизайн называет скиллы �
   inOrder(r.stdout)
   assert.match(r.stdout, /redesign-skill/)
   assert.match(r.stdout, /Дизайн делается дизайнерскими скиллами/)
-  assert.ok(r.stdout.indexOf('impeccable context') < r.stdout.indexOf('npm run'), 'скиллы зовутся до правки, проверки — после')
+  assert.ok(r.stdout.indexOf(DESIGN.order[0]) < r.stdout.indexOf('npm run'), 'скиллы зовутся до правки, проверки — после')
   assert.match(r.stdout, /npm run check:design/)
+})
+
+/* И300: порядок живёт в двух местах — нумерованным списком в CLAUDE.md и
+   строками `DESIGN.order` (его печатают хук и брифинг). Разойтись им нельзя:
+   шагов столько же, первый читает PRODUCT.md и DESIGN.md, а не запускатель,
+   которого набор не везёт. */
+test('порядок дизайна: список в CLAUDE.md и DESIGN.order — одни шаги, шаг 1 читает файлы', () => {
+  const law = readFileSync(join(KIT, 'CLAUDE.md'), 'utf8').replace(/\r\n/g, '\n')
+  const at = law.indexOf('**Дизайн делается дизайнерскими скиллами.**')
+  assert.ok(at >= 0, 'правила нет в CLAUDE.md')
+  const section = law.slice(at, law.indexOf('\n**', at + 10))
+  const steps = [...section.matchAll(/^(\d+)\. /gm)].map((m) => Number(m[1]))
+  assert.deepEqual(steps, DESIGN.order.map((_, i) => i + 1), 'шагов в CLAUDE.md не столько, сколько в DESIGN.order')
+  assert.match(DESIGN.order[0], /PRODUCT\.md и DESIGN\.md/)
+  assert.doesNotMatch(DESIGN.order.join(' '), /impeccable context/, 'шаг, зовущий запускатель, которого нет')
+  for (const word of ['PRODUCT.md', 'DESIGN.md', 'референсы и замок', 'docs/design/', 'одна вещь, которую запомнят']) {
+    assert.ok(section.includes(word) || DESIGN.order.join(' ').includes(word), `«${word}» нет ни в правиле, ни в реестре`)
+  }
+  assert.ok(existsSync(join(KIT, 'docs/design/_brief.md')), 'бриф поверхности без образца')
+  assert.match(readFileSync(join(KIT, '.gitignore'), 'utf8'), /^\/?\.refs\/?$/m, 'снимки чужих магазинов не закрыты от репозитория')
+  assert.match(readFileSync(join(KIT, 'templates/storefront/.gitignore'), 'utf8'), /^\/?\.refs\/?$/m, 'у витрины снимки чужих магазинов не закрыты')
 })
 
 test('хук на чужие слова о дизайне молчит, о проверках — говорит как раньше', () => {
@@ -153,7 +174,7 @@ const component = (body, css = '') => ({
 test('check:design: у каждой семьи подпись и строка источника в impeccable', () => {
   for (const k of DESIGN_FAMILIES) {
     assert.ok(DESIGN_LABELS[k], `${k} без подписи`)
-    assert.match(DESIGN_SOURCES[k] ?? '', /^(craft-floor|typeset|layout)\.md:\d+/, `${k} без строки источника`)
+    assert.match(DESIGN_SOURCES[k] ?? '', /^(craft-floor|typeset|layout|document|doctor)\.md:\d+/, `${k} без строки источника`)
     const [file, line] = DESIGN_SOURCES[k].match(/^([\w-]+\.md):(\d+)/).slice(1)
     const text = readFileSync(join(KIT, '.claude/skills/impeccable/reference', file), 'utf8').split('\n')
     assert.ok(text.length >= Number(line), `${k}: в ${file} нет строки ${line}`)
@@ -237,6 +258,17 @@ test('check:design · запреты пола ремесла в стилях и 
   only(measure(component('export const A = () => <button type="button" aria-label="Close"><Icon id="x" /></button>')), null, 0)
 })
 
+/* И300: DESIGN.md описывает вид ролями — число в нём вторая правда рядом со
+   строителями, роль без объявления — описание, разошедшееся с системой. */
+test('check:design · DESIGN.md: число вида и мёртвая роль; роли и приставки — чисто', () => {
+  only(measure({ 'DESIGN.md': '# Design System\n\n## Colors\n\n- **Марка** (#b8422e): главная кнопка.\n' }), 'docValue')
+  only(measure({ 'DESIGN.md': '## Layout\n\nПоле карточки 12px, раскрытие 200ms.\n' }), 'docValue', 2)
+  only(measure({ 'DESIGN.md': '## Colors\n\nЗаливка oklch(0.6 0.1 40).\n' }), 'docValue')
+  only(measure({ 'DESIGN.md': '## Typography\n\nРоль раздела — `--no-such`.\n' }), 'docDead')
+  only(measure({ 'DESIGN.md': '## Layout\n\nВоздух `--gone-*`.\n' }), 'docDead')
+  only(measure({ 'DESIGN.md': '# Design System\n\n## Typography\n\nРазделы — `--h2-size`, ритм — `--air-*`, тень — `--sh-raised`; шов «телефон», пропорция 4 : 3.\n' }), null, 0)
+})
+
 test('check:design храповиком: база словом, рост валит, сокращение просит опустить планку', () => {
   const dir = project(component(`export const A = () => <section className={p.prose}><h2>Doc</h2></section>`))
   const run = (...args) => spawnSync(process.execPath, [join(dir, 'tools/check-design.mjs'), ...args], { cwd: dir, encoding: 'utf8' })
@@ -269,6 +301,11 @@ test('набор держит свою базу, поставленная вит
     assert.equal(put.status, 0, put.stderr)
     const r = spawnSync(process.execPath, [join(site, 'tools/check-design.mjs')], { cwd: site, encoding: 'utf8' })
     assert.equal(r.status, 0, `поставленная витрина красная на базе набора:\n${r.stdout}${r.stderr}`)
+    /* И300: контекст дизайна едет витрине в корень — шаг 1 порядка читает его там. */
+    assert.match(readFileSync(join(site, 'PRODUCT.md'), 'utf8'), /<!-- impeccable:product-schema 1 -->/)
+    assert.match(r.stdout, /DESIGN\.md/, 'check:design витрины не читал её DESIGN.md')
+    const json = JSON.parse(spawnSync(process.execPath, [join(site, 'tools/check-design.mjs'), '--json'], { cwd: site, encoding: 'utf8' }).stdout)
+    assert.equal(json.counts.docValue + json.counts.docDead, 0, `DESIGN.md витрины: ${[...json.found.docValue, ...json.found.docDead].join(' | ')}`)
   } finally { rmSync(root, { recursive: true, force: true }) }
   assert.equal(SCRIPTS['check:design'], 'node tools/check-design.mjs')
   const builder = readFileSync(join(KIT, 'tools/kit.mjs'), 'utf8')

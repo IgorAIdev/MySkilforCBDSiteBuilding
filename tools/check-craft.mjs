@@ -40,6 +40,11 @@
  *  12. Палец на планшете— цель нажатия там, где окно широкое, а указатель
  *                        грубый: ширина решает раскладку, указатель решает
  *                        размер цели.
+ *  13. Поле и телефон  — поле без подписи (семья `name`), мельче 16px на
+ *                        телефоне (`fieldZoom`), поле оформления без
+ *                        `autocomplete` (`autofill`, личные страницы).
+ *  14. Главный заголовок— не длиннее трёх строк (`h1Lines`). Ошибку скрипта
+ *                        при загрузке ловит `check:detect` (`scriptError`).
  *
  * Работает храповиком, как и `check:css`: в `tools/craft-baseline.json`
  * записано, сколько нарушений сегодня; проверка падает, только если их
@@ -58,7 +63,7 @@ import { loadPlaywright, loadSharp, still } from './browser.mjs'
 const { chromium } = await loadPlaywright()
 const sharp = await loadSharp()
 import { readFileSync, writeFileSync } from 'node:fs'
-import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
+import { CONTRAST, TARGET, LAYOUT, IOS_ZOOM, H1_LINES } from './thresholds.mjs'
 import { CRAFT_LABELS as NAMES, VECTOR } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
@@ -159,14 +164,15 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /** Что меряется в самой странице. Одной функцией, потому что она уезжает
  *  в браузер целиком и ничего оттуда не импортирует. */
-const measure = ({ phone, catalogue, target, contrast, vector }) => {
+const measure = ({ phone, catalogue, target, contrast, vector, iosZoom, h1Lines, autofill }) => {
   const out = { placeholder: [], measure: [], target: [], contrast: [], collision: [],
                 weight: [], jump: [], name: [], heads: [], dress: [], clip: [],
                 swipe: [], stretch: [], broken: [], spill: [], focus: [], wrap: [],
                 anchor: [], outline: [], marker: [], dark: [], ladder: [], wideCtrl: [], lopsided: [],
                 markInk: [],
                 covered: [],
-                lane: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [] }
+                lane: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [],
+                autofill: [], fieldZoom: [], h1Lines: [] }
   const seen = new Set()
 
   const lum = (c) => {
@@ -977,6 +983,73 @@ const measure = ({ phone, catalogue, target, contrast, vector }) => {
     if (!shown(img) || img.hasAttribute('alt')) continue
     const key = `a:${img.getAttribute('src')}`
     if (!seen.has(key)) { seen.add(key); out.name.push(`img ${(img.getAttribute('src') || '?').split('/').pop()} — без alt`) }
+  }
+  /* Поле — тоже орган, и его имя — подпись: `label` (по `for` или
+     обёрткой), `aria-label`, `aria-labelledby`. Подсказка внутри поля
+     (`placeholder`) именем не считается: она пропадает с первой буквой, и
+     вернувшийся к полю покупатель уже не знает, что в нём (ui-ux-pro-max,
+     ux-guidelines.csv, Forms: «Ensure inputs have paired labels»; Refero,
+     craft-details.md §2 #10, §9 #56). До 24.09.2026 семья смотрела только
+     ссылки и кнопки — безымянное поле не видел никто. */
+  const FIELDS = 'input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=image]):not([type=reset]), select, textarea'
+  const fieldOf = (el) => `поле ${el.tagName.toLowerCase()}${el.tagName === 'INPUT' ? `[type=${el.type}]` : ''}${el.getAttribute('name') ? ` name="${el.getAttribute('name')}"` : ''}`
+  const labelled = (el) => {
+    if ((el.getAttribute('aria-label') || '').trim()) return true
+    const by = el.getAttribute('aria-labelledby')
+    if (by && by.split(/\s+/).some((id) => (document.getElementById(id)?.textContent || '').trim())) return true
+    return [...(el.labels ?? [])].some((l) => (l.textContent || '').trim())
+  }
+  for (const el of document.querySelectorAll(FIELDS)) {
+    if (!shown(el) || labelled(el)) continue
+    const key = `n:f:${el.tagName}:${el.type}:${el.getAttribute('name') || ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    const hint = el.getAttribute('placeholder')
+    out.name.push(`${fieldOf(el)} — без подписи${hint ? ` (подсказка «${hint.slice(0, 24)}» — не имя)` : ''}`)
+  }
+
+  /* 7б · поле мельче 16px на телефоне: iOS Safari при фокусе увеличивает
+     страницу и назад не возвращает — покупатель оформляет заказ в
+     съехавшем окне (Эмиль Ковальский, mobile-native, исправление 4).
+     Порог — факт браузера (`IOS_ZOOM`), не вкус. */
+  if (phone) {
+    for (const el of document.querySelectorAll(FIELDS)) {
+      if (/^(checkbox|radio|range|color|file)$/.test(el.type) || !shown(el)) continue
+      const px = parseFloat(getComputedStyle(el).fontSize)
+      if (!(px < iosZoom)) continue
+      const key = `z:${el.tagName}:${el.type}:${el.getAttribute('name') || ''}`
+      if (!seen.has(key)) { seen.add(key); out.fieldZoom.push(`${fieldOf(el)} — ${+px.toFixed(2)}px при ${iosZoom}`) }
+    }
+  }
+
+  /* 7в · поле оформления без автозаполнения. Имя, телефон, почта и адрес
+     браузер подставляет сам — если поле назвало свою цель атрибутом
+     `autocomplete` (WCAG 2.2, 1.3.5 AA; Refero, craft-details.md §2 #7).
+     Без него, с `off` или с `on` (цели не названо) покупатель набирает всё
+     пальцем. Меряется на личных страницах из kit.config.json (`sessions`):
+     там стоят формы оформления с полной корзиной. */
+  if (autofill) {
+    const PURPOSE = /mail|phone|tel|name|address|street|city|town|zip|postal|postcode|county|region|country/i
+    for (const el of document.querySelectorAll('input, select, textarea')) {
+      if (/^(hidden|submit|button|image|reset|checkbox|radio|file|range|color|search|password)$/.test(el.type) || !shown(el)) continue
+      if (el.type !== 'email' && el.type !== 'tel' && !PURPOSE.test(`${el.getAttribute('name') || ''} ${el.id || ''}`)) continue
+      const ac = (el.getAttribute('autocomplete') || '').trim().toLowerCase()
+      if (ac && ac !== 'off' && ac !== 'on') continue
+      const key = `f:${el.tagName}:${el.getAttribute('name') || el.id}`
+      if (!seen.has(key)) { seen.add(key); out.autofill.push(`${fieldOf(el)} — ${ac ? `autocomplete="${ac}"` : 'без autocomplete'}`) }
+    }
+  }
+
+  /* 7г · главный заголовок не длиннее трёх строк на любой ширине: мера
+     держится ролью заголовка, а не длиной имени товара (taste-skill,
+     gpt-tasteskill; impeccable, oversized-h1). Строки — высота содержимого
+     на межстрочье; размер не меряется, со шкалой это не спорит. */
+  for (const h of document.querySelectorAll('h1')) {
+    if (!shown(h)) continue
+    const cs = getComputedStyle(h)
+    const lead = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2
+    const lines = Math.round((h.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0)) / lead)
+    if (lines > h1Lines) out.h1Lines.push(`${name(h)} — строк ${lines} при пределе ${h1Lines}`)
   }
 
   /* 8 · лестница заголовков: ровно один h1 и ни одного пропущенного уровня.
@@ -1887,7 +1960,8 @@ const found = { lane: [], placeholder: [], measure: [], target: [], contrast: []
                 inkDip: [], markInk: [],
                 covered: [],
                 ladder: [], wideCtrl: [], lopsided: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [],
-                twiceLift: [], sheetSize: [] }
+                twiceLift: [], sheetSize: [],
+                autofill: [], fieldZoom: [], h1Lines: [] }
 
 /** Открыть страницу на ширине и померить.
  *
@@ -1988,6 +2062,11 @@ async function visit(path, w, { finger, dark = false }) {
       target: TARGET,
       contrast: CONTRAST,
       vector: VECTOR.source,
+      iosZoom: IOS_ZOOM,
+      h1Lines: H1_LINES,
+      /* Личная страница (`#as=` — сессия из kit.config.json) — форма
+         оформления с полной корзиной: там меряется автозаполнение. */
+      autofill: path.includes('#as='),
     })
 
     /* ── приклеенное — в НИЗКОМ окне ───────────────────────────────────────
@@ -2184,6 +2263,9 @@ async function visit(path, w, { finger, dark = false }) {
  *  Заполнили реквизит — счётчик упал ровно на единицу, на скольких бы
  *  страницах он ни стоял. */
 const holders = new Map()
+/* Семьи, которые от ширины не зависят: цель поля — факт страницы, а не
+   окна. Семь ширин не делают из одного поля семь. */
+const PER_PAGE = new Set(['autofill'])
 
 /** Разложить находки по семьям. */
 const keep = (path, w, r) => {
@@ -2193,6 +2275,11 @@ const keep = (path, w, r) => {
         const where = holders.get(line) ?? new Set()
         where.add(path)
         holders.set(line, where)
+        continue
+      }
+      if (PER_PAGE.has(k)) {
+        const at = `${path}  ${line}`
+        if (!found[k].includes(at)) found[k].push(at)
         continue
       }
       /* Остальные семьи от ширины зависят, и там повтор законен: контраст и

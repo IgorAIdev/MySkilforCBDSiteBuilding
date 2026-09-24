@@ -40,18 +40,36 @@
 | --- | --- | --- |
 | [leonxlnx/taste-skill](https://github.com/leonxlnx/taste-skill) | MIT | `taste-skill`, `minimalist-skill`, `redesign-skill`, `brandkit`, `brutalist-skill`, `soft-skill`, `output-skill` |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | Apache 2.0 | `impeccable` — `SKILL.md` и `reference/`; его детектор — не здесь, а в `tools/vendor/impeccable/` (ниже) |
-| [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT | `emil-design-eng`, `improve-animations` |
+| [emilkowalski/skills](https://github.com/emilkowalski/skills) | MIT | `emil-design-eng`, `improve-animations`, `review-animations` |
 | [obra/superpowers](https://github.com/obra/superpowers) | MIT | все 14 скиллов процесса — `using-superpowers`, `brainstorming`, `writing-plans`, `executing-plans`, `test-driven-development`, `systematic-debugging`, `requesting-code-review`, `receiving-code-review`, `verification-before-completion`, `writing-skills`, `using-git-worktrees`, `finishing-a-development-branch`, `dispatching-parallel-agents`, `subagent-driven-development` |
 
 Тексты скиллов не менялись. Лицензии рядом: `LICENSE.taste-skill`,
-`LICENSE.impeccable`, `LICENSE.emil-kowalski`, `LICENSE.superpowers`.
+`LICENSE.impeccable` и `NOTICE.impeccable`, `LICENSE.emil-kowalski`,
+`LICENSE.superpowers`. `NOTICE.impeccable` — дословный `NOTICE.md` автора:
+справочники `impeccable/reference/ios.md` и `android.md` выведены из
+`ehmo/platform-design-skills` (MIT), и Apache 2.0 (§4 d) велит везти эту
+отметку вместе с ними; ставщик кладёт её рядом с лицензией.
+
+Откуда взято, чтобы обновление было сознательным, а не молчаливым
+(заведено 24.09.2026):
+
+| Файлы | Источник | Версия |
+| --- | --- | --- |
+| `emil-design-eng/SKILL.md`, `improve-animations/SKILL.md`, `review-animations/SKILL.md` и `STANDARDS.md`, `LICENSE.emil-kowalski` | `emilkowalski/skills`, ветка `main` | коммит `d16ebe60d09a5ba2afcb7054ede9d0a10c9f6128` |
+| `NOTICE.impeccable` | `pbakaus/impeccable`, `NOTICE.md` | тег `engine-v0.1.5`, коммит `112703d5bf2469574758e0ddc5baf8e03c958f58` |
 
 Скиллы Ковальского поставлены потому, что таблица маршрутизации в `craft`
 называла их по имени, а файлов в проекте не было: указатель в никуда. Взяты
-ровно те два, которые там названы, — про вкус и ощущение (`emil-design-eng`)
-и про аудит движения (`improve-animations`). Остальные девять из того
-репозитория — про Swift, Expo и выбор библиотеки компонентов — здесь не
-нужны и не взяты.
+ровно те, которые названы, — про вкус и ощущение (`emil-design-eng`), про
+аудит движения (`improve-animations`) и строгий разбор правки движения
+(`review-animations`). `review-animations` добавлен 24.09.2026:
+`improve-animations` называет его по имени дважды (строки 18 и 104) — тот же
+указатель в никуда. Числа авторов (длительности, кривые) уступают коридорам
+`MOTION` в `tools/thresholds.mjs` и ролям `--press-t / --hover-t / --open-t`.
+Остальные десять из того репозитория — про Swift, Expo, выбор библиотеки
+компонентов, тосты, телефон отдельным файлом — здесь не нужны и не взяты;
+измеримое из `mobile-native` стало семьями проверок (`docs/skills.md`,
+«Эмиль Ковальский — строгий разбор движения и телефон»).
 
 ## Чего сознательно нет
 

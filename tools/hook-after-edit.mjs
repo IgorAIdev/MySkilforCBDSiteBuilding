@@ -28,7 +28,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join, relative, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { CODE_DIRS, BLOCK_DIRS, STYLE_DIRS, LIB, TOKENS, inDirs } from './kit-config.mjs'
+import { CODE_DIRS, BLOCK_DIRS, STYLE_DIRS, LIB, TOKENS, DESIGN_DOC, inDirs } from './kit-config.mjs'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -66,7 +66,10 @@ if (has('tools/check-port.mjs') &&
 /* Дизайн по файлу (И271): разметка и стили узлов — механическая половина
    impeccable. Меряет за секунду; у набора — и образцовая витрина: её вид и
    есть то, что заказчик назвал плохим. */
-if (/\.(css|tsx|jsx)$/.test(rel) && (inDir(...STYLE_DIRS, ...CODE_DIRS) || rel.startsWith('templates/storefront/'))
+/* И300: описание вида (`DESIGN.md`) меряется той же проверкой — число в нём
+   и роль, которой нет в стилях, краснеют в секунду правки. */
+if (((/\.(css|tsx|jsx)$/.test(rel) && (inDir(...STYLE_DIRS, ...CODE_DIRS) || rel.startsWith('templates/storefront/')))
+     || rel === DESIGN_DOC || rel === 'templates/storefront/DESIGN.md')
     && has('tools/check-design.mjs')) {
   runs.push(['check:design', 'node', ['tools/check-design.mjs']])
 }
