@@ -39,6 +39,7 @@
  *    data-bars even · data-morph arrow  полоски равной длины · открыто — стрелка «→» (с data-dir down — «↓»)
  *    .swap + aria-pressed | data-on     два знака в одной клетке; включено — второй
  *    data-fill-on + aria-pressed        знак заливается маркой, когда включено
+ *    data-on-voice loud                 включённый орган встаёт в голос марки
  *    role=switch + .knob, aria-checked  ползунок: дорожка и ручка; data-track theme — дорожка по теме,
  *                                       data-knob over — ручка крупнее дорожки
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
@@ -85,7 +86,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .el:is([data-voice='ghost'], [data-voice='bare']){--bg:transparent}
 .el[data-voice='line']{--bg:transparent;box-shadow:inset 0 0 0 var(--line) var(--edge)}
 .el[data-fill='gradient']{--img:linear-gradient(30deg, var(--pop-press), var(--pop))}
-.el[data-frame]{box-shadow:0 0 0 var(--frame-w) color-mix(in srgb, var(--pop) 35%, transparent)}
+.el[data-frame]{box-shadow:0 0 0 var(--frame-w) var(--pop-tint)}
 .el[data-case='caps']{text-transform:uppercase;letter-spacing:var(--caps)}
 .el[data-size='sm']{--h:var(--h-sm)}
 .el[data-size='lg']{--h:var(--h-lg)}
@@ -184,6 +185,9 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:first-child{scale:0;opacity:0}
 .el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:last-child{scale:1;opacity:1}
 
+/* Включённый орган встаёт в голос марки: заливка марки, знак краской на ней. */
+.el[data-on-voice='loud']:is([aria-pressed='true'], [data-on]){--bg:var(--pop);--fg:var(--on-pop)}
+
 /* Знак заливается, когда включено: контур в покое, фигура краской марки —
    сердце «в избранное». Отвечает краской, не ростом. */
 .el[data-fill-on]:is([aria-pressed='true'], [data-on]){--fg:var(--pop)}
@@ -213,7 +217,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .el[role='switch'][data-knob='over']{--knob:calc(var(--h) * .8);--knob-bg:var(--pop);--knob-fg:var(--on-pop);--bg:var(--quiet);--fg:var(--ink);inline-size:calc(var(--h) * 1.2);padding-inline:0;background:none}
 .el[role='switch'][data-knob='over']::before{content:'';position:absolute;inset-inline:0;inset-block:calc(var(--h) * .25);border-radius:999px;background:var(--paint);transition:background-color var(--hover-t) var(--ease)}
 .el[role='switch'][data-knob='over'] .knob{border-radius:999px}
-.el[role='switch'][data-knob='over']:is([aria-checked='true'], [data-on]){--bg:color-mix(in srgb, var(--pop) 40%, transparent);--fg:var(--ink);--knob-x:calc(var(--h) * .4)}
+.el[role='switch'][data-knob='over']:is([aria-checked='true'], [data-on]){--bg:var(--pop-tint);--fg:var(--ink);--knob-x:calc(var(--h) * .4)}
 .el[data-motion='grow'] svg{scale:var(--grow, 1);transition:scale var(--hover-t) var(--ease)}
 .el[data-motion='tilt'] svg{rotate:var(--tilt, 0deg);transition:rotate var(--hover-t) var(--ease)}
 .el[data-motion='lift'] svg{translate:0 var(--lift, 0px);transition:translate var(--hover-t) var(--ease)}
@@ -230,13 +234,13 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   .el[data-voice='bare']:hover{--paint:transparent;--veil:transparent;--fg:var(--pop-ink)}
   .el[data-voice='line']:hover,
   .el[data-hover='loud']:hover{--bg:var(--pop);--fg:var(--on-pop);--paint:var(--pop)}
-  .el[data-frame]:hover{box-shadow:0 0 0 var(--frame-w) color-mix(in srgb, var(--pop) 80%, transparent)}
+  .el[data-frame]:hover{box-shadow:0 0 0 var(--frame-w) var(--pop)}
 }
 .el[data-state='hover']{--paint:color-mix(in oklab, var(--bg), var(--fg) var(--state-hover));--veil:color-mix(in srgb, var(--fg) var(--state-hover), transparent);--turn:0deg;--go:var(--nudge);--run:0;--grow:1.1;--tilt:12deg;--lift:calc(var(--nudge) * -1);--spin:180deg;--trail-w:calc(var(--h) * .42);--trail-m:calc(var(--h) * -.18);--trail-o:1;--appear-m:0px}
 .el[data-voice='bare'][data-state='hover']{--paint:transparent;--veil:transparent;--fg:var(--pop-ink)}
 .el[data-voice='line'][data-state='hover'],
 .el[data-hover='loud'][data-state='hover']{--bg:var(--pop);--fg:var(--on-pop);--paint:var(--pop)}
-.el[data-frame][data-state='hover']{box-shadow:0 0 0 var(--frame-w) color-mix(in srgb, var(--pop) 80%, transparent)}
+.el[data-frame][data-state='hover']{box-shadow:0 0 0 var(--frame-w) var(--pop)}
 
 .el:active,
 .el[data-state='press']{--paint:color-mix(in oklab, var(--bg), var(--fg) var(--state-press));--veil:color-mix(in srgb, var(--fg) var(--state-press), transparent);--turn:0deg;--go:var(--nudge);--run:0;--grow:1.1;--tilt:12deg;--lift:calc(var(--nudge) * -1);--spin:180deg;--trail-w:calc(var(--h) * .42);--trail-m:calc(var(--h) * -.18);--trail-o:1;--appear-m:0px;transform:translateY(1px) scale(.97)}

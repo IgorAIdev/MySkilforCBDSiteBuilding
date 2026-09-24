@@ -18,6 +18,7 @@
  *
  *   node tools/elements.mjs           проверить и собрать elements/index.html
  *   node tools/elements.mjs --check   только проверить
+ *   node tools/elements.mjs --shots [NN …]   ещё и снять настоящие страницы (И339)
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -258,4 +259,39 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   writeFileSync(path.join(DIR, 'stage.js'), stageJs(sheet))
   writeFileSync(path.join(DIR, 'index.html'), toHtml(cat, Object.keys(paletteSets)))
   console.log(`✓ elements/index.html · ${cat.элементы.length} элементов, семей ${Object.keys(cat.семьи).length}`)
+  if (process.argv.includes('--shots')) await shots(DIR, cat, process.argv.slice(process.argv.indexOf('--shots') + 1).filter((a) => /^\d{2}$/.test(a)))
+}
+
+/** Снимки настоящих страниц элементов (И339): показывается заказчику то, что
+ *  отрисовал браузер набора со страницы папки, а не копия, переписанная в
+ *  чат, — копию перекрашивают чужие стили, и увидеть это до показа нечем.
+ *  Живой ряд и застывшие состояния, светлая тема (или `THEME=dark`); снимки —
+ *  во временную папку, их путь печатается. */
+async function shots(DIR, cat, only) {
+  const { loadPlaywright } = await import('./browser.mjs')
+  const { chromium } = await loadPlaywright()
+  const { tmpdir } = await import('node:os')
+  const { mkdirSync } = await import('node:fs')
+  const { pathToFileURL } = await import('node:url')
+  const OUT = path.join(tmpdir(), 'elements-shots')
+  mkdirSync(OUT, { recursive: true })
+  const theme = process.env.THEME === 'dark' ? 'dark' : 'light'
+  const list = cat.элементы.filter((e) => !only.length || only.includes(e.папка.slice(0, 2)))
+  const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE } : {})
+  const page = await browser.newPage({ viewport: { width: 760, height: 900 }, deviceScaleFactor: 2 })
+  const area = () => page.evaluate(() => {
+    const r = [...document.querySelectorAll('.live, .states, .set')].map((e) => e.getBoundingClientRect())
+    return { top: Math.min(...r.map((x) => x.top)), bottom: Math.max(...r.map((x) => x.bottom)) }
+  })
+  for (const e of list) {
+    await page.goto(`${pathToFileURL(path.join(DIR, e.папка, 'element.html')).href}?theme=${theme}`)
+    await page.waitForTimeout(300)
+    const { top, bottom } = await area()
+    await page.setViewportSize({ width: 760, height: Math.ceil(bottom + 48) })
+    const b = await area()
+    const file = path.join(OUT, `${e.папка}.png`)
+    await page.screenshot({ path: file, clip: { x: 0, y: Math.max(0, b.top - 24), width: 760, height: b.bottom - b.top + 48 } })
+    console.log(`  снимок ${file}`)
+  }
+  await browser.close()
 }
