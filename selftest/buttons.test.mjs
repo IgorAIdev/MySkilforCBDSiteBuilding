@@ -18,6 +18,10 @@ const KIT = fileURLToPath(new URL('..', import.meta.url))
 const catalog = JSON.parse(readFileSync(join(KIT, 'styles/buttons.json'), 'utf8'))
 const sitePalette = JSON.parse(readFileSync(join(KIT, 'styles/palette.json'), 'utf8'))
 const samples = JSON.parse(readFileSync(join(KIT, 'templates/palette.json'), 'utf8'))
+/* Бледный набор — «Аптека» до 24.09.2026: чернила #24352B давали тихой вуали
+   1.14 : 1 на полу страницы. Сам набор с тех пор доведён строителем (И285),
+   а замер кнопки должен по-прежнему называть такую вуаль — на образце. */
+const pale = { 'Бледная': { light: { paper: '#FEFCF5', ink: '#24352B', accent: '#B79339' }, dark: { paper: '#0C1510', ink: '#EDECE9', accent: '#B79339' } } }
 const btn = readFileSync(join(KIT, 'styles/btn.module.css'), 'utf8')
 
 test('the catalog is independent axes of data; the defaults pass on the site palette', () => {
@@ -52,12 +56,14 @@ test('the button reads every role the catalog may declare, each with a fallback;
   for (const a of axesOf(catalog)) for (const o of a.options) assert.ok(css.includes(`[data-button-${a.id}="${o.id}"]{`), `${a.id}/${o.id}`)
 })
 
-test('the audit runs on every sample palette and names option, palette and theme; the quiet veil on Apothecary is named', () => {
-  const found = auditButtons(catalog, samples)
+test('the audit runs on every sample palette and names option, palette and theme; a quiet veil too pale for its floor is named', () => {
+  assert.deepEqual(auditButtons(catalog, samples), [], 'каждый набор набора носит каждую кнопку каталога (И285)')
+  const found = auditButtons(catalog, { ...samples, ...pale })
   for (const f of found) assert.ok(f.style && f.palette && f.theme && f.rule, JSON.stringify(f))
-  assert.ok(found.some((f) => f.style === 'quiet/veil' && f.palette === 'Аптека' && f.part === 'quiet-fill'), 'вуаль тихой на «Аптеке» 1.14 : 1')
-  const { clash } = availability(catalog, samples)
-  assert.ok(clash['quiet/veil']?.['Аптека'])
+  assert.ok(found.some((f) => f.style === 'quiet/veil' && f.palette === 'Бледная' && f.part === 'quiet-fill'), 'вуаль тихой на бледном наборе 1.14 : 1')
+  const { clash } = availability(catalog, { ...samples, ...pale })
+  assert.ok(clash['quiet/veil']?.['Бледная'])
+  assert.ok(!clash['quiet/veil']?.['Аптека'], '«Аптека» доведена: вуаль видна')
   assert.ok(!clash['letters/sentence'] && !clash['letters/caps'], 'буквы от набора цвета не зависят')
 })
 
@@ -68,9 +74,9 @@ test('a new option is data: the audit measures it and the emitter writes it', ()
   grown.loud.варианты.tone = { имя: 'Тон', name: 'Tone', что: 'тон марки, тёмная надпись', роли: { '--ctrl-btn-fill-pop': 'var(--a-4)', '--ctrl-btn-ink-pop': 'var(--a-11)', '--ctrl-btn-edge-pop': 'transparent' } }
   grown.quiet.варианты.edge = { имя: 'Кромка', name: 'Edge', что: 'без вуали, кромка органа', роли: { '--ctrl-btn-fill': 'transparent', '--ctrl-btn-ink': 'var(--ink)', '--ctrl-btn-edge': 'var(--edge)' } }
   assert.deepEqual(auditButtons(grown, {}), [])
-  const { clash, off, on } = availability(grown, samples)
+  const { clash, off, on } = availability(grown, { ...samples, ...pale })
   assert.ok(on.includes('quiet/edge'), 'кромка тихой проходит')
-  assert.ok(!clash['quiet/edge']?.['Аптека'], 'кромка тихой на «Аптеке» проходит там, где вуаль — нет')
+  assert.ok(!clash['quiet/edge']?.['Бледная'] && clash['quiet/veil']?.['Бледная'], 'кромка тихой на бледном наборе проходит там, где вуаль — нет')
   assert.ok(off['loud/tone']?.every((f) => f.part === 'loud-fill'), 'тон марки не виден на полу ни одного образца — назван и не выпускается')
   assert.doesNotMatch(toCss(grown, off, clash), /data-button-loud="tone"/, 'не прошедший замер не выпущен')
   assert.match(toCss(grown), /\[data-button-loud="tone"\]\{\n {2}--ctrl-btn-fill-pop: var\(--a-4\);/)
