@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Черта и заглавные</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 07 — «Черта и заглавные». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: черта вырастает из ничего при наведении.
+  Приведено к единой форме: черта стоит всегда — она и есть рисунок кнопки; краска — чернила палитры вместо белой: кнопка стоит на любом полу; надпись 600 вместо 700; разрядка заглавных .05em.
+  Наведение: краска слова или знака — краска марки. Нажатие: то же, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="bare" data-case="caps" type="button"><span class="dash"></span>Read more</button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="bare" data-case="caps"><span class="dash"></span>Read more</span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="bare" data-case="caps" data-state="hover"><span class="dash"></span>Read more</span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="bare" data-case="caps" data-state="press"><span class="dash"></span>Read more</span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="bare" data-case="caps" data-state="focus"><span class="dash"></span>Read more</span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

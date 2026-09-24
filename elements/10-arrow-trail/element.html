@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · След стрелок</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 10 — «След стрелок». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: наклон кнопки; жёсткая чёрная тень и жёлтая под рукой; мигание стрелок жёлтым.
+  Приведено к единой форме: краски — марка и надпись на ней вместо фиолетового и белого; стрелки — шевроны листа набора; надпись 1rem вместо 25 пикселей; рост 48.
+  Наведение: марка + 5 % краски надписи; перед стрелкой дорисовываются ещё две краской надписи, кнопка чуть шире. Нажатие: марка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" data-size="lg" type="button">Next<span class="trail"><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg></span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-size="lg">Next<span class="trail"><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="hover">Next<span class="trail"><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="press">Next<span class="trail"><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="focus">Next<span class="trail"><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg><svg data-sign="chevron-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { availability, toCss, axesOf } from './buttons.mjs'
+import { plainCss, takenBy, withTaken } from './stand-modules.mjs'
 
 const read = (p) => (existsSync(path.resolve(p)) ? readFileSync(path.resolve(p), 'utf8') : '')
 const need = ['styles/palette.css', 'styles/scale.css', 'styles/tokens.css', 'styles/base.css', 'styles/primitives.module.css', 'styles/btn.module.css', 'styles/buttons.json', 'styles/palette.json', 'styles/icons.svg']
@@ -26,7 +27,7 @@ if (missing.length) { console.error(`✗ Нет ${missing.join(', ')} — пок
 const catalog = JSON.parse(read('styles/buttons.json'))
 const { off } = availability(catalog, JSON.parse(read('styles/palette.json')))
 const options = axesOf(catalog).flatMap((a) => a.options.map((o) => ({ axis: a, o })))
-const plain = (p) => read(p).replace(/composes\s*:[^;}]*;?/g, '')
+const plain = (p) => plainCss(read(p))
 const scaleCss = read('styles/scale.css')
 
 /* Палец — атрибутом, теми же числами, что в блоке @media (pointer:coarse). */
@@ -80,7 +81,7 @@ ${scaleCss}
 ${read('styles/tokens.css')}
 ${read('styles/base.css')}
 ${plain('styles/primitives.module.css')}
-${read('styles/btn.module.css')}
+${plain('styles/btn.module.css')}
 ${toCss(catalog)}
 ${coarseRule}
 body{background:var(--page);color:var(--ink);font-family:var(--face)}
@@ -154,14 +155,21 @@ const content = `${read('styles/icons.svg').replace('<svg ', '<svg style="displa
 <script>
 document.documentElement.dataset.pointer ??= 'fine'
 document.documentElement.lang ||= 'bg'
-const lum = (c) => { const [r, g, b] = c.match(/\\d+(\\.\\d+)?/g).slice(0, 3).map(Number).map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }); return 0.2126 * r + 0.7152 * g + 0.0722 * b }
+/* Цвет разбирает canvas, не регулярка: браузер отдаёт и rgb(), и oklab(),
+   и color(srgb …) (controls.md, «Мерить надо отрисованное»). */
+const cx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
+const rgb = (c) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); return [...cx.getImageData(0, 0, 1, 1).data] }
+const clear = (c) => rgb(c)[3] === 0
+const lum = (c) => { const [r, g, b] = rgb(c).slice(0, 3).map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }); return 0.2126 * r + 0.7152 * g + 0.0722 * b }
 const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05) }
-const solid = (el) => { for (let e = el; e; e = e.parentElement) { const bg = getComputedStyle(e).backgroundColor; if (!/rgba\\(0, 0, 0, 0\\)|transparent/.test(bg)) return bg } return 'rgb(255,255,255)' }
+const solid = (el) => { for (let e = el; e; e = e.parentElement) { const bg = getComputedStyle(e).backgroundColor; if (!clear(bg)) return bg } return 'rgb(255,255,255)' }
 function live() {
   for (const tile of document.querySelectorAll('.tile')) {
     const loud = tile.querySelector('.btn[data-voice="loud"]')
     const cs = getComputedStyle(loud)
-    tile.querySelector('[data-live="contrast"]').textContent = ratio(cs.color, solid(loud)).toFixed(2) + ' : 1'
+    /* Заливка главной — на подложке ::before (И276), а не на самой кнопке. */
+    const fill = getComputedStyle(loud, '::before').backgroundColor
+    tile.querySelector('[data-live="contrast"]').textContent = ratio(cs.color, clear(fill) ? solid(loud) : fill).toFixed(2) + ' : 1'
   }
 }
 for (const b of document.querySelectorAll('[data-theme-set]')) b.onclick = () => { document.documentElement.dataset.theme = b.dataset.themeSet; for (const x of document.querySelectorAll('[data-theme-set]')) x.setAttribute('aria-pressed', String(x === b)); requestAnimationFrame(live) }
@@ -176,8 +184,9 @@ live()
 
 const bare = process.argv.includes('--bare')
 const out = process.argv.filter((a) => !a.startsWith('--'))[2] ?? 'button-stand.html'
+const page = withTaken(content, takenBy(read('styles/btn.module.css'), read('styles/primitives.module.css')))
 writeFileSync(out, bare ? `${head}
-${content}
+${page}
 ` : `<!doctype html>
 <html lang="bg" data-pointer="fine">
 <head>
@@ -186,7 +195,7 @@ ${content}
 ${head}
 </head>
 <body>
-${content}
+${page}
 </body>
 </html>
 `)

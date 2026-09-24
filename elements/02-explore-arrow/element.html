@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Explore со стрелкой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 02 — «Explore со стрелкой». Источник — код Tailwind от заказчика 24.09.2026 (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: плавная заливка фоном при наведении; белая надпись при ней; большая тень; размытие под кнопкой; рамка цвета заливки.
+  Приведено к единой форме: рост 40 вместо 44; тон 8 % чернил вместо белой; стрелка — из листа набора; кружок .75 высоты у конца пилюли.
+  Наведение: тон + 5 % чернил, стрелка встаёт вправо; кружок остаётся. Нажатие: тон + 9 %, кнопка 0.97 и на пиксель ниже, стрелка вправо.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-shape="pill" data-motion="turn" type="button">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-shape="pill" data-motion="turn">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-motion="turn" data-state="hover">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-motion="turn" data-state="press">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-motion="turn" data-state="focus">Explore<span class="ring"><svg data-sign="arrow-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

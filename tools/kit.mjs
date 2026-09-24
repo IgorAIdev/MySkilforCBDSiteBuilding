@@ -23,6 +23,7 @@ import { emptyCssBaseline } from './css-families.mjs'
 import { emptyPortBaseline } from './port-families.mjs'
 import { emptyCraftBaseline } from './craft-families.mjs'
 import { emptyDesignBaseline } from './design-families.mjs'
+import { emptyDetectBaseline } from './detect-families.mjs'
 import { toCss } from './palette.mjs'
 import { toCss as scaleCss } from './scale.mjs'
 
@@ -72,6 +73,18 @@ const FILES = [
      дизайнерскими скиллами». Семьи — в своём файле, как у вёрстки. */
   'tools/check-design.mjs',
   'tools/design-families.mjs',
+  /* Детектор impeccable по отрисованной странице (И310): страничная
+     сборка движка вендорена без сети и запускателя и закреплена хешем;
+     едет со списком правил, лицензией, уведомлением автора и записью —
+     откуда, какой коммит, каким хешем. Судьбы правил — в своём файле. */
+  'tools/check-detect.mjs',
+  'tools/detect-families.mjs',
+  'tools/vendor/impeccable/detect-antipatterns-browser.js',
+  'tools/vendor/impeccable/antipatterns.json',
+  'tools/vendor/impeccable/VENDOR.json',
+  'tools/vendor/impeccable/SOURCE.md',
+  'tools/vendor/impeccable/LICENSE',
+  'tools/vendor/impeccable/NOTICE.md',
   /* Прогон тестов и тест-образец. Едут парой и по одной причине: `node
      --test` на папке без тестов отвечает «0 тестов, 0 упало» и выходит с
      нулём, то есть новый проект получал бы зелёную команду, не проверяющую
@@ -264,6 +277,10 @@ writeFileSync(join(OUT, 'tools/craft-baseline.json'),
   JSON.stringify(emptyCraftBaseline(), null, 2) + '\n')
 writeFileSync(join(OUT, 'tools/design-baseline.json'),
   JSON.stringify(emptyDesignBaseline(), null, 2) + '\n')
+/* База детектора — по страницам; у нового проекта страниц в ней нет, и
+   каждая его находка — рост. */
+writeFileSync(join(OUT, 'tools/detect-baseline.json'),
+  JSON.stringify(emptyDetectBaseline(), null, 2) + '\n')
 
 /* Краски — данные ПРОЕКТА, а не набора: у нового сайта своя марка. Поэтому
    набор кладёт их один раз и больше не трогает, а `styles/palette.css`
@@ -421,7 +438,7 @@ https://github.com/IgorAIdev/SiteBuildingSkill» — он склонирует �
 накопленный долг проекта окажется «прощён»:
 
 \`\`\`
-git checkout tools/css-baseline.json tools/code-baseline.json tools/lint-baseline.json tools/craft-baseline.json tools/seo-baseline.json tools/design-baseline.json
+git checkout tools/css-baseline.json tools/code-baseline.json tools/lint-baseline.json tools/craft-baseline.json tools/seo-baseline.json tools/design-baseline.json tools/detect-baseline.json
 \`\`\`
 
 ## Где источник

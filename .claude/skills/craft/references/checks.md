@@ -3,7 +3,7 @@
 Когда читать: проверка покраснела и надо понять, что она сторожит; пишется
 новая семья; замер не сходится с тем, что видно глазом. Таблицы семей
 собираются из реестров (`tools/css-families.mjs`,
-`tools/craft-families.mjs`, `tools/design-families.mjs`) командой `npm run check:rules -- --tables`;
+`tools/craft-families.mjs`, `tools/design-families.mjs`, `tools/detect-families.mjs`) командой `npm run check:rules -- --tables`;
 рукой их не правят — `check:rules` сверяет.
 
 Содержание:
@@ -34,6 +34,7 @@ npm run check:open    # каждая страница дерева открыв�
 npm run check:urls    # обещанное открывается, открытое обещано (по out/)
 npm run check:design  # механическая половина impeccable: разметка и стили вместе
 npm run check:craft   # по отрисованной странице (нужен поднятый сайт)
+npm run check:detect  # детектор impeccable по отрисованной странице (нужен SITE=), храповик по страницам
 npm run check:craft -- --page /bg/catalog/oils   # узкий прогон: одна страница, ~минута
                                                  # базу не трогает и вердикта не выносит
 npm run sweep         # съёмка на 41 ширине: сетка 320…1600, швы и пиксель над ними, сложенные экраны
@@ -257,11 +258,11 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 Заведена 24.09.2026 (И271): витрина проходила все проверки вёрстки и
 оставалась плохой — механику мерили, композицию не требовало ничего.
 Правило — `CLAUDE.md`, «Дизайн делается дизайнерскими скиллами»: вид
-правится скиллом `impeccable` по порядку. Его собственный детектор — бинарь,
-который запускатель скачивает при первом запуске, — набор не везёт
-(`.claude/skills/README.md`, «Чего сознательно нет»). Поэтому запреты и
-рефлексы его справочников, видимые по файлу, переписаны семьями храповика —
-так же, как `check:seo` переписал СЕО-скиллы (`docs/skills.md`).
+правится скиллом `impeccable` по порядку. Запреты и рефлексы его
+справочников, видимые по файлу, переписаны семьями храповика — так же, как
+`check:seo` переписал СЕО-скиллы (`docs/skills.md`); его собственный
+детектор меряет отрисованную страницу отдельной проверкой — `check:detect`
+ниже.
 
 Проверка читает разметку и стили вместе: модуль стилей ищется по ввозу,
 класс — по `className`, предок, одевший заголовок правилом `.pagehead h1`, —
@@ -290,6 +291,123 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 | `glyphIcon` | символ или эмодзи вместо знака из листа (→ ✓ ★ ×) | craft-floor.md:40 — «Unicode glyphs or emoji standing in for an icon system» |
 | `monoCostume` | моноширинный шрифт как костюм «технологичности» вне кода, данных и замеров | craft-floor.md:38 — «Monospace as a costume for "technical"» |
 <!-- /families:design -->
+
+### `check:detect` — детектор impeccable по отрисованной странице
+
+Заведена 24.09.2026 (И310): дизайн мерился только по файлу, а карточка в
+карточке, прилипшая к краю полоса, первый экран одной колонкой, прижатый
+заголовок, невидимое в покое получаются на экране — из каскада и раскладки
+— и по файлу не видны. У impeccable на это есть свой детектор; набор его
+не вёз, потому что запускатель качает бинарь. Теперь вендорена страничная
+сборка движка — один файл, ядро правил вшито как WebAssembly, без сети и
+без запускателя (`tools/vendor/impeccable/`: `VENDOR.json` — тег, коммит,
+хеши; `SOURCE.md` — лицензия и разбор на сеть).
+
+Страницы — из дерева маршрутов, 375 и 1440, обе темы. Перед вставкой файл
+и список правил сверяются с хешами; чужие адреса закрыты с первого запроса,
+после вставки закрыто всё, и чужой запрос в этой фазе — находка «детектор
+пытался выйти в сеть». Страница перед замером прокручивается до низа, чтобы
+сработали раскрытия; «невидимо в покое» и «ошибка скрипта» решает проход —
+замером сборки и событием браузера, как их решает движок по адресу. Без
+`SITE=`, без Playwright, при несовпавшем хеше — выход 2, «не проверено».
+
+У каждого из правил сборки ровно одна судьба (`tools/detect-families.mjs`,
+тест требует покрытия без остатка): семья набора — считается; выключено —
+на тот же вопрос уже отвечает семья или команда набора, один вопрос — один
+ответ; только печатается — вкус брифа и тексты заказчика. Где правило
+сработало на решении набора (многоугольник формы главной кнопки прочитан
+«органикой»), прав набор, и правило выключено с записью причины.
+
+База — по страницам (`tools/detect-baseline.json`), поэтому и узкий прогон
+выносит вердикт:
+
+```
+SITE=http://localhost:3020 npm run check:detect -- --pages /en,/en/catalog   # в ходе правки: тронутые, основной язык
+SITE=http://localhost:3020 npm run check:detect                               # перед сдачей: всё дерево, все языки
+SITE=… npm run check:detect -- --list firstScreen                             # находки семьи: страница, селектор, где видна
+```
+
+<!-- families:detect -->
+| Семья | Что ловит | Правила детектора и порог |
+| --- | --- | --- |
+| `cardInCard` | карточка в карточке: рамка внутри рамки — у полки и у товара один пол | nested-cards — предмет с тенью или рамкой и со скруглением или подложкой внутри такого же |
+| `hiddenAtRest` | содержимое невидимо в покое и после прокрутки (прозрачно, пока его не покажет скрипт) — без скрипта и для поиска его нет | content-hidden-at-rest — после прокрутки до низа невидимо не меньше 25% текста страницы (от 200 знаков); замер детектора, порог набора |
+| `edgeFlush` | карточки прилипли к краю прокручиваемой полосы: у первой или последней нет поля | edge-flush-cards — карточка в горизонтальной полосе в покое стоит вплотную к её краю, у другого края поле есть |
+| `firstScreen` | одна колонка растянула первый экран выше окна — остального не видно | first-viewport-column-overflow — колонка первого раздела уходит далеко за низ окна, соседняя помещается |
+| `headCrowd` | заголовок прижат к блоку над ним: воздух до заголовка не больше, чем после | heading-rhythm — воздух над заголовком не больше воздуха под ним |
+| `occluded` | текст перекрыт другим элементом | text-occlusion — текст под непрозрачным элементом или под другой строкой |
+| `trackWide` | разрядка сплошного текста шире порога детектора — слово рассыпается | wide-tracking — letter-spacing больше 0.05em у сплошного текста |
+| `capsBody` | сплошной текст прописными | all-caps-body — длинный текст в text-transform: uppercase |
+| `justify` | текст по ширине — реки пробелов в узкой колонке | justified-text — text-align: justify без hyphens: auto |
+| `decor` | украшение как костюм: мигающая точка, мигающий курсор, бегущая строка, ореол, прожектор, сетка на фоне, полосы, рисунок из фигур, волосяная рамка с широкой тенью | pulsing-dot, blinking-cursor, marquee, radial-halo, radial-spotlight-glow, codex-grid-background, repeating-stripes-gradient, shape-assembled-illustration, gpt-thin-border-wide-shadow |
+| `scriptError` | скрипт падает при загрузке страницы — ломает раскрытие, нажатия и живое содержимое | script-error — непойманная ошибка скрипта при загрузке (событие pageerror браузера) |
+<!-- /families:detect -->
+
+<!-- families:detectFates -->
+| Правило impeccable | Имя у автора | Судьба |
+| --- | --- | --- |
+| `side-tab` | Side-tab accent border | выключено: отвечает `sideStripe` |
+| `border-accent-on-rounded` | Border accent on rounded element | выключено: отвечает `sideStripe` |
+| `overused-font` | Overused font | выключено: отвечает `face:stand` — шрифт выбирает заказчик глазами на стенде шрифта |
+| `flat-type-hierarchy` | Flat type hierarchy | выключено: отвечает `ladder`, `headRole` |
+| `gradient-text` | Gradient text | выключено: отвечает `gradientText` |
+| `ai-color-palette` | AI color palette | выключено: отвечает `check:palette` — краски строит строитель палитры из трёх красок заказчика |
+| `cream-palette` | Cream / beige palette | выключено: отвечает `check:palette` — краски строит строитель палитры из трёх красок заказчика |
+| `nested-cards` | Nested cards | семья `cardInCard` |
+| `monotonous-spacing` | Monotonous spacing | выключено: отвечает `flatRhythm`, `airRatio` |
+| `bounce-easing` | Bounce or elastic easing | выключено: отвечает `motion`, `motionOut` |
+| `pulsing-dot` | Pulsing status dot | семья `decor` |
+| `blinking-cursor` | Decorative blinking cursor | семья `decor` |
+| `shape-assembled-illustration` | Shape-assembled illustration | семья `decor` |
+| `organic-clip-path` | Organic contour drawn as clip-path | выключено: отвечает `check:buttons` — форма главной кнопки — многоугольник от её высоты (И276); детектор считает вершины и читает шевроны «органикой», даже скрытые |
+| `buried-raster` | Raster buried under a wash or opacity | только печатается |
+| `dark-glow` | Glowing shadow accents | выключено: отвечает `glowHalo` |
+| `radial-halo` | Radial-gradient background halo | семья `decor` |
+| `radial-spotlight-glow` | Decorative radial spotlight glow | семья `decor` |
+| `marquee` | Auto-scrolling marquee | семья `decor` |
+| `icon-tile-stack` | Icon tile stacked above heading | выключено: отвечает `iconCards` |
+| `italic-serif-display` | Italic serif display headline | только печатается |
+| `hero-eyebrow-chip` | Hero eyebrow / pill chip | выключено: отвечает `eyebrow` |
+| `kicker-above-heading` | Kicker / eyebrow label above heading | выключено: отвечает `eyebrow` |
+| `numbered-section-labels` | Tiny numbered section labels | только печатается |
+| `em-dash-overuse` | Em-dash overuse | только печатается |
+| `marketing-buzzword` | Marketing buzzword | только печатается |
+| `aphoristic-cadence` | Aphoristic-cadence copy | только печатается |
+| `oversized-h1` | Oversized hero headline | только печатается |
+| `extreme-negative-tracking` | Crushed letter spacing | выключено: отвечает `trackTight` |
+| `broken-image` | Broken or placeholder image | выключено: отвечает `broken` |
+| `script-error` | Uncaught script error on load | семья `scriptError` |
+| `content-hidden-at-rest` | Content invisible at rest | семья `hiddenAtRest` |
+| `edge-flush-cards` | Cards flush against the scroller edge | семья `edgeFlush` |
+| `text-occlusion` | Text occluded by an overlapping element | семья `occluded` |
+| `first-viewport-column-overflow` | One column stretches the first viewport | семья `firstScreen` |
+| `gray-on-color` | Gray text on colored background | выключено: отвечает `contrast`, `theme` |
+| `low-contrast` | Low contrast text | выключено: отвечает `contrast`, `theme` — контраст меряется по пикселям в обеих темах |
+| `layout-transition` | Layout property animation | выключено: отвечает `motion` |
+| `line-length` | Line length too long | выключено: отвечает `measure` — потолка меры у набора нет — снят заказчиком; нижнюю границу меряет measure |
+| `cramped-padding` | Cramped padding | выключено: отвечает `field` — поле контрола считается от его высоты (запрет 2) |
+| `body-text-viewport-edge` | Body text touching viewport edge | выключено: отвечает `lane`, `field` |
+| `tight-leading` | Tight line height | выключено: отвечает `typeGuess` |
+| `skipped-heading` | Skipped heading level | выключено: отвечает `heads` |
+| `heading-rhythm` | Heading crowded against the previous block | семья `headCrowd` |
+| `justified-text` | Justified text | семья `justify` |
+| `tiny-text` | Tiny body text | выключено: отвечает `fontPx`, `check:scale` |
+| `undersized-ui-text` | Undersized functional text | выключено: отвечает `fontPx`, `check:scale` |
+| `all-caps-body` | All-caps body text | семья `capsBody` |
+| `wide-tracking` | Wide letter spacing on body text | семья `trackWide` |
+| `text-overflow` | Content overflowing its container | выключено: отвечает `spill` |
+| `repeated-container-text` | Same text repeated inside one container | только печатается |
+| `clipped-overflow-container` | Positioned child clipped by overflow container | выключено: отвечает `clip` |
+| `design-system-font` | Font outside DESIGN.md | выключено: отвечает `check:css` |
+| `design-system-color` | Color outside DESIGN.md | выключено: отвечает `hueDirect` |
+| `design-system-radius` | Radius outside DESIGN.md | выключено: отвечает `radiusPx` |
+| `design-system-font-size` | Font size outside DESIGN.md | выключено: отвечает `fontPx` |
+| `gpt-thin-border-wide-shadow` | Hairline border with wide shadow | семья `decor` |
+| `repeating-stripes-gradient` | Repeating-gradient stripes | семья `decor` |
+| `codex-grid-background` | Decorative grid-line background | семья `decor` |
+| `theater-slop-phrase` | Theater framing copy | только печатается |
+| `image-hover-transform` | Image hover transform | только печатается |
+<!-- /families:detectFates -->
 
 ### `check:craft` — семьи по отрисованной странице
 

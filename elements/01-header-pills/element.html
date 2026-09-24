@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Пилюли шапки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 01 — «Пилюли шапки». Источник — скриншот заказчика и разметка Tailwind трёх кнопок на объёмных тенях, 24.09.2026 (source.png, source-2.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: объёмные тени второго источника — выпуклые в покое, вдавленные под рукой.
+  Приведено к единой форме: значки — из листа набора: назад, поиск, корзина вместо сумки со скрина; тон 8 % чернил вместо 1.08 : 1 со скрина — тот был ниже порога видимости; надпись 600, как у кнопок набора.
+  Наведение: тон + 5 % чернил. Нажатие: тон + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live">
+    <button class="el" data-shape="pill" data-icon type="button" aria-label="Назад"><svg data-sign="arrow-left"></svg></button>
+    <button class="el" data-shape="pill" type="button">Chart</button>
+    <div class="group"><button class="el" data-shape="pill" data-icon type="button" aria-label="Поиск"><svg data-sign="search"></svg></button><button class="el" data-shape="pill" data-icon type="button" aria-label="Корзина"><svg data-sign="shopping-cart"></svg></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="group"><span class="el" data-shape="pill">Chart</span><span class="el" data-shape="pill" data-icon><svg data-sign="search"></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="group"><span class="el" data-shape="pill" data-state="hover">Chart</span><span class="el" data-shape="pill" data-icon data-state="hover"><svg data-sign="search"></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="group"><span class="el" data-shape="pill" data-state="press">Chart</span><span class="el" data-shape="pill" data-icon data-state="press"><svg data-sign="search"></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="group"><span class="el" data-shape="pill" data-state="focus">Chart</span><span class="el" data-shape="pill" data-icon data-state="focus"><svg data-sign="search"></svg></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

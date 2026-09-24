@@ -50,6 +50,7 @@ import { CSS_FAMILIES, CSS_LABELS } from './css-families.mjs'
 import { CRAFT_FAMILIES, CRAFT_LABELS } from './craft-families.mjs'
 import { CODE_FAMILIES, CODE_LABELS } from './code-families.mjs'
 import { DESIGN_FAMILIES, DESIGN_LABELS, DESIGN_SOURCES } from './design-families.mjs'
+import { DETECT_FAMILIES, DETECT_LABELS, DETECT_SOURCES, DETECT_RULES, fateOf } from './detect-families.mjs'
 import { CHECKS } from './checks.mjs'
 import { roles, STATUS, SIGNAL_NAMES } from './palette.mjs'
 import { resolve as resolveScale } from './scale.mjs'
@@ -81,8 +82,9 @@ const KIT_README = KIT && has('README.md')
    него нет, а тринадцать строк в чтение помещаются. */
 const TABLES = {
   /* Дизайн по файлу (И271) — там же, где вёрстка: механическая половина
-     impeccable, у каждой семьи строка источника. */
-  '.claude/skills/craft/references/checks.md': ['css', 'craft', 'design'],
+     impeccable, у каждой семьи строка источника. Правила его детектора по
+     отрисованной странице (И310) — рядом, из того же реестра. */
+  '.claude/skills/craft/references/checks.md': ['css', 'craft', 'design', 'detect', 'detectFates'],
   '.claude/skills/code/SKILL.md': ['code'],
   /* Факты о палитре — сколько красок называет заказчик, сколько семей,
      сколько выпускается, какие наборы и команды — собираются из кода в
@@ -126,7 +128,8 @@ const skillText = skillFiles.map((f) => read(f)).join('\n')
    в обратных кавычках: половина их имён — обычные английские слова
    (`name`, `focus`), и голое вхождение ничего не доказывает. */
 for (const [kind, fams, quoted] of [['вёрстки', CSS_FAMILIES, false], ['кода', CODE_FAMILIES, false],
-                                    ['отрисованной страницы', CRAFT_FAMILIES, true], ['дизайна', DESIGN_FAMILIES, true]]) {
+                                    ['отрисованной страницы', CRAFT_FAMILIES, true], ['дизайна', DESIGN_FAMILIES, true],
+                                    ['детектора impeccable', DETECT_FAMILIES, true]]) {
   for (const fam of fams) {
     const hit = quoted ? skillText.includes('`' + fam + '`') : skillText.includes(fam)
     if (!hit) bad.push(`семья ${kind} «${fam}» не описана ни в одном скилле — проверка есть, правила нет`)
@@ -370,6 +373,12 @@ const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
   design: ['| Семья | Что ловит | Откуда в impeccable |', '| --- | --- | --- |',
     ...DESIGN_FAMILIES.map((k) => `| \`${k}\` | ${DESIGN_LABELS[k] ?? '—'} | ${DESIGN_SOURCES[k] ?? '—'} |`)].join('\n'),
+  /* Детектор impeccable по странице (И310): семьи набора — и судьба каждого
+     правила сборки, чтобы по имени правила из отчёта найти, куда оно ушло. */
+  detect: ['| Семья | Что ловит | Правила детектора и порог |', '| --- | --- | --- |',
+    ...DETECT_FAMILIES.map((k) => `| \`${k}\` | ${DETECT_LABELS[k] ?? '—'} | ${DETECT_SOURCES[k] ?? '—'} |`)].join('\n'),
+  detectFates: ['| Правило impeccable | Имя у автора | Судьба |', '| --- | --- | --- |',
+    ...DETECT_RULES.map((r) => `| \`${r.id}\` | ${r.name} | ${fateOf(r.id)} |`)].join('\n'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
   code: table(CODE_FAMILIES, CODE_LABELS, 'Что ловит'),
   palette: paletteFacts(),
@@ -518,7 +527,7 @@ if (process.argv.includes('--list')) {
   process.exit(0)
 }
 const laws = SKILL_DIRS.filter((d) => has(`${d}/SKILL.md`)).map((d) => `${d.split('/').pop()} ${read(`${d}/SKILL.md`).split('\n').length}`).join(' · ')
-console.log(`· семей вёрстки: ${CSS_FAMILIES.length}, кода: ${CODE_FAMILIES.length}, отрисованной: ${CRAFT_FAMILIES.length}, дизайна: ${DESIGN_FAMILIES.length}, проверок: ${CHECKS.length}, правил в реестре: ${numbered.length}, законы (строк из ${CEILING}): ${laws}, справочных файлов: ${skillFiles.length - SKILL_DIRS.filter((d) => has(`${d}/SKILL.md`)).length}`)
+console.log(`· семей вёрстки: ${CSS_FAMILIES.length}, кода: ${CODE_FAMILIES.length}, отрисованной: ${CRAFT_FAMILIES.length}, дизайна: ${DESIGN_FAMILIES.length}, детектора impeccable: ${DETECT_FAMILIES.length} (правил сборки ${DETECT_RULES.length}), проверок: ${CHECKS.length}, правил в реестре: ${numbered.length}, законы (строк из ${CEILING}): ${laws}, справочных файлов: ${skillFiles.length - SKILL_DIRS.filter((d) => has(`${d}/SKILL.md`)).length}`)
 
 if (process.argv.includes('--update')) {
   writeFileSync(BASE, JSON.stringify({ drift: bad.length }, null, 2) + '\n')

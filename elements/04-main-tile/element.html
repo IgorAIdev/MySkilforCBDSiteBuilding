@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Главная с плиткой стрелки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 04 — «Главная с плиткой стрелки». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: плитка растягивается на всю кнопку при наведении; внутренняя тень кнопки; тень плитки.
+  Приведено к единой форме: краски — марка и надпись на ней: плитка краской надписи, стрелка краской марки; угол из Shape, у плитки — концентричный; плитка .75 высоты; разрядка обычная вместо .05em.
+  Наведение: марка + 5 % краски надписи. Нажатие: марка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" data-size="lg" type="button">Get started<span class="tile"><svg data-sign="arrow-right"></svg></span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-size="lg">Get started<span class="tile"><svg data-sign="arrow-right"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="hover">Get started<span class="tile"><svg data-sign="arrow-right"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="press">Get started<span class="tile"><svg data-sign="arrow-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-size="lg" data-state="focus">Get started<span class="tile"><svg data-sign="arrow-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>
