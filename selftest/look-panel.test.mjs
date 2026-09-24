@@ -34,7 +34,7 @@ const hash = (p) => createHash('sha256').update(readFileSync(p)).digest('hex')
 
 /** Варианты разметки, которые шаблон держит, — храповик: убыть им нельзя. */
 const HEADERS = ['classic', 'search', 'boutique']
-const CARDS = ['framed', 'bare', 'outlined', 'toned']
+const CARDS = ['framed', 'bare', 'outlined', 'toned', 'tinted']
 const PANEL = ['PANEL.md', 'ui/look.js', 'ui/look.css', 'ui/choice.mjs', 'routes/index.ts', 'scripts/build-catalog.mjs',
   'scripts/fonts.mjs', 'scripts/check-choice.mjs', 'scripts/remove.mjs', 'scripts/pairs.mjs', 'tests/panel.test.ts']
 

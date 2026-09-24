@@ -357,6 +357,10 @@
 .lp-pcard[data-card='toned'] .lp-card-pic{border-radius:var(--r-card, 12px) var(--r-card, 12px) 0 0;background:var(--plate-3, var(--lp-line))}
 .lp-pcard[data-card='toned'] > :not(.lp-card-pic){margin-inline:var(--lp-s3)}
 .lp-pcard[data-card='toned'] .lp-card-name{font-weight:400}
+/* Tinted — вся карточка тоном марки, угол листа; снимок до краёв. */
+.lp-pcard[data-card='tinted']{padding:0 0 var(--lp-s3);background:var(--pop-tint, var(--lp-well));border-radius:var(--r-sheet, 16px)}
+.lp-pcard[data-card='tinted'] .lp-card-pic{border-radius:var(--r-sheet, 16px) var(--r-sheet, 16px) 0 0}
+.lp-pcard[data-card='tinted'] > :not(.lp-card-pic){margin-inline:var(--lp-s3)}
 
 /* Цвет развёрнутый: наборы во всю ширину, строитель и обещания — рядом. */
 .lp-panel[data-wide] #lp-pane-color{display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));align-items:start;column-gap:var(--lp-s6)}

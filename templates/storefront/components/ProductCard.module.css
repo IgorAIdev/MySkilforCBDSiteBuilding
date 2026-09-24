@@ -122,3 +122,13 @@
 .card[data-card='toned'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
 .card[data-card='toned'] .name{font-weight:var(--body-weight)}
 /* look-card:toned:end */
+/* look-card:tinted:start */
+/* tinted — лист тоном марки (элемент 62 набора, скриншот заказчика
+   24.09.2026: карточка, тонированная в цвет товара): поле карточки — тон
+   марки, угол — угол листа; снимок во всю ширину и до верхнего края, как у
+   framed; ни линии, ни тени — от пола отделяет тон. Тон по цвету самого
+   товара — возможность магазина (данные товара), не этой одежды. */
+.card[data-card='tinted']{gap:0;background:var(--pop-tint);border-radius:var(--r-sheet)}
+.card[data-card='tinted'] .shot{border-start-start-radius:var(--r-sheet);border-start-end-radius:var(--r-sheet)}
+.card[data-card='tinted'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
+/* look-card:tinted:end */

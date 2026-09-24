@@ -93,12 +93,12 @@
 | System | Shape | Corners | `--r-xs`, `--r-ctrl`, `--r-card`, `--r-sheet`; вложенность «орган ≤ карточка ≤ лист» держит каждый набор | Standard 8/8/24/28, Round 8/8/28/32, Crisp 4/4/12/16 |
 | System | Shape | Shadows | роли тени `--sh-raised`, `--sh-lift`, `--sh-overlay`, `--sh-in` | Soft (роли набора), Flat (линия, тень — только у всплывающего), Lifted (на ступень выше) |
 | System | Buttons | Letters | `--ctrl-btn-case`, `-weight`, `-track` | Sentence case (умолчание), CAPITALS |
-| System | Buttons | Main button | заливка главной `--ctrl-btn-fill-pop`, `-ink-pop`, `-edge-pop` | Fill |
-| System | Buttons | Quiet button | вуаль тихой `--ctrl-btn-fill`, `-ink`, `-edge` | Veil |
-| System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping |
+| System | Buttons | Main button | заливка главной `--ctrl-btn-fill-pop`, `-ink-pop`, `-edge-pop` | Fill, Ink |
+| System | Buttons | Quiet button | вуаль тихой `--ctrl-btn-fill`, `-ink`, `-edge` | Veil, Outline |
+| System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping, Circle arrow (пилюля и кружок со стрелкой у конца, элемент 02) |
 | Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique |
-| Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`) | Underline, Pill |
-| Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined, Toned (снимок до краёв, под ним поле тоном — по образцу заказчика, элемент 64 набора) |
+| Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`) | Underline, Pill, Ink pill |
+| Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined, Toned (снимок до краёв, под ним поле тоном — по образцу заказчика, элемент 64 набора), Tinted (вся карточка тоном марки, угол листа — элемент 62 набора) |
 | Admin | Card | Picture | пропорция снимка товара `--shot-frame` — одна на полку и карту товара: снимки у товара одни (И400) | 1:1 (умолчание), 4:3, 4:5, 3:4 |
 | Admin | Card | Shelf density | сколько карточек в ряд на полке каталога и поиска `--shelf-cols`; на узком окне меньше считает сетка (И400) | 4 in a row (умолчание), 5 in a row |
 | Admin | Home | Layout | состав главной (`home`): порядок блоков и раскладка каждого; слова, снимки, протокол и способы доставки — данные страницы, одни на все варианты (бриф — `docs/design/home.md` набора) | Scene (умолчание), Shop first, Lab report first, Headline first, Cabinet |

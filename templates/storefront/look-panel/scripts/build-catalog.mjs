@@ -102,6 +102,9 @@ export const FACES = [
 export const MARKERS = [
   { id: 'underline', name: 'Underline', vars: { '--menu-mark-line': 'underline', '--menu-mark-fill': 'transparent', '--menu-mark-ink': 'var(--ink)', '--menu-mark-r': '0', '--menu-mark-pad': '0' } },
   { id: 'pill', name: 'Pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--quiet)', '--menu-mark-ink': 'var(--ink)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)' } },
+  /* Плашка чернил, слово краской пола — выбранная вкладка элементов 51 и 65
+     (elements/, И356). Обе роли правило сочетаний мерит. */
+  { id: 'ink', name: 'Ink pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--ink)', '--menu-mark-ink': 'var(--surface)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)' } },
 ]
 /** Карточки товара: id — CARDS в lib/cards.ts. Каждая — простая карточка
  *  полки (shop: «Полная полка на десктопе держит 4–5 простых карточек по
@@ -112,6 +115,7 @@ const CARD_LINES = {
   bare: { name: 'Bare', line: 'No box: the picture with its own corners on the page, text below' },
   outlined: { name: 'Outlined', line: 'A hairline instead of a shadow; the picture sits inside the card field' },
   toned: { name: 'Toned', line: 'The picture to the edges, the details on a tone field right under it; no line, no shadow' },
+  tinted: { name: 'Tinted', line: 'The whole card in the brand tint, with the sheet corner; no line, no shadow' },
 }
 /** Полка (И400, «Admin → Card»): пропорция снимка — одна на полку и карту
  *  товара, снимки у товара одни; плотность — сколько карточек в ряд на
