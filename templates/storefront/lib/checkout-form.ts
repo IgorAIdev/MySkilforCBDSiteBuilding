@@ -16,8 +16,8 @@ export const LIMITS: Record<Field, number> = { email: 120, firstName: 60, lastNa
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 const PHONE = /^\+?\d{7,15}$/
 /* Пустое поле говорит своим шагом там, где он есть: у почты — зачем она, у
-   телефона — образец; у остальных — общий. */
-const EMPTY: Partial<Record<Field, Key>> = { email: 'field.emailEmpty', phone: 'field.phoneShape' }
+   телефона — образец, у уезда — «выберите»; у остальных — общий. */
+const EMPTY: Partial<Record<Field, Key>> = { email: 'field.emailEmpty', phone: 'field.phoneShape', region: 'field.regionPick' }
 
 const read = (form: FormData, fields: readonly Field[]): Values =>
   Object.fromEntries(fields.map((f) => [f, String(form.get(f) ?? '').trim()])) as Values
@@ -50,14 +50,19 @@ export function parseContact(lang: Lang, form: FormData): Parsed<Contact> {
   return { ok: true, value: { email: v.email ?? '', firstName: v.firstName ?? '', lastName: v.lastName ?? '', phone: v.phone ?? '' } }
 }
 
-/** Адрес доставки. Страна и запись индекса — рынка (`MARKET`), не формы. */
+/** Уезд — из закрытого списка рынка: поле выбора шлёт его имя, а чужое имя
+ *  (правленый адрес, старая форма) не угадывается — просит выбрать. */
+export const isRegion = (s: string): boolean => (MARKET.regions as readonly string[]).includes(s)
+
+/** Адрес доставки. Страна, запись индекса и список уездов — рынка
+ *  (`MARKET`), не формы. */
 export function parseAddress(lang: Lang, form: FormData): Parsed<Address> {
   const v = read(form, ['street', 'city', 'region', 'postalCode'])
   const postal = new RegExp(MARKET.postal.pattern)
   const errors = check(lang, v, {
     street: any,
     city: any,
-    region: any,
+    region: (s) => (isRegion(s) ? null : t(lang, 'field.regionPick')),
     postalCode: (s) => (postal.test(s.replace(/\s/g, '')) ? null : t(lang, 'field.postal', { example: MARKET.postal.example })),
   })
   if (Object.keys(errors).length) return { ok: false, errors, values: v }

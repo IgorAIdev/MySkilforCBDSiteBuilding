@@ -5,8 +5,7 @@ import { commerce } from '@/lib/source/index.ts'
 import { readSession } from '@/lib/session.ts'
 import { first, type Params } from '@/lib/listing.ts'
 import { stepFor } from '@/lib/checkout-steps.ts'
-import { deliveryView, emptyCheckout, frameText, stepsView, type Pickup } from '@/lib/checkout-view.ts'
-import { totalsView } from '@/lib/cart-view.ts'
+import { deliveryView, emptyCheckout, stepsView, summaryView, type Pickup } from '@/lib/checkout-view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { toMetadata } from '@/lib/seo.ts'
@@ -54,7 +53,7 @@ export default async function DeliveryStep({ params, searchParams }: Props) {
      вернулись бы поле поиска и пустота — ни списка, ни слов об ошибке. */
   const pointsHere = pickup?.city ? hrefFor(lang, { checkout: 'delivery', city: pickup.city }) : here
   return (
-    <CheckoutFrame text={frameText(lang)} steps={stepsView(lang, 'delivery')} totals={totalsView(lang, c.cart)}>
+    <CheckoutFrame steps={stepsView(lang, 'delivery')} summary={summaryView(lang, c.cart)}>
       <MethodForm view={view} action={chooseMethod.bind(null, lang)} permalink={here} />
       {view.details?.kind === 'address' ? <AddressForm details={view.details} action={saveAddress.bind(null, lang)} permalink={here} /> : null}
       {view.details?.kind === 'pickup' ? <PointPicker details={view.details} action={choosePoint.bind(null, lang)} permalink={pointsHere} /> : null}

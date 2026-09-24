@@ -3,8 +3,7 @@ import { langOf } from '@/lib/route.ts'
 import { commerce } from '@/lib/source/index.ts'
 import { readSession } from '@/lib/session.ts'
 import { stepFor } from '@/lib/checkout-steps.ts'
-import { contactView, emptyCheckout, frameText, stepsView } from '@/lib/checkout-view.ts'
-import { totalsView } from '@/lib/cart-view.ts'
+import { contactView, emptyCheckout, stepsView, summaryView } from '@/lib/checkout-view.ts'
 import { hrefFor } from '@/lib/href.ts'
 import { t } from '@/lib/i18n/index.ts'
 import { toMetadata } from '@/lib/seo.ts'
@@ -26,7 +25,7 @@ export default async function ContactStep({ params }: Props) {
   if (!r.ok) return <Unavailable lang={lang} />
   if (!r.value || stepFor(r.value, 'contact') === 'cart') return <CheckoutEmpty empty={emptyCheckout(lang)} />
   return (
-    <CheckoutFrame text={frameText(lang)} steps={stepsView(lang, 'contact')} totals={totalsView(lang, r.value.cart)}>
+    <CheckoutFrame steps={stepsView(lang, 'contact')} summary={summaryView(lang, r.value.cart)}>
       <ContactForm view={contactView(lang, r.value.contact)} action={saveContact.bind(null, lang)} permalink={hrefFor(lang, { checkout: 'contact' })} />
     </CheckoutFrame>
   )

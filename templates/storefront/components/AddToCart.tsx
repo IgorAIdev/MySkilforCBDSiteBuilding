@@ -1,12 +1,11 @@
 import Form from 'next/form'
 import b from '@/styles/btn.module.css'
-import f from '@/styles/form.module.css'
 import go from '@/styles/go.module.css'
-import p from '@/styles/primitives.module.css'
 import s from './ProductView.module.css'
 import type { BuyView } from '@/lib/product-view.ts'
 import type { Outcome } from '@/lib/cart-ops.ts'
 import { CartForm } from './CartForm.tsx'
+import { QuantityStepper } from './QuantityStepper.tsx'
 import { Icon } from './Icon.tsx'
 
 /* Покупка на карте товара — одна строка: количество и кнопка ростом крупного
@@ -23,14 +22,12 @@ import { Icon } from './Icon.tsx'
    Выключена кнопка только там, где выбирать нечего (распродано, сочетания
    нет): почему — подсказка под строкой. Подпись количества — для чтения
    вслух: число рядом с кнопкой понятно без слова, а видимое слово над полем
-   сдвигало строку. */
+   сдвигало строку. Счётчик — тот же, что в строке корзины (QuantityStepper):
+   количество на сайте меняется одним органом. */
 export function AddToCart({ lang, buy, hint, submit, call }: { lang: string; buy: BuyView; hint: string | null; submit: (form: FormData) => Promise<void>; call: (form: FormData) => Promise<Outcome> }) {
   const row = (
     <>
-      <label className={s.qty}>
-        <span className={p.said}>{buy.quantity}</span>
-        <input className={`${f.box} ${s.count}`} type="number" name={buy.variant ? 'quantity' : undefined} min={1} max={99} defaultValue={1} inputMode="numeric" />
-      </label>
+      <QuantityStepper field={{ label: buy.quantity, name: buy.variant ? 'quantity' : undefined, min: 1, max: buy.max, less: buy.less, more: buy.more }} />
       <button className={`${b.btn} ${s.add}`} data-voice="loud" data-size="lg" type="submit" disabled={!buy.variant && !buy.ask} aria-describedby={hint ? 'buy-hint' : undefined}>{buy.add}</button>
       {hint ? <p className={s.hint} id="buy-hint" role="status">{hint}</p> : null}
     </>

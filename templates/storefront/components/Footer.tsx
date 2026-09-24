@@ -21,8 +21,28 @@ const LEGAL = [TERMS_DOC, 'confidentialitate']
    другу. Стояло одним шагом — 16 внутри и 16 между, — и на телефоне, где
    четыре столбца ложатся два на два, «Компания» читалась пятой строкой
    «Помощи» (разбор 24.09.2026, S5; check:design, flatRhythm). */
-export function Footer({ lang, docs }: { lang: Lang; docs: Doc[] }) {
+export function Footer({ lang, docs, variant = 'full' }: { lang: Lang; docs: Doc[]; variant?: 'full' | 'legal' }) {
   const links = (slugs: string[]) => docs.filter((d) => slugs.includes(d.slug)).map((d) => <li key={d.slug}><a href={hrefFor(lang, { doc: d.slug })}>{d.title}</a></li>)
+  /* Подвал кассы — строка на полу страницы, а не тёмная плита: в коридоре
+     оформления нечего выбирать, кроме того, что обязано быть по закону
+     (условия, возврат, данные, ANPC и SOL), и того, что помогает довести
+     заказ, — телефона (разбор 24.09.2026, S2; Baymard: контакт поддержки в
+     оформлении). */
+  if (variant === 'legal') {
+    return (
+      <footer className={s.legal}>
+        <div className={`${p.wrap} ${s.legalRow}`}>
+          <p>{t(lang, 'checkout.help')} <a href={telHref()}>{CONTACTS.phone}</a></p>
+          <ul className={s.legalLinks}>
+            {links([...LEGAL, 'retur'])}
+            <li><a href={ANPC_SAL_URL} rel="noopener">{t(lang, 'footer.anpc')}</a></li>
+            <li><a href={SOL_URL} rel="noopener">{t(lang, 'footer.sol')}</a></li>
+          </ul>
+          <p><span translate="no">{COMPANY.name}</span> · CUI {COMPANY.cui}{COMPANY_IS_REAL ? null : ` · ${t(lang, 'sample')}`}</p>
+        </div>
+      </footer>
+    )
+  }
   return (
     <footer className={s.foot} data-ground="deck">
       <div className={`${p.wrap} ${p.grid} ${s.cols}`}>

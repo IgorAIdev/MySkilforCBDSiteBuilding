@@ -28,6 +28,12 @@ export const sampleContent: Content = {
     const d = RAW.find((x) => x.slug === slug)
     return d ? { ok: true, value: docOf(d, lang) } : { ok: false, reason: 'not-found' }
   },
+  /* Срок возврата образца — законный минимум ЕС, 14 дней. Настоящий срок
+     назначает магазин (страница «Retur» — его текст); число здесь и число в
+     его условиях обязаны совпасть — docs/open.md. */
+  async facts() {
+    return { ok: true, value: { returnDays: 14 } }
+  },
   /* Вид читается с диска при каждом промахе кэша, а не ввозится в сборку:
      правка look.json и запрос на /api/revalidate меняют вид живого сайта
      без сборки — так же придёт global «look» из Payload. Черновик — файл

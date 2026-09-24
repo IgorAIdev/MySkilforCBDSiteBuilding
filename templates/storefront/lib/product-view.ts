@@ -6,6 +6,7 @@ import { hrefFor } from './href.ts'
 import { intlLocale } from './market.ts'
 import { pickState, optionLinks, type OptionGroupLinks } from './variant.ts'
 import { shelfCard, stockText, type ShelfCard } from './view.ts'
+import { QTY_MAX } from './cart-view.ts'
 
 /** Протокол готовыми строками. `batch` — номер партии отдельно от заголовка:
  *  код партии не рвётся посередине (`RO-` / `2409-05`), его держит разметка.
@@ -23,7 +24,9 @@ export type LabView = { title: string; batch: string; rows: [string, string][]; 
  *  со скриптом — мягкий. Выключена кнопка только там, где выбирать нечего:
  *  вариант распродан или сочетания нет — почему, говорит `message`. */
 export type AskView = { action: string; keep: [string, string][] }
-export type BuyView = { variant: string | null; ask: AskView | null; add: string; quantity: string; view: { label: string; href: string }; timeout: string; failed: string }
+/** `quantity`, `less`, `more` — подпись счётчика и имена его «−» и «+»:
+ *  счётчик один на сайт (QuantityStepper), корзина и карта берут его. */
+export type BuyView = { variant: string | null; ask: AskView | null; add: string; quantity: string; less: string; more: string; max: number; view: { label: string; href: string }; timeout: string; failed: string }
 /** Снимок галереи: `id` — якорь слайда (ссылка миниатюры ведёт на него и
  *  без скрипта), `show` — имя ссылки миниатюры («Image 2 of 4»). */
 export type Slide = Image & { id: string; show: string }
@@ -136,6 +139,7 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
       ask,
       add: sellable ? t(lang, 'cart.addPrice', { price: money(sellable.price, lang) }) : t(lang, 'cart.add'),
       quantity: t(lang, 'cart.quantity'),
+      less: t(lang, 'cart.less', { name: product.name }), more: t(lang, 'cart.more', { name: product.name }), max: QTY_MAX,
       view: { label: t(lang, 'cart.view'), href: hrefFor(lang, { cart: true }) },
       timeout: t(lang, 'cart.error.timeout'), failed: t(lang, 'cart.error.unavailable'),
     },

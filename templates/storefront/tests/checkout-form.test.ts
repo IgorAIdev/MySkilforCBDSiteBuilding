@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readdirSync, readFileSync } from 'node:fs'
 import { parseContact, parseAddress } from '../lib/checkout-form.ts'
+import { MARKET } from '../lib/market.ts'
 
 const form = (fields: Record<string, string>) => {
   const f = new FormData()
@@ -36,9 +37,22 @@ test('contact: every error sits at its field and says what to do; what was typed
 test('address: the market’s postcode pattern, spaces forgiven, country from the market', () => {
   const ok = parseAddress('ro', form({ street: 'Str. Exemplului 1', city: 'București', region: 'București', postalCode: '010 011' }))
   assert.deepEqual(ok, { ok: true, value: { street: 'Str. Exemplului 1', city: 'București', region: 'București', postalCode: '010011', country: 'RO' } })
-  const bad = parseAddress('ro', form({ street: 'S 1', city: 'C', region: 'R', postalCode: '01001' }))
+  const bad = parseAddress('ro', form({ street: 'S 1', city: 'C', region: 'Cluj', postalCode: '01001' }))
   assert.ok(!bad.ok)
   assert.deepEqual(bad.errors, { postalCode: 'Verificați codul poștal, de exemplu 010011.' })
+})
+
+/* Уезд — из закрытого списка рынка (разбор 24.09.2026, O4): «Bucuresti»,
+   «Buc.» и пустой выбор не угадываются — поле просит выбрать из списка. */
+test('address: the county is one of the market’s list, and the list is whole and in Romanian order', () => {
+  for (const region of ['Bucuresti', 'Sector 3', '']) {
+    const r = parseAddress('en', form({ street: 'Str. Exemplului 1', city: 'București', region, postalCode: '010011' }))
+    assert.ok(!r.ok)
+    assert.deepEqual(r.errors, { region: 'Choose your county from the list.' }, region)
+  }
+  assert.equal(MARKET.regions.length, 42, 'сорок один уезд и București')
+  assert.deepEqual([...MARKET.regions], [...MARKET.regions].sort(new Intl.Collator('ro').compare))
+  assert.equal(new Set(MARKET.regions).size, MARKET.regions.length)
 })
 
 /* И265: выбор в группе не отправляет форму. Стрелки в группе радиокнопок

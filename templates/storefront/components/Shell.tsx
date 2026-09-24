@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
+import { notFound } from 'next/navigation'
 import p from '@/styles/primitives.module.css'
-import type { Lang } from '@/lib/locale.ts'
-import type { ShellData } from '@/lib/shell.ts'
+import { isLang, type Lang } from '@/lib/locale.ts'
+import { shellData, type ShellData } from '@/lib/shell.ts'
+import { lookNow } from '@/lib/look.ts'
 import type { Look } from '@/lib/source/contract.ts'
 import { lookCss } from '@/lib/look-values.ts'
 import { t } from '@/lib/i18n/index.ts'
-import { Header } from './Header.tsx'
+import { CheckoutHeader, Header } from './Header.tsx'
 import { Footer } from './Footer.tsx'
 import '@/styles/palette.css'
 import '@/styles/scale.css'
@@ -23,18 +25,31 @@ import '@/styles/look.css'
    Вид (`look`, lib/look.ts) — один, готовыми значениями: блок стиля вида
    React поднимает в `<head>` (`precedence`) сразу после стилей сайта, и он
    перекрывает их умолчания на корне; значения проверены до страницы
-   (lib/look-values.ts), внедрить через них CSS нечем. Шапка берёт по `look.header` свою разметку. */
-export function Shell({ lang, data, look, children }: { lang: Lang; data: ShellData; look: Look; children: ReactNode }) {
+   (lib/look-values.ts), внедрить через них CSS нечем. Шапка берёт по `look.header` свою разметку.
+
+   Рама документа (`chrome`) — вторая ось, и её выбирает макет, а не вид:
+   `full` — шапка с полками и подвал магазина; `checkout` — закрытая касса,
+   знак и «назад в корзину», подвал строкой закона и помощи. Касса — свой
+   корневой макет группы `app/(checkout)/[lang]` (разбор 24.09.2026, S2):
+   вложенный макет шапку родителя не снимает. */
+export function Shell({ lang, data, look, chrome = 'full', children }: { lang: Lang; data: ShellData; look: Look; chrome?: 'full' | 'checkout'; children: ReactNode }) {
   return (
     <html lang={lang}>
       <body>
         <style href="look" precedence="look">{lookCss(look)}</style>
         <a className={p.skip} href="#main">{t(lang, 'skip')}</a>
-        <Header lang={lang} nav={data.nav} variant={look.header} />
+        {chrome === 'checkout' ? <CheckoutHeader lang={lang} /> : <Header lang={lang} nav={data.nav} variant={look.header} />}
         {children}
-        <Footer lang={lang} docs={data.docs} />
+        <Footer lang={lang} docs={data.docs} variant={chrome === 'checkout' ? 'legal' : 'full'} />
         {process.env.LOOK_PICKER === 'on' ? <script src="/look-panel/look.js" async /> : null}{/* look-panel */}
       </body>
     </html>
   )
+}
+
+/** Документ языка — у обоих корневых макетов (магазин и касса): язык из
+ *  закрытого списка, данные рамы и вид — из источника, рама — своя. */
+export async function LangDocument({ lang, chrome = 'full', children }: { lang: string; chrome?: 'full' | 'checkout'; children: ReactNode }) {
+  if (!isLang(lang)) notFound()
+  return <Shell lang={lang} data={await shellData(lang)} look={await lookNow()} chrome={chrome}>{children}</Shell>
 }
