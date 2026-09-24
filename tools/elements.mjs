@@ -384,11 +384,12 @@ async function shots(DIR, cat, only) {
   for (const e of list) {
     await page.goto(`${pathToFileURL(path.join(DIR, e.папка, 'element.html')).href}?theme=${theme}`)
     await page.waitForTimeout(300)
-    const { top, bottom } = await area()
-    await page.setViewportSize({ width: 760, height: Math.ceil(bottom + 48) })
+    /* Окно не растягивается под страницу: потолок кадра — от высоты окна
+       (40svh), и выросшее окно растило кадры, страница выходила длиннее
+       замера, низ снимка срезался. Окно стоит, снимается вся страница. */
     const b = await area()
     const file = path.join(OUT, `${e.папка}.png`)
-    await page.screenshot({ path: file, clip: { x: 0, y: Math.max(0, b.top - 24), width: 760, height: b.bottom - b.top + 48 } })
+    await page.screenshot({ path: file, fullPage: true, clip: { x: 0, y: Math.max(0, b.top - 24), width: 760, height: b.bottom - b.top + 48 } })
     console.log(`  снимок ${file}`)
   }
   await browser.close()
