@@ -1,0 +1,157 @@
+/* Источник 54 и 55 — CSS от заказчика 24.09.2026, переслан из сессии
+   «Кнопки и дизайн» (там — «Ш»: макет окна браузера — вкладки, строка
+   адреса, поле сообщения с тремя кнопками), как прислан. Разобран на два
+   элемента: 54 — вкладки, выбранная сливается с листом; 55 — поле
+   сообщения с кнопками. Окно браузера вокруг — обёртка показа. */
+.main-container {
+  background-color: #ccc;
+  padding: 4px;
+  border-radius: 16px 16px 2px 2px;
+}
+
+.radio-input,
+.url-bar {
+  color: #444;
+  background-color: #bbb;
+  padding: 4px 0 0 4px;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+}
+
+.url-bar {
+  border-radius: 0 0 8px 8px;
+}
+
+.controls {
+  display: flex;
+  padding: 0 8px;
+  margin-left: 36px;
+  gap: 8px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+}
+
+.option {
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px 10px 0 0;
+  background-color: #bbb;
+}
+
+.new-tab {
+  padding: 0 8px;
+  border-left: 1px solid #ccc;
+  border-radius: 0;
+  height: 16px;
+  margin-top: 8px;
+}
+
+.label {
+  cursor: pointer;
+  margin-right: 24px;
+}
+
+.input[type="radio"] {
+  appearance: none;
+  display: flex;
+  margin: 0;
+}
+
+.favicon {
+  margin-right: 8px;
+  margin-top: 4px;
+}
+
+.option:has(.input:checked) {
+  position: relative;
+  background-color: #ccc;
+  transition: all 200ms;
+  .url {
+    transition: all 200ms;
+    display: block;
+  }
+}
+
+.option:has(.lovable:checked) {
+  .url {
+    left: -96px;
+  }
+}
+
+.url {
+  display: none;
+  position: absolute;
+  bottom: -36px;
+  left: 14px;
+}
+
+.url-bar-container {
+  padding: 8px;
+  background-color: #ccc;
+}
+
+.url-bar {
+  background-color: #bbb;
+  border-radius: 16px;
+  height: 32px;
+}
+
+.content-container {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  font-size: 14px;
+  height: 64px;
+  width: 228px;
+  color: #444;
+  background-color: #bbb;
+  padding: 2px 8px 2px 4px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.cursor {
+  animation: 1s flash infinite;
+}
+
+.send-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  cursor: pointer;
+}
+
+.attach-btn {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  cursor: pointer;
+}
+
+.private-btn {
+  position: absolute;
+  bottom: 4px;
+  right: 24px;
+  cursor: pointer;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0;
+  }
+  26% {
+    opacity: 1;
+  }
+  96% {
+    opacity: 1;
+  }
+}

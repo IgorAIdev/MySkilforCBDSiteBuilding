@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>49 · Сегменты встык</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 49 — «Сегменты встык». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: синие краски и светло-синий тон; ореол фокуса 4 px; разрядка .05em; плавность фона 0.5 s.
+  Приведено к единой форме: сегменты встык в волоске края, угол — у крайних; выбранный — тон марки, кромка и слово краской марки; пункты — радио, фокус — кольцо у пункта; нажатый не сжимается: встык он не отходит от соседа.
+  Наведение: подложка 5 % чернил. Нажатие: 9 %, на месте — без сжатия.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="tabs" data-join data-pick="tint" role="radiogroup" aria-label="Delivery"><label class="el"><input type="radio" name="delivery" checked>Courier</label><label class="el"><input type="radio" name="delivery">Pickup</label><label class="el"><input type="radio" name="delivery">Locker</label></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tabs" data-join data-pick="tint"><span class="el" data-on>Courier</span><span class="el">Pickup</span><span class="el">Locker</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tabs" data-join data-pick="tint"><span class="el" data-on>Courier</span><span class="el" data-state="hover">Pickup</span><span class="el">Locker</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tabs" data-join data-pick="tint"><span class="el" data-on>Courier</span><span class="el" data-state="press">Pickup</span><span class="el">Locker</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tabs" data-join data-pick="tint"><span class="el" data-on>Courier</span><span class="el" data-state="focus">Pickup</span><span class="el">Locker</span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

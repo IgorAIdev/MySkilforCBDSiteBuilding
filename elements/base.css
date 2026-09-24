@@ -50,6 +50,13 @@
  *    .field + input                     поле ввода; data-voice line — контуром, data-edge pop —
  *                                       кромка маркой, data-shape pill; .el data-clear — «очистить»
  *    .join                              поле и кнопка встык
+ *    .entry .label .hint                поле с подписью над ним и пояснением под ним
+ *    .field data-float + .float         подпись на кромке; data-lines + textarea — поле сообщения
+ *    .find data-open                    поиск с подсказками: меню под полем на фокусе
+ *    .tabs + label.el > input[radio]    выбор одного из нескольких; data-pick tone | tint | mark | sheet,
+ *                                       data-join — встык, .badge — счётчик, .tabbed + .panel — вкладки-листы
+ *    .choices .radio                    радиокнопки: кружок с точкой и подпись
+ *    .el data-row aria-current          текущий пункт меню: тон и черта марки
  *    data-state  hover | press | focus  состояние застывшим — для показа рядом
  *
  *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
@@ -86,7 +93,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
   background-image:linear-gradient(var(--veil), var(--veil)), var(--img);
   color:var(--fg);
   font:inherit;font-family:var(--face);font-size:var(--fs);font-weight:var(--weight);line-height:1.2;
-  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  cursor:pointer;user-select:none;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
   transition:background-color var(--hover-t) var(--ease), color var(--hover-t) var(--ease), box-shadow var(--hover-t) var(--ease), transform var(--press-t) var(--ease)
 }
 .el[data-voice='loud']{--bg:var(--pop);--fg:var(--on-pop)}
@@ -271,10 +278,11 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    Несколько частей одного сообщения на своём листе. Размеры — роли шкал
    набора (`../../styles/scale.css`): поле карточки, угол, ритм, кегли ролей
    текста. Край — волосок краской `--rule`, не тень (И336: «лишнее типа тени
-   убирай сразу»). */
+   убирай сразу»). Своей ширины у карточки нет: её даёт место — на сайте
+   ячейка полки (примитив grid, --cell-min), на стенде — образец ниже. */
 .card{
   box-sizing:border-box;display:flex;flex-direction:column;gap:var(--air-row, 16px);
-  inline-size:320px;max-inline-size:100%;padding:var(--pad-card, 1.25rem);
+  inline-size:100%;padding:var(--pad-card, 1.25rem);
   border-radius:var(--r-card, 16px);background:var(--surface);color:var(--ink);
   box-shadow:inset 0 0 0 var(--line) var(--rule);font-family:var(--face)
 }
@@ -313,7 +321,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .card[data-tone='bad'] .mark{background:var(--bad-tint);border-radius:var(--r-ctrl, 8px)}
 .card[data-tone] .el[data-voice='ghost']{--fg:var(--tone-ink, var(--ink))}
 /* Строкой: знак, слова, выход — всплывающее сообщение. */
-.card[data-layout='row']{flex-direction:row;align-items:center;inline-size:360px;padding:var(--pad-inner, .75rem)}
+.card[data-layout='row']{flex-direction:row;align-items:center;padding:var(--pad-inner, .75rem)}
 .card[data-layout='row'] > .stack{flex:1}
 /* Окно: шапка с именем и выходом, прокручиваемое тело, подвал с действиями.
    Разделители — волоском; над подвалом — дымка: тело продолжается. На сайте
@@ -419,9 +427,9 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
    встаёт вокруг пары. */
 .field{
   --h:var(--h-md);--r:var(--r-ctrl, 8px);--bg:var(--quiet);--paint:var(--bg);
-  --edge-c:transparent;--edge-hover:transparent;--sign:var(--ink-soft);
+  --edge-c:transparent;--edge-hover:transparent;--sign:var(--ink-soft);--indent:calc(var(--h) * .35);
   box-sizing:border-box;display:inline-flex;align-items:center;gap:calc(var(--h) * .25);
-  inline-size:min(300px, 100%);block-size:var(--h);padding-inline:calc(var(--h) * .35);
+  inline-size:min(300px, 100%);block-size:var(--h);padding-inline:var(--indent);
   border-radius:var(--r);background:var(--paint);box-shadow:inset 0 0 0 var(--line) var(--edge-c);
   font-family:var(--face);cursor:text;
   transition:background-color var(--hover-t) var(--ease), box-shadow var(--hover-t) var(--ease)
@@ -432,7 +440,7 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .field input::-webkit-search-cancel-button{-webkit-appearance:none}
 .field[data-voice='line']{--bg:var(--surface);--edge-c:var(--edge);--edge-hover:var(--ink)}
 .field[data-edge='pop']{--edge-c:var(--pop);--edge-hover:var(--pop-press)}
-.field[data-shape='pill']{--r:999px;padding-inline:calc(var(--h) * .45)}
+.field[data-shape='pill']{--r:999px;--indent:calc(var(--h) * .5)}
 /* «Очистить» у конца поля: круг марки, виден, когда вписано; рост 24 — не
    меньше порога цели WCAG 2.5.8, под пальцем — больше. */
 .field > .el{--h:calc(var(--h-sm) * .75);margin-inline-start:auto}
@@ -455,10 +463,121 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .join > .field:is(:focus-within, [data-state='focus']){outline:0}
 .join:has(> .field:is(:focus-within, [data-state='focus'])){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off);border-radius:var(--r-ctrl, 8px)}
 
+/* Имя раздела в меню: заглавными с разрядкой, краской подписи. */
+.menu > .label{margin:8px 8px 2px;font-size:var(--note-size, .875rem);font-weight:600;letter-spacing:var(--caps);text-transform:uppercase;color:var(--ink-soft)}
+
+/* Поиск с подсказками: на фокусе под полем раскрывается меню — последние
+   запросы и товар. На сайте — `popover` со списком (запрет 8); застывшим
+   (`data-open`) меню стоит в потоке, чтобы образец не лёг на соседа. */
+.find{position:relative;display:inline-flex;flex-direction:column;inline-size:min(360px, 100%)}
+.find > .field{inline-size:100%}
+.find > .menu{position:absolute;inset-block-start:calc(100% + var(--nudge) * 2);inset-inline:0;inline-size:auto;visibility:hidden;opacity:0;transition:opacity var(--hover-t) var(--ease), visibility var(--hover-t)}
+.find:focus-within > .menu{visibility:visible;opacity:1}
+.find[data-open] > .menu{position:static;margin-block-start:calc(var(--nudge) * 2);visibility:visible;opacity:1}
+
+/* Поле с подписью и пояснением: подпись над полем — чернилами, пояснение
+   под ним — краской подписи, ролью сноски; обе ближе к полю, чем сосед. */
+.entry{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4);inline-size:min(300px, 100%);font-family:var(--face)}
+.entry > .label{font-size:var(--note-size, .875rem);font-weight:600;color:var(--ink)}
+.entry > .hint{margin:0;font-size:var(--note-size, .875rem);line-height:var(--body-lead, 1.45);color:var(--ink-soft)}
+.entry > .field{inline-size:100%}
+
+/* Подпись на кромке: пустое поле — подпись стоит внутри, как подсказка; на
+   фокусе и когда вписано — встаёт на кромку, мельче, на полу страницы.
+   Подпись меняет место, а не едет: движение источника снято (И338). */
+.field[data-float]{position:relative}
+.field .float{position:absolute;inset-inline-start:calc(var(--indent) - 4px);inset-block-start:50%;translate:0 -50%;padding-inline:4px;font-size:max(1rem, var(--body-size, 1rem));color:var(--ink-soft);pointer-events:none}
+.field:is(:focus-within, [data-state='focus']) .float,
+.field:has(input:not(:placeholder-shown)) .float{inset-block-start:0;font-size:var(--note-size, .875rem);background:var(--surface)}
+.field:is(:focus-within, [data-state='focus']) .float{color:var(--pop-ink)}
+/* Фокус такого поля — кромка краской кольца толщиной кольца: внешнее кольцо
+   подпись на кромке разрезала бы. */
+.field[data-float]:is(:focus-within, [data-state='focus']){outline:0;box-shadow:inset 0 0 0 var(--ring-w) var(--ring, var(--ink))}
+
+/* Поле сообщения: несколько строк, органы — рядом под текстом: «прикрепить»
+   у начала, остальные у конца. */
+.field[data-lines]{flex-direction:column;align-items:stretch;block-size:auto;padding:calc(var(--h) * .2);gap:calc(var(--h) * .1)}
+.field textarea{min-block-size:calc(var(--h) * 1.4);margin:0;padding:calc(var(--h) * .1) calc(var(--h) * .15);border:0;background:none;color:var(--ink);font:inherit;font-size:max(1rem, var(--body-size, 1rem));line-height:var(--body-lead, 1.45);resize:none;outline:none}
+.field textarea::placeholder{color:var(--ink-soft);opacity:1}
+.field[data-lines] > .row{display:flex;align-items:center;gap:calc(var(--h) * .1)}
+.field[data-lines] > .row > :first-child{margin-inline-end:auto}
+
+/* ── выбор одного из нескольких: сегменты, вкладки, полоса разделов ──────
+   Группа — `.tabs` (role=radiogroup); пункт — орган `.el`: `<label>` со
+   скрытым `<input type=radio>` — выбор держит браузер, стрелки ходят по
+   пунктам без скрипта. Выбранный — `:has(> input:checked)`, застывшим —
+   `data-on`; фокус — кольцо у пункта. Как отмечен выбранный — `data-pick`
+   группы: плашка пола (по умолчанию), tone — тон, tint — тон марки, mark —
+   знак краской марки в ячейке с волоском, sheet — лист, сливающийся с
+   панелью под ним. Переезд плашки у источников снят: плашка встаёт на
+   место, а не едет (И338). */
+.tabs{display:inline-flex;align-items:stretch;gap:calc(var(--h-md) * .1);padding:calc(var(--h-md) * .1);border-radius:var(--r-ctrl, 8px);background:var(--quiet);color:var(--ink);font-family:var(--face)}
+.tabs[data-shape='pill'], .tabs[data-shape='pill'] > .el{border-radius:999px}
+.tabs[data-voice='line']{background:transparent;box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.tabs[data-voice='ink']{background:var(--ink)}
+.tabs > .el{--bg:transparent;flex:1 1 auto;font-weight:500}
+.tabs[data-voice='ink'] > .el{--fg:var(--surface)}
+.el > input[type='radio']{position:absolute;inline-size:1px;block-size:1px;margin:0;opacity:0;pointer-events:none}
+.el:has(> input:focus-visible){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.tabs > .el:is(:has(> input:checked), [data-on]){--bg:var(--surface);font-weight:600}
+.tabs[data-voice='ink'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--ink-soft)}
+.tabs[data-pick='tone'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--quiet)}
+.tabs[data-pick='tint'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--pop-tint);--fg:var(--pop-ink)}
+.tabs[data-pick='mark'] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--pop-ink);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+/* Встык: сегменты без подложки, каждый в волоске края, угол — у крайних;
+   выбранный — тон марки в кромке марки. Нажатый не сжимается — встык он
+   не отходит от соседа. */
+.tabs[data-join]{gap:0;padding:0;background:transparent}
+.tabs[data-join] > .el{border-radius:0;box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.tabs[data-join] > .el + .el{margin-inline-start:calc(var(--line) * -1)}
+.tabs[data-join] > .el:first-child{border-start-start-radius:var(--r-ctrl, 8px);border-end-start-radius:var(--r-ctrl, 8px)}
+.tabs[data-join] > .el:last-child{border-start-end-radius:var(--r-ctrl, 8px);border-end-end-radius:var(--r-ctrl, 8px)}
+.tabs[data-join] > .el:is(:has(> input:checked), [data-on]){z-index:1;box-shadow:inset 0 0 0 var(--line) var(--pop)}
+.tabs[data-join] > .el:is(:active, [data-state='press']){transform:none}
+/* Счётчик у пункта: число в круге тона; у выбранного — краской марки. */
+.el .badge{display:inline-grid;place-items:center;min-inline-size:1.375rem;block-size:1.375rem;padding-inline:.3rem;box-sizing:border-box;border-radius:999px;background:var(--quiet);color:var(--ink-soft);font-size:var(--note-size, .875rem);font-weight:600;font-variant-numeric:tabular-nums}
+.el:is(:has(> input:checked), [data-on]) .badge{background:var(--pop);color:var(--on-pop)}
+/* Вкладки-листы: полоса тона, у вкладок скруглён только верх; выбранная —
+   пол страницы и сливается с панелью под ней, панель показывает своё. */
+.tabbed{display:flex;flex-direction:column;inline-size:min(420px, 100%);font-family:var(--face)}
+.tabs[data-pick='sheet']{display:flex;padding-block-end:0;border-end-start-radius:0;border-end-end-radius:0}
+.tabs[data-pick='sheet'] > .el{flex:none;border-end-start-radius:0;border-end-end-radius:0}
+.tabs[data-pick='sheet'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--surface)}
+.tabbed > .panel{padding:var(--pad-card, 1.25rem);border-radius:0 0 var(--r-card, 16px) var(--r-card, 16px);background:var(--surface);box-shadow:inset var(--line) 0 0 var(--rule), inset calc(var(--line) * -1) 0 0 var(--rule), inset 0 calc(var(--line) * -1) 0 var(--rule)}
+.tabbed > .panel > *{display:none;margin:0;font-size:var(--note-size, .875rem);line-height:var(--body-lead, 1.45);color:var(--ink-soft)}
+/* :has внутри :has браузер не принимает: живой выбор мерится прямо по input. */
+.tabbed:has(> .tabs > .el:nth-child(1) > input:checked, > .tabs > .el:nth-child(1)[data-on]) > .panel > :nth-child(1),
+.tabbed:has(> .tabs > .el:nth-child(2) > input:checked, > .tabs > .el:nth-child(2)[data-on]) > .panel > :nth-child(2),
+.tabbed:has(> .tabs > .el:nth-child(3) > input:checked, > .tabs > .el:nth-child(3)[data-on]) > .panel > :nth-child(3),
+.tabbed:has(> .tabs > .el:nth-child(4) > input:checked, > .tabs > .el:nth-child(4)[data-on]) > .panel > :nth-child(4){display:block}
+
+/* Текущий пункт меню (`aria-current`, застывшим — `data-on`): тон и черта
+   марки у начала строки. */
+.el[data-row]:is([aria-current], [data-on]){--bg:var(--quiet)}
+.el[data-row]:is([aria-current], [data-on])::before{content:'';position:absolute;inset-block:25%;inset-inline-start:0;inline-size:3px;border-radius:2px;background:var(--pop)}
+
+/* Радиокнопка: кружок с кромкой края и подпись — нажимаются вместе.
+   Выбранный — кромка и точка марки; под рукой кромка — чернилами, в пустом
+   кружке встаёт точка тоном марки — видно, что будет выбрано. */
+.choices{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4);font-family:var(--face)}
+.radio{display:inline-flex;align-items:center;gap:calc(var(--h-sm) * .3);min-block-size:var(--h-sm);color:var(--ink);font-size:var(--body-size, 1rem);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.radio > input{appearance:none;-webkit-appearance:none;display:grid;place-items:center;flex:none;inline-size:1.25rem;block-size:1.25rem;margin:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge);cursor:pointer;transition:box-shadow var(--hover-t) var(--ease), transform var(--press-t) var(--ease)}
+.radio > input::after{content:'';inline-size:.625rem;block-size:.625rem;border-radius:999px;background:var(--dot, transparent)}
+@media (hover:hover){ .radio:hover > input{box-shadow:inset 0 0 0 var(--line) var(--ink);--dot:var(--pop-tint)} }
+.radio[data-state='hover'] > input{box-shadow:inset 0 0 0 var(--line) var(--ink);--dot:var(--pop-tint)}
+.radio:is(:active, [data-state='press']) > input{transform:translateY(1px) scale(.97)}
+.radio > input:checked, .radio[data-on] > input{box-shadow:inset 0 0 0 var(--line) var(--pop);--dot:var(--pop)}
+.radio > input:focus-visible, .radio[data-state='focus'] > input{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+
 /* ── страница элемента: живой сверху, состояния застывшими ниже ─────── */
 body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding-block:24px;background:var(--surface);color:var(--ink);font-family:var(--face)}
 .live{display:flex;align-items:center;justify-content:space-between;gap:6px;inline-size:min(360px, 100% - 32px)}
 .live.one{justify-content:center}
+/* Место под карточку на стенде — ширина ячейки полки; строкой — шире. */
+.live:has(.card){inline-size:min(320px, 100% - 32px)}
+.live:has(.card[data-layout='row']){inline-size:min(360px, 100% - 32px)}
+.states figure:has(> .card){inline-size:min(320px, 100%)}
+.states figure:has(> .card[data-layout='row']){inline-size:min(360px, 100%)}
 .group{display:flex;gap:6px}
 .column{display:flex;flex-direction:column;align-items:center;gap:24px}
 .states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
