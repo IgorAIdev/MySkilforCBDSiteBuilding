@@ -1,13 +1,15 @@
 import type { Lang } from '../../locale.ts'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { Content, Doc, Look } from '../contract.ts'
+import type { Content, Doc } from '../contract.ts'
 import { PAGES } from '../../pages.ts'
 import DOCS from '../../docs.json' with { type: 'json' }
 
 type L = Record<Lang, string>
 type RawDoc = { slug: string; title: L; summary: L; sections: { heading: L; body: L }[]; table?: 'delivery' }
 const RAW = DOCS as RawDoc[]
+/** Файл вида образца: опубликованный или черновик. */
+const lookFile = (name: string) => join(process.cwd(), 'lib/source/sample', name)
 const docOf = (d: RawDoc, lang: Lang): Doc => ({
   slug: d.slug, title: d.title[lang], summary: d.summary[lang],
   sections: d.sections.map((s) => ({ heading: s.heading[lang], body: s.body[lang] })),
@@ -28,10 +30,13 @@ export const sampleContent: Content = {
   },
   /* Вид читается с диска при каждом промахе кэша, а не ввозится в сборку:
      правка look.json и запрос на /api/revalidate меняют вид живого сайта
-     без сборки — так же придёт global «look» из Payload. */
-  async look() {
+     без сборки — так же придёт global «look» из Payload. Черновик — файл
+     рядом (look.draft.json), как черновая версия global у Payload; его нет —
+     черновой режим видит опубликованное. */
+  async look(options) {
+    const file = options?.draft && existsSync(lookFile('look.draft.json')) ? 'look.draft.json' : 'look.json'
     try {
-      return { ok: true, value: JSON.parse(readFileSync(join(process.cwd(), 'lib/source/sample/look.json'), 'utf8')) as Look }
+      return { ok: true, value: JSON.parse(readFileSync(lookFile(file), 'utf8')) as unknown }
     } catch {
       return { ok: false, reason: 'unavailable' }
     }

@@ -29,7 +29,7 @@ test('--storefront lays the template over the foundation and copies the kit help
     assert.ok(pkg.dependencies.next && pkg.dependencies.react, 'Next и React')
     assert.equal(pkg.scripts['check:css'], 'node tools/check-css.mjs', 'команды набора дописаны')
     assert.equal(pkg.scripts.test, 'node tools/check-test.mjs', 'тесты гоняет прогон набора')
-    assert.equal(pkg.scripts.build, 'node scripts/copy-icons.mjs && node scripts/look-options.mjs && next build', 'свой build шаблона остался')
+    assert.equal(pkg.scripts.build, 'node scripts/copy-icons.mjs && node scripts/look-slots.mjs && next build', 'свой build шаблона остался')
     assert.match(readFileSync(join(dir, 'lib/locale.ts'), 'utf8'), /LOCALES = \['ro', 'en', 'hu'\]/)
 
     /* Этот файл сам гоняется `node --test`, и Node метит СЕБЯ переменной
@@ -43,6 +43,9 @@ test('--storefront lays the template over the foundation and copies the kit help
     delete env.NODE_TEST_CONTEXT
     const tests = spawnSync(process.execPath, [join(dir, 'tools/check-test.mjs')], { cwd: dir, encoding: 'utf8', env })
     assert.equal(tests.status, 0, `npm test нового сайта красный:\n${tests.stdout.slice(-2000)}\n${tests.stderr.slice(-1000)}`)
+    /* Тесты панели вида живут в её папке и уходят вместе с ней (И270). */
+    const panel = spawnSync(process.execPath, [join(dir, 'tools/check-test.mjs'), 'look-panel/tests/*.test.ts'], { cwd: dir, encoding: 'utf8', env })
+    assert.equal(panel.status, 0, `тесты панели вида красные:\n${panel.stdout.slice(-2000)}\n${panel.stderr.slice(-1000)}`)
 
     /* И260: демо-витрина, поставленная этим ключом, встретила владельца
        красным `check:rules` — таблица фактов палитры ехала собранной из
@@ -57,19 +60,40 @@ test('--storefront lays the template over the foundation and copies the kit help
 /* Витрина набора стоит на решённом наборе цвета, а не на сером стартовом:
    решение «Латунь на угле» записано в docs/decisions.md набора, и витрина,
    поставленная без ключа, встречала владельца серой (23.09.2026). Названный
-   ключом `--palette` набор по-прежнему сильнее умолчания. */
-test('--storefront installs the kit decided palette unless --palette names another', async () => {
+   ключом `--palette` набор по-прежнему сильнее умолчания.
+   Витрина носит ОДИН вид (CLAUDE.md, «Панель настройки физически отделена
+   от сайта»; И270): в её стилях — решённый набор цвета, первый стиль кнопки,
+   первый набор ритма; весь каталог набора — у панели вида
+   (look-panel/ui/catalog.json), опубликованный вид — умолчание каталога. */
+test('--storefront installs one look in the site and the whole kit catalogue in the panel', async () => {
   const { toCss } = await import('../tools/palette.mjs')
   const kitPalette = JSON.parse(readFileSync(join(KIT, 'styles/palette.json'), 'utf8'))
+  const samples = JSON.parse(readFileSync(join(KIT, 'templates/palette.json'), 'utf8'))
+  const kitButtons = JSON.parse(readFileSync(join(KIT, 'styles/buttons.json'), 'utf8'))
+  const kitScales = JSON.parse(readFileSync(join(KIT, 'styles/scale.json'), 'utf8'))
   const root = mkdtempSync(join(tmpdir(), 'storefront-'))
   try {
     const plain = join(root, 'plain')
     const r = install('--storefront', plain)
     assert.equal(r.status, 0, r.stderr)
-    const got = JSON.parse(readFileSync(join(plain, 'styles/palette.json'), 'utf8'))
-    assert.deepEqual(Object.keys(got), ['Латунь на угле'])
-    assert.deepEqual(got, kitPalette, 'краски — те, что решены в наборе')
-    assert.equal(readFileSync(join(plain, 'styles/palette.css'), 'utf8'), toCss(kitPalette), 'выпуск сходится с красками')
+    const json = (p) => JSON.parse(readFileSync(join(plain, p), 'utf8'))
+    const got = json('styles/palette.json')
+    assert.deepEqual(got, kitPalette, 'краски — те, что решены в наборе, и только они')
+    assert.equal(readFileSync(join(plain, 'styles/palette.css'), 'utf8'), toCss(got), 'выпуск сходится с красками')
+    assert.deepEqual(Object.keys(json('styles/buttons.json')), [Object.keys(kitButtons)[0]], 'один стиль кнопки')
+    assert.deepEqual(Object.keys(json('styles/scale.json')), [Object.keys(kitScales)[0]], 'один набор ритма')
+    for (const [file, attr] of [['styles/palette.css', 'data-palette'], ['styles/buttons.css', 'data-button'], ['styles/scale.css', 'data-scale']]) {
+      const css = readFileSync(join(plain, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+      const names = new Set([...css.matchAll(new RegExp(`\\[${attr}="([^"]+)"\\]`, 'g'))].map((m) => m[1]))
+      assert.ok(names.size <= 1, `${file}: ${[...names].join(', ')}`)
+    }
+    const catalog = json('look-panel/ui/catalog.json')
+    const ids = (g) => catalog.groups[g].map((o) => o.id).sort()
+    assert.deepEqual(ids('palette'), [...new Set([...Object.keys(kitPalette), ...Object.keys(samples)])].sort(), 'все палитры набора — у панели')
+    assert.deepEqual(ids('button'), Object.keys(kitButtons).sort(), 'все стили кнопки — у панели')
+    assert.deepEqual(ids('scale'), Object.keys(kitScales).sort(), 'все наборы ритма — у панели')
+    assert.ok(catalog.pairs.length > 0, 'пары, которые не носятся, посчитаны')
+    assert.deepEqual(json('lib/source/sample/look.json').names, catalog.defaults, 'опубликован вид по умолчанию')
 
     const named = join(root, 'named')
     const n = install('--storefront', '--palette', 'Олива', named)

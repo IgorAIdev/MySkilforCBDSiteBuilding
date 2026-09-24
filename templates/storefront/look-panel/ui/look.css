@@ -1,0 +1,74 @@
+/* Панель вида — свои стили, отдельно от стилей сайта (look-panel/ui/look.js).
+   С сайта берутся только роли, которые он и так объявил: краски марки и
+   роли кнопки (`--pop`, `--ctrl-btn-*`) — чтобы образец кнопки встал таким,
+   каким встанет на странице. Остальное своё: системный шрифт, плотные
+   фишки, свои краски обеих тем. Шире 360 на макете не бывает; на телефоне —
+   шторка снизу не выше 60 % экрана. */
+.lp{font:13px/1.4 ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color-scheme:light dark;
+  --lp-ink:light-dark(#1b1b1b, #ececec);--lp-soft:light-dark(#5c5c5c, #a8a8a8);--lp-bg:light-dark(#fff, #1c1c1c);
+  --lp-line:light-dark(rgb(0 0 0 / .14), rgb(255 255 255 / .16));--lp-chip:light-dark(rgb(0 0 0 / .05), rgb(255 255 255 / .07));
+  --lp-on:light-dark(#1b1b1b, #ececec);--lp-on-ink:light-dark(#fff, #111)}
+.lp *{box-sizing:border-box}
+.lp button{font:inherit;color:inherit;cursor:pointer}
+.lp-open{
+  position:fixed;inset-block-end:16px;inset-inline-end:16px;z-index:90;
+  display:inline-flex;align-items:center;min-block-size:40px;padding:0 16px;
+  border:1px solid var(--lp-line);border-radius:999px;background:var(--lp-bg);color:var(--lp-ink);
+  box-shadow:0 2px 4px rgb(0 0 0 / .08), 0 12px 28px -10px rgb(0 0 0 / .35);font-weight:600
+}
+.lp-panel{
+  position:fixed;inset:auto;inset-block-end:16px;inset-inline-end:16px;margin:0;
+  inline-size:min(360px, 100% - 32px);max-block-size:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;
+  padding:0 12px 12px;border:1px solid var(--lp-line);border-radius:14px;background:var(--lp-bg);color:var(--lp-ink);
+  box-shadow:0 4px 8px rgb(0 0 0 / .08), 0 36px 80px -28px rgb(0 0 0 / .5)
+}
+.lp-panel:popover-open{display:flex;flex-direction:column;gap:10px}
+/* На широком окне панель не поднимается выше шапки сайта: поиск и корзина
+   в правом верхнем углу остаются открытыми. */
+@media (min-width:821px){ .lp-panel{max-block-size:calc(100dvh - 9.5rem)} }
+/* Телефон: шторка снизу во всю ширину, не выше 60 % экрана — страница над
+   ней видна, изменения видно сразу. */
+@media (max-width:560px){
+  .lp-panel{inset-inline:0;inset-block-end:0;inline-size:100%;max-block-size:60dvh;border-radius:14px 14px 0 0;border-block-end:0}
+}
+.lp-head{position:sticky;inset-block-start:0;z-index:1;display:flex;align-items:center;gap:12px;padding-block-start:8px;background:var(--lp-bg);border-block-end:1px solid var(--lp-line)}
+.lp-title{margin:0;font-size:14px;font-weight:650}
+.lp-tabs{display:flex;gap:14px;margin-inline-end:auto}
+.lp-tab{min-block-size:34px;padding:0 2px;border:0;border-block-end:2px solid transparent;background:none;color:var(--lp-soft);font-weight:600}
+.lp-tab[aria-selected='true']{color:var(--lp-ink);border-block-end-color:currentColor}
+.lp-x{display:grid;place-items:center;min-inline-size:30px;min-block-size:30px;border:0;border-radius:8px;background:var(--lp-chip);font-size:16px;line-height:1}
+.lp-pane{display:flex;flex-direction:column;gap:10px}
+.lp-pane[hidden]{display:none}
+.lp-group{display:flex;flex-direction:column;gap:5px}
+.lp-legend{font-size:11.5px;font-weight:650;letter-spacing:.02em;text-transform:uppercase;color:var(--lp-soft)}
+.lp-chips{display:flex;flex-wrap:wrap;gap:5px}
+.lp-chip{display:inline-flex;align-items:center;gap:6px;min-block-size:28px;padding:0 10px;border:1px solid var(--lp-line);border-radius:999px;background:var(--lp-chip);white-space:nowrap}
+.lp-chip[aria-pressed='true']{background:var(--lp-on);border-color:var(--lp-on);color:var(--lp-on-ink)}
+.lp-chip[aria-disabled='true']{opacity:.42;cursor:not-allowed;text-decoration:line-through;text-decoration-thickness:1px}
+.lp-why{margin:0;min-block-size:1.4em;color:var(--lp-soft);font-size:11.5px;overflow-wrap:anywhere}
+.lp-why:empty{min-block-size:0}
+.lp-dots{display:inline-flex}
+.lp-dot{display:block;inline-size:10px;block-size:10px;border-radius:50%;box-shadow:0 0 0 1px var(--lp-line)}
+.lp-dot + .lp-dot{margin-inline-start:-3px}
+/* Образец кнопки — роли стиля строкой на самом образце (catalog.json),
+   краски — роли страницы: какой её сейчас красит набор цвета. */
+.lp-btn{
+  display:inline-grid;place-items:center;min-inline-size:22px;block-size:18px;padding:0 5px;font-size:10.5px;line-height:1;
+  background:var(--ctrl-btn-fill-pop, #9a7b3f);color:var(--ctrl-btn-ink-pop, #fff);
+  border:var(--ctrl-btn-line-pop, 1px) solid var(--ctrl-btn-edge-pop, transparent);border-radius:min(var(--ctrl-btn-r-pop, 9px), 9px);
+  font-weight:var(--ctrl-btn-weight, 600);text-transform:var(--ctrl-btn-case, none);letter-spacing:var(--ctrl-btn-track, normal)
+}
+.lp-chip[aria-pressed='true'] .lp-btn{box-shadow:0 0 0 1px var(--lp-bg)}
+.lp-foot{display:flex;flex-direction:column;gap:6px;padding-block-start:8px;border-block-start:1px solid var(--lp-line)}
+.lp-acts{display:flex;flex-wrap:wrap;gap:6px}
+.lp-act{min-block-size:30px;padding:0 12px;border:1px solid var(--lp-line);border-radius:8px;background:none;font-weight:600}
+.lp .lp-main{background:var(--lp-on);border-color:var(--lp-on);color:var(--lp-on-ink)}
+.lp-act:disabled{opacity:.5;cursor:progress}
+.lp-note{margin:0;color:var(--lp-soft);font-size:11.5px}
+.lp-status{color:var(--lp-soft);font-size:11.5px;overflow-wrap:anywhere}
+.lp :focus-visible{outline:2px solid Highlight;outline-offset:2px}
+@media (pointer:coarse){
+  .lp-chip,.lp-tab,.lp-act{min-block-size:40px}
+  .lp-x{min-block-size:40px;min-inline-size:40px}
+  .lp-open{min-block-size:48px}
+}

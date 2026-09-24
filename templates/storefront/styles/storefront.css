@@ -2,18 +2,9 @@
    Витрина — то, что есть у магазина и чего нет у основы набора
    =========================================================================== */
 
-/* Шрифт — значение вида (lib/look.ts, `face`) атрибутом `data-face`. Блок
-   ставит `--face` и `--face-head` тому, на ком стоит атрибут: на `<html>` —
-   всей странице, на подписи варианта в панели выбора — только ей.
-   Переменную `--f-*` объявит next/font, когда шрифт утверждён и сайт
-   грузит его сам; до того — имя семейства (его грузит панель, пока идёт
-   выбор) и за ним системный стек: запасной путь есть у каждого. */
-[data-face='system']{--face:var(--face-stack);--face-head:var(--face)}
-[data-face='manrope']{--face:var(--f-manrope, Manrope), var(--face-stack);--face-head:var(--face)}
-[data-face='plex']{--face:var(--f-plex, 'IBM Plex Sans'), var(--face-stack);--face-head:var(--face)}
-[data-face='inter']{--face:var(--f-inter, Inter), var(--face-stack);--face-head:var(--face)}
-/* Пара: засечка у заголовков, гротеск у текста и цен. */
-[data-face='serif']{
-  --face:var(--f-plex, 'IBM Plex Sans'), var(--face-stack);
-  --face-head:var(--f-serif, 'Source Serif 4'), Georgia, 'Times New Roman', serif
-}
+/* Отметка текущего пункта меню в строке полок шапки — свойства вида
+   (группа «marker», lib/look-slots.json). Умолчание — черта под словом;
+   вид может поставить плашку: вуаль органа, угол органа, поле по бокам.
+   Шрифт вида — `--face` и `--face-head` (styles/tokens.css): вид кладёт
+   их значения в `<style id="look">` вместе со своими шрифтами. */
+:root{--menu-mark-line:underline;--menu-mark-fill:transparent;--menu-mark-ink:var(--ink);--menu-mark-r:0;--menu-mark-pad:0}

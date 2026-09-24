@@ -4,11 +4,14 @@
   "type": "module",
   "engines": { "node": ">=24 <25" },
   "scripts": {
-    "dev": "node scripts/copy-icons.mjs && node scripts/look-options.mjs && next dev --port 3020",
-    "build": "node scripts/copy-icons.mjs && node scripts/look-options.mjs && next build",
+    "dev": "node scripts/copy-icons.mjs && node scripts/look-slots.mjs && next dev --port 3020",
+    "build": "node scripts/copy-icons.mjs && node scripts/look-slots.mjs && next build",
     "start": "next start --port 3020",
-    "look:remove": "node scripts/look-remove.mjs",
-    "check:look": "node scripts/look-remove.mjs --check"
+    "look:remove": "node look-panel/scripts/remove.mjs",
+    "check:look": "node look-panel/scripts/remove.mjs --check",
+    "check:choice": "node look-panel/scripts/check-choice.mjs",
+    "look:catalog": "node look-panel/scripts/build-catalog.mjs",
+    "test:panel": "node tools/check-test.mjs look-panel/tests/*.test.ts"
   },
   "dependencies": {
     "next": "^16.3.0",

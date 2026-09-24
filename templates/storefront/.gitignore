@@ -2,5 +2,5 @@ node_modules/
 .next/
 out/
 public/icons.svg
-public/look/options.json
+lib/source/sample/look.draft.json
 .env

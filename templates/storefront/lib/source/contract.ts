@@ -1,4 +1,5 @@
 import type { Lang } from '../locale.ts'
+import type { HeaderVariant } from '../headers.ts'
 
 export type Money = { minor: number; currency: string }
 export type Stock = 'in' | 'low' | 'out'
@@ -26,12 +27,14 @@ export type Block =
   | { type: 'delivery'; title: string; items: { title: string; body: string }[] }
   | { type: 'faq'; title: string; items: { q: string; a: string }[] }
 export type Page = { slug: string; title: string; description: string; blocks: Block[] }
-/** Вид витрины — значения, которые магазин меняет без сборки, как настройки
- *  темы: шрифт (`[data-face]`), стиль кнопок (styles/buttons.css), вариант
- *  шапки, набор цвета (styles/palette.css, `[data-palette]`). Все варианты
- *  уже собраны в сайт; сборка нужна только новому варианту. */
-export type HeaderVariant = 'classic' | 'search' | 'boutique'
-export type Look = { face: string; button: string; header: HeaderVariant; palette: string }
+/** Вид витрины — ОДИН, готовыми значениями (CLAUDE.md, «Панель настройки
+ *  физически отделена от сайта»; И270): свойства CSS обеих тем (`vars`,
+ *  имя → значение из закрытого списка lib/look-slots.json), вариант шапки,
+ *  шрифты со своих адресов (`fonts`, пусто — системный) и имена вариантов,
+ *  из которых вид собран (`names`, для людей и панели; сайт их не читает).
+ *  Каталога вариантов в сайте нет — он у панели вида. */
+export type LookFont = { family: string; files: { url: string; weight: string; range: string }[] }
+export type Look = { header: HeaderVariant; vars: Record<string, string>; fonts: LookFont[]; names: Record<string, string> }
 export type Result<T> = { ok: true; value: T } | { ok: false; reason: 'unavailable' | 'not-found' | 'bad-request' }
 
 /** Торговля: Vendure в плане 4, образец — сейчас. */
@@ -50,8 +53,11 @@ export type Content = {
   page(lang: Lang, slug: string): Promise<Result<Page>>
   docs(lang: Lang): Promise<Result<Doc[]>>
   doc(lang: Lang, slug: string): Promise<Result<Doc>>
-  /** Вид витрины: у образца — lib/source/sample/look.json, у Payload — global «look» (план 4). */
-  look(): Promise<Result<Look>>
+  /** Вид витрины: у образца — lib/source/sample/look.json, у Payload — global
+   *  «look» (план 4). `draft` — черновик для чернового режима (у образца
+   *  look.draft.json рядом, у Payload — черновая версия global); черновика
+   *  нет — опубликованный. Источник отдаёт как хранит; проверяет `accept`. */
+  look(options?: { draft?: boolean }): Promise<Result<unknown>>
 }
 
 /* ── Покупка ─────────────────────────────────────────────────────────────

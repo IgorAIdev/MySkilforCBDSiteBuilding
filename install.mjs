@@ -38,6 +38,7 @@ import { spawnSync } from 'node:child_process'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
 import { toCss as ritmToCss } from './tools/scale.mjs'
+import { availability as buttonAvailability, toCss as buttonsToCss } from './tools/buttons.mjs'
 
 const SRC = resolve(fileURLToPath(new URL('.', import.meta.url)))
 
@@ -313,7 +314,9 @@ if (MODE === 'new') {
       /* Витрина набора (`--storefront`) — не чистый лист: цвет у неё решён
          (docs/decisions.md, «Набор цвета — «Латунь на угле»») и лежит в
          `styles/palette.json` набора. Без ключа она встаёт на эти краски, а
-         не на серый стартовый; названный ключом набор сильнее умолчания. */
+         не на серый стартовый; названный ключом набор сильнее умолчания.
+         Другие наборы витрине не нужны: каталог вариантов живёт в панели
+         вида (`look-panel/`, И270), сайт носит один вид. */
       const краски = PALETTE
         ? { [PALETTE]: образцы[PALETTE] }
         : JSON.parse(readFileSync(join(SRC, STOREFRONT ? 'styles/palette.json' : 'templates/palette-starter.json'), 'utf8'))
@@ -324,6 +327,14 @@ if (MODE === 'new') {
          «выпущенный styles/palette.css отстал от красок», — и правильно
          делает: краски и выпуск обязаны сходиться с первой минуты. */
       writeFileSync(join(OUT, 'styles/palette.css'), toCss(краски))
+      /* Тот же шов у кнопок: `styles/buttons.css` приезжает выпущенным на
+         палитре НАБОРА, а стиль мерится на палитре сайта — на каждом её
+         наборе (И252, И270). Выпуск тем же кодом, что `check:buttons`. */
+      if (existsSync(join(OUT, 'styles/buttons.json'))) {
+        const стили = JSON.parse(readFileSync(join(OUT, 'styles/buttons.json'), 'utf8'))
+        const { off, clash } = buttonAvailability(стили, краски)
+        writeFileSync(join(OUT, 'styles/buttons.css'), buttonsToCss(стили, off, clash))
+      }
     } else if (existsSync(join(SRC, name))) {
       copy(join(SRC, name), join(OUT, name))
     }
@@ -355,6 +366,27 @@ if (MODE === 'new') {
     writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(переставленные))
   }
 
+  /* Витрина носит ОДИН вид (CLAUDE.md, «Панель настройки физически отделена
+     от сайта»; И270): в её стилях — первый стиль кнопки и первый набор ритма,
+     чужих вариантов в сайте нет. Весь каталог — у панели вида, её собирает
+     `look-panel/scripts/build-catalog.mjs` из файлов набора ниже. Роли текста
+     объявляет первый набор ритма (`rolesOf`): набору, ставшему единственным,
+     они переходят от прежнего первого. */
+  if (STOREFRONT) {
+    const стили = JSON.parse(readFileSync(join(OUT, 'styles/buttons.json'), 'utf8'))
+    const первыйСтиль = Object.keys(стили)[0]
+    writeFileSync(join(OUT, 'styles/buttons.json'), JSON.stringify({ [первыйСтиль]: стили[первыйСтиль] }, null, 2) + '\n')
+    const наборы = JSON.parse(readFileSync(join(OUT, 'styles/scale.json'), 'utf8'))
+    const [имя, набор] = Object.entries(наборы)[0]
+    const роли = набор.текст ?? Object.values(JSON.parse(readFileSync(join(SRC, 'styles/scale.json'), 'utf8')))[0]?.текст
+    const один = { [имя]: { ...набор, ...(роли ? { текст: роли } : {}) } }
+    writeFileSync(join(OUT, 'styles/scale.json'), JSON.stringify(один, null, 2) + '\n')
+    writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(один))
+    const краски = JSON.parse(readFileSync(join(OUT, 'styles/palette.json'), 'utf8'))
+    const { off, clash } = buttonAvailability({ [первыйСтиль]: стили[первыйСтиль] }, краски)
+    writeFileSync(join(OUT, 'styles/buttons.css'), buttonsToCss({ [первыйСтиль]: стили[первыйСтиль] }, off, clash))
+  }
+
   // Only the explicit runtime/project files above travel to a site.
   // Research, evidence indexes and generated local stands stay in the kit.
 }
@@ -375,6 +407,18 @@ if (STOREFRONT) {
     copy(join(commerce, f), join(OUT, 'lib/commerce', f))
   }
   moved.push('шаблон витрины и помощники Vendure и коммерции')
+  /* Вид — значения (И270): закрытый список свойств выпускается из стилей
+     самого сайта, каталог панели вида — из полного каталога набора
+     (палитры, стили кнопок, ритмы) его же строителями; опубликованный вид
+     образца — умолчание каталога. */
+  for (const [script, ...rest] of [['scripts/look-slots.mjs'], ['look-panel/scripts/build-catalog.mjs', '--from', SRC, '--look']]) {
+    const run = spawnSync(process.execPath, [join(OUT, script), ...rest], { cwd: OUT, encoding: 'utf8' })
+    if (run.status !== 0) {
+      console.error(`${script} не прошёл:\n${run.stdout}${run.stderr}`)
+      process.exit(1)
+    }
+  }
+  moved.push('вид витрины: список свойств и каталог панели')
   if (LANG) {
     /* Строку DEFAULT_LANG читает tools/routes.mjs регуляркой — запись та же,
        меняется только код; корень переадресуется туда же. */
