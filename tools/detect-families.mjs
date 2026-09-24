@@ -66,6 +66,15 @@ export const DETECT_MAP = {
   'content-hidden-at-rest': 'hiddenAtRest',
   'edge-flush-cards': 'edgeFlush',
   'first-viewport-column-overflow': 'firstScreen',
+  /* Детектор меряет только вертикаль: воздух над заголовком против воздуха
+     под ним. Раздел документа — примитив `sidebar` (пакет A, И291): имя
+     слева, текст справа, — и под таким заголовком ничего нет; детектор брал
+     «воздух под» до чужого низа и на 1440 насчитал 9 «прижатых» заголовков
+     там, где они стоят сбоку. Находка снимается, когда заголовок и его
+     следующий блок не стоят друг над другом — горизонтали не пересекаются
+     (отбор в tools/check-detect.mjs, образец `/beside` в
+     selftest/detect.test.mjs; И302). Сложенный в столбик на телефоне раздел
+     меряется как обычно. */
   'heading-rhythm': 'headCrowd',
   'text-occlusion': 'occluded',
   'wide-tracking': 'trackWide',
@@ -157,7 +166,7 @@ export const DETECT_SOURCES = {
   hiddenAtRest: `content-hidden-at-rest — после прокрутки до низа невидимо не меньше ${HIDDEN_AT_REST.share * 100}% текста страницы (от ${HIDDEN_AT_REST.minChars} знаков); замер детектора, порог набора`,
   edgeFlush: 'edge-flush-cards — карточка в горизонтальной полосе в покое стоит вплотную к её краю, у другого края поле есть',
   firstScreen: 'first-viewport-column-overflow — колонка первого раздела уходит далеко за низ окна, соседняя помещается',
-  headCrowd: 'heading-rhythm — воздух над заголовком не больше воздуха под ним',
+  headCrowd: 'heading-rhythm — воздух над заголовком не больше воздуха под ним; заголовок сбоку от своего блока (горизонтали не пересекаются) не считается — детектор меряет только вертикаль',
   occluded: 'text-occlusion — текст под непрозрачным элементом или под другой строкой',
   trackWide: 'wide-tracking — letter-spacing больше 0.05em у сплошного текста',
   capsBody: 'all-caps-body — длинный текст в text-transform: uppercase',
