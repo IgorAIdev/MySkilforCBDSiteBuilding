@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>52 · Меню кабинета с текущим пунктом</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 52 — «Меню кабинета с текущим пунктом». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тёмные краски — тёмное приходит темой палитры; выбранный по фокусу — текущий пункт отмечается aria-current, а не фокусом; черта за краем меню.
+  Приведено к единой форме: меню — бумага с волоском, пункты — ссылки строкой со знаком; текущий — тон и черта марки у начала строки; значки из листа набора: заказы, избранное, адреса, профиль; фокус — кольцо.
+  Наведение: строка: подложка 5 %. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <nav class="menu" data-nav aria-label="Account"><a class="el" data-voice="ghost" data-row href="#" aria-current="page"><svg data-sign="package"></svg>Orders</a><a class="el" data-voice="ghost" data-row href="#"><svg data-sign="heart"></svg>Favourites</a><a class="el" data-voice="ghost" data-row href="#"><svg data-sign="map-pin"></svg>Addresses</a><a class="el" data-voice="ghost" data-row href="#"><svg data-sign="user"></svg>Profile</a></nav>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><nav class="menu" data-nav><span class="el" data-voice="ghost" data-row data-on><svg data-sign="package"></svg>Orders</span><span class="el" data-voice="ghost" data-row><svg data-sign="heart"></svg>Favourites</span><span class="el" data-voice="ghost" data-row><svg data-sign="map-pin"></svg>Addresses</span><span class="el" data-voice="ghost" data-row><svg data-sign="user"></svg>Profile</span></nav><figcaption>покой</figcaption></figure>
+    <figure><nav class="menu" data-nav><span class="el" data-voice="ghost" data-row data-on><svg data-sign="package"></svg>Orders</span><span class="el" data-voice="ghost" data-row data-state="hover"><svg data-sign="heart"></svg>Favourites</span><span class="el" data-voice="ghost" data-row><svg data-sign="map-pin"></svg>Addresses</span><span class="el" data-voice="ghost" data-row><svg data-sign="user"></svg>Profile</span></nav><figcaption>наведение</figcaption></figure>
+    <figure><nav class="menu" data-nav><span class="el" data-voice="ghost" data-row data-on><svg data-sign="package"></svg>Orders</span><span class="el" data-voice="ghost" data-row data-state="press"><svg data-sign="heart"></svg>Favourites</span><span class="el" data-voice="ghost" data-row><svg data-sign="map-pin"></svg>Addresses</span><span class="el" data-voice="ghost" data-row><svg data-sign="user"></svg>Profile</span></nav><figcaption>нажатие</figcaption></figure>
+    <figure><nav class="menu" data-nav><span class="el" data-voice="ghost" data-row data-on><svg data-sign="package"></svg>Orders</span><span class="el" data-voice="ghost" data-row data-state="focus"><svg data-sign="heart"></svg>Favourites</span><span class="el" data-voice="ghost" data-row><svg data-sign="map-pin"></svg>Addresses</span><span class="el" data-voice="ghost" data-row><svg data-sign="user"></svg>Profile</span></nav><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

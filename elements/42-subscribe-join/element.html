@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>42 · Подписка: поле и кнопка встык</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 42 — «Подписка: поле и кнопка встык». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: белое вписанное на прозрачном — поле стоит на полу страницы; смена фиолетового на почти такой же под рукой — разницы не видно; синяя кромка фокуса — кольцо набора вокруг пары; рост 50 px и ширина 150 px.
+  Приведено к единой форме: поле контуром краской марки и главная кнопка набора — одна коробка, угол только у внешних краёв; рост 40 у обоих; вписанное — тело не меньше 16 px.
+  Наведение: кнопка: марка + 5 % краски надписи; кромка поля — краской нажатия. Нажатие: кнопка + 9 % и на месте — без сжатия: встык она не отходит от поля.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="join"><label class="field" data-voice="line" data-edge="pop"><input type="email" placeholder="Your email" aria-label="Email"></label><button class="el" data-voice="loud" type="button">Subscribe</button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="join"><span class="field" data-voice="line" data-edge="pop"><input type="email" placeholder="Your email" tabindex="-1" readonly></span><span class="el" data-voice="loud">Subscribe</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="join"><span class="field" data-voice="line" data-edge="pop"><input type="email" placeholder="Your email" tabindex="-1" readonly></span><span class="el" data-voice="loud" data-state="hover">Subscribe</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="join"><span class="field" data-voice="line" data-edge="pop"><input type="email" placeholder="Your email" tabindex="-1" readonly></span><span class="el" data-voice="loud" data-state="press">Subscribe</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="join"><span class="field" data-voice="line" data-edge="pop" data-state="focus"><input type="email" placeholder="Your email" tabindex="-1" readonly></span><span class="el" data-voice="loud">Subscribe</span></div><figcaption>фокус</figcaption></figure>
+    <figure><div class="join"><span class="field" data-voice="line" data-edge="pop"><input type="email" placeholder="Your email" tabindex="-1" readonly value="anna@example.com"></span><span class="el" data-voice="loud">Subscribe</span></div><figcaption>заполнено</figcaption></figure>
+  </div>
+</body>
+</html>

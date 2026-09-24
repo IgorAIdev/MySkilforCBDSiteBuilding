@@ -31,6 +31,21 @@
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
+  /* Меню разделов: нажатый пункт становится текущим (aria-current). */
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-nav] a')
+    if (!a) return
+    e.preventDefault()
+    for (const x of a.closest('[data-nav]').querySelectorAll('a')) x.removeAttribute('aria-current')
+    a.setAttribute('aria-current', 'page')
+  })
+  /* «Очистить» у поля: вписанное стирается, курсор остаётся в поле. */
+  document.addEventListener('click', (e) => {
+    const input = e.target.closest('button[data-clear]')?.closest('.field')?.querySelector('input')
+    if (!input) return
+    input.value = ''
+    input.focus()
+  })
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button[aria-expanded], button[aria-pressed], button[aria-checked]')
     if (!b) return

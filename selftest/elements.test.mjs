@@ -9,7 +9,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { auditElements, toHtml, sheetIds } from '../tools/elements.mjs'
+import { auditElements, toHtml, sheetIds, byKind, listKinds } from '../tools/elements.mjs'
 
 const DIR = fileURLToPath(new URL('../elements', import.meta.url))
 const ids = sheetIds(readFileSync(fileURLToPath(new URL('../styles/icons.svg', import.meta.url)), 'utf8'))
@@ -64,4 +64,42 @@ test('the page lists every element under its family, with its tags', () => {
   assert.match(html, /Мягкий тон/)
   assert.match(html, /поворот знака/)
   assert.match(toHtml(catalog, ['Латунь на угле', 'Аптека']), /data-set="palette"[\s\S]*data-value="Аптека"/, 'палитры набора — переключателем')
+})
+
+/* Поле не нажимается — в него пишут (И350): у элемента из одних полей
+   вместо нажатия продумано заполненное, застывшими — наведение и фокус. */
+test('a field needs no press state: it thinks out the filled one and shows hover and focus frozen', () => {
+  const field = catalog.элементы.find((e) => e.род.every((k) => k === 'поле'))
+  assert.ok(field, 'в каталоге есть поле')
+  assert.equal(field.состояния.нажатие, undefined)
+  assert.deepEqual(auditElements({ ...catalog, элементы: [field] }, read, ids), [])
+  const unthought = structuredClone(field)
+  delete unthought.состояния.заполнено
+  assert.match(auditElements({ ...catalog, элементы: [unthought] }, read, ids).join('\n'), /состояние «заполнено» не продумано/)
+  const page = read(`${field.папка}/element.html`)
+  const found = auditElements({ ...catalog, элементы: [field] }, (p) => (p.endsWith('element.html') ? page.replaceAll('data-state="focus"', '') : read(p)), ids).join('\n')
+  assert.match(found, /наведение и фокус не показаны застывшими/)
+})
+
+/* Элементы ищутся по роду (И351): оглавление на странице и выдача сессиям —
+   из одного счёта; элемент с двумя родами стоит в обоих; имя — адрес поиска,
+   двух одинаковых не бывает. */
+test('elements are found by kind: one table of contents for the page and for --list', () => {
+  const both = catalog.элементы.find((e) => e.род.length > 1)
+  for (const k of both.род) assert.ok(byKind(catalog).find(([kind]) => kind === k)[1].includes(both), `${both.папка} стоит в роде «${k}»`)
+  const lines = listKinds(catalog, 'поле')
+  assert.match(lines[0], /^поле — \d+$/)
+  for (const e of catalog.элементы.filter((x) => x.род.includes('поле'))) assert.ok(lines.includes(`  ${e.папка.slice(0, 2)} · ${e.имя} · ${catalog.семьи[e.семья].имя}`))
+  assert.deepEqual(listKinds(catalog, 'нет-такого'), [])
+  const html = toHtml(catalog)
+  for (const e of catalog.элементы) {
+    assert.ok(html.includes(`id="e-${e.папка.slice(0, 2)}"`), `у ${e.папка} есть якорь`)
+    assert.ok(html.includes(`href="#e-${e.папка.slice(0, 2)}"`), `${e.папка} есть в оглавлении`)
+  }
+})
+
+test('two elements with one name are named', () => {
+  const twin = structuredClone(catalog)
+  twin.элементы[1].имя = twin.элементы[0].имя
+  assert.match(auditElements(twin, read, ids).join('\n'), /имя «.+» уже занято/)
 })

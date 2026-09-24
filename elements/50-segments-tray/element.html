@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>50 · Сегменты в подложке</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 50 — «Сегменты в подложке». Источник — два CSS от заказчика 24.09.2026: сегменты в серой подложке и тёмный «остров» — после разбора одни (source.css, source-2.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: волосок вокруг подложки; переезд плашки 0.4 s и сжатие 0.92 второго источника — плашка встаёт на место; чёрный и серые краски второго источника — чернила палитры; ширина 300 и 340 px.
+  Приведено к единой форме: подложка — тон набора; выбранный — плашка пола и полужирное слово; вариант второго источника: пилюля чернилами, выбранный — плашкой краски подписи; пункты — радио, фокус — кольцо у пункта.
+  Наведение: подложка 5 % чернил. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="column"><div class="tabs" role="radiogroup" aria-label="Category"><label class="el"><input type="radio" name="category" checked>All</label><label class="el"><input type="radio" name="category">Oils</label><label class="el"><input type="radio" name="category">Balms</label></div><div class="tabs" data-voice="ink" data-shape="pill" role="radiogroup" aria-label="Period"><label class="el"><input type="radio" name="period" checked>Day</label><label class="el"><input type="radio" name="period">Week</label><label class="el"><input type="radio" name="period">Month</label></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tabs"><span class="el" data-on>All</span><span class="el">Oils</span><span class="el">Balms</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tabs"><span class="el" data-on>All</span><span class="el" data-state="hover">Oils</span><span class="el">Balms</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tabs"><span class="el" data-on>All</span><span class="el" data-state="press">Oils</span><span class="el">Balms</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tabs"><span class="el" data-on>All</span><span class="el" data-state="focus">Oils</span><span class="el">Balms</span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

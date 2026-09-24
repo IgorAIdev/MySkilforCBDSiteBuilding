@@ -10,17 +10,17 @@
 <link rel="stylesheet" href="../base.css">
 <script src="../stage.js"></script>
 <!--
-  Элемент 27 — «Карточка согласия на cookie». Источник — CSS от заказчика 24.09.2026 (source.css).
+  Элемент 27 — «Карточка согласия на cookie». Источник — два CSS от заказчика 24.09.2026: карточка со щитом и двумя кнопками; карточка с одной кнопкой контуром (переслана из сессии «Кнопки и дизайн») — после разбора одна (source.css, source-2.css).
   В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
   роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
-  Снято: тени карточки и кнопок; курсор «нельзя» у «Отказаться» — отказ обязан быть так же доступен, как согласие; рост тени под рукой.
-  Приведено к единой форме: лист с волоском краской --rule вместо тени; значок — щит из листа набора: печенья в листе нет; ссылка в тексте подчёркнута всегда, краской марки (И289); кнопки — главная и тихая пилюли набора, рост 32; заголовок — роль h3 шкалы, текст — роль сноски.
+  Снято: тени карточки и кнопок; курсор «нельзя» у «Отказаться» — отказ обязан быть так же доступен, как согласие; рост тени под рукой; у второго: единственная «Принять» без отказа — отказ добавлен кнопкой без фона; у второго: смещения заголовка и кнопки на глаз (left 90 и 115 px), шрифт Verdana; у второго: ссылка теряет подчёркивание под рукой.
+  Приведено к единой форме: лист с волоском краской --rule вместо тени; значок — щит из листа набора: печенья в листе нет; ссылка в тексте подчёркнута всегда, краской марки (И289); кнопки — главная и тихая пилюли набора, рост 32; заголовок — роль h3 шкалы, текст — роль сноски; вариант второго источника: без знака, «Принять» контуром — под рукой встаёт в голос марки, «Отказаться» — без фона.
   Наведение: у кнопок: марка и тон + 5 % краски надписи. Нажатие: у кнопок: + 9 %, 0.97 и на пиксель ниже.
 -->
 </head>
 <body>
   <div class="live one">
-    <div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><button class="el" data-voice="loud" data-shape="pill" data-size="sm" type="button">Accept</button><button class="el" data-shape="pill" data-size="sm" type="button">Decline</button></div></div>
+    <div class="column"><div class="card" data-align="center"><span class="mark"><svg data-sign="shield-check"></svg></span><p class="title">We use cookies</p><p class="text">This site keeps cookies so your cart and language are remembered. Read the <a href="#">cookie policy</a>.</p><div class="actions"><button class="el" data-voice="loud" data-shape="pill" data-size="sm" type="button">Accept</button><button class="el" data-shape="pill" data-size="sm" type="button">Decline</button></div></div><div class="card" data-align="center"><p class="title">Cookies</p><p class="text">We use cookies to remember your cart. Read the <a href="#">cookie policy</a>.</p><div class="actions"><button class="el" data-voice="line" data-size="sm" type="button">Accept</button><button class="el" data-voice="ghost" data-size="sm" type="button">Decline</button></div></div></div>
   </div>
 
   <div class="states" aria-hidden="true">

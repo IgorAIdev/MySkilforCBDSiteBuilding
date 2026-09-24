@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>54 · Вкладки-листы как в браузере</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 54 — «Вкладки-листы как в браузере». Источник — CSS от заказчика 24.09.2026 (макет окна браузера), переслан из сессии «Кнопки и дизайн»; поле сообщения из того же источника — 55 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: окно браузера вокруг — обёртка показа: строка адреса, кнопка новой вкладки, серые рамки; адрес, выезжающий из-под вкладки, — адрес стоит в панели; плавность 200 ms.
+  Приведено к единой форме: полоса вкладок — тон, у вкладок скруглён только верх; выбранная — пол страницы и сливается с панелью под ней; панель показывает своё у каждой вкладки; значки из листа набора вместо значков сайтов; пункты — радио, фокус — кольцо у вкладки.
+  Наведение: подложка 5 % чернил. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="tabbed"><div class="tabs" data-pick="sheet" role="radiogroup" aria-label="Pages"><label class="el" data-size="sm"><input type="radio" name="pages" checked><svg data-sign="leaf"></svg>Oils</label><label class="el" data-size="sm"><input type="radio" name="pages"><svg data-sign="flask-conical"></svg>Lab reports</label><label class="el" data-size="sm"><input type="radio" name="pages"><svg data-sign="truck"></svg>Delivery</label></div><div class="panel"><p>cbd.example/oils — 24 products, from 19,90 €.</p><p>cbd.example/lab — a report for every batch.</p><p>cbd.example/delivery — courier, pickup point or locker.</p></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tabbed"><div class="tabs" data-pick="sheet"><span class="el" data-size="sm" data-on><svg data-sign="leaf"></svg>Oils</span><span class="el" data-size="sm"><svg data-sign="flask-conical"></svg>Lab reports</span><span class="el" data-size="sm"><svg data-sign="truck"></svg>Delivery</span></div><div class="panel"><p>cbd.example/oils — 24 products, from 19,90 €.</p><p>cbd.example/lab — a report for every batch.</p><p>cbd.example/delivery — courier, pickup point or locker.</p></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tabbed"><div class="tabs" data-pick="sheet"><span class="el" data-size="sm" data-on><svg data-sign="leaf"></svg>Oils</span><span class="el" data-size="sm" data-state="hover"><svg data-sign="flask-conical"></svg>Lab reports</span><span class="el" data-size="sm"><svg data-sign="truck"></svg>Delivery</span></div><div class="panel"><p>cbd.example/oils — 24 products, from 19,90 €.</p><p>cbd.example/lab — a report for every batch.</p><p>cbd.example/delivery — courier, pickup point or locker.</p></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tabbed"><div class="tabs" data-pick="sheet"><span class="el" data-size="sm" data-on><svg data-sign="leaf"></svg>Oils</span><span class="el" data-size="sm" data-state="press"><svg data-sign="flask-conical"></svg>Lab reports</span><span class="el" data-size="sm"><svg data-sign="truck"></svg>Delivery</span></div><div class="panel"><p>cbd.example/oils — 24 products, from 19,90 €.</p><p>cbd.example/lab — a report for every batch.</p><p>cbd.example/delivery — courier, pickup point or locker.</p></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tabbed"><div class="tabs" data-pick="sheet"><span class="el" data-size="sm" data-on><svg data-sign="leaf"></svg>Oils</span><span class="el" data-size="sm" data-state="focus"><svg data-sign="flask-conical"></svg>Lab reports</span><span class="el" data-size="sm"><svg data-sign="truck"></svg>Delivery</span></div><div class="panel"><p>cbd.example/oils — 24 products, from 19,90 €.</p><p>cbd.example/lab — a report for every batch.</p><p>cbd.example/delivery — courier, pickup point or locker.</p></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

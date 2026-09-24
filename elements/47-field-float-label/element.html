@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>47 · Поле с подписью на кромке</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 47 — «Поле с подписью на кромке». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: езда подписи 0.3 s и её сжатие 0.9 — подпись меняет место, а не едет; кромка 2 px и сиреневая кромка при вводе; серая подложка подписи — пол страницы.
+  Приведено к единой форме: пилюля контуром набора; подпись: пока пусто — внутри, как подсказка; на фокусе и когда вписано — на кромке, ролью сноски на полу страницы; на фокусе подпись — краской марки; фокус — кромка краской кольца толщиной кольца; подпись и вписанное стоят на одной линии — одна ручка отступа.
+  Наведение: кромка — чернилами. Нажатия нет — поле; фокус: кромка краской кольца толщиной кольца — внешнее кольцо подпись на кромке разрезала бы; подпись встаёт на кромку краской марки.
+-->
+</head>
+<body>
+  <div class="live one">
+    <label class="field" data-voice="line" data-shape="pill" data-float><input type="text" placeholder=" "><span class="float">Your name</span></label>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="field" data-voice="line" data-shape="pill" data-float><input type="text" placeholder=" " tabindex="-1" readonly><span class="float">Your name</span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="field" data-voice="line" data-shape="pill" data-float data-state="hover"><input type="text" placeholder=" " tabindex="-1" readonly><span class="float">Your name</span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="field" data-voice="line" data-shape="pill" data-float data-state="focus"><input type="text" placeholder=" " tabindex="-1" readonly><span class="float">Your name</span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="field" data-voice="line" data-shape="pill" data-float><input type="text" placeholder=" " tabindex="-1" readonly value="Anna Popescu"><span class="float">Your name</span></span><figcaption>заполнено</figcaption></figure>
+  </div>
+</body>
+</html>

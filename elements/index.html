@@ -35,6 +35,14 @@
   .bar > span{font-size:.875rem;color:#5F5E5A}
   iframe{inline-size:100%;border:1px solid #E4E3DF;border-radius:12px;background:#fff}
   a{color:inherit}
+  .toc{display:grid;gap:4px;padding:16px 20px;border-radius:16px;background:#fff;font-size:.875rem}
+  .toc h2{font-size:1rem;margin-block-end:6px}
+  .toc p{margin:0;display:grid;grid-template-columns:10.5em 1fr;gap:12px;align-items:baseline}
+  .toc b{font-weight:600}
+  .toc span{display:flex;flex-wrap:wrap;gap:4px}
+  .toc a{padding:2px 7px;border-radius:6px;background:#F1F0EC;text-decoration:none;font-variant-numeric:tabular-nums}
+  .toc a:hover{background:#1C1A18;color:#fff}
+  article{scroll-margin-block-start:16px}
   [hidden]{display:none !important}
 </style>
 </head>
@@ -63,25 +71,46 @@
     <span>Род</span>
     <div class="filter" role="group" aria-label="Род" data-set="kind">
       <button type="button" data-kind="" aria-pressed="true">Все</button>
+      <button type="button" data-kind="кнопка" aria-pressed="false">кнопка</button>
+      <button type="button" data-kind="кнопка-знак" aria-pressed="false">кнопка-знак</button>
+      <button type="button" data-kind="знак-ссылка" aria-pressed="false">знак-ссылка</button>
+      <button type="button" data-kind="фишка" aria-pressed="false">фишка</button>
+      <button type="button" data-kind="лоток" aria-pressed="false">лоток</button>
+      <button type="button" data-kind="переключатель" aria-pressed="false">переключатель</button>
+      <button type="button" data-kind="вкладки" aria-pressed="false">вкладки</button>
+      <button type="button" data-kind="радиокнопка" aria-pressed="false">радиокнопка</button>
       <button type="button" data-kind="ползунок значения" aria-pressed="false">ползунок значения</button>
+      <button type="button" data-kind="поле" aria-pressed="false">поле</button>
+      <button type="button" data-kind="меню" aria-pressed="false">меню</button>
       <button type="button" data-kind="карточка" aria-pressed="false">карточка</button>
       <button type="button" data-kind="сообщение" aria-pressed="false">сообщение</button>
       <button type="button" data-kind="окно" aria-pressed="false">окно</button>
-      <button type="button" data-kind="меню" aria-pressed="false">меню</button>
-      <button type="button" data-kind="переключатель" aria-pressed="false">переключатель</button>
-      <button type="button" data-kind="кнопка" aria-pressed="false">кнопка</button>
-      <button type="button" data-kind="кнопка-знак" aria-pressed="false">кнопка-знак</button>
-      <button type="button" data-kind="фишка" aria-pressed="false">фишка</button>
-      <button type="button" data-kind="знак-ссылка" aria-pressed="false">знак-ссылка</button>
-      <button type="button" data-kind="лоток" aria-pressed="false">лоток</button>
       <button type="button" data-kind="набор значков" aria-pressed="false">набор значков</button>
     </div>
   </div>
+  <nav class="toc" aria-label="Оглавление по роду">
+    <h2>Оглавление по роду</h2>
+    <p><b>кнопка</b> <span><a href="#e-02" title="Explore со стрелкой">02</a> <a href="#e-03" title="Главная со стрелкой">03</a> <a href="#e-04" title="Главная с плиткой стрелки">04</a> <a href="#e-05" title="Заглавные, под рукой — марка">05</a> <a href="#e-06" title="Градиент марки">06</a> <a href="#e-07" title="Черта и заглавные">07</a> <a href="#e-08" title="Тёмная в рамке марки">08</a> <a href="#e-10" title="След стрелок">10</a> <a href="#e-16" title="Главная пилюля, стрелка едет">16</a> <a href="#e-17" title="Тёмная, под рукой — стрелка">17</a> <a href="#e-18" title="Действие со счётом">18</a> <a href="#e-19" title="Градиент марки со знаком в круге">19</a> <a href="#e-20" title="Главная — слово">20</a> <a href="#e-27" title="Карточка согласия на cookie">27</a> <a href="#e-28" title="Карточка товара с размерами">28</a> <a href="#e-29" title="Сообщение: успех">29</a> <a href="#e-32" title="Окно с условиями">32</a> <a href="#e-33" title="Меню действий">33</a> <a href="#e-34" title="Меню учётной записи">34</a> <a href="#e-35" title="Список настроек">35</a> <a href="#e-36" title="Панель с ползунками">36</a> <a href="#e-38" title="Сообщение: добавлено в корзину">38</a> <a href="#e-42" title="Подписка: поле и кнопка встык">42</a></span></p>
+    <p><b>кнопка-знак</b> <span><a href="#e-01" title="Пилюли шапки">01</a> <a href="#e-09" title="Лоток значков: пять движений">09</a> <a href="#e-21" title="Полоски меню → крест">21</a> <a href="#e-22" title="Полоски меню → стрелка">22</a> <a href="#e-23" title="Луна и солнце в круге">23</a> <a href="#e-26" title="Сердце «в избранное»">26</a> <a href="#e-31" title="Всплывающее сообщение: ошибка">31</a> <a href="#e-37" title="Карточка товара: мини">37</a> <a href="#e-38" title="Сообщение: добавлено в корзину">38</a> <a href="#e-39" title="Полоса значков с подсказкой">39</a> <a href="#e-44" title="Поиск-пилюля с очисткой">44</a> <a href="#e-55" title="Поле сообщения с кнопками">55</a></span></p>
+    <p><b>знак-ссылка</b> <span><a href="#e-11" title="Знак «куда ведёт»: штрих">11</a> <a href="#e-12" title="Знак «куда ведёт»: разбег">12</a> <a href="#e-13" title="Знак «куда ведёт»: заливка">13</a> <a href="#e-14" title="Знак «куда ведёт»: обводка">14</a></span></p>
+    <p><b>фишка</b> <span><a href="#e-01" title="Пилюли шапки">01</a> <a href="#e-28" title="Карточка товара с размерами">28</a></span></p>
+    <p><b>лоток</b> <span><a href="#e-09" title="Лоток значков: пять движений">09</a> <a href="#e-39" title="Полоса значков с подсказкой">39</a></span></p>
+    <p><b>переключатель</b> <span><a href="#e-21" title="Полоски меню → крест">21</a> <a href="#e-22" title="Полоски меню → стрелка">22</a> <a href="#e-23" title="Луна и солнце в круге">23</a> <a href="#e-24" title="Ползунок темы">24</a> <a href="#e-25" title="Ползунок: ручка крупнее дорожки">25</a> <a href="#e-26" title="Сердце «в избранное»">26</a></span></p>
+    <p><b>вкладки</b> <span><a href="#e-48" title="Полоса разделов значками">48</a> <a href="#e-49" title="Сегменты встык">49</a> <a href="#e-50" title="Сегменты в подложке">50</a> <a href="#e-51" title="Вкладки-пилюли со счётчиком">51</a> <a href="#e-54" title="Вкладки-листы как в браузере">54</a></span></p>
+    <p><b>радиокнопка</b> <span><a href="#e-53" title="Список радиокнопок">53</a></span></p>
+    <p><b>ползунок значения</b> <span><a href="#e-36" title="Панель с ползунками">36</a></span></p>
+    <p><b>поле</b> <span><a href="#e-41" title="Поле тоном">41</a> <a href="#e-42" title="Подписка: поле и кнопка встык">42</a> <a href="#e-43" title="Поле контуром">43</a> <a href="#e-44" title="Поиск-пилюля с очисткой">44</a> <a href="#e-45" title="Поиск с подсказками">45</a> <a href="#e-46" title="Поле с подписью и пояснением">46</a> <a href="#e-47" title="Поле с подписью на кромке">47</a> <a href="#e-55" title="Поле сообщения с кнопками">55</a></span></p>
+    <p><b>меню</b> <span><a href="#e-33" title="Меню действий">33</a> <a href="#e-34" title="Меню учётной записи">34</a> <a href="#e-35" title="Список настроек">35</a> <a href="#e-45" title="Поиск с подсказками">45</a> <a href="#e-52" title="Меню кабинета с текущим пунктом">52</a></span></p>
+    <p><b>карточка</b> <span><a href="#e-27" title="Карточка согласия на cookie">27</a> <a href="#e-28" title="Карточка товара с размерами">28</a> <a href="#e-30" title="Карточка с отметкой">30</a> <a href="#e-36" title="Панель с ползунками">36</a> <a href="#e-37" title="Карточка товара: мини">37</a> <a href="#e-40" title="Карточка-ссылка с чертой марки">40</a></span></p>
+    <p><b>сообщение</b> <span><a href="#e-29" title="Сообщение: успех">29</a> <a href="#e-31" title="Всплывающее сообщение: ошибка">31</a> <a href="#e-38" title="Сообщение: добавлено в корзину">38</a></span></p>
+    <p><b>окно</b> <span><a href="#e-32" title="Окно с условиями">32</a></span></p>
+    <p><b>набор значков</b> <span><a href="#e-15" title="Лист значков cbdin.bg">15</a></span></p>
+  </nav>
     <section class="family" data-family="мягкий-тон">
       <h2>Мягкий тон</h2>
       <p class="note">пилюля и круг, тон 8 % чернил, без рамки и тени, значки штрихом 1.4. Подходит к характеру: Аптечная ясность, Ровный магазин.</p>
       
-      <article data-kind="кнопка-знак фишка">
+      <article id="e-01" data-kind="кнопка-знак фишка">
         <header><h3>01 · Пилюли шапки</h3><span class="chip kind">кнопка-знак</span><span class="chip kind">фишка</span></header>
         <p class="note">Значок без слова — круг, слово — пилюля той же высоты 40; тон без рамки и тени.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг, пилюля</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -91,7 +120,7 @@
           <figure><iframe data-src="01-header-pills/element.html" src="01-header-pills/element.html" height="240" title="Пилюли шапки"></iframe><figcaption>Нарисовано — <a href="01-header-pills/element.html">01-header-pills/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-02" data-kind="кнопка">
         <header><h3>02 · Explore со стрелкой</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Пилюля со словом и стрелкой в тонком кружке; стрелка смотрит вверх-вправо и под рукой встаёт вправо.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> в кружке справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> поворот знака</span></div>
@@ -101,7 +130,7 @@
           <figure><iframe data-src="02-explore-arrow/element.html" src="02-explore-arrow/element.html" height="240" title="Explore со стрелкой"></iframe><figcaption>Нарисовано — <a href="02-explore-arrow/element.html">02-explore-arrow/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-05" data-kind="кнопка">
         <header><h3>05 · Заглавные, под рукой — марка</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Тихая пилюля заглавными; под рукой заливается маркой.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> заглавные</span><span class="chip"><i>движение</i> переворот в марку</span></div>
@@ -111,7 +140,7 @@
           <figure><iframe data-src="05-caps-flip/element.html" src="05-caps-flip/element.html" height="240" title="Заглавные, под рукой — марка"></iframe><figcaption>Нарисовано — <a href="05-caps-flip/element.html">05-caps-flip/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="лоток кнопка-знак">
+      <article id="e-09" data-kind="лоток кнопка-знак">
         <header><h3>09 · Лоток значков: пять движений</h3><span class="chip kind">лоток</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Лоток тона с пятью значками; под рукой у каждого своё движение — это и есть выбор.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля, круг</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> рост, наклон, подъём, оборот</span></div>
@@ -121,7 +150,7 @@
           <figure><iframe data-src="09-icon-tray/element.html" src="09-icon-tray/element.html" height="300" title="Лоток значков: пять движений"></iframe><figcaption>Нарисовано — <a href="09-icon-tray/element.html">09-icon-tray/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="переключатель кнопка-знак">
+      <article id="e-21" data-kind="переключатель кнопка-знак">
         <header><h3>21 · Полоски меню → крест</h3><span class="chip kind">переключатель</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Кнопка меню: три полоски; открыто — крест. Слева полоски разной длины, справа — равной.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>заливка</i> без фона</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> полоски</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> полоски в крест</span></div>
@@ -131,7 +160,7 @@
           <figure><iframe data-src="21-menu-bars/element.html" src="21-menu-bars/element.html" height="260" title="Полоски меню → крест"></iframe><figcaption>Нарисовано — <a href="21-menu-bars/element.html">21-menu-bars/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="переключатель кнопка-знак">
+      <article id="e-22" data-kind="переключатель кнопка-знак">
         <header><h3>22 · Полоски меню → стрелка</h3><span class="chip kind">переключатель</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Кнопка меню: три равные полоски; открыто — стрелка. Слева «→», справа «↓».</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>заливка</i> без фона</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> полоски</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> полоски в стрелку</span></div>
@@ -141,7 +170,7 @@
           <figure><iframe data-src="22-menu-arrow/element.html" src="22-menu-arrow/element.html" height="260" title="Полоски меню → стрелка"></iframe><figcaption>Нарисовано — <a href="22-menu-arrow/element.html">22-menu-arrow/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="переключатель кнопка-знак">
+      <article id="e-23" data-kind="переключатель кнопка-знак">
         <header><h3>23 · Луна и солнце в круге</h3><span class="chip kind">переключатель</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Круглая кнопка темы: луна; включено — солнце. Справа вариант: включённая заливается маркой.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> смена знака</span></div>
@@ -151,7 +180,7 @@
           <figure><iframe data-src="23-theme-swap/element.html" src="23-theme-swap/element.html" height="260" title="Луна и солнце в круге"></iframe><figcaption>Нарисовано — <a href="23-theme-swap/element.html">23-theme-swap/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="переключатель кнопка-знак">
+      <article id="e-26" data-kind="переключатель кнопка-знак">
         <header><h3>26 · Сердце «в избранное»</h3><span class="chip kind">переключатель</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Сердце в круге: контур; включено — залито маркой. Отвечает краской, не ростом.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>заливка</i> без фона</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> заливка знака</span></div>
@@ -161,17 +190,17 @@
           <figure><iframe data-src="26-heart-toggle/element.html" src="26-heart-toggle/element.html" height="260" title="Сердце «в избранное»"></iframe><figcaption>Нарисовано — <a href="26-heart-toggle/element.html">26-heart-toggle/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="карточка кнопка">
+      <article id="e-27" data-kind="карточка кнопка">
         <header><h3>27 · Карточка согласия на cookie</h3><span class="chip kind">карточка</span><span class="chip kind">кнопка</span></header>
-        <p class="note">Карточка по центру: щит, заголовок, текст со ссылкой, «Принять» маркой и «Отказаться» тоном. Тексты — для примера.</p>
-        <div class="tags"><span class="chip"><i>форма</i> скруглённая, пилюля</span><span class="chip"><i>заливка</i> лист, марка, тон</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> сверху</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
-        <dl><dt>наведение</dt><dd>у кнопок: марка и тон + 5 % краски надписи</dd><dt>нажатие</dt><dd>у кнопок: + 9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо</dd><dt>снято</dt><dd>тени карточки и кнопок; курсор «нельзя» у «Отказаться» — отказ обязан быть так же доступен, как согласие; рост тени под рукой</dd><dt>приведено</dt><dd>лист с волоском краской --rule вместо тени; значок — щит из листа набора: печенья в листе нет; ссылка в тексте подчёркнута всегда, краской марки (И289); кнопки — главная и тихая пилюли набора, рост 32; заголовок — роль h3 шкалы, текст — роль сноски</dd></dl>
+        <p class="note">Карточка по центру: щит, заголовок, текст со ссылкой, «Принять» маркой и «Отказаться» тоном; ниже вариант второго источника — без знака, «Принять» контуром. Тексты — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая, пилюля</span><span class="chip"><i>заливка</i> лист, марка, тон, контур, без фона</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> сверху</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>у кнопок: марка и тон + 5 % краски надписи</dd><dt>нажатие</dt><dd>у кнопок: + 9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо</dd><dt>снято</dt><dd>тени карточки и кнопок; курсор «нельзя» у «Отказаться» — отказ обязан быть так же доступен, как согласие; рост тени под рукой; у второго: единственная «Принять» без отказа — отказ добавлен кнопкой без фона; у второго: смещения заголовка и кнопки на глаз (left 90 и 115 px), шрифт Verdana; у второго: ссылка теряет подчёркивание под рукой</dd><dt>приведено</dt><dd>лист с волоском краской --rule вместо тени; значок — щит из листа набора: печенья в листе нет; ссылка в тексте подчёркнута всегда, краской марки (И289); кнопки — главная и тихая пилюли набора, рост 32; заголовок — роль h3 шкалы, текст — роль сноски; вариант второго источника: без знака, «Принять» контуром — под рукой встаёт в голос марки, «Отказаться» — без фона</dd></dl>
         <div class="pair">
-          <figure><div class="src"><a href="27-cookie-card/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026</figcaption></figure>
-          <figure><iframe data-src="27-cookie-card/element.html" src="27-cookie-card/element.html" height="360" title="Карточка согласия на cookie"></iframe><figcaption>Нарисовано — <a href="27-cookie-card/element.html">27-cookie-card/element.html</a></figcaption></figure>
+          <figure><div class="src"><a href="27-cookie-card/source.css">source.css</a><a href="27-cookie-card/source-2.css">source-2.css</a></div><figcaption>Источник — два CSS от заказчика 24.09.2026: карточка со щитом и двумя кнопками; карточка с одной кнопкой контуром (переслана из сессии «Кнопки и дизайн») — после разбора одна</figcaption></figure>
+          <figure><iframe data-src="27-cookie-card/element.html" src="27-cookie-card/element.html" height="680" title="Карточка согласия на cookie"></iframe><figcaption>Нарисовано — <a href="27-cookie-card/element.html">27-cookie-card/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="карточка">
+      <article id="e-30" data-kind="карточка">
         <header><h3>30 · Карточка с отметкой</h3><span class="chip kind">карточка</span></header>
         <p class="note">Карточка: знак в круге и абзац текста. Текст — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> сверху</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -181,7 +210,7 @@
           <figure><iframe data-src="30-feature-card/element.html" src="30-feature-card/element.html" height="320" title="Карточка с отметкой"></iframe><figcaption>Нарисовано — <a href="30-feature-card/element.html">30-feature-card/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="меню кнопка">
+      <article id="e-33" data-kind="меню кнопка">
         <header><h3>33 · Меню действий</h3><span class="chip kind">меню</span><span class="chip kind">кнопка</span></header>
         <p class="note">Меню: «Добавить», «Настройки», волосок, «Удалить» краской ошибки, волосок, «Доступ команды» краской марки. Состояния показаны на первой строке.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, без фона</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -191,7 +220,7 @@
           <figure><iframe data-src="33-action-menu/element.html" src="33-action-menu/element.html" height="320" title="Меню действий"></iframe><figcaption>Нарисовано — <a href="33-action-menu/element.html">33-action-menu/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="меню кнопка">
+      <article id="e-35" data-kind="меню кнопка">
         <header><h3>35 · Список настроек</h3><span class="chip kind">меню</span><span class="chip kind">кнопка</span></header>
         <p class="note">Список настроек: имя списка и строки со знаком в плитке, названием и пояснением. Состояния — на первой строке. Тексты — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, без фона</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> в плитке слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -201,7 +230,7 @@
           <figure><iframe data-src="35-settings-list/element.html" src="35-settings-list/element.html" height="420" title="Список настроек"></iframe><figcaption>Нарисовано — <a href="35-settings-list/element.html">35-settings-list/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="карточка кнопка ползунок значения">
+      <article id="e-36" data-kind="карточка кнопка ползунок значения">
         <header><h3>36 · Панель с ползунками</h3><span class="chip kind">карточка</span><span class="chip kind">кнопка</span><span class="chip kind">ползунок значения</span></header>
         <p class="note">Панель: выбор источника, метка «Бета», «закрыть», волосок и два ползунка значения с числом. Ползунки двигаются.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая, пилюля</span><span class="chip"><i>заливка</i> лист, без фона, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -211,12 +240,82 @@
           <figure><iframe data-src="36-light-panel/element.html" src="36-light-panel/element.html" height="320" title="Панель с ползунками"></iframe><figcaption>Нарисовано — <a href="36-light-panel/element.html">36-light-panel/element.html</a></figcaption></figure>
         </div>
       </article>
+      <article id="e-41" data-kind="поле">
+        <header><h3>41 · Поле тоном</h3><span class="chip kind">поле</span></header>
+        <p class="note">Поле тоном: адрес почты и поиск с лупой. Нажатия у поля нет — в него пишут; вместо нажатия показано заполненное.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> тон</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>тон + 5 % чернил</dd><dt>фокус</dt><dd>кольцо набора; пол страницы, кромка краской кольца, лупа — краской марки</dd><dt>заполнено</dt><dd>вписанное — чернилами, подсказка уходит</dd><dt>снято</dt><dd>ореол фокуса 7 px и 5 px полупрозрачной краской; сжатие 0.95 при нажатии — поле не нажимается; тени; свои краски: синий, индиго, тёмные серые — тёмное приходит темой палитры; шрифт Montserrat — шрифт решает сайт; плавность 0.5 s</dd><dt>приведено</dt><dd>тон набора, рост 40, угол органа; лупа — из листа набора, у начала поля; вписанное — тело не меньше 16 px: иначе телефон увеличивает страницу; фокус — кольцо набора с отступом вместо ореола, кромка краской кольца; знак — краской марки</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="41-field-tone/source.css">source.css</a><a href="41-field-tone/source-2.css">source-2.css</a><a href="41-field-tone/source-3.css">source-3.css</a></div><figcaption>Источник — три CSS от заказчика 24.09.2026: светлое поле с кольцом, тёмный поиск и светлый поиск со значком — после разбора одно</figcaption></figure>
+          <figure><iframe data-src="41-field-tone/element.html" src="41-field-tone/element.html" height="300" title="Поле тоном"></iframe><figcaption>Нарисовано — <a href="41-field-tone/element.html">41-field-tone/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-44" data-kind="поле кнопка-знак">
+        <header><h3>44 · Поиск-пилюля с очисткой</h3><span class="chip kind">поле</span><span class="chip kind">кнопка-знак</span></header>
+        <p class="note">Поиск-пилюля: лупа у начала; когда вписано, у конца встаёт круг «очистить». Впишите слово — круг появится.</p>
+        <div class="tags"><span class="chip"><i>форма</i> пилюля, круг</span><span class="chip"><i>заливка</i> тон, марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>тон + 5 % чернил</dd><dt>нажатие</dt><dd>«очистить»: марка + 9 %, 0.97 и на пиксель ниже; вписанное стирается</dd><dt>фокус</dt><dd>кольцо набора; пол страницы, кромка краской кольца, лупа — краской марки</dd><dt>заполнено</dt><dd>справа встаёт «очистить»</dd><dt>снято</dt><dd>тёмно-синие краски — тёмное приходит темой палитры; тень подложки; подложка отдельным слоем с z-index −1; обход автозаполнения задержкой 9999 s</dd><dt>приведено</dt><dd>пилюля тона, лупа из листа набора у начала; фокус: кольцо набора, пол страницы, кромка краской кольца, лупа — краской марки; «очистить» — круг марки со знаком «×», появляется, когда вписано; рост 24 — порог цели WCAG 2.5.8, под пальцем больше; вписанное — тело не меньше 16 px</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="44-search-pill/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026 («поиск как в Twitter»), переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="44-search-pill/element.html" src="44-search-pill/element.html" height="300" title="Поиск-пилюля с очисткой"></iframe><figcaption>Нарисовано — <a href="44-search-pill/element.html">44-search-pill/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-45" data-kind="поле меню">
+        <header><h3>45 · Поиск с подсказками</h3><span class="chip kind">поле</span><span class="chip kind">меню</span></header>
+        <p class="note">Поиск: на фокусе под полем раскрываются последние запросы и товар. Нажмите в поле — меню откроется. Тексты и цена — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> тон, лист</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении, заглавные</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>поле: тон + 5 % чернил; строка меню: подложка 5 %</dd><dt>нажатие</dt><dd>строка меню: 9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у поля, под полем раскрывается меню</dd><dt>снято</dt><dd>появление с опусканием — меню встаёт на место, а не едет; зелёное кольцо фокуса и зелёная подложка строки; тень меню; значки даты и просмотров — в листе набора их нет; у товара вместо даты и просмотров — цена; z-index 500 — слой решает сайт (запрет 8); обрезка заголовка в две строки</dd><dt>приведено</dt><dd>поле тоном набора с лупой, как 41; меню — бумага всплывающего с волоском; на сайте — popover (запрет 8); имена разделов — заглавными с разрядкой, краской подписи; последние запросы — строки меню без фона; товар — строка со знаком в плитке, именем и ценой; фокус поля — кольцо набора</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="45-search-suggest/source.html">source.html</a></div><figcaption>Источник — разметка Tailwind от заказчика 24.09.2026, переслана из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="45-search-suggest/element.html" src="45-search-suggest/element.html" height="760" title="Поиск с подсказками"></iframe><figcaption>Нарисовано — <a href="45-search-suggest/element.html">45-search-suggest/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-50" data-kind="вкладки">
+        <header><h3>50 · Сегменты в подложке</h3><span class="chip kind">вкладки</span></header>
+        <p class="note">Сегменты в подложке тона; ниже вариант второго источника — пилюля чернилами. Состояния — на втором пункте. Слова — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая, пилюля</span><span class="chip"><i>заливка</i> тон, лист, чернила</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>плашка пола, полужирное слово</dd><dt>снято</dt><dd>волосок вокруг подложки; переезд плашки 0.4 s и сжатие 0.92 второго источника — плашка встаёт на место; чёрный и серые краски второго источника — чернила палитры; ширина 300 и 340 px</dd><dt>приведено</dt><dd>подложка — тон набора; выбранный — плашка пола и полужирное слово; вариант второго источника: пилюля чернилами, выбранный — плашкой краски подписи; пункты — радио, фокус — кольцо у пункта</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="50-segments-tray/source.css">source.css</a><a href="50-segments-tray/source-2.css">source-2.css</a></div><figcaption>Источник — два CSS от заказчика 24.09.2026: сегменты в серой подложке и тёмный «остров» — после разбора одни</figcaption></figure>
+          <figure><iframe data-src="50-segments-tray/element.html" src="50-segments-tray/element.html" height="320" title="Сегменты в подложке"></iframe><figcaption>Нарисовано — <a href="50-segments-tray/element.html">50-segments-tray/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-52" data-kind="меню">
+        <header><h3>52 · Меню кабинета с текущим пунктом</h3><span class="chip kind">меню</span></header>
+        <p class="note">Меню кабинета: текущий пункт отмечен тоном и чертой марки; нажатый становится текущим. Состояния — на втором пункте.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, без фона, тон</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>строка: подложка 5 %</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо</dd><dt>текущий</dt><dd>тон и черта марки</dd><dt>снято</dt><dd>тёмные краски — тёмное приходит темой палитры; выбранный по фокусу — текущий пункт отмечается aria-current, а не фокусом; черта за краем меню</dd><dt>приведено</dt><dd>меню — бумага с волоском, пункты — ссылки строкой со знаком; текущий — тон и черта марки у начала строки; значки из листа набора: заказы, избранное, адреса, профиль; фокус — кольцо</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="52-side-menu-current/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="52-side-menu-current/element.html" src="52-side-menu-current/element.html" height="380" title="Меню кабинета с текущим пунктом"></iframe><figcaption>Нарисовано — <a href="52-side-menu-current/element.html">52-side-menu-current/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-54" data-kind="вкладки">
+        <header><h3>54 · Вкладки-листы как в браузере</h3><span class="chip kind">вкладки</span></header>
+        <p class="note">Вкладки как в браузере: выбранная сливается с листом под ней, лист показывает её содержимое. Тексты — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> тон, лист</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>вкладка — пол страницы, сливается с панелью</dd><dt>снято</dt><dd>окно браузера вокруг — обёртка показа: строка адреса, кнопка новой вкладки, серые рамки; адрес, выезжающий из-под вкладки, — адрес стоит в панели; плавность 200 ms</dd><dt>приведено</dt><dd>полоса вкладок — тон, у вкладок скруглён только верх; выбранная — пол страницы и сливается с панелью под ней; панель показывает своё у каждой вкладки; значки из листа набора вместо значков сайтов; пункты — радио, фокус — кольцо у вкладки</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="54-browser-tabs/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026 (макет окна браузера), переслан из сессии «Кнопки и дизайн»; поле сообщения из того же источника — 55</figcaption></figure>
+          <figure><iframe data-src="54-browser-tabs/element.html" src="54-browser-tabs/element.html" height="420" title="Вкладки-листы как в браузере"></iframe><figcaption>Нарисовано — <a href="54-browser-tabs/element.html">54-browser-tabs/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-55" data-kind="поле кнопка-знак">
+        <header><h3>55 · Поле сообщения с кнопками</h3><span class="chip kind">поле</span><span class="chip kind">кнопка-знак</span></header>
+        <p class="note">Поле сообщения: несколько строк, под текстом — «прикрепить», «приватно» и «отправить». Текст — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая, круг</span><span class="chip"><i>заливка</i> тон, без фона, марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>поле: тон + 5 % чернил</dd><dt>нажатие</dt><dd>«отправить»: марка + 9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо набора, поле — пол страницы</dd><dt>заполнено</dt><dd>вписанное — чернилами</dd><dt>снято</dt><dd>мигающий курсор — у поля он свой; органы, положенные поверх текста, — теперь в ряд под ним; серые краски</dd><dt>приведено</dt><dd>поле тоном в несколько строк; «прикрепить» — плюс, «приватно» — щит из листа набора: скрепки и замка в листе нет; «отправить» — главная набора кругом со стрелкой вверх; органы под текстом: «прикрепить» у начала, остальное у конца</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="55-message-field/../54-browser-tabs/source.css">../54-browser-tabs/source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026 (макет окна браузера), переслан из сессии «Кнопки и дизайн»; источник общий с 54</figcaption></figure>
+          <figure><iframe data-src="55-message-field/element.html" src="55-message-field/element.html" height="400" title="Поле сообщения с кнопками"></iframe><figcaption>Нарисовано — <a href="55-message-field/element.html">55-message-field/element.html</a></figcaption></figure>
+        </div>
+      </article>
     </section>
     <section class="family" data-family="марка">
       <h2>Заливка марки</h2>
       <p class="note">краска марки, надпись краской на ней, угол из Shape; знак справа, в плитке, следом или в круге. Подходит к характеру: Ровный магазин, Плотная полка.</p>
       
-      <article data-kind="кнопка">
+      <article id="e-03" data-kind="кнопка">
         <header><h3>03 · Главная со стрелкой</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Кнопка марки: слово и стрелка справа.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -226,7 +325,7 @@
           <figure><iframe data-src="03-main-icon-end/element.html" src="03-main-icon-end/element.html" height="240" title="Главная со стрелкой"></iframe><figcaption>Нарисовано — <a href="03-main-icon-end/element.html">03-main-icon-end/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-04" data-kind="кнопка">
         <header><h3>04 · Главная с плиткой стрелки</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Кнопка марки со словом и светлой плиткой стрелки у конца.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> в плитке справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -236,7 +335,7 @@
           <figure><iframe data-src="04-main-tile/element.html" src="04-main-tile/element.html" height="240" title="Главная с плиткой стрелки"></iframe><figcaption>Нарисовано — <a href="04-main-tile/element.html">04-main-tile/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-06" data-kind="кнопка">
         <header><h3>06 · Градиент марки</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Пилюля с градиентом марки и светлой надписью.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> градиент марки</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -246,7 +345,7 @@
           <figure><iframe data-src="06-gradient/element.html" src="06-gradient/element.html" height="240" title="Градиент марки"></iframe><figcaption>Нарисовано — <a href="06-gradient/element.html">06-gradient/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-10" data-kind="кнопка">
         <header><h3>10 · След стрелок</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Кнопка марки со словом и стрелкой; под рукой стрелок становится три.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> след стрелок</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> след стрелок</span></div>
@@ -256,7 +355,7 @@
           <figure><iframe data-src="10-arrow-trail/element.html" src="10-arrow-trail/element.html" height="240" title="След стрелок"></iframe><figcaption>Нарисовано — <a href="10-arrow-trail/element.html">10-arrow-trail/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-16" data-kind="кнопка">
         <header><h3>16 · Главная пилюля, стрелка едет</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Пилюля марки со словом; под рукой стрелка отъезжает вперёд.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> сдвиг знака</span></div>
@@ -266,7 +365,7 @@
           <figure><iframe data-src="16-main-pill-slide/element.html" src="16-main-pill-slide/element.html" height="240" title="Главная пилюля, стрелка едет"></iframe><figcaption>Нарисовано — <a href="16-main-pill-slide/element.html">16-main-pill-slide/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-18" data-kind="кнопка">
         <header><h3>18 · Действие со счётом</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Кнопка из двух частей: действие марки и счёт на полу с уголком-указателем.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -276,7 +375,7 @@
           <figure><iframe data-src="18-like-count/element.html" src="18-like-count/element.html" height="240" title="Действие со счётом"></iframe><figcaption>Нарисовано — <a href="18-like-count/element.html">18-like-count/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-19" data-kind="кнопка">
         <header><h3>19 · Градиент марки со знаком в круге</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Пилюля с градиентом марки, у начала — круг со значком.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> градиент марки</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> в плитке слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -286,7 +385,7 @@
           <figure><iframe data-src="19-gradient-orb/element.html" src="19-gradient-orb/element.html" height="240" title="Градиент марки со знаком в круге"></iframe><figcaption>Нарисовано — <a href="19-gradient-orb/element.html">19-gradient-orb/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-20" data-kind="кнопка">
         <header><h3>20 · Главная — слово</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Кнопка марки, одно слово. Это и есть главная кнопка набора — точка отсчёта для остальных.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -296,7 +395,7 @@
           <figure><iframe data-src="20-main-word/element.html" src="20-main-word/element.html" height="240" title="Главная — слово"></iframe><figcaption>Нарисовано — <a href="20-main-word/element.html">20-main-word/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="переключатель">
+      <article id="e-25" data-kind="переключатель">
         <header><h3>25 · Ползунок: ручка крупнее дорожки</h3><span class="chip kind">переключатель</span></header>
         <p class="note">Тонкая дорожка и круглая ручка марки поверх неё — ручка крупнее дорожки.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля, круг</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> ползунок</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> ход ручки, смена знака</span></div>
@@ -306,7 +405,7 @@
           <figure><iframe data-src="25-switch-knob-over/element.html" src="25-switch-knob-over/element.html" height="260" title="Ползунок: ручка крупнее дорожки"></iframe><figcaption>Нарисовано — <a href="25-switch-knob-over/element.html">25-switch-knob-over/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="карточка кнопка фишка">
+      <article id="e-28" data-kind="карточка кнопка фишка">
         <header><h3>28 · Карточка товара с размерами</h3><span class="chip kind">карточка</span><span class="chip kind">кнопка</span><span class="chip kind">фишка</span></header>
         <p class="note">Карточка товара: кадр, название, размеры фишками, цена и «В корзину». Тексты и цена — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, марка, тон</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -316,7 +415,7 @@
           <figure><iframe data-src="28-product-card/element.html" src="28-product-card/element.html" height="460" title="Карточка товара с размерами"></iframe><figcaption>Нарисовано — <a href="28-product-card/element.html">28-product-card/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="окно кнопка">
+      <article id="e-32" data-kind="окно кнопка">
         <header><h3>32 · Окно с условиями</h3><span class="chip kind">окно</span><span class="chip kind">кнопка</span></header>
         <p class="note">Окно: шапка с выходом, прокручиваемый текст, подвал с «Отмена» и «Принять». На сайте — &lt;dialog>. Тексты — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -326,7 +425,7 @@
           <figure><iframe data-src="32-modal/element.html" src="32-modal/element.html" height="520" title="Окно с условиями"></iframe><figcaption>Нарисовано — <a href="32-modal/element.html">32-modal/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="меню кнопка">
+      <article id="e-34" data-kind="меню кнопка">
         <header><h3>34 · Меню учётной записи</h3><span class="chip kind">меню</span><span class="chip kind">кнопка</span></header>
         <p class="note">Меню учётной записи: шапка марки с адресом, «Профиль», «Настройки», «Выйти». Состояния — на первой строке. Адрес — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> в плитке слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -336,7 +435,7 @@
           <figure><iframe data-src="34-account-menu/element.html" src="34-account-menu/element.html" height="360" title="Меню учётной записи"></iframe><figcaption>Нарисовано — <a href="34-account-menu/element.html">34-account-menu/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="карточка кнопка-знак">
+      <article id="e-37" data-kind="карточка кнопка-знак">
         <header><h3>37 · Карточка товара: мини</h3><span class="chip kind">карточка</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Мини-карточка товара: кадр с меткой, название, описание, цена и круглая кнопка «добавить». Тексты и цена — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая, круг</span><span class="chip"><i>заливка</i> лист, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -346,7 +445,37 @@
           <figure><iframe data-src="37-product-mini/element.html" src="37-product-mini/element.html" height="440" title="Карточка товара: мини"></iframe><figcaption>Нарисовано — <a href="37-product-mini/element.html">37-product-mini/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="знак-ссылка">
+      <article id="e-40" data-kind="карточка">
+        <header><h3>40 · Карточка-ссылка с чертой марки</h3><span class="chip kind">карточка</span></header>
+        <p class="note">Карточка целиком — ссылка: знак в плитке, имя заглавными и текст; под рукой сверху встаёт черта марки. Текст — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> сверху</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> заглавные</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>сверху встаёт черта марки</dd><dt>нажатие</dt><dd>черта — краской нажатия, карточка на пиксель ниже; без сжатия — карточка большая</dd><dt>фокус</dt><dd>кольцо вокруг карточки</dd><dt>снято</dt><dd>текст, скрытый до наведения, — на телефоне наведения нет, текст виден всегда; рост черты по ширине и расширение карточки под рукой; тень и её рост; оранжевый и серые краски</dd><dt>приведено</dt><dd>лист с волоском; нажимается вся карточка — это ссылка; черта сверху — краской марки, встаёт под рукой; логотип — знак в плитке тона марки из листа набора; имя — заглавными с разрядкой набора, ролью сноски; текст — роль сноски</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="40-link-card/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="40-link-card/element.html" src="40-link-card/element.html" height="720" title="Карточка-ссылка с чертой марки"></iframe><figcaption>Нарисовано — <a href="40-link-card/element.html">40-link-card/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-42" data-kind="поле кнопка">
+        <header><h3>42 · Подписка: поле и кнопка встык</h3><span class="chip kind">поле</span><span class="chip kind">кнопка</span></header>
+        <p class="note">Подписка: поле почты и «Подписаться» одной коробкой. Состояния: наведение и нажатие — у кнопки, фокус и заполненное — у поля.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> контур, марка</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кнопка: марка + 5 % краски надписи; кромка поля — краской нажатия</dd><dt>нажатие</dt><dd>кнопка + 9 % и на месте — без сжатия: встык она не отходит от поля</dd><dt>фокус</dt><dd>поле: кольцо вокруг всей пары, кромка краской кольца; кнопка: кольцо</dd><dt>заполнено</dt><dd>вписанное — чернилами</dd><dt>снято</dt><dd>белое вписанное на прозрачном — поле стоит на полу страницы; смена фиолетового на почти такой же под рукой — разницы не видно; синяя кромка фокуса — кольцо набора вокруг пары; рост 50 px и ширина 150 px</dd><dt>приведено</dt><dd>поле контуром краской марки и главная кнопка набора — одна коробка, угол только у внешних краёв; рост 40 у обоих; вписанное — тело не меньше 16 px</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="42-subscribe-join/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="42-subscribe-join/element.html" src="42-subscribe-join/element.html" height="360" title="Подписка: поле и кнопка встык"></iframe><figcaption>Нарисовано — <a href="42-subscribe-join/element.html">42-subscribe-join/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-51" data-kind="вкладки">
+        <header><h3>51 · Вкладки-пилюли со счётчиком</h3><span class="chip kind">вкладки</span></header>
+        <p class="note">Вкладки-пилюли со счётчиком: у выбранной счётчик — краской марки. Слова и числа — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> контур, тон марки, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>тон марки, счётчик — маркой</dd><dt>снято</dt><dd>тени полосы; переезд плашки (glider) — плашка встаёт на место; уменьшение всей полосы до 0.6 на узком окне; z-index у всех детей; синие краски; ширина вкладки 50 px</dd><dt>приведено</dt><dd>полоса — пилюля с волоском; выбранная — тон марки, слово краской марки; счётчик — число в круге тона, у выбранной — краской марки; ширина вкладки — по слову; пункты — радио, фокус — кольцо у пункта</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="51-pill-tabs-count/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="51-pill-tabs-count/element.html" src="51-pill-tabs-count/element.html" height="260" title="Вкладки-пилюли со счётчиком"></iframe><figcaption>Нарисовано — <a href="51-pill-tabs-count/element.html">51-pill-tabs-count/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-13" data-kind="знак-ссылка">
         <header><h3>13 · Знак «куда ведёт»: заливка</h3><span class="chip kind">знак-ссылка</span></header>
         <p class="note">Круг марки под знаком. Сверху — четыре направления: вперёд, назад, наверх, вниз. Где у cbdin: снимок героя, листание полки, главное действие блока.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>заливка</i> марка</span><span class="chip"><i>движение</i> сдвиг знака</span></div>
@@ -361,7 +490,7 @@
       <h2>Линия</h2>
       <p class="note">без заливки: слово или знак краской чернил, под рукой — краской марки; контур — волосок. Подходит к характеру: Тихий люкс.</p>
       
-      <article data-kind="кнопка">
+      <article id="e-07" data-kind="кнопка">
         <header><h3>07 · Черта и заглавные</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Слово заглавными без коробки, перед ним тонкая черта.</p>
         <div class="tags"><span class="chip"><i>форма</i> без коробки</span><span class="chip"><i>заливка</i> без фона</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> черта слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> заглавные</span><span class="chip"><i>движение</i> нет</span></div>
@@ -371,7 +500,77 @@
           <figure><iframe data-src="07-dash-caps/element.html" src="07-dash-caps/element.html" height="240" title="Черта и заглавные"></iframe><figcaption>Нарисовано — <a href="07-dash-caps/element.html">07-dash-caps/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="знак-ссылка">
+      <article id="e-39" data-kind="лоток кнопка-знак">
+        <header><h3>39 · Полоса значков с подсказкой</h3><span class="chip kind">лоток</span><span class="chip kind">кнопка-знак</span></header>
+        <p class="note">Полоса из четырёх знаков; под рукой знак окрашивается маркой и над ним встаёт подсказка. Состояния — на втором знаке.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая, без коробки</span><span class="chip"><i>заливка</i> контур, без фона</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>знак — краской марки, над ним подсказка</dd><dt>нажатие</dt><dd>то же, знак 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо и подсказка</dd><dt>снято</dt><dd>тень полосы и подсказки; рост подсказки из нуля; градиентный заголовок «Hover Them» — не часть элемента; синий под рукой; поля 16 px вокруг каждого знака</dd><dt>приведено</dt><dd>полоса — лоток с волоском вместо тона; значки из листа набора: поиск, избранное, корзина, кабинет — вместо дома, сообщений, людей и настроек: дома и шестерёнки в листе нет; знак под рукой — краской марки, как у кнопок «без фона»; подсказка — лист с волоском, слово ролью сноски; видна под рукой и на фокусе с клавиатуры; имя знака — и для чтения вслух (aria-label)</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="39-icon-bar-tips/source.html">source.html</a></div><figcaption>Источник — разметка Tailwind от заказчика 24.09.2026, переслана из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="39-icon-bar-tips/element.html" src="39-icon-bar-tips/element.html" height="300" title="Полоса значков с подсказкой"></iframe><figcaption>Нарисовано — <a href="39-icon-bar-tips/element.html">39-icon-bar-tips/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-43" data-kind="поле">
+        <header><h3>43 · Поле контуром</h3><span class="chip kind">поле</span></header>
+        <p class="note">Поле контуром: имя, поиск товаров с лупой у конца и имя пользователя со знаком у начала. Нажатия у поля нет — в него пишут; вместо нажатия показано заполненное.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> контур</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> справа, слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кромка — краской чернил</dd><dt>фокус</dt><dd>кольцо набора, кромка краской кольца, лупа — краской марки</dd><dt>заполнено</dt><dd>вписанное — чернилами, подсказка уходит</dd><dt>снято</dt><dd>вдавленная внутренняя тень и её выход наружу при фокусе; тени и сжатие 0.95 при нажатии — поле не нажимается; утолщение кромки 1.5 → 2 px под рукой; свои серые, индиго, фиолетовые и синие краски; угол 3, 5 и 12 px — угол органа набора; фиолетовая подсказка в поле — подсказка краской подписи; значок «человек с плюсом» — в листе набора человек без плюса</dd><dt>приведено</dt><dd>пол страницы, кромка краской края (--edge) — видна на 3 : 1; лупа — из листа набора, у конца поля; вариант пятого источника — знак человека у начала поля; рост 40; фокус — кольцо набора, кромка краской кольца; знак — краской марки</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="43-field-line/source.css">source.css</a><a href="43-field-line/source-2.html">source-2.html</a><a href="43-field-line/source-3.css">source-3.css</a><a href="43-field-line/source-4.html">source-4.html</a><a href="43-field-line/source-5.html">source-5.html</a></div><figcaption>Источник — пять источников от заказчика 24.09.2026: простое серое поле, поиск товаров с лупой справа, поле с вдавленной тенью, почта с фиолетовым кольцом, имя пользователя со значком слева — после разбора одно</figcaption></figure>
+          <figure><iframe data-src="43-field-line/element.html" src="43-field-line/element.html" height="360" title="Поле контуром"></iframe><figcaption>Нарисовано — <a href="43-field-line/element.html">43-field-line/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-46" data-kind="поле">
+        <header><h3>46 · Поле с подписью и пояснением</h3><span class="chip kind">поле</span></header>
+        <p class="note">Поле с подписью над ним и пояснением под ним; знак почты у конца. Тексты — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> контур</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кромка — чернилами</dd><dt>фокус</dt><dd>кольцо набора, кромка краской кольца, знак — краской марки</dd><dt>заполнено</dt><dd>вписанное — чернилами</dd><dt>снято</dt><dd>своя тёмная тема (dark:) — тёмное приходит темой палитры; тень поля; синее кольцо фокуса; плавность всего сразу 0.2 s; подпись той же серой краской, что пояснение</dd><dt>приведено</dt><dd>поле контуром набора, как 43; подпись — чернилами 600, ролью сноски, связана с полем (for); пояснение — ролью сноски краской подписи, связано с полем (aria-describedby); @ — знаком почты из листа набора: @ в листе нет; подпись и пояснение прижаты к полю — четверть воздуха строки</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="46-field-labelled/source.html">source.html</a></div><figcaption>Источник — разметка Tailwind от заказчика 24.09.2026, переслана из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="46-field-labelled/element.html" src="46-field-labelled/element.html" height="340" title="Поле с подписью и пояснением"></iframe><figcaption>Нарисовано — <a href="46-field-labelled/element.html">46-field-labelled/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-47" data-kind="поле">
+        <header><h3>47 · Поле с подписью на кромке</h3><span class="chip kind">поле</span></header>
+        <p class="note">Поле, у которого подпись стоит внутри, пока пусто, и встаёт на кромку, когда в него пишут.</p>
+        <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> контур</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кромка — чернилами</dd><dt>фокус</dt><dd>кромка краской кольца толщиной кольца — внешнее кольцо подпись на кромке разрезала бы; подпись встаёт на кромку краской марки</dd><dt>заполнено</dt><dd>подпись остаётся на кромке</dd><dt>снято</dt><dd>езда подписи 0.3 s и её сжатие 0.9 — подпись меняет место, а не едет; кромка 2 px и сиреневая кромка при вводе; серая подложка подписи — пол страницы</dd><dt>приведено</dt><dd>пилюля контуром набора; подпись: пока пусто — внутри, как подсказка; на фокусе и когда вписано — на кромке, ролью сноски на полу страницы; на фокусе подпись — краской марки; фокус — кромка краской кольца толщиной кольца; подпись и вписанное стоят на одной линии — одна ручка отступа</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="47-field-float-label/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="47-field-float-label/element.html" src="47-field-float-label/element.html" height="300" title="Поле с подписью на кромке"></iframe><figcaption>Нарисовано — <a href="47-field-float-label/element.html">47-field-float-label/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-48" data-kind="вкладки">
+        <header><h3>48 · Полоса разделов значками</h3><span class="chip kind">вкладки</span></header>
+        <p class="note">Полоса разделов значками, выбран один; ниже вариант второго источника — выбор темы в пилюле. Состояния — на втором пункте.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая, пилюля</span><span class="chip"><i>заливка</i> контур, без фона, тон</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>знак — краской марки, ячейка в волоске</dd><dt>снято</dt><dd>тени полосы и выбранной ячейки; рост выбранного и наведённого знака 1.25; синие краски; плавность 0.3–0.5 s; белый знак на серой подложке при нажатии (второй источник)</dd><dt>приведено</dt><dd>полоса — лоток с волоском; пункты — радио: выбор держит браузер, стрелки ходят без скрипта; выбранный — знак краской марки в ячейке с волоском; значки из листа набора: каталог, поиск, избранное, корзина, кабинет — вместо панели, профиля, сообщений, помощи и настроек: панели и шестерёнки в листе нет; вариант второго источника — выбор темы: пилюля с волоском, выбранный — тоном; солнце и луна; имя каждого знака — для чтения вслух</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="48-icon-tabbar/source.html">source.html</a><a href="48-icon-tabbar/source-2.css">source-2.css</a></div><figcaption>Источник — разметка Tailwind и CSS от заказчика 24.09.2026: полоса разделов из пяти значков и выбор темы знаками в пилюле — после разбора одна</figcaption></figure>
+          <figure><iframe data-src="48-icon-tabbar/element.html" src="48-icon-tabbar/element.html" height="380" title="Полоса разделов значками"></iframe><figcaption>Нарисовано — <a href="48-icon-tabbar/element.html">48-icon-tabbar/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-49" data-kind="вкладки">
+        <header><h3>49 · Сегменты встык</h3><span class="chip kind">вкладки</span></header>
+        <p class="note">Сегменты встык: выбран один. Состояния — на втором. Слова — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> контур, тон марки</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>подложка 5 % чернил</dd><dt>нажатие</dt><dd>9 %, на месте — без сжатия</dd><dt>фокус</dt><dd>кольцо у пункта</dd><dt>выбрано</dt><dd>тон марки, кромка и слово — маркой</dd><dt>снято</dt><dd>синие краски и светло-синий тон; ореол фокуса 4 px; разрядка .05em; плавность фона 0.5 s</dd><dt>приведено</dt><dd>сегменты встык в волоске края, угол — у крайних; выбранный — тон марки, кромка и слово краской марки; пункты — радио, фокус — кольцо у пункта; нажатый не сжимается: встык он не отходит от соседа</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="49-segments-joined/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="49-segments-joined/element.html" src="49-segments-joined/element.html" height="260" title="Сегменты встык"></iframe><figcaption>Нарисовано — <a href="49-segments-joined/element.html">49-segments-joined/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-53" data-kind="радиокнопка">
+        <header><h3>53 · Список радиокнопок</h3><span class="chip kind">радиокнопка</span></header>
+        <p class="note">Список радиокнопок: способ доставки. Состояния — на втором пункте. Тексты — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>заливка</i> контур, марка</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> нет</span><span class="chip"><i>штрих</i> нет</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кромка чернилами, точка тоном марки</dd><dt>нажатие</dt><dd>кружок 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо у кружка</dd><dt>выбрано</dt><dd>кромка и точка марки</dd><dt>снято</dt><dd>розовый под рукой и синий у выбранного; рост точки 150 ms — точка встаёт сразу; подпись краской выбора</dd><dt>приведено</dt><dd>кружок в кромке края, точка марки; под рукой кромка — чернилами, в пустом кружке — точка тоном марки: видно, что будет выбрано; подпись нажимается вместе с кружком, чернилами; фокус — кольцо у кружка</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="53-radio-list/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026 (Uiverse.io, cbolson), переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="53-radio-list/element.html" src="53-radio-list/element.html" height="320" title="Список радиокнопок"></iframe><figcaption>Нарисовано — <a href="53-radio-list/element.html">53-radio-list/element.html</a></figcaption></figure>
+        </div>
+      </article>
+      <article id="e-11" data-kind="знак-ссылка">
         <header><h3>11 · Знак «куда ведёт»: штрих</h3><span class="chip kind">знак-ссылка</span></header>
         <p class="note">Ничего не нарисовано — только знак. Где у cbdin: плашка, ссылка в тексте, там, где коробка лишняя.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>заливка</i> без фона</span><span class="chip"><i>движение</i> сдвиг знака</span></div>
@@ -381,7 +580,7 @@
           <figure><iframe data-src="11-go-stroke/element.html" src="11-go-stroke/element.html" height="240" title="Знак «куда ведёт»: штрих"></iframe><figcaption>Нарисовано — <a href="11-go-stroke/element.html">11-go-stroke/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="знак-ссылка">
+      <article id="e-12" data-kind="знак-ссылка">
         <header><h3>12 · Знак «куда ведёт»: разбег</h3><span class="chip kind">знак-ссылка</span></header>
         <p class="note">Тот же знак, но с места берёт разбег. Где у cbdin: там, где знак стоит один и вокруг него нет коробки.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>заливка</i> без фона</span><span class="chip"><i>движение</i> разбег</span></div>
@@ -391,7 +590,7 @@
           <figure><iframe data-src="12-go-run/element.html" src="12-go-run/element.html" height="240" title="Знак «куда ведёт»: разбег"></iframe><figcaption>Нарисовано — <a href="12-go-run/element.html">12-go-run/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="знак-ссылка">
+      <article id="e-14" data-kind="знак-ссылка">
         <header><h3>14 · Знак «куда ведёт»: обводка</h3><span class="chip kind">знак-ссылка</span></header>
         <p class="note">Волосяное кольцо, сквозь которое видно фон. У cbdin — взят: выход из блока, стрелки полки, кадр героя, галерея товара.</p>
         <div class="tags"><span class="chip"><i>форма</i> круг</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> без слова</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>заливка</i> контур</span><span class="chip"><i>движение</i> сдвиг знака, переворот в марку</span></div>
@@ -406,7 +605,7 @@
       <h2>Чернила</h2>
       <p class="note">тёмная заливка чернил, светлая надпись, тонкая рамка марки. Подходит к характеру: Тихий люкс.</p>
       
-      <article data-kind="кнопка">
+      <article id="e-08" data-kind="кнопка">
         <header><h3>08 · Тёмная в рамке марки</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Тёмная кнопка со значком и словом в тонкой рамке марки.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> чернила</span><span class="chip"><i>глубина</i> рамка</span><span class="chip"><i>знак</i> слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -416,7 +615,7 @@
           <figure><iframe data-src="08-ink-frame/element.html" src="08-ink-frame/element.html" height="240" title="Тёмная в рамке марки"></iframe><figcaption>Нарисовано — <a href="08-ink-frame/element.html">08-ink-frame/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="кнопка">
+      <article id="e-17" data-kind="кнопка">
         <header><h3>17 · Тёмная, под рукой — стрелка</h3><span class="chip kind">кнопка</span></header>
         <p class="note">Тёмная кнопка со словом; под рукой справа проявляется стрелка.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> чернила</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> справа</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> появление знака</span></div>
@@ -426,7 +625,7 @@
           <figure><iframe data-src="17-ink-appear/element.html" src="17-ink-appear/element.html" height="240" title="Тёмная, под рукой — стрелка"></iframe><figcaption>Нарисовано — <a href="17-ink-appear/element.html">17-ink-appear/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="переключатель">
+      <article id="e-24" data-kind="переключатель">
         <header><h3>24 · Ползунок темы</h3><span class="chip kind">переключатель</span></header>
         <p class="note">Ползунок: дорожка и круглая ручка с солнцем; включено — луна. Слева дорожка по теме, справа — марка при включении.</p>
         <div class="tags"><span class="chip"><i>форма</i> пилюля</span><span class="chip"><i>заливка</i> чернила</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> ползунок</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> нет</span><span class="chip"><i>движение</i> ход ручки, смена знака</span></div>
@@ -436,12 +635,22 @@
           <figure><iframe data-src="24-theme-switch/element.html" src="24-theme-switch/element.html" height="260" title="Ползунок темы"></iframe><figcaption>Нарисовано — <a href="24-theme-switch/element.html">24-theme-switch/element.html</a></figcaption></figure>
         </div>
       </article>
+      <article id="e-38" data-kind="сообщение кнопка кнопка-знак">
+        <header><h3>38 · Сообщение: добавлено в корзину</h3><span class="chip kind">сообщение</span><span class="chip kind">кнопка</span><span class="chip kind">кнопка-знак</span></header>
+        <p class="note">Сообщение «добавлено в корзину»: знак корзины, заголовок, «закрыть», имя товара ссылкой, цена и «в корзину». Тексты и цена — для примера.</p>
+        <div class="tags"><span class="chip"><i>форма</i> скруглённая, пилюля</span><span class="chip"><i>заливка</i> лист, чернила, без фона</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> в круге слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
+        <dl><dt>наведение</dt><dd>кнопка: чернила + 5 % краски надписи; «закрыть» — подложка 5 %</dd><dt>нажатие</dt><dd>+ 9 %, 0.97 и на пиксель ниже</dd><dt>фокус</dt><dd>кольцо</dd><dt>снято</dt><dd>полупрозрачный фон с размытием и тени; белая рамка 3 px и бегущий блик кнопки; рост кнопки 1.05 и сдвиг значка под рукой; z-index 1000 — место в слое решает сайт (запрет 8); подчёркивание имени товара только под рукой; проценты ширины колонок</dd><dt>приведено</dt><dd>лист с волоском; знак корзины из листа набора в круге тона; сжатая карточка всплывающего: заголовок и цена ростом тела; имя товара — ссылка, подчёркнута всегда (И289); цена — рядом с кнопкой; кнопка — чернила пилюлей со стрелкой, рост 32; «закрыть» — кнопка-знак набора</dd></dl>
+        <div class="pair">
+          <figure><div class="src"><a href="38-added-to-cart/source.css">source.css</a></div><figcaption>Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн»</figcaption></figure>
+          <figure><iframe data-src="38-added-to-cart/element.html" src="38-added-to-cart/element.html" height="300" title="Сообщение: добавлено в корзину"></iframe><figcaption>Нарисовано — <a href="38-added-to-cart/element.html">38-added-to-cart/element.html</a></figcaption></figure>
+        </div>
+      </article>
     </section>
     <section class="family" data-family="смысл">
       <h2>Краски смысла</h2>
       <p class="note">сообщения красятся семьёй смысла палитры: успех — тоном и чернилами «успеха», ошибка — знаком на тоне «ошибки». Подходит к характеру: Тихий люкс, Ровный магазин, Аптечная ясность, Плотная полка.</p>
       
-      <article data-kind="сообщение кнопка">
+      <article id="e-29" data-kind="сообщение кнопка">
         <header><h3>29 · Сообщение: успех</h3><span class="chip kind">сообщение</span><span class="chip kind">кнопка</span></header>
         <p class="note">Сообщение об успехе: тон семьи «успех», знак, заголовок, текст и два действия; ниже вариант — главное залито. Тексты — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> тон смысла</span><span class="chip"><i>глубина</i> плоская</span><span class="chip"><i>знак</i> в круге слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -451,7 +660,7 @@
           <figure><iframe data-src="29-alert-ok/element.html" src="29-alert-ok/element.html" height="320" title="Сообщение: успех"></iframe><figcaption>Нарисовано — <a href="29-alert-ok/element.html">29-alert-ok/element.html</a></figcaption></figure>
         </div>
       </article>
-      <article data-kind="сообщение кнопка-знак">
+      <article id="e-31" data-kind="сообщение кнопка-знак">
         <header><h3>31 · Всплывающее сообщение: ошибка</h3><span class="chip kind">сообщение</span><span class="chip kind">кнопка-знак</span></header>
         <p class="note">Сообщение строкой: знак ошибки, заголовок, описание и «закрыть». Тексты — для примера.</p>
         <div class="tags"><span class="chip"><i>форма</i> скруглённая</span><span class="chip"><i>заливка</i> лист</span><span class="chip"><i>глубина</i> волосок</span><span class="chip"><i>знак</i> в круге слева</span><span class="chip"><i>штрих</i> тонкий</span><span class="chip"><i>буквы</i> как в предложении</span><span class="chip"><i>движение</i> нет</span></div>
@@ -466,7 +675,7 @@
       <h2>Лист значков</h2>
       <p class="note">рисунки значков одной толщины — кандидаты в лист набора. Подходит к характеру: Тихий люкс, Ровный магазин, Аптечная ясность, Плотная полка.</p>
       
-      <article data-kind="набор значков">
+      <article id="e-15" data-kind="набор значков">
         <header><h3>15 · Лист значков cbdin.bg</h3><span class="chip kind">набор значков</span></header>
         <p class="note">20 значков, которых нет в листе набора, и 24 — рядом с рисунком набора для сравнения. Кандидаты в лист набора: выбранные войдут в него.</p>
         <div class="tags"><span class="chip"><i>штрих</i> тонкий, залитый</span></div>
@@ -479,6 +688,11 @@
     </section>
 </main>
 <script>
+/* Номер в оглавлении ведёт к элементу, даже когда фильтр рода его прячет. */
+for (const a of document.querySelectorAll('.toc a')) a.addEventListener('click', () => {
+  const t = document.querySelector(a.getAttribute('href'))
+  if (t?.hidden) document.querySelector('[data-set="kind"] button[data-kind=""]').click()
+})
 const pick = { palette: "Латунь на угле", theme: 'light' }
 const frames = () => { for (const f of document.querySelectorAll('iframe[data-src]')) f.src = f.dataset.src + '?' + new URLSearchParams(pick) }
 for (const g of document.querySelectorAll('[data-set="palette"], [data-set="theme"]')) for (const b of g.querySelectorAll('button')) b.onclick = () => {

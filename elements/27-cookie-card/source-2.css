@@ -1,0 +1,12 @@
+/* Второй источник 27 — CSS от заказчика 24.09.2026, переслан из сессии
+   «Кнопки и дизайн» (там — «А»), как прислан. После разбора — та же
+   карточка согласия; вариант с одной кнопкой контуром. */
+.cookie-card { border-radius: 15px; width: 320px; height: 200px; background-color: #fff; }
+.cookie-title { font-size: 20px; position: relative; left: 90px; top: 15px; font-weight: bold; color: rgb(31 41 55); }
+.cookie-description { position: relative; top: 25px; font-size: 15px; text-align: center; font-family: Verdana, Geneva, Tahoma, sans-serif; color: rgb(75 85 99); }
+.cookies-policy { color: rgb(31 41 55); text-decoration: underline; }
+.cookies-policy:hover { text-decoration: none; }
+.cookies-policy:active { color: rgba(31, 41, 55, 0.61); ; }
+.accept-button { cursor: pointer; font-weight: bold; border-radius: 5px; width: 85px; height: 35px; background-color: rgba(255, 255, 255, 0); position: relative; left: 115px; top: 45px; }
+.accept-button:hover { background-color: rgb(31 41 55); color: #fff; border: rgb(31 41 55); ; }
+.accept-button:active { font-weight: 100; }

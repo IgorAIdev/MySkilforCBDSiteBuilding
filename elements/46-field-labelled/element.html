@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>46 · Поле с подписью и пояснением</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 46 — «Поле с подписью и пояснением». Источник — разметка Tailwind от заказчика 24.09.2026, переслана из сессии «Кнопки и дизайн» (source.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: своя тёмная тема (dark:) — тёмное приходит темой палитры; тень поля; синее кольцо фокуса; плавность всего сразу 0.2 s; подпись той же серой краской, что пояснение.
+  Приведено к единой форме: поле контуром набора, как 43; подпись — чернилами 600, ролью сноски, связана с полем (for); пояснение — ролью сноски краской подписи, связано с полем (aria-describedby); @ — знаком почты из листа набора: @ в листе нет; подпись и пояснение прижаты к полю — четверть воздуха строки.
+  Наведение: кромка — чернилами. Нажатия нет — поле; фокус: кольцо набора, кромка краской кольца, знак — краской марки.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="entry"><label class="label" for="biz">Business inquiry</label><label class="field" data-voice="line"><input type="email" placeholder="Enter your business email" id="biz" aria-describedby="biz-hint"><svg data-sign="mail"></svg></label><p class="hint" id="biz-hint">We will never share your email with others.</p></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="entry"><span class="label">Business inquiry</span><span class="field" data-voice="line"><input type="email" placeholder="Enter your business email" tabindex="-1" readonly><svg data-sign="mail"></svg></span><p class="hint">We will never share your email with others.</p></div><figcaption>покой</figcaption></figure>
+    <figure><div class="entry"><span class="label">Business inquiry</span><span class="field" data-voice="line" data-state="hover"><input type="email" placeholder="Enter your business email" tabindex="-1" readonly><svg data-sign="mail"></svg></span><p class="hint">We will never share your email with others.</p></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="entry"><span class="label">Business inquiry</span><span class="field" data-voice="line" data-state="focus"><input type="email" placeholder="Enter your business email" tabindex="-1" readonly><svg data-sign="mail"></svg></span><p class="hint">We will never share your email with others.</p></div><figcaption>фокус</figcaption></figure>
+    <figure><div class="entry"><span class="label">Business inquiry</span><span class="field" data-voice="line"><input type="email" placeholder="Enter your business email" tabindex="-1" readonly value="anna@example.com"><svg data-sign="mail"></svg></span><p class="hint">We will never share your email with others.</p></div><figcaption>заполнено</figcaption></figure>
+  </div>
+</body>
+</html>

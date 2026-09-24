@@ -74,6 +74,21 @@ export const stageJs = (svg) => `/* Собран tools/elements.mjs из styles/
   /* Орган, который раскрывает (aria-expanded) или включает (aria-pressed),
      переключается нажатием — одно правило на все такие органы папки, а не
      своё на каждой странице. */
+  /* Меню разделов: нажатый пункт становится текущим (aria-current). */
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-nav] a')
+    if (!a) return
+    e.preventDefault()
+    for (const x of a.closest('[data-nav]').querySelectorAll('a')) x.removeAttribute('aria-current')
+    a.setAttribute('aria-current', 'page')
+  })
+  /* «Очистить» у поля: вписанное стирается, курсор остаётся в поле. */
+  document.addEventListener('click', (e) => {
+    const input = e.target.closest('button[data-clear]')?.closest('.field')?.querySelector('input')
+    if (!input) return
+    input.value = ''
+    input.focus()
+  })
   document.addEventListener('click', (e) => {
     const b = e.target.closest('button[aria-expanded], button[aria-pressed], button[aria-checked]')
     if (!b) return
@@ -89,6 +104,25 @@ export const LINKS = ['<link rel="stylesheet" href="../palettes.css">', '<link r
 export const BASE = LINKS.find((l) => l.includes('/base.css'))
 /** Род, у которого нет состояний и меток органа: это рисунки, а не орган. */
 export const DRAWINGS = 'набор значков'
+/** Поле не нажимается — в него пишут: нажатие ставит курсор, и это фокус.
+ *  У элемента из одних полей вместо нажатия продумано и показано
+ *  заполненное, застывшими — наведение и фокус (И350). */
+export const FIELD = 'поле'
+const onlyFields = (e) => (e.род ?? []).length > 0 && e.род.every((k) => k === FIELD)
+const thought = (e) => (onlyFields(e) ? ['наведение', 'фокус', 'заполнено'] : ['наведение', 'нажатие', 'фокус'])
+const frozen = (e) => (onlyFields(e) ? [['hover', 'наведение'], ['focus', 'фокус']] : [['hover', 'наведение'], ['press', 'нажатие']])
+
+/** Оглавление по роду (И351): род — элементы с ним, в порядке словаря; элемент
+ *  с двумя родами стоит в обоих. Одно на страницу выбора и на выдачу
+ *  `--list`: заказчик ищет глазами по роду, сессия — командой, а не
+ *  листанием и не поиском по тексту. */
+export const byKind = (cat) => Object.keys(cat.метки?.род ?? {})
+  .map((k) => [k, (cat.элементы ?? []).filter((e) => (e.род ?? []).includes(k))])
+  .filter(([, list]) => list.length)
+
+/** Строки выдачи `--list [род]`: «род — сколько», под ним «NN · имя · семья». */
+export const listKinds = (cat, want = '') => byKind(cat).filter(([k]) => !want || k === want)
+  .flatMap(([k, list]) => [`${k} — ${list.length}`, ...list.map((e) => `  ${e.папка.slice(0, 2)} · ${e.имя} · ${cat.семьи?.[e.семья]?.имя ?? e.семья}`)])
 
 /** Находки каталога строками «кто: что». `read(путь)` — текст файла из папки
  *  элементов или null; `icons` — имена значков листа набора. Единая форма
@@ -106,12 +140,15 @@ export function auditElements(cat, read, icons = []) {
     for (const c of f.характеры ?? []) if (!(cat.характеры ?? []).includes(c)) bad(`семья ${id}`, `характер «${c}» не из списка`)
   }
   const used = new Set()
+  const names = new Set()
   for (const e of cat.элементы ?? []) {
     const who = e.папка ?? '?'
     if (!/^\d{2}-[a-z0-9-]+$/.test(e.папка ?? '')) bad(who, 'папка — NN-имя латиницей')
     if (used.has(e.папка)) bad(who, 'папка названа дважды')
     used.add(e.папка)
     if (!e.имя || !e.что || !e.откуда) bad(who, 'нет имени, описания или происхождения')
+    if (e.имя && names.has(e.имя)) bad(who, `имя «${e.имя}» уже занято — по имени элемент ищут, двух одинаковых не найти`)
+    names.add(e.имя)
     if (!(e.род ?? []).length) bad(who, 'род не назван')
     for (const k of e.род ?? []) if (!kinds.includes(k)) bad(who, `род «${k}» не из словаря`)
     if (!cat.семьи?.[e.семья]) bad(who, `семья «${e.семья}» не заведена`)
@@ -121,12 +158,12 @@ export function auditElements(cat, read, icons = []) {
       for (const x of [v].flat()) if (!vocab[facet].includes(x)) bad(who, `${facet}: «${x}» не из словаря`)
     }
     if (!drawings) for (const facet of facets) if (!(facet in (e.метки ?? {}))) bad(who, `метка «${facet}» не поставлена`)
-    if (!drawings) for (const s of ['наведение', 'нажатие', 'фокус']) if (!e.состояния?.[s]) bad(who, `состояние «${s}» не продумано`)
+    if (!drawings) for (const s of thought(e)) if (!e.состояния?.[s]) bad(who, `состояние «${s}» не продумано`)
     for (const k of ['снято', 'приведено']) if (!Array.isArray(e[k])) bad(who, `«${k}» — список, пусть и пустой`)
     for (const src of [e.источник].flat()) if (read(`${e.папка}/${src}`) == null) bad(who, `нет источника ${src}`)
     const page = read(`${e.папка}/element.html`)
     if (page == null) { bad(who, 'нет отрисовки element.html'); continue }
-    if (!drawings && (!/data-state="hover"/.test(page) || !/data-state="press"/.test(page))) bad(who, 'наведение и нажатие не показаны застывшими (data-state)')
+    if (!drawings && frozen(e).some(([s]) => !page.includes(`data-state="${s}"`))) bad(who, `${frozen(e).map(([, n]) => n).join(' и ')} не показаны застывшими (data-state)`)
     if (!page.includes(BASE)) bad(who, 'отрисовка не на основе ../base.css')
     for (const link of LINKS.filter((l) => l !== BASE)) if (!page.includes(link)) bad(who, `нет подключения ${link.match(/(?:href|src)="([^"]+)"/)[1]}: краски — ролями палитры набора, значки — из листа`)
     const markup = page.replace(/<!--[\s\S]*?-->/g, '')
@@ -147,7 +184,7 @@ const chips = (list, cls = '') => list.map((x) => `<span class="chip${cls}">${es
 export function toHtml(cat, palettes = []) {
   const source = (e, src) => (/\.(png|jpe?g|webp)$/.test(src) ? `<img src="${esc(e.папка)}/${esc(src)}" alt="Источник: ${esc(e.имя)}">` : `<a href="${esc(e.папка)}/${esc(src)}">${esc(src)}</a>`)
   const card = (e) => `
-      <article data-kind="${esc(e.род.join(' '))}">
+      <article id="e-${esc(e.папка.slice(0, 2))}" data-kind="${esc(e.род.join(' '))}">
         <header><h3>${esc(e.папка.slice(0, 2))} · ${esc(e.имя)}</h3>${chips(e.род, ' kind')}</header>
         <p class="note">${esc(e.что)}</p>
         <div class="tags">${Object.entries(e.метки).map(([k, v]) => `<span class="chip"><i>${esc(k)}</i> ${esc([v].flat().join(', '))}</span>`).join('')}</div>
@@ -167,6 +204,8 @@ export function toHtml(cat, palettes = []) {
     </section>` : ''
   }).join('')
   const kinds = Object.keys(cat.метки.род)
+  const toc = byKind(cat).map(([k, list]) => `
+    <p><b>${esc(k)}</b> <span>${list.map((e) => `<a href="#e-${esc(e.папка.slice(0, 2))}" title="${esc(e.имя)}">${esc(e.папка.slice(0, 2))}</a>`).join(' ')}</span></p>`).join('')
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -204,6 +243,14 @@ export function toHtml(cat, palettes = []) {
   .bar > span{font-size:.875rem;color:#5F5E5A}
   iframe{inline-size:100%;border:1px solid #E4E3DF;border-radius:12px;background:#fff}
   a{color:inherit}
+  .toc{display:grid;gap:4px;padding:16px 20px;border-radius:16px;background:#fff;font-size:.875rem}
+  .toc h2{font-size:1rem;margin-block-end:6px}
+  .toc p{margin:0;display:grid;grid-template-columns:10.5em 1fr;gap:12px;align-items:baseline}
+  .toc b{font-weight:600}
+  .toc span{display:flex;flex-wrap:wrap;gap:4px}
+  .toc a{padding:2px 7px;border-radius:6px;background:#F1F0EC;text-decoration:none;font-variant-numeric:tabular-nums}
+  .toc a:hover{background:#1C1A18;color:#fff}
+  article{scroll-margin-block-start:16px}
   [hidden]{display:none !important}
 </style>
 </head>
@@ -228,9 +275,17 @@ export function toHtml(cat, palettes = []) {
       <button type="button" data-kind="" aria-pressed="true">Все</button>${kinds.map((k) => `
       <button type="button" data-kind="${esc(k)}" aria-pressed="false">${esc(k)}</button>`).join('')}
     </div>
-  </div>${families}
+  </div>
+  <nav class="toc" aria-label="Оглавление по роду">
+    <h2>Оглавление по роду</h2>${toc}
+  </nav>${families}
 </main>
 <script>
+/* Номер в оглавлении ведёт к элементу, даже когда фильтр рода его прячет. */
+for (const a of document.querySelectorAll('.toc a')) a.addEventListener('click', () => {
+  const t = document.querySelector(a.getAttribute('href'))
+  if (t?.hidden) document.querySelector('[data-set="kind"] button[data-kind=""]').click()
+})
 const pick = { palette: ${JSON.stringify(palettes[0] ?? '')}, theme: 'light' }
 const frames = () => { for (const f of document.querySelectorAll('iframe[data-src]')) f.src = f.dataset.src + '?' + new URLSearchParams(pick) }
 for (const g of document.querySelectorAll('[data-set="palette"], [data-set="theme"]')) for (const b of g.querySelectorAll('button')) b.onclick = () => {
@@ -255,6 +310,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (!existsSync(FROM)) { console.error('✗ Нет elements/elements.json — каталога элементов нет.'); process.exit(1) }
   const cat = JSON.parse(readFileSync(FROM, 'utf8'))
   const read = (p) => (existsSync(path.join(DIR, p)) ? readFileSync(path.join(DIR, p), 'utf8') : null)
+  if (process.argv.includes('--list')) {
+    const want = process.argv[process.argv.indexOf('--list') + 1] ?? ''
+    const lines = listKinds(cat, want)
+    if (!lines.length) { console.error(`✗ Рода «${want}» в каталоге нет. Роды: ${Object.keys(cat.метки.род).join(', ')}`); process.exit(1) }
+    console.log(lines.join('\n'))
+    process.exit(0)
+  }
   const SHEET = path.resolve('styles/icons.svg')
   if (!existsSync(SHEET)) { console.error('✗ Нет styles/icons.svg — значкам не из чего браться.'); process.exit(1) }
   const sheet = readFileSync(SHEET, 'utf8')
