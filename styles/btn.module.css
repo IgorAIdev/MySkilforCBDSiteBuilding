@@ -101,7 +101,10 @@
      полному кругу: эта форма — пилюля, как остриё — контур «стрелки»; угол
      выводится из формы, а не ролью каталога (угол — из Shape, И273). */
   --btn-mark:var(--ctrl-btn-mark, 0);
-  --btn-r:calc(var(--r-ctrl) * (1 - var(--btn-mark)) + var(--r-pop) * var(--btn-mark));
+  /* Пилюля (`--ctrl-btn-pill`, 0 или 1; элемент 16) — полный круг главного
+     действия без знака; кружок у конца пилюлю включает сам. */
+  --btn-pill:max(var(--btn-mark), var(--ctrl-btn-pill, 0));
+  --btn-r:calc(var(--r-ctrl) * (1 - var(--btn-pill)) + var(--r-pop) * var(--btn-pill));
   position:relative;isolation:isolate;background-color:transparent;
   /* Под вырезом стрелки — кружок краской заливки: стрелка того же цвета, что
      пилюля, как у «Shop now». */

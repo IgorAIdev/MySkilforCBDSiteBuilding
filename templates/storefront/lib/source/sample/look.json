@@ -208,6 +208,7 @@
     "--ctrl-btn-trail-1": "0",
     "--ctrl-btn-trail-2": "0",
     "--ctrl-btn-mark": "0",
+    "--ctrl-btn-pill": "0",
     "--ctrl-field-fill": "var(--field)",
     "--ctrl-field-edge": "var(--tick-edge)",
     "--ctrl-field-side": "1",

@@ -103,7 +103,24 @@
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
           "--ctrl-btn-trail-2": "0",
-          "--ctrl-btn-mark": "0"
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0"
+        }
+      },
+      "pill": {
+        "имя": "Пилюля",
+        "name": "Pill",
+        "line": "The main button fully rounded, the action of the page",
+        "что": "полный круг у главного действия — пилюля без знака (элемент 16; пилюля элементов 06 и 19)",
+        "роли": {
+          "--ctrl-btn-tip": "0",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "1"
         }
       },
       "arrow": {
@@ -118,7 +135,8 @@
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
           "--ctrl-btn-trail-2": "0",
-          "--ctrl-btn-mark": "0"
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0"
         }
       },
       "chevron": {
@@ -133,7 +151,8 @@
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
           "--ctrl-btn-trail-2": "0",
-          "--ctrl-btn-mark": "0"
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0"
         }
       },
       "double": {
@@ -148,7 +167,8 @@
           "--ctrl-btn-echo": "block",
           "--ctrl-btn-trail-1": "0.17",
           "--ctrl-btn-trail-2": "0.17",
-          "--ctrl-btn-mark": "0"
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0"
         }
       },
       "trail-spaced": {
@@ -163,7 +183,8 @@
           "--ctrl-btn-echo": "block",
           "--ctrl-btn-trail-1": "0.17",
           "--ctrl-btn-trail-2": "0.54",
-          "--ctrl-btn-mark": "0"
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0"
         }
       },
       "trail-overlap": {
@@ -178,7 +199,8 @@
           "--ctrl-btn-echo": "block",
           "--ctrl-btn-trail-1": "-0.12",
           "--ctrl-btn-trail-2": "0.16",
-          "--ctrl-btn-mark": "0"
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0"
         }
       },
       "circle": {
@@ -193,7 +215,8 @@
           "--ctrl-btn-echo": "none",
           "--ctrl-btn-trail-1": "0",
           "--ctrl-btn-trail-2": "0",
-          "--ctrl-btn-mark": "1"
+          "--ctrl-btn-mark": "1",
+          "--ctrl-btn-pill": "0"
         }
       }
     }

@@ -1,7 +1,7 @@
 /* Собран tools/buttons.mjs из styles/buttons.json. Руками не правят.
    Роли одной кнопки основы (styles/btn.module.css) по осям каталога. На
    корне — первый вариант каждой оси; другой — [data-button-<ось>="вариант"].
-   Оси: letters — sentence · caps; loud — fill · ink; quiet — veil · outline; shape — standard · arrow · chevron · double · trail-spaced · trail-overlap · circle. */
+   Оси: letters — sentence · caps; loud — fill · ink; quiet — veil · outline; shape — standard · pill · arrow · chevron · double · trail-spaced · trail-overlap · circle. */
 
 :root{
   --ctrl-btn-case: none;
@@ -20,6 +20,7 @@
   --ctrl-btn-trail-1: 0;
   --ctrl-btn-trail-2: 0;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
 }
 
 [data-button-letters="sentence"]{
@@ -66,6 +67,18 @@
   --ctrl-btn-trail-1: 0;
   --ctrl-btn-trail-2: 0;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
+}
+
+[data-button-shape="pill"]{
+  --ctrl-btn-tip: 0;
+  --ctrl-btn-tip-at: 0;
+  --ctrl-btn-notch: 0;
+  --ctrl-btn-echo: none;
+  --ctrl-btn-trail-1: 0;
+  --ctrl-btn-trail-2: 0;
+  --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 1;
 }
 
 [data-button-shape="arrow"]{
@@ -76,6 +89,7 @@
   --ctrl-btn-trail-1: 0;
   --ctrl-btn-trail-2: 0;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
 }
 
 [data-button-shape="chevron"]{
@@ -86,6 +100,7 @@
   --ctrl-btn-trail-1: 0;
   --ctrl-btn-trail-2: 0;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
 }
 
 [data-button-shape="double"]{
@@ -96,6 +111,7 @@
   --ctrl-btn-trail-1: 0.17;
   --ctrl-btn-trail-2: 0.17;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
 }
 
 [data-button-shape="trail-spaced"]{
@@ -106,6 +122,7 @@
   --ctrl-btn-trail-1: 0.17;
   --ctrl-btn-trail-2: 0.54;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
 }
 
 [data-button-shape="trail-overlap"]{
@@ -116,6 +133,7 @@
   --ctrl-btn-trail-1: -0.12;
   --ctrl-btn-trail-2: 0.16;
   --ctrl-btn-mark: 0;
+  --ctrl-btn-pill: 0;
 }
 
 [data-button-shape="circle"]{
@@ -126,4 +144,5 @@
   --ctrl-btn-trail-1: 0;
   --ctrl-btn-trail-2: 0;
   --ctrl-btn-mark: 1;
+  --ctrl-btn-pill: 0;
 }
