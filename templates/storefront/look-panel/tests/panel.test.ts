@@ -46,6 +46,8 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   assert.deepEqual(catalog.groups['go-hover'].map((o) => o.id), ['plain', 'brand'])
   /* Знаки шапки (И398): без заливки по умолчанию, тоном (01), лотком (09, 39). */
   assert.deepEqual(catalog.groups['head-icons'].map((o) => o.id), ['bare', 'toned', 'tray'])
+  /* Шапка cbdin (И430): меню телефона, знак корзины, сумма — умолчание — как было. */
+  assert.deepEqual(['drawer-look', 'cart-sign', 'cart-meta'].map((f) => catalog.groups[f].map((o) => o.id)), [['rows', 'pills'], ['cart', 'bag'], ['count', 'sum']])
   /* Поле ввода (И390): один вид на сайт; кромка есть у каждого — вокруг
      или чертой снизу (WCAG 1.4.11); умолчание — то, что стоит у сайта. */
   assert.deepEqual(catalog.groups.field.map((o) => o.id), ['framed', 'outline', 'tone'])

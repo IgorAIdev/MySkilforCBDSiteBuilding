@@ -131,6 +131,23 @@ export const FIELD_LABELS = [
   { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
   { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
 ]
+/** Шапка cbdin.bg (И430): меню телефона — полки строками или ещё и группы
+ *  «по поводу» пилюлями; знак корзины — тележка или сумка; у знака — число
+ *  или ещё и сумма товаров. */
+export const HEAD_PARTS = {
+  'drawer-look': [
+    { id: 'rows', name: 'Rows', line: 'The phone menu lists the shelves as rows', vars: { '--drawer-look': 'rows' } },
+    { id: 'pills', name: 'Pills', line: 'Shelves as rows, then the catalogue by need as pills (cbdin.bg)', vars: { '--drawer-look': 'pills' } },
+  ],
+  'cart-sign': [
+    { id: 'cart', name: 'Cart', line: 'A shopping cart sign', vars: { '--cart-sign': 'cart' } },
+    { id: 'bag', name: 'Bag', line: 'A bag sign (cbdin.bg)', vars: { '--cart-sign': 'bag' } },
+  ],
+  'cart-meta': [
+    { id: 'count', name: 'Count', line: 'The number of items on the sign', vars: { '--cart-meta': 'count' } },
+    { id: 'sum', name: 'Sum', line: 'The number and the sum of the goods beside the sign (cbdin.bg)', vars: { '--cart-meta': 'sum' } },
+  ],
+}
 /** Знак полки на фишке (И422): словом или знаком и словом (элемент 65);
  *  сам знак — данные полки, у полки без знака фишка стоит словом. */
 export const CHIP_SIGNS = [
@@ -346,6 +363,7 @@ export async function buildCatalog({ site, kit }) {
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
+    ...Object.fromEntries(Object.entries(HEAD_PARTS).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     'chip-sign': siteFirst(CHIP_SIGNS.map((o) => ({ ...o, vars: check('chip-sign', o.id, o.vars) }))),
     'pair-look': siteFirst(PAIR_LOOKS.map((o) => ({ ...o, vars: check('pair-look', o.id, o.vars) }))),
     'say-look': siteFirst(SAY_LOOKS.map((o) => ({ ...o, vars: check('say-look', o.id, o.vars) }))),

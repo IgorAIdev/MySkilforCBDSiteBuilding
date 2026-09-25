@@ -104,6 +104,9 @@
 | System | Fields | Ticked boxes | краска отмеченной галочки и радио `--ctrl-tick-fill` — одна на весь сайт: фильтры, касса, формы; сами органы браузерные (И392) | Brand (умолчание), Ink (элемент 60) |
 | Admin | Header | Layout | разметка шапки (`header`) | Classic, Search first, Boutique, Tray, Nested, Step (сборки шапки cbdin.bg: светлая полоса и тёмная рабочая строка на листе, И425) |
 | Admin | Header | Icons | знаки шапки `--head-icons` — без заливки, тоном под каждым или рядом в одном лотке; у шапки кассы лотка нет (И398) | Bare (умолчание), Toned (элемент 01), Tray (элементы 09, 39) |
+| Admin | Header | Phone menu | меню телефона `--drawer-look` — полки строками или ещё и группы «по поводу» (грани каталога, И430) пилюлями | Rows (умолчание), Pills (cbdin.bg) |
+| Admin | Header | Cart sign | знак корзины `--cart-sign` | Cart (умолчание), Bag (cbdin.bg) |
+| Admin | Header | Cart shows | у знака корзины `--cart-meta` — число или ещё и сумма товаров (пишет страница, `/api/cart`) | Count (умолчание), Sum (cbdin.bg) |
 | Admin | Header | Current menu item | отметка текущей полки (`--menu-mark-*`; `-side` — черта у начала строки, в шапке и в шторке) | Underline, Pill, Ink pill, Side bar (тон и черта марки у начала строки — элемент 52) |
 | Admin | Card | Product card | одежда карточки товара (`card`) | Framed, Bare, Outlined, Toned (снимок до краёв, под ним поле тоном — по образцу заказчика, элемент 64 набора), Tinted (вся карточка тоном марки, угол листа — элемент 62 набора) |
 | Admin | Card | Picture | пропорция снимка товара `--shot-frame` — одна на полку и карту товара: снимки у товара одни (И400) | 1:1 (умолчание), 4:3, 4:5, 3:4 |

@@ -37,7 +37,7 @@ export const SECTIONS = [
     { id: 'links', name: 'Links', hint: 'Links that lead somewhere: «View all →», breadcrumbs, «Back to the shop».', fields: [['go-hover', 'Under the hand']] },
   ] },
   { id: 'admin', name: 'Admin', subs: [
-    { id: 'header', name: 'Header', hint: 'The layout of the header, and how the current shelf is marked in it.', fields: [['header', 'Layout'], ['marker', 'Current menu item'], ['head-icons', 'Icons']] },
+    { id: 'header', name: 'Header', hint: 'The layout of the header, and how the current shelf is marked in it.', fields: [['header', 'Layout'], ['marker', 'Current menu item'], ['head-icons', 'Icons'], ['drawer-look', 'Phone menu'], ['cart-sign', 'Cart sign'], ['cart-meta', 'Cart shows']] },
     /* Полка (И400): одежда карточки, пропорция снимка — одна с картой
        товара, — место кнопки «в корзину» и сколько карточек в ряд на полке
        каталога. */

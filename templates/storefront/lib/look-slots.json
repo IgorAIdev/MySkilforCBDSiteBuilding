@@ -1186,6 +1186,21 @@
       "group": "chip-sign",
       "value": "none"
     },
+    "--drawer-look": {
+      "type": "keyword",
+      "group": "drawer-look",
+      "value": "rows"
+    },
+    "--cart-sign": {
+      "type": "keyword",
+      "group": "cart-sign",
+      "value": "cart"
+    },
+    "--cart-meta": {
+      "type": "keyword",
+      "group": "cart-meta",
+      "value": "count"
+    },
     "--shot-frame": {
       "type": "number",
       "group": "shot-frame",

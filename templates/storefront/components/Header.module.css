@@ -36,6 +36,20 @@
   font:inherit;font-size:var(--ctrl-fs-xs);font-weight:500
 }
 .glyph svg{inline-size:1.43em;block-size:1.43em;flex:none}
+/* Знак корзины — тележка или сумка, рядом — сумма товаров (вид
+   `--cart-sign`, `--cart-meta`; шапка cbdin.bg, И430). Обёртка знака не
+   рисует ничего своего: знак стоит, как стоял. */
+.cartSign,.signCart,.signBag{display:contents}
+.signBag,.cartSum{display:none}
+@container style(--cart-sign: bag){ .signCart{display:none} .signBag{display:contents} }
+/* С суммой ссылка шире знака: число держится за сам знак, а не за край
+   ссылки, — иначе оно ложится на сумму. Вынос — от кегля числа. */
+@container style(--cart-meta: sum){
+  .cartSum{display:inline;padding-inline-start:.6em}
+  .cartSign{position:relative;display:inline-flex}
+  .cartSign .badge{inset-block-start:-.7em;inset-inline-end:-.7em}
+}
+.cartSum{font-size:var(--ctrl-fs-sm);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 /* Знаки шапки — вид `--head-icons` (И398): `bare` — без заливки
    (умолчание, выше); `toned` — тон под каждым знаком в покое (элемент 01;
    угол — из Shape: полный круг — только у главного действия); `tray` — ряд
@@ -217,7 +231,7 @@
 
 /* ── Узкая коробка: одна строка — знак, поиск, корзина, меню ──────────── */
 @container (max-width:819px){
-  .nav:not(:popover-open),.cartLabel{display:none}
+  .nav:not(:popover-open),.cartLabel,.cartSum{display:none}
   .lang{display:none} /* look-header:classic,search,boutique,tray,nested,step */
   .menu{display:inline-flex} /* look-header:classic,search,tray,nested,step */
   .util{display:none} /* look-header:tray,nested,step */
@@ -258,10 +272,28 @@
 .nav:popover-open .thumb{display:grid;place-items:center;flex:none;inline-size:calc(var(--ctrl-h-lg) * .8);block-size:calc(var(--ctrl-h-lg) * .8);border-radius:var(--r-ctrl);object-fit:cover;background:var(--quiet);color:var(--ink-soft)}
 .nav:popover-open .thumb svg{inline-size:50%;block-size:50%}
 .nav:popover-open .name{flex:1 1 auto}
+/* Слово меню — всегда с заглавной (слово заказчика 25.09.2026: «в меню
+   всегда слова с большой буквы»; имена приходят из данных магазина
+   строчными — «oil», «capsules»). Данные не трогаем, пишем экраном: первая
+   буква, а не каждое слово — «All products» не станет «All Products». Имя —
+   элемент внутри ссылки-флекса: у флекса своей первой буквы нет. */
+.name::first-letter,.pillName::first-letter{text-transform:uppercase}
 .nav:popover-open .chev{display:grid;color:var(--ink-soft)}
 .nav:popover-open .chev svg{inline-size:1.25em;block-size:1.25em}
 .nav:popover-open .links a[aria-current='page']{background-color:var(--quiet);font-weight:600}
 .nav:popover-open .sheetLang{display:block;margin-block-start:auto;padding-block-start:var(--air-row);border-block-start:var(--line-w) solid var(--rule)}
+/* Группы «по поводу» — пилюлями под полками, только в шторке и только
+   при виде `--drawer-look: pills` (меню телефона cbdin.bg, И430): полки
+   остаются строками — там выбирают место; пилюли — там, где выбирают
+   поводом из многих. Подпись группы — ростом тела, полужирная: рядом с
+   пилюлями она не тонет. */
+.sheetGroups{display:none}
+@container style(--drawer-look: pills){
+  .nav:popover-open .sheetGroups{display:flex;flex-direction:column;gap:var(--air-group);padding-block-start:var(--air-row);border-block-start:var(--line-w) solid var(--rule)}
+}
+.sheetGroup{display:flex;flex-direction:column;gap:var(--sp-2)}
+.groupName{font-size:var(--body-size);font-weight:700;color:var(--ink)}
+.pills{--cluster:var(--gap-targets);list-style:none;padding:0;margin:0}
 
 /* look-header:boutique:start */
 /* Шторка «boutique» — та же шторка, от того края, где кнопка «Shop»:

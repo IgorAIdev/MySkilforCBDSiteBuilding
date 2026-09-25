@@ -210,6 +210,10 @@
       if (field === 'pair-look') return el('span', { class: 'lp-pair', 'data-at': o.vars['--pair-look'], 'aria-hidden': 'true' }, [el('i'), el('b')])
       /* Сообщение формы (И420): строка или заметка с точкой знака. */
       if (field === 'say-look') return el('span', { class: 'lp-say', 'data-at': o.vars['--say-look'], 'aria-hidden': 'true' }, [el('i'), el('b')])
+      /* Шапка cbdin (И430): меню телефона, знак корзины, сумма у корзины. */
+      if (field === 'drawer-look') return el('span', { class: 'lp-drawer', 'data-at': o.vars['--drawer-look'], 'aria-hidden': 'true' }, [el('i'), el('i'), el('b'), el('b')])
+      if (field === 'cart-sign') return el('span', { class: 'lp-go', 'aria-hidden': 'true', text: o.vars['--cart-sign'] === 'bag' ? '👜' : '🛒' })
+      if (field === 'cart-meta') return el('span', { class: 'lp-go', 'aria-hidden': 'true', text: o.vars['--cart-meta'] === 'sum' ? '2 · €45' : '2' })
       /* Знаки шапки (И398): три знака — без заливки, тоном или в лотке. */
       if (field === 'head-icons') return el('span', { class: 'lp-heads', 'data-at': o.vars['--head-icons'], 'aria-hidden': 'true' }, [el('i'), el('i'), el('i')])
       /* Ссылка под рукой (И397): стрелка краской варианта. */

@@ -12,6 +12,9 @@
   --say-look: line;
   --pair-look: apart;
   --chip-sign: none;
+  --drawer-look: rows;
+  --cart-sign: cart;
+  --cart-meta: count;
   --shot-frame: 1 / 1;
   --shelf-cols: 4;
   --card-buy: full;
