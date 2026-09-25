@@ -1085,8 +1085,10 @@ function groundRoles(n, a, mode) {
      сдвинутая по светлоте на два шага заливки — от надписи, а где в ту
      сторону нет запаса, к ней, пока надпись держит 4.5 : 1. Готовой краски
      для этого нет: нажатая краска марки и тона хвоста роняли надпись до
-     3.1–3.3 : 1 на части образцов. На палубе заливка главной — знак палубы,
-     надпись — её пол. */
+     3.1–3.3 : 1 на части образцов. Пары «бумага / палуба» нет (И443): роль
+     каталога раскрывается на корне, и на палубе кнопка несёт ту же заливку
+     и тот же второй конец, что на бумаге; оба непрозрачны, пол сквозь них
+     не виден — надпись меряется на них самих. */
   const gradOf = (fill, onFill) => {
     const gap = SOLID_GAP[mode] * 2
     const L = lightness(fill)
@@ -1096,10 +1098,8 @@ function groundRoles(n, a, mode) {
     const ok = tries.filter((c) => ratio(onFill, c) >= NEED.text)
     return (ok.length ? ok : tries).sort((x, y) => Math.abs(lightness(y) - L) - Math.abs(lightness(x) - L))[0]
   }
-  out['--pop-grad-paper'] = gradOf(a[8], inkOn(a[8]))
-  out['--pop-grad-deck'] = gradOf(deck.ink, deck.bg)
-  check('pop-grad', 'надпись главной читается на втором конце градиента', ratio(inkOn(a[8]), out['--pop-grad-paper']), NEED.text)
-  check('pop-grad-deck', 'надпись главной на палубе читается на втором конце градиента', ratio(deck.bg, out['--pop-grad-deck']), NEED.text)
+  out['--pop-grad'] = gradOf(a[8], inkOn(a[8]))
+  check('pop-grad', 'надпись главной читается на втором конце градиента', ratio(inkOn(a[8]), out['--pop-grad']), NEED.text)
 
   /* Стекло главной (И427; элемент 66): заливка просвечивает — сквозь неё
      видно размытое то, что под кнопкой. Краска главной раскрывается на
