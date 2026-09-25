@@ -4,8 +4,8 @@ import s from './blocks.module.css'
 import type { Block } from '@/lib/source/contract.ts'
 import type { HomeVariant } from '@/lib/homes.ts'
 import { hrefFor } from '@/lib/href.ts'
-import go from '@/styles/go.module.css' // look-home:journal
-import { Icon } from '../Icon.tsx' // look-home:journal
+import go from '@/styles/go.module.css' // look-home:journal,poster
+import { Icon } from '../Icon.tsx' // look-home:journal,poster
 import type { BlockCtx, Place } from './types.ts'
 
 type Props = { block: Extract<Block, { type: 'categories' }>; ctx: BlockCtx; place: Place }
@@ -108,6 +108,33 @@ const words = ({ block, ctx, place }: Props) => (
 )
 /* look-home:showroom:end */
 
+/* look-home:poster:start */
+/* Высокие снимки — у каждой полки её снимок высоким кадром, имя со знаком
+   «куда ведёт» лежит на самом снимке внизу, под своей вуалью. Снимок и
+   подпись — в одной клетке сетки плитки, подпись в потоке: длинное имя
+   растит плитку, а не выходит за снимок. Ссылка одна — имя, её область
+   растянута на всю плитку. */
+const posters = ({ block, ctx, place }: Props) => (
+  <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
+    <div className={p.sectionHead}><h2>{block.title}</h2></div>
+    <ul className={`${p.grid} ${s.tall}`}>
+      {ctx.collections.map((c) => (
+        <li key={c.slug} className={s.tallTile} data-bare={c.image ? undefined : ''}>
+          {c.image ? (
+            <div className={`${p.frame} ${s.tallShot}`}>
+              <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
+            </div>
+          ) : null}
+          <h3 className={s.tallName} data-ground={c.image ? 'deck' : undefined}>
+            <a className={go.go} href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}<Icon id="arrow-right" /></a>
+          </h3>
+        </li>
+      ))}
+    </ul>
+  </section>
+)
+/* look-home:poster:end */
+
 const SHELVES: Record<HomeVariant, (props: Props) => ReactNode> = {
   scene: (props) => tiles(props), // look-home:scene
   counter: chips, // look-home:counter
@@ -115,6 +142,7 @@ const SHELVES: Record<HomeVariant, (props: Props) => ReactNode> = {
   journal: index, // look-home:journal
   cabinet: (props) => tiles(props, 'drawers'), // look-home:cabinet
   showroom: words, // look-home:showroom
+  poster: posters, // look-home:poster
 }
 
 export function Categories(props: Props) {

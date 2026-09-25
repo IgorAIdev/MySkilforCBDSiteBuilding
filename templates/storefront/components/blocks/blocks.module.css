@@ -93,7 +93,7 @@
 }
 /* look-home:scene:end */
 
-/* look-home:scene,counter,proof,showroom:start */
+/* look-home:scene,counter,proof,showroom,poster:start */
 /* ЛАБОРАТОРИЯ — единственный лист страницы: `--surface` и пол
    (`data-plate`), а не тон марки — тон в тёмной теме становился ржавым и
    читался тревогой. Слова стоят по середине высоты протокола; протокол
@@ -104,10 +104,10 @@
    легла бы вторым просветом поверх просвета колонок: снимается силой
    места, а не порядком файлов. */
 .labBand .labText{margin-block-end:0}
-/* look-home:scene,counter,proof,showroom:end */
-/* look-home:scene,counter,showroom:start */
+/* look-home:scene,counter,proof,showroom,poster:end */
+/* look-home:scene,counter,showroom,poster:start */
 .labDoc{max-inline-size:30rem}
-/* look-home:scene,counter,showroom:end */
+/* look-home:scene,counter,showroom,poster:end */
 
 /* СПРАВОЧНЫЕ РАЗДЕЛЫ — доставка и вопросы: заголовок своей колонкой слева,
    строки справа через волосок (`sidebar`); в узкой коробке — столбиком, и
@@ -330,3 +330,73 @@
 @media (hover:hover) and (prefers-reduced-motion:no-preference){ .words a:hover .wordShot{scale:1.06} }
 .words a:active{color:var(--ink-soft)}
 /* look-home:showroom:end */
+
+/* look-home:poster:start */
+/* АФИША (docs/design/home.md, «Афиша»). Снимок во всю ширину окна сразу под
+   шапкой: у полосы нет коробки страницы, колонка текста в ней — есть
+   (`.wrap`), и край текста совпадает с краем разделов ниже. Высота — нижняя
+   граница распоркой (`::before` в той же клетке), снимок заполняет коробку
+   (`cover`): длинный заголовок растит коробку, а не налезает на край.
+   `overflow:clip` режет вуаль по краю снимка и не делает коробку прокруткой.
+
+   Вуаль — на коробке снимка, ролями строителя палитры, как у сцены (И295):
+   `--scrim-near` у края, `--scrim-far` под концом колонки текста, дальше —
+   на нет — на широкой полосе, где колонка лежит на снимке. Воздуха над
+   снимком нет: он прямо под шапкой; воздух под ним платит раздел ниже. */
+.poster{
+  --hero-w:36rem;
+  position:relative;display:grid;overflow:clip;
+  background:var(--scrim-deck);container-type:inline-size
+}
+/* Узкая полоса: снимок кадром сверху (пропорция с потолком от малого окна,
+   правило 4), текст — под ним на тёмной полосе. Заголовок на снимке узкой
+   полосы ложился на этикетки флаконов — тот же дефект, что снят у сцены
+   (И280). */
+.posterShot{inline-size:100%;block-size:auto;aspect-ratio:4 / 3;max-block-size:56svh;object-fit:cover;object-position:72% 50%}
+.posterBody{position:relative;padding-block:var(--air-block)}
+.posterText{display:flex;flex-direction:column;align-items:flex-start;gap:var(--air-group);max-inline-size:var(--hero-w)}
+.posterText h1{font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:balance}
+.posterText p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede);text-wrap:pretty}
+/* Широкая полоса: снимок заполняет коробку, колонка текста — по середине
+   высоты слева, на вуали слева направо. */
+@container (min-width:820px){
+  .poster::before{content:'';grid-area:1 / 1;min-block-size:min(56cqi, 82svh)}
+  .posterShot{position:absolute;inset:0;block-size:100%;aspect-ratio:auto;max-block-size:none}
+  .poster::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(to right,
+      var(--scrim-near),
+      var(--scrim-far) calc(var(--page-edge) + var(--hero-w)),
+      transparent calc(var(--page-edge) + var(--hero-w) + 30%))
+  }
+  .posterBody{grid-area:1 / 1;align-self:center;z-index:1}
+}
+
+/* ПОЛКИ ВЫСОКИМИ СНИМКАМИ. Плитка — сетка в одну клетку: снимок (кадр 3 : 4
+   с потолком от малого окна, правило 4), вуаль и подпись в той же клетке,
+   подпись у нижнего края и в потоке — длинное имя растит плитку. Порядок
+   слоёв — `z-index` вещей сетки (без `position`: подпись не становится
+   коробкой для растянутой ссылки, и та ложится на всю плитку). Вуаль — нижние
+   три пятых плитки, ролями палитры; плитка режет её своим углом. */
+.tall{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}
+.tallTile{position:relative;display:grid;overflow:clip;border-radius:var(--r-card);background:var(--scrim-deck)}
+.tallTile::before{
+  content:'';grid-area:1 / 1;align-self:end;z-index:1;block-size:60%;
+  background:linear-gradient(to top, var(--scrim-near), var(--scrim-far) 45%, transparent)
+}
+.tallShot{--frame:3 / 4;grid-area:1 / 1}
+.tallShot img{transition:scale var(--hover-t) var(--ease)}
+.tallName{
+  grid-area:1 / 1;align-self:end;z-index:2;padding:var(--pad-card);
+  font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)
+}
+.tallName a{color:var(--ink)}
+.tallName a::after{content:'';position:absolute;inset:0;z-index:3}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){ .tallTile:hover .tallShot img{scale:1.04} }
+@media (hover:hover){ .tallTile:hover .tallName a{text-decoration-line:underline;text-decoration-thickness:var(--line-w)} }
+.tallTile:active .tallName a{color:var(--ink-soft)}
+/* Полка без снимка — плитка ступенью под листом, без вуали; подпись —
+   чернилами пола. */
+.tallTile[data-bare]{background:var(--plate-2)}
+.tallTile[data-bare]::before{display:none}
+/* look-home:poster:end */

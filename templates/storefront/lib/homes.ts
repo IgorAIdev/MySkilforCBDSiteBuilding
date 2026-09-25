@@ -15,6 +15,7 @@ export const HOMES = [
   'journal', // look-home:journal
   'cabinet', // look-home:cabinet
   'showroom', // look-home:showroom
+  'poster', // look-home:poster
 ] as const
 
 export type HomeVariant = (typeof HOMES)[number]
@@ -56,6 +57,10 @@ export const RECIPES: Record<HomeVariant, readonly Step[]> = {
      вырезе угла, товар карточкой на снимке; полки — одной крупной строкой. */
   showroom: [['hero'], ['categories'], ['featured'], ['lab'], ['story'], ['delivery'], ['faq']],
   /* look-home:showroom:end */
+  /* look-home:poster:start */
+  /* Афиша: снимок во всю ширину с крупным словом, полки высокими снимками. */
+  poster: [['hero'], ['categories'], ['featured'], ['lab'], ['story'], ['delivery'], ['faq']],
+  /* look-home:poster:end */
 }
 
 export type Placed = { slot: Slot; block: Block; air: Air | null; key: string }

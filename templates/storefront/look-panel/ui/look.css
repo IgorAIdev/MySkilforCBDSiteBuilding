@@ -239,6 +239,8 @@
    середине, узкими клетками. */
 .lp-plan i[data-k='notch']{block-size:9px;opacity:.95;clip-path:polygon(0 0,100% 0,100% 100%,40% 100%,40% 55%,0 55%)}
 .lp-plan i[data-k='words']{inline-size:70%;block-size:3px;justify-self:center}
+.lp-plan i[data-k='poster']{block-size:10px;opacity:.95;margin-inline:-2px;border-radius:0}
+.lp-plan i[data-k='tall']{block-size:8px}
 .lp-link{padding:0 2px;border:0;background:none;color:var(--lp-ink);font-size:var(--lp-t2);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-block-size:24px}
 
 /* Строитель палитры из намерения (И275): марка, бумага, чернила; тонкая

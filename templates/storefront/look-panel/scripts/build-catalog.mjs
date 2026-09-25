@@ -204,6 +204,7 @@ const HOME_LINES = {
   journal: { name: 'Headline first', line: 'The promise set large across the page, a wide photo under it, shelves as an index', plan: ['headline', 'photo', 'index'] },
   cabinet: { name: 'Cabinet', line: 'A calm centred heading, shelves as apothecary drawers, a photo as a pause', plan: ['calm', 'drawers', 'row'] },
   showroom: { name: 'Showroom', line: 'A rounded photo with the heading on it, the button in a cut-out corner, a product card lying on the photo, shelves as one large line', plan: ['notch', 'words', 'row'] },
+  poster: { name: 'Poster', line: 'A photo edge to edge with a large heading on it, shelves as tall photos with their names on the picture', plan: ['poster', 'tall', 'row'] },
 }
 /** Шапки: id — HEADERS в lib/headers.ts. */
 const HEADER_LINES = {

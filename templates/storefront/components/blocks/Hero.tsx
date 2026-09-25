@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 import p from '@/styles/primitives.module.css'
-import b from '@/styles/btn.module.css' // look-home:scene,proof,journal,cabinet,showroom
+import b from '@/styles/btn.module.css' // look-home:scene,proof,journal,cabinet,showroom,poster
 import go from '@/styles/go.module.css' // look-home:showroom
 import s from './blocks.module.css'
 import type { Block } from '@/lib/source/contract.ts'
 import type { HomeVariant } from '@/lib/homes.ts'
-import { hrefFor } from '@/lib/href.ts' // look-home:scene,proof,journal,cabinet,showroom
+import { hrefFor } from '@/lib/href.ts' // look-home:scene,proof,journal,cabinet,showroom,poster
 import { t } from '@/lib/i18n/index.ts' // look-home:showroom
 import { Icon } from '../Icon.tsx' // look-home:showroom
 import { Pledges } from '../Pledges.tsx' // look-home:counter
@@ -19,11 +19,11 @@ type Props = { block: Extract<Block, { type: 'hero' }>; ctx: BlockCtx; place: Pl
    look-home:* `npm run look:remove` оставляет выбранный.
    Кнопка героя — одна громкая на экран: главное действие первого экрана. */
 
-/* look-home:scene,proof,journal,cabinet,showroom:start */
+/* look-home:scene,proof,journal,cabinet,showroom,poster:start */
 const cta = (block: Props['block'], ctx: BlockCtx) => (
   <a className={b.btn} data-voice="loud" data-size="lg" href={hrefFor(ctx.lang, { catalog: true })}>{block.cta}</a>
 )
-/* look-home:scene,proof,journal,cabinet,showroom:end */
+/* look-home:scene,proof,journal,cabinet,showroom,poster:end */
 
 /* look-home:scene:start */
 /* scene — единственное место, где снимок бывает большим, и одна тёмная
@@ -182,6 +182,27 @@ const showroom = ({ block, ctx }: Props) => {
 }
 /* look-home:showroom:end */
 
+/* look-home:poster:start */
+/* poster — афиша (docs/design/home.md, «Афиша»): снимок во всю ширину окна
+   сразу под шапкой, без полей и скругления; заголовок, абзац и кнопка —
+   колонкой на снимке, на вуали. Колонка стоит в коробке страницы, поэтому
+   её край совпадает с краем текста ниже. Высота снимка — нижняя граница от
+   окна и от своей ширины; снимок заполняет коробку (`cover`), и длинный
+   заголовок растит коробку, а не налезает на край. */
+const poster = ({ block, ctx }: Props) => (
+  <section className={s.poster}>
+    <img className={s.posterShot} src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} fetchPriority="high" />
+    <div className={`${p.wrap} ${s.posterBody}`}>
+      <div className={s.posterText} data-ground="deck">
+        <h1>{block.title}</h1>
+        <p>{block.lede}</p>
+        <div className={p.cluster}>{cta(block, ctx)}</div>
+      </div>
+    </div>
+  </section>
+)
+/* look-home:poster:end */
+
 const HEROES: Record<HomeVariant, (props: Props) => ReactNode> = {
   scene, // look-home:scene
   counter, // look-home:counter
@@ -189,6 +210,7 @@ const HEROES: Record<HomeVariant, (props: Props) => ReactNode> = {
   journal, // look-home:journal
   cabinet, // look-home:cabinet
   showroom, // look-home:showroom
+  poster, // look-home:poster
 }
 
 export function Hero(props: Props) {
