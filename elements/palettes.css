@@ -97,8 +97,7 @@
   --pop-trail-far-paper: light-dark(#CCB896, #745D36);
   --pop-trail-near-deck: light-dark(#896C34, #BD9D66);
   --pop-trail-far-deck: light-dark(#795F29, #C2A573);
-  --pop-grad-paper: light-dark(#AB9260, #967A49);
-  --pop-grad-deck: light-dark(#E4E3E1, #CECCC9);
+  --pop-grad: light-dark(#AB9260, #967A49);
   --pop-glass: light-dark(#CCB896AB, #F5ECDF99);
   --pop-rim: light-dark(#FCFBF966, #EDEBE866);
   --edge-off-paper: light-dark(#BDBAB6, #695F51);
@@ -199,8 +198,7 @@
   --pop-trail-far-paper: light-dark(#CCB896, #745D36);
   --pop-trail-near-deck: light-dark(#896C34, #BD9D66);
   --pop-trail-far-deck: light-dark(#795F29, #C2A573);
-  --pop-grad-paper: light-dark(#AB9260, #967A49);
-  --pop-grad-deck: light-dark(#E4E3E1, #CECCC9);
+  --pop-grad: light-dark(#AB9260, #967A49);
   --pop-glass: light-dark(#CCB896AB, #F5ECDF99);
   --pop-rim: light-dark(#FCFBF966, #EDEBE866);
   --edge-off-paper: light-dark(#BDBAB6, #695F51);
@@ -301,8 +299,7 @@
   --pop-trail-far-paper: light-dark(#CEB889, #755D23);
   --pop-trail-near-deck: light-dark(#99791C, #BC9B48);
   --pop-trail-far-deck: light-dark(#7D5F00, #C2A357);
-  --pop-grad-paper: light-dark(#9D7E31, #CCB273);
-  --pop-grad-deck: light-dark(#E6E4DD, #CECDCA);
+  --pop-grad: light-dark(#9D7E31, #CCB273);
   --pop-glass: light-dark(#CEB889AB, #F6EDDB99);
   --pop-rim: light-dark(#FEFCF566, #EDECE966);
   --edge-off-paper: light-dark(#A5C1B0, #646052);
@@ -403,8 +400,7 @@
   --pop-trail-far-paper: light-dark(#B6BF99, #AEB98C);
   --pop-trail-near-deck: light-dark(#899465, #85915F);
   --pop-trail-far-deck: light-dark(#B6BF99, #AEB98C);
-  --pop-grad-paper: light-dark(#4C562A, #474F27);
-  --pop-grad-deck: light-dark(#E4E5DF, #CDCDCB);
+  --pop-grad: light-dark(#4C562A, #474F27);
   --pop-glass: light-dark(#1D23059C, #444B2EC0);
   --pop-rim: light-dark(#FCFDF766, #ECECEA66);
   --edge-off-paper: light-dark(#869079, #616156);
@@ -505,8 +501,7 @@
   --pop-trail-far-paper: light-dark(#9BC1CD, #396773);
   --pop-trail-near-deck: light-dark(#507B87, #5C9BAB);
   --pop-trail-far-deck: light-dark(#9BC1CD, #8BBBC8);
-  --pop-grad-paper: light-dark(#244E58, #235F6E);
-  --pop-grad-deck: light-dark(#E6E6E6, #D0CDC9);
+  --pop-grad: light-dark(#244E58, #235F6E);
   --pop-glass: light-dark(#051D2499, #2A4D57BD);
   --pop-rim: light-dark(#FFFFFF66, #EFECE766);
   --edge-off-paper: light-dark(#948C7C, #6C5E47);
@@ -607,8 +602,7 @@
   --pop-trail-far-paper: light-dark(#FFA487, #AC593D);
   --pop-trail-near-deck: light-dark(#D17456, #A74F32);
   --pop-trail-far-deck: light-dark(#FFA487, #AC593D);
-  --pop-grad-paper: light-dark(#83381F, #78341D);
-  --pop-grad-deck: light-dark(#E6E4DE, #CECDCB);
+  --pop-grad: light-dark(#83381F, #78341D);
   --pop-glass: light-dark(#3E120499, #822B0BB8);
   --pop-rim: light-dark(#FFFCF666, #EDECEA66);
   --edge-off-paper: light-dark(#C6B9AA, #645F56);
@@ -709,8 +703,7 @@
   --pop-trail-far-paper: light-dark(#A3C1B7, #3D695D);
   --pop-trail-near-deck: light-dark(#3E7C6B, #6CAA99);
   --pop-trail-far-deck: light-dark(#2F6E5D, #77B1A1);
-  --pop-grad-paper: light-dark(#6EA192, #8DBDB1);
-  --pop-grad-deck: light-dark(#E2E4E3, #CACECD);
+  --pop-grad: light-dark(#6EA192, #8DBDB1);
   --pop-glass: light-dark(#A3C1B7AB, #E1F2EC99);
   --pop-rim: light-dark(#FAFCFB66, #E9EDEC66);
   --edge-off-paper: light-dark(#80908C, #4F6460);
@@ -811,8 +804,7 @@
   --pop-trail-far-paper: light-dark(#90BEF2, #4F6278);
   --pop-trail-near-deck: light-dark(#366394, #6697CA);
   --pop-trail-far-deck: light-dark(#325984, #719FCE);
-  --pop-grad-paper: light-dark(#2F5A86, #85ADD6);
-  --pop-grad-deck: light-dark(#E3E4E6, #C9CCD0);
+  --pop-grad: light-dark(#2F5A86, #85ADD6);
   --pop-glass: light-dark(#1121329C, #E1F0FF99);
   --pop-rim: light-dark(#FBFCFE66, #E8EBF066);
   --edge-off-paper: light-dark(#848CA1, #59616E);

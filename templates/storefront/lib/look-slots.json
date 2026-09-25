@@ -466,15 +466,10 @@
       "group": "palette",
       "value": "light-dark(#795F29, #C2A573)"
     },
-    "--pop-grad-paper": {
+    "--pop-grad": {
       "type": "colour",
       "group": "palette",
       "value": "light-dark(#AB9260, #967A49)"
-    },
-    "--pop-grad-deck": {
-      "type": "colour",
-      "group": "palette",
-      "value": "light-dark(#E4E3E1, #CECCC9)"
     },
     "--pop-glass": {
       "type": "colour",
@@ -1235,7 +1230,6 @@
       "--on-pop": "var(--on-accent)",
       "--pop-ink": "var(--a-11)",
       "--rule": "var(--rule-paper)",
-      "--pop-grad": "var(--pop-grad-paper)",
       "--sh-ring": "var(--sh-ring-paper)",
       "--sh-near": "var(--sh-near-paper)",
       "--sh-far-1": "var(--sh-far-1-paper)",

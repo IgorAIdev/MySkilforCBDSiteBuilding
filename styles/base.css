@@ -484,7 +484,6 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --pop-trail-near:var(--pop-trail-near-deck);
   --pop-trail-far:var(--pop-trail-far-deck);
   --edge-off:var(--edge-off-deck);
-  --pop-grad:var(--pop-grad-deck);
 
   /* ── и ЖИВАЯ ЛЕСТНИЦА целиком, а не только серая ──────────────────────
      Третий раз одна и та же порода, и третий раз её нашёл заказчик глазом:
@@ -577,7 +576,6 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --pop-trail-near:var(--pop-trail-near-paper);
   --pop-trail-far:var(--pop-trail-far-paper);
   --edge-off:var(--edge-off-paper);
-  --pop-grad:var(--pop-grad-paper);
 
   /* Живая лестница — к своим значениям (см. `--live-*` в tokens.css). */
 
