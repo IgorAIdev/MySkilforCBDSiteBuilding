@@ -7,6 +7,7 @@ import { hrefFor } from '@/lib/href.ts'
 import go from '@/styles/go.module.css' // look-home:journal,poster
 import { Icon } from '../Icon.tsx' // look-home:journal,poster
 import type { BlockCtx, Place } from './types.ts'
+import { shot } from '@/lib/shot.ts'
 
 type Props = { block: Extract<Block, { type: 'categories' }>; ctx: BlockCtx; place: Place }
 
@@ -32,7 +33,7 @@ const tiles = ({ block, ctx, place }: Props, shelf?: 'drawers') => (
         <li key={c.slug} className={`${p.stack} ${s.tile}`}>
           {c.image ? (
             <div className={`${p.frame} ${s.tileShot}`}>
-              <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
+              <img {...shot(c.image, 'shelf', true)} alt="" decoding="async" />
             </div>
           ) : null}
           <h3 className={s.name}><a href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}</a></h3>
@@ -73,7 +74,7 @@ const index = ({ block, ctx, place }: Props) => (
           <li key={c.slug} className={s.entry}>
             {c.image ? (
               <div className={`${p.frame} ${s.entryShot}`}>
-                <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
+                <img {...shot(c.image, 'thumb', true)} alt="" decoding="async" />
               </div>
             ) : null}
             <h3 className={s.entryName}><a className={go.go} href={hrefFor(ctx.lang, { category: c.slug })}>{c.name}<Icon id="arrow-right" /></a></h3>
@@ -98,7 +99,7 @@ const words = ({ block, ctx, place }: Props) => (
       {ctx.collections.map((c) => (
         <li key={c.slug}>
           <a href={hrefFor(ctx.lang, { category: c.slug })}>
-            {c.image ? <img className={s.wordShot} src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" /> : null}
+            {c.image ? <img className={s.wordShot} {...shot(c.image, 'thumb', true)} alt="" decoding="async" /> : null}
             {c.name}
           </a>
         </li>
@@ -122,7 +123,7 @@ const posters = ({ block, ctx, place }: Props) => (
         <li key={c.slug} className={s.tallTile} data-bare={c.image ? undefined : ''}>
           {c.image ? (
             <div className={`${p.frame} ${s.tallShot}`}>
-              <img src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" />
+              <img {...shot(c.image, 'shelf', true)} alt="" decoding="async" />
             </div>
           ) : null}
           <h3 className={s.tallName} data-ground={c.image ? 'deck' : undefined}>

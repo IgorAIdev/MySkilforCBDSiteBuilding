@@ -5,7 +5,10 @@ import type { HomeVariant } from '../homes.ts'
 
 export type Money = { minor: number; currency: string }
 export type Stock = 'in' | 'low' | 'out'
-export type Image = { src: string; alt: string; width: number; height: number }
+/** Снимок. `srcset` — ширины того же снимка от сервера снимков источника
+ *  (`адрес 400w, …`), если источник их умеет; нет — снимок один. Какую
+ *  ширину взять, решает браузер по месту (lib/shot.ts). */
+export type Image = { src: string; alt: string; width: number; height: number; srcset?: string }
 export type OptionGroup = { code: string; name: string; options: { code: string; name: string }[] }
 /** `was` — цена до скидки (Shopify `compareAtPrice`; у Vendure — своё поле
  *  варианта, план 4); `null` — скидки нет. */

@@ -2,6 +2,7 @@ import p from '@/styles/primitives.module.css'
 import s from './blocks.module.css'
 import type { Block } from '@/lib/source/contract.ts'
 import type { BlockCtx, Place } from './types.ts'
+import { shot } from '@/lib/shot.ts'
 
 /* Слово магазина — место заказчика (docs/design/home.md, «Пустые места»):
    заголовок, несколько предложений своими словами и снимок. Пока слов нет —
@@ -21,7 +22,7 @@ export function Story({ block, place }: { block: Extract<Block, { type: 'story' 
         </div>
         {block.image ? (
           <div className={`${p.frame} ${s.storyShot}`}>
-            <img src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} loading="lazy" decoding="async" />
+            <img {...shot(block.image, 'stage', true)} alt={block.image.alt} decoding="async" />
           </div>
         ) : null}
       </div>

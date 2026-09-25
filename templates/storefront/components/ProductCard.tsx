@@ -6,6 +6,7 @@ import type { Outcome } from '@/lib/cart-ops.ts'
 import { lookNow } from '@/lib/look.ts'
 import { CartForm } from './CartForm.tsx'
 import { Icon } from './Icon.tsx'
+import { shot } from '@/lib/shot.ts'
 
 /** Запись в корзину — действия сервера, которые карточке передаёт страница
  *  (компонент в бекенд сам не ходит, И248): те же, что у кнопки карты
@@ -45,7 +46,7 @@ export async function ProductCard({ card, eager = false, cart }: { card: ShelfCa
   return (
     <article className={s.card} data-card={variant} data-product-card="">
       <div className={`${p.frame} ${s.shot}`}>
-        <img src={card.image.src} alt="" width={card.image.width} height={card.image.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+        <img {...shot(card.image, 'shelf', !eager)} alt="" decoding="async" />
       </div>
       <div className={s.body}>
         <div className={s.what}>

@@ -12,6 +12,7 @@ import { ProductCard } from './ProductCard.tsx'
 import { QuantityStepper } from './QuantityStepper.tsx'
 import { StateScreen } from './StateScreen.tsx'
 import { Icon } from './Icon.tsx'
+import { shot } from '@/lib/shot.ts'
 
 type Actions = { submit: (form: FormData) => Promise<void>; call: (form: FormData) => Promise<Outcome> }
 
@@ -61,7 +62,7 @@ export function CartView({ lang, view, submit, call }: { lang: string; view: Car
           <ul className={s.list}>
             {view.lines.map((l) => (
               <li key={l.id} className={s.line}>
-                <div className={`${p.frame} ${s.thumb}`}><img src={l.image.src} alt="" width={l.image.width} height={l.image.height} loading="lazy" decoding="async" /></div>
+                <div className={`${p.frame} ${s.thumb}`}><img {...shot(l.image, 'thumb', true)} alt="" decoding="async" /></div>
                 <div className={s.what}>
                   <a className={s.name} href={l.href}>{l.name}</a>
                   {l.facts ? <p className={p.note}>{l.facts}</p> : null}

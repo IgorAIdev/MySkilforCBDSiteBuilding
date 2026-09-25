@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packOf, vendureEnv, vendureSource } from '../lib/source/vendure/catalog.ts'
 import { vendureCommerce } from '../lib/source/vendure/commerce.ts'
+import { assetImage } from '../lib/source/vendure/image.ts'
 
 /* Торговля из Vendure (SOURCE=vendure) — против подставного движка: форма
    ответов снята с движка cbdin (Vendure 3.7) 25.09.2026. Живой движок тесты
@@ -135,4 +136,23 @@ test('vendure: no order is placed in a live shop without VENDURE_PLACE_ORDERS=on
   const methods = await off.deliveryMethods('tok-1', 'en')
   assert.ok(methods.ok)
   assert.deepEqual(methods.value.map((m) => [m.id, m.kind, m.carrier]), [['6', 'address', 'Econt']])
+})
+
+test('vendure: a shot carries its widths from the asset server and is never asked wider than its original', () => {
+  const widths = (srcset: string | undefined) => (srcset ?? '').split(', ').map((x) => Number(x.split(' ')[1].replace('w', '')))
+  const preview = 'https://engine.test/assets/preview/07/oil__preview.webp'
+  const big = assetImage({ preview, width: 2000, height: 1000 }, 'Oil', 800)
+  assert.deepEqual(widths(big.srcset), [160, 400, 800, 1200])
+  assert.deepEqual([big.width, big.height], [800, 400], 'место — по пропорции оригинала')
+  assert.match(big.src, /[?&]w=800(&|$)/)
+  /* Оригинал движка cbdin — 140 пикселей: растянутый до 800 весил как большой. */
+  const small = assetImage({ preview, width: 140, height: 138 }, 'Oil', 800)
+  assert.deepEqual(widths(small.srcset), [140])
+  assert.equal(small.width, 140)
+  assert.match(small.src, /[?&]w=140(&|$)/)
+  const mid = assetImage({ preview, width: 612, height: 612 }, 'Oil', 800)
+  assert.deepEqual(widths(mid.srcset), [160, 400, 612])
+  assert.deepEqual(widths(assetImage({ preview, width: 1200, height: 1200 }, 'Oil', 800).srcset), [160, 400, 800, 1200])
+  /* Размеров движок не сказал — просится весь ряд. */
+  assert.deepEqual(widths(assetImage({ preview }, 'Oil', 200).srcset), [160, 400, 800, 1200])
 })

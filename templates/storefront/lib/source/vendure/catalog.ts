@@ -2,7 +2,7 @@ import type { Lang } from '../../locale.ts'
 import type { Card, Collection, Facet, Image, Listing, ListingQuery, Money, OptionGroup, Pack, Product, Result, SortKey, Source, Stock, Strength, Variant } from '../contract.ts'
 import { shopFetch } from './core/request.mjs'
 import { facetValueFilters, pageVariables, pageCount } from './core/search.mjs'
-import { assetUrl } from './core/asset.mjs'
+import { assetImage, type Asset } from './image.ts'
 import { displayOptionGroups } from './core/product.mjs'
 import { overallStock } from '../stock.ts'
 
@@ -33,7 +33,6 @@ type Fetched<T> = { ok: true; data: T } | { ok: false; kind: string; message: st
 type Paging = { ok: true; page: number; take: number; skip: number } | { ok: false }
 type Filter = { and: string } | { or: string[] }
 
-type Asset = { preview: string; width?: number; height?: number; focalPoint?: { x: number; y: number } | null }
 type Translation = { languageCode: string; slug: string }
 type VCollection = { id: string; slug: string; name: string; description: string; featuredAsset: Asset | null; translations: Translation[] }
 type VProduct = {
@@ -114,12 +113,8 @@ const strengthOf = (p: VProduct, pack: Pack | null): Strength =>
 const nativeSlug = (c: Channel, item: { slug: string; translations: Translation[] }) =>
   item.translations.find((t) => t.languageCode === c.defaultLanguageCode)?.slug ?? item.slug
 const money = (c: Channel, minor: number): Money => ({ minor, currency: c.defaultCurrencyCode })
-/** Снимок — сервером ассетов движка нужной ширины (asset.mjs), без второго
- *  оптимизатора (references/vendure.md, «Картинки»). */
-const image = (asset: Asset | null, alt: string): Image | null => (asset ? {
-  src: assetUrl(asset.preview, { w: 800, format: 'webp' }), alt,
-  width: 800, height: asset.width && asset.height ? Math.round((800 * asset.height) / asset.width) : 800,
-} : null)
+/** Снимок товара и полки — сервером снимков движка (image.ts). */
+const image = (asset: Asset | null, alt: string): Image | null => (asset ? assetImage(asset, alt, 800) : null)
 const NO_IMAGE: Image = { src: '', alt: '', width: 800, height: 800 }
 
 export function vendureSource(env: VendureEnv, fetchImpl: typeof fetch = globalThis.fetch): Source {
@@ -172,7 +167,7 @@ export function vendureSource(env: VendureEnv, fetchImpl: typeof fetch = globalT
   }
   const collectionOf = (c: Channel, x: VCollection): Collection => ({
     slug: nativeSlug(c, x), name: x.name, description: x.description.replace(/<[^>]*>/g, '').trim(),
-    image: x.featuredAsset ? { ...image(x.featuredAsset, x.name)!, height: 600 } : null,
+    image: image(x.featuredAsset, x.name),
   })
 
   const SORT: Record<SortKey, Record<string, 'ASC' | 'DESC'> | undefined> = { popular: undefined, 'price-asc': { price: 'ASC' }, 'price-desc': { price: 'DESC' } }

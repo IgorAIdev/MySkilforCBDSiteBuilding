@@ -1,7 +1,7 @@
 import type { Lang } from '../../locale.ts'
 import type { Address, Cart, CartLine, Change, Checkout, Commerce, CommerceError, Contact, Delivery, DeliveryMethod, Image, Money, Order, PaymentKind, PaymentMethod, Result } from '../contract.ts'
 import { shopFetch } from './core/request.mjs'
-import { assetUrl } from './core/asset.mjs'
+import { assetImage, type Asset } from './image.ts'
 import type { VendureEnv } from './catalog.ts'
 
 /* Покупка через Vendure Shop API (план 4, торговая половина; references/
@@ -20,7 +20,6 @@ import type { VendureEnv } from './catalog.ts'
    шаге выбора точки. Остаются способы до адреса. */
 
 type Fetched<T> = { ok: true; data: T; authToken?: string } | { ok: false; kind: string; message: string; errors?: { extensions?: { code?: string } }[] }
-type Asset = { preview: string; width?: number; height?: number }
 type Translation = { languageCode: string; slug: string }
 type VOrder = {
   id: string; code: string; state: string; orderPlacedAt: string | null; totalQuantity: number
@@ -63,9 +62,7 @@ const PAYMENT_KIND: Record<string, PaymentKind> = { cod: 'on-delivery', cash: 'o
 const kindOfPayment = (code: string): PaymentKind => PAYMENT_KIND[code] ?? 'online'
 
 /* Перевод ответов движка — без состояния адаптера. */
-const image = (a: Asset | null, alt: string): Image => (a
-  ? { src: assetUrl(a.preview, { w: 200, format: 'webp' }), alt, width: 200, height: a.width && a.height ? Math.round((200 * a.height) / a.width) : 200 }
-  : { src: '', alt, width: 200, height: 200 })
+const image = (a: Asset | null, alt: string): Image => (a ? assetImage(a, alt, 200) : { src: '', alt, width: 200, height: 200 })
 const money = (o: VOrder, minor: number): Money => ({ minor, currency: o.currencyCode })
 
 const methodOf = (m: VMethod, currency: string): DeliveryMethod => ({

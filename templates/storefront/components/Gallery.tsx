@@ -5,6 +5,7 @@ import go from '@/styles/go.module.css'
 import s from './Gallery.module.css'
 import type { GalleryView } from '@/lib/product-view.ts'
 import { Icon } from './Icon.tsx'
+import { shot } from '@/lib/shot.ts'
 
 const never = () => () => {}
 
@@ -52,8 +53,8 @@ export function Gallery({ view }: { view: GalleryView }) {
           {view.slides.map((slide, i) => (
             <div key={slide.id} id={slide.id} className={s.slide}>
               <img
-                src={slide.src} alt={slide.alt} width={slide.width} height={slide.height} decoding="async"
-                fetchPriority={i === 0 ? 'high' : undefined} loading={i === 0 ? undefined : 'lazy'}
+                {...shot(slide, 'stage', i !== 0)} alt={slide.alt} decoding="async"
+                fetchPriority={i === 0 ? 'high' : undefined}
               />
             </div>
           ))}
@@ -76,7 +77,7 @@ export function Gallery({ view }: { view: GalleryView }) {
             {view.slides.map((slide, i) => (
               <li key={slide.id}>
                 <a className={`${p.frame} ${s.thumb}`} href={`#${slide.id}`} aria-label={slide.show} aria-current={i === current ? 'true' : undefined} onClick={(e) => pick(e, i)}>
-                  <img src={slide.src} alt="" width={slide.width} height={slide.height} loading="lazy" decoding="async" />
+                  <img {...shot(slide, 'thumb', true)} alt="" decoding="async" />
                 </a>
               </li>
             ))}

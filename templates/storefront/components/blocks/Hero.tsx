@@ -10,6 +10,7 @@ import { t } from '@/lib/i18n/index.ts' // look-home:showroom
 import { Icon } from '../Icon.tsx' // look-home:showroom
 import { Pledges } from '../Pledges.tsx' // look-home:counter
 import type { BlockCtx, Place } from './types.ts'
+import { shot } from '@/lib/shot.ts'
 
 type Props = { block: Extract<Block, { type: 'hero' }>; ctx: BlockCtx; place: Place }
 
@@ -38,7 +39,7 @@ const scene = ({ block, ctx }: Props) => (
   <section className={`${p.wrap} ${p.flush} ${s.heroBand}`}>
     <div className={s.hero}>
       <div className={s.heroShot}>
-        <img src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} fetchPriority="high" />
+        <img {...shot(block.image, 'wide')} alt={block.image.alt} fetchPriority="high" />
       </div>
       <div className={s.heroText} data-ground="deck">
         <h1>{block.title}</h1>
@@ -97,7 +98,7 @@ const journal = ({ block, ctx, place }: Props) => (
         {cta(block, ctx)}
       </div>
       <div className={`${p.frame} ${s.plate}`}>
-        <img src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} fetchPriority="high" />
+        <img {...shot(block.image, 'wide')} alt={block.image.alt} fetchPriority="high" />
       </div>
     </div>
   </section>
@@ -127,7 +128,7 @@ export function Still({ block, place }: Props) {
   return (
     <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
       <div className={`${p.frame} ${s.still}`}>
-        <img src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} loading="lazy" decoding="async" />
+        <img {...shot(block.image, 'wide', true)} alt={block.image.alt} decoding="async" />
       </div>
     </section>
   )
@@ -151,12 +152,12 @@ const showroom = ({ block, ctx }: Props) => {
       <div className={s.showroom}>
         <div className={s.show}>
           <div className={s.showPhoto}>
-            <img className={s.showShot} src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} fetchPriority="high" />
+            <img className={s.showShot} {...shot(block.image, 'wide')} alt={block.image.alt} fetchPriority="high" />
             <div className={s.showTitle} data-ground="deck"><h1>{block.title}</h1></div>
             {spot ? (
               <div className={s.showCard} data-plate>
                 <div className={`${p.frame} ${s.showCardShot}`}>
-                  <img src={spot.image.src} alt="" width={spot.image.width} height={spot.image.height} decoding="async" />
+                  <img {...shot(spot.image, 'thumb')} alt="" decoding="async" />
                 </div>
                 <div className={s.showCardText}>
                   <p className={s.showCardName}>{spot.name}</p>
@@ -191,7 +192,7 @@ const showroom = ({ block, ctx }: Props) => {
    заголовок растит коробку, а не налезает на край. */
 const poster = ({ block, ctx }: Props) => (
   <section className={s.poster}>
-    <img className={s.posterShot} src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} fetchPriority="high" />
+    <img className={s.posterShot} {...shot(block.image, 'wide')} alt={block.image.alt} fetchPriority="high" />
     <div className={`${p.wrap} ${s.posterBody}`}>
       <div className={s.posterText} data-ground="deck">
         <h1>{block.title}</h1>

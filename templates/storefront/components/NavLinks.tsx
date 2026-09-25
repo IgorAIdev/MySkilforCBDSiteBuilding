@@ -3,6 +3,7 @@ import { usePathname } from 'next/navigation'
 import s from './Header.module.css'
 import type { NavLink } from '@/lib/shell.ts'
 import { Icon } from './Icon.tsx'
+import { shot } from '@/lib/shot.ts'
 
 /* Полки шапки. Каждая строка несёт всё, чем её может нарисовать шапка:
    кадр полки, имя, строку о полке, стрелку. Строкой текста в ряду, рядом в
@@ -18,7 +19,7 @@ export function NavLinks({ links, className }: { links: NavLink[]; className: st
         <li key={l.href} data-all={l.image ? undefined : ''}>
           <a href={l.href} aria-current={l.href === path ? 'page' : undefined}>
             {l.image
-              ? <img className={s.thumb} src={l.image.src} alt="" width={l.image.width} height={l.image.height} loading="lazy" decoding="async" />
+              ? <img className={s.thumb} {...shot(l.image, 'thumb', true)} alt="" decoding="async" />
               : <span className={s.thumb} aria-hidden="true"><Icon id="package" /></span>}
             <span className={s.name}>{l.label}</span>
             {l.line ? <span className={s.line}>{l.line}</span> : null}
