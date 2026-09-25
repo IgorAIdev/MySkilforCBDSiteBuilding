@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>40 · Карточка-ссылка с чертой марки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 40 — «Карточка-ссылка с чертой марки». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: текст, скрытый до наведения, — на телефоне наведения нет, текст виден всегда; рост черты по ширине и расширение карточки под рукой; тень и её рост; оранжевый и серые краски.
+  Приведено к единой форме: лист с волоском; нажимается вся карточка — это ссылка; черта сверху — краской марки, встаёт под рукой; логотип — знак в плитке тона марки из листа набора; имя — заглавными с разрядкой набора, ролью сноски; текст — роль сноски.
+  Наведение: сверху встаёт черта марки. Нажатие: черта — краской нажатия, карточка на пиксель ниже; без сжатия — карточка большая.
+-->
+</head>
+<body>
+  <div class="live one">
+    <a class="card" data-link href="#"><span class="mark" data-shape="tile"><svg data-sign="flask-conical"></svg></span><div class="stack"><p class="label" data-case="caps">Lab tested</p><p class="text">Every batch is tested in an independent lab. The batch number on the label matches the report.</p></div></a>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="card" data-link><span class="mark" data-shape="tile"><svg data-sign="flask-conical"></svg></span><div class="stack"><p class="label" data-case="caps">Lab tested</p><p class="text">Every batch is tested in an independent lab. The batch number on the label matches the report.</p></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="card" data-link data-state="hover"><span class="mark" data-shape="tile"><svg data-sign="flask-conical"></svg></span><div class="stack"><p class="label" data-case="caps">Lab tested</p><p class="text">Every batch is tested in an independent lab. The batch number on the label matches the report.</p></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="card" data-link data-state="press"><span class="mark" data-shape="tile"><svg data-sign="flask-conical"></svg></span><div class="stack"><p class="label" data-case="caps">Lab tested</p><p class="text">Every batch is tested in an independent lab. The batch number on the label matches the report.</p></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="card" data-link data-state="focus"><span class="mark" data-shape="tile"><svg data-sign="flask-conical"></svg></span><div class="stack"><p class="label" data-case="caps">Lab tested</p><p class="text">Every batch is tested in an independent lab. The batch number on the label matches the report.</p></div></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

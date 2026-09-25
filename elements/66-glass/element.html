@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>66 · Стекло марки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 66 — «Стекло марки». Источник — скриншот от заказчика 25.09.2026 (source.png):
+  «тут не в форме суть кнопки, а в полупрозрачности».
+  В сайт не встроен как рисунок: в панели это вариант главной кнопки «Glass» (styles/buttons.json, И427).
+  Всё, кроме атрибутов, — из основы (../base.css); краски — роли палитры набора.
+  Снято: светящееся кольцо вокруг знака; круг под знаком — форма не главное, форма — из «Форма главной»; белое стекло под белой надписью — на светлом полу его не видно.
+  Приведено к единой форме: стекло — краска марки долей (--pop-glass), доля — наименьшая, при которой надпись держит 4.5 : 1 на каждом полу; размытие и насыщенность под кнопкой — пороги формы (--frost-*); блик кромки — волосок краской --pop-rim; знак — искры из листа набора.
+  Наведение: поверх стекла 5 % краски надписи. Нажатие: 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live backdrop">
+    <img src="shots/zelenika-15.jpg" alt="">
+    <button class="el" data-voice="loud" data-fill="glass" data-shape="pill" data-size="lg" type="button">September 29<svg data-sign="sparkles"></svg></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="backdrop"><img src="shots/zelenika-15.jpg" alt=""><span class="el" data-voice="loud" data-fill="glass" data-shape="pill" data-size="lg">September 29<svg data-sign="sparkles"></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="backdrop"><img src="shots/zelenika-15.jpg" alt=""><span class="el" data-voice="loud" data-fill="glass" data-shape="pill" data-size="lg" data-state="hover">September 29<svg data-sign="sparkles"></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="backdrop"><img src="shots/zelenika-15.jpg" alt=""><span class="el" data-voice="loud" data-fill="glass" data-shape="pill" data-size="lg" data-state="press">September 29<svg data-sign="sparkles"></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="backdrop"><img src="shots/zelenika-15.jpg" alt=""><span class="el" data-voice="loud" data-fill="glass" data-shape="pill" data-size="lg" data-state="focus">September 29<svg data-sign="sparkles"></svg></span></div><figcaption>фокус</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-fill="glass" data-shape="pill" data-size="lg">September 29<svg data-sign="sparkles"></svg></span><figcaption>на полу страницы — без снимка стекло читается тоном марки</figcaption></figure>
+  </div>
+</body>
+</html>

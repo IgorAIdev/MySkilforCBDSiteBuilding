@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>53 · Список радиокнопок</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 53 — «Список радиокнопок». Источник — CSS от заказчика 24.09.2026 (Uiverse.io, cbolson), переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: розовый под рукой и синий у выбранного; рост точки 150 ms — точка встаёт сразу; подпись краской выбора.
+  Приведено к единой форме: кружок в кромке края, точка марки; под рукой кромка — чернилами, в пустом кружке — точка тоном марки: видно, что будет выбрано; подпись нажимается вместе с кружком, чернилами; фокус — кольцо у кружка.
+  Наведение: кромка чернилами, точка тоном марки. Нажатие: кружок 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="choices" role="radiogroup" aria-label="Delivery"><label class="radio"><input type="radio" name="ship" checked>Courier to the door</label><label class="radio"><input type="radio" name="ship">Pickup point</label><label class="radio"><input type="radio" name="ship">Parcel locker</label></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="choices"><span class="radio" data-on><input type="radio" name="ship-rest" tabindex="-1">Courier to the door</span><span class="radio"><input type="radio" name="ship-rest" tabindex="-1">Pickup point</span><span class="radio"><input type="radio" name="ship-rest" tabindex="-1">Parcel locker</span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="choices"><span class="radio" data-on><input type="radio" name="ship-hover" tabindex="-1">Courier to the door</span><span class="radio" data-state="hover"><input type="radio" name="ship-hover" tabindex="-1">Pickup point</span><span class="radio"><input type="radio" name="ship-hover" tabindex="-1">Parcel locker</span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="choices"><span class="radio" data-on><input type="radio" name="ship-press" tabindex="-1">Courier to the door</span><span class="radio" data-state="press"><input type="radio" name="ship-press" tabindex="-1">Pickup point</span><span class="radio"><input type="radio" name="ship-press" tabindex="-1">Parcel locker</span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="choices"><span class="radio" data-on><input type="radio" name="ship-focus" tabindex="-1">Courier to the door</span><span class="radio" data-state="focus"><input type="radio" name="ship-focus" tabindex="-1">Pickup point</span><span class="radio"><input type="radio" name="ship-focus" tabindex="-1">Parcel locker</span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

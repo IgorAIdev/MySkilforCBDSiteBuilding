@@ -125,6 +125,13 @@ const half = (px) => Math.round(px * 2) / 2
 
 const isPair = (v) => Array.isArray(v) && v.length === 2 && v.every((x) => typeof x === 'number')
 
+/** Роли крупного текста: имя в наборе → имя переменной. */
+export const DISPLAY = { герой: 'hero', заголовок: 'pagehead', ввод: 'intro' }
+/** Какие концы роли кто-то читает, кроме самой кривой: примитив `lede`
+ *  считает по ним размер в миг расхождения колонок. Прочее не выпускается —
+ *  число про запас (семья `unread`). */
+export const DISPLAY_KNOBS = { hero: ['max', 'base', 'slope'], pagehead: [], intro: ['min', 'max', 'base', 'slope'] }
+
 /** Ступень размера: показатель степени → пара по двум отношениям.
  *  Отрицательные ступени считаются телефонным отношением на обоих концах:
  *  с бóльшим отношением макета мелкий текст на макете выходил бы МЕЛЬЧЕ,
@@ -206,6 +213,22 @@ export const resolve = (set) => {
     if (!pa || !pb) throw new Error(`край просит ступень ритма ${!pa ? a : b}, которой в наборе нет`)
     out.край = { steps: [a, b], pair: [pa[0], pb[1]] }
   }
+  /* Крупный текст (И245) — заголовок героя, заголовок страницы, вводный
+     абзац. Он мерит СВОЮ КОЛОНКУ (`cqi`), а не окно: в двух колонках героя
+     колонка узкая, в одной — широкая. Поэтому это не ступень лестницы, а
+     прямая по ширине колонки: низ и верх в px, наклон — px на 1cqi,
+     основа — свободный член в px. Раньше эти три строки стояли в
+     tokens.css одной на все наборы, и «Просторный» получал заголовок
+     страницы мельче заголовка раздела. */
+  if (set.крупные !== undefined) {
+    out.крупные = {}
+    for (const [role, v] of Object.entries(set.крупные)) {
+      if (!DISPLAY[role]) throw new Error(`крупные: «${role}» — не роль; есть ${Object.keys(DISPLAY).join(', ')}`)
+      const bad = ['низ', 'верх', 'наклон', 'основа'].filter((k) => typeof v?.[k] !== 'number' || !Number.isFinite(v[k]))
+      if (bad.length) throw new Error(`крупные «${role}»: нужны числа ${bad.join(', ')}`)
+      out.крупные[role] = { низ: v.низ, верх: v.верх, наклон: v.наклон, основа: v.основа }
+    }
+  }
   /* Радиусы — роли по узлу, числом из лестницы (слой 9, И228): Spectrum —
      угол растёт с масштабом, Radix — px × множитель; у нас — своё число в
      каждом наборе, и набор «Тихий» острее прочих. */
@@ -231,7 +254,17 @@ const block = (sets, name, indent = '  ') => {
     lines.push(`${indent}${name}: ${value};${why ? `${' '.repeat(Math.max(1, 46 - name.length - value.length))}/* ${why} */` : ''}`)
 
   for (const [name, pair] of Object.entries(r.размер)) {
-    put(`${PREFIX.font}${name}`, ramp(pair, w), set.подписи?.размер?.[name])
+    put(`${PREFIX.font}${name}`, ramp(pair, w, 'rem'), set.подписи?.размер?.[name])
+  }
+  /* Крупный текст — в каждом наборе свой и весь в rem: низ, верх и основа
+     растут, когда человек поднял шрифт в браузере (WCAG 1.4.4). Наклон и
+     основа названы отдельно — по ним примитив `lede` считает размер,
+     который текст будет иметь в миг, когда колонки разойдутся (И243). */
+  for (const [role, d] of Object.entries(r.крупные ?? {})) {
+    const en = DISPLAY[role]
+    const knob = { min: write(d.низ, 'rem'), max: write(d.верх, 'rem'), base: write(d.основа, 'rem'), slope: num(d.наклон, 3) }
+    for (const k of DISPLAY_KNOBS[en]) put(`--${en}-${k}`, knob[k])
+    put(`--${en}-size`, `clamp(${write(d.низ, 'rem')}, ${write(d.основа, 'rem')} + ${num(d.наклон, 3)}cqi, ${write(d.верх, 'rem')})`, `${role}: мерит свою колонку`)
   }
   for (const [name, pair] of Object.entries(r.ритм)) {
     put(`${PREFIX.space}${name}`, ramp(pair, w), set.подписи?.ритм?.[name])
@@ -265,7 +298,7 @@ const block = (sets, name, indent = '  ') => {
      управления»). Верхний конец каждой ступени размера, в px, — роль
      --ctrl-fs-*, а не число рукой в tokens.css (И224). */
   for (const [name, pair] of Object.entries(r.размер)) {
-    put(`--ctrl-fs-${name}`, `${num(pair[1])}px`, 'надпись органа — не течёт')
+    put(`--ctrl-fs-${name}`, write(pair[1], 'rem'), 'надпись органа — не течёт')
   }
   /* Размер органа (слой 7, И226): три высоты из порогов CONTROL, своя семья,
      не ступень ритма. Под пальцем — те же имена, значения в блоке
@@ -286,6 +319,8 @@ const block = (sets, name, indent = '  ') => {
   put('--line-w', `${num(SHAPE.line.hair)}px`, 'линия: поле, разделитель, тег — не течёт')
   put('--ring-w', `${num(SHAPE.ring.width)}px`, 'кольцо фокуса (WCAG 2.4.13)')
   put('--ring-off', `${num(SHAPE.ring.offset)}px`, 'отступ кольца от органа')
+  put('--frost-blur', `${num(SHAPE.frost.blur)}px`, 'стекло: размытие того, что под органом — не течёт')
+  put('--frost-sat', num(SHAPE.frost.saturate), 'стекло: насыщенность размытого')
   const roles = roleBlock(sets, name, indent)
   return roles ? `${lines.join('\n')}
 
@@ -326,6 +361,20 @@ export const toCss = (sets) => {
     out += `\n${sel}{\n${block(sets, name)}\n}\n` + coarse(sets[name], sel)
   }
   return out
+}
+
+/** The exact same declarations as the CSS emitter, for React and exports.
+ * There is no second implementation of the scale formula in the application. */
+export const variables = (set) => Object.fromEntries(
+  [...block({ current: set }, 'current').matchAll(/(--[\w-]+):\s*([^;]+);/g)]
+    .map(([, name, value]) => [name, value]),
+)
+
+/** Static input-axis declarations shared by live studio and exported CSS.
+ * Keep these out of inline styles, which would override the coarse media rule. */
+export const inputCss = (set, selector) => {
+  const inputs = Object.entries(variables(set)).filter(([key]) => /^--ctrl-(h(?:-sm|-lg)?|target)$/.test(key) || Object.entries(set.зазор ?? {}).some(([name, pair]) => isPair(pair) && key === `--gap-${name}`))
+  return `${selector}{${inputs.map(([key, value]) => `${key}:${value}`).join(';')}}\n${coarse(set, selector)}`
 }
 
 /* ── замер ───────────────────────────────────────────────────────────────
@@ -438,6 +487,36 @@ export const auditScale = (set) => {
   }
   if (r.размер.h2 && r.размер.base && r.размер.h2[0] / r.размер.base[0] < TYPE.headContrast) {
     findings.push({ rule: 'заголовок к телу', got: `${r.размер.h2[0]} : ${r.размер.base[0]} = ${(r.размер.h2[0] / r.размер.base[0]).toFixed(2)} : 1 на телефоне`, need: `не меньше ${TYPE.headContrast} : 1` })
+  }
+  /* Крупный текст (И245): порядок против лестницы ЭТОГО набора, рост при
+     увеличении шрифта и разброс, который масштаб страницы ещё догоняет.
+     Колонка у крупного текста своя, поэтому порядок спрашивается с концов,
+     которые он достигает на любой колонке: низ и верх. */
+  const d = r.крупные
+  if (d) {
+    for (const [role, v] of Object.entries(d)) {
+      if (!(v.низ < v.верх)) findings.push({ rule: `крупный текст: низ ниже верха (${role})`, got: `${v.низ} → ${v.верх}px`, need: 'низ меньше верха' })
+      if (v.основа < 0) findings.push({ rule: `крупный текст не мельчает при увеличении шрифта (${role})`, got: `основа ${v.основа}px`, need: 'основа не меньше 0: при увеличении текста она растёт вместе с ним' })
+      if (!(v.наклон > 0)) findings.push({ rule: `крупный текст растёт с колонкой (${role})`, got: `наклон ${v.наклон}`, need: 'больше 0' })
+      if (v.верх / v.низ > TYPE.displaySpread) findings.push({ rule: `разброс крупного текста (${role})`, got: `×${(v.верх / v.низ).toFixed(2)}`, need: `не больше ×${TYPE.displaySpread}: масштаб страницы догоняет только низ` })
+    }
+    const h2 = r.размер.h2, base = r.размер.base, h3 = r.размер.h3
+    const { заголовок: page, герой: hero, ввод: intro } = d
+    if (page && h2 && !(page.низ > h2[0] && page.верх > h2[1])) {
+      findings.push({ rule: 'заголовок страницы крупнее заголовка раздела', got: `${page.низ}…${page.верх} против h2 ${h2[0]}…${h2[1]}`, need: 'оба конца выше' })
+    }
+    if (hero && page && hero.верх < page.верх) {
+      findings.push({ rule: 'герой не мельче заголовка страницы', got: `верх ${hero.верх} против ${page.верх}`, need: 'не меньше' })
+    }
+    if (hero && h2 && hero.низ < h2[0]) {
+      findings.push({ rule: 'герой не мельче заголовка раздела', got: `низ ${hero.низ} против h2 ${h2[0]}`, need: 'не меньше' })
+    }
+    if (intro && base && intro.низ < base[1]) {
+      findings.push({ rule: 'вводный абзац не мельче основного текста', got: `низ ${intro.низ} против тела ${base[1]} на макете`, need: `не меньше ${base[1]}: колонка ввода бывает узкой и на макете` })
+    }
+    if (intro && h3 && intro.верх > h3[0]) {
+      findings.push({ rule: 'вводный абзац не спорит с подзаголовком', got: `верх ${intro.верх} против h3 ${h3[0]}`, need: 'не больше' })
+    }
   }
   /* Клетка: концы ступени ритма лежат на клетке — 2 до 16, 4 до 64, дальше 8.
      Почти все числа семи люкс-магазинов кратны 4, большинство — 8. */
@@ -586,7 +665,7 @@ export const builtNames = (sets) => {
     if (r.холст !== undefined) names.add('--wrap')
     if (r.край) names.add('--gut')
     if (r.радиус) { for (const role of Object.keys(r.радиус)) names.add(`--r-${role}`); names.add('--r-pop') }
-    for (const name of ['--line-w', '--ring-w', '--ring-off']) names.add(name)
+    for (const name of ['--line-w', '--ring-w', '--ring-off', '--frost-blur', '--frost-sat']) names.add(name)
   }
   for (const setName of Object.keys(sets)) {
     for (const [role, r] of Object.entries(rolesOf(sets, setName))) {
@@ -675,23 +754,83 @@ export const auditSheets = (sheets, sets) => {
  * (docs/layers.md, §3.2). Так жил `--sp-11`: выпускался, не читался никем и
  * промахивался мимо своего конца — и никто не видел.
  */
+/**
+ * Кто просит ступень: имя ступени → «набор: роль». Просители собираются по
+ * ВСЕМ наборам файла: ступени у них общие («один и тот же ряд ступеней у
+ * всех», references/sets.md), и ступень, которую просит воздух хотя бы
+ * одного набора, живая.
+ *
+ * Третий проситель, кроме роли и файла стилей, — набор каталога, которого в
+ * файле нет (`каталог`, И343). Витрина носит один вид (И270): ставщик
+ * оставляет в её `styles/scale.json` один набор, остальные уходят в каталог
+ * панели вида. Ряд у набора остаётся общим — по нему панель передаёт сайту
+ * любой набор каталога, и опубликованный вид несёт весь ряд, — а просители
+ * ушедших наборов из файла пропадали: `--sp-11`, который просит воздух
+ * разделов «Тихого», на витрине стал «ступенью без просителя». Оставшийся
+ * набор называет их сам: `"каталог": { "--sp-11": ["Тихий: воздух page"] }`
+ * — пишет ставщик, считая этой же функцией (`alone`).
+ */
+export const requesters = (sets) => {
+  const by = new Map()
+  const put = (step, who) => {
+    if (!by.has(step)) by.set(step, [])
+    if (!by.get(step).includes(who)) by.get(step).push(who)
+  }
+  for (const name of Object.keys(sets)) {
+    const rs = resolve(sets[name])
+    for (const [role, p] of Object.entries(rs.поле)) if (p.step) put(`${PREFIX.space}${p.step}`, `${name}: поле ${role}`)
+    for (const [role, a] of Object.entries(rs.воздух)) for (const st of a.steps) put(`${PREFIX.space}${st}`, `${name}: воздух ${role}`)
+    for (const [role, g] of Object.entries(rs.зазор)) if (g.step) put(`${PREFIX.space}${g.step}`, `${name}: зазор ${role}`)
+    if (rs.край) for (const st of rs.край.steps) put(`${PREFIX.space}${st}`, `${name}: край`)
+    for (const [role, r] of Object.entries(rolesOf(sets, name))) {
+      if (typeof r.размер === 'string') put(r.размер, `${name}: текст ${role}`)
+    }
+    for (const [step, who] of Object.entries(sets[name].каталог ?? {})) {
+      for (const w of [].concat(who)) put(step, `каталог — ${w}`)
+    }
+  }
+  return by
+}
+
+/**
+ * Набор, который остаётся в файле один (витрина, И270), — с просителями
+ * общего ряда из наборов, ушедших в каталог (И343). Ступень, которую просят
+ * его собственные роли, называть не нужно; ступень, которую не просит никто
+ * и в каталоге, не называется — её найдёт «ступень без просителя», и это
+ * верно: она мёртвая везде.
+ */
+export const alone = (sets, name) => {
+  if (!sets[name]) throw new Error(`набора «${name}» в файле нет`)
+  const { каталог: _was, ...set } = sets[name]
+  /* Роли текста набор без своих берёт у первого в файле (`rolesOf`) —
+     поэтому просители считаются по всему файлу, а своими считаются те, что
+     названы именем набора. */
+  const all = requesters({ ...sets, [name]: set })
+  const r = resolve(set)
+  const каталог = {}
+  for (const step of [...Object.keys(r.размер).map((n) => `${PREFIX.font}${n}`), ...Object.keys(r.ритм).map((n) => `${PREFIX.space}${n}`)]) {
+    const who = all.get(step) ?? []
+    if (who.some((w) => w.startsWith(`${name}:`))) continue
+    const others = who.filter((w) => !w.startsWith('каталог — '))
+    if (others.length) каталог[step] = others
+  }
+  return Object.keys(каталог).length ? { ...set, каталог } : set
+}
+
 export const auditReaders = (sheets, sets) => {
   const findings = []
   const first = Object.values(sets)[0]
   if (!first) return findings
   const r = resolve(first)
   const css = sheets.map((s) => s.css).join('\n')
-  /* Просители собираются по ВСЕМ наборам: ступени у них общие, и ступень,
-     которую просит воздух хотя бы одного набора, живая. */
-  const asked = new Set()
-  for (const name of Object.keys(sets)) {
-    const rs = resolve(sets[name])
-    for (const p of Object.values(rs.поле)) if (p.step) asked.add(`${PREFIX.space}${p.step}`)
-    for (const a of Object.values(rs.воздух)) for (const st of a.steps) asked.add(`${PREFIX.space}${st}`)
-    for (const g of Object.values(rs.зазор)) if (g.step) asked.add(`${PREFIX.space}${g.step}`)
-    if (rs.край) for (const st of rs.край.steps) asked.add(`${PREFIX.space}${st}`)
-    for (const role of Object.values(rolesOf(sets, name))) {
-      if (typeof role.размер === 'string') asked.add(role.размер)
+  const asked = requesters(sets)
+  /* Названный набором каталога проситель — ступенью ряда: имя, которого в
+     ряду нет, — опечатка или ряд, ушедший из-под записи. */
+  for (const [name, set] of Object.entries(sets)) {
+    const own = resolve(set)
+    for (const step of Object.keys(set.каталог ?? {})) {
+      const known = step.startsWith(PREFIX.font) ? step.slice(PREFIX.font.length) in own.размер : step.startsWith(PREFIX.space) && step.slice(PREFIX.space.length) in own.ритм
+      if (!known) findings.push({ rule: 'проситель ступени, которой нет', got: `${name}: каталог ${step}`, need: 'ключ «каталог» называет ступень ряда этого набора' })
     }
   }
   const names = [
@@ -704,7 +843,7 @@ export const auditReaders = (sheets, sets) => {
     /* Лестница управления берёт верх ступени размера числом: орган, читающий
        --ctrl-fs-sm, просит и ступень --fs-sm. */
     if (name.startsWith(PREFIX.font) && new RegExp(`var\\(--ctrl-fs-${name.slice(PREFIX.font.length)}[,)]`).test(css)) continue
-    findings.push({ rule: 'ступень без просителя', got: name, need: 'ступень заводится там, где её просит роль или файл стилей — уберите из styles/scale.json или назовите просителя' })
+    findings.push({ rule: 'ступень без просителя', got: name, need: 'ступень заводится там, где её просит роль, файл стилей или набор каталога (ключ «каталог», И343) — уберите из styles/scale.json или назовите просителя' })
   }
   return findings
 }
@@ -751,7 +890,7 @@ const roleBlock = (sets, name, indent = '  ') => {
   const w = sets[name].ширины
   const lines = []
   for (const [role, r] of Object.entries(roles)) {
-    const size = Array.isArray(r.размер) ? ramp(r.размер, w) : `var(${r.размер})`
+    const size = Array.isArray(r.размер) ? ramp(r.размер, w, 'rem') : `var(${r.размер})`
     /* Роль, чей размер ЕСТЬ переменная того же имени (`hero` ← `--hero-size`),
        своего `--hero-size` не объявляет: это ссылка на саму себя, и браузер
        погасит её вместе со всей ролью. */

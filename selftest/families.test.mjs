@@ -26,11 +26,13 @@ const project = (files) => {
 const css = (dir) => spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs')], { cwd: dir, encoding: 'utf8' })
 const noPress = (out) => (out.match(/есть :hover, нет отклика на нажатие/g) ?? []).length - 1 // минус строка семьи в итоге
 
+/* Ответ образцов — черта, а не краска: литерал краски в стилях — находка
+   colorOut (И295), а эти тесты — про ответ на нажатие. */
 test('noPress: ответ, взятый через composes из файла контролов, засчитан (И175)', () => {
   const dir = project({
     'components/Control.module.css': '.pressable { cursor: pointer }\n.pressable:active { filter: brightness(.9) }\n',
-    'components/Buy.module.css': ".buy { composes: pressable from './Control.module.css'; background: red }\n@media (hover:hover){ .buy:hover { background: blue } }\n",
-    'components/Mute.module.css': '.mute { background: red }\n@media (hover:hover){ .mute:hover { background: blue } }\n',
+    'components/Buy.module.css': ".buy { composes: pressable from './Control.module.css'; text-decoration-line: none }\n@media (hover:hover){ .buy:hover { text-decoration-line: underline } }\n",
+    'components/Mute.module.css': '.mute { text-decoration-line: none }\n@media (hover:hover){ .mute:hover { text-decoration-line: underline } }\n',
   })
   try {
     const r = css(dir)
@@ -42,7 +44,7 @@ test('noPress: ответ, взятый через composes из файла ко
 
 test('noPress: отрицание состояния в селекторе не прячет ответ (.pill:not([data-current]):hover ↔ .pill:active)', () => {
   const dir = project({
-    'components/Pills.module.css': '.pill { color: red }\n@media (hover:hover){ .pill:not([data-current]):hover { color: blue } }\n.pill:active { filter: brightness(.95) }\n',
+    'components/Pills.module.css': '.pill { text-decoration-line: none }\n@media (hover:hover){ .pill:not([data-current]):hover { text-decoration-line: underline } }\n.pill:active { filter: brightness(.95) }\n',
   })
   try {
     const out = css(dir).stdout + css(dir).stderr
@@ -137,5 +139,131 @@ test('deadDress: атрибут, поставленный кодом строк�
     const out = css(dir).stdout + css(dir).stderr
     assert.doesNotMatch(out, /data-search-open —/, 'поставлен строкой в коде дизайн-системы — надет')
     assert.match(out, /data-nobody —/, 'никем не поставлен — находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+test('contactScheme: «tel:» внутри слова после не-латинской буквы — не схема ссылки; настоящая схема — находка', () => {
+  const dir = project({
+    'lib/i18n/hu.ts': "export const HU = { 'product.batch': 'Tétel: {batch}' }\n",
+    'components/Call.tsx': "export const Call = () => <a href=\"tel:+40700000000\">+40</a>\n",
+  })
+  try {
+    const out = code(dir).stdout + code(dir).stderr
+    assert.doesNotMatch(out, /hu\.ts.*tel:/, 'венгерское «Tétel:» принято за схему tel:')
+    assert.match(out, /Call\.tsx.*tel:/, 'настоящий tel: мимо lib/contacts.ts — находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+/* colorOut (И295): цвет рождается у строителя палитры и выпускается в
+   styles/palette.css; стили его только читают. Дефект — тона хвоста главной
+   кнопки, смешанные прямо в её стилях (`color-mix(… 60% …)`), кромка
+   выключенной и вуаль героя: проверки были зелёные, нарушение не мерилось. */
+test('colorOut: литерал и доля числом в стилях — находка; роль, доля состояния, маска, файл палитры и панель вида — нет (И295)', () => {
+  const dir = project({
+    'kit.config.json': JSON.stringify({ styles: ['app', 'components', 'styles', 'look-panel'] }),
+    'tools/css-baseline.json': '{}',
+    'styles/palette.css': ':root{ --n-1: light-dark(#FCFBF9, #121110); --quiet-paper: color-mix(in srgb, #1F1E1C 8%, transparent) }\n',
+    'look-panel/ui/look.css': '.lp{ --lp-ink: light-dark(#1b1b1b, #ececec); box-shadow: 0 2px 4px rgb(0 0 0 / .08) }\n',
+    'components/Bad.module.css': [
+      '.hex { color: #fff }',
+      '.share { --trail: color-mix(in oklab, var(--pop) 60%, var(--page)) }',
+      '.named { border-color: white }',
+      '.fn { background: rgba(0, 0, 0, .5) }',
+      '.knob { --leaf: 14%; background: color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf)) }',
+      '.half { background: color-mix(in oklab, var(--ctrl), var(--ink)) }',
+      ':root { --x: var(--y); &:lang(bg) { --nested: oklch(0.5 0.1 80) } }',
+    ].join('\n') + '\n',
+    'components/Good.module.css': [
+      '.role { color: var(--ink); background: var(--quiet) }',
+      '.state { background: color-mix(in oklab, var(--surface), var(--ink) var(--state-hover)) }',
+      '.words { white-space: nowrap; font-family: Georgia, serif; fill: currentColor; border-color: transparent }',
+      '.mask { mask-image: linear-gradient(to right, #000 80%, transparent) }',
+      '.forced { outline-color: Highlight }',
+      '.svg { clip-path: url(#cut) }',
+    ].join('\n') + '\n',
+  })
+  try {
+    const out = spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'colorOut'], { cwd: dir, encoding: 'utf8' }).stdout
+    const bad = [[1, 'литерал #fff'], [2, 'долей числом 60%'], [3, 'имя краски white'], [4, 'литерал rgba()'], [5, 'ручкой узла --leaf'], [6, 'без доли'], [7, 'литерал oklch()']]
+    for (const [line, why] of bad) {
+      assert.ok(out.split('\n').some((l) => l.includes(`Bad.module.css:${line} `) && l.includes(why)), `строка ${line}: ${why}\n${out}`)
+    }
+    assert.doesNotMatch(out, /Good\.module\.css/, 'роль, доля состояния, слова, маска, системная краска и ссылка url(#) — не находка')
+    assert.doesNotMatch(out, /palette\.css/, 'файл палитры выпускает строитель — там цвет и рождается')
+    assert.doesNotMatch(out, /look-panel/, 'панель вида вне сайта')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+/* Движение (семья `motion`), три приёма из внешнего разбора 24.09.2026:
+   «переход на всё» (Refero, craft-details.md §9 #50), появление из
+   scale(0) (Эмиль Ковальский, STANDARDS.md, «Physicality») и пружина с
+   перелётом — кривая с y вне коридора MOTION.overshoot (impeccable,
+   bounce-easing). Названные свойства, кривая в коридоре, появление от 0.96
+   и полоса из scaleX(0) — не находки. */
+test('motion: переход на всё, появление из scale(0), пружина с перелётом — находки; названное и в коридоре — нет', () => {
+  const dir = project({
+    'components/Pop.module.css': [
+      '.a { transition: all var(--hover-t) var(--ease) }',
+      '.b { transition: .2s }',
+      '.c { transition-property: all }',
+      '@keyframes grow { from { transform: scale(0) } to { transform: scale(1) } }',
+      '.d { scale: 0 }',
+      '.e { transition: transform var(--press-t) cubic-bezier(.34, 1.56, .64, 1) }',
+      '.ok { transition: opacity var(--hover-t) var(--ease), transform var(--press-t) cubic-bezier(.23, 1, .32, 1) }',
+      '@keyframes in { from { transform: scale(.96); opacity: 0 } }',
+      '.bar { transform: scaleX(0) }',
+    ].join('\n') + '\n',
+  })
+  try {
+    const r = spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'motion'], { cwd: dir, encoding: 'utf8' })
+    const lines = r.stdout.split('\n').filter((l) => l.includes('Pop.module.css'))
+    const at = (n) => lines.filter((l) => l.includes(`Pop.module.css:${n} `))
+    assert.equal(at(1).length, 1, 'transition: all')
+    assert.equal(at(2).length, 1, 'сокращение без свойства — тоже all')
+    assert.equal(at(3).length, 1, 'transition-property: all')
+    assert.match(at(4).join('\n'), /scale\(0\)/)
+    assert.match(at(5).join('\n'), /scale: 0/)
+    assert.match(at(6).join('\n'), /пружина с перелётом/)
+    for (const n of [7, 8, 9]) assert.deepEqual(at(n), [], `строка ${n} — не находка`)
+    assert.match(r.stdout, /переход «на всё»/, 'подпись семьи называет новый приём')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})
+
+/* И320, И346: галочки шторки фильтров встали одной колонкой — `.ticks`
+   переобъявлял `--cell-min` примитива `.grid` на том же узле голым классом,
+   и победу отдал порядок кусков сборки. Находка — узел и примитив в одном
+   className, ручка у обоих голым классом; сила места (атрибут, предок),
+   `:where()` у примитива и узел на другом элементе — не находка. */
+test('knobTie: ручка примитива, переобъявленная узлом на том же элементе равным весом, — находка; сила места и :where() — нет', () => {
+  const list = (dir) => spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'knobTie'], { cwd: dir, encoding: 'utf8' }).stdout
+  const tsx = [
+    "import p from '@/styles/primitives.module.css'",
+    "import s from './Filters.module.css'",
+    'export const A = () => <ul className={`${p.grid} ${s.ticks}`}><li className={s.tick} /></ul>',
+    'export const B = () => <ul className={[p.grid, s.shelf].join(" ")} data-catalog-grid="" />',
+    'export const C = () => <div className={s.values}><ul className={`${p.grid} ${s.inner}`} /></div>',
+    'export const D = () => <div className={`${p.frame} ${s.shot}`} />',
+  ].join('\n')
+  const node = [
+    '.ticks{--cell-min:10ch;--cols:2}',
+    '.shelf[data-catalog-grid]{--cols:4}',
+    '.values .inner{--cell-min:12ch}',
+    '.tick{--cols:9}',
+    '.shot{--frame:1 / 1}',
+  ].join('\n')
+  const dir = project({
+    'styles/primitives.module.css': '.grid{--cols:3;--cell-min:240px;display:grid}\n.frame{--frame:4 / 3;aspect-ratio:var(--frame)}\n',
+    'components/Filters.module.css': node + '\n',
+    'components/Filters.tsx': tsx + '\n',
+  })
+  try {
+    const out = list(dir)
+    assert.match(out, /— 2\n/, `две находки: .ticks против .grid и .shot против .frame:\n${out}`)
+    assert.match(out, /Filters\.module\.css:1 {2}\.ticks и примитив \.grid на одном узле \(components\/Filters\.tsx:3\): оба задают --cell-min, --cols/)
+    assert.match(out, /\.shot и примитив \.frame на одном узле/)
+    for (const quiet of ['.shelf', '.inner', '.tick ']) assert.ok(!out.includes(`  ${quiet}`), `${quiet} — сила места или другой элемент, не находка`)
+    /* Умолчания примитива под :where() — вес ноль: узел побеждает всегда. */
+    writeFileSync(join(dir, 'styles/primitives.module.css'), ':where(.grid){--cols:3;--cell-min:240px}\n.grid{display:grid}\n:where(.frame){--frame:4 / 3}\n.frame{aspect-ratio:var(--frame)}\n')
+    assert.match(list(dir), /— 0\n/)
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })

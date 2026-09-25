@@ -22,8 +22,19 @@
  *     "base":        "src/app/globals.css",
  *     "primitives":  null,
  *     "scale":       { "font": "text", "space": "space", "layer": "layer" },
- *     "breakpoints": [860]
+ *     "breakpoints": [860],
+ *     "probes":      { "notFound": false },
+ *     "sessions":    { "cookie": "shop_session", "pages": { "/[lang]/cart": ["sample-cart"] } },
+ *     "queries":     { "/[lang]/search": ["q=cbd", "q=zzzz"] }
  *   }
+ *
+ * `queries` — страницы с запросом для отрисованных проверок (И345): форма
+ * маршрута из дерева и строки запроса, по адресу на язык и строку.
+ *
+ * `sessions` называет личные страницы полными для дорогих проверок (И263):
+ * cookie сессии проверки и, по форме маршрута, имена заготовленных сессий
+ * образца (с необязательной строкой запроса — `"sample-pickup?city=Cluj"`).
+ * Нет cookie — нет и личных страниц: они меряются только деревом, пустыми.
  *
  * Пути — от корня проекта (папки, где лежит `tools/`); `..` разрешён: в
  * монорепозитории общие стили живут этажом выше. `null` у файла значит «его
@@ -56,12 +67,15 @@ const DEFAULTS = {
   tokens: 'styles/tokens.css',
   /** выпущенные шкалы размера и ритма: их пишет строитель из styles/scale.json */
   ladder: 'styles/scale.css',
+  /** выпущенная палитра: краски и роли цвета пишет строитель из styles/palette.json —
+   *  единственный файл стилей, где цвет рождается (семья colorOut, И295) */
+  palette: 'styles/palette.css',
   /** сброс, земля, режимы переноса, кольцо фокуса */
   base: 'styles/base.css',
   /** примитивы раскладки */
   primitives: 'styles/primitives.module.css',
   /** канонические дома контролов — где контрол и должен быть описан */
-  controls: ['styles/go.module.css', 'styles/btn.module.css', 'styles/form.module.css', 'styles/base.css'],
+  controls: ['styles/go.module.css', 'styles/btn.module.css', 'styles/buttons.css', 'styles/form.module.css', 'styles/base.css'],
   /** файлы, которым шкала не предписана: сама шкала, панель настроек, лист набора */
   exempt: ['styles/tokens.css', 'styles/scale.css', 'styles/studio.module.css', 'app/[lang]/design/design.module.css'],
   /** предметы над страницей, которым положена фирменная заливка */
@@ -78,18 +92,88 @@ const DEFAULTS = {
     'lib/studio/boot.ts', 'app/[lang]/layout.tsx'],
   /** чем заменить имя пакета в `composes … from '@shop/ui/control.css'`: путь от корня проекта */
   aliases: {},
+  /** пробы `check:open` сверх обхода дерева. `notFound` — несуществующий
+   *  адрес отвечает своей страницей с кодом 404 (И257). Выключается только
+   *  словом проекта — `"probes": { "notFound": false }`, — и проверка
+   *  печатает, что пробы пропущены: молча зеленеть ей нельзя. */
+  probes: { notFound: true },
+  /* Личные страницы (И263): без cookie сессии в проекте их нет вовсе — они
+   *  меряются только деревом, пустыми. */
+  sessions: { cookie: null, pages: {} },
+  /** Страницы с запросом (И345): форма маршрута → строки запроса, по адресу
+   *  на каждую. Дерево маршрутов строится по файлам `page.tsx`, а запрос к
+   *  файлу не привязан: поиск с запросом (`/[lang]/search?q=…`) — полка
+   *  результатов или «ничего не нашлось» — не мерился ни одной отрисованной
+   *  проверкой. Витрина называет два: с находками и без. */
+  queries: {},
+  /** Контекст дизайна (И300): правда о продукте и описание вида ролями —
+   *  схема impeccable (`PRODUCT.md`) и формат DESIGN.md без шапки. Их читает
+   *  шаг 1 порядка дизайна (CLAUDE.md), DESIGN.md меряет `check:design`
+   *  (`docValue`, `docDead`), наличие обоих — ворота этапа 2. */
+  productDoc: 'PRODUCT.md',
+  designDoc: 'DESIGN.md',
 }
 
 const FILE = join(ROOT, 'kit.config.json')
 
 function load() {
-  if (!existsSync(FILE)) return { ...DEFAULTS, scale: { ...DEFAULTS.scale } }
+  if (!existsSync(FILE)) return { ...DEFAULTS, scale: { ...DEFAULTS.scale }, probes: { ...DEFAULTS.probes }, sessions: { ...DEFAULTS.sessions } }
   let own
   try { own = JSON.parse(readFileSync(FILE, 'utf8')) } catch (e) {
     console.error(`kit.config.json не читается: ${e.message}`)
     process.exit(1)
   }
-  const cfg = { ...DEFAULTS, ...own, scale: { ...DEFAULTS.scale, ...(own.scale ?? {}) } }
+  const cfg = {
+    ...DEFAULTS, ...own,
+    scale: { ...DEFAULTS.scale, ...(own.scale ?? {}) },
+    probes: { ...DEFAULTS.probes, ...(own.probes ?? {}) },
+    sessions: { ...DEFAULTS.sessions, ...(own.sessions ?? {}) },
+  }
+  /* Отказ от пробы — слово, и оно пишется без двусмысленности: строка
+     `"false"` или `0` читались бы одним местом как «выключено», другим как
+     «включено». Только true или false. */
+  for (const [k, v] of Object.entries(cfg.probes)) {
+    if (typeof v !== 'boolean') { console.error(`kit.config.json: «probes.${k}» должен быть true или false`); process.exit(1) }
+  }
+  /* Личные страницы (И263): имя cookie — слово или null; формы маршрутов —
+     с «/»; сессия — имя без пробелов и, если нужно, «?запрос». Кривая запись
+     падает здесь, а не молча выключает замер полных страниц. */
+  const ses = cfg.sessions
+  if (ses.cookie !== null && !/^[A-Za-z0-9_-]+$/.test(String(ses.cookie))) { console.error('kit.config.json: «sessions.cookie» — имя cookie или null'); process.exit(1) }
+  /* `pages` — объект «форма → сессии», не список и не null: `?? {}` ниже
+     спасает только ОТСУТСТВУЮЩИЙ ключ, а `pages: null` в own.sessions
+     проходит его молча (`null ?? {}` даёт `{}`) и падает НЕ ЗДЕСЬ, а внутри
+     sessionUrls() без единого слова о причине. */
+  if (ses.pages === null || typeof ses.pages !== 'object' || Array.isArray(ses.pages)) {
+    console.error('kit.config.json: «sessions.pages» — объект { форма: [сессии] }, не null и не список')
+    process.exit(1)
+  }
+  for (const [shape, list] of Object.entries(ses.pages)) {
+    if (!shape.startsWith('/') || !Array.isArray(list) || !list.every((e) => /^[A-Za-z0-9_-]+(\?\S*)?$/.test(String(e)))) {
+      console.error(`kit.config.json: «sessions.pages["${shape}"]» — список имён сессий, например ["sample-cart"]`)
+      process.exit(1)
+    }
+  }
+  /* Запросы (И345): объект «форма → строки запроса», как у сессий; строка —
+     пары `имя=значение` через `&`, без `?` и `#`. Кривая запись падает здесь,
+     а не молча выбрасывает страницу из замера. */
+  const asks = cfg.queries
+  if (asks === null || typeof asks !== 'object' || Array.isArray(asks)) {
+    console.error('kit.config.json: «queries» — объект { форма: [запросы] }, например { "/[lang]/search": ["q=cbd", "q=zzzz"] }')
+    process.exit(1)
+  }
+  for (const [shape, list] of Object.entries(asks)) {
+    if (!shape.startsWith('/') || !Array.isArray(list) || !list.length || !list.every((q) => /^[\w.~%-]+=[^\s#&?]*(&[\w.~%-]+=[^\s#&?]*)*$/.test(String(q)))) {
+      console.error(`kit.config.json: «queries["${shape}"]» — непустой список запросов вида "q=cbd" (без «?» и «#»)`)
+      process.exit(1)
+    }
+  }
+  /* Сессии названы, а cookie нет — личные страницы полными не меряются
+     вовсе (`personal()` отдаёт пусто). Не выход: всё остальное меряется, —
+     но и не молча: запись явно просит замер, которого не будет. */
+  if (ses.cookie === null && Object.keys(ses.pages).length) {
+    console.warn('kit.config.json: «sessions.pages» названы, а «sessions.cookie» — null: личные страницы полными не меряются')
+  }
   /* Список чисел `breakpoints` — старая форма: ширины без имени и причины.
      Читается — проверки по файлам обязаны работать и на таком проекте, —
      но записи без причины шаг 8 в `npm run stage` не пропускает: шов должен
@@ -118,6 +202,7 @@ export const STYLE_DIRS = CONFIG.styles
 export const LIB = CONFIG.lib
 export const TOKENS = CONFIG.tokens
 export const LADDER = CONFIG.ladder
+export const PALETTE = CONFIG.palette
 export const BASE = CONFIG.base
 export const PRIMITIVES = CONFIG.primitives
 export const CONTROLS = CONFIG.controls
@@ -129,6 +214,16 @@ export const BREAKPOINTS = SEAMS.map((s) => s.at)
 export const HUES = CONFIG.hues ?? []
 export const STORES = CONFIG.stores ?? []
 export const ALIASES = CONFIG.aliases ?? {}
+/** Пробы `check:open` сверх обхода: `notFound` — несуществующая страница. */
+export const PROBES = CONFIG.probes
+/** Личные страницы полными (И263): cookie сессии проверки и сессии образца
+ *  по форме маршрута. */
+export const SESSIONS = CONFIG.sessions
+/** Страницы с запросом (И345): форма маршрута → строки запроса. */
+export const QUERIES = CONFIG.queries ?? {}
+/** Контекст дизайна: файл правды о продукте и описание вида (И300). */
+export const PRODUCT_DOC = CONFIG.productDoc
+export const DESIGN_DOC = CONFIG.designDoc
 
 /** Полные имена шкал: `--fs-`, `--sp-`, `--layer-`. */
 export const PREFIX = {

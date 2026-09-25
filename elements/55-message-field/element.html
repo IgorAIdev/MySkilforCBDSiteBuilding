@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>55 · Поле сообщения с кнопками</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 55 — «Поле сообщения с кнопками». Источник — CSS от заказчика 24.09.2026 (макет окна браузера), переслан из сессии «Кнопки и дизайн»; источник общий с 54 (../54-browser-tabs/source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: мигающий курсор — у поля он свой; органы, положенные поверх текста, — теперь в ряд под ним; серые краски.
+  Приведено к единой форме: поле тоном в несколько строк; «прикрепить» — плюс, «приватно» — щит из листа набора: скрепки и замка в листе нет; «отправить» — главная набора кругом со стрелкой вверх; органы под текстом: «прикрепить» у начала, остальное у конца.
+  Наведение: поле: тон + 5 % чернил. Нажатие: «отправить»: марка + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="field" data-lines><textarea placeholder="Ask about a product…" aria-label="Message"></textarea><span class="row"><button class="el" data-voice="ghost" data-icon data-size="sm" type="button" aria-label="Attach file"><svg data-sign="plus"></svg></button><button class="el" data-voice="ghost" data-icon data-size="sm" type="button" aria-label="Private"><svg data-sign="shield-check"></svg></button><button class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-dir="up" type="button" aria-label="Send"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button></span></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="field" data-lines><textarea placeholder="Ask about a product…" tabindex="-1" readonly></textarea><span class="row"><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="shield-check"></svg></span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-dir="up"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="field" data-lines data-state="hover"><textarea placeholder="Ask about a product…" tabindex="-1" readonly></textarea><span class="row"><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="shield-check"></svg></span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-dir="up"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="field" data-lines data-state="focus"><textarea placeholder="Ask about a product…" tabindex="-1" readonly></textarea><span class="row"><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="shield-check"></svg></span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-dir="up"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span></span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="field" data-lines><textarea placeholder="Ask about a product…" tabindex="-1" readonly>Is the 10 % oil good for evenings?</textarea><span class="row"><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="shield-check"></svg></span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-dir="up"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span></span></span><figcaption>заполнено</figcaption></figure>
+    <figure><span class="field" data-lines><textarea placeholder="Ask about a product…" tabindex="-1" readonly>Is the 10 % oil good for evenings?</textarea><span class="row"><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="plus"></svg></span><span class="el" data-voice="ghost" data-icon data-size="sm"><svg data-sign="shield-check"></svg></span><span class="el" data-voice="loud" data-shape="pill" data-icon data-size="sm" data-dir="up" data-state="press"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span></span></span><figcaption>нажато «отправить»</figcaption></figure>
+  </div>
+</body>
+</html>

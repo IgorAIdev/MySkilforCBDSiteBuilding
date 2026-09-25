@@ -15,6 +15,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
 
 const KIT = fileURLToPath(new URL('..', import.meta.url))
 const run = (args, cwd) => spawnSync(process.execPath, args, { cwd, encoding: 'utf8' })
@@ -36,6 +37,20 @@ const foreign = (name) => {
   return dir
 }
 
+test('update refuses customized managed tools before overwriting any project file', () => {
+  const dir = fresh('local-customization')
+  assert.equal(install(dir).status, 0)
+  const tool = join(dir, 'tools/scale.mjs')
+  const customized = readFileSync(tool, 'utf8') + '\n// owner-specific extension\n'
+  writeFileSync(tool, customized)
+  const before = readFileSync(join(dir, 'package.json'), 'utf8')
+  const result = install(dir, '--update')
+  assert.notEqual(result.status, 0)
+  assert.equal(readFileSync(tool, 'utf8'), customized)
+  assert.equal(readFileSync(join(dir, 'package.json'), 'utf8'), before)
+  rmSync(dir, { recursive: true, force: true })
+})
+
 /* Проверки на новом сайте обязаны быть зелёными с первого дня: долг
    собственных стилей набора записан в его базе вёрстки (И171), а не
    прощён и не спрятан — иначе первый же `check:css` красный. */
@@ -55,6 +70,14 @@ test('новый сайт: всё разложено, команды допис�
   assert.ok(!existsSync(join(dir, 'selftest')), 'самопроверка набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, 'research')), 'исследования набора — не содержимое проекта')
   assert.ok(!existsSync(join(dir, '.claude/skills/taste-skill')), 'чужие стилевые скиллы не ставятся без --extras')
+  /* И271: правило CLAUDE.md «Дизайн делается дизайнерскими скиллами» зовёт
+     их по имени — без них на сайте оно ссылалось бы в пустоту. */
+  for (const f of ['.claude/skills/impeccable/SKILL.md', '.claude/skills/impeccable/reference/critique.md',
+    '.claude/skills/redesign-skill/SKILL.md', '.claude/skills/LICENSE.impeccable', '.claude/skills/NOTICE.impeccable', '.claude/skills/LICENSE.taste-skill',
+    'tools/check-design.mjs']) {
+    assert.ok(existsSync(join(dir, f)), `нет ${f} — правило о дизайне без своих скиллов`)
+  }
+  assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).scripts['check:design'], 'node tools/check-design.mjs')
   assert.ok(!existsSync(join(dir, 'pro')), 'реестр ссылок без снимков не едет в проект')
   assert.ok(!existsSync(join(dir, 'mood-stand.html')), 'локальный стенд не едет в проект')
   assert.doesNotMatch(readFileSync(join(dir, 'docs/gate.md'), 'utf8'), /^- \[x\]/m,
@@ -62,6 +85,8 @@ test('новый сайт: всё разложено, команды допис�
   assert.doesNotMatch(readFileSync(join(dir, 'docs/decisions.md'), 'utf8'), /CBD_ecommerce_eu|Ровный магазин|Латунь на угле/,
     'новый сайт не наследует бизнес-решения другого сайта')
   assert.ok(!existsSync(join(dir, '.github/workflows/kit.yml')), 'CI набора — не CI проекта')
+  assert.equal(readFileSync(join(dir, '.github/workflows/check.yml'), 'utf8'), readFileSync(join(KIT, 'templates/check.yml'), 'utf8'),
+    'голая установка — статический CI; серверный только у витрины')
   const s = scriptsOf(dir)
   assert.equal(s.dev, 'next dev', 'свои команды остаются')
   assert.equal(s['check:css'], 'node tools/check-css.mjs')
@@ -98,6 +123,14 @@ test('новый сайт: всё разложено, команды допис�
   assert.match(sc.stdout, /Шкалы в норме/, 'замер прошёл мимо чисел проекта')
   assert.equal(spawnSync(process.execPath, [join(dir, 'tools/scale-css.mjs'), '--check'],
     { cwd: dir }).status, 0, 'выпущенный styles/scale.css отстал от чисел')
+  /* И253: тест-образец набора (`tests/kit.test.ts`) едет на КАЖДЫЙ новый
+     сайт, с витриной и без, и гоняется его собственным `npm test`. Голая
+     установка обязана быть зелёной той же проверкой, что и витрина — иначе
+     регресс тут же вернётся тихо на сайте, у которого шаблона витрины нет. */
+  const env = { ...process.env }
+  delete env.NODE_TEST_CONTEXT
+  const tests = spawnSync(process.execPath, [join(dir, 'tools/check-test.mjs')], { cwd: dir, encoding: 'utf8', env })
+  assert.equal(tests.status, 0, `npm test нового сайта красный:\n${tests.stdout.slice(-2000)}\n${tests.stderr.slice(-1000)}`)
   rmSync(dir, { recursive: true, force: true })
 })
 
@@ -125,6 +158,7 @@ test('--audit: инструменты и четыре скилла, kit.config.j
   assert.ok(existsSync(join(dir, 'kit.config.json')))
   for (const s of ['craft', 'palette', 'code', 'shop', 'stages']) assert.ok(existsSync(join(dir, '.claude/skills', s, 'SKILL.md')), s)
   assert.ok(!existsSync(join(dir, '.claude/skills/taste-skill')), 'чужие скиллы аудиту не нужны')
+  assert.ok(!existsSync(join(dir, '.claude/skills/impeccable')), 'аудит не кладёт скиллов сверх своих: правило о дизайне у чужого сайта своё')
   const s = scriptsOf(dir)
   assert.equal(s['check:css'], 'node tools/check-css.mjs')
   assert.equal(s.lint, undefined, 'lint у чужого проекта свой')
@@ -138,11 +172,18 @@ test('--update: базы храповиков и CLAUDE.md проекта ост
   writeFileSync(join(dir, 'CLAUDE.md'), 'Этап производства: **3 · Поведение**\n')
   writeFileSync(join(dir, 'tools/css-baseline.json'), '{"fontPx": 7}\n')
   writeFileSync(join(dir, 'tools/check-css.mjs'), '// устаревшая копия\n')
+  // Simulate an unmodified installed older release, not a local customization.
+  const recordPath = join(dir, '.site-kit-install.json')
+  const record = JSON.parse(readFileSync(recordPath, 'utf8'))
+  record.files['tools/check-css.mjs'] = createHash('sha256').update('// устаревшая копия\n').digest('hex')
+  writeFileSync(recordPath, JSON.stringify(record))
   const r = install(dir, '--update')
   assert.equal(r.status, 0, r.stderr)
   assert.equal(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), 'Этап производства: **3 · Поведение**\n', 'этап проекта не сбрасывается')
   assert.equal(readFileSync(join(dir, 'tools/css-baseline.json'), 'utf8'), '{"fontPx": 7}\n', 'долг не прощается')
   assert.notEqual(readFileSync(join(dir, 'tools/check-css.mjs'), 'utf8'), '// устаревшая копия\n', 'инструмент обновлён')
+  /* Проверка, ставшая строже, объявлена при обновлении — вместе с отказом. */
+  assert.match(r.stdout, /check:open теперь пробует и несуществующие страницы.*И257.*"probes": \{ "notFound": false \}/)
   rmSync(dir, { recursive: true, force: true })
 })
 
@@ -242,6 +283,42 @@ test('--palette и --scale вместе: папка назначения не п
   assert.equal(Object.keys(JSON.parse(readFileSync(join(dir, 'styles/scale.json'), 'utf8')))[0],
     'Просторный')
   rmSync(dir, { recursive: true, force: true })
+})
+
+/* И260: таблицы фактов в скиллах собираются из кода сайта, а ехали
+   собранными из кода набора — и `check:rules` краснел на любом свежем
+   сайте: стартовая палитра вместо образцов, другой ритм на корне, свой
+   README владельца с правилами README набора. Проверяется то, что увидит
+   сайт: его собственный `node tools/check-rules.mjs` сразу после
+   постановки и после обновления, без единой правки рукой. */
+const rulesGreen = (dir, why) => {
+  const c = check(dir, 'check-rules.mjs')
+  const list = run([join(dir, 'tools/check-rules.mjs'), '--list'], dir).stdout
+  assert.equal(c.status, 0, `check:rules ${why}:\n${c.stdout}${c.stderr}`)
+  assert.equal(list.trim(), '', `check:rules ${why} — расхождения под планкой:\n${list}`)
+}
+
+test('свежий сайт: скилл сходится с проверками без правки рукой (И260)', () => {
+  const plain = fresh('rules-plain')
+  /* create-next-app кладёт свой README.md — он слово владельца, а не
+     README набора, и правил README набора на нём нет. */
+  writeFileSync(join(plain, 'README.md'), '# My app\n\nThis is a Next.js project.\n')
+  assert.equal(install(plain).status, 0)
+  rulesGreen(plain, 'на голой установке')
+  assert.equal(readFileSync(join(plain, 'README.md'), 'utf8'), '# My app\n\nThis is a Next.js project.\n',
+    'README владельца тронут')
+
+  const chosen = fresh('rules-chosen')
+  const r = install(chosen, '--palette', 'Латунь на угле', '--scale', 'Просторный')
+  assert.equal(r.status, 0, r.stderr)
+  rulesGreen(chosen, 'с выбранными палитрой и ритмом')
+  /* Обновление везёт скиллы набора заново — с таблицами, собранными у
+     набора; сайт обязан остаться зелёным на своих красках и своём ритме. */
+  const u = install(chosen, '--update')
+  assert.equal(u.status, 0, u.stderr)
+  rulesGreen(chosen, 'после --update')
+  rmSync(plain, { recursive: true, force: true })
+  rmSync(chosen, { recursive: true, force: true })
 })
 
 test('--skill-only: works on a PHP site without changing application files or installing tooling', () => {

@@ -30,12 +30,15 @@
  * только сказав это словом — `--force`.
  */
 
-import { fileURLToPath } from 'node:url'
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+import { createHash } from 'node:crypto'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, rmdirSync, writeFileSync, statSync } from 'node:fs'
+import { basename, dirname, join, resolve } from 'node:path'
+import { spawnSync } from 'node:child_process'
 import { SCRIPTS } from './scripts.mjs'
 import { toCss } from './tools/palette.mjs'
-import { toCss as ritmToCss } from './tools/scale.mjs'
+import { toCss as ritmToCss, alone as ritmAlone } from './tools/scale.mjs'
+import { availability as buttonAvailability, toCss as buttonsToCss } from './tools/buttons.mjs'
 
 const SRC = resolve(fileURLToPath(new URL('.', import.meta.url)))
 
@@ -50,19 +53,24 @@ function copy(from, to) {
     copyFileSync(from, to)
   }
 }
+/* Строки сборки каталога панели о пересчёте опубликованного вида из имён
+   (И352): что получило значения, что осталось прежним. Идут в отчёт
+   ставщика — пересчёт, о котором не сказано, то же, что правка без спроса. */
+const lookLines = (out) => out.split('\n').map((l) => l.trim()).filter((l) => /^(Опубликованный вид|⚠ вид:)/.test(l))
+const lookReport = []
 const args = process.argv.slice(2)
 const flags = new Set(args.filter((a) => a.startsWith('--')))
 /* Папка проекта — первый свободный довод, НЕ считая значения ключа
    `--palette "Имя"`: имя набора выглядит как путь, и ставщик однажды принял
    «Латунь на угле» за папку назначения (И213). */
-const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale'].includes(args[i - 1]))
+const target = args.find((a, i) => !a.startsWith('--') && !['--palette', '--scale', '--lang', '--currency'].includes(args[i - 1]))
 const OUT = resolve(target ?? process.cwd())
 const MODE = flags.has('--skill-only') ? 'skill-only' : flags.has('--audit') ? 'audit' : flags.has('--update') ? 'update' : 'new'
 const FORCE = flags.has('--force')
 /* Набор цвета, выбранный заказчиком, — ключом при постановке:
    `node install.mjs --palette "Латунь на угле" ../мой-сайт`.
    Без ключа новый сайт получает серый стартовый и напоминание спросить
-   фирменный цвет (И199). С ключом — названный набор из образцов набора,
+   фирменный цвет (И199); витрина (`--storefront`) — решённый набор набора. С ключом — названный набор из образцов набора,
    потому что выбор УЖЕ сделан, и заставлять делать его заново значит
    терять то, за что заказчик уже заплатил своим временем (И213). */
 const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith('--'))
@@ -70,15 +78,130 @@ const PALETTE = args.find((a, i) => args[i - 1] === '--palette' && !a.startsWith
    заказчика, сделанный глазами на стенде, и теряться при постановке он не
    должен ровно по той же причине (И213). */
 const SCALE = args.find((a, i) => args[i - 1] === '--scale' && !a.startsWith('--'))
+/* Основной язык витрины: `--lang ro`. Образец открывается по-английски
+   (слово заказчика 24.09.2026); настоящий магазин рынка ставит свой язык
+   основным — он же x-default, адрес корня и язык проверок. */
+const LANG = args.find((a, i) => args[i - 1] === '--lang' && !a.startsWith('--'))
+/* Валюта витрины: `--currency RON`. Образец торгует в евро (слово заказчика
+   24.09.2026); магазин рынка ставит свою валюту — код ISO 4217, запись
+   числа делает `Intl` языка страницы (lib/money.ts). Цены образца при этом
+   не пересчитываются: они образец, настоящие приходят из Vendure. */
+const CURRENCY = args.find((a, i) => args[i - 1] === '--currency' && !a.startsWith('--'))
 
 for (const f of flags) {
-  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras'].includes(f)) {
-    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя".`)
+  if (!['--audit', '--update', '--force', '--palette', '--scale', '--skill-only', '--extras', '--storefront', '--shop', '--lang', '--currency', '--look-panel'].includes(f)) {
+    console.error(`Неизвестный ключ ${f}. Есть --skill-only, --update, --audit, --extras, --force, --palette "Имя", --scale "Имя", --storefront [--shop], --lang код, --currency код, --look-panel.`)
     process.exit(1)
   }
 }
 if (OUT === SRC) {
   console.error('Целевая папка — сам набор. Укажите проект: node install.mjs ../мой-сайт')
+  process.exit(1)
+}
+
+/* Витрина — только новому сайту: шаблон ложится на пустую папку поверх
+   основы, в чужой проект он не ставится ни обновлением, ни аудитом. */
+const STOREFRONT = flags.has('--storefront')
+if (STOREFRONT && MODE !== 'new') {
+  console.error('--storefront ставит новый сайт: не смешивается с --audit, --update и --skill-only.')
+  process.exit(1)
+}
+/* Роль витрины (PANEL.md, «Шаблон и магазин»; слово заказчика 24.09.2026:
+   «в шаблоне панель удалять нельзя даже случайно»). `--storefront` — витрина
+   шаблона: на ней настраивается сам шаблон, панель вида снять нельзя.
+   `--storefront --shop` — магазин, построенный из шаблона: панель снимается
+   (`npm run look:remove -- --yes`, с копией). Роль пишется в запись
+   ставщика, и `look:remove` читает её оттуда. */
+const SHOP = flags.has('--shop')
+if (SHOP && !STOREFRONT) {
+  console.error('--shop — роль витрины: идёт только с --storefront (node install.mjs --storefront --shop <папка магазина>).')
+  process.exit(1)
+}
+const ROLE = STOREFRONT ? (SHOP ? 'shop' : 'showcase') : null
+
+/* Вернуть панель вида в витрину, где её сняли: `node install.mjs
+   --look-panel <сайт>` (PANEL.md, шаг 6). Кладёт из шаблона набора папку
+   панели, её вход, строку подключения и все варианты шапки и карточки,
+   дописывает флаг и команды; опубликованный вид сайта не трогает. Файл с
+   метками, который магазин успел поправить после снятия, не затирается без
+   слова `--force` — список таких файлов идёт в отказе. */
+if (flags.has('--look-panel')) {
+  const extra = [...flags].filter((f) => !['--look-panel', '--force'].includes(f))
+  if (extra.length) {
+    console.error(`--look-panel возвращает панель в готовую витрину и не смешивается с ${extra.join(', ')}.`)
+    process.exit(1)
+  }
+  const T = join(SRC, 'templates/storefront')
+  if (!existsSync(join(OUT, 'lib/look-values.ts')) || !existsSync(join(OUT, 'lib/source/sample/look.json'))) {
+    console.error(`${OUT} — не витрина набора (нет lib/look-values.ts или опубликованного вида lib/source/sample/look.json).`)
+    process.exit(1)
+  }
+  const { stripPanel, stripVariants, VARIANTS, OWNED } = await import(pathToFileURL(join(T, 'look-panel/scripts/remove.mjs')).href)
+  const look = JSON.parse(readFileSync(join(OUT, 'lib/source/sample/look.json'), 'utf8'))
+  const lf = (p) => readFileSync(p, 'utf8').replace(/\r\n/g, '\n')
+  const listIn = (text, name) => [...(text.match(new RegExp(`${name} = \\[([\\s\\S]*?)\\]`))?.[1] ?? '').matchAll(/'([a-z-]+)'/g)].map((m) => m[1])
+  /* Выбранный вариант — тот, что носит опубликованный вид; вид старше поля —
+     единственный оставшийся в списке сайта. */
+  const chosen = Object.fromEntries(VARIANTS.map((v) => {
+    const left = existsSync(join(OUT, v.list)) ? listIn(lf(join(OUT, v.list)), v.name) : []
+    return [v.tag, look[v.field] ?? left[0] ?? listIn(lf(join(T, v.list)), v.name)[0]]
+  }))
+  const MARKED = ['components/Shell.tsx', 'components/Header.tsx', 'components/Header.module.css', 'components/ProductCard.module.css', 'lib/headers.ts', 'lib/cards.ts',
+    'lib/homes.ts', 'components/blocks/registry.tsx', 'components/blocks/Hero.tsx', 'components/blocks/Categories.tsx', 'components/blocks/Featured.tsx',
+    'components/blocks/Lab.tsx', 'components/blocks/blocks.module.css', 'components/LabReport.tsx', 'components/LabReport.module.css']
+  const stripped = (text) => VARIANTS.reduce((t, v) => (t.includes(v.tag) ? stripVariants(t, v.tag, chosen[v.tag]) : t), text.includes('look-panel') ? stripPanel(text) : text)
+  const touched = MARKED.filter((rel) => {
+    if (!existsSync(join(OUT, rel))) return false
+    const mine = lf(join(OUT, rel))
+    const theirs = lf(join(T, rel))
+    return mine !== theirs && mine !== stripped(theirs)
+  })
+  if (touched.length && !FORCE) {
+    console.error(`Эти файлы магазин поправил после снятия панели, и шаблон их затёр бы: ${touched.join(', ')}.`)
+    console.error('Перенести правки руками после возврата — или вернуть поверх, сказав это словом: --force')
+    process.exit(1)
+  }
+  for (const p of OWNED) copy(join(T, p), join(OUT, p))
+  for (const rel of MARKED) copy(join(T, rel), join(OUT, rel))
+  const pkgFile = join(OUT, 'package.json')
+  const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'))
+  const theirsPkg = JSON.parse(readFileSync(join(T, 'package.json'), 'utf8'))
+  const commands = Object.entries(theirsPkg.scripts).filter(([, v]) => v.includes('look-panel/'))
+  pkg.scripts = { ...pkg.scripts, ...Object.fromEntries(commands) }
+  writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n')
+  /* Флаг — строками шаблона в .env.example; в .env — выключенным: панель
+     включает человек (`LOOK_PICKER=on`), а не возврат. */
+  const flagLines = lf(join(T, '.env.example')).split('\n').filter((l) => l.includes('look-panel') || /^LOOK_PICKER=/.test(l))
+  for (const [f, lines] of [['.env.example', flagLines], ['.env', ['LOOK_PICKER=']]]) {
+    const at = join(OUT, f)
+    if (f === '.env' && !existsSync(at)) continue
+    const text = existsSync(at) ? lf(at) : ''
+    if (/^\s*LOOK_PICKER\s*=/m.test(text)) continue
+    writeFileSync(at, `${text.replace(/\n*$/, '\n')}${lines.join('\n')}\n`)
+  }
+  const report = []
+  for (const [script, ...rest] of [['look-panel/scripts/build-catalog.mjs', '--from', SRC], ['scripts/look-slots.mjs']]) {
+    const run = spawnSync(process.execPath, [join(OUT, script), ...rest], { cwd: OUT, encoding: 'utf8' })
+    if (run.status !== 0) {
+      console.error(`${script} не прошёл:\n${run.stdout}${run.stderr}`)
+      process.exit(1)
+    }
+    if (script.includes('build-catalog')) report.push(...lookLines(run.stdout))
+  }
+  console.log(`Панель вида возвращена в ${OUT}: ${OWNED.map((p) => `${p}/`).join(', ')}, ${MARKED.join(', ')}; команды ${commands.map(([k]) => k).join(', ')}; флаг LOOK_PICKER (включить: LOOK_PICKER=on в .env).`)
+  console.log('Имена опубликованного вида (lib/source/sample/look.json) не тронуты; каталог панели собран из набора, значения вида выведены из имён (И352), стили выпущены из вида.')
+  for (const line of report) console.log(`  · ${line}`)
+  process.exit(0)
+}
+if (flags.has('--lang')) {
+  const codes = STOREFRONT ? (readFileSync(join(SRC, 'templates/storefront/lib/locale.ts'), 'utf8').match(/LOCALES = \[([^\]]*)\]/)?.[1] ?? '').match(/[a-z-]+/g) ?? [] : []
+  if (!STOREFRONT || !LANG || !codes.includes(LANG)) {
+    console.error(`--lang ставит основной язык витрины и идёт только с --storefront: --lang ${codes.join(' | ') || 'код'}.`)
+    process.exit(1)
+  }
+}
+if (flags.has('--currency') && (!STOREFRONT || !/^[A-Z]{3}$/.test(CURRENCY ?? ''))) {
+  console.error('--currency ставит валюту витрины и идёт только с --storefront: код ISO 4217 заглавными, например --currency RON.')
   process.exit(1)
 }
 
@@ -105,6 +228,14 @@ const PROJECT_OWNED = ['AGENTS.md', 'CLAUDE.md', 'docs', 'styles', 'tests', '.ox
  *  они не едут: там могут стоять свои. */
 const OWN_SKILLS = ['craft', 'palette', 'scale', 'code', 'shop', 'stages']
 
+/** Дизайнерские скиллы, которые правило проекта зовёт по имени: CLAUDE.md,
+ *  «Дизайн делается дизайнерскими скиллами» (И271). Чужие, но едут сайту и
+ *  без `--extras` — иначе правило ссылается в пустоту; лицензии рядом. */
+const DESIGN_SKILLS = ['impeccable', 'redesign-skill']
+/* NOTICE.impeccable — отметка Apache 2.0 (§4 d) о справочниках ios.md и
+   android.md: едет вместе с ними, как лицензия. */
+const DESIGN_LICENSES = ['LICENSE.impeccable', 'NOTICE.impeccable', 'LICENSE.taste-skill']
+
 /** Команды, которые нужны аудиту: проверки и этапы. `lint`, `test`,
  *  `typecheck`, `images` у чужого проекта свои — их не трогаем. */
 const AUDIT_SCRIPTS = Object.fromEntries(Object.entries(SCRIPTS)
@@ -114,6 +245,23 @@ const rel = (p) => p.slice(OUT.length + 1)
 const has = (p) => existsSync(join(OUT, p))
 
 /* ── что уже есть у проекта ─────────────────────────────────────────────── */
+
+/* Витрина кладёт своё приложение целиком: `package.json`, `tsconfig.json`,
+   `next.config.ts`, `.gitignore`, `app/`. Проверка проектных файлов ниже
+   этого не видит: у проекта из create-next-app их нет ни одного, — и шаблон
+   молча затирал его зависимости, а `app/[lang]` ложился рядом с его
+   `app/layout.tsx`. Поэтому витрина встаёт только в пустую папку; в
+   непустую — по слову `--force` (И169). */
+if (STOREFRONT && !FORCE && existsSync(OUT)) {
+  const inside = statSync(OUT).isDirectory() ? readdirSync(OUT) : [basename(OUT)]
+  if (inside.length) {
+    const shown = inside.slice(0, 5).join(', ') + (inside.length > 5 ? ` и ещё ${inside.length - 5}` : '')
+    console.error(`Папка ${OUT} не пуста: ${shown}.`)
+    console.error('Витрина ставится в пустую папку: шаблон затёр бы package.json, tsconfig.json, next.config.ts и app/ проекта.')
+    console.error('  --force   это новый сайт, файлы затереть (И169 — сказать это надо словом)')
+    process.exit(1)
+  }
+}
 
 if (MODE === 'new' && !FORCE) {
   const taken = PROJECT_OWNED.filter(has)
@@ -152,6 +300,34 @@ for (const [flag, value, file] of [
 
 const moved = []
 const kept = []
+/** Что переустановка витрины сняла и что оставила (И340) — для отчёта. */
+let templateReport = null
+const installRecord = '.site-kit-install.json'
+const normalizedHash = path => createHash('sha256').update(readFileSync(path, 'utf8').replace(/\r\n/g, '\n')).digest('hex')
+const previousRecord = has(installRecord) ? JSON.parse(readFileSync(join(OUT, installRecord), 'utf8')) : {}
+const previousFiles = previousRecord.files ?? {}
+const toolFiles = []
+const kitOnlyTools = new Set(['tools/sync-studio-assets.mjs'])
+function collectTools(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) collectTools(path)
+    else { const name = path.slice(SRC.length + 1).replace(/\\/g, '/'); if (!kitOnlyTools.has(name)) toolFiles.push(name) }
+  }
+}
+collectTools(join(SRC, 'tools'))
+if (MODE !== 'new' && !FORCE) {
+  const conflicts = toolFiles.filter(path => {
+    if (!has(path) || /-baseline\.json$/.test(path)) return false
+    const actual = normalizedHash(join(OUT, path))
+    return actual !== normalizedHash(join(SRC, path)) && actual !== previousFiles[path]
+  })
+  if (conflicts.length) {
+    console.error('Update refused before any writes: locally modified or unversioned tools:\n' + conflicts.join('\n'))
+    console.error('Merge these changes deliberately. --force is only for an explicitly approved replacement with a backup.')
+    process.exit(1)
+  }
+}
 
 /** Копия папки набора в проект. `keep` — файлы, которые в проекте уже есть
  *  и остаются его: базы храповиков при обновлении и аудите. */
@@ -160,6 +336,7 @@ function copyDir(name, keep = () => false) {
   const walk = (dir) => {
     for (const entry of readdirSync(dir)) {
       const from = join(dir, entry)
+      if (kitOnlyTools.has(from.slice(SRC.length + 1).replace(/\\/g, '/'))) continue
       const to = join(OUT, from.slice(SRC.length + 1))
       if (statSync(from).isDirectory()) { mkdirSync(to, { recursive: true }); walk(from); continue }
       if (existsSync(to) && keep(to.slice(OUT.length + 1))) { kept.push(to.slice(OUT.length + 1)); continue }
@@ -173,10 +350,21 @@ function copyDir(name, keep = () => false) {
 
 const isBaseline = (p) => /^tools\/[\w-]+-baseline\.json$/.test(p.replace(/\\/g, '/'))
 
-/* Инструменты едут всегда. Базы: новому сайту — нули из набора; проекту с
-   долгом — его собственные, иначе долг «прощён» и первый же прогон зелёный
-   на том, что вчера было красным. */
-copyDir('tools', MODE === 'new' ? () => false : isBaseline)
+/* Инструменты едут всегда. Базы храповиков — состояние сайта, а не набора:
+   есть у сайта своя — она и остаётся, в любом режиме; только недостающая
+   берётся из набора (новому сайту — нули). Раньше новая постановка поверх
+   сайта (`--storefront --force`, переустановка витрины) клала базы набора
+   поверх сайтовых: долг, записанный сайтом, «прощался» или, наоборот,
+   сайт краснел на чужих числах (И341). */
+copyDir('tools', isBaseline)
+/* Роль витрины — в той же записи: ставится `--storefront [--shop]`, а
+   обновление набора её не теряет (без записи панель не снимается нигде).
+   Список файлов шаблона (`template`) переписывает только постановка
+   витрины — в самом конце, когда шаблон лёг; до того (и при обновлении,
+   аудите, упавшей на полпути постановке) остаётся прежний. */
+const role = ROLE ?? previousRecord.role
+const record = { version: 1, ...(role ? { role } : {}), files: Object.fromEntries(toolFiles.filter(path => !isBaseline(path)).map(path => [path, normalizedHash(join(SRC, path))])), ...(previousRecord.template ? { template: previousRecord.template } : {}) }
+writeFileSync(join(OUT, installRecord), JSON.stringify(record, null, 2) + '\n')
 
 /* Обновление не трогает проектные документы, но отсутствующий документ не
    является проектным: без него скилл ссылается в пустоту, а check:rules
@@ -191,13 +379,21 @@ if (MODE === 'update') {
   }
 }
 
-/* По умолчанию только собственные предметные инструкции. Сторонний архив
-   вкуса и процесса устанавливается явно; существующие навыки не удаляются. */
+/* По умолчанию только собственные предметные инструкции и два дизайнерских
+   скилла, которые зовёт правило проекта (DESIGN_SKILLS, И271). Остальной
+   сторонний архив вкуса и процесса устанавливается явно; существующие
+   навыки не удаляются. */
 if (!flags.has('--extras') || MODE === 'audit') {
   for (const s of OWN_SKILLS) {
     copy(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s))
   }
   moved.push(`.claude/skills/{${OWN_SKILLS.join(',')}}`)
+  if (MODE !== 'audit') {
+    for (const s of [...DESIGN_SKILLS, ...DESIGN_LICENSES]) {
+      copy(join(SRC, '.claude/skills', s), join(OUT, '.claude/skills', s))
+    }
+    moved.push(`.claude/skills/{${DESIGN_SKILLS.join(',')}} с лицензиями`)
+  }
 } else {
   copy(join(SRC, '.claude/skills'), join(OUT, '.claude/skills'))
   moved.push('дополнительные скиллы с лицензиями')
@@ -224,8 +420,12 @@ if (MODE === 'new') {
     if (name === 'AGENTS.md') {
       copy(join(SRC, 'templates/AGENTS.md'), join(OUT, name))
     } else if (name === '.github/workflows/check.yml') {
+      /* Витрина — серверная сборка: `out/` у неё нет, адреса и разметку
+         проверки спрашивают у поднятого `npm run start` (SITE=…), а Node —
+         тот, что просит шаблон (`engines`). Статический рабочий процесс
+         падал бы на ней на каждом PR. */
       mkdirSync(join(OUT, '.github/workflows'), { recursive: true })
-      copy(join(SRC, 'templates/check.yml'), join(OUT, name))
+      copy(join(SRC, STOREFRONT ? 'templates/check-storefront.yml' : 'templates/check.yml'), join(OUT, name))
     } else if (name === 'styles/palette.json') {
       /* Новый сайт с первой минуты стоит на шкале — но НЕ на красках чужого
          магазина. Палитра набора едет вместе со `styles/`, и без этой строки
@@ -241,9 +441,15 @@ if (MODE === 'new') {
         console.error(`Набора «${PALETTE}» нет среди образцов. Есть: ${Object.keys(образцы).join(', ')}`)
         process.exit(1)
       }
+      /* Витрина набора (`--storefront`) — не чистый лист: цвет у неё решён
+         (docs/decisions.md, «Набор цвета — «Латунь на угле»») и лежит в
+         `styles/palette.json` набора. Без ключа она встаёт на эти краски, а
+         не на серый стартовый; названный ключом набор сильнее умолчания.
+         Другие наборы витрине не нужны: каталог вариантов живёт в панели
+         вида (`look-panel/`, И270), сайт носит один вид. */
       const краски = PALETTE
         ? { [PALETTE]: образцы[PALETTE] }
-        : JSON.parse(readFileSync(join(SRC, 'templates/palette-starter.json'), 'utf8'))
+        : JSON.parse(readFileSync(join(SRC, STOREFRONT ? 'styles/palette.json' : 'templates/palette-starter.json'), 'utf8'))
       writeFileSync(join(OUT, name), JSON.stringify(краски, null, 2) + '\n')
       /* И выпустить из них CSS тем же кодом, что считает проверка: иначе
          `styles/palette.css` приезжает выпущенным из красок ЧУЖОГО магазина
@@ -251,13 +457,21 @@ if (MODE === 'new') {
          «выпущенный styles/palette.css отстал от красок», — и правильно
          делает: краски и выпуск обязаны сходиться с первой минуты. */
       writeFileSync(join(OUT, 'styles/palette.css'), toCss(краски))
+      /* Тот же шов у кнопок: `styles/buttons.css` приезжает выпущенным на
+         палитре НАБОРА, а стиль мерится на палитре сайта — на каждом её
+         наборе (И252, И270). Выпуск тем же кодом, что `check:buttons`. */
+      if (existsSync(join(OUT, 'styles/buttons.json'))) {
+        const стили = JSON.parse(readFileSync(join(OUT, 'styles/buttons.json'), 'utf8'))
+        const { off, clash } = buttonAvailability(стили, краски)
+        writeFileSync(join(OUT, 'styles/buttons.css'), buttonsToCss(стили, off, clash))
+      }
     } else if (existsSync(join(SRC, name))) {
       copy(join(SRC, name), join(OUT, name))
     }
     moved.push(name)
   }
   // Acceptance and business decisions belong to the new site, not the kit.
-  for (const name of ['decisions', 'gate', 'open']) {
+  for (const name of ['decisions', 'gate', 'open', 'words']) {
     copy(join(SRC, `templates/project-${name}.md`), join(OUT, `docs/${name}.md`))
   }
   /* Выбранный набор ритма — первым в файле: на корне стоит первый, им сайт
@@ -282,8 +496,160 @@ if (MODE === 'new') {
     writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(переставленные))
   }
 
+  /* Витрина носит ОДИН вид (CLAUDE.md, «Панель настройки физически отделена
+     от сайта»; И270): в её стилях — первый вариант каждой оси кнопки (И273)
+     и первый набор ритма, чужих вариантов в сайте нет. Весь каталог — у
+     панели вида, её собирает `look-panel/scripts/build-catalog.mjs` из файлов
+     набора ниже. Роли текста объявляет первый набор ритма (`rolesOf`):
+     набору, ставшему единственным, они переходят от прежнего первого. */
+  if (STOREFRONT) {
+    const оси = JSON.parse(readFileSync(join(OUT, 'styles/buttons.json'), 'utf8'))
+    const кнопка = Object.fromEntries(Object.entries(оси).map(([ось, a]) => [ось, { ...a, варианты: Object.fromEntries(Object.entries(a.варианты ?? {}).slice(0, 1)) }]))
+    writeFileSync(join(OUT, 'styles/buttons.json'), JSON.stringify(кнопка, null, 2) + '\n')
+    const наборы = JSON.parse(readFileSync(join(OUT, 'styles/scale.json'), 'utf8'))
+    const [имя, набор] = Object.entries(наборы)[0]
+    const роли = набор.текст ?? Object.values(JSON.parse(readFileSync(join(SRC, 'styles/scale.json'), 'utf8')))[0]?.текст
+    /* Ряд ступеней у наборов общий, и оставшийся один набор его сохраняет:
+       по нему панель передаёт сайту любой набор каталога. Просителей общих
+       ступеней из ушедших наборов он называет сам (`каталог`, И343) —
+       иначе `--sp-11`, который просит воздух «Тихого», на витрине был
+       «ступенью без просителя», и check:scale сайта краснел с постановки. */
+    const один = { [имя]: ritmAlone({ ...наборы, [имя]: { ...набор, ...(роли ? { текст: роли } : {}) } }, имя) }
+    writeFileSync(join(OUT, 'styles/scale.json'), JSON.stringify(один, null, 2) + '\n')
+    writeFileSync(join(OUT, 'styles/scale.css'), ritmToCss(один))
+    const краски = JSON.parse(readFileSync(join(OUT, 'styles/palette.json'), 'utf8'))
+    const { off, clash } = buttonAvailability(кнопка, краски)
+    writeFileSync(join(OUT, 'styles/buttons.css'), buttonsToCss(кнопка, off, clash))
+  }
+
   // Only the explicit runtime/project files above travel to a site.
   // Research, evidence indexes and generated local stands stay in the kit.
+}
+
+/* Шаблон витрины — поверх основы: новый сайт получает приложение Next,
+   собранное из тех же шкал, примитивов и органов, и копии помощников
+   набора — Vendure и коммерции — туда, откуда их ввозит шаблон. Шаблон
+   кладётся после основы: его docs/words.md и tests/ дополняют её, а
+   слияние команд ниже дописывает команды набора в его package.json. */
+if (STOREFRONT) {
+  /* Данные сайта переустановка не трогает никогда, и `--force` тоже
+     (слово заказчика 24.09.2026: «вложим туда много сил сейчас»):
+     опубликованный вид, черновик, скачанные шрифты вида, окружение. Шаблон
+     кладётся мимо них, опубликованный вид по умолчанию не пишется, стили
+     выпускаются из вида, который уже есть. Решение в опубликованном виде —
+     имена; значения, выведенные из них, сборка каталога пересчитывает
+     нынешним каталогом (И352), прежний файл — копией рядом
+     (`look.before-refresh.json`, тоже данные сайта). */
+  const SITE_DATA = ['lib/source/sample/look.json', 'lib/source/sample/look.before-refresh.json', 'lib/source/sample/look.draft.json', 'public/fonts', '.env', '.env.local']
+  const siteData = SITE_DATA.filter(has)
+  const isData = (rel) => siteData.some((d) => rel === d || rel.startsWith(`${d}/`))
+  /* Что кладёт шаблон: путь на сайте → откуда. Файлы шаблона и копии
+     помощников набора (Vendure, коммерция), которые шаблон ввозит. */
+  const TEMPLATE = join(SRC, 'templates/storefront')
+  const laid = new Map()
+  const walkTemplate = (dir) => {
+    for (const name of readdirSync(dir)) {
+      const from = join(dir, name)
+      const rel = from.slice(TEMPLATE.length + 1).replace(/\\/g, '/')
+      if (statSync(from).isDirectory()) walkTemplate(from)
+      else laid.set(rel, from)
+    }
+  }
+  walkTemplate(TEMPLATE)
+  const vendure = join(SRC, 'skills/site-building/assets/vendure')
+  for (const f of ['request.mjs', 'result.mjs', 'money.mjs', 'search.mjs', 'asset.mjs', 'product.mjs', 'INTEGRATION.md', 'VENDURE-STARTER-LICENSE.md']) laid.set(`lib/source/vendure/core/${f}`, join(vendure, f))
+  const commerce = join(SRC, 'skills/site-building/assets/commerce')
+  for (const f of ['variant-selection.mjs', 'mutation-lane.mjs', 'VERCEL-LICENSE.md']) laid.set(`lib/commerce/${f}`, join(commerce, f))
+  /* Данные сайта (опубликованный вид, черновик, шрифты, окружение) — не
+     файлы шаблона, даже если шаблон кладёт им умолчание: в список они не
+     входят, и снять их нечем. */
+  const isSiteData = (rel) => SITE_DATA.some((d) => rel === d || rel.startsWith(`${d}/`))
+
+  /* Снять то, что шаблон больше не везёт (И340). Переустановка клала шаблон
+     поверх сайта и ничего не снимала: касса переехала в
+     `app/(checkout)/[lang]/checkout/*`, а прежние
+     `app/[lang]/checkout/{contact,delivery,payment}/page.tsx` остались в
+     витрине — два маршрута на один адрес, сборка не прошла бы. Снимается
+     только файл из списка прошлой постановки, которого нет в нынешнем
+     шаблоне, и только нетронутый — тем же хешем, каким постановка его
+     оставила; тронутый сайтом остаётся и называется. Данные сайта, файлы
+     не из шаблона и всё, что эта постановка кладёт сама (инструменты,
+     правила, шкалы), не трогаются. */
+  const removed = []
+  const changed = []
+  const previousTemplate = previousRecord.template ?? null
+  const safe = (rel) => typeof rel === 'string' && rel && !rel.startsWith('/') && !/^[A-Za-z]:/.test(rel) && !rel.split('/').some((p) => p === '..' || p === '.' || !p)
+  if (previousTemplate) {
+    for (const [rel, hash] of Object.entries(previousTemplate)) {
+      if (!safe(rel) || laid.has(rel) || isSiteData(rel) || existsSync(join(SRC, rel))) continue
+      const at = join(OUT, rel)
+      if (!existsSync(at) || !statSync(at).isFile()) continue
+      if (createHash('sha256').update(readFileSync(at)).digest('hex') !== hash) { changed.push(rel); continue }
+      rmSync(at)
+      removed.push(rel)
+      /* Папка, опустевшая со снятым файлом, уходит вместе с ним: пустая
+         папка маршрута — не маршрут, но читать дерево она мешает. */
+      for (let dir = dirname(at); dir.length > OUT.length && existsSync(dir) && !readdirSync(dir).length; dir = dirname(dir)) rmdirSync(dir)
+    }
+    /* Типы прошлого `next dev` ссылаются на снятые страницы, а tsconfig
+       шаблона их читает (`.next/dev/types`, так пишет его Next 16): сборка
+       валилась бы на странице, которой уже нет. Это выпуск Next, а не данные:
+       он соберётся заново при следующем `next dev`. */
+    if (removed.some((rel) => rel.startsWith('app/')) && has('.next/dev/types')) {
+      rmSync(join(OUT, '.next/dev/types'), { recursive: true, force: true })
+      removed.push('.next/dev/types (типы прошлого next dev о снятых страницах)')
+    }
+  }
+
+  for (const [rel, from] of laid) {
+    if (isData(rel)) continue
+    mkdirSync(join(OUT, rel, '..'), { recursive: true })
+    copyFileSync(from, join(OUT, rel))
+  }
+  if (siteData.length) moved.push(`данные сайта оставлены как были: ${siteData.join(', ')}`)
+  moved.push(ROLE === 'shop' ? 'роль — магазин из шаблона: панель вида снимается (npm run look:remove)' : 'роль — витрина шаблона: панель вида не снимается')
+  moved.push('шаблон витрины и помощники Vendure и коммерции')
+  templateReport = { first: !previousTemplate, removed, changed }
+  /* Вид — значения, источник один (И270, И272): закрытый список свойств
+     выпускается из стилей сайта, каталог панели вида — из полного каталога
+     набора его же строителями, опубликованный вид образца — умолчание
+     каталога, и стили сайта выпускаются из этого вида вторым проходом. */
+  const fresh = !siteData.includes('lib/source/sample/look.json')
+  for (const [script, ...rest] of [['scripts/look-slots.mjs'], ['look-panel/scripts/build-catalog.mjs', '--from', SRC, ...(fresh ? ['--look'] : [])], ['scripts/look-slots.mjs']]) {
+    const run = spawnSync(process.execPath, [join(OUT, script), ...rest], { cwd: OUT, encoding: 'utf8' })
+    if (run.status !== 0) {
+      console.error(`${script} не прошёл:\n${run.stdout}${run.stderr}`)
+      process.exit(1)
+    }
+    /* Опубликованный вид пересчитан из имён новым каталогом (И352) — что
+       получило значения и что осталось прежним, словами в отчёт. */
+    if (script.includes('build-catalog')) lookReport.push(...lookLines(run.stdout))
+  }
+  moved.push('вид витрины: список свойств и каталог панели')
+  if (LANG) {
+    /* Строку DEFAULT_LANG читает tools/routes.mjs регуляркой — запись та же,
+       меняется только код; корень переадресуется туда же. */
+    const localeFile = join(OUT, 'lib/locale.ts')
+    const configFile = join(OUT, 'next.config.ts')
+    const locale = readFileSync(localeFile, 'utf8').replace(/(export const DEFAULT_LANG: Lang = ')[a-z-]+(')/, `$1${LANG}$2`)
+    writeFileSync(localeFile, locale)
+    writeFileSync(configFile, readFileSync(configFile, 'utf8').replace(/(source: '\/', destination: '\/)[a-z-]+(')/, `$1${LANG}$2`))
+    moved.push(`основной язык витрины — ${LANG}`)
+  }
+  if (CURRENCY) {
+    /* Строка `currency` в lib/market.ts — единственное место валюты: её
+       читают каталог, корзина, доставка и разметка `priceCurrency`. */
+    const marketFile = join(OUT, 'lib/market.ts')
+    writeFileSync(marketFile, readFileSync(marketFile, 'utf8').replace(/(currency: ')[A-Z]{3}(')/, `$1${CURRENCY}$2`))
+    moved.push(`валюта витрины — ${CURRENCY}`)
+  }
+  /* Список файлов шаблона — в запись ставщика, хешем того, что постановка
+     оставила на диске (с языком и валютой, если их переписал ключ): по нему
+     следующая переустановка узнает, что шаблон перестал везти, и что сайт
+     успел поправить. */
+  record.template = Object.fromEntries([...laid.keys()].filter((rel) => !isSiteData(rel) && has(rel)).sort()
+    .map((rel) => [rel, createHash('sha256').update(readFileSync(join(OUT, rel))).digest('hex')]))
+  writeFileSync(join(OUT, installRecord), JSON.stringify(record, null, 2) + '\n')
 }
 
 /* Аудиту — конфиг путей: чужой проект лежит не там и зовёт шкалы не так,
@@ -293,6 +659,21 @@ if (MODE === 'audit' && !has('kit.config.json')) {
   const { CONFIG } = await import(new URL('./tools/kit-config.mjs', import.meta.url))
   writeFileSync(join(OUT, 'kit.config.json'), JSON.stringify(CONFIG, null, 2) + '\n')
   moved.push('kit.config.json')
+}
+
+/* Таблицы фактов в скиллах (маркеры `families:*`) собираются из кода
+   проекта — красок, шкал, стилей, швов, — а скиллы приезжают с таблицами,
+   собранными из кода НАБОРА: его образцы палитры, его ритм на корне. У
+   сайта краски стартовые или выбранные, ритм переставлен ключом, `templates/`
+   нет — и первый же `check:rules` сайта был красным (И260). Тот же шов, что
+   у `palette.css` и `scale.css` выше, и закрывается он тем же ходом:
+   пересобрать тем кодом, которым сайт будет сверять, — своей копией
+   проверки, по своим файлам. Скиллы легли только что, всё проектное уже на
+   месте, поэтому здесь, в самом конце раскладки. */
+const tables = spawnSync(process.execPath, [join(OUT, 'tools/check-rules.mjs'), '--tables'], { cwd: OUT, encoding: 'utf8' })
+if (tables.status !== 0) {
+  console.error(`Таблицы фактов в скиллах не пересобраны по коду проекта:\n${tables.stdout}${tables.stderr}`)
+  process.exit(1)
 }
 
 function mergeHooks(from, to) {
@@ -330,13 +711,28 @@ if (existsSync(pkgPath)) {
 
 const title = { new: 'Новый сайт', update: 'Обновление набора', audit: 'Аудит чужого сайта' }[MODE]
 console.log(`${title}: набор разложен в ${OUT} — ${moved.join(', ')}`)
-if (kept.length) console.log(`  · оставлены свои: ${kept.join(', ')} (долг проекта не прощается)`)
+if (kept.length) console.log(`  · оставлены свои: ${kept.join(', ')} (долг сайта не прощается и не подменяется базой набора)`)
+/* Что переустановка сняла — словами, по файлу (И340): удаление, о котором
+   не сказано, — то же, что удаление без спроса. */
+if (templateReport) {
+  const { first, removed, changed } = templateReport
+  if (first) console.log('  · файлы шаблона записаны в .site-kit-install.json впервые: прежняя постановка их не записала, снимать было не по чему')
+  else if (removed.length) console.log(`  · снято — шаблон этого больше не везёт (${removed.length}):\n${removed.map((r) => `      ${r}`).join('\n')}`)
+  else console.log('  · снимать нечего: всё, что шаблон вёз прежде, он везёт и теперь')
+  if (changed.length) console.log(`  · шаблон больше не везёт, но сайт это поправил — оставлено, решить руками:\n${changed.map((r) => `      ${r}`).join('\n')}`)
+}
+for (const line of lookReport) console.log(`  · ${line}`)
 if (MODE === 'new') {
   console.log('  · CLAUDE.md — правила, читаются раньше кода каждой сессией')
   console.log('  · .claude/skills — шесть предметных скиллов; сторонние только с --extras')
   console.log('  · .claude/settings.json — хуки: брифинг этапа сам в начале сессии, проверка сама после правки')
   console.log('  · .github/workflows/check.yml — проверки падают сами, без чьей-либо памяти')
-  console.log('  · базы храповиков на нулях — на новом проекте долга нет')
+  if (!kept.some(isBaseline)) console.log('  · базы храповиков на нулях — на новом проекте долга нет')
+}
+/* Проверка, ставшая строже, — новость, а не сюрприз на первом прогоне: сайт,
+   зелёный вчера, сегодня красный на том же коде. */
+if (MODE === 'update') {
+  console.log('  · check:open теперь пробует и несуществующие страницы — своя «не найдено» с кодом 404 (И257); отказ — словом проекта: kit.config.json → "probes": { "notFound": false }')
 }
 if (MODE === 'audit') {
   console.log('  · kit.config.json — где лежит код и стили, как названы шкалы, сколько швов: поправьте под проект')

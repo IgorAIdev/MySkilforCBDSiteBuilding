@@ -1,0 +1,215 @@
+/* ═══ КНОПКА — одна на весь сайт ═══════════════════════════════════════════
+ *
+ *  Заведено по дефекту 22.09.2026 (И242). `primitives.module.css` писал:
+ *  «Кнопка переехала в свой модуль — styles/btn.module.css», а модуля в наборе
+ *  не было: он остался в прошлом магазине. Закон о кнопке (craft,
+ *  references/controls.md, «Кнопка: голос — это очередь») стоял без
+ *  реализации, и каждый новый сайт рисовал кнопку заново — ровно то, от чего
+ *  закон написан (правило 10 CLAUDE.md: «Контрол живёт в одном месте»).
+ *
+ *  Три независимые вещи — атрибутами на ОДНОМ классе, а не одеждами строкой:
+ *    data-voice  loud | quiet     голос — место в очереди: громкая одна на экран
+ *    data-size   sm | md | lg     рост — роли --ctrl-h-*; под пальцем ступень выше
+ *    data-wide                    ширина — во всю строку
+ *
+ *  Одна ручка — высота `--btn-h`. Поле по бокам, просвет до знака и размер
+ *  знака — доли высоты (правило 2: геометрия контрола от его высоты); текст —
+ *  роль надписи органа.
+ *
+ *  С 24.09.2026 (И273; слово заказчика: «Нам нужно действие при нажатии
+ *  установить стандартное: меняется только цвет, уменьшается размер при
+ *  нажатии, кнопка смещается чуть. Закругление углов — отдельно у кнопок или
+ *  из закругления?»; «Главная кнопка: как у всего остального»): угол — из
+ *  Shape (`--r-ctrl`), у главной тот же; нажатие — одно (`.press` ниже);
+ *  остальное — роли осей каталога (`styles/buttons.json`: буквы, главная,
+ *  тихая), каждая с запасным значением — новая ось данными, без правки здесь.
+ */
+
+/* Ответ на руку — ОДИН на всё, что нажимают: кнопки, знаки шапки, фишки
+   (`composes: press`). Наведение меняет только цвет; нажатие — цвет, чуть
+   меньше и на пиксель ниже, за `--press-t`; при «меньше движения» — только
+   цвет. Цвет — вуаль чернил долей состояния (`--state-hover`,
+   `--state-press`) поверх своего фона (`--press-bg`, по умолчанию прозрачно);
+   текущая краска — `--press-fill`: её берёт и фигура главной кнопки. */
+.press{
+  --press-bg:transparent;
+  --press-ink:currentColor;
+  background-color:var(--press-fill, var(--press-bg));
+  transition:transform var(--press-t) var(--ease), background-color var(--hover-t) var(--ease);
+}
+@media (hover:hover){
+  .press:not(:disabled):not([aria-disabled='true']):hover{--press-fill:color-mix(in oklab, var(--press-bg), var(--press-ink) var(--state-hover))}
+}
+.press:not(:disabled):not([aria-disabled='true']):active{
+  --press-fill:color-mix(in oklab, var(--press-bg), var(--press-ink) var(--state-press));
+  transform:translateY(1px) scale(.97);
+}
+@media (prefers-reduced-motion:reduce){
+  .press{transition:background-color var(--hover-t) var(--ease)}
+  .press:not(:disabled):not([aria-disabled='true']):active{transform:none}
+}
+
+.btn{
+  composes:press;
+  /* Роли `--ctrl-btn-*` — из каталога (`styles/buttons.css`, И252, И273);
+     без каталога — как в предложении, заливка у главной, вуаль у тихой. */
+  --btn-h:var(--ctrl-h);
+  --btn-fs:var(--ctrl-fs);
+  --btn-weight:var(--ctrl-btn-weight, 600);
+  --btn-case:var(--ctrl-btn-case, none);
+  --btn-track:var(--ctrl-btn-track, normal);
+  --btn-r:var(--r-ctrl);
+  --btn-edge:var(--ctrl-btn-edge, transparent);
+  --press-bg:var(--ctrl-btn-fill, var(--quiet));
+  --press-ink:var(--ctrl-btn-ink, var(--ink));
+
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:calc(var(--btn-h) * .2);
+  min-block-size:var(--btn-h);
+  padding-inline:calc(var(--btn-h) * .45);
+  /* Растёт, но не сжимается ниже надписи: обрезанная надпись хуже переноса
+     ряда (controls.md, «Кнопке разрешено расти…»). */
+  flex-shrink:0;
+  max-inline-size:100%;
+  font:inherit;font-size:var(--btn-fs);font-weight:var(--btn-weight);
+  line-height:1.2;letter-spacing:var(--btn-track);text-transform:var(--btn-case);
+  text-align:center;text-decoration:none;
+  color:var(--press-ink);
+  border:var(--line-w) solid var(--btn-edge);border-radius:var(--btn-r);
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+
+/* Громкая — главное действие экрана: заливка марки, угол — как у всех
+   органов (полный круг главной — будущая настройка панели, PANEL.md).
+
+   Форма главной (И276) — контур от её же высоты (правило 2): числа формы
+   (`--ctrl-btn-tip`, `-tip-at`, `-notch` — доли высоты) приходят из каталога,
+   а контур собирается ЗДЕСЬ, на самой кнопке: ссылка на высоту кнопки внутри
+   значения корня не дожила бы до кнопки. Режется не сама кнопка, а её
+   заливка — подложка `::before`: рамка фокуса, цель под рукой и надпись
+   остаются в прямоугольнике кнопки, кольцо `outline` не срезается. Надпись
+   не заходит в остриё и в выемку — поле растёт на их глубину. */
+.btn[data-voice='loud']{
+  --press-bg:var(--ctrl-btn-fill-pop, var(--pop));
+  --press-ink:var(--ctrl-btn-ink-pop, var(--on-pop));
+  --btn-edge:var(--ctrl-btn-edge-pop, transparent);
+  --btn-tip:calc(var(--btn-h) * var(--ctrl-btn-tip, 0));
+  --btn-tip-at:calc(var(--btn-h) * var(--ctrl-btn-tip-at, 0));
+  --btn-notch:calc(var(--btn-h) * var(--ctrl-btn-notch, 0));
+  /* Кружок у конца (слово заказчика 24.09.2026, «Shop now»: «тут же круглое
+     в кнопке»): `--ctrl-btn-mark` — 0 или 1. Кружок .75 высоты концентричен
+     полному кругу: эта форма — пилюля, как остриё — контур «стрелки»; угол
+     выводится из формы, а не ролью каталога (угол — из Shape, И273). */
+  --btn-mark:var(--ctrl-btn-mark, 0);
+  /* Пилюля (`--ctrl-btn-pill`, 0 или 1; элемент 16) — полный круг главного
+     действия без знака; кружок у конца пилюлю включает сам. */
+  --btn-pill:max(var(--btn-mark), var(--ctrl-btn-pill, 0));
+  --btn-r:calc(var(--r-ctrl) * (1 - var(--btn-pill)) + var(--r-pop) * var(--btn-pill));
+  /* Стрелка у конца без кружка (`--ctrl-btn-glyph`, 0 или 1; элемент 03,
+     И423): тот же вырез знака из листа в заливке, под ним — квадрат краской
+     надписи: стрелка встаёт краской надписи прямо на заливке. Угол — Shape. */
+  --btn-glyph:var(--ctrl-btn-glyph, 0);
+  --btn-cut:max(var(--btn-mark), var(--btn-glyph));
+  /* Стекло (`--ctrl-btn-frost-pop`, 0 или 1; элемент 66, И427): заливка —
+     краска палитры долей (`--pop-glass`), под ней размыто то, что лежит под
+     кнопкой; размытие и насыщенность — пороги формы (`--frost-*`), не текут. */
+  --btn-frost:var(--ctrl-btn-frost-pop, 0);
+  position:relative;isolation:isolate;background-color:transparent;
+  /* Под вырезом стрелки — кружок краской заливки: стрелка того же цвета, что
+     пилюля, как у «Shop now»; у стрелки без кружка — квадрат краской надписи. */
+  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-fill, var(--press-bg)) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark))), linear-gradient(var(--press-ink), var(--press-ink));
+  background-repeat:no-repeat;
+  background-position:0 0, calc(100% - var(--btn-h) * .29) 50%;
+  background-size:100% 100%, calc(var(--btn-h) * .42 * var(--btn-glyph)) calc(var(--btn-h) * .42 * var(--btn-glyph));
+  padding-inline-start:calc(var(--btn-h) * .45 + var(--btn-notch));
+  padding-inline-end:calc(var(--btn-h) * .45 + var(--btn-tip) * .7 + var(--btn-h) * .8 * var(--btn-mark) + var(--btn-h) * .45 * var(--btn-glyph));
+}
+.btn[data-voice='loud']::before,
+.btn[data-voice='loud']::after{content:'';position:absolute;inset:calc(-1 * var(--line-w))}
+.btn[data-voice='loud']::before{
+  z-index:-1;border-radius:inherit;
+  clip-path:polygon(0 0, calc(100% - var(--btn-tip)) 0, calc(100% - var(--btn-tip-at)) 50%, calc(100% - var(--btn-tip)) 100%, 0 100%, var(--btn-notch) 50%);
+  background-color:var(--press-fill, var(--press-bg));
+  /* Кружок — слой той же заливки краской НАДПИСИ (она на заливке проходит
+     4.5 : 1 при любом варианте главной); стрелка в нём вырезана маской по
+     знаку ИЗ ЛИСТА (`/icons.svg#arrow-right-view`, tools/icons.mjs), а не
+     нарисована здесь, и сквозь вырез видна заливка под ним. Без кружка
+     (`--btn-mark: 0`) слои и вырез нулевые. Сплошной слой маски — краской
+     чернил, а не `currentColor`: маске нужна только непрозрачность, а
+     `currentColor` гаснет вместе с надписью — проверка контраста снимает дно
+     под буквами, покрасив их в прозрачное, и заливка пропадала вместе с
+     ними: 1.00…1.31 : 1 при кнопке, на глаз верной (находка 25.09.2026). */
+  /* Под кружком — градиент ко второму концу (`--ctrl-btn-tint-pop`, краска
+     строителя палитры `--pop-grad`; элементы 06, 19, И424): поверх заливки,
+     прозрачный к её концу; наведение темнит заливку под ним. */
+  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-ink) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark))), linear-gradient(30deg, var(--ctrl-btn-tint-pop, transparent), transparent);
+  -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat, linear-gradient(var(--ink), var(--ink));
+  -webkit-mask-composite:xor;
+  mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat exclude, linear-gradient(var(--ink), var(--ink));
+  /* Размывается фон под заливкой, а не сама кнопка; вырез острия и маска
+     режут размытое вместе с заливкой. Блик кромки (`--ctrl-btn-rim-pop`,
+     краска палитры `--pop-rim`) — волосок внутри заливки: снаружи он лёг бы
+     на кольцо фокуса. */
+  -webkit-backdrop-filter:blur(calc(var(--frost-blur) * var(--btn-frost))) saturate(calc(1 + (var(--frost-sat) - 1) * var(--btn-frost)));
+  backdrop-filter:blur(calc(var(--frost-blur) * var(--btn-frost))) saturate(calc(1 + (var(--frost-sat) - 1) * var(--btn-frost)));
+  outline:var(--line-w) solid var(--ctrl-btn-rim-pop, transparent);outline-offset:calc(-1 * var(--line-w));
+  transition:background-color var(--hover-t) var(--ease);
+}
+/* Хвост за остриём (И276): шевроны, каждый на тон ближе к полу. Тоны —
+   роли палитры `--pop-trail-near` / `--pop-trail-far` (И295): их выпускает
+   строитель по полу — на бумаге ступени марки, на палубе нейтраль к её полу,
+   — и дальний виден на каждом полу (APCA Lc ≥ 15). Здесь краска не
+   мешается: до 24.09.2026 тоны смешивались на месте (`color-mix(… 60 % …)`
+   с полом страницы) — контраст не считал никто, и на тёмном герое светлой
+   темы хвост выходил светлым. Шеврон параллелен острию хвостовых форм
+   (глубина .33 высоты, толщина .3), сдвиг от кромки стрелки — `-trail-1`,
+   `-trail-2`; место под хвост кнопка держит своим полем — точка острия
+   стоит на `-tip-at` от правого края. Слой лежит ПОД заливкой и на весь
+   прямоугольник кнопки: тоны разведены полосами вдоль наклона шевронов
+   (угол 56.6°). Наведение темнит только кнопку; нажатие хвост не сдвигает —
+   он отвечает обратным преобразованием. */
+.btn[data-voice='loud']::after{
+  --btn-trail-near:var(--pop-trail-near);
+  --btn-trail-far:var(--pop-trail-far);
+  --btn-trail-1:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .33 - var(--ctrl-btn-trail-1, 0)));
+  --btn-trail-2:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .03 - var(--ctrl-btn-trail-1, 0)));
+  --btn-trail-3:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) - .3 - var(--ctrl-btn-trail-1, 0)));
+  --btn-trail-4:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) - var(--ctrl-btn-trail-1, 0)));
+  --btn-trail-5:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .33 - var(--ctrl-btn-trail-2, 0)));
+  --btn-trail-6:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .03 - var(--ctrl-btn-trail-2, 0)));
+  --btn-trail-7:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) - .3 - var(--ctrl-btn-trail-2, 0)));
+  --btn-trail-8:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) - var(--ctrl-btn-trail-2, 0)));
+  --btn-trail-w:calc(var(--btn-h) * (var(--ctrl-btn-tip-at, 0) + .53));
+  --btn-trail-stop:calc(var(--btn-h) * (var(--ctrl-btn-trail-1, 0) * .835 + .693));
+  display:var(--ctrl-btn-echo, none);z-index:-2;
+  clip-path:polygon(
+    calc(100% - var(--btn-trail-1)) 0, calc(100% - var(--btn-trail-2)) 0, calc(100% - var(--btn-trail-3)) 50%,
+    calc(100% - var(--btn-trail-2)) 100%, calc(100% - var(--btn-trail-1)) 100%, calc(100% - var(--btn-trail-4)) 50%,
+    calc(100% - var(--btn-trail-1)) 0,
+    calc(100% - var(--btn-trail-5)) 0, calc(100% - var(--btn-trail-6)) 0, calc(100% - var(--btn-trail-7)) 50%,
+    calc(100% - var(--btn-trail-6)) 100%, calc(100% - var(--btn-trail-5)) 100%, calc(100% - var(--btn-trail-8)) 50%,
+    calc(100% - var(--btn-trail-5)) 0);
+  background:
+    linear-gradient(56.6deg, var(--btn-trail-near) 0 var(--btn-trail-stop), var(--btn-trail-far) 0) right top / var(--btn-trail-w) 50% no-repeat,
+    linear-gradient(123.4deg, var(--btn-trail-near) 0 var(--btn-trail-stop), var(--btn-trail-far) 0) right bottom / var(--btn-trail-w) 50% no-repeat;
+  transition:transform var(--press-t) var(--ease);
+}
+.btn[data-voice='loud']:not(:disabled):not([aria-disabled='true']):active::after{transform:scale(calc(1 / .97)) translateY(-1px)}
+@media (prefers-reduced-motion:reduce){ .btn[data-voice='loud']:active::after{transform:none} }
+
+.btn[data-size='sm']{--btn-h:var(--ctrl-h-sm)}
+.btn[data-size='lg']{--btn-h:var(--ctrl-h-lg)}
+.btn[data-wide]{display:flex;inline-size:100%}
+
+.btn svg{
+  inline-size:calc(var(--btn-h) * .42);block-size:calc(var(--btn-h) * .42);
+  flex:none;stroke-width:var(--icon-stroke, 1.75)
+}
+
+.btn:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
+
+/* Выключенная — ролью (И229), не своим числом; видна кромкой, не только
+   тоном. Кромка — роль палитры `--edge-off` (И295): ступень нейтрали, видная
+   на каждом полу и под прозрачностью выключенного. */
+.btn:disabled,
+.btn[aria-disabled='true']{opacity:var(--state-off);cursor:not-allowed;--btn-edge:var(--edge-off)}

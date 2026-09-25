@@ -1,0 +1,9 @@
+/* Второй источник 48 — CSS от заказчика 24.09.2026, переслан из сессии
+   «Кнопки и дизайн» (там — «Ф»: переключатель темы — знаки в пилюле с
+   рамкой; разметки нет), как прислан; правила собраны в строку. После
+   разбора — та же полоса знаков, вариант: пилюля, выбранный — тоном. */
+.theme-switcher { padding: 3px; width: -moz-fit-content; width: fit-content; display: flex; border-radius: 9999px; border: 1px solid grey; }
+.theme-switcher_switch { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: inherit; border: 0; background: none; cursor: pointer; }
+.theme-switcher_switch:hover > .icon { stroke: #323232; }
+.theme-switcher_switch:active { background-color: rgba(128, 128, 128, 0.35); }
+.theme-switcher_switch:active > .icon { stroke: white; }

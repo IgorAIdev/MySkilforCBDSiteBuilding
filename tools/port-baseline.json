@@ -4,5 +4,7 @@
   "markupDrift": 0,
   "dataInView": 0,
   "moneyLiteral": 0,
-  "engineInShared": 0
+  "engineInShared": 0,
+  "backendInView": 0,
+  "moneyMath": 0
 }

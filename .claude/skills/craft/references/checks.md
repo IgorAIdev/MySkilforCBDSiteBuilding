@@ -3,7 +3,7 @@
 Когда читать: проверка покраснела и надо понять, что она сторожит; пишется
 новая семья; замер не сходится с тем, что видно глазом. Таблицы семей
 собираются из реестров (`tools/css-families.mjs`,
-`tools/craft-families.mjs`) командой `npm run check:rules -- --tables`;
+`tools/craft-families.mjs`, `tools/design-families.mjs`, `tools/detect-families.mjs`) командой `npm run check:rules -- --tables`;
 рукой их не правят — `check:rules` сверяет.
 
 Содержание:
@@ -32,7 +32,9 @@ npm run check:css     # по файлам
 npm run check:port    # переносимость: общий слой, токены, данные, валюта
 npm run check:open    # каждая страница дерева открывается в next dev
 npm run check:urls    # обещанное открывается, открытое обещано (по out/)
+npm run check:design  # механическая половина impeccable: разметка и стили вместе
 npm run check:craft   # по отрисованной странице (нужен поднятый сайт)
+npm run check:detect  # детектор impeccable по отрисованной странице (нужен SITE=), храповик по страницам
 npm run check:craft -- --page /bg/catalog/oils   # узкий прогон: одна страница, ~минута
                                                  # базу не трогает и вердикта не выносит
 npm run sweep         # съёмка на 41 ширине: сетка 320…1600, швы и пиксель над ними, сложенные экраны
@@ -75,6 +77,19 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 валит проверку. Молчаливо неполный замер выглядит как результат — ровно так
 три страницы из пяти не мерились вовсе, а проверка была зелёной.
 
+Личные страницы — корзина, оформление, кабинет — дерево обходит и пустыми:
+без сессии `personal()` из того же `tools/routes.mjs` добавляет их же
+адреса, полными, заготовленной сессией из `kit.config.json` (`"sessions"`,
+хвост `#as=…`) — иначе полная корзина не мерилась бы никогда (И263).
+
+Страница с запросом — поиск с находками и без — той же страницей, что без
+запроса, не является: полка результатов и «ничего не нашлось» — другие
+раскладки. Запрос к файлу `page.tsx` не привязан, и дерево его не видит;
+поэтому в `kit.config.json` — `"queries"`: форма маршрута → строки запроса
+(`{ "/[lang]/search": ["q=cbd", "q=zzzz"] }` у витрины — с находками на каждом
+языке и без). `all()` и `sample()` отдают их по адресу на язык и строку,
+форма не из дерева — предупреждение, кривая запись — выход (И345).
+
 ### `check:css` — семьи по файлам
 
 Таблица, а не проза, и это не оформление. Проверка печатает ИМЯ семьи
@@ -95,7 +110,7 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 | `ratioNoCap` | aspect-ratio без max-block-size (правило 4) |
 | `halfRole` | роль переопределена наполовину: знак сменили, поверхность нет |
 | `nearStep` | соседние ступени шкалы ближе 8% — глаз их не различает |
-| `motion` | движение: двигает раскладку, дольше 500ms или ease-in |
+| `motion` | движение: двигает раскладку, дольше 500ms, ease-in, переход «на всё» (transition: all), появление из scale(0), пружина с перелётом |
 | `inlinePx` | число в разметке: инлайновый стиль мимо шкалы (правила 1 и 2) |
 | `zIndex` | z-index числом: имя из --layer-* или верхний слой (<dialog>, popover) (правило 8) |
 | `focusGone` | кольцо фокуса снято и не заменено — клавиатура теряет место |
@@ -148,6 +163,8 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 | `stateClass` | состояние классом (.is-open, .active, .disabled) вместо атрибута: состояние живёт в [data-*] или ARIA — тогда его видит и вспомогательная техника, и вес (0,2,0) бьёт голый класс без всякого порядка файлов |
 | `dressGrown` | исключение переросло базу: вариант объявляет свойств больше, чем сам предмет — это уже не исключение, а новый блок |
 | `varMissing` | имя читается без запасного значения, а объявить его некому: var() делает ВСЮ запись недействительной, и свойство падает не на соседа по списку, а на унаследованное — страница садится на умолчание браузера |
+| `colorOut` | цвет рождён мимо палитры: литерал (#hex, rgb/hsl/oklch, имя краски) или color-mix с долей числом в стилях — краску выпускает строитель палитры ролью, стили её только читают (CLAUDE.md, «Делается только правильно») |
+| `knobTie` | ручка примитива переобъявлена узлом на том же элементе равным весом (голый класс против голого класса) — победит порядок кусков сборки, а не место; умолчание ручки у примитива — под :where(), узлу — сила места (И320, И346) |
 <!-- /families:css -->
 
 Семьи без номера — не про десять запретов, и это осознанно: признак у всех
@@ -245,6 +262,172 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 не страницу — `index.html` внутри нет. Сторож, не проверенный обратным ходом,
 не отличается от комментария.
 
+### `check:design` — механическая половина impeccable
+
+Заведена 24.09.2026 (И271): витрина проходила все проверки вёрстки и
+оставалась плохой — механику мерили, композицию не требовало ничего.
+Правило — `CLAUDE.md`, «Дизайн делается дизайнерскими скиллами»: вид
+правится скиллом `impeccable` по порядку. Запреты и рефлексы его
+справочников, видимые по файлу, переписаны семьями храповика — так же, как
+`check:seo` переписал СЕО-скиллы (`docs/skills.md`); его собственный
+детектор меряет отрисованную страницу отдельной проверкой — `check:detect`
+ниже.
+
+Проверка читает разметку и стили вместе: модуль стилей ищется по ввозу,
+класс — по `className`, предок, одевший заголовок правилом `.pagehead h1`, —
+по дереву разметки. В наборе мерится основа и образцовая витрина
+(`templates/storefront`). Вкус этим не меряется: зелёная проверка значит
+«новых механических приёмов не завелось», а не «красиво». Таблица — из
+реестра `tools/design-families.mjs`, у каждой семьи строка источника.
+
+Две семьи читают не стили, а описание вида `DESIGN.md` — контекст шага 1
+порядка дизайна (И300): `docValue` — число вида в описании (`#код`,
+`rgb()`/`oklch()`, px, rem, ms), `docDead` — роль `--имя`, которой не
+объявляет ни один файл стилей (`--имя-*` — ни одна с такой приставкой).
+Описание называет роли, примитивы и швы; числа выпускают строители, и число
+в описании было бы второй правдой рядом с ними. Файл — `designDoc` в
+`kit.config.json`, у набора — `templates/storefront/DESIGN.md`.
+
+<!-- families:design -->
+| Семья | Что ловит | Откуда в impeccable |
+| --- | --- | --- |
+| `eyebrow` | надпись над заголовком (eyebrow, kicker): заголовок несёт свой вес сам | craft-floor.md:27 — «A kicker or eyebrow above a heading. This one is a ban» |
+| `bareHeading` | заголовок без роли размера: ни своего класса, ни правила предка, ни основания — браузер ставит свой 1.5em | craft-floor.md:15 — «ship with browser defaults that belong to no design system»; typeset.md:20 |
+| `headRole` | уровень заголовка набран чужой ролью: h1 размером --h2-size, h2 размером --h3-size — у одного уровня разные виды | typeset.md:50 — «Keep repeated roles consistent across screens and states» |
+| `navSmall` | ссылки навигации мельче тела (меньше 1rem): главное меню читается как сноска | typeset.md:46 — «Use 1rem / 16px as the ordinary web body floor» |
+| `flatRhythm` | группа и разделение одним шагом: между пунктами не больше воздуха, чем внутри пункта, — пункты слипаются | layout.md:20 — «one spacing value repeated until everything has equal weight»; layout.md:48 |
+| `iconCards` | карточки «значок + заголовок + текст» по списку как устройство страницы | craft-floor.md:25 — «Same-size cards of icon plus heading plus text as the page structure» |
+| `browserSurface` | поверхность браузера не одета: выделение, каретка, фокус, подчёркивание, ползунок или цифры таблиц — по умолчанию | craft-floor.md:15 — «Text selection, the caret, custom scrollbars, focus rings, underline offset…» |
+| `proseLink` | ссылка в тексте без подчёркивания: подчёркивание снято со всех a и не возвращено в абзаце — ссылку выдаёт один цвет | craft-floor.md:15 — «underline offset» среди поверхностей браузера; WCAG 1.4.1 |
+| `gradientText` | текст градиентом (background-clip: text): выделяют весом и размером | craft-floor.md:33 — «Gradient text. Emphasis comes from weight or size» |
+| `glassBlur` | стекло и размытие фона (backdrop-filter: blur) как украшение | craft-floor.md:34 — «Glass and blur as decoration» |
+| `sideStripe` | цветная полоса сбоку толще 1px (border-left/right, inline-start/end) у карточки, пункта, плашки | craft-floor.md:35 — «A colored border-left or border-right above 1px» |
+| `hardShadow` | жёсткая тень со сдвигом и без размытия (4px 4px 0) — костюм, а не глубина | craft-floor.md:36 — «Hard offset shadows (box-shadow: 4px 4px 0)» |
+| `glowHalo` | ореол без сдвига (0 0 Npx) — свечение как украшение, а не тень | craft-floor.md:10 — «A zero-offset colored halo is decoration» |
+| `trackTight` | разрядка туже −0.04em | craft-floor.md:12 — «tracking floor -0.04em» |
+| `glyphIcon` | символ или эмодзи вместо знака из листа (→ ✓ ★ ×) | craft-floor.md:40 — «Unicode glyphs or emoji standing in for an icon system» |
+| `monoCostume` | моноширинный шрифт как костюм «технологичности» вне кода, данных и замеров | craft-floor.md:38 — «Monospace as a costume for "technical"» |
+| `docValue` | DESIGN.md несёт число (#код, rgb/oklch, px, ms): вид описывается ролями, числа выпускают строители | document.md:46 — «Never split the source of truth without explicit reason»; спецификация google-labs-code/design.md: «The frontmatter is optional»; CLAUDE.md, «Делается только правильно» — краска → строитель палитры → роль |
+| `docDead` | DESIGN.md называет роль (--имя), которой нет ни в одном файле стилей — описание разошлось с системой | doctor.md:11 — «Truth drift. The code moved on and the document no longer describes it» |
+<!-- /families:design -->
+
+### `check:detect` — детектор impeccable по отрисованной странице
+
+Заведена 24.09.2026 (И310): дизайн мерился только по файлу, а карточка в
+карточке, прилипшая к краю полоса, первый экран одной колонкой, прижатый
+заголовок, невидимое в покое получаются на экране — из каскада и раскладки
+— и по файлу не видны. У impeccable на это есть свой детектор; набор его
+не вёз, потому что запускатель качает бинарь. Теперь вендорена страничная
+сборка движка — один файл, ядро правил вшито как WebAssembly, без сети и
+без запускателя (`tools/vendor/impeccable/`: `VENDOR.json` — тег, коммит,
+хеши; `SOURCE.md` — лицензия и разбор на сеть).
+
+Страницы — из дерева маршрутов, 375 и 1440, обе темы. Перед вставкой файл
+и список правил сверяются с хешами; чужие адреса закрыты с первого запроса,
+после вставки закрыто всё, и чужой запрос в этой фазе — находка «детектор
+пытался выйти в сеть». Страница перед замером прокручивается до низа, чтобы
+сработали раскрытия; «невидимо в покое» и «ошибка скрипта» решает проход —
+замером сборки и событием браузера, как их решает движок по адресу. Без
+`SITE=`, без Playwright, при несовпавшем хеше — выход 2, «не проверено».
+
+У каждого из правил сборки ровно одна судьба (`tools/detect-families.mjs`,
+тест требует покрытия без остатка): семья набора — считается; выключено —
+на тот же вопрос уже отвечает семья или команда набора, один вопрос — один
+ответ; только печатается — вкус брифа и тексты заказчика. Где правило
+сработало на решении набора (многоугольник формы главной кнопки прочитан
+«органикой»), прав набор, и правило выключено с записью причины.
+
+База — по страницам (`tools/detect-baseline.json`), поэтому и узкий прогон
+выносит вердикт:
+
+```
+SITE=http://localhost:3020 npm run check:detect -- --pages /en,/en/catalog   # в ходе правки: тронутые, основной язык
+SITE=http://localhost:3020 npm run check:detect                               # перед сдачей: всё дерево, все языки
+SITE=… npm run check:detect -- --list firstScreen                             # находки семьи: страница, селектор, где видна
+```
+
+<!-- families:detect -->
+| Семья | Что ловит | Правила детектора и порог |
+| --- | --- | --- |
+| `cardInCard` | карточка в карточке: рамка внутри рамки — у полки и у товара один пол | nested-cards — предмет с тенью или рамкой и со скруглением или подложкой внутри такого же |
+| `hiddenAtRest` | содержимое невидимо в покое и после прокрутки (прозрачно, пока его не покажет скрипт) — без скрипта и для поиска его нет | content-hidden-at-rest — после прокрутки до низа невидимо не меньше 25% текста страницы (от 200 знаков); замер детектора, порог набора |
+| `edgeFlush` | карточки прилипли к краю прокручиваемой полосы: у первой или последней нет поля | edge-flush-cards — карточка в горизонтальной полосе в покое стоит вплотную к её краю, у другого края поле есть |
+| `firstScreen` | одна колонка растянула первый экран выше окна — остального не видно | first-viewport-column-overflow — колонка первого раздела уходит далеко за низ окна, соседняя помещается |
+| `headCrowd` | заголовок прижат к блоку над ним: воздух до заголовка не больше, чем после | heading-rhythm — воздух над заголовком не больше воздуха под ним; заголовок сбоку от своего блока (горизонтали не пересекаются) не считается — детектор меряет только вертикаль |
+| `occluded` | текст перекрыт другим элементом | text-occlusion — текст под непрозрачным элементом или под другой строкой |
+| `trackWide` | разрядка сплошного текста шире порога детектора — слово рассыпается | wide-tracking — letter-spacing больше 0.05em у сплошного текста |
+| `capsBody` | сплошной текст прописными | all-caps-body — длинный текст в text-transform: uppercase |
+| `justify` | текст по ширине — реки пробелов в узкой колонке | justified-text — text-align: justify без hyphens: auto |
+| `decor` | украшение как костюм: мигающая точка, мигающий курсор, бегущая строка, ореол, прожектор, сетка на фоне, полосы, рисунок из фигур, волосяная рамка с широкой тенью | pulsing-dot, blinking-cursor, marquee, radial-halo, radial-spotlight-glow, codex-grid-background, repeating-stripes-gradient, shape-assembled-illustration, gpt-thin-border-wide-shadow |
+| `scriptError` | скрипт падает при загрузке страницы — ломает раскрытие, нажатия и живое содержимое | script-error — непойманная ошибка скрипта при загрузке (событие pageerror браузера) |
+<!-- /families:detect -->
+
+<!-- families:detectFates -->
+| Правило impeccable | Имя у автора | Судьба |
+| --- | --- | --- |
+| `side-tab` | Side-tab accent border | выключено: отвечает `sideStripe` |
+| `border-accent-on-rounded` | Border accent on rounded element | выключено: отвечает `sideStripe` |
+| `overused-font` | Overused font | выключено: отвечает `face:stand` — шрифт выбирает заказчик глазами на стенде шрифта |
+| `flat-type-hierarchy` | Flat type hierarchy | выключено: отвечает `ladder`, `headRole` |
+| `gradient-text` | Gradient text | выключено: отвечает `gradientText` |
+| `ai-color-palette` | AI color palette | выключено: отвечает `check:palette` — краски строит строитель палитры из трёх красок заказчика |
+| `cream-palette` | Cream / beige palette | выключено: отвечает `check:palette` — краски строит строитель палитры из трёх красок заказчика |
+| `nested-cards` | Nested cards | семья `cardInCard` |
+| `monotonous-spacing` | Monotonous spacing | выключено: отвечает `flatRhythm`, `airRatio` |
+| `bounce-easing` | Bounce or elastic easing | выключено: отвечает `motion`, `motionOut` |
+| `pulsing-dot` | Pulsing status dot | семья `decor` |
+| `blinking-cursor` | Decorative blinking cursor | семья `decor` |
+| `shape-assembled-illustration` | Shape-assembled illustration | семья `decor` |
+| `organic-clip-path` | Organic contour drawn as clip-path | выключено: отвечает `check:buttons` — форма главной кнопки — многоугольник от её высоты (И276); детектор считает вершины и читает шевроны «органикой», даже скрытые |
+| `buried-raster` | Raster buried under a wash or opacity | только печатается |
+| `dark-glow` | Glowing shadow accents | выключено: отвечает `glowHalo` |
+| `radial-halo` | Radial-gradient background halo | семья `decor` |
+| `radial-spotlight-glow` | Decorative radial spotlight glow | семья `decor` |
+| `marquee` | Auto-scrolling marquee | семья `decor` |
+| `icon-tile-stack` | Icon tile stacked above heading | выключено: отвечает `iconCards` |
+| `italic-serif-display` | Italic serif display headline | только печатается |
+| `hero-eyebrow-chip` | Hero eyebrow / pill chip | выключено: отвечает `eyebrow` |
+| `kicker-above-heading` | Kicker / eyebrow label above heading | выключено: отвечает `eyebrow` |
+| `numbered-section-labels` | Tiny numbered section labels | только печатается |
+| `em-dash-overuse` | Em-dash overuse | только печатается |
+| `marketing-buzzword` | Marketing buzzword | только печатается |
+| `aphoristic-cadence` | Aphoristic-cadence copy | только печатается |
+| `oversized-h1` | Oversized hero headline | только печатается |
+| `extreme-negative-tracking` | Crushed letter spacing | выключено: отвечает `trackTight` |
+| `broken-image` | Broken or placeholder image | выключено: отвечает `broken` |
+| `script-error` | Uncaught script error on load | семья `scriptError` |
+| `content-hidden-at-rest` | Content invisible at rest | семья `hiddenAtRest` |
+| `edge-flush-cards` | Cards flush against the scroller edge | семья `edgeFlush` |
+| `text-occlusion` | Text occluded by an overlapping element | семья `occluded` |
+| `first-viewport-column-overflow` | One column stretches the first viewport | семья `firstScreen` |
+| `gray-on-color` | Gray text on colored background | выключено: отвечает `contrast`, `theme` |
+| `low-contrast` | Low contrast text | выключено: отвечает `contrast`, `theme` — контраст меряется по пикселям в обеих темах |
+| `layout-transition` | Layout property animation | выключено: отвечает `motion` |
+| `line-length` | Line length too long | выключено: отвечает `measure` — потолка меры у набора нет — снят заказчиком; нижнюю границу меряет measure |
+| `cramped-padding` | Cramped padding | выключено: отвечает `field` — поле контрола считается от его высоты (запрет 2) |
+| `body-text-viewport-edge` | Body text touching viewport edge | выключено: отвечает `lane`, `field` |
+| `tight-leading` | Tight line height | выключено: отвечает `typeGuess` |
+| `skipped-heading` | Skipped heading level | выключено: отвечает `heads` |
+| `heading-rhythm` | Heading crowded against the previous block | семья `headCrowd` |
+| `justified-text` | Justified text | семья `justify` |
+| `tiny-text` | Tiny body text | выключено: отвечает `fontPx`, `check:scale` |
+| `undersized-ui-text` | Undersized functional text | выключено: отвечает `fontPx`, `check:scale` |
+| `all-caps-body` | All-caps body text | семья `capsBody` |
+| `wide-tracking` | Wide letter spacing on body text | семья `trackWide` |
+| `text-overflow` | Content overflowing its container | выключено: отвечает `spill` |
+| `repeated-container-text` | Same text repeated inside one container | только печатается |
+| `clipped-overflow-container` | Positioned child clipped by overflow container | выключено: отвечает `clip` |
+| `design-system-font` | Font outside DESIGN.md | выключено: отвечает `check:css` |
+| `design-system-color` | Color outside DESIGN.md | выключено: отвечает `hueDirect` |
+| `design-system-radius` | Radius outside DESIGN.md | выключено: отвечает `radiusPx` |
+| `design-system-font-size` | Font size outside DESIGN.md | выключено: отвечает `fontPx` |
+| `gpt-thin-border-wide-shadow` | Hairline border with wide shadow | семья `decor` |
+| `repeating-stripes-gradient` | Repeating-gradient stripes | семья `decor` |
+| `codex-grid-background` | Decorative grid-line background | семья `decor` |
+| `theater-slop-phrase` | Theater framing copy | только печатается |
+| `image-hover-transform` | Image hover transform | только печатается |
+<!-- /families:detectFates -->
+
 ### `check:craft` — семьи по отрисованной странице
 
 Это главное отличие от любого набора рекомендаций. **Дефект, который заказчик
@@ -263,7 +446,7 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 | `collision` | соседние блоки ближе 8px |
 | `weight` | снимок отдан вдвое крупнее места (нет srcset) |
 | `jump` | картинка без width/height — вёрстка прыгнет |
-| `name` | орган без имени (ни текста, ни aria-label, ни alt) |
+| `name` | орган без имени (ни текста, ни aria-label, ни alt; у поля — ни label, ни aria-label: подсказка внутри поля именем не считается) |
 | `heads` | лестница заголовков: пропуск уровня или не один h1 |
 | `dress` | одно действие в двух одеждах: выход из блока рисуется по-разному |
 | `clip` | текст, срезанный своим же блоком (nowrap, overflow:hidden) |
@@ -294,7 +477,25 @@ npm run sweep         # съёмка на 41 ширине: сетка 320…1600
 | `twoAir` | шов между блоками оплачен дважды: сверху поле одного, снизу воздух другого — просвет вдвое больше задуманного |
 | `twiceLift` | под одной рукой поднимаются двое: орган ползёт по тому, на чём стоит, потому что подъём добавили оба |
 | `sheetSize` | лист набора рисует предмет не в его настоящем размере: образец и витрина разошлись |
+| `autofill` | поле оформления без autocomplete: браузер не подставит имя, телефон и адрес — покупатель набирает их пальцем (WCAG 1.3.5) |
+| `fieldZoom` | поле мельче 16px на телефоне: iOS Safari увеличивает страницу при вводе и не возвращает |
+| `h1Lines` | главный заголовок в четыре строки и больше: мера держится ролью заголовка, а не длиной текста |
 <!-- /families:craft -->
+
+#### Семьи внешнего разбора 24.09.2026: поле и заголовок
+
+Разбор чужих дизайн-скиллов (`docs/skills.md`: Refero, UI/UX Pro Max,
+taste-skill, impeccable, Эмиль Ковальский) дал четыре семьи, меряемых только
+по отрисованной странице. Поле — `name` (у поля есть подпись), `fieldZoom` и
+`autofill`: их разбор — `controls.md`, «Телефон: поле, окно и вырез»; цель
+поля — факт страницы, а не окна: одна находка на страницу, а не на каждую из
+семи ширин. `h1Lines` — главный заголовок не длиннее трёх строк (`H1_LINES`
+в `tools/thresholds.mjs`): считаются строки, а не размер, и со строителем
+шкал это не спорит; на карте товара длинное имя — данные, и чинится оно ролью
+заголовка, а не укорочением имени. Ошибку скрипта при загрузке ловит
+`check:detect` (семья `scriptError`, выше): у вопроса один ответ, второй
+семьи здесь нет. Самопроверка — `selftest/craft-fields.test.mjs` на настоящем
+браузере.
 
 #### Четыре прохода, а не один: тема, указатель и настройка движения
 
@@ -610,6 +811,16 @@ coarse)`, ровно как `:hover` пишется в `@media (hover: hover)`. 
 Починка одна на все цветовые записи, которые есть и которые появятся: цвет
 рисуется пикселем на `<canvas>` и читается обратно. Что умеет браузер, то
 понимает и проверка.
+
+### Ловушка четвёртой мерки: снятый слой уносит и сам текст
+
+Дно под буквами снимается с плавающими слоями, спрятанными
+(`visibility:hidden` у всего `fixed` и `sticky`): иначе под текстом
+окажется чужая шапка. 24.09.2026 «Apply filters» в приклеенной колонке
+фильтров каталога вышла 1.31 : 1 на всех широких окнах — а на экране
+кнопка залита маркой и читается. Спрятана была сама колонка, а с ней и
+кнопка: снимок показал пол страницы под ней. Прячутся только ЧУЖИЕ слои —
+те, что текст не содержат (`!e.contains(el)`).
 
 ### Четыре свойства сторожа
 

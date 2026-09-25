@@ -1,0 +1,105 @@
+import type { Lang } from './locale.ts'
+import type { Card, Money, Pack, Strength } from './source/contract.ts'
+import { BIND, RANGE, num } from './format.ts'
+import { t } from './i18n/index.ts'
+import { moneyPer } from './money.ts'
+
+/* Факты товара на полке — сила, мера, миллиграммы — одной строкой из данных
+   (shop, «Один факт о товаре — одно место»; разбор 24.09.2026, X3). Покупатель
+   CBD сравнивает на полке три числа, и ни одного на карточке не было: имя,
+   цена и «В наличии». Здесь одна арифметика на всё, что их печатает или по
+   ним фильтрует, и одна запись числа с единицей. */
+
+/* Неразрывный пробел между числом и единицей и запись самого числа — одни на
+   витрину (`lib/format.ts`, И347): «2.5» по-английски, «2,5» по-румынски. */
+
+/** Концентрация упаковки, %: мг ÷ (мл × 10), до десятой (cbd-facet, §2.2).
+ *  Только у жидкости в мл и только при заявленных мг: у банки капсул объёма
+ *  нет — процент был бы числом, которое не концентрация ничего. */
+export const percentOf = (pack: Pack): number | null =>
+  pack.unit === 'ml' && pack.mg ? Math.round((pack.mg / (pack.size * 10)) * 10) / 10 : null
+
+/** Мг в одной штуке — доза капсулы; у нештучного — нет. */
+const eachOf = (pack: Pack): number | null => (pack.unit === 'pcs' && pack.mg ? pack.mg / pack.size : null)
+
+const distinct = (xs: (number | null)[]): number[] =>
+  [...new Set(xs.filter((x): x is number => x !== null))].sort((a, b) => a - b)
+
+/** Значения одной меры по вариантам: одно — числом, два — через косую
+ *  («10/30 ml» — их ровно два, «10–30» обещал бы непрерывный ряд), больше —
+ *  диапазоном от меньшего к большему. */
+/* Число — записью языка страницы (`num`, lib/format.ts): «2.5» в английском,
+   «2,5» в румынском и венгерском; четыре знака без разрядки — «1000 mg», как
+   на этикетке, разрядка с пяти. */
+function nums(lang: Lang, xs: number[]): string {
+  const [lo, hi] = [num(lang, xs[0]), num(lang, xs[xs.length - 1])]
+  return xs.length === 1 ? lo : xs.length === 2 ? `${lo}/${hi}` : `${lo}${RANGE}${hi}`
+}
+const span = (lang: Lang, xs: number[], unit: string): string | null => (xs.length ? `${nums(lang, xs)}${BIND}${unit}` : null)
+
+/** Строка фактов карточки: «10 % · 10 ml · 1 000 mg», «30 × 25 mg»,
+ *  «500 mg · 50 ml». Порядок — по тому, чем товар продаётся (`strength`):
+ *  концентрацией — процент первым, содержанием — мг первыми; у штучного —
+ *  доза штуки. Всего мг у товара с разными упаковками не печатается: это
+ *  был бы диапазон, который сравнивать нельзя. Не из чего собрать — null. */
+export function factsLine(lang: Lang, card: Pick<Card, 'strength' | 'packs'>): string | null {
+  const { packs } = card
+  if (!packs.length || new Set(packs.map((p) => p.unit)).size !== 1) return null
+  const unit = packs[0].unit
+  const sizes = distinct(packs.map((p) => p.size))
+  const mg = distinct(packs.map((p) => p.mg))
+  let parts: (string | null)[]
+  if (unit === 'pcs') {
+    /* «30 × 25 mg» — штук и доза одной; дозы разные — только счёт штук. */
+    const each = distinct(packs.map(eachOf))
+    parts = [each.length === 1 ? `${nums(lang, sizes)}${BIND}×${BIND}${span(lang, each, 'mg')}` : span(lang, sizes, t(lang, 'shelf.pcs'))]
+  } else if (card.strength === 'percent') {
+    parts = [span(lang, distinct(packs.map(percentOf)), '%'), span(lang, sizes, unit), mg.length === 1 ? span(lang, mg, 'mg') : null]
+  } else {
+    parts = [mg.length === 1 ? span(lang, mg, 'mg') : null, span(lang, sizes, unit)]
+  }
+  const shown = parts.filter((x): x is string => Boolean(x))
+  /* Точка-разделитель держится за левое соседнее: строка рвётся после неё,
+     и новая строка не начинается с «·». */
+  return shown.length ? shown.join(`${BIND}· `) : null
+}
+
+/** Число и единица в имени товара — неразрывно: «CBD oil 30 % forte» на
+ *  карточке в 163px рвалось «30 / % forte». Имя — данные заказчика; здесь
+ *  только его запись на экране, слова не меняются. */
+const UNITS = /(\d)\s+(?=(?:%|mg|ml|g|pcs|buc\.|db)(?![\p{L}\d]))/gu
+export const bindUnits = (text: string): string => text.replace(UNITS, `$1${BIND}`)
+
+/** Капля — 0,05 мл: стандартная пипетка отмеряет 20 капель воды на 1 мл
+ *  (Ph. Eur. 2.1.1); так же считают «мг в капле» живые магазины масел
+ *  (cbdin.bg: 100 мг в 1 мл — 5 мг в капле, 30 мл — ≈ 600 капель). */
+export const DROP_ML = 0.05
+
+/** Строка поля параметров: число с единицей крупно, подпись тихо, `note` —
+ *  пояснение той же строки («≈ 200 drops in the bottle»). */
+export type FactRow = { value: string; label: string; note: string | null }
+/** Поле основных параметров карты товара — готовыми строками. `label` —
+ *  имя списка для чтения с экрана. */
+export type FactsView = { label: string; rows: FactRow[] }
+
+const mg = (lang: Lang, value: number): string => `${num(lang, value)}${BIND}mg`
+
+/** Основные параметры упаковки варианта — что покупатель CBD сверяет
+ *  перед покупкой (как у cbdin.bg): сколько CBD всего, сколько в единице
+ *  приёма — в 1 мл или 1 г, в штуке, у масла ещё в капле и сколько капель во
+ *  флаконе, — и цена миллиграмма. Мг не заявлены — поля нет: число без
+ *  этикетки было бы выдумкой. */
+export function packFacts(lang: Lang, pack: Pack | null, strength: Strength, price: Money): FactsView | null {
+  if (!pack?.mg || !pack.size) return null
+  const each = pack.mg / pack.size
+  const rows: FactRow[] = [{ value: mg(lang, pack.mg), label: t(lang, 'facts.total'), note: null }]
+  if (pack.unit === 'pcs') rows.push({ value: mg(lang, each), label: t(lang, 'facts.perPiece'), note: null })
+  else rows.push({ value: mg(lang, each), label: t(lang, pack.unit === 'ml' ? 'facts.perMl' : 'facts.perG'), note: null })
+  /* Капля — только у того, что продаётся концентрацией в мл (масла): крем
+     в мл каплями не меряют. */
+  if (pack.unit === 'ml' && strength === 'percent') {
+    rows.push({ value: mg(lang, each * DROP_ML), label: t(lang, 'facts.perDrop'), note: t(lang, 'facts.drops', { n: num(lang, Math.round(pack.size / DROP_ML)) }) })
+  }
+  rows.push({ value: moneyPer(price, pack.mg, lang), label: t(lang, 'facts.perMg'), note: null })
+  return { label: t(lang, 'facts.label'), rows }
+}

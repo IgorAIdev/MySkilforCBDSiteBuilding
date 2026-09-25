@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>20 · Главная — слово</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 20 — «Главная — слово». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: рамка цвета заливки.
+  Приведено к единой форме: краски — марка и надпись на ней вместо голубого и белого; наведение — 5 % краски надписи поверх марки вместо отдельного синего; угол из Shape вместо .9em.
+  Наведение: марка + 5 % краски надписи. Нажатие: марка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" type="button">Add to cart</button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud">Add to cart</span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-state="hover">Add to cart</span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-state="press">Add to cart</span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-state="focus">Add to cart</span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+/* Поле — мерой строки (`--measure`), где бы оно ни стояло: в шапке поиска и
+   на «не найдено» (StateScreen). Правило одно — здесь. */
+.form{max-inline-size:var(--measure)}
+
+/* Знак отправки лежит внутри поля, у его конца. Геометрия — от высоты
+   органов (правило 2): кнопка ростом малого органа стоит по центру поля,
+   зазор до края поля равен зазору сверху и снизу, и поле отдаёт под неё
+   ровно свою высоту — текст не заходит под знак. */
+.box{position:relative}
+.input{padding-inline-end:var(--ctrl-h)}
+.box > .go{
+  position:absolute;inset-block:0;inset-inline-end:calc((var(--ctrl-h) - var(--ctrl-h-sm)) / 2);margin-block:auto;
+  inline-size:var(--ctrl-h-sm);block-size:var(--ctrl-h-sm);padding-inline:0
+}

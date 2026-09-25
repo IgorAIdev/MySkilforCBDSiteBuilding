@@ -1,0 +1,167 @@
+/* Ссылка на товар одна — имя; её область нажатия растянута на всю
+   карточку (`::after`), поэтому снимок и цена ведут туда же. Снимок стоял
+   второй ссылкой, скрытой от чтения, — и был органом без имени (check:craft,
+   name). */
+/* Карточки ряда — одной высоты (ячейка сетки тянет, карточка берёт её
+   всю), и цены стоят у всех на одной линии: растёт группа «что это», а не
+   воздух над ценой.
+
+   Ритм — лестница, а не один шаг (разбор 24.09.2026, X1, X3): внутри «что
+   это» (имя и факты) — оптика `--sp-1`, они читаются одной вещью; внутри
+   «за сколько» (цена и «в корзину») — `--sp-2`; между этими группами —
+   зазор `--gap-row`; от снимка к тексту — воздух строки; между рядами карточек —
+   воздух группы (Catalog.module.css). Всё стояло одним шагом `--air-row`, и
+   имя, цена и «В наличии» висели на равных расстояниях — группа не
+   читалась. С кнопкой (25.09.2026) шаг между группами вырос с `--sp-2` до
+   `--gap-row`: равный шагу внутри «за сколько», он сливал цену с фактами, а
+   равный воздуху от снимка — текст карточки со снимком (check:design,
+   `flatRhythm`). Каждая ступень лестницы больше той, что внутри неё. */
+.card{position:relative;block-size:100%;display:flex;flex-direction:column;gap:var(--air-row)}
+/* Пропорция — ручкой кадра, силой места (0,2,0): `.frame` объявляет свою
+   `--frame` весом голого класса, и на равном весе решал бы порядок кусков
+   сборки. Значение — пропорция снимка товара `--shot-frame`, одна на полку
+   и карту товара (И400): снимки у товара одни, и стояла она здесь числом
+   `1 / 1` рядом с ручкой карты — карта показывала 4 : 5, полка резала тот
+   же снимок в квадрат. Угол снимка — одежда, его задаёт вариант (ниже). */
+.card .shot{--frame:var(--shot-frame)}
+.body{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--gap-row)}
+.what{flex:1 0 auto;display:flex;flex-direction:column;gap:var(--sp-1)}
+
+/* Ответ на руку — наплыв снимка; рама стоит (craft, controls.md, «Плавающее
+   со снимком: рама стоит, движется снимок»). На столе — наведением, на
+   телефоне — нажатием. Одежда с тенью вдобавок берёт следующую тень (ниже).
+   При «поменьше движения» снимок стоит: наплыв объявлен только без неё. */
+@media (prefers-reduced-motion:no-preference){
+  .shot img{transition:scale var(--hover-t) var(--ease)}
+  .card:active .shot img{scale:var(--creep)}
+}
+@media (hover:hover) and (prefers-reduced-motion:no-preference){ .card:hover .shot img{scale:var(--creep)} }
+
+/* Ссылка — имя и плашка наличия; её область нажатия растянута на всю
+   карточку (`::after` от карточки: она `position:relative`). Цель не ниже
+   пальца держит имя (ниже): стоя на ссылке, высота вставала пустотой между
+   заголовком и фактами, и заголовок читался прижатым к снимку
+   (check:detect, `headCrowd`, 375). */
+.link{display:block;color:inherit}
+.link::after{content:'';position:absolute;inset:0}
+
+/* Плашка наличия — примитив `cut` (метка на кадре, primitives.module.css):
+   краску даёт `data-cut` — «мало» и «нет» ролями палитры. Стоит от угла
+   карточки — у одежд, где снимок начинается в углу; у вписанного снимка
+   сдвинута на поле (ниже, `outlined`). Слова плашки — одной строкой. */
+.flag{white-space:nowrap}
+
+/* Имя — тело, а не ступень подзаголовка: на полке каталога оно стояло
+   ростом с заголовок подвала «Ajutor» (h2), и лестница заголовков
+   перекрещивалась (check:craft, ladder). Так же набрана карточка на стенде
+   шкал (tools/scale-stand.mjs, `.nm`). */
+/* Роль тела целиком, с разрядкой: элемент — h3, и недописанное брал бы у
+   роли h3 (base.css), то есть сжатую разрядку заголовка на кегле тела.
+   Не больше двух строк: длинное имя третьей строкой сдвигало цену ниже,
+   чем у соседей. Целиком оно на карте товара. */
+.name{
+  font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:var(--body-track);overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;
+  min-block-size:var(--ctrl-target)
+}
+
+/* Цена — одна фраза: «from €34.90» не рвётся на «from» и сумму. Строка
+   тела, жирнее имени — этим и отличается от него; цифры табличные, чтобы
+   цены ряда читались столбцом. Сноска фактов между ними — роль `note`
+   (primitives.module.css). */
+.price{font-size:var(--body-size);line-height:var(--body-lead);font-weight:700;white-space:nowrap;color:var(--ink);font-variant-numeric:tabular-nums}
+/* Прежняя цена — над ценой, мельче и краской подписи: рядом с новой в одну
+   строку две цены читались диапазоном, над ней зачёркнутая — ясно «было».
+   Для чтения вслух — словами рядом (`p.said`): зачёркивание голосом не
+   читается. */
+.price{display:flex;flex-direction:column;margin:0}
+.was{font-size:var(--note-size);line-height:var(--note-lead);font-weight:400;color:var(--ink-soft)}
+
+/* «За сколько» — цена и «в корзину» одной группой внизу карточки (слово
+   заказчика 25.09.2026). Кнопка — главная кнопка сайта (`b.btn`
+   data-voice="loud"): рисунок и ответ на руку — из её модуля, здесь только
+   место. Во всю ширину под ценой — по умолчанию: в тесной ячейке телефона
+   цене и слову рядом не хватает места. Кнопка стоит над растянутой ссылкой
+   имени — иначе нажатие ушло бы на карту товара. */
+.foot{display:flex;flex-direction:column;align-items:stretch;gap:var(--sp-2)}
+.buy{position:relative;display:flex;flex-direction:column}
+.add{position:relative;inline-size:100%;justify-content:center}
+/* Надпись до записи и после: «Add» → «Added» по исходу формы корзины
+   (`data-said`, CartForm quiet). Обе в кнопке, видна одна. */
+.done{display:none}
+.buy[data-said='ok'] .done,.buy[data-said='partial'] .done{display:inline}
+.buy[data-said='ok'] .word,.buy[data-said='partial'] .word{display:none}
+/* Рядом с ценой (`--card-buy: beside`, «Admin → Card → Cart button»):
+   кнопка ростом поменьше встаёт у правого края строки цены; не помещается —
+   переносится под цену сама (`flex-wrap`), без порога ширины. */
+@container style(--card-buy: beside){
+  .foot{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .foot > :last-child{margin-inline-start:auto}
+  .add{--btn-h:var(--ctrl-h-sm);inline-size:auto}
+}
+
+/* Варианты карточки — одежда одной раскладки (craft, «Виды предмета — это
+   одежда, а не разная раскладка»): поверхность, линия, поле; группы и их
+   порядок у всех одни. Договор плотности один (shop, «Плотность товарной
+   полки зависит от занятой ширины»: 4–5 карточек по 260–325px) — сколько в
+   ряд, выбирает вид (`--shelf-cols`, И400), а не одежда.
+   Вариант выбирает вид (`card`, lib/cards.ts).
+   look-card:* Пока вид выбирается, стоят все; `npm run look:remove` оставляет выбранный.
+*/
+/* look-card:framed:start */
+/* framed — своя поверхность с тенью: карточка лежит над полом страницы.
+   Снимок — во всю ширину карточки, до её верхнего края, текст — в поле
+   карточки. Снимок стоял вписанным в поле, и на телефоне от 163px карточки
+   ему доставалось 130 — карточка в карточке (разбор, X3). Под рукой рама
+   берёт следующую тень, снимок наплывает. */
+.card[data-card='framed']{
+  gap:0;background:var(--surface);border-radius:var(--r-card);box-shadow:var(--sh-raised);
+  transition:box-shadow var(--hover-t) var(--ease)
+}
+.card[data-card='framed'] .shot{border-start-start-radius:var(--r-card);border-start-end-radius:var(--r-card)}
+.card[data-card='framed'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
+@media (hover:hover){ .card[data-card='framed']:hover{box-shadow:var(--sh-lift)} }
+.card[data-card='framed']:active{box-shadow:var(--sh-lift)}
+/* look-card:framed:end */
+/* look-card:bare:start */
+/* bare — коробки нет: снимок со своим углом прямо на полу, текст под ним
+   без поля — строка текста встаёт по краю снимка. */
+.card[data-card='bare'] .shot{border-radius:var(--r-card)}
+/* look-card:bare:end */
+/* look-card:outlined:start */
+/* outlined — волосок вместо тени и внутреннее поле; снимок вписан в поле,
+   и угол у него — угол карточки минус поле (концентрический), а не угол
+   органа: 24 снаружи и 8 внутри при поле 12 читались двумя чужими рамками.
+   От снимка к тексту — поле, а не воздух строки: одна рамка держит всё.
+   Имя — по тому, чем одежда отличается (контур), а не «Compact»: «Compact»
+   в той же панели уже называет набор ритма «Тесный», а плотность полки у
+   всех трёх одежд одна (договор выше). */
+.card[data-card='outlined']{gap:var(--pad-inner);border:var(--line-w) solid var(--rule);border-radius:var(--r-card);padding:var(--pad-inner)}
+/* Разность ролей, не число: у набора с углом карточки меньше поля calc
+   уходит в минус, а браузер сам держит радиус не ниже нуля. */
+.card[data-card='outlined'] .shot{border-radius:calc(var(--r-card) - var(--pad-inner))}
+.card[data-card='outlined'] .flag{translate:var(--pad-inner) var(--pad-inner)}
+/* look-card:outlined:end */
+/* look-card:toned:start */
+/* toned — по образцу заказчика 24.09.2026 (элемент 64 набора): «без
+   окантовки фото и внизу поле к нему примыкает тоже хорошо, как идея
+   минималистичной карточки». Устройство framed — снимок до верхнего края,
+   текст в поле карточки, — но поле под снимком тоном ступени под листом,
+   отличным и от пола, и от листа; ни линии, ни тени: карточку от пола
+   отделяют тон и угол. Имя — весом тела: «весь дизайн простой и понятный».
+   Под рукой отвечает снимок (наплыв), рама стоит. */
+.card[data-card='toned']{gap:0;background:var(--plate-2);border-radius:var(--r-card)}
+.card[data-card='toned'] .shot{border-start-start-radius:var(--r-card);border-start-end-radius:var(--r-card)}
+.card[data-card='toned'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
+.card[data-card='toned'] .name{font-weight:var(--body-weight)}
+/* look-card:toned:end */
+/* look-card:tinted:start */
+/* tinted — лист тоном марки (элемент 62 набора, скриншот заказчика
+   24.09.2026: карточка, тонированная в цвет товара): поле карточки — тон
+   марки, угол — угол листа; снимок во всю ширину и до верхнего края, как у
+   framed; ни линии, ни тени — от пола отделяет тон. Тон по цвету самого
+   товара — возможность магазина (данные товара), не этой одежды. */
+.card[data-card='tinted']{gap:0;background:var(--pop-tint);border-radius:var(--r-sheet)}
+.card[data-card='tinted'] .shot{border-start-start-radius:var(--r-sheet);border-start-end-radius:var(--r-sheet)}
+.card[data-card='tinted'] .body{padding:var(--pad-inner) var(--pad-card) var(--pad-card)}
+/* look-card:tinted:end */

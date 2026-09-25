@@ -37,5 +37,8 @@
   "catalogueColumns": 0,
   "twoAir": 0,
   "twiceLift": 0,
-  "sheetSize": 0
+  "sheetSize": 0,
+  "autofill": 0,
+  "fieldZoom": 0,
+  "h1Lines": 0
 }

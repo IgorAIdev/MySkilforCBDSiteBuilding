@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+public/icons.svg
+lib/source/sample/look.draft.json
+.env
+# Снимки чужих магазинов для брифа поверхности (docs/design/): в репозиторий не идут (И300)
+.refs/

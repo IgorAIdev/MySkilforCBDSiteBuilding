@@ -17,7 +17,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { toCss } from './scale.mjs'
+import { toCss, auditScale } from './scale.mjs'
 
 const FROM = path.resolve('styles/scale.json')
 const TO = path.resolve('styles/scale.css')
@@ -38,6 +38,16 @@ if (!names.length) {
 let css
 try { css = toCss(sets) } catch (e) {
   console.error(`✗ ${e.message}`)
+  process.exit(1)
+}
+
+/* Выпускается только набор, который прошёл замер (И245): раньше команда
+   писала рампу «верх ниже низа» и заголовок страницы мельче заголовка
+   раздела, а ловил это только `check:scale` — уже после записи. */
+const rejected = names.flatMap((name) => auditScale(sets[name]).map((f) => `${name}: ${f.rule} — ${f.got}; нужно: ${f.need}`))
+if (rejected.length) {
+  console.error(`✗ Шкалы не выпущены: замер нашёл ${rejected.length}. styles/scale.css не тронут.`)
+  for (const line of rejected.slice(0, 12)) console.error(`    ${line}`)
   process.exit(1)
 }
 

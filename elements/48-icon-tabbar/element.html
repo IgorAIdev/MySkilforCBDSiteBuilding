@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>48 · Полоса разделов значками</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 48 — «Полоса разделов значками». Источник — разметка Tailwind и CSS от заказчика 24.09.2026: полоса разделов из пяти значков и выбор темы знаками в пилюле — после разбора одна (source.html, source-2.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тени полосы и выбранной ячейки; рост выбранного и наведённого знака 1.25; синие краски; плавность 0.3–0.5 s; белый знак на серой подложке при нажатии (второй источник).
+  Приведено к единой форме: полоса — лоток с волоском; пункты — радио: выбор держит браузер, стрелки ходят без скрипта; выбранный — знак краской марки в ячейке с волоском; значки из листа набора: каталог, поиск, избранное, корзина, кабинет — вместо панели, профиля, сообщений, помощи и настроек: панели и шестерёнки в листе нет; вариант второго источника — выбор темы: пилюля с волоском, выбранный — тоном; солнце и луна; имя каждого знака — для чтения вслух.
+  Наведение: подложка 5 % чернил. Нажатие: 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="column"><div class="tabs" data-voice="line" data-pick="mark" role="radiogroup" aria-label="Sections"><label class="el" data-icon data-size="lg"><input type="radio" name="sections" checked aria-label="Catalog"><svg data-sign="package"></svg></label><label class="el" data-icon data-size="lg"><input type="radio" name="sections" aria-label="Search"><svg data-sign="search"></svg></label><label class="el" data-icon data-size="lg"><input type="radio" name="sections" aria-label="Favourites"><svg data-sign="heart"></svg></label><label class="el" data-icon data-size="lg"><input type="radio" name="sections" aria-label="Cart"><svg data-sign="shopping-cart"></svg></label><label class="el" data-icon data-size="lg"><input type="radio" name="sections" aria-label="Account"><svg data-sign="user"></svg></label></div><div class="tabs" data-voice="line" data-shape="pill" data-pick="tone" role="radiogroup" aria-label="Theme"><label class="el" data-icon data-size="sm"><input type="radio" name="theme" checked aria-label="Light"><svg data-sign="sun"></svg></label><label class="el" data-icon data-size="sm"><input type="radio" name="theme" aria-label="Dark"><svg data-sign="moon"></svg></label></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="tabs" data-voice="line" data-pick="mark"><span class="el" data-icon data-size="lg" data-on><svg data-sign="package"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="search"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="heart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="shopping-cart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="user"></svg></span></div><figcaption>покой</figcaption></figure>
+    <figure><div class="tabs" data-voice="line" data-pick="mark"><span class="el" data-icon data-size="lg" data-on><svg data-sign="package"></svg></span><span class="el" data-icon data-size="lg" data-state="hover"><svg data-sign="search"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="heart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="shopping-cart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="user"></svg></span></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="tabs" data-voice="line" data-pick="mark"><span class="el" data-icon data-size="lg" data-on><svg data-sign="package"></svg></span><span class="el" data-icon data-size="lg" data-state="press"><svg data-sign="search"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="heart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="shopping-cart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="user"></svg></span></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="tabs" data-voice="line" data-pick="mark"><span class="el" data-icon data-size="lg" data-on><svg data-sign="package"></svg></span><span class="el" data-icon data-size="lg" data-state="focus"><svg data-sign="search"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="heart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="shopping-cart"></svg></span><span class="el" data-icon data-size="lg"><svg data-sign="user"></svg></span></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

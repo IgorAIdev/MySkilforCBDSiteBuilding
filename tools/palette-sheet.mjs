@@ -18,7 +18,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { roles, ratio, inkOn, saleFrom, NEED } from './palette.mjs'
+import { roles, ratio, inkOn, saleFrom, NEED, groundRoles, groundChecks } from './palette.mjs'
 
 const args = process.argv.slice(2)
 const ИМЯ = args.find((a, i) => args[i - 1] === '--set' && !a.startsWith('--'))
@@ -105,13 +105,13 @@ const рука = () => `
             Купить · 24,90 лв
             <small>--a-9 на фоне, --on-a-9 ${темы[тема]['--on-a-9']} · ${ratio(темы[тема]['--on-a-9'], темы[тема]['--a-9']).toFixed(1)}</small>
           </div>
-          <div class="кнопка" style="background:${темы[тема]['--a-10']};color:${темы[тема]['--on-a-9']}">
+          <div class="кнопка" style="background:${темы[тема]['--a-10']};color:${темы[тема]['--on-a-10']}">
             под рукой
-            <small>--a-10 ${темы[тема]['--a-10']} · наведение</small>
+            <small>--on-a-10 ${темы[тема]['--on-a-10']} · --a-10 ${темы[тема]['--a-10']} · наведение</small>
           </div>
-          <div class="кнопка" style="background:${темы[тема]['--a-press']};color:${темы[тема]['--on-a-9']}">
+          <div class="кнопка" style="background:${темы[тема]['--a-press']};color:${темы[тема]['--on-a-press']}">
             нажата
-            <small>--a-press ${темы[тема]['--a-press']} · вдвое дальше наведения</small>
+            <small>--on-a-press ${темы[тема]['--on-a-press']} · --a-press ${темы[тема]['--a-press']} · вдвое дальше наведения</small>
           </div>
         </div>
       </div>`).join('')}
@@ -156,7 +156,11 @@ const линии = () => `
           </div>
           <div class="обр">
             <span class="поле фокус" style="border:1px solid ${темы[тема]['--border']};box-shadow:0 0 0 2px ${темы[тема]['--ring']};color:${темы[тема]['--n-11']}">под фокусом</span>
-            <b>--ring</b> ${темы[тема]['--ring']}<br><i>кольцо фокуса · ${ratio(темы[тема]['--ring'], темы[тема]['--n-1']).toFixed(1)}:1 к бумаге</i>
+            <b>--ring</b> ${темы[тема]['--ring']}<br><i>кольцо фокуса · ${Math.min(...[1, 2, 3, 4, 5].map((i) => ratio(темы[тема]['--ring'], темы[тема][`--n-${i}`]))).toFixed(1)}:1 на худшем фоне 1–5</i>
+          </div>
+          <div class="обр">
+            <span class="поле" style="border:1px solid ${темы[тема]['--edge']};color:${темы[тема]['--n-11']}">тихая кнопка</span>
+            <b>--edge</b> ${темы[тема]['--edge']}<br><i>кромка органа на любом полу · ${Math.min(...[1, 2, 3, 4, 5].map((i) => ratio(темы[тема]['--edge'], темы[тема][`--n-${i}`]))).toFixed(1)}:1 на худшем фоне 1–5</i>
           </div>
         </div>
       </div>`).join('')}
@@ -182,6 +186,43 @@ const восьмая = () => `
         </div>
       </div>`).join('')}
   </section>`
+
+/* Роли по полу (И295): кнопка, вуали, тени, палуба, сцена героя. Не
+   ступени, но тоже краски строителя — и тоже уезжают в сайт; стили их только
+   читают. Каждая показана на своём полу: бумажная — на листе, палубная — на
+   палубе. Под плитками — замер тем же расчётом, что у «Guaranteed» панели. */
+const ПОДПИСИ = {
+  'chrome-bg': 'пол палубы: шапка, подвал', 'chrome-fg': 'знак палубы', 'chrome-fg-2': 'знак палубы в покое', 'chrome-hover': 'орган на палубе в покое',
+  'scrim-deck': 'сцена героя под снимком', scrim: 'затемнение под окном', 'scrim-near': 'вуаль героя у края', 'scrim-far': 'вуаль героя под концом текста',
+  quiet: 'тихая кнопка', 'quiet-on': 'тихая выбранная', rule: 'черта', 'sh-inset': 'вдавленная тень',
+  'ctrl-hand': 'жёлоб: под рукой', 'ctrl-in': 'жёлоб: створка открыта', 'ctrl-in-hand': 'жёлоб: открыта, под рукой',
+  'hover-row': 'строка под рукой', 'press-row': 'строка нажата', 'hover-ctrl': 'орган под рукой', 'press-ctrl': 'орган нажат',
+  'sh-ring': 'тень: волосок', 'sh-near': 'тень: ближний слой', 'sh-far-1': 'тень: покой', 'sh-far-2': 'тень: подъём', 'sh-far-3': 'тень: всплывающее',
+  'pop-hover': 'главная под рукой', 'pop-trail-near': 'хвост главной: ближний тон', 'pop-trail-far': 'хвост главной: дальний тон', 'pop-grad': 'градиент главной: второй конец', 'pop-glass': 'стекло главной', 'pop-rim': 'блик кромки стекла', 'edge-off': 'кромка выключенной',
+}
+const работа = (имяПер) => ПОДПИСИ[имяПер.replace(/^--/, '').replace(/-(paper|deck)$/, '')] ?? ''
+const полом = () => {
+  const имена = Object.keys(groundRoles(Array(12).fill('#808080'), Array(12).fill('#808080'), 'light').roles)
+  return `
+  <section class="ряд">
+    <h3>Кнопка, вуали, тени и палуба — роли по полу</h3>
+    <p class="пояснение">Краски, которые до 24.09.2026 рождались в стилях долями и литералами. Теперь их выпускает строитель: у каждой, что идёт за полом, две краски — для бумаги и для палубы.</p>
+    ${['light', 'dark'].map((тема) => {
+      const т = темы[тема]
+      const плитка = (имяПер) => {
+        const палуба = /-deck$|^--chrome|^--scrim/.test(имяПер)
+        return `<div class="пол" style="background:${палуба ? т['--chrome-bg'] : т['--n-1']};color:${палуба ? т['--chrome-fg'] : т['--n-12']}"><i class="мазок" style="background:${т[имяПер]}"></i><b>${имяПер}</b><span>${работа(имяПер)}</span></div>`
+      }
+      const замер = groundChecks(наборы[имя][тема], тема).map((c) => `${c.rule}: ${c.unit === 'Lc' ? 'Lc ' + c.got.toFixed(0) : c.got.toFixed(2) + ' : 1'} (норма ${c.need})`).join(' · ')
+      return `
+      <div class="тема" data-тема="${тема}">
+        <span class="ярлык">${тема === 'light' ? 'светлая' : 'тёмная'}</span>
+        <div class="полы">${имена.map(плитка).join('')}</div>
+        <p class="пояснение">${замер}</p>
+      </div>`
+    }).join('')}
+  </section>`
+}
 
 const счёт = Object.keys(темы.light).length
 const html = `<!doctype html>
@@ -221,6 +262,10 @@ const html = `<!doctype html>
   .весть{padding:12px 14px;border-radius:8px;font-size:13.5px}
   .весть i{opacity:.75;font-size:12px}
   [data-тема="light"] .ярлык{color:#e8e6e3}
+  .полы{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+  .пол{padding:8px;border-radius:7px;font-size:11px;line-height:1.3;display:flex;flex-direction:column;gap:3px}
+  .пол b{font-family:ui-monospace,monospace;font-size:10.5px}
+  .мазок{display:block;height:28px;border-radius:5px}
 </style></head>
 <body>
   <h1>Лист палитры — ${имя}
@@ -232,6 +277,7 @@ const html = `<!doctype html>
   ${сигналы()}
   ${линии()}
   ${восьмая()}
+  ${полом()}
 </body></html>`
 
 writeFileSync(ВЫХОД, html)

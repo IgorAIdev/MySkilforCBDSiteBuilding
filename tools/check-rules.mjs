@@ -49,6 +49,8 @@ import { fileURLToPath } from 'node:url'
 import { CSS_FAMILIES, CSS_LABELS } from './css-families.mjs'
 import { CRAFT_FAMILIES, CRAFT_LABELS } from './craft-families.mjs'
 import { CODE_FAMILIES, CODE_LABELS } from './code-families.mjs'
+import { DESIGN_FAMILIES, DESIGN_LABELS, DESIGN_SOURCES } from './design-families.mjs'
+import { DETECT_FAMILIES, DETECT_LABELS, DETECT_SOURCES, DETECT_RULES, fateOf } from './detect-families.mjs'
 import { CHECKS } from './checks.mjs'
 import { roles, STATUS, SIGNAL_NAMES } from './palette.mjs'
 import { resolve as resolveScale } from './scale.mjs'
@@ -68,15 +70,25 @@ const has = (p) => existsSync(join(ROOT, p))
    процесс) сюда не входят — их текст не наш и не правится. */
 const SKILL_DIRS = ['.claude/skills/craft', '.claude/skills/palette', '.claude/skills/scale', '.claude/skills/code', '.claude/skills/shop', '.claude/skills/stages']
 const LEDGER = 'docs/rules.md'
+/* Набор или сайт. Стартовый образец красок лежит только у набора: сайту
+   ставщик кладёт его уже как `styles/palette.json`, а `templates/` не везёт.
+   README набора держит таблицы фактов и «что за чем» (И217, И219); README
+   сайта — слово его владельца (create-next-app кладёт свой), и правила
+   README набора на него не распространяются (И260). */
+const KIT = has('templates/palette-starter.json')
+const KIT_README = KIT && has('README.md')
 /* Где живут собранные таблицы семей: файл → ключи GEN. Вёрстка и
    отрисованная — в справочнике craft; код — в законе code: справочников у
    него нет, а тринадцать строк в чтение помещаются. */
 const TABLES = {
-  '.claude/skills/craft/references/checks.md': ['css', 'craft'],
+  /* Дизайн по файлу (И271) — там же, где вёрстка: механическая половина
+     impeccable, у каждой семьи строка источника. Правила его детектора по
+     отрисованной странице (И310) — рядом, из того же реестра. */
+  '.claude/skills/craft/references/checks.md': ['css', 'craft', 'design', 'detect', 'detectFates'],
   '.claude/skills/code/SKILL.md': ['code'],
   /* Факты о палитре — сколько красок называет заказчик, сколько семей,
      сколько выпускается, какие наборы и команды — собираются из кода в
-     закон palette и в README набора (И219). README у проекта нет — там
+     закон palette и в README набора (И219). У сайта README — свой, там
      таблица только в законе. */
   '.claude/skills/palette/SKILL.md': ['palette'],
   '.claude/skills/scale/SKILL.md': ['scale'],
@@ -85,7 +97,7 @@ const TABLES = {
   '.claude/skills/craft/references/layout.md': ['layout'],
   '.claude/skills/craft/references/shape.md': ['shape'],
   '.claude/skills/craft/references/states.md': ['states'],
-  ...(existsSync(join(ROOT, 'README.md')) ? { 'README.md': ['palette', 'scale'] } : {}),
+  ...(KIT_README ? { 'README.md': ['palette', 'scale'] } : {}),
 }
 /* Три файла, в которых записаны запреты вёрстки словами: проект, набор,
    скилл. Число обязано быть одним — иначе новый проект получает восемь
@@ -116,7 +128,8 @@ const skillText = skillFiles.map((f) => read(f)).join('\n')
    в обратных кавычках: половина их имён — обычные английские слова
    (`name`, `focus`), и голое вхождение ничего не доказывает. */
 for (const [kind, fams, quoted] of [['вёрстки', CSS_FAMILIES, false], ['кода', CODE_FAMILIES, false],
-                                    ['отрисованной страницы', CRAFT_FAMILIES, true]]) {
+                                    ['отрисованной страницы', CRAFT_FAMILIES, true], ['дизайна', DESIGN_FAMILIES, true],
+                                    ['детектора impeccable', DETECT_FAMILIES, true]]) {
   for (const fam of fams) {
     const hit = quoted ? skillText.includes('`' + fam + '`') : skillText.includes(fam)
     if (!hit) bad.push(`семья ${kind} «${fam}» не описана ни в одном скилле — проверка есть, правила нет`)
@@ -322,7 +335,7 @@ const layoutFacts = () => {
   return rows.join('\n')
 }
 /* Форма — из кода (И228): радиусы каждого набора, лестница, линия и кольцо,
-   роли тени из tokens.css, кто читает полный круг. */
+   роли тени из styles/look.css (вид сайта, И385), кто читает полный круг. */
 const shapeFacts = () => {
   const rows = ['| Факт | Значение | Откуда |', '| --- | --- | --- |']
   if (has('styles/scale.json')) {
@@ -332,9 +345,9 @@ const shapeFacts = () => {
   }
   rows.push(`| лестница радиусов | ${THR.SHAPE.radii.join(', ')} (M3 ∪ Carbon) | \`SHAPE.radii\` в \`tools/thresholds.mjs\` |`)
   rows.push(`| линия и кольцо | линия ${THR.SHAPE.line.hair}px, сильная ${THR.SHAPE.line.strong}px; кольцо ${THR.SHAPE.ring.width}px с отступом ${THR.SHAPE.ring.offset}px — не текут | \`SHAPE.line\`, \`SHAPE.ring\`; \`--line-w\`, \`--ring-w\`, \`--ring-off\` в \`styles/scale.css\` |`)
-  const tokens = has('styles/tokens.css') ? read('styles/tokens.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
-  const shadows = [...new Set([...tokens.matchAll(/(?:^|[;{])\s*(--sh-[a-z]+)\s*:/g)].map((m) => m[1]))].filter((n) => !/^--sh-(ring|near|far)$/.test(n))
-  rows.push(`| роли тени | ${shadows.map((n) => `\`${n}\``).join(', ')} — по работе; ингредиенты \`--sh-ring\`, \`--sh-near\`, \`--sh-far-N\` несут light-dark() | \`styles/tokens.css\` |`)
+  const look = has('styles/look.css') ? read('styles/look.css').replace(/\/\*[\s\S]*?\*\//g, '') : ''
+  const shadows = [...new Set([...look.matchAll(/(?:^|[;{])\s*(--sh-[a-z]+)\s*:/g)].map((m) => m[1]))]
+  rows.push(`| роли тени | ${shadows.map((n) => `\`${n}\``).join(', ')} — по работе, одной записью на корне, палубе и листе; ингредиенты \`--sh-ring\`, \`--sh-near\`, \`--sh-far-N\`, \`--sh-inset\` несут light-dark() (\`styles/tokens.css\`) | \`styles/look.css\` |`)
   const files = ['styles/base.css', 'styles/primitives.module.css'].filter(has)
   const readers = (name) => files.flatMap((f) => (read(f).match(new RegExp(`var\\(${name}[,)]`, 'g')) ?? []).map(() => f))
   const pop = readers('--r-pop'), ctrl = readers('--r-ctrl')
@@ -358,6 +371,14 @@ const statesFacts = () => {
 }
 const GEN = {
   css: table(CSS_FAMILIES, CSS_LABELS, 'Что сторожит'),
+  design: ['| Семья | Что ловит | Откуда в impeccable |', '| --- | --- | --- |',
+    ...DESIGN_FAMILIES.map((k) => `| \`${k}\` | ${DESIGN_LABELS[k] ?? '—'} | ${DESIGN_SOURCES[k] ?? '—'} |`)].join('\n'),
+  /* Детектор impeccable по странице (И310): семьи набора — и судьба каждого
+     правила сборки, чтобы по имени правила из отчёта найти, куда оно ушло. */
+  detect: ['| Семья | Что ловит | Правила детектора и порог |', '| --- | --- | --- |',
+    ...DETECT_FAMILIES.map((k) => `| \`${k}\` | ${DETECT_LABELS[k] ?? '—'} | ${DETECT_SOURCES[k] ?? '—'} |`)].join('\n'),
+  detectFates: ['| Правило impeccable | Имя у автора | Судьба |', '| --- | --- | --- |',
+    ...DETECT_RULES.map((r) => `| \`${r.id}\` | ${r.name} | ${fateOf(r.id)} |`)].join('\n'),
   craft: table(CRAFT_FAMILIES, CRAFT_LABELS, 'Что ловит'),
   code: table(CODE_FAMILIES, CODE_LABELS, 'Что ловит'),
   palette: paletteFacts(),
@@ -434,7 +455,7 @@ for (const dir of SKILL_DIRS) {
   const heads = [...read(f).matchAll(/^## (.+)$/gm)].map((m) => m[1])
   if (!heads.some((h) => /порядок|шаг/i.test(h))) bad.push(`${f}: нет раздела о порядке работы — что за чем идёт`)
 }
-if (has('README.md') && !/^## .*что за чем/im.test(read('README.md'))) {
+if (KIT_README && !/^## .*что за чем/im.test(read('README.md'))) {
   bad.push('README.md: нет раздела «что за чем» — набор читается как склад, а не как порядок')
 }
 
@@ -481,7 +502,7 @@ for (const dir of SKILL_DIRS) {
    трогаем. */
 const NUMBER_WORDS = { две: 2, два: 2, три: 3, трёх: 3, трех: 3, четыре: 4, четырёх: 4, пять: 5, пяти: 5, шесть: 6, шести: 6, семь: 7, семи: 7, восемь: 8, восьми: 8 }
 if (HAND_COUNT !== null) {
-  const prose = [...skillFiles, ...(has('README.md') ? ['README.md'] : [])]
+  const prose = [...skillFiles, ...(KIT_README ? ['README.md'] : [])]
   for (const f of prose) {
     for (const m of read(f).matchAll(/(две|два|три|трёх|трех|четыре|четырёх|пять|пяти|шесть|шести|семь|семи|восемь|восьми)\s+крас(?:ки|ок|ками)\s+на\s+тему/gi)) {
       const n = NUMBER_WORDS[m[1].toLowerCase()]
@@ -506,7 +527,7 @@ if (process.argv.includes('--list')) {
   process.exit(0)
 }
 const laws = SKILL_DIRS.filter((d) => has(`${d}/SKILL.md`)).map((d) => `${d.split('/').pop()} ${read(`${d}/SKILL.md`).split('\n').length}`).join(' · ')
-console.log(`· семей вёрстки: ${CSS_FAMILIES.length}, кода: ${CODE_FAMILIES.length}, отрисованной: ${CRAFT_FAMILIES.length}, проверок: ${CHECKS.length}, правил в реестре: ${numbered.length}, законы (строк из ${CEILING}): ${laws}, справочных файлов: ${skillFiles.length - SKILL_DIRS.filter((d) => has(`${d}/SKILL.md`)).length}`)
+console.log(`· семей вёрстки: ${CSS_FAMILIES.length}, кода: ${CODE_FAMILIES.length}, отрисованной: ${CRAFT_FAMILIES.length}, дизайна: ${DESIGN_FAMILIES.length}, детектора impeccable: ${DETECT_FAMILIES.length} (правил сборки ${DETECT_RULES.length}), проверок: ${CHECKS.length}, правил в реестре: ${numbered.length}, законы (строк из ${CEILING}): ${laws}, справочных файлов: ${skillFiles.length - SKILL_DIRS.filter((d) => has(`${d}/SKILL.md`)).length}`)
 
 if (process.argv.includes('--update')) {
   writeFileSync(BASE, JSON.stringify({ drift: bad.length }, null, 2) + '\n')

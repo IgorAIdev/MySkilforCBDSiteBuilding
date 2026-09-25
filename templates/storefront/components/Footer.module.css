@@ -1,0 +1,49 @@
+/* Подвал — отдельная полоса во всю ширину окна: пол палубы (`data-ground=
+   "deck"`, styles/base.css), и роли внутри переодеваются сами — светлые
+   чернила, тихая краска, ссылки. Выбран по замеру «Латуни на угле»: текст
+   палубы 16.1 : 1 в светлой теме и 7.6 : 1 в тёмной, приглушённый — 10.2 и
+   5.4 : 1 (порог 4.5); поверхность прежнего подвала отличалась от страницы
+   на 1.27 : 1 — полосой её не прочесть.
+
+   Коробка внутри — лист полосы (`sheet`: прямой ребёнок пола), но линия
+   текста у полосы во всю ширину — линия СТРАНИЦЫ, а не своё поле: столбцы
+   подвала стоят на той же вертикали, что текст и карточки над ним. Поэтому
+   поле листа объявлено линией страницы, посчитанной здесь, на полосе, где
+   она ещё не обнулена листом. Воздух сверху и снизу внутри полосы — ступень
+   между полками; до полосы — между разделами. */
+.foot{
+  background:var(--page-deck);
+  margin-block-start:var(--air-page);
+  --sheet-pad:var(--page-line);
+  --sheet-air:var(--air-band)
+}
+/* Столбцы — группы: между ними воздух блока, внутри столбца (подпись и её
+   строки) — воздух строки. Одним шагом на оба случая группы на телефоне
+   сливались в один список (разбор 24.09.2026, S5). Пол ячейки — чтобы при
+   воздухе блока на 375 оставалось два столбца, а не один. */
+.cols{--cols:4;--cell-min:144px;--cols-min:1;--grid-gap:var(--air-block)}
+.col{--stack:var(--air-row)}
+/* `margin:0` стоял позже примитива `stack` той же силы и гасил его ритм:
+   «Ajutor» лежал на своём списке вплотную, а «Companie» над адресом — с
+   воздухом (снимок приёмки). Верхнее поле — умолчанием нулевой силы: вне
+   столбца (выбор языка) оно ноль, в столбце его ставит `stack`. */
+.list{list-style:none;padding:0;margin-inline:0;margin-block-end:0}
+:where(.list){margin-block-start:0}
+/* Цель ссылки подвала — квадрат, а не только высота: «Retur» под пальцем
+   выходило 38×44 (check:craft, target и coarse). Одна запись на обе полосы —
+   подвал магазина и подвал кассы: у кассы стояла своя, с одной высотой, и
+   то же «Retur» там выходило 32×44 на 390 (финальный проход, И380). */
+.list a,.addr a,.legal a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target)}
+.list a[aria-current='true']{color:var(--ink);font-weight:600}
+.addr{font-style:normal;color:var(--ink-soft);line-height:var(--body-lead)}
+
+/* Подвал кассы — строка на полу страницы под волоском: помощь, закон,
+   данные — кеглем сноски, группами через воздух блока, внутри группы —
+   зазор ряда. Цель у ссылки — та же запись, что у ссылок подвала (выше). */
+.legal{
+  margin-block-start:var(--air-page);padding-block:var(--air-group);border-block-start:var(--line-w) solid var(--rule);
+  font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)
+}
+.legalRow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-row) var(--air-block)}
+.legalLinks{display:flex;flex-wrap:wrap;column-gap:var(--gap-row);list-style:none;padding:0;margin:0}
+.legal a{color:var(--ink);text-decoration-line:underline;text-underline-offset:.2em}

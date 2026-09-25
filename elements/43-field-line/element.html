@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>43 · Поле контуром</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 43 — «Поле контуром». Источник — пять источников от заказчика 24.09.2026: простое серое поле, поиск товаров с лупой справа, поле с вдавленной тенью, почта с фиолетовым кольцом, имя пользователя со значком слева — после разбора одно (source.css, source-2.html, source-3.css, source-4.html, source-5.html).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: вдавленная внутренняя тень и её выход наружу при фокусе; тени и сжатие 0.95 при нажатии — поле не нажимается; утолщение кромки 1.5 → 2 px под рукой; свои серые, индиго, фиолетовые и синие краски; угол 3, 5 и 12 px — угол органа набора; фиолетовая подсказка в поле — подсказка краской подписи; значок «человек с плюсом» — в листе набора человек без плюса.
+  Приведено к единой форме: пол страницы, кромка краской края (--edge) — видна на 3 : 1; лупа — из листа набора, у конца поля; вариант пятого источника — знак человека у начала поля; рост 40; фокус — кольцо набора, кромка краской кольца; знак — краской марки.
+  Наведение: кромка — краской чернил. Нажатия нет — поле; фокус: кольцо набора, кромка краской кольца, лупа — краской марки.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="column"><label class="field" data-voice="line"><input type="text" placeholder="Your name" aria-label="Name"></label><label class="field" data-voice="line"><input type="search" placeholder="Search for products" aria-label="Search for products"><svg data-sign="search"></svg></label><label class="field" data-voice="line"><svg data-sign="user"></svg><input type="text" placeholder="Username" aria-label="Username"></label></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="field" data-voice="line"><input type="search" placeholder="Search for products" tabindex="-1" readonly><svg data-sign="search"></svg></span><figcaption>покой</figcaption></figure>
+    <figure><span class="field" data-voice="line" data-state="hover"><input type="search" placeholder="Search for products" tabindex="-1" readonly><svg data-sign="search"></svg></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="field" data-voice="line" data-state="focus"><input type="search" placeholder="Search for products" tabindex="-1" readonly><svg data-sign="search"></svg></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="field" data-voice="line"><input type="search" placeholder="Search for products" tabindex="-1" readonly value="hemp oil"><svg data-sign="search"></svg></span><figcaption>заполнено</figcaption></figure>
+  </div>
+</body>
+</html>

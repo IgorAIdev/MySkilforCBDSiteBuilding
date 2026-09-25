@@ -1,0 +1,915 @@
+/* ═══ ОСНОВА ЭЛЕМЕНТОВ — одна на всю папку (И337) ═══════════════════════════
+ *
+ *  Слово заказчика 24.09.2026: «все кнопки и всё остальное оптимизируй,
+ *  приводи к единой форме». Элемент не несёт своих чисел и красок: рост,
+ *  надпись, поле, значок, штрих, угол, кольцо и состояния — отсюда; краски —
+ *  роли палитры набора (`../palettes.css` + `../../styles/tokens.css`), поэтому
+ *  смена палитры и темы перекрашивает все элементы разом, как на сайте.
+ *
+ *  Числа — набора, чтобы выбранное встраивалось один к одному:
+ *    рост        32 / 40 / 48, под пальцем 44 / 48 / 56     (--ctrl-h-*)
+ *    надпись     1rem, 600, как в предложении; заглавные с разрядкой .05em
+ *    поле        .45 высоты, просвет до значка .2            (btn.module.css)
+ *    значок      при слове .42 высоты, один — .5; штрих 1.4  (base.css набора)
+ *    угол        из Shape (--r-ctrl); пилюля — полный круг
+ *    кольцо      2, отступ 3, краска --ring                  (И273)
+ *    наведение   поверх заливки 5 % краски надписи           (--state-hover)
+ *    нажатие     9 %, 0.97 и на пиксель ниже                 (--state-press)
+ *
+ *  Атрибуты элемента — всё, чем элементы отличаются:
+ *    data-voice  quiet | loud | ink | ghost | bare | line | paper
+ *                                       заливка: тон, марка, чернила; без фона — подложка под рукой,
+ *                                       без фона — краска под рукой, контур
+ *    data-hover  loud                   под рукой встаёт в голос марки (переворот — сразу)
+ *    data-fill   gradient               градиент марки: от нажатой краски к обычной
+ *                glass                  стекло марки: краска долей (--pop-glass), под ней размыто то, что
+ *                                       под органом (--frost-*), блик кромки волоском (--pop-rim)
+ *    .backdrop                          снимок под органом на стенде: показать, что стекло просвечивает
+ *    data-frame                         тонкая рамка марки вокруг
+ *    data-case   caps                   заглавные с разрядкой
+ *    data-size   sm | lg                рост; без него — средний
+ *    data-shape  pill                   полный круг; без него — угол из Shape
+ *    data-icon                          значок без слова: квадрат, с пилюлей — круг
+ *    data-motion turn | slide | run     значок: встаёт на место · едет вперёд · разбегается
+ *                grow | tilt | lift | spin          подрастает · наклоняется · приподнимается · пол-оборота
+ *    .tray                              лоток: несколько органов в одном поле тона
+ *    data-dir    back | up | down       направление стрелки — поворот того же рисунка
+ *    .ring .tile .dash .glyph .trail    значок в кружке · в плитке · черта перед словом · обёртка поворота · три стрелки
+ *    .disc                              круг пола со знаком товара (фишка категории)
+ *    .lead                              кружок или плитка у начала, а не у конца
+ *    .appear                            знак после слова, появляется под рукой
+ *    data-split + .count                кнопка из двух частей: действие и его счёт
+ *    .bars + aria-expanded | data-open  полоски меню; открыто — крест
+ *    data-bars even · data-morph arrow  полоски равной длины · открыто — стрелка «→» (с data-dir down — «↓»)
+ *    .swap + aria-pressed | data-on     два знака в одной клетке; включено — второй
+ *    data-fill-on + aria-pressed        знак заливается маркой, когда включено
+ *    data-on-voice loud                 включённый орган встаёт в голос марки
+ *    role=switch + .knob, aria-checked  ползунок: дорожка и ручка; data-track theme — дорожка по теме,
+ *                                       data-knob over — ручка крупнее дорожки
+ *    .card .sheet .mark .frame          карточка · окно · знак в круге · кадр под снимок;
+ *                                       data-tone ok | bad — сообщение краской смысла, data-layout row — строкой
+ *    .tip                               подсказка над знаком: под рукой и на фокусе
+ *    .tray data-voice line              лоток контуром — волосок вместо тона
+ *    .card data-link                    карточка-ссылка: под рукой — черта марки сверху
+ *    .field + input                     поле ввода; data-voice line — контуром, data-edge pop —
+ *                                       кромка маркой, data-shape pill; .el data-clear — «очистить»
+ *    .join                              поле и кнопка встык
+ *    .entry .label .hint                поле с подписью над ним и пояснением под ним
+ *    .field data-float + .float         подпись на кромке; data-lines + textarea — поле сообщения
+ *    .find data-open                    поиск с подсказками: меню под полем на фокусе
+ *    .tabs + label.el > input[radio]    выбор одного из нескольких; data-pick tone | tint | mark | sheet,
+ *                                       data-join — встык, .badge — счётчик, .tabbed + .panel — вкладки-листы
+ *    .choices .radio                    радиокнопки: кружок с точкой и подпись
+ *    .el data-row aria-current          текущий пункт меню: тон и черта марки
+ *    .card data-form · .or              форма: поля и действия на листе · разделитель «или»
+ *    aria-disabled | data-state off     выключенный орган: прозрачность --state-off
+ *    .split .options .link .tick        формы: два поля в строку · способы оплаты · ссылка строкой · флажок
+ *    .cost .ticks · .mark data-size lg  цена крупно · список с галкой · знак марки крупно
+ *    data-spread                        слово у начала, знак у конца
+ *    .card data-tone tint               лист тоном товара; .frame data-cutout — снимок без фона до кромки
+ *    .card data-shelf                   карточка товара полки: кадр, .stack, .row с ценой и «в корзину»;
+ *                                       одежда — data-card у предка: outlined | framed | bare | toned; data-view list — строкой;
+ *                                       data-buy inline — кнопка ростом поменьше рядом с ценой
+ *    .say + data-on · .qty · data-add   две надписи в одной клетке · число плиткой · «в корзину» на стенде
+ *    .tag data-tone sale | warn         плашка скидки и наличия на кадре
+ *    .stand data-stand · .knobs > .ctl  стенд с ручками вида: у входа data-attr — атрибут, data-var — переменная
+ *    data-state  hover | press | focus  состояние застывшим — для показа рядом
+ *
+ *  Значки — `<svg data-sign="имя">`: рисунок вставляет ../stage.js из листа
+ *  набора, прямо в страницу — поэтому движение достаёт до линии и головы.
+ */
+
+:root{
+  --h-sm:32px; --h-md:40px; --h-lg:48px;
+  --fs:1rem; --weight:600; --caps:.05em;
+  --line:1px; --frame-w:2px; --ring-w:2px; --ring-off:3px;
+  --state-hover:5%; --state-press:9%;
+  --hover-t:200ms; --press-t:120ms; --open-t:280ms; --ease:cubic-bezier(.32,.72,0,1);
+  --nudge:3px;
+  --face:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (pointer:coarse){ :root{ --h-sm:44px; --h-md:48px; --h-lg:56px } }
+
+svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── элемент ─────────────────────────────────────────────────────────── */
+.el{
+  --h:var(--h-md);
+  --r:var(--r-ctrl, 8px);
+  --bg:var(--quiet);
+  --fg:var(--ink);
+  --paint:var(--bg);
+  --veil:transparent;
+  --img:none;
+  position:relative;box-sizing:border-box;
+  display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--h) * .2);
+  block-size:var(--h);min-inline-size:var(--h);padding-inline:calc(var(--h) * .45);
+  border:0;border-radius:var(--r);
+  background-color:var(--paint);
+  background-image:linear-gradient(var(--veil), var(--veil)), var(--img);
+  color:var(--fg);
+  font:inherit;font-family:var(--face);font-size:var(--fs);font-weight:var(--weight);line-height:1.2;
+  cursor:pointer;user-select:none;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transition:background-color var(--hover-t) var(--ease), color var(--hover-t) var(--ease), box-shadow var(--hover-t) var(--ease), transform var(--press-t) var(--ease)
+}
+.el[data-voice='loud']{--bg:var(--pop);--fg:var(--on-pop)}
+.el[data-voice='ink']{--bg:var(--ink);--fg:var(--surface)}
+.el:is([data-voice='ghost'], [data-voice='bare']){--bg:transparent}
+.el[data-voice='line']{--bg:transparent;box-shadow:inset 0 0 0 var(--line) var(--edge)}
+/* Пол страницы — орган на тонированном листе: светлая пилюля на тоне. */
+.el[data-voice='paper']{--bg:var(--surface)}
+/* Слово у начала, знак у конца — пилюля во всю ширину листа. */
+.el[data-spread]{justify-content:space-between}
+.el[data-fill='gradient']{--img:linear-gradient(30deg, var(--pop-press), var(--pop))}
+/* Стекло (элемент 66, И427): заливка — краска строителя палитры долей, на
+   которой надпись держит 4.5 : 1 на каждом полу; размыто то, что под
+   органом, а не он сам; блик — волосок внутри, снаружи он лёг бы на кольцо. */
+.el[data-fill='glass']{--bg:var(--pop-glass);-webkit-backdrop-filter:blur(var(--frost-blur)) saturate(var(--frost-sat));backdrop-filter:blur(var(--frost-blur)) saturate(var(--frost-sat));box-shadow:inset 0 0 0 var(--line) var(--pop-rim)}
+.el[data-frame]{box-shadow:0 0 0 var(--frame-w) var(--pop-tint)}
+.el[data-case='caps']{text-transform:uppercase;letter-spacing:var(--caps)}
+.el[data-size='sm']{--h:var(--h-sm)}
+.el[data-size='lg']{--h:var(--h-lg)}
+.el[data-shape='pill']{--r:999px}
+
+/* ── значок ──────────────────────────────────────────────────────────── */
+.el svg{inline-size:calc(var(--h) * .42);block-size:calc(var(--h) * .42);flex:none}
+.el[data-icon]{inline-size:var(--h);padding-inline:0}
+.el[data-icon] svg{inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5)}
+.el .glyph{display:grid;place-items:center}
+.el[data-dir='back'] .glyph{rotate:180deg}
+.el[data-dir='up'] .glyph{rotate:-90deg}
+.el[data-dir='down'] .glyph{rotate:90deg}
+
+/* Значок у конца: в тонком кружке или в плитке краски надписи. Кружок и
+   плитка — .75 высоты, стоят концентрично углу, поле у конца — остаток. */
+.el:has(.ring, .tile, .disc){padding-inline-end:calc(var(--h) * .125)}
+.el :is(.ring, .tile, .disc){
+  display:grid;place-items:center;flex:none;
+  inline-size:calc(var(--h) * .75);block-size:calc(var(--h) * .75);
+  border-radius:max(2px, calc(var(--r) - var(--h) * .125))
+}
+.el:has(> .lead){padding-inline:calc(var(--h) * .125) calc(var(--h) * .45)}
+.el .ring{box-shadow:inset 0 0 0 var(--line) currentColor}
+.el .tile{background:var(--fg);color:var(--bg)}
+/* Круг пола со знаком товара у начала — фишка категории; знак чернилами,
+   на любой заливке пилюли. */
+.el .disc{background:var(--surface);color:var(--ink)}
+/* Тон полупрозрачен (8 % чернил): знак краской тона на плитке чернил пропал
+   бы. У тона, без фона и контура знак в плитке — краской пола. */
+.el:is(:not([data-voice]), [data-voice='ghost'], [data-voice='bare'], [data-voice='line']) .tile{color:var(--surface)}
+
+/* Черта перед словом — краской надписи, толщиной линии. */
+.el .dash{inline-size:calc(var(--h) * .6);block-size:var(--line);background:currentColor;flex:none}
+
+/* ── движение значка ─────────────────────────────────────────────────── */
+.el[data-motion='turn'] svg{rotate:var(--turn, -45deg);transition:rotate var(--hover-t) var(--ease)}
+.el[data-motion='slide'] svg{translate:var(--go, 0px) 0;transition:translate var(--hover-t) var(--ease)}
+/* Разбег: линия короче на пять клеток рисунка, голова отстаёт на столько же;
+   под рукой линия дотягивается, голова едет вперёд. Штрих у стрелки в своих
+   клетках — длина пунктира считается в них, а не в пикселях экрана. */
+.el[data-motion='run'] svg :is(path){vector-effect:none;stroke-width:calc(1.4 * 24 / 20)}
+.el[data-motion='run'] svg path:first-child{stroke-dasharray:14;stroke-dashoffset:var(--run, 5);transition:stroke-dashoffset var(--hover-t) var(--ease)}
+.el[data-motion='run'] svg path:last-child{translate:calc(var(--run, 5) * -1px) 0;transition:translate var(--hover-t) var(--ease)}
+
+/* След стрелок: одна стрелка в покое; под рукой перед ней дорисовываются ещё
+   две краской надписи, и кнопка чуть расширяется на их место. */
+.el .trail{display:inline-flex;align-items:center}
+.el .trail svg:not(:last-child){
+  inline-size:var(--trail-w, 0px);margin-inline-end:var(--trail-m, 0px);opacity:var(--trail-o, 0);
+  transition:inline-size var(--hover-t) var(--ease), margin var(--hover-t) var(--ease), opacity var(--hover-t) var(--ease)
+}
+/* Появляется под рукой: знак после слова, в покое его нет и места он не
+   держит — просвет до него снят; под рукой слово отходит, знак проявляется. */
+.el .appear{
+  inline-size:var(--trail-w, 0px);margin-inline-start:var(--appear-m, calc(var(--h) * -.2));opacity:var(--trail-o, 0);
+  transition:inline-size var(--hover-t) var(--ease), margin var(--hover-t) var(--ease), opacity var(--hover-t) var(--ease)
+}
+
+/* Кнопка из двух частей: действие и его счёт. Счёт — на полу, краской марки,
+   с уголком-указателем к действию; вся кнопка обведена волоском марки, иначе
+   белый счёт на белом полу теряет край. */
+.el[data-split]{padding-inline-end:0;overflow:hidden;box-shadow:inset 0 0 0 var(--line) var(--bg)}
+.el .count{
+  position:relative;align-self:stretch;display:grid;place-items:center;
+  margin-inline-start:calc(var(--h) * .25);padding-inline:calc(var(--h) * .35);
+  background:var(--surface);color:var(--pop-ink);font-variant-numeric:tabular-nums;
+  box-shadow:inset 0 0 0 var(--line) var(--bg)
+}
+.el .count::before{content:'';position:absolute;inset-inline-start:calc(var(--h) * -.1);inline-size:calc(var(--h) * .2);block-size:calc(var(--h) * .2);background:var(--surface);rotate:45deg}
+/* Полоски меню: три черты разной длины от левого края; открыто
+   (`aria-expanded="true"`, застывшим — `data-open`) — складываются в крест:
+   крайние встают в середину и поворачиваются, средняя уходит. Черта —
+   толщиной штриха значков, краской надписи; раскрытие — за `--open-t`. */
+.el .bars{position:relative;flex:none;inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5)}
+.el .bars i{
+  position:absolute;inset-inline-start:0;block-size:1.4px;border-radius:1px;background:currentColor;translate:0 -50%;
+  transition:top var(--open-t) var(--ease), inset-inline-start var(--open-t) var(--ease), inline-size var(--open-t) var(--ease), rotate var(--open-t) var(--ease), scale var(--open-t) var(--ease)
+}
+.el .bars i:nth-child(1){top:22%;inline-size:50%}
+.el .bars i:nth-child(2){top:50%;inline-size:75%}
+.el .bars i:nth-child(3){top:78%;inline-size:100%}
+.el[data-bars='even'] .bars i{inline-size:100%}
+.el:is([aria-expanded='true'], [data-open]) .bars i:nth-child(1){top:50%;inline-size:100%;rotate:45deg}
+.el:is([aria-expanded='true'], [data-open]) .bars i:nth-child(2){scale:0 1}
+.el:is([aria-expanded='true'], [data-open]) .bars i:nth-child(3){top:50%;rotate:-45deg}
+/* В стрелку: крайние укорачиваются к правому краю и встают головой, средняя
+   остаётся древком — «→», а не крест. */
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:is(:nth-child(1), :nth-child(3)){top:50%;inset-inline-start:50%;inline-size:50%;transform-origin:right center}
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:nth-child(1){rotate:40deg}
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:nth-child(2){scale:1}
+.el[data-morph='arrow']:is([aria-expanded='true'], [data-open]) .bars i:nth-child(3){rotate:-40deg}
+/* Стрелка вниз — тот же рисунок, повёрнутый целиком при открытии. */
+.el .bars{transition:rotate var(--open-t) var(--ease)}
+.el[data-morph='arrow'][data-dir='down']:is([aria-expanded='true'], [data-open]) .bars{rotate:90deg}
+
+/* Смена знака: два знака в одной клетке, включено (`aria-pressed="true"`,
+   застывшим — `data-on`) — первый уходит, второй приходит; оба из листа. */
+.el .swap{display:grid;flex:none}
+.el .swap svg{grid-area:1 / 1;transition:scale var(--open-t) var(--ease), opacity var(--open-t) var(--ease)}
+.el .swap svg:last-child{scale:0;opacity:0}
+.el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:first-child{scale:0;opacity:0}
+.el:is([aria-pressed='true'], [aria-checked='true'], [data-on]) .swap svg:last-child{scale:1;opacity:1}
+
+/* Включённый орган встаёт в голос марки: заливка марки, знак краской на ней. */
+.el[data-on-voice='loud']:is([aria-pressed='true'], [data-on]){--bg:var(--pop);--fg:var(--on-pop)}
+
+/* Знак заливается, когда включено: контур в покое, фигура краской марки —
+   сердце «в избранное». Отвечает краской, не ростом. */
+.el[data-fill-on]:is([aria-pressed='true'], [data-on]){--fg:var(--pop)}
+.el[data-fill-on]:is([aria-pressed='true'], [data-on]) svg{fill:currentColor}
+
+/* ── ползунок ────────────────────────────────────────────────────────────
+   Дорожка — сам орган (`role="switch"`), ручка — круг на ней; включено
+   (`aria-checked="true"`, застывшим — `data-on`) — ручка у другого края,
+   дорожка краской марки. Ручка едет за `--open-t`. */
+.el[role='switch']{
+  --knob:calc(var(--h) * .75);--knob-bg:var(--surface);--knob-fg:var(--ink);
+  --bg:var(--ink);--fg:var(--surface);
+  inline-size:calc(var(--h) * 1.75);padding-inline:calc(var(--h) * .125);justify-content:flex-start
+}
+.el[role='switch'] .knob{
+  position:relative;display:grid;place-items:center;flex:none;
+  inline-size:var(--knob);block-size:var(--knob);border-radius:max(2px, calc(var(--r) - var(--h) * .125));
+  background:var(--knob-bg);color:var(--knob-fg);
+  translate:var(--knob-x, 0px) 0;transition:translate var(--open-t) var(--ease)
+}
+.el[role='switch'] .knob svg{inline-size:calc(var(--knob) * .55);block-size:calc(var(--knob) * .55)}
+.el[role='switch']:is([aria-checked='true'], [data-on]){--bg:var(--pop);--fg:var(--on-pop);--knob-x:calc(var(--h) * .75)}
+/* Дорожка по теме: выключено — светлая с солнцем, включено — тёмная с луной. */
+.el[role='switch'][data-track='theme']{--bg:var(--quiet);--fg:var(--ink)}
+.el[role='switch'][data-track='theme']:is([aria-checked='true'], [data-on]){--bg:var(--ink);--fg:var(--surface)}
+/* Ручка крупнее дорожки: тонкая дорожка, круглая ручка краской марки поверх. */
+.el[role='switch'][data-knob='over']{--knob:calc(var(--h) * .8);--knob-bg:var(--pop);--knob-fg:var(--on-pop);--bg:var(--quiet);--fg:var(--ink);inline-size:calc(var(--h) * 1.2);padding-inline:0;background:none}
+.el[role='switch'][data-knob='over']::before{content:'';position:absolute;inset-inline:0;inset-block:calc(var(--h) * .25);border-radius:999px;background:var(--paint);transition:background-color var(--hover-t) var(--ease)}
+.el[role='switch'][data-knob='over'] .knob{border-radius:999px}
+.el[role='switch'][data-knob='over']:is([aria-checked='true'], [data-on]){--bg:var(--pop-tint);--fg:var(--ink);--knob-x:calc(var(--h) * .4)}
+.el[data-motion='grow'] svg{scale:var(--grow, 1);transition:scale var(--hover-t) var(--ease)}
+.el[data-motion='tilt'] svg{rotate:var(--tilt, 0deg);transition:rotate var(--hover-t) var(--ease)}
+.el[data-motion='lift'] svg{translate:0 var(--lift, 0px);transition:translate var(--hover-t) var(--ease)}
+.el[data-motion='spin'] svg{rotate:var(--spin, 0deg);transition:rotate var(--hover-t) var(--ease)}
+
+/* Лоток: органы, говорящие об одном, в одном поле тона (controls.md,
+   «Лоток»); органы в нём — без своей заливки, подложка только под рукой. */
+.tray{display:inline-flex;align-items:center;gap:calc(var(--h-md) * .1);padding:calc(var(--h-md) * .1);border-radius:var(--r-ctrl, 8px);background:var(--quiet)}
+.tray[data-shape='pill']{border-radius:999px}
+
+/* ── состояния: живые и застывшие одним правилом ─────────────────────── */
+@media (hover:hover){
+  .el:hover{--paint:color-mix(in oklab, var(--bg), var(--fg) var(--state-hover));--veil:color-mix(in srgb, var(--fg) var(--state-hover), transparent);--turn:0deg;--go:var(--nudge);--run:0;--grow:1.1;--tilt:12deg;--lift:calc(var(--nudge) * -1);--spin:180deg;--trail-w:calc(var(--h) * .42);--trail-m:calc(var(--h) * -.18);--trail-o:1;--appear-m:0px}
+  .el[data-voice='bare']:hover{--paint:transparent;--veil:transparent;--fg:var(--pop-ink)}
+  .el[data-voice='line']:hover,
+  .el[data-hover='loud']:hover{--bg:var(--pop);--fg:var(--on-pop);--paint:var(--pop)}
+  .el[data-frame]:hover{box-shadow:0 0 0 var(--frame-w) var(--pop)}
+}
+.el[data-state='hover']{--paint:color-mix(in oklab, var(--bg), var(--fg) var(--state-hover));--veil:color-mix(in srgb, var(--fg) var(--state-hover), transparent);--turn:0deg;--go:var(--nudge);--run:0;--grow:1.1;--tilt:12deg;--lift:calc(var(--nudge) * -1);--spin:180deg;--trail-w:calc(var(--h) * .42);--trail-m:calc(var(--h) * -.18);--trail-o:1;--appear-m:0px}
+.el[data-voice='bare'][data-state='hover']{--paint:transparent;--veil:transparent;--fg:var(--pop-ink)}
+.el[data-voice='line'][data-state='hover'],
+.el[data-hover='loud'][data-state='hover']{--bg:var(--pop);--fg:var(--on-pop);--paint:var(--pop)}
+.el[data-frame][data-state='hover']{box-shadow:0 0 0 var(--frame-w) var(--pop)}
+
+.el:active,
+.el[data-state='press']{--paint:color-mix(in oklab, var(--bg), var(--fg) var(--state-press));--veil:color-mix(in srgb, var(--fg) var(--state-press), transparent);--turn:0deg;--go:var(--nudge);--run:0;--grow:1.1;--tilt:12deg;--lift:calc(var(--nudge) * -1);--spin:180deg;--trail-w:calc(var(--h) * .42);--trail-m:calc(var(--h) * -.18);--trail-o:1;--appear-m:0px;transform:translateY(1px) scale(.97)}
+.el[data-voice='bare']:is(:active, [data-state='press']){--paint:transparent;--veil:transparent;--fg:var(--pop-ink)}
+.el:is([data-voice='line'], [data-hover='loud']):is(:active, [data-state='press']){--bg:var(--pop);--fg:var(--on-pop);--paint:var(--pop-press)}
+
+/* Переворот пары «заливка и краска» — сразу, без середины: иначе на полпути
+   слово серое на сером (controls.md, «Переворот не анимируют»). */
+.el:is([data-voice='line'], [data-hover='loud']){transition:box-shadow var(--hover-t) var(--ease), transform var(--press-t) var(--ease)}
+
+.el:focus-visible,
+.el[data-state='focus']{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+@media (prefers-reduced-motion:reduce){
+  .el{transition:background-color var(--hover-t) var(--ease), color var(--hover-t) var(--ease)}
+  .el:is(:active, [data-state='press']){transform:none}
+  .el svg, .el svg *, .el .bars, .el .bars i, .el .knob{transition:none}
+}
+
+/* ── карточка, сообщение, окно ───────────────────────────────────────────
+   Несколько частей одного сообщения на своём листе. Размеры — роли шкал
+   набора (`../../styles/scale.css`): поле карточки, угол, ритм, кегли ролей
+   текста. Край — волосок краской `--rule`, не тень (И336: «лишнее типа тени
+   убирай сразу»). Своей ширины у карточки нет: её даёт место — на сайте
+   ячейка полки (примитив grid, --cell-min), на стенде — образец ниже. */
+.card{
+  box-sizing:border-box;display:flex;flex-direction:column;gap:var(--air-row, 16px);
+  inline-size:100%;padding:var(--pad-card, 1.25rem);
+  border-radius:var(--r-card, 16px);background:var(--surface);color:var(--ink);
+  box-shadow:inset 0 0 0 var(--line) var(--rule);font-family:var(--face)
+}
+.card[data-align='center']{align-items:center;text-align:center}
+.card .title{margin:0;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600);line-height:var(--h3-lead, 1.2)}
+.card .text{margin:0;font-size:var(--note-size, .875rem);line-height:var(--body-lead, 1.45);color:var(--ink-soft)}
+.card .text a{color:var(--pop-ink);text-decoration:underline;text-underline-offset:.15em}
+.card .label{font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.card .price{font-size:var(--h3-size, 1.25rem);font-weight:600}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row, 12px)}
+.card .actions{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px)}
+.card .chips{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px)}
+.card .stack{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4)}
+/* Знак и слова рядом: прижаты друг к другу, знак у первой строки. */
+.card .item{display:flex;align-items:flex-start;gap:var(--gap-row, 12px)}
+.card .item > .stack{flex:1;min-inline-size:0}
+/* Кадр под снимок: место занято заранее, пропорция с потолком от окна
+   (запрет 4), угол — концентричный полю карточки. */
+.card .frame{
+  display:grid;place-items:center;aspect-ratio:4 / 3;max-block-size:40svh;
+  border-radius:max(4px, calc(var(--r-card, 16px) - var(--pad-card, 1.25rem)));
+  background:var(--pop-tint);color:var(--pop-ink)
+}
+.card .frame svg{inline-size:3rem;block-size:3rem}
+/* Знак в круге тона — рисунок при сообщении, а не орган: не нажимается. */
+.mark{display:inline-grid;place-items:center;flex:none;inline-size:2.5rem;block-size:2.5rem;border-radius:999px;background:var(--quiet);color:var(--ink)}
+.mark svg{inline-size:1.25rem;block-size:1.25rem}
+/* Сообщение: краска семьи смысла — тон под всем, её чернила у знака и
+   заголовка (controls.md: «цветом отмечается событие»). Кнопки внутри —
+   без своей заливки, краской семьи. */
+.card:is([data-tone='ok'], [data-tone='bad']){box-shadow:none}
+.card[data-tone='ok']{--tone-ink:var(--ok);background:var(--ok-tint)}
+.card[data-tone='bad']{--tone-ink:var(--bad);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.card[data-tone] :is(.title, .mark){color:var(--tone-ink)}
+.card[data-tone] .mark{background:transparent}
+.card[data-tone='bad'] .mark{background:var(--bad-tint);border-radius:var(--r-ctrl, 8px)}
+.card[data-tone] .el[data-voice='ghost']{--fg:var(--tone-ink, var(--ink))}
+/* Строкой: знак, слова, выход — всплывающее сообщение. */
+.card[data-layout='row']{flex-direction:row;align-items:center;padding:var(--pad-inner, .75rem)}
+.card[data-layout='row'] > .stack{flex:1}
+/* Окно: шапка с именем и выходом, прокручиваемое тело, подвал с действиями.
+   Разделители — волоском; над подвалом — дымка: тело продолжается. На сайте
+   это `<dialog>` с `showModal()`, страницу гасит `::backdrop` (запрет 8). */
+.sheet{
+  box-sizing:border-box;display:flex;flex-direction:column;inline-size:min(480px, 100%);max-block-size:400px;
+  border-radius:var(--r-sheet, 20px);background:var(--surface);color:var(--ink);overflow:hidden;
+  box-shadow:inset 0 0 0 var(--line) var(--rule);font-family:var(--face)
+}
+.sheet > header, .sheet > footer{display:flex;align-items:center;gap:var(--gap-row, 12px);padding:var(--pad-inner, .75rem) var(--pad-card, 1.25rem)}
+.sheet > header{justify-content:space-between;box-shadow:inset 0 calc(var(--line) * -1) 0 var(--rule)}
+.sheet > header .title{display:flex;align-items:center;gap:.5rem;margin:0;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600)}
+.sheet > header .title svg{inline-size:1.5rem;block-size:1.5rem;color:var(--pop-ink)}
+.sheet .body{overflow-y:auto;padding:var(--pad-card, 1.25rem);font-size:var(--body-size, 1rem);line-height:var(--body-lead, 1.45)}
+.sheet .body > * + *{margin-block-start:1em}
+.sheet .body > *{margin-block-end:0}
+.sheet .body h3{margin-block-start:1.5em;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600);line-height:var(--h3-lead, 1.2)}
+.sheet .body ul{padding-inline-start:1.25em}
+.sheet > footer{position:relative;justify-content:flex-end;box-shadow:inset 0 var(--line) 0 var(--rule)}
+.sheet > footer::before{content:'';position:absolute;inset-inline:0;inset-block-end:100%;block-size:2.5rem;background:linear-gradient(to top, var(--surface), transparent);pointer-events:none}
+
+/* Меню действий: бумага всплывающего — лист с волоском, строки — органы во
+   всю ширину, группы разделены волоском. На сайте открывается `popover`
+   (запрет 8). */
+.menu{box-sizing:border-box;display:flex;flex-direction:column;gap:2px;inline-size:min(240px, 100%);padding:calc(var(--h-sm) * .15);border-radius:var(--r-card, 16px);background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.menu hr{margin:4px 0;border:0;block-size:var(--line);background:var(--rule)}
+.el[data-row]{inline-size:100%;justify-content:flex-start;padding-inline:calc(var(--h) * .3)}
+/* Шапка меню краской марки — кто вошёл; или просто имя списка. */
+.menu > header{display:flex;flex-direction:column;gap:6px;margin:calc(var(--h-sm) * -.15) calc(var(--h-sm) * -.15) 4px;padding:var(--pad-inner, .75rem);border-radius:var(--r-card, 16px) var(--r-card, 16px) 0 0;background:var(--pop);color:var(--on-pop)}
+.menu > header .label{font-size:var(--note-size, .875rem);text-transform:uppercase;letter-spacing:var(--caps)}
+.menu > header .who{display:flex;align-items:center;gap:8px;min-inline-size:0;font-weight:600}
+.menu > header .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.menu > header .mark{inline-size:2rem;block-size:2rem;background:var(--on-pop);color:var(--pop)}
+.menu > .name{margin:6px 8px 8px;font-size:var(--h3-size, 1.25rem);font-weight:var(--h3-weight, 600)}
+/* Знак-плитка в строке: квадрат тона марки или смысла, .75 высоты строки. */
+.el .mark{inline-size:calc(var(--h) * .75);block-size:calc(var(--h) * .75)}
+.mark[data-shape='tile']{border-radius:var(--r-ctrl, 8px);background:var(--pop-tint);color:var(--pop-ink)}
+.mark[data-tone='bad']{background:var(--bad-tint);color:var(--bad)}
+/* Шеврон у конца строки — краской подписи. */
+.el .end{margin-inline-start:auto;color:var(--ink-soft)}
+/* Строка с пояснением: название и строка мельче под ним. */
+.el .lines{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:start;min-inline-size:0}
+.el .lines small{font-size:var(--note-size, .875rem);font-weight:400;color:var(--ink-soft)}
+.el[data-size='xl']{--h:calc(var(--h-lg) * 1.25)}
+/* Метка: слово в пилюле тона смысла — «новое», «бета». */
+.tag{display:inline-flex;align-items:center;block-size:1.5rem;padding-inline:.6rem;border-radius:999px;background:var(--quiet);color:var(--ink-soft);font-size:var(--note-size, .875rem);font-weight:600}
+.tag[data-tone='ok']{background:var(--ok-tint);color:var(--ok)}
+.card .frame{position:relative}
+.card .frame > .tag{position:absolute;inset-block-start:.5rem;inset-inline-end:.5rem}
+/* Ползунок значения: дорожка тона, заполнение маркой до ручки, ручка —
+   круг пола с краем. Доля заполнения — `--fill`, её ставит ../stage.js. */
+.range{-webkit-appearance:none;appearance:none;inline-size:100%;block-size:var(--h-sm);margin:0;background:transparent;cursor:pointer;--fill:50%}
+.range::-webkit-slider-runnable-track{block-size:6px;border-radius:999px;background:linear-gradient(var(--pop), var(--pop)) 0 / var(--fill) 100% no-repeat, var(--quiet)}
+.range::-moz-range-track{block-size:6px;border-radius:999px;background:var(--quiet)}
+.range::-moz-range-progress{block-size:6px;border-radius:999px;background:var(--pop)}
+.range::-webkit-slider-thumb{-webkit-appearance:none;inline-size:calc(var(--h-sm) * .6);block-size:calc(var(--h-sm) * .6);margin-block-start:calc((6px - var(--h-sm) * .6) / 2);border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.range::-moz-range-thumb{inline-size:calc(var(--h-sm) * .6);block-size:calc(var(--h-sm) * .6);border:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.range:focus-visible{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.card .control{display:grid;grid-template-columns:5rem 1fr 2.5rem;align-items:center;gap:var(--gap-row, 12px);font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.card .control output{text-align:end;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.card hr{margin:0;border:0;block-size:var(--line);background:var(--rule)}
+/* Сообщение строкой и сжатая карточка — заголовок и цена ростом тела. */
+.card:is([data-layout='row'], [data-size='sm']) :is(.title, .price){font-size:var(--body-size, 1rem)}
+.card[data-tone='ok'] .el[data-voice='loud']{--bg:var(--ok-fill);--fg:var(--on-ok)}
+
+/* Краска смысла у органа: «удалить» — краской ошибки, особое — краской марки;
+   вуаль под рукой идёт той же краской. */
+.el[data-tone='bad']{--fg:var(--bad)}
+.el[data-tone='pop']{--fg:var(--pop-ink)}
+
+/* Подсказка над знаком: имя органа словом — под рукой и на фокусе с
+   клавиатуры (WCAG 1.4.13), застывшим — в каждом состоянии. Лист с волоском,
+   как всякое всплывающее; не нажимается. Для чтения вслух имя — у органа. */
+.el .tip{
+  position:absolute;inset-block-end:calc(100% + var(--nudge) * 2);inset-inline-start:50%;translate:-50% 0;
+  padding:.25rem .6rem;border-radius:var(--r-ctrl, 8px);background:var(--surface);color:var(--ink);
+  box-shadow:inset 0 0 0 var(--line) var(--rule);font-size:var(--note-size, .875rem);font-weight:500;white-space:nowrap;
+  pointer-events:none;visibility:hidden;opacity:0;transition:opacity var(--hover-t) var(--ease), visibility var(--hover-t)
+}
+.el:is(:focus-visible, [data-state]) .tip{visibility:visible;opacity:1}
+@media (hover:hover){ .el:hover .tip{visibility:visible;opacity:1} }
+/* Лоток контуром: волосок вместо тона. */
+.tray[data-voice='line']{background:transparent;box-shadow:inset 0 0 0 var(--line) var(--rule)}
+
+/* Карточка-ссылка: нажимается вся. Под рукой сверху встаёт черта марки,
+   нажатая — краской нажатия и на пиксель ниже, без сжатия: карточка
+   большая; фокус — кольцо. */
+.card[data-link]{position:relative;overflow:hidden;cursor:pointer;color:var(--ink);text-decoration:none;transition:transform var(--press-t) var(--ease)}
+.card[data-link]::before{content:'';position:absolute;inset:0 0 auto;block-size:calc(var(--frame-w) * 2);background:var(--mark-c, transparent);transition:background-color var(--hover-t) var(--ease)}
+@media (hover:hover){ .card[data-link]:hover{--mark-c:var(--pop)} }
+.card[data-link][data-state='hover']{--mark-c:var(--pop)}
+.card[data-link]:is(:active, [data-state='press']){--mark-c:var(--pop-press);transform:translateY(1px)}
+.card[data-link]:is(:focus-visible, [data-state='focus']){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.card [data-case='caps']{text-transform:uppercase;letter-spacing:var(--caps);font-weight:600}
+
+/* ── поле ввода ──────────────────────────────────────────────────────────
+   Коробка — `<label class="field">`: знак и `<input>` внутри, состояние
+   встаёт на всю коробку. Рост и угол — как у органа; вписанное — тело не
+   меньше 16px (иначе телефон увеличит страницу), подсказка в поле — краской
+   подписи. Поле не нажимается — в него пишут: нажатие ставит курсор, это
+   фокус (И350). Фокус — кольцо набора, как у всякого органа, кромка —
+   краской кольца, знак — краской марки; у пары «поле и кнопка» кольцо
+   встаёт вокруг пары. */
+.field{
+  --h:var(--h-md);--r:var(--r-ctrl, 8px);--bg:var(--quiet);--paint:var(--bg);
+  --edge-c:transparent;--edge-hover:transparent;--sign:var(--ink-soft);--indent:calc(var(--h) * .35);
+  box-sizing:border-box;display:inline-flex;align-items:center;gap:calc(var(--h) * .25);
+  inline-size:min(300px, 100%);block-size:var(--h);padding-inline:var(--indent);
+  border-radius:var(--r);background:var(--paint);box-shadow:inset 0 0 0 var(--line) var(--edge-c);
+  font-family:var(--face);cursor:text;
+  transition:background-color var(--hover-t) var(--ease), box-shadow var(--hover-t) var(--ease)
+}
+.field > svg{inline-size:calc(var(--h) * .45);block-size:calc(var(--h) * .45);flex:none;color:var(--sign);transition:color var(--hover-t) var(--ease)}
+.field input{flex:1;min-inline-size:0;block-size:100%;margin:0;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:max(1rem, var(--body-size, 1rem));outline:none}
+.field input::placeholder{color:var(--ink-soft);opacity:1}
+.field input::-webkit-search-cancel-button{-webkit-appearance:none}
+.field[data-voice='line']{--bg:var(--surface);--edge-c:var(--edge);--edge-hover:var(--ink)}
+.field[data-edge='pop']{--edge-c:var(--pop);--edge-hover:var(--pop-press)}
+.field[data-shape='pill']{--r:999px;--indent:calc(var(--h) * .5)}
+/* «Очистить» у конца поля: круг марки, виден, когда вписано; рост 24 — не
+   меньше порога цели WCAG 2.5.8, под пальцем — больше. */
+.field > .el{--h:calc(var(--h-sm) * .75);margin-inline-start:auto}
+.field:has(> .el){padding-inline-end:calc(var(--h) * .2)}
+.field:has(input:placeholder-shown) > .el[data-clear]{visibility:hidden}
+/* Поле и кнопка встык: одна коробка из двух частей, угол — у внешних краёв;
+   нажатая кнопка не сжимается — встык она не отходит от поля. */
+.join{display:inline-flex;inline-size:min(360px, 100%)}
+.join > .field{flex:1;border-start-end-radius:0;border-end-end-radius:0}
+.join > .el{flex:none;border-start-start-radius:0;border-end-start-radius:0}
+.join > .el:is(:active, [data-state='press']){transform:none}
+@media (hover:hover){
+  .field:hover:not(:focus-within){--paint:color-mix(in oklab, var(--bg), var(--ink) var(--state-hover))}
+  .field[data-voice='line']:hover:not(:focus-within){--paint:var(--bg);--edge-c:var(--edge-hover)}
+}
+.field[data-state='hover']{--paint:color-mix(in oklab, var(--bg), var(--ink) var(--state-hover))}
+.field[data-voice='line'][data-state='hover']{--paint:var(--bg);--edge-c:var(--edge-hover)}
+.field:focus-within,
+.field[data-state='focus']{--paint:var(--surface);--edge-c:var(--ring, var(--ink));--sign:var(--pop-ink);outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.join > .field:is(:focus-within, [data-state='focus']){outline:0}
+.join:has(> .field:is(:focus-within, [data-state='focus'])){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off);border-radius:var(--r-ctrl, 8px)}
+
+/* Имя раздела в меню: заглавными с разрядкой, краской подписи. */
+.menu > .label{margin:8px 8px 2px;font-size:var(--note-size, .875rem);font-weight:600;letter-spacing:var(--caps);text-transform:uppercase;color:var(--ink-soft)}
+
+/* Поиск с подсказками: на фокусе под полем раскрывается меню — последние
+   запросы и товар. На сайте — `popover` со списком (запрет 8); застывшим
+   (`data-open`) меню стоит в потоке, чтобы образец не лёг на соседа. Слой —
+   однозначный, внутри своего блока (запрет 8): на сайте поверх поднимает popover. */
+.find{position:relative;display:inline-flex;flex-direction:column;inline-size:min(360px, 100%)}
+.find > .field{inline-size:100%}
+.find > .menu{z-index:1;position:absolute;inset-block-start:calc(100% + var(--nudge) * 2);inset-inline:0;inline-size:auto;visibility:hidden;opacity:0;transition:opacity var(--hover-t) var(--ease), visibility var(--hover-t)}
+.find:focus-within > .menu{visibility:visible;opacity:1}
+.find[data-open] > .menu{position:static;margin-block-start:calc(var(--nudge) * 2);visibility:visible;opacity:1}
+
+/* Поле с подписью и пояснением: подпись над полем — чернилами, пояснение
+   под ним — краской подписи, ролью сноски; обе ближе к полю, чем сосед. */
+.entry{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4);inline-size:min(300px, 100%);font-family:var(--face)}
+.entry > .label{font-size:var(--note-size, .875rem);font-weight:600;color:var(--ink)}
+.entry > .hint{margin:0;font-size:var(--note-size, .875rem);line-height:var(--body-lead, 1.45);color:var(--ink-soft)}
+.entry > .field{inline-size:100%}
+
+/* Подпись на кромке: пустое поле — подпись стоит внутри, как подсказка; на
+   фокусе и когда вписано — встаёт на кромку, мельче, на полу страницы.
+   Подпись меняет место, а не едет: движение источника снято (И338). */
+.field[data-float]{position:relative}
+.field .float{position:absolute;inset-inline-start:calc(var(--indent) - 4px);inset-block-start:50%;translate:0 -50%;padding-inline:4px;font-size:max(1rem, var(--body-size, 1rem));color:var(--ink-soft);pointer-events:none}
+.field:is(:focus-within, [data-state='focus']) .float,
+.field:has(input:not(:placeholder-shown)) .float{inset-block-start:0;font-size:var(--note-size, .875rem);background:var(--surface)}
+.field:is(:focus-within, [data-state='focus']) .float{color:var(--pop-ink)}
+/* Фокус такого поля — кромка краской кольца толщиной кольца: внешнее кольцо
+   подпись на кромке разрезала бы. */
+.field[data-float]:is(:focus-within, [data-state='focus']){outline:0;box-shadow:inset 0 0 0 var(--ring-w) var(--ring, var(--ink))}
+
+/* Поле сообщения: несколько строк, органы — рядом под текстом: «прикрепить»
+   у начала, остальные у конца. */
+.field[data-lines]{flex-direction:column;align-items:stretch;block-size:auto;padding:calc(var(--h) * .2);gap:calc(var(--h) * .1)}
+.field textarea{min-block-size:calc(var(--h) * 1.4);margin:0;padding:calc(var(--h) * .1) calc(var(--h) * .15);border:0;background:none;color:var(--ink);font:inherit;font-size:max(1rem, var(--body-size, 1rem));line-height:var(--body-lead, 1.45);resize:none;outline:none}
+.field textarea::placeholder{color:var(--ink-soft);opacity:1}
+.field[data-lines] > .row{display:flex;align-items:center;gap:calc(var(--h) * .1)}
+.field[data-lines] > .row > :first-child{margin-inline-end:auto}
+
+/* ── выбор одного из нескольких: сегменты, вкладки, полоса разделов ──────
+   Группа — `.tabs` (role=radiogroup); пункт — орган `.el`: `<label>` со
+   скрытым `<input type=radio>` — выбор держит браузер, стрелки ходят по
+   пунктам без скрипта. Выбранный — `:has(> input:checked)`, застывшим —
+   `data-on`; фокус — кольцо у пункта. Как отмечен выбранный — `data-pick`
+   группы: плашка пола (по умолчанию), pop — плашка пола и знак маркой, loud — заливка марки, tone — тон, tint — тон марки, ink —
+   заливка чернил, flag — закладка с кромки (у нижнего меню data-dock), mark —
+   знак краской марки в ячейке с волоском, sheet — лист, сливающийся с
+   панелью под ним. Переезд плашки у источников снят: плашка встаёт на
+   место, а не едет (И338). */
+.tabs{display:inline-flex;align-items:stretch;gap:calc(var(--h-md) * .1);padding:calc(var(--h-md) * .1);border-radius:var(--r-ctrl, 8px);background:var(--quiet);color:var(--ink);font-family:var(--face)}
+.tabs[data-shape='pill'], .tabs[data-shape='pill'] > .el{border-radius:999px}
+/* Пилюля группы — и ручкой угла: круг и кружок внутри считают свой угол от неё. */
+.tabs[data-shape='pill'] > .el{--r:999px}
+.tabs[data-voice='line']{background:transparent;box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.tabs[data-voice='ink']{background:var(--ink)}
+.tabs > .el{--bg:transparent;flex:1 1 auto;font-weight:500}
+.tabs[data-voice='ink'] > .el{--fg:var(--surface)}
+.el > input[type='radio']{position:absolute;inline-size:1px;block-size:1px;margin:0;opacity:0;pointer-events:none}
+.el:has(> input:focus-visible){outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.tabs > .el:is(:has(> input:checked), [data-on]){--bg:var(--surface);font-weight:600}
+.tabs[data-voice='ink'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--ink-soft)}
+.tabs[data-pick='tone'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--quiet)}
+.tabs[data-pick='tint'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--pop-tint);--fg:var(--pop-ink)}
+.tabs[data-pick='ink'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--ink);--fg:var(--surface)}
+.tabs[data-pick='pop'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--surface);--fg:var(--pop-ink)}
+.tabs[data-pick='loud'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--pop);--fg:var(--on-pop)}
+/* Врозь (data-loose): пилюли отдельно, без подложки, переносятся; у
+   каждой свой тон, у контурной — волосок края, круг — тоном. На сайте —
+   полоса rail с прокруткой по ширине. */
+.tabs[data-loose]{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px);padding:0;background:transparent;box-shadow:none}
+.tabs[data-loose] > .el{--bg:var(--quiet);flex:none}
+.tabs[data-loose][data-voice='line'] > .el{--bg:transparent;box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.tabs[data-loose][data-voice='line'] > .el:is(:has(> input:checked), [data-on]){box-shadow:inset 0 0 0 var(--line) var(--pop)}
+.tabs[data-loose][data-voice='line'] .disc{background:var(--quiet)}
+/* Нижнее меню телефона (data-dock): лист пола со скруглённым верхом и
+   волоском по верхней кромке; пункты во всю ширину — знак над словом,
+   невыбранные — краской подписи, выбранный — чернилами. */
+.tabs[data-dock]{display:flex;inline-size:100%;gap:0;padding:0 calc(var(--h-md) * .1);border-radius:var(--r-sheet, 20px) var(--r-sheet, 20px) 0 0;background:var(--surface);box-shadow:inset 0 var(--line) 0 var(--rule)}
+.tabs[data-dock] > .el{--fg:var(--ink-soft);flex:1 1 0;flex-direction:column;gap:2px;block-size:auto;min-inline-size:0;padding:calc(var(--h-md) * .5) 0 calc(var(--h-md) * .2);font-size:var(--note-size, .875rem);font-weight:500}
+.tabs[data-dock] > .el svg{inline-size:calc(var(--h-md) * .55);block-size:calc(var(--h-md) * .55)}
+.tabs[data-dock] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--ink);font-weight:600}
+/* Закладка (data-pick flag): лента краской чернил с вырезом «ласточкин
+   хвост» висит с верхней кромки над выбранным пунктом. */
+.tabs[data-pick='flag'] > .el::before{content:'';position:absolute;inset-block-start:0;inset-inline-start:50%;translate:-50% 0;inline-size:calc(var(--h-md) * .45);block-size:calc(var(--h-md) * .38);background:var(--ink);clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 70%, 0 100%);opacity:0}
+.tabs[data-pick='flag'] > .el:is(:has(> input:checked), [data-on])::before{opacity:1}
+.tabs[data-pick='mark'] > .el:is(:has(> input:checked), [data-on]){--bg:transparent;--fg:var(--pop-ink);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+/* Встык: сегменты без подложки, каждый в волоске края, угол — у крайних;
+   выбранный — тон марки в кромке марки. Нажатый не сжимается — встык он
+   не отходит от соседа. */
+.tabs[data-join]{gap:0;padding:0;background:transparent}
+.tabs[data-join] > .el{border-radius:0;box-shadow:inset 0 0 0 var(--line) var(--edge)}
+.tabs[data-join] > .el + .el{margin-inline-start:calc(var(--line) * -1)}
+.tabs[data-join] > .el:first-child{border-start-start-radius:var(--r-ctrl, 8px);border-end-start-radius:var(--r-ctrl, 8px)}
+.tabs[data-join] > .el:last-child{border-start-end-radius:var(--r-ctrl, 8px);border-end-end-radius:var(--r-ctrl, 8px)}
+.tabs[data-join] > .el:is(:has(> input:checked), [data-on]){z-index:1;box-shadow:inset 0 0 0 var(--line) var(--pop)}
+.tabs[data-join] > .el:is(:active, [data-state='press']){transform:none}
+/* Счётчик у пункта: число в круге тона; у выбранного — краской марки. */
+.el .badge{display:inline-grid;place-items:center;min-inline-size:1.375rem;block-size:1.375rem;padding-inline:.3rem;box-sizing:border-box;border-radius:999px;background:var(--quiet);color:var(--ink-soft);font-size:var(--note-size, .875rem);font-weight:600;font-variant-numeric:tabular-nums}
+.el:is(:has(> input:checked), [data-on]) .badge{background:var(--pop);color:var(--on-pop)}
+/* Вкладки-листы: полоса тона, у вкладок скруглён только верх; выбранная —
+   пол страницы и сливается с панелью под ней, панель показывает своё. */
+.tabbed{display:flex;flex-direction:column;inline-size:min(420px, 100%);font-family:var(--face)}
+.tabs[data-pick='sheet']{display:flex;padding-block-end:0;border-end-start-radius:0;border-end-end-radius:0}
+.tabs[data-pick='sheet'] > .el{flex:none;border-end-start-radius:0;border-end-end-radius:0}
+.tabs[data-pick='sheet'] > .el:is(:has(> input:checked), [data-on]){--bg:var(--surface)}
+.tabbed > .panel{padding:var(--pad-card, 1.25rem);border-radius:0 0 var(--r-card, 16px) var(--r-card, 16px);background:var(--surface);box-shadow:inset var(--line) 0 0 var(--rule), inset calc(var(--line) * -1) 0 0 var(--rule), inset 0 calc(var(--line) * -1) 0 var(--rule)}
+.tabbed > .panel > *{display:none;margin:0;font-size:var(--note-size, .875rem);line-height:var(--body-lead, 1.45);color:var(--ink-soft)}
+/* :has внутри :has браузер не принимает: живой выбор мерится прямо по input. */
+.tabbed:has(> .tabs > .el:nth-child(1) > input:checked, > .tabs > .el:nth-child(1)[data-on]) > .panel > :nth-child(1),
+.tabbed:has(> .tabs > .el:nth-child(2) > input:checked, > .tabs > .el:nth-child(2)[data-on]) > .panel > :nth-child(2),
+.tabbed:has(> .tabs > .el:nth-child(3) > input:checked, > .tabs > .el:nth-child(3)[data-on]) > .panel > :nth-child(3),
+.tabbed:has(> .tabs > .el:nth-child(4) > input:checked, > .tabs > .el:nth-child(4)[data-on]) > .panel > :nth-child(4){display:block}
+
+/* Текущий пункт меню (`aria-current`, застывшим — `data-on`): тон и черта
+   марки у начала строки. */
+.el[data-row]:is([aria-current], [data-on]){--bg:var(--quiet)}
+.el[data-row]:is([aria-current], [data-on])::before{content:'';position:absolute;inset-block:25%;inset-inline-start:0;inline-size:3px;border-radius:2px;background:var(--pop)}
+
+/* Радиокнопка: кружок с кромкой края и подпись — нажимаются вместе.
+   Выбранный — кромка и точка марки; под рукой кромка — чернилами, в пустом
+   кружке встаёт точка тоном марки — видно, что будет выбрано. */
+.choices{display:flex;flex-direction:column;gap:calc(var(--air-row, 16px) / 4);font-family:var(--face)}
+.radio{display:inline-flex;align-items:center;gap:calc(var(--h-sm) * .3);min-block-size:var(--h-sm);color:var(--ink);font-size:var(--body-size, 1rem);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.radio > input{appearance:none;-webkit-appearance:none;display:grid;place-items:center;flex:none;inline-size:1.25rem;block-size:1.25rem;margin:0;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge);cursor:pointer;transition:box-shadow var(--hover-t) var(--ease), transform var(--press-t) var(--ease)}
+.radio > input::after{content:'';inline-size:.625rem;block-size:.625rem;border-radius:999px;background:var(--dot, transparent)}
+@media (hover:hover){ .radio:hover > input{box-shadow:inset 0 0 0 var(--line) var(--ink);--dot:var(--pop-tint)} }
+.radio[data-state='hover'] > input{box-shadow:inset 0 0 0 var(--line) var(--ink);--dot:var(--pop-tint)}
+.radio:is(:active, [data-state='press']) > input{transform:translateY(1px) scale(.97)}
+.radio > input:checked, .radio[data-on] > input{box-shadow:inset 0 0 0 var(--line) var(--pop);--dot:var(--pop)}
+.radio > input:focus-visible, .radio[data-state='focus'] > input{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+
+/* Форма: поля и действия одного дела на листе карточки. Шапка — по
+   центру; поля — с подписью (`.entry`), действия — во всю ширину листа,
+   главное первым. */
+.card .stack[data-align='center']{align-items:center;text-align:center}
+.card[data-form] .entry{inline-size:100%}
+/* Полоса над полкой: вид полки слева, сортировка справа, волосок под ней. */
+.toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--gap-row, 12px);inline-size:100%;padding-block-end:var(--pad-inner, .75rem);box-shadow:inset 0 calc(var(--line) * -1) 0 var(--rule);font-family:var(--face)}
+/* Приглушённая часть надписи органа: «Сортировать:» перед выбранным. */
+.el .muted{font-weight:400;color:var(--muted, var(--ink-soft))}
+/* Орган, который под рукой меняет заливку (контур, переворот в марку), —
+   приглушённая часть берёт краску надписи: серое на марке не читается. */
+@media (hover:hover){ .el:is([data-voice='line'], [data-hover='loud']):hover{--muted:currentColor} }
+.el:is([data-voice='line'], [data-hover='loud']):is([data-state='hover'], [data-state='press'], :active){--muted:currentColor}
+/* Сортировка: кнопка раскрывает меню вариантов под собой, к её концу. На
+   сайте — popover (запрет 8); застывшим (data-open) меню стоит в потоке. */
+.sort{position:relative;display:inline-flex;flex-direction:column;align-items:flex-end}
+.sort > .menu{z-index:1;position:absolute;inset-block-start:calc(100% + var(--nudge) * 2);inset-inline-end:0;visibility:hidden;opacity:0;transition:opacity var(--hover-t) var(--ease), visibility var(--hover-t)}
+.sort:has(> .el[aria-expanded='true']) > .menu{visibility:visible;opacity:1}
+.sort[data-open] > .menu{position:static;margin-block-start:calc(var(--nudge) * 2);visibility:visible;opacity:1}
+.el[data-row] .end[data-sign='check']{color:var(--pop-ink)}
+/* Карточка на тоне товара: лист — тон (у магазина — тон товара из его
+   данных через строитель палитры, на образце — тон марки), скругление листа;
+   фишка категории — на полу; название крупно; снимок без фона уходит к
+   правой кромке; внизу — пилюля пола с ценой и кругом корзины (тот же орган,
+   что «Shop now» у 02). */
+.card[data-tone='tint']{background:var(--pop-tint);box-shadow:none;border-radius:var(--r-sheet, 20px)}
+.card > .tag{align-self:flex-start}
+.card[data-tone='tint'] .tag{background:var(--surface);color:var(--ink)}
+.card .title[data-size='lg']{font-size:var(--h2-size, 1.75rem);line-height:var(--h2-lead, 1.15)}
+.card .frame[data-cutout]{background:transparent;margin-inline-end:calc(var(--pad-card, 1.25rem) * -1);border-start-end-radius:0;border-end-end-radius:0}
+.card .frame[data-cutout] svg{inline-size:5rem;block-size:5rem}
+/* Строка сноской по центру или у конца: «нет учётной записи? создать»,
+   «забыли пароль?». Ссылка в ней — краской марки, подчёркнута всегда (И289). */
+.card p[data-align='center']{text-align:center}
+.card p[data-align='end'], .entry > [data-align='end']{text-align:end}
+.entry > .hint a{color:var(--pop-ink);text-decoration:underline;text-underline-offset:.15em}
+.card[data-form] .field{inline-size:100%}
+/* Два поля в строку: имя и фамилия поровну, срок и CVV — 2 : 1. */
+.card .split{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:var(--gap-row, 12px)}
+.card .split[data-ratio='2:1']{grid-template-columns:minmax(0, 2fr) minmax(0, 1fr)}
+/* Способы оплаты — органы тоном в ряд, переносятся. */
+.card .options{display:flex;flex-wrap:wrap;gap:var(--gap-targets, 8px)}
+.card .options > .el{flex:1 1 auto}
+/* Ссылка строкой — «забыли пароль?»: сноской, краской марки, подчёркнута. */
+.card .link{font-size:var(--note-size, .875rem);color:var(--pop-ink);text-decoration:underline;text-underline-offset:.15em}
+/* Знак марки крупно — плитка над заголовком формы. */
+.mark[data-size='lg']{inline-size:3.5rem;block-size:3.5rem}
+.mark[data-size='lg'] svg{inline-size:1.75rem;block-size:1.75rem}
+/* Флажок: квадрат с кромкой края; отмечен — заливка марки и галка из листа
+   набора краской на ней; подпись нажимается вместе с ним. */
+.tick{position:relative;display:inline-flex;align-items:center;gap:calc(var(--h-sm) * .3);min-block-size:var(--h-sm);font-size:var(--note-size, .875rem);color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tick > input{--box:1.125rem;appearance:none;-webkit-appearance:none;flex:none;inline-size:var(--box);block-size:var(--box);margin:0;border-radius:calc(var(--box) * .22);background:var(--surface);box-shadow:inset 0 0 0 var(--line) var(--edge);cursor:pointer;transition:box-shadow var(--hover-t) var(--ease), transform var(--press-t) var(--ease)}
+.tick > svg{position:absolute;inset-inline-start:.1875rem;inline-size:.75rem;block-size:.75rem;color:var(--on-pop);stroke-width:2.4;opacity:0;pointer-events:none}
+@media (hover:hover){ .tick:hover > input:not(:checked){box-shadow:inset 0 0 0 var(--line) var(--ink)} }
+.tick > input:checked, .tick[data-on] > input{background:var(--pop);box-shadow:none}
+.tick:has(> input:checked) > svg, .tick[data-on] > svg{opacity:1}
+.tick > input:focus-visible, .tick[data-state='focus'] > input{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+.tick[data-state='hover'] > input{box-shadow:inset 0 0 0 var(--line) var(--ink)}
+.tick:is(:active, [data-state='press']) > input{transform:translateY(1px) scale(.97)}
+/* Список флажков: подпись ролью тела; data-pick ink — отмеченный залит
+   чернилами, галка краской пола. */
+.choices .tick{font-size:var(--body-size, 1rem)}
+.choices[data-pick='ink'] .tick > input:checked, .choices[data-pick='ink'] .tick[data-on] > input{background:var(--ink)}
+.choices[data-pick='ink'] .tick > svg{color:var(--surface)}
+/* Цена крупно: число ролью h2, срок мельче краской подписи; у окна тарифа
+   показывается цена выбранного срока. */
+.cost{margin:0;font-size:var(--h2-size, 1.75rem);font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.cost small{margin-inline-start:.25em;font-size:var(--note-size, .875rem);font-weight:400;color:var(--ink-soft)}
+.cost > span + span{display:none}
+.sheet:has(.tabs > .el:nth-child(2) > input:checked, .tabs > .el:nth-child(2)[data-on]) .cost > span:first-child{display:none}
+.sheet:has(.tabs > .el:nth-child(2) > input:checked, .tabs > .el:nth-child(2)[data-on]) .cost > span + span{display:inline}
+.sheet > footer:has(> .cost){justify-content:space-between}
+/* Окно, которое помещается целиком (data-fit): без потолка и без дымки над
+   подвалом — дымка говорит «тело продолжается», а оно не продолжается. */
+.sheet[data-fit]{max-block-size:none}
+.sheet[data-fit] > footer::before{content:none}
+.sheet .body > .tabs{display:flex}
+/* Список с галкой: преимущества; галка — из листа набора краской марки. */
+.ticks{display:grid;gap:calc(var(--air-row, 16px) / 2);margin:0;padding:0;list-style:none}
+.sheet .body .ticks{padding-inline-start:0}
+.ticks li{display:flex;align-items:center;gap:calc(var(--gap-row, 12px) * .75)}
+.ticks svg{flex:none;inline-size:1.125rem;block-size:1.125rem;color:var(--pop-ink)}
+/* Разделитель «или»: слово краской подписи между двумя волосками. */
+.or{display:flex;align-items:center;gap:var(--gap-row, 12px);margin:0;font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.or::before, .or::after{content:'';flex:1;block-size:var(--line);background:var(--rule)}
+/* Выключенный орган — как у набора (btn.module.css): прозрачность
+   --state-off и курсор «нельзя»; под рукой и на нажатие не отвечает.
+   `aria-disabled`, а не `disabled`: фокус остаётся — объяснение, почему
+   нельзя, до органа доходит. Застывшим — data-state="off". */
+.el:is(:disabled, [aria-disabled='true'], [data-state='off']){--paint:var(--bg);--veil:transparent;opacity:var(--state-off, .45);cursor:not-allowed;transform:none}
+
+/* ── страница элемента: живой сверху, состояния застывшими ниже ─────── */
+body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;padding-block:24px;background:var(--surface);color:var(--ink);font-family:var(--face)}
+.live{display:flex;align-items:center;justify-content:space-between;gap:6px;inline-size:min(360px, 100% - 32px)}
+.live.one{justify-content:center}
+/* Место под карточку на стенде — ширина ячейки полки; строкой — шире. */
+.live:has(.card){inline-size:min(320px, 100% - 32px)}
+.live:has(.card[data-layout='row']){inline-size:min(360px, 100% - 32px)}
+.states figure:has(> .card){inline-size:min(320px, 100%)}
+.states figure:has(> .card[data-layout='row']){inline-size:min(360px, 100%)}
+/* Нижнее меню на стенде — ширина телефона, как у живого. */
+.states figure:has(> .tabs[data-dock]){inline-size:min(360px, 100%)}
+.live:has(> .tabs[data-dock]){inline-size:min(360px, 100% - 32px)}
+/* Полоса над полкой — ширина полки. */
+.live:has(> .toolbar){inline-size:min(640px, 100% - 32px)}
+/* Фишки категорий врозь — ряд во всю ширину стенда. */
+.live:has(.tabs[data-loose]){inline-size:min(760px, 100% - 32px)}
+.states figure:has(> .tabs[data-loose]){inline-size:min(720px, 100%)}
+.states figure:has(> .toolbar){inline-size:min(640px, 100%)}
+/* Несколько вариантов элемента рядом — сетка стенда. */
+.forms{display:grid;grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr));gap:24px;align-items:start;inline-size:100%}
+.live:has(> .forms){inline-size:min(1000px, 100% - 32px)}
+.group{display:flex;gap:6px}
+.column{display:flex;flex-direction:column;align-items:center;gap:24px}
+.states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
+.states figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.states figcaption{font-size:.8125rem;color:var(--ink-soft)}
+/* Снимок под органом — стекло видно только над чем-то. Кадр с потолком от
+   малого окна (запрет 4); снимок кадрируется внутри. */
+.backdrop{position:relative;display:grid;place-items:center;place-content:center;inline-size:min(360px, 100% - 32px);aspect-ratio:4 / 3;max-block-size:60svh;border-radius:var(--r-card, 16px);overflow:hidden}
+.backdrop > img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:cover;object-position:50% 20%}
+.backdrop > .el{position:relative}
+.states .backdrop{inline-size:220px;aspect-ratio:3 / 2}
+.states figure:has(.tip){padding-block-start:2.5rem}
+.set{display:grid;grid-template-columns:repeat(auto-fill, minmax(104px, 1fr));gap:8px;inline-size:min(980px, 100% - 32px)}
+.set figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:var(--r-card, 12px);box-shadow:inset 0 0 0 var(--line) var(--rule)}
+.set figure > div{display:flex;align-items:center;gap:12px}
+.set svg{fill:none;stroke:currentColor}
+.set svg.l{inline-size:24px;block-size:24px}
+.set svg.s{inline-size:16px;block-size:16px}
+.set figcaption{font-size:.8125rem;text-align:center;color:var(--ink-soft)}
+.set figcaption b{display:block;font-weight:600;color:var(--ink)}
+.set h2{grid-column:1 / -1;margin:16px 0 4px;font-size:1.0625rem;font-weight:600}
+
+/* ── карточка товара полки (64): .card data-shelf ───────────────────────
+   Та же карточка основы, атрибутом. Три группы в порядке решения
+   покупателя (shop, «Каталог и полка»): кадр; что это — .stack: марка
+   (.label), имя (.title), строки фактов (.text); за сколько — .row: цена и
+   «в корзину». Ссылка одна — имя, её область растянута на всю карточку;
+   сердце и кнопка стоят над ней. Наличие и скидка — плашкой на кадре и
+   только исключением, внутри ссылки. Одежда — атрибутом `data-card` у
+   предка, как вид на сайте (значения — как у вида: outlined, framed,
+   bare); раскладку одежда не меняет (craft: «Виды предмета — это
+   одежда»). Пропорция кадра — ручка `--frame` примитива frame набора,
+   потолок — от малого окна (запрет 4). Размеры — роли шкал: ритм вида
+   двигает поле и воздух карточки вместе со всем сайтом. */
+.card[data-shelf]{
+  --in:var(--pad-inner, .75rem);
+  position:relative;container-type:inline-size;min-inline-size:0;
+  padding:var(--in);background:var(--plate, var(--surface));color:var(--on-plate, var(--ink));
+  transition:transform var(--press-t) var(--ease)
+}
+.card[data-shelf] .frame{
+  overflow:hidden;aspect-ratio:var(--frame, 1 / 1);max-block-size:var(--frame-cap, 60svh);
+  border-radius:max(4px, calc(var(--r-card, 16px) - var(--in)));background:var(--plate-2, var(--quiet));color:var(--ink-soft)
+}
+.card[data-shelf] .frame > img{inline-size:100%;block-size:100%;object-fit:cover;display:block}
+/* Сердце — в углу кадра; рисунок знака — как у всякого органа, а не
+   крупный знак кадра-заглушки. */
+.card[data-shelf] .frame > .el{position:absolute;inset-block-start:var(--in);inset-inline-end:var(--in)}
+.card[data-shelf] .frame > .el svg{inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5)}
+/* Органы — над растянутой ссылкой. */
+.card[data-shelf] .el{z-index:1}
+.card[data-shelf] .label{font-weight:600;color:var(--pop-ink)}
+/* Имя — тело, жирнее фактов; не больше двух строк: третья сдвигала бы цену
+   ниже, чем у соседей по ряду. Целиком оно на карте товара. */
+.card[data-shelf] .title{
+  font-size:var(--body-size, 1rem);line-height:var(--body-lead, 1.45);font-weight:600;overflow-wrap:anywhere;
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden
+}
+.card[data-shelf] .title a{color:inherit;text-decoration:none;outline:0}
+.card[data-shelf] .title a::after{content:'';position:absolute;inset:0;border-radius:var(--r-card, 16px)}
+/* Плашки на кадре — внутри ссылки, от угла кадра. */
+.card[data-shelf] .flags{position:absolute;inset-block-start:calc(var(--in) * 2);inset-inline-start:calc(var(--in) * 2);display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.tag[data-tone='sale']{background:var(--sale-fill);color:var(--on-sale)}
+.tag[data-tone='warn']{background:var(--warn-tint);color:var(--warn)}
+/* Факты строками: что это — чернилами, количества — краской подписи. */
+.card[data-shelf] .text{color:var(--on-plate-2, var(--ink-soft));font-variant-numeric:tabular-nums}
+.card[data-shelf] .stack > .text{padding-block-start:var(--sp-1, 4px)}
+.card[data-shelf] .text b{font-weight:500;color:var(--on-plate, var(--ink))}
+/* Цена и «в корзину»: стопкой, кнопка во всю ширину; рядом — только когда
+   карточке хватает места на цену и самую длинную надпись кнопки на самом
+   длинном языке рынка. Цены ряда стоят на одной линии: растёт «что это». */
+.card[data-shelf] .row{margin-block-start:auto;flex-direction:column;align-items:stretch}
+.card[data-shelf] .row > .el{inline-size:100%}
+.card[data-shelf] .price{display:flex;flex-direction:column;align-items:flex-start;gap:1px;margin:0;white-space:nowrap;font-variant-numeric:tabular-nums}
+.card[data-shelf] .price b{font-weight:700;line-height:1.1}
+.card[data-shelf] .price s{font-size:var(--note-size, .875rem);font-weight:400;color:var(--on-plate-2, var(--ink-soft))}
+@container (min-width: 420px){
+  .card[data-shelf] .row{flex-direction:row;align-items:flex-end}
+  .card[data-shelf] .row > .el{inline-size:auto}
+}
+/* В тесной карточке с числом знак корзины уходит: слову с числом нужно всё
+   место. Имя кнопки — на aria-label, не на знаке. */
+@container (max-width: 200px){ .card[data-shelf] .el[data-on] .say svg{display:none} }
+
+/* Ответ руке: под рукой имя подчёркнуто — вся карточка ведёт на товар;
+   нажатая — на пиксель ниже, без сжатия: карточка большая. Фокус — кольцо
+   вокруг карточки. Над сердцем и кнопкой отвечают они сами. */
+@media (hover:hover){ .card[data-shelf] .title a:hover{text-decoration:underline;text-decoration-thickness:var(--line);text-underline-offset:.15em} }
+.card[data-shelf][data-state='hover'] .title a{text-decoration:underline;text-decoration-thickness:var(--line);text-underline-offset:.15em}
+.card[data-shelf]:has(.title a:active), .card[data-shelf][data-state='press']{transform:translateY(1px)}
+.card[data-shelf] .title a:focus-visible::after, .card[data-shelf][data-state='focus'] .title a::after{outline:var(--ring-w) solid var(--ring, var(--ink));outline-offset:var(--ring-off)}
+@media (prefers-reduced-motion:reduce){ .card[data-shelf]{transition:none} .card[data-shelf]:has(.title a:active){transform:none} }
+
+/* «В корзину»: две надписи в одной клетке — «Add» и «Added N» меняются
+   видимостью, ширина кнопки одна на оба состояния. Положено (`data-on`) —
+   та же громкая кнопка, в которую жмут ещё раз: состояние несут слово и
+   число, а не краска. Число — плиткой краски надписи, как .tile. */
+.el .say{display:grid}
+.el .say > span{grid-area:1 / 1;display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--h) * .2)}
+.el .say > span + span, .el[data-on] .say > span:first-child{visibility:hidden}
+.el[data-on] .say > span + span{visibility:visible}
+.el .qty{display:inline-grid;place-items:center;box-sizing:border-box;min-inline-size:calc(var(--h) * .5);block-size:calc(var(--h) * .5);padding-inline:calc(var(--h) * .1);border-radius:999px;background:var(--fg);color:var(--bg);font-size:var(--note-size, .875rem);font-variant-numeric:tabular-nums}
+
+/* Одежда. Outlined — это сама карточка основы с полем покороче: лист с
+   волоском, кадр вписан в поле, угол кадра — угол карточки минус поле
+   (концентрический), текст — по краю кадра. Своих правил не нужно. */
+/* Framed — лист, кадр до верхнего края, текст в поле карточки. Тень
+   одежды снята (И336): лист от пола отделяет его тон. Toned — то же
+   устройство (ниже). */
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf]{--in:0px;box-shadow:none}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] .frame{border-radius:var(--r-card, 16px) var(--r-card, 16px) 0 0}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] > :not(.frame){margin-inline:var(--pad-card, 1.25rem)}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] > :last-child{margin-block-end:var(--pad-card, 1.25rem)}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
+:is([data-card='framed'], [data-card='toned']) .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
+/* Bare — коробки нет: кадр со своим углом на полу, текст под ним без
+   поля, по краю кадра. */
+[data-card='bare'] .card[data-shelf]{--in:0px;background:transparent;box-shadow:none}
+[data-card='bare'] .card[data-shelf] .frame{border-radius:var(--r-card, 16px)}
+[data-card='bare'] .card[data-shelf] :is(.frame > .el, .flags){--in:var(--pad-inner, .75rem)}
+[data-card='bare'] .card[data-shelf] .flags{inset-block-start:var(--in);inset-inline-start:var(--in)}
+/* Toned — по образцу заказчика 24.09.2026: «без окантовки фото и внизу
+   поле к нему примыкает тоже хорошо, как идея минималистичной карточки».
+   Устройство Framed, но поле под кадром — тоном, чуть отличным и от пола,
+   и от листа; ни линии, ни тени — карточку от пола отделяют тон и угол.
+   Имя и первая строка фактов — обычным весом: «простой и понятный».
+   Плашка — контуром краской своего смысла, буквами заголовка курсивом; под
+   контуром — тон поля: на тёмном снимке контур без заливки пропадал бы. */
+[data-card='toned'] .card[data-shelf]{background:var(--plate-2, var(--quiet))}
+[data-card='toned'] .card[data-shelf] :is(.title, .text b){font-weight:400}
+[data-card='toned'] .card[data-shelf] .tag{background:var(--plate-2, var(--quiet));color:var(--ink);box-shadow:inset 0 0 0 var(--line) currentColor;font-family:var(--face-head, var(--face));font-style:italic;font-weight:400}
+[data-card='toned'] .card[data-shelf] .tag[data-tone='sale']{color:var(--sale)}
+[data-card='toned'] .card[data-shelf] .tag[data-tone='warn']{color:var(--warn)}
+
+/* Кнопка рядом с ценой (data-buy inline у предка): пилюля ростом поменьше
+   в одной строке с ценой — когда карточке хватает места на цену и самую
+   длинную надпись; в тесной карточке — та же стопка во всю ширину. */
+@container (min-width: 250px){
+  [data-buy='inline'] .card[data-shelf] .row{flex-direction:row;align-items:center}
+  [data-buy='inline'] .card[data-shelf] .row > .el{--h:var(--h-sm);inline-size:auto}
+}
+
+/* Полка сеткой: ширина ячейки — ручка стенда (на сайте — пол ячейки
+   примитива grid, число колонок считается). Списком — одна колонка,
+   карточка строкой: кадр у начала на обе строки, справа «что это» и «за
+   сколько». Кадру в строке не до чего доставать краем — Framed и Bare в
+   строке берут поле, как Outlined. */
+.live.shelf{display:grid;grid-template-columns:repeat(auto-fill, var(--cell, 240px));justify-content:center;align-items:stretch;gap:var(--gap-grid, 16px);inline-size:min(1100px, 100% - 32px)}
+[data-view='list'] .shelf{grid-template-columns:minmax(0, 720px)}
+[data-view='list'] .shelf .card[data-shelf]{--in:var(--pad-inner, .75rem);display:grid;grid-template-columns:clamp(6rem, 30%, 11rem) minmax(0, 1fr);grid-template-rows:auto 1fr;align-items:start;gap:var(--in) var(--gap-row, 12px);padding:var(--in)}
+[data-view='list'] .shelf .card[data-shelf] .frame{grid-row:1 / span 2;border-radius:max(4px, calc(var(--r-card, 16px) - var(--in)))}
+[data-view='list'] .shelf .card[data-shelf] > :not(.frame){margin:0}
+[data-view='list'] .shelf .card[data-shelf] > .row{align-self:end}
+[data-view='list'] .shelf .card[data-shelf] .flags{inset-block-start:calc(var(--in) * 2);inset-inline-start:calc(var(--in) * 2)}
+
+/* ── стенд с ручками вида ────────────────────────────────────────────────
+   `data-stand` держит выбор: группа с data-attr ставит атрибут, с data-var
+   и ползунок — переменную (../stage.js). Ручки стенда — те, что встанут в
+   панель вида, когда элемент выберут; сайт получит одно значение. */
+body:has(> .stand){background:var(--page, var(--surface))}
+.stand{display:flex;flex-direction:column;align-items:center;gap:32px;inline-size:100%}
+.knobs{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:16px 28px;inline-size:min(1100px, 100% - 32px)}
+.knobs > .ctl{display:flex;flex-direction:column;gap:6px;font-size:var(--note-size, .875rem);color:var(--ink-soft)}
+.knobs > .ctl > .row{display:flex;align-items:center;gap:12px;block-size:calc(var(--h-sm) + var(--h-md) * .2)}
+.knobs .range{inline-size:12rem}
+.knobs output{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.states figure:has(> .card[data-shelf]){inline-size:var(--cell, 240px)}
+/* Ширины источника: где карточка стоит на сайте. */
+.states.widths{align-items:flex-start}
+.states.widths > figure{align-items:stretch}
+.states.widths > figure[data-w='179']{inline-size:179px}
+.states.widths > figure[data-w='210']{inline-size:210px}
+.states.widths > figure[data-w='240']{inline-size:240px}
+.states.widths > figure[data-w='265']{inline-size:265px}
+.states.widths > figure[data-w='307']{inline-size:307px}
+.states.widths figcaption{text-align:start}

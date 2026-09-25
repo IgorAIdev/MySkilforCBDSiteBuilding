@@ -1,0 +1,1 @@
+.hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,26rem),1fr));gap:var(--air-block);align-items:end}

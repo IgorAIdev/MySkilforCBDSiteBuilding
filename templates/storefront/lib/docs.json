@@ -1,0 +1,59 @@
+[
+  { "slug": "despre-noi",
+    "title": { "ro": "Despre noi", "en": "About us", "hu": "Rólunk" },
+    "summary": { "ro": "Cine suntem și cum lucrăm.", "en": "Who we are and how we work.", "hu": "Kik vagyunk és hogyan dolgozunk." },
+    "sections": [
+      { "heading": { "ro": "Magazinul", "en": "The shop", "hu": "A bolt" },
+        "body": { "ro": "Text de exemplu — îl înlocuiește magazinul. Aici magazinul spune cine este și de unde vin produsele.", "en": "Sample text — the shop replaces it. Here the shop says who it is and where the products come from.", "hu": "Mintaszöveg — a bolt cseréli le. Itt a bolt elmondja, kicsoda, és honnan származnak a termékek." } },
+      { "heading": { "ro": "Loturi și analize", "en": "Batches and lab reports", "hu": "Tételek és laborvizsgálatok" },
+        "body": { "ro": "Fiecare lot are un număr pe etichetă și un buletin de analiză cu același număr.", "en": "Every batch has a number on the label and a lab report with the same number.", "hu": "Minden tételnek száma van a címkén, és ugyanazzal a számmal laborjegyzőkönyve." } }
+    ] },
+  { "slug": "livrare-si-plata",
+    "table": "delivery",
+    "title": { "ro": "Livrare și plată", "en": "Delivery and payment", "hu": "Szállítás és fizetés" },
+    "summary": { "ro": "Curier, puncte de ridicare și plata la livrare.", "en": "Courier, pickup points and cash on delivery.", "hu": "Futár, átvételi pontok és utánvét." },
+    "sections": [
+      { "heading": { "ro": "Curier la domiciliu", "en": "Courier to your door", "hu": "Futár házhoz" },
+        "body": { "ro": "Tarifele și termenele sunt în tabelul de mai sus; le stabilește magazinul.", "en": "Rates and delivery times are in the table above; the shop sets them.", "hu": "A díjak és a határidők a fenti táblázatban vannak; ezeket a bolt határozza meg." } },
+      { "heading": { "ro": "Puncte de ridicare", "en": "Pickup points", "hu": "Átvételi pontok" },
+        "body": { "ro": "Alegeți un locker sau un punct de ridicare la finalizarea comenzii.", "en": "Choose a parcel locker or a pickup point at checkout.", "hu": "A rendelés véglegesítésekor válasszon csomagautomatát vagy átvételi pontot." } },
+      { "heading": { "ro": "Plata ramburs", "en": "Cash on delivery", "hu": "Utánvétes fizetés" },
+        "body": { "ro": "Plătiți curierului la primirea coletului.", "en": "Pay the courier when the parcel arrives.", "hu": "A csomag átvételekor fizessen a futárnak." } }
+    ] },
+  { "slug": "contact",
+    "title": { "ro": "Contact", "en": "Contact", "hu": "Kapcsolat" },
+    "summary": { "ro": "Cum ne puteți scrie sau suna.", "en": "How to write or call us.", "hu": "Hogyan írhat vagy telefonálhat nekünk." },
+    "sections": [
+      { "heading": { "ro": "Program", "en": "Hours", "hu": "Nyitvatartás" },
+        "body": { "ro": "Text de exemplu — programul îl stabilește magazinul.", "en": "Sample text — the shop sets its hours.", "hu": "Mintaszöveg — a nyitvatartást a bolt határozza meg." } },
+      { "heading": { "ro": "Date de contact", "en": "Contact details", "hu": "Elérhetőségek" },
+        "body": { "ro": "Telefonul și adresa de e-mail sunt în subsolul fiecărei pagini.", "en": "The phone number and email address are in the footer of every page.", "hu": "A telefonszám és az e-mail-cím minden oldal alján megtalálható." } }
+    ] },
+  { "slug": "termeni",
+    "title": { "ro": "Termeni și condiții", "en": "Terms and conditions", "hu": "Általános szerződési feltételek" },
+    "summary": { "ro": "Regulile de vânzare ale magazinului.", "en": "The shop's terms of sale.", "hu": "A bolt értékesítési feltételei." },
+    "sections": [
+      { "heading": { "ro": "Comanda", "en": "The order", "hu": "A rendelés" },
+        "body": { "ro": "Text de exemplu — termenii îi redactează magazinul împreună cu juristul său.", "en": "Sample text — the shop writes the terms with its lawyer.", "hu": "Mintaszöveg — a feltételeket a bolt a jogászával együtt írja meg." } },
+      { "heading": { "ro": "Prețuri", "en": "Prices", "hu": "Árak" },
+        "body": { "ro": "Prețurile sunt în euro și includ TVA.", "en": "Prices are in euros and include VAT.", "hu": "Az árak euróban értendők, és tartalmazzák az áfát." } }
+    ] },
+  { "slug": "confidentialitate",
+    "title": { "ro": "Politica de confidențialitate", "en": "Privacy policy", "hu": "Adatvédelmi tájékoztató" },
+    "summary": { "ro": "Ce date colectăm și de ce.", "en": "What data we collect and why.", "hu": "Milyen adatokat gyűjtünk és miért." },
+    "sections": [
+      { "heading": { "ro": "Date colectate", "en": "Data we collect", "hu": "Gyűjtött adatok" },
+        "body": { "ro": "Text de exemplu — politica o redactează magazinul.", "en": "Sample text — the shop writes the policy.", "hu": "Mintaszöveg — a tájékoztatót a bolt írja meg." } },
+      { "heading": { "ro": "Drepturile dumneavoastră", "en": "Your rights", "hu": "Az Ön jogai" },
+        "body": { "ro": "Puteți cere oricând accesul la date sau ștergerea lor.", "en": "You can ask at any time to see or delete your data.", "hu": "Bármikor kérheti adatai megtekintését vagy törlését." } }
+    ] },
+  { "slug": "retur",
+    "title": { "ro": "Retur", "en": "Returns", "hu": "Visszaküldés" },
+    "summary": { "ro": "Cum returnați un produs.", "en": "How to return a product.", "hu": "Hogyan küldhet vissza egy terméket." },
+    "sections": [
+      { "heading": { "ro": "Termen", "en": "Deadline", "hu": "Határidő" },
+        "body": { "ro": "Text de exemplu — termenul și condițiile le stabilește magazinul, conform legii.", "en": "Sample text — the shop sets the deadline and conditions under the law.", "hu": "Mintaszöveg — a határidőt és a feltételeket a bolt határozza meg a törvény szerint." } },
+      { "heading": { "ro": "Cum trimiteți", "en": "How to send it", "hu": "Hogyan küldje vissza" },
+        "body": { "ro": "Scrieți-ne numărul comenzii și vă trimitem instrucțiunile.", "en": "Send us the order number and we will reply with instructions.", "hu": "Írja meg a rendelésszámot, és elküldjük az útmutatót." } }
+    ] }
+]

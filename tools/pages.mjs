@@ -24,6 +24,8 @@
  *   site.sitemap текст карты сайта ('' — нет)
  *   site.robots  текст robots.txt ('' — нет)
  *   site.exists(адрес) → Promise<boolean>
+ *   site.asset(адрес)  → Promise<string> — отданный файл страницы (таблица
+ *                        стилей) текстом; нет — '' (спрошен один раз)
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
@@ -75,7 +77,12 @@ function fromFiles() {
     const file = join(OUT, bare.slice(1))
     return existsSync(file) && statSync(file).isFile()
   }
-  return { mode: 'out', pages, sitemap: text('sitemap.xml'), robots: text('robots.txt'), exists }
+  /** Файл, который страница просит (`/_next/static/css/…`), — с диска. */
+  const asset = async (url) => {
+    const file = join(OUT, String(url).split(/[?#]/)[0].replace(/^\/+/, ''))
+    return existsSync(file) && statSync(file).isFile() ? readFileSync(file, 'utf8') : ''
+  }
+  return { mode: 'out', pages, sitemap: text('sitemap.xml'), robots: text('robots.txt'), exists, asset }
 }
 
 /* ── живой сервер ─────────────────────────────────────────────────────── */
@@ -136,5 +143,12 @@ async function fromServer(base, routes) {
     if (!status.has(bare)) status.set(bare, (await get(bare)).status)
     return status.get(bare) === 200
   }
-  return { mode: 'live', pages, sitemap, robots, exists }
+  /** Файл, который страница просит, — тем же сервером; спрошен один раз. */
+  const assets = new Map()
+  const asset = async (url) => {
+    const path = String(url).startsWith('http') ? new URL(url).pathname : String(url)
+    if (!assets.has(path)) assets.set(path, get(path).then((r) => r.text))
+    return assets.get(path)
+  }
+  return { mode: 'live', pages, sitemap, robots, exists, asset }
 }

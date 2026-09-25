@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>18 · Действие со счётом</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 18 — «Действие со счётом». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тень под кнопкой; рост сердца на 15 % при нажатии.
+  Приведено к единой форме: марка палитры вместо красного: красный в наборе — только необратимое; счёт — на полу краской марки, вся кнопка обведена волоском марки: без тени белый счёт терял край; сердце из листа набора; ширина по содержимому вместо 140 пикселей.
+  Наведение: часть действия: марка + 5 % краски надписи; счёт не меняется. Нажатие: марка + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="loud" data-split type="button"><svg data-sign="heart"></svg>Like<span class="count">128</span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-split><svg data-sign="heart"></svg>Like<span class="count">128</span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-split data-state="hover"><svg data-sign="heart"></svg>Like<span class="count">128</span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-split data-state="press"><svg data-sign="heart"></svg>Like<span class="count">128</span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-split data-state="focus"><svg data-sign="heart"></svg>Like<span class="count">128</span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

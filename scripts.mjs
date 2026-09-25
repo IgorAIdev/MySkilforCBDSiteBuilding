@@ -31,6 +31,15 @@ export const SCRIPTS = {
   /* Шкалы: выпуск, замер и стенд. То же устройство, что у палитры, и по той
      же причине (И202): числа шкал стояли в tokens.css набранными рукой, а
      формула к ним — словами в комментарии рядом. */
+  /* Лист знаков (И249): рисунок каждого знака — в одном месте, выпуск и сверка
+     тем же устройством, что у палитры и шкал. */
+  icons: 'node tools/icons.mjs',
+  /* Каталог стилей кнопки (И252): стиль — роли одной кнопки основы; выпуск
+     только после замера на палитре сайта, стенд — выбор глазами. */
+  buttons: 'node tools/buttons.mjs',
+  'check:buttons': 'node tools/buttons.mjs --check',
+  'button:stand': 'node tools/button-stand.mjs',
+  'check:icons': 'node tools/icons.mjs --check',
   scale: 'node tools/scale-css.mjs',
   'check:scale': 'node tools/check-scale.mjs && node tools/scale-css.mjs --check',
   'scale:stand': 'node tools/scale-stand.mjs',
@@ -46,9 +55,15 @@ export const SCRIPTS = {
   'check:all': 'node tools/check-all.mjs',
   checks: 'node tools/checks.mjs',
   'check:lint': 'node tools/check-lint.mjs',
+  /* Механическая половина impeccable храповиком (И271): правило «Дизайн
+     делается дизайнерскими скиллами», семьи — tools/design-families.mjs. */
+  'check:design': 'node tools/check-design.mjs',
   lint: 'oxlint app components lib',
   test: 'node tools/check-test.mjs',
   'check:craft': 'node tools/check-craft.mjs',
+  /* Детектор impeccable по отрисованной странице (И310): вендоренная
+     браузерная сборка, закреплённая хешем; семьи — tools/detect-families.mjs. */
+  'check:detect': 'node tools/check-detect.mjs',
   'check:open': 'node tools/check-open.mjs',
   'check:urls': 'node tools/check-urls.mjs',
   'check:seo': 'node tools/check-seo.mjs',

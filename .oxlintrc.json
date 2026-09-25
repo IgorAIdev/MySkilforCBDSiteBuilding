@@ -33,6 +33,8 @@
     "jsx-a11y/prefer-tag-over-role": "off",
     "nextjs/no-img-element": "off",
     "react/exhaustive-effect-dependencies": "off",
-    "unicorn/no-array-sort": "off"
+    "unicorn/no-array-sort": "off",
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    "eslint/no-underscore-dangle": ["warn", { "allow": ["__typename"] }]
   }
 }

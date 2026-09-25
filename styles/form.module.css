@@ -1,0 +1,162 @@
+/* ═══ ПОЛЕ — тройка «подпись, ввод, строка под ним» ═══════════════════════
+ *
+ *  Заведено по дефекту 22.09.2026 (И242). `primitives.module.css` брал
+ *  `.input` и `.pick` отсюда через `composes`, `base.css` отсылал сюда за
+ *  разбором `.tick` — а файла в наборе не было: он остался в прошлом
+ *  магазине. Модуль CSS с `composes` из несуществующего файла не собирается,
+ *  и новый сайт рисовал поле заново, каждый раз своим числом.
+ *
+ *  Поле — не «инпут», а тройка: подпись, ввод, строка под ним. Ошибка —
+ *  часть устройства: строка под полем с шагом («Въведете имейл, например
+ *  name@example.com»), `aria-invalid` на вводе и `aria-describedby` на строку.
+ *
+ *  Геометрия — от высоты органа (правило 2): поле по бокам и просвет до
+ *  подписи — доли `--ctrl-h`, под пальцем она сама ступенью выше.
+ *
+ *  Надпись ВВОДА — `--ctrl-fs-base`, верхний конец ступени тела: меньше 16px
+ *  телефон увеличивает страницу при фокусе на поле, а тело по нормам не
+ *  ниже 16 на обоих концах (скилл scale, «нижний конец по нормам»; лестница
+ *  не убывает). Стояла `--ctrl-fs` — ступень `sm`, в наборе «Тесный» 15px:
+ *  поле кассы на телефоне зумило страницу (Safari на iOS, разбор 24.09.2026).
+ */
+
+/* Столбик одинаковых по роли строк — один просвет на всю форму (И152). */
+.rows{display:flex;flex-direction:column;gap:var(--air-row)}
+/* Пара полей в ряд — ручки примитива, а не своя сетка: имя и фамилия —
+   `switcher` (ровно, до 30rem коробки — столбиком); короткое и длинное —
+   `sidebar` (узкое поле шириной с ожидаемый ввод, от высоты органа). Просвет
+   пары — тот же, что между рядами формы. */
+.pair{
+  --switch-at:30rem;--switch-gap:var(--air-row);
+  --side-w:calc(var(--ctrl-h) * 3.5);--side-at:50%;--side-gap:var(--air-row)
+}
+
+.field{display:flex;flex-direction:column;gap:calc(var(--ctrl-h) * .15);min-inline-size:0}
+.label{font-size:var(--ctrl-fs-sm);font-weight:600;color:var(--ink)}
+
+/* Рисунок поля — один; `select.box`, `textarea.box` и `.input` приматива
+   берут его же.
+
+   Вид поля — три роли (И390): заливка `--ctrl-field-fill`, кромка
+   `--ctrl-field-edge` и `--ctrl-field-side` — 1, кромка вокруг; 0 — только
+   черта снизу, нижние углы прямые (поле тоном, элемент 41 набора; так
+   Material держит видимость залитого поля). Значения даёт вид сайта (панель
+   «System → Fields»), без него — рамка по умолчанию. Черта снизу остаётся
+   всегда: граница поля — не украшение, без неё поле на листе не видно
+   (WCAG 1.4.11, 3 : 1 к соседнему цвету; меряет check:palette и правило
+   сочетаний вида). */
+.box{
+  inline-size:100%;min-inline-size:0;min-block-size:var(--ctrl-h);
+  /* Без боковой кромки поле отдаёт её толщину полю внутри: вписанное стоит
+     на том же месте при любом виде. */
+  padding-inline:calc(var(--ctrl-h) * .3 + var(--line-w) * (1 - var(--ctrl-field-side, 1)));
+  font:inherit;font-size:var(--ctrl-fs-base);line-height:1.3;color:var(--ink);
+  background:var(--ctrl-field-fill, var(--field));
+  border:var(--line-w) solid var(--ctrl-field-edge, var(--tick-edge));
+  border-width:calc(var(--line-w) * var(--ctrl-field-side, 1)) calc(var(--line-w) * var(--ctrl-field-side, 1)) var(--line-w);
+  border-radius:var(--r-ctrl) var(--r-ctrl) calc(var(--r-ctrl) * var(--ctrl-field-side, 1)) calc(var(--r-ctrl) * var(--ctrl-field-side, 1));
+  transition:border-color var(--hover-t) var(--ease)
+}
+textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--ctrl-h) * 2.5);resize:vertical}
+.box::placeholder{color:var(--ink-soft);opacity:1}
+/* Под рукой кромка — чернилами: у контура и тона она уже краской подписи
+   (И390), и наведение должно быть видно у каждого вида. */
+@media (hover:hover){ .box:not(:disabled):hover{border-color:var(--ink)} }
+.box:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off)}
+.box[aria-invalid='true']{border-color:var(--bad-line)}
+.box:disabled{opacity:var(--state-off);cursor:not-allowed}
+
+/* Подпись на кромке (И394; элемент 47 набора): роль вида
+   `--ctrl-field-label` — `above` (над полем, умолчание) или `edge`. Пока поле
+   пусто и не в фокусе, подпись стоит внутри, как подсказка; пишут — встаёт
+   на верхнюю кромку. Черту кромки под подписью закрывает её подложка: верхняя
+   половина прозрачна — виден пол, на котором поле стоит, каким бы он ни был;
+   нижняя — заливка поля. Черта идёт ровно по середине подписи, и закрыта
+   только она. Список (`select`) всегда показывает выбранное — подпись у него
+   всегда на кромке. Подсказка «вписанного нет» — `:placeholder-shown`, поэтому
+   у ввода подсказка — пробел. Где запрос стиля не поддержан, подпись стоит
+   над полем. Место подпись меняет сразу, без движения: движение источника
+   берётся только названным заказчиком (И350), а сдвиг кегля и места —
+   движение раскладки. */
+@container style(--ctrl-field-label: edge){
+  .field{position:relative}
+  .field > .label{
+    position:absolute;inset-block-start:0;inset-inline-start:calc(var(--ctrl-h) * .3 - .3em);
+    translate:0 -50%;padding-inline:.3em;max-inline-size:calc(100% - var(--ctrl-h) * .6);
+    font-size:var(--ctrl-fs-xs);line-height:1.3;
+    background:linear-gradient(transparent 50%, var(--ctrl-field-fill, var(--field)) 50%);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;
+    transition:color var(--hover-t) var(--ease)
+  }
+  .field:has(> input.box:placeholder-shown:not(:focus)) > .label{
+    inset-block-start:calc(var(--ctrl-h) / 2);
+    font-size:var(--ctrl-fs-base);font-weight:400;color:var(--ink-soft);background:none
+  }
+  .field:focus-within > .label{color:var(--pop-ink)}
+  /* Фокус — сама кромка краской кольца толщиной кольца (так у элемента 47):
+     кольцо снаружи с отступом шло бы сквозь подпись на кромке, а кромку
+     подложка подписи закрывает. Толщина сверх черты — внутренней тенью:
+     вписанное не сдвигается. Сила `:not(:disabled)` — чтобы наведение на
+     поле в фокусе не перекрасило кромку. */
+  .box:not(:disabled):focus-visible{outline:0;border-color:var(--ring);box-shadow:inset 0 0 0 calc(var(--ring-w) - var(--line-w)) var(--ring)}
+  .box::placeholder{color:transparent}
+}
+
+/* Список — та же коробка и своя стрелка: системную снимает `appearance`,
+   стрелку рисуют два угла тона чернил — она следует теме без картинки. */
+.pick{
+  composes:box;
+  appearance:none;cursor:pointer;
+  padding-inline-end:calc(var(--ctrl-h) * .85);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%),
+    linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+  background-position:
+    calc(100% - var(--ctrl-h) * .42) 50%,
+    calc(100% - var(--ctrl-h) * .3) 50%;
+  background-size:calc(var(--ctrl-h) * .12) calc(var(--ctrl-h) * .12);
+  background-repeat:no-repeat
+}
+
+/* Строка под полем: подсказка или ошибка с шагом. */
+.say{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+.say[data-state='error']{color:var(--bad)}
+/* Сообщение формы — строкой (умолчание) или заметкой: тон сигнала, знак из
+   листа у начала (роль вида `--say-look: note`, И420; элементы 29 и 31
+   набора). Заметкой становится только сообщение всей формы — у него есть
+   роль (`status`, `alert`); строка под полем остаётся строкой. Пустое
+   сообщение не рисуется: строка состояния корзины стоит на странице всегда,
+   слово в неё приходит потом. Знак — маской по виду знака из листа, краской
+   сигнала. */
+@container style(--say-look: note){
+  .say:is([role='status'], [role='alert']):not(:empty){
+    display:flex;align-items:flex-start;gap:var(--gap-row);
+    padding:var(--pad-inner);border-radius:var(--r-ctrl);
+    background:var(--ok-tint);color:var(--ink)
+  }
+  .say:is([role='status'], [role='alert']):not(:empty)::before{
+    content:'';flex:none;inline-size:1.25em;block-size:1.25em;background:var(--ok);
+    -webkit-mask:url('/icons.svg#circle-check-view') center / contain no-repeat;
+    mask:url('/icons.svg#circle-check-view') center / contain no-repeat
+  }
+  .say[data-state='error']:is([role='status'], [role='alert']):not(:empty){background:var(--bad-tint);color:var(--bad)}
+  .say[data-state='error']:is([role='status'], [role='alert']):not(:empty)::before{
+    background:var(--bad);
+    -webkit-mask-image:url('/icons.svg#triangle-alert-view');mask-image:url('/icons.svg#triangle-alert-view')
+  }
+}
+
+/* Галочка и радио — браузерные нарочно: клавиатура, чтец, промежуточное
+   состояние. Сайт даёт им цвет отмеченного и рамку (`base.css`, одна
+   строка на все места; цвет — роль вида, И392) и цель нажатия — всю строку
+   с подписью. */
+.tick{
+  display:flex;align-items:center;gap:calc(var(--ctrl-h) * .25);
+  min-block-size:var(--ctrl-target);
+  font-size:var(--ctrl-fs-sm);color:var(--ink);cursor:pointer
+}
+.tick input{
+  flex:none;margin:0;
+  inline-size:calc(var(--ctrl-h) * .45);block-size:calc(var(--ctrl-h) * .45)
+}
+.tick:has(input:disabled){opacity:var(--state-off);cursor:not-allowed}

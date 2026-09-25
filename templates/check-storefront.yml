@@ -1,0 +1,83 @@
+# Проверки витрины, которые не требуют, чтобы о них помнили.
+#
+# Витрина — серверная сборка Next (`next start`), а не выгрузка в `out/`:
+# адреса и разметку для поиска проверки спрашивают у поднятого сайта
+# (SITE=http://localhost:3020), как и на машине разработчика (И174).
+# Статический рабочий процесс набора (`templates/check.yml`) на ней падал
+# бы на каждом PR: папки `out/` нет, Node не тот, замка зависимостей нет.
+#
+# Быстрые идут на каждый PR и не нуждаются ни в чём, кроме node.
+# Две тяжёлые — по отрисованной странице — поднимают браузер и сам сайт;
+# они медленнее, поэтому стоят отдельным заданием и не блокируют первое.
+name: check
+
+# Минуты GitHub на закрытом репозитории — деньги заказчика: 2000 в месяц,
+# каждый запуск с округлением вверх до минуты. Поэтому запуск только на PR
+# (влитие в `main` не запускает ничего — PR уже проверен на слитом дереве),
+# новый пуш отменяет незаконченный прогон старого, а правка одних `docs/`
+# прогона не запускает. Тяжёлое задание с браузером — по той же причине
+# только по PR и с отменой устаревшего.
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - '**.png'
+
+concurrency:
+  group: check-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Node — тот, что просит шаблон (`engines`: >=24 <25). Кэш ключуется
+      # и по package.json: замка зависимостей до первого коммита может не быть.
+      - uses: actions/setup-node@v4
+        with: { node-version: '24', cache: npm, cache-dependency-path: 'package*.json' }
+      # Замок в репозитории — ставится ровно записанное (`npm ci`); замка
+      # нет — по package.json. Шаблон приезжает без замка: его пишет первая
+      # установка на машине разработчика, и коммитить его стоит.
+      - run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run check:css
+      - run: npm run check:code
+      - run: npm run check:lint
+      - run: npm run check:port
+      - run: npm run check:stage
+      # До сборки: обе пишут в `.next`, и последней должна заканчиваться
+      # сборка. Часть проверок фреймворк делает только в разработке — сайт
+      # может собираться и падать в `dev`, а отрисованные проверки этого не
+      # увидят: они ходят по собранному.
+      - run: npm run check:open
+      - run: npm run build
+      # После сборки: сайт поднимается своим `next start` на 3020, и
+      # проверки спрашивают его, а не `out/`, которого у серверной сборки нет.
+      - run: npm run start &
+      - run: npx --yes wait-on http://localhost:3020 -t 60000
+      - run: SITE=http://localhost:3020 npm run check:urls
+      - run: SITE=http://localhost:3020 npm run check:seo
+
+  rendered:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24', cache: npm, cache-dependency-path: 'package*.json' }
+      - run: if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
+      # Playwright и sharp шаблон в зависимостях не несёт: они нужны только
+      # отрисованным проверкам. Поставлены проектом — берутся его, нет —
+      # ставятся на этот прогон, без записи в package.json.
+      - run: node -e "require.resolve('playwright'); require.resolve('sharp')" || npm install --no-save --no-audit --no-fund playwright sharp
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      # Сервер — сам сайт (`next start`), а не раздача файлов: у серверной
+      # сборки страницы рисуются на запрос, и мерить надо то, что получит
+      # покупатель.
+      - run: npm run start &
+      - run: npx --yes wait-on http://localhost:3020 -t 60000
+      - run: SITE=http://localhost:3020 npm run check:craft
+      - run: SITE=http://localhost:3020 npm run sweep

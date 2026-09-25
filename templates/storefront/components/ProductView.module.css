@@ -1,0 +1,161 @@
+/* Воздух над картой товара платят крошки (Breadcrumbs.module.css) — у
+   шва один хозяин. Коробку объявляет карта (контейнер `pdp`): имя товара
+   берёт ступень заголовка страницы, а та меряет `cqi` — ряд карты, а не
+   узкую колонку покупки. Мерилась бы колонка — на 900…1100 окна имя
+   выходило мельче заголовка «Similar products» ниже (check:craft, ladder).
+
+   ДВЕ КОЛОНКИ — с 820px ряда (шов «телефон», `--switch-at` у switcher и
+   запрос ниже: одно решение двумя записями, условие `@container`
+   переменную не принимает). Галерея слева, колонка покупки справа, верхние
+   края на одной линии (`align-items:start`). Ниже 820 — одна колонка в
+   порядке чтения: галерея, имя и цена, выбор, покупка, сведения.
+
+   ГАЛЕРЕЯ ПОМЕЩАЕТСЯ В ЭКРАН (И278). Блок — кадр, зазор и ряд миниатюр —
+   не выше бюджета окна: в две колонки это `--pin-fit` примитива `pinned`
+   (окно за вычетом прилипшей шапки `--anchor-top` и воздуха под колонкой),
+   в одну — `--gallery-fold` (58 % малого окна: так на телефоне под
+   галереей остаются имя и цена — норма живых магазинов, замер 23.09.2026).
+   Ширина колонки галереи — меньшее из доли ряда (`--pdp-gallery`) и ширины,
+   при которой блок влезает по высоте (`--gallery-fit`). Миниатюр в ряду
+   четыре во всю ширину кадра (как у образца заказчика: кадр 615, миниатюры
+   по 135), значит высота блока — кадр × 1.25 плюс доля зазора; отсюда
+   коэффициенты ниже (вывод — docs/rules.md, И278). Остаток ряда забирает
+   колонка покупки: у галереи рост заведомо больше (`--switch-bias`), и она
+   упирается в свой потолок первой.
+
+   Ручки вида — свойства опубликованного вида (панель «Look», «Admin →
+   Product page»; выпущены в styles/look.css): `--pdp-gallery` — доля ряда,
+   `--shot-frame` — пропорция снимка (одна с полкой, «Admin → Card», И400),
+   `--pdp-thumbs` — где миниатюры:
+   `below`, `side`, `dots` (точки вместо миниатюр), `over` (точки на самом
+   кадре — ряда под кадром нет, блок ростом с кадр); `--pdp-edge` — край
+   снимка в одну колонку: `inset` (в полях страницы) или `bleed` (во всю
+   ширину окна, бриф docs/design/карта-товара.md). */
+.pdp{
+  --switch-at:820px;--switch-gap:var(--air-block);
+  --gallery-gap:var(--gap-row);
+  --gallery-r:calc(var(--shot-frame));
+  --gallery-fold:58svh;
+  --frame-max:620px;
+  /* Сколько лист наезжает на снимок во всю ширину: ровно на свой угол —
+     дуга угла ложится на снимок, а не на пол страницы. */
+  --gallery-lap:var(--r-sheet);
+  /* Сколько снимок во всю ширину пересекает до окна: край коробки `.wrap`
+     и линию текста в ней — теми же ролями, что держат коробку. */
+  --gallery-bleed:calc(var(--page-edge) + var(--page-line));
+  container-type:inline-size;container-name:pdp;
+  align-items:start
+}
+.pin{--switch-bias:999}
+
+@container pdp (min-width:820px){
+  .pin{
+    --gallery-fit:calc((var(--pin-fit) - var(--gallery-gap)) * var(--gallery-r) * .8 + var(--gallery-gap) * .6);
+    max-inline-size:min(calc(var(--pdp-gallery) - var(--switch-gap) / 2), var(--gallery-fit))
+  }
+  /* Один снимок — ряда миниатюр нет, кадр берёт всю высоту. */
+  .pin:not(:has([data-many])){--gallery-fit:calc(var(--pin-fit) * var(--gallery-r))}
+  /* Колонка покупки не шире меры строки: цена, кнопка и абзац читаются
+     одним взглядом, а не расползаются по широкому окну. */
+  .offer{max-inline-size:var(--measure)}
+}
+/* Миниатюры сбоку: полоса слева шириной в пятую часть кадра, высота блока —
+   высота кадра. Точки: под кадром строка ростом с цель. */
+@container pdp (min-width:820px) and style(--pdp-thumbs: side){
+  .pin:has([data-many]){--gallery-fit:calc(var(--pin-fit) * var(--gallery-r) * 1.25 + var(--gallery-gap) * (1 - var(--gallery-r) * .75))}
+}
+@container pdp (min-width:820px) and style(--pdp-thumbs: dots){
+  .pin:has([data-many]){--gallery-fit:calc((var(--pin-fit) - var(--gallery-gap) - var(--ctrl-target)) * var(--gallery-r))}
+}
+@container pdp (min-width:820px) and style(--pdp-thumbs: over){
+  .pin:has([data-many]){--gallery-fit:calc(var(--pin-fit) * var(--gallery-r))}
+}
+
+/* Одна колонка: клеить не к чему — галерея в потоке (`--pin-pos:static`,
+   потолок приклеенного снят). Галерея и колонка покупки под ней — ОДНА
+   колонка по середине ряда: ширина не больше `--frame-max` и такая, что
+   блок галереи не выше `--gallery-fold` (`--gallery-w`). Края кадра и
+   текста совпадают на любой ширине: узкий по высоте кадр над широким
+   текстом стоял бы «ступенькой». Считается на самой карте, а не в
+   запросе: контейнер свой размер не спрашивает. */
+.pdp{--gallery-w:calc((var(--gallery-fold) - var(--gallery-gap)) * var(--gallery-r) * .8 + var(--gallery-gap) * .6)}
+.pdp:not(:has([data-many])){--gallery-w:calc(var(--gallery-fold) * var(--gallery-r))}
+@container style(--pdp-thumbs: dots){
+  .pdp:has([data-many]){--gallery-w:calc((var(--gallery-fold) - var(--gallery-gap) - var(--ctrl-target)) * var(--gallery-r))}
+}
+@container style(--pdp-thumbs: over){
+  .pdp:has([data-many]){--gallery-w:calc(var(--gallery-fold) * var(--gallery-r))}
+}
+/* Меру держат ДЕТИ колонок, а не сами колонки: `max-inline-size` на
+   ребёнке switcher ужимает его основу, и две узкие колонки вставали в
+   один ряд там, где запрос уже считал ряд одной колонкой (замер 900×700:
+   ряд 816, колонки по 322). */
+@container pdp (max-width:819px){
+  .pin{--pin-pos:static;--pin-max:none}
+  .pin > *,.offer > *{max-inline-size:min(var(--frame-max), var(--gallery-w));margin-inline:auto}
+}
+/* Снимок во всю ширину (`--pdp-edge: bleed`), пока колонка одна: галерея
+   пересекает край страницы до окна — край коробки `.wrap` и линию текста в
+   ней (`--gallery-bleed`). Ширина — явная: колонка `pinned` ребёнка не
+   растягивает, и без неё галерея вставала шириной своего кадра (замер
+   700: 490 из 700). */
+@container pdp (max-width:819px) and style(--pdp-edge: bleed){
+  .pin > *{max-inline-size:none;inline-size:calc(100% + var(--gallery-bleed) * 2);margin-inline:calc(var(--gallery-bleed) * -1)}
+}
+/* С точками на снимке лист покупки наезжает на его низ: колонка покупки
+   становится листом во всю ширину окна — пол страницы, скруглённый верх,
+   поле листа сверху, текст по линии края страницы. Воздух между колонками
+   (`--switch-gap`) и нахлёст снимаются одним отрицательным отступом. С рядом
+   под кадром листа нет: ряд он бы закрыл (бриф, тезис). */
+@container pdp (max-width:819px) and style(--pdp-edge: bleed) and style(--pdp-thumbs: over){
+  .offer{
+    position:relative;z-index:1;
+    margin-block-start:calc((var(--switch-gap) + var(--gallery-lap)) * -1);
+    margin-inline:calc(var(--gallery-bleed) * -1);
+    padding:var(--pad-card) var(--gallery-bleed) 0;
+    background:var(--page);
+    border-start-start-radius:var(--r-sheet);border-start-end-radius:var(--r-sheet)
+  }
+}
+
+/* ── колонка покупки ──────────────────────────────────────────────────────
+   Четыре группы через `--air-group`; внутри группы — теснее: имя и цена
+   ступенью оптики `--sp-2`, группы опций — строкой `--air-row`. Первая
+   строка колонки стоит на верхнем крае кадра. */
+.offer{--stack:var(--air-group)}
+.identity{display:grid;gap:var(--sp-2)}
+/* Марка — первая строка заголовка (ProductView.tsx, И441): ростом и
+   межстрочьем тела, краской подписи — имя остаётся главным, марка читается
+   раньше него. */
+.brand{display:block;font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:normal;color:var(--ink-soft)}
+.name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:balance;overflow-wrap:anywhere}
+/* Цена у имени (Baymard): сейчас — крупно, прежняя — зачёркнута рядом,
+   наличие — тихо в той же строке, по базовой линии. */
+.price{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--gap-row);row-gap:var(--sp-1)}
+.now{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track);font-variant-numeric:tabular-nums;color:var(--ink)}
+.was{font-size:var(--body-size);color:var(--ink-soft);font-variant-numeric:tabular-nums;text-decoration-thickness:var(--line-w)}
+.stock{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+
+/* Выбор: группа — подпись и опции вплотную, между группами — строка. */
+.choice{display:grid;gap:var(--air-row)}
+/* Опции варианта — органы ростом с кнопку (`--seg-h` сегмента: `--ctrl-h`,
+   40 под мышью, 48 под пальцем), а не малые фишки: это выбор, без которого
+   не купить. */
+.group{--seg-h:var(--ctrl-h);border:0;padding:0;margin:0;min-inline-size:0}
+.legend{padding:0;margin-block-end:var(--sp-2);font-size:var(--ctrl-fs-sm);font-weight:600;color:var(--ink)}
+/* «Choose an option» — строка ошибки поля (form.module.css, `.say`) под
+   опциями первой невыбранной группы, на той же ступени оптики, что подпись
+   над ними. */
+.choose{margin-block:var(--sp-2) 0}
+
+/* Покупка: количество, «в корзину» и «быстрый заказ» в одну строку ростом
+   крупного органа, кнопки делят остаток; подсказка и ошибка записи —
+   строками под ней. Счётчик — общий орган сайта (QuantityStepper, пилюля `qty`), его рост
+   по умолчанию — крупный орган, ровно под кнопку. */
+.buy{display:flex;flex-wrap:wrap;align-items:stretch;gap:var(--sp-2) var(--gap-row)}
+.buy > p{flex-basis:100%}
+.buy > p:empty{display:none}
+.add{flex:1 1 auto;font-variant-numeric:tabular-nums}
+.hint{flex-basis:100%;margin:0;font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+
+.related{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}

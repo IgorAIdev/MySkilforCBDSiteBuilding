@@ -1,0 +1,54 @@
+/* Второй источник 22 — CSS от заказчика 24.09.2026, как прислан: полоски
+   складываются в стрелку и поворачиваются вниз. После разбора — тот же
+   элемент 22, стрелка вниз (И338). */
+.label-check {
+  display: none;
+}
+
+.hamburger-label {
+  width: 70px;
+  height: 58px;
+  display: block;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hamburger-label div {
+  width: 70px;
+  height: 6px;
+  background-color: #fff;
+  position: absolute;
+}
+
+.line1 {
+  transition: all 0.3s;
+}
+
+.line2 {
+  margin: 18px 0 0 0;
+  transition: 0.3s;
+}
+
+.line3 {
+  margin: 36px 0 0 0;
+  transition: 0.3s;
+}
+
+#label-check:checked + .hamburger-label .line1 {
+  transform: rotate(35deg) scaleX(0.55) translate(39px, -4.5px);
+  border-radius: 50px 50px 50px 0;
+}
+
+#label-check:checked + .hamburger-label .line3 {
+  transform: rotate(-35deg) scaleX(0.55) translate(39px, 4.5px);
+  border-radius: 0 50px 50px 50px;
+}
+
+#label-check:checked + .hamburger-label .line2 {
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  width: 45px;
+}
+#label-check:checked + .hamburger-label {
+  transform: rotate(90deg);
+}

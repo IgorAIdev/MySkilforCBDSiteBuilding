@@ -238,7 +238,7 @@ footer{color:var(--mut);font-size:13px;border-top:1px solid var(--ln);padding-to
     <details><summary>Выпущенный CSS текущего набора</summary><pre id="css"></pre></details>
   </section>
 
-  <footer>Строитель — <code>tools/palette.mjs</code> набора MySkilforCBDSiteBuilding, вшит сюда без изменений; профиль ступеней снят с шкалы <code>sand</code> пакета @radix-ui/colors 3.0.0; пороги — WCAG 2.2 и APCA 0.0.98G. Наборы-образцы — <code>templates/palette.json</code>.</footer>
+  <footer>Строитель — <code>tools/palette.mjs</code> набора SiteBuildingSkill, вшит сюда без изменений; профиль ступеней снят с шкалы <code>sand</code> пакета @radix-ui/colors 3.0.0; пороги — WCAG 2.2 и APCA 0.0.98G. Наборы-образцы — <code>templates/palette.json</code>.</footer>
 </div>
 
 <script>
@@ -298,8 +298,14 @@ const PROFILE_JSON = {
 const CONTRAST = { text: 4.5, control: 3, largePx: 24, largeBoldPx: 18.66 }
 
 /** Расстояние между марками палитры (ΔE76) и обещание читаемости по APCA
- *  (Lc): приглушённый текст 60, основной 90 — из строителя палитры (И189). */
-const COLOUR = { brandApart: 25, mutedLc: 60, mainLc: 90 }
+ *  (Lc): приглушённый текст 60, основной 90 — из строителя палитры (И189).
+ *  Украшение — Lc 15: «the point of invisibility for many users … the
+ *  minimum for any non-semantic non-text that needs to be discernible and
+ *  is at least 5px in its smallest dimension» (APCA Readability Criterion,
+ *  Myndex, таблица уровней Lc «Bronze simple mode»). Им мерятся тона хвоста
+ *  главной кнопки: шеврон толщиной 0.3 высоты кнопки (12px при 40) —
+ *  украшение, смысла не несёт, но обязан быть виден на своём полу (И295). */
+const COLOUR = { brandApart: 25, mutedLc: 60, mainLc: 90, decorLc: 15 }
 
 /** Цель под пальцем и просвет между целями. WCAG 2.2, 2.5.8 «Target Size
  *  (Minimum)»: 24 — пол, ниже которого не опускается никто; 44 — 2.5.5 (AAA)
@@ -350,7 +356,25 @@ const TYPE = {
   /* Мера строки в знаках: Butterick 45…90, Refactoring UI 40…80, Spectrum
      50…120 «лучше ~70», Every Layout «не больше 60». Коридор — где сходятся. */
   measure: [45, 80],
+  /* Крупный текст, мерящий свою колонку (`cqi`), растёт при увеличении
+     страницы только нижним концом: верх к низу не больше 2.5 — тогда при
+     500 % масштаба он достигает двойного размера (Utopia, «Designing with
+     fluid type scales», WCAG 1.4.4). И245. */
+  displaySpread: 2.5,
 }
+
+/** Поле ввода на телефоне не мельче 16px: iOS Safari при фокусе на поле
+ *  мельче увеличивает страницу и назад не возвращает. Это факт браузера, а
+ *  не вкус (Эмиль Ковальский, mobile-native, исправление 4; тот же порог —
+ *  пол тела `TYPE.floor.base`). Семья `fieldZoom` в check:craft. */
+const IOS_ZOOM = 16
+
+/** Главный заголовок — не больше трёх строк на любой ширине: мера держится
+ *  ролью заголовка, а не длиной текста (taste-skill, gpt-tasteskill: «The H1
+ *  MUST NEVER exceed 2 to 3 lines»; impeccable, правило oversized-h1).
+ *  Считаются строки, а не размер — со строителем шкал это не спорит. Семья
+ *  `h1Lines` в check:craft. */
+const H1_LINES = 3
 
 /** Роли текста. Межстрочье заголовка 1.1…1.3 (Spectrum: 1.3 у заголовков),
  *  текста 1.25…1.6 (Butterick: 120…145 % от кегля; Spectrum 1.5; 1.5 обязан
@@ -383,7 +407,12 @@ const CONTROL = {
  *  {spatial, effects} — не больше шести). Дольше 700 — не переход, а
  *  ожидание. Двигаются только `transform` и `opacity` (Vercel WIG); смена
  *  темы не анимируется (next_theming); отклик на нажатие — INP ≤ 200 мс. */
-const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700, tokens: 6, curves: 2 }
+/*  Перелёт кривой: `cubic-bezier(x1, y1, x2, y2)` с y вне −0.1…1.1 — пружина,
+ *  проскакивающая цель и возвращающаяся; в интерфейсе магазина это «прыжок»
+ *  (impeccable, правило bounce-easing, коридор его детектора; Эмиль
+ *  Ковальский, STANDARDS.md, «Springs»: «avoid bounce in most UI»). Семья
+ *  `motion` в check:css. */
+const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700, tokens: 6, curves: 2, overshoot: [-0.1, 1.1] }
 
 /** Состояния (слой 10). Вуаль наведения и нажатия — доля чернил поверх
  *  поверхности: M3 слой состояния 8 % наведение, 10 % фокус и нажатие, 16 %
@@ -393,7 +422,16 @@ const MOTION = { press: [50, 150], hover: [150, 400], open: [150, 400], max: 700
  *  содержимого (M3), но не ниже Lc 30 (APCA) и не ниже 3 : 1 для «нет в
  *  наличии» (замечание проекта к M3): коридор 0.38…0.5 непрозрачности.
  *  Кольцо фокуса 2px и не ниже 3 : 1 (Spectrum, WCAG 2.2 1.4.11 / 2.4.13). */
-const STATE = { hover: [0.04, 0.08], press: [0.08, 0.16], off: [0.38, 0.5], focus: 0.1, drag: 0.16, ring: 2 }
+/*  Орган, закрашенный вуалью или тоном, виден на своём полу от 1.15 : 1 —
+ *  замер набора (craft, controls.md, «Кнопка: голос»): 1.10 не видно, 1.15
+ *  видно; норматива нет. Им же меряет семья `sunk` в check:craft.
+ *  Вуаль тихого голоса — 8 % чернил, верх коридора наведения: её выпускает
+ *  строитель палитры ролью `--quiet-paper` (tools/palette.mjs, VEIL), и
+ *  тот же расчёт меряет, что тихая кнопка видна на каждом полу (И285,
+ *  И295). Выключенное меряется на нижнем краю коридора `off`: кромка
+ *  выключенной кнопки (`--edge-off-*`) видна при любой непрозрачности,
+ *  которую коридор разрешает. */
+const STATE = { hover: [0.04, 0.08], press: [0.08, 0.16], off: [0.38, 0.5], focus: 0.1, drag: 0.16, ring: 2, visible: 1.15, quiet: 0.08 }
 
 /** Знаки (слой 11): Carbon 16 / 20 / 24 / 32, Spectrum 18 на десктопе / 22 под
  *  пальцем, M3 24 при цели 48; цель у знака без текста — не меньше 44
@@ -458,6 +496,10 @@ const SHAPE = {
   line: { hair: 1, strong: 2 },
   ring: { width: STATE.ring, offset: 3 },
   shadows: ['raised', 'lift', 'overlay', 'in'],
+  /* Стекло (И427): размытие того, что под органом, и насыщенность —
+     apple.com, полоса навигации: `saturate(180%) blur(20px)`; Fluent
+     Acrylic — размытие 30. Не течёт: это устройство материала, не ритм. */
+  frost: { blur: 20, saturate: 1.8 },
 }
 
 /*
@@ -494,16 +536,24 @@ const SOLID_GAP = { light: 4.2, dark: 5.5 }
 /* Четвёртый и пятый — обещание САМОГО эталона, снятое с его файлов: 11-я
    ступень даёт Lc 60 на 2-й той же шкалы, 12-я — Lc 90. Это единственная
    метрика, в которой эталон вообще что-то обещает (И191). */
-const NEED = { text: CONTRAST.text, control: CONTRAST.control, brandApart: COLOUR.brandApart, mutedLc: COLOUR.mutedLc, mainLc: COLOUR.mainLc }
+const NEED = { text: CONTRAST.text, control: CONTRAST.control, brandApart: COLOUR.brandApart, mutedLc: COLOUR.mutedLc, mainLc: COLOUR.mainLc, decorLc: COLOUR.decorLc }
 
 /* ── Краски: перевод и замер ─────────────────────────────────────────── */
 
+/* Краска читается так, как записана (И246): `#FFF` — белый, а не `#000FFF`;
+   имя цвета, прозрачность и опечатка — отказ с именем, а не молча мусор. */
+const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i
 const channels = (hex) => {
-  const n = Number.parseInt(hex.slice(1), 16)
+  if (typeof hex !== 'string' || !HEX.test(hex)) throw new Error(`Не краска: ${JSON.stringify(hex)} — нужна краска вида #RRGGBB или #RGB`)
+  const full = hex.length === 4 ? `#${[...hex.slice(1)].map((c) => c + c).join('')}` : hex
+  const n = Number.parseInt(full.slice(1), 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 const toHex = (parts) =>
   `#${parts.map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase()}`
+/** Вуаль поверх пола так, как её кладёт браузер: `color-mix(in srgb, X p%,
+ *  transparent)` на полу — доля краски в каналах sRGB, целыми. */
+const veil = (top, floor, share) => { const [t, f] = [channels(top), channels(floor)]; return toHex(t.map((v, i) => v * share + f[i] * (1 - share))) }
 const linear = (v) => (v / 255 <= 0.04045 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4)
 const unlinear = (v) => (v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055)
 const luminance = (hex) => {
@@ -525,15 +575,18 @@ const screenY = (hex) => {
   return 0.2126729 * r + 0.7151522 * g + 0.072175 * b
 }
 const softBlack = (y) => (y < 0.022 ? y + (0.022 - y) ** 1.414 : y)
+/* loClip 0.1 и deltaYmin 0.0005 — как в apca-w3 0.0.98G (И246): с 0.001 и без
+   deltaYmin почти одинаковые краски давали не ноль, а случайное число. */
 const apca = (text, bg) => {
   const yt = softBlack(screenY(text))
   const yb = softBlack(screenY(bg))
+  if (Math.abs(yb - yt) < 0.0005) return 0
   if (yb > yt) {
     const s = (yb ** 0.56 - yt ** 0.57) * 1.14
-    return Math.abs(s < 0.001 ? 0 : (s - 0.027) * 100)
+    return s < 0.1 ? 0 : Math.abs((s - 0.027) * 100)
   }
   const s = (yb ** 0.65 - yt ** 0.62) * 1.14
-  return Math.abs(s > -0.001 ? 0 : (s + 0.027) * 100)
+  return s > -0.1 ? 0 : Math.abs((s + 0.027) * 100)
 }
 const lightness = (hex) => {
   const y = luminance(hex)
@@ -644,7 +697,12 @@ const atStep = (wantL, chroma, hue) => {
 
 /* Знак на заливке выбирается, а не хранится: у трёх чужих наборов из трёх
    назначенный ими знак на кнопке не читался. */
-const inkOn = (bg) => (ratio('#FFFFFF', bg) >= ratio('#111111', bg) ? '#FFFFFF' : '#111111')
+const inkOn = (bg) => {
+  const preferred = ratio('#FFFFFF', bg) >= ratio('#111111', bg) ? '#FFFFFF' : '#111111'
+  // Mid-tone backgrounds can fail 4.5 with BOTH white and soft black.
+  // Pure black is limited to this measured on-colour role, never page ink.
+  return ratio(preferred, bg) >= NEED.text ? preferred : '#000000'
+}
 
 /* ── Форма лестницы ──────────────────────────────────────────────────── */
 
@@ -735,7 +793,10 @@ function scale(paper, ink, seed, mode, on = null) {
      возьмёт пол; упёрлись в краску — оставляем как есть, это уже
      настоящая находка, и её назовёт замер. */
   const stepped = (want, cap, i) => {
-    let target = cap === null ? want : behind(want, cap)
+    // A reference profile is a preference, not permission to move backwards
+    // when the owner's paper is darker/lighter than the reference paper.
+    const monotone = ahead(want, prev + dir * STEP_MIN)
+    let target = cap === null ? monotone : behind(monotone, cap)
     let hex = atStep(target, chromaAt(i), hue)
     for (let n = 0; n < 12 && dir * (lightness(hex) - prev) < STEP_MIN; n += 1) {
       const next = target + dir * 0.1
@@ -751,9 +812,13 @@ function scale(paper, ink, seed, mode, on = null) {
     if (!seed && i === 11) return ink
     if (seed && i === 8) { prev = solid; return seed }
     if (seed && i === 9) { prev = solid + gap; return atLightness(seed, toward, solid + gap) }
-    if (i < 8) return stepped(want, seed ? solid - dir * 1.5 : null, i)
+    // Reserve room for EVERY remaining pre-solid step, including sRGB
+    // quantisation. One fixed cap made the last four steps of lime identical.
+    if (i < 8) return stepped(want, seed ? solid - dir * (8 - i) * (STEP_MIN + .25) : null, i)
     if (i === 8) return stepped(want, null, i)
-    last = ahead(want, last + gap)
+    // Bright accents must leave two distinct text steps before the gamut end.
+    const endpoint = dir < 0 ? .2 + (11 - i) * .8 : 99.8 - (11 - i) * .8
+    last = behind(ahead(want, last + gap), endpoint)
     return stepped(last, null, i)
   })
   return withMutedText(row, on ?? row[1], hue, chromaAt(10), dir)
@@ -812,14 +877,277 @@ function press(accent, mode) {
 }
 
 /** Первая ступень, которая берёт порог. Именно так выбираются кольцо фокуса и
- *  граница органа управления: у эталона седьмая даёт 1.49 при требуемых трёх. */
-function firstReaching(row, against, need, from) {
+ *  граница органа управления: у эталона седьмая даёт 1.49 при требуемых трёх.
+ *  Мера — WCAG по умолчанию; хвост кнопки меряется APCA, кромка выключенного
+ *  — под прозрачностью выключенного (И295): ступень та же, мерка своя. */
+function firstReaching(row, against, need, from, measure = ratio) {
   let found = row[from]
   for (let i = from; i < row.length; i += 1) {
     found = row[i]
-    if (ratio(row[i], against) >= need) break
+    if ([against].flat().every((bg) => measure(row[i], bg) >= need)) break
   }
   return found
+}
+
+/** Фоны, на которых стоит орган: ступени 1–5 нейтрали (у Radix 1–2 — фоны
+ *  страницы, 3–5 — фоны органов). Кольцо фокуса обязано держать 3 : 1 на
+ *  каждой: в тёмной теме карточка — ступень 4, и кольцо, подобранное против
+ *  одной первой, давало на ней 2,31 : 1 (И246). */
+const GROUNDS = (n) => n.slice(0, 5)
+
+/* ── Роли по полу: кнопка, вуали, тени, сцена героя (И295) ───────────────
+
+   До 24.09.2026 эти краски рождались в стилях: хвост главной кнопки —
+   `color-mix(… 60% …)` в btn.module.css, кромка выключенной — 20 % чернил
+   там же, вуаль героя — 86 / 72 % в стилях блока, тени, черта, тихая вуаль
+   и вся палуба — долями в tokens.css и base.css. Их контраст не считал
+   никто, панель не могла их гарантировать, а смена палитры меняла их по
+   чужой формуле. Слово заказчика: «цвета для кнопок — это в палитре цветов
+   должно быть описано». Теперь каждую выпускает строитель ролью, а стили её
+   только читают (CLAUDE.md, «Делается только правильно»); цвет, рождённый в
+   стилях, — находка семьи `colorOut` в check:css.
+
+   Полов два рода. БУМАГА — страница, полоса, лист, карточка (ступени 1–5):
+   на ней пишут чернила. ПАЛУБА — тёмная полоса шапки, подвала и сцены
+   героя: на ней пишет её знак. У каждой роли, которая за полом идёт, две
+   краски — `-paper` и `-deck`; роль переназначает пол (`data-ground`,
+   `data-plate` в base.css), значения выпускаются здесь. */
+
+/** Краска с прозрачностью — вуаль, которую браузер кладёт поверх любого
+ *  пола: `#RRGGBBAA`. Ровно так она и уходит на экран: сборщик стилей
+ *  (Lightning CSS) сворачивает `color-mix(… p%, transparent)` с постоянной
+ *  краской в те же восемь бит, и доля 8 % становится 20/255 = 7.84 % —
+ *  тихая вуаль «Аптеки» теряла на этом порог. Поэтому доля переводится в
+ *  восьмибитную ВВЕРХ (`seen`: 8 % → 21/255) и меряется та, что покажет
+ *  экран. Доля — число строителя, в стилях сайта её нет (семья `colorOut`). */
+const seen = (share) => Math.ceil(share * 255 - 1e-9) / 255
+const translucent = (hex, share) => `${hex.toUpperCase()}${Math.round(seen(share) * 255).toString(16).padStart(2, '0').toUpperCase()}`
+
+/** Палуба. Светлая тема: обратная пара нейтрали — пол из чернил, знак из
+ *  бумаги. Тёмная: знак — чернила; полы — седьмая ступень у шапки
+ *  (`--chrome-bg`), вторая у подвала (`--page-deck`, И293) и первая у сцены
+ *  героя (`--scrim-deck`, самая тёмная нейтраль темы). Замер палубы берёт
+ *  все её полы; `stage` — сцена героя, под текстом на снимке. */
+const deckOf = (n, mode) => (mode === 'light'
+  ? { bg: n[11], ink: n[0], stage: n[11], grounds: [n[11]], edges: n.slice(0, 11).reverse() }
+  : { bg: n[6], ink: n[11], stage: n[0], grounds: [n[6], n[1], n[0]], edges: n.slice(7) })
+
+/** Вуали — краска пола долей поверх того, что под ней: на бумаге — чернила
+ *  (ступень 12), на палубе — её знак. Доли перенесены из tokens.css и
+ *  base.css, где стояли числом (И295), и не менялись; обещание есть у тихой
+ *  вуали (видна на каждом полу, STATE.visible) — его меряет замер ниже.
+ *    paper: тихая кнопка — порог STATE.quiet; выбранная тихая — вдвое
+ *           глубже; черта — 16 %; вдавленная тень (`--sh-in`) — 18 %.
+ *    deck:  орган в покое 10 % (`--chrome-hover`), под рукой 18, нажатый 30;
+ *           тихая 12, выбранная 22; черта 14; строка под рукой 8, нажатая
+ *           14; вдавленная тень 18; знак в покое — 78 % (`--chrome-fg-2`:
+ *           «степень реагирования … единый источник, чтоб системно», слово
+ *           заказчика).
+ *    жёлоб (лоток над полкой, оба пола): половина под рукой 12 % — шаг
+ *           состояния в 5 % давал 1.12 против жёлоба, 8 % заказчик не
+ *           отличил от молчания; открытая створка 14 %, под рукой 20 % —
+ *           открытое заметнее наведения (`--ctrl-hand`, `--ctrl-in`,
+ *           `--ctrl-in-hand`; лежат поверх жёлоба `--ctrl`). */
+const TROUGH = { 'ctrl-hand': 0.12, 'ctrl-in': 0.14, 'ctrl-in-hand': 0.2 }
+const VEIL = {
+  paper: { quiet: STATE.quiet, 'quiet-on': 2 * STATE.quiet, rule: 0.16, 'sh-inset': 0.18, ...TROUGH },
+  deck: { quiet: 0.12, 'quiet-on': 0.22, rule: 0.14, 'hover-row': 0.08, 'press-row': 0.14, 'hover-ctrl': 0.18, 'press-ctrl': 0.3, 'sh-inset': 0.18, ...TROUGH },
+  ctrl: 0.1,
+  dim: 0.78,
+}
+/** Тени: в светлой теме — марка долями (волосок, ближний слой, три дальних
+ *  по высоте), в тёмной и на палубе — белый волосок и чёрные слои: тень
+ *  цвета своего пола не отбрасывает тени (И100, И114). */
+const SHADE = {
+  names: ['ring', 'near', 'far-1', 'far-2', 'far-3'],
+  brand: [0.18, 0.18, 0.4, 0.55, 0.7],
+  deep: [['#FFFFFF', 0.05], ['#000000', 0.5], ['#000000', 0.6], ['#000000', 0.68], ['#000000', 0.75]],
+}
+/** Затемнение под окном и шторкой: самая тёмная нейтраль темы долей — в
+ *  обеих темах тёмное (из чернил вышла бы белая вуаль в тёмной), в тёмной
+ *  гуще: у тёмной страницы меньше своего контраста. */
+const SCRIM = { light: 0.55, dark: 0.72 }
+/** Стекло главной кнопки (И427): доля краски стекла — от 0.6 (Fluent
+ *  Acrylic: «tint opacity» 0.6…0.8 у светлой и тёмной темы; ниже стекло
+ *  читается пустым местом) и выше, пока надпись не держит 4.5 : 1 над
+ *  каждым полом и любым снимком; кромка-
+ *  блик — светлая краска долей 0.4 (Apple Materials: светлый волосок по
+ *  краю стекла отделяет его от фона). */
+const GLASS = { tint: [0.6, 1], rim: 0.4 }
+
+const lcApart = (a, b) => Math.abs(apca(a, b))
+const offSeen = (edge, bg) => ratio(veil(edge, bg, STATE.off[0]), bg)
+
+/** Хвост главной кнопки (И276): два тона ряда марки рядом с заливкой (a9) —
+ *  на том полу, где кнопка стоит. Дальний — первая ступень марки ОТ ПОЛА К
+ *  ЗАЛИВКЕ, которая видна на каждом полу (APCA Lc ≥ COLOUR.decorLc —
+ *  украшение от 5px) и отстоит от заливки не меньше её шага (SOLID_GAP — шаг
+ *  заливки к наведению); ближний — ступень, которой в шкале нет: середина
+ *  светлоты между дальним и заливкой (так же выведено нажатие, `press`).
+ *  Сторона пола — по светлоте: на светлой бумаге — ступени светлее a9, на
+ *  тёмной палубе светлой темы — темнее.
+ *
+ *  Заливка может стоять вплотную к полу — светлая марка на светлой бумаге,
+ *  тёмная на тёмной, — и тогда со стороны пола видной ступени нет, или она
+ *  той же светлоты, что заливка. Хвост тогда идёт по другую сторону
+ *  заливки: украшение подстраивается под марку, а не марка под украшение.
+ *  Иначе строитель двигал бы саму марку ради шеврона — жёлтая #FFE600
+ *  уходила в горчицу на ΔE 21. */
+function trailOf(a, grounds, mode) {
+  const fill = a[8]
+  const lf = lightness(fill)
+  const far = (c) => Math.abs(lightness(c) - lf)
+  const up = grounds.reduce((s, bg) => s + lightness(bg), 0) / grounds.length > lf
+  const steps = a.filter((_, i) => i !== 8)
+  const toward = steps.filter((c) => lightness(c) > lf === up).sort((x, y) => far(y) - far(x))
+  const beyond = steps.filter((c) => lightness(c) > lf !== up).sort((x, y) => far(x) - far(y))
+  const apart = (c, bg) => (far(c) >= SOLID_GAP[mode] ? lcApart(c, bg) : 0)
+  const tone = firstReaching([...toward, ...beyond], grounds, NEED.decorLc, 0, apart)
+  return { near: atLightness(fill, tone, (lightness(tone) + lf) / 2), far: tone, got: Math.min(...grounds.map((bg) => apart(tone, bg))) }
+}
+
+/** Вуаль героя (И280): текст сцены лежит на снимке заказчика, и снимок
+ *  может быть любым, вплоть до белого. Дальняя ступень — наименьшая доля
+ *  (шагом в сотую), при которой самая тихая строка героя — знак палубы
+ *  долей `VEIL.dim` — держит 4.5 : 1 на белом снимке под вуалью; ближняя —
+ *  на полпути от неё к сплошной. До 24.09.2026 стояли 86 / 72 % на все
+ *  палитры, и у трёх наборов из семи тихая строка героя проваливала порог
+ *  (Аптека — 4.15 : 1). */
+function scrimOf(deck) {
+  const on = (share) => {
+    const bg = veil(deck.stage, '#FFFFFF', seen(share))
+    return ratio(veil(deck.ink, bg, seen(VEIL.dim)), bg)
+  }
+  let far = 1
+  for (let k = 50; k <= 100; k += 1) if (on(k / 100) >= NEED.text) { far = k / 100; break }
+  const near = Math.round((far + (1 - far) / 2) * 100) / 100
+  return { far, near, got: on(far) }
+}
+
+/** Роли по полу и их замер — одним расчётом: выпуск (`roles`), замер
+ *  (`auditPalette`) и панель вида («Guaranteed») читают одни и те же
+ *  краски и одни и те же числа. `checks` — строки замера: id для панели,
+ *  имя для отчёта, число и норма. */
+function groundRoles(n, a, mode) {
+  const out = {}
+  const checks = []
+  const check = (id, rule, got, need, unit = ':1') => checks.push({ id, rule, got, need, unit })
+  const deck = deckOf(n, mode)
+  const G = GROUNDS(n)
+  const ink = n[11]
+
+  /* Палуба: пол, знак, знак в покое, орган в покое; сцена героя. */
+  out['--chrome-bg'] = deck.bg
+  out['--chrome-fg'] = deck.ink
+  out['--chrome-fg-2'] = translucent(deck.ink, VEIL.dim)
+  out['--chrome-hover'] = translucent(deck.ink, VEIL.ctrl)
+  out['--scrim-deck'] = deck.stage
+
+  /* Вуали обоих полов. */
+  for (const [job, share] of Object.entries(VEIL.paper)) out[`--${job}-paper`] = translucent(ink, share)
+  for (const [job, share] of Object.entries(VEIL.deck)) out[`--${job}-deck`] = translucent(deck.ink, share)
+  check('quiet', 'тихая вуаль видна на всех поверхностях', Math.min(...G.map((bg) => ratio(veil(ink, bg, seen(VEIL.paper.quiet)), bg))), STATE.visible)
+  check('quiet-deck', 'тихая вуаль видна на палубе', Math.min(...deck.grounds.map((bg) => ratio(veil(deck.ink, bg, seen(VEIL.deck.quiet)), bg))), STATE.visible)
+
+  /* Тени обоих полов. */
+  SHADE.names.forEach((job, i) => {
+    const deep = translucent(...SHADE.deep[i])
+    out[`--sh-${job}-paper`] = mode === 'light' ? translucent(a[8], SHADE.brand[i]) : deep
+    out[`--sh-${job}-deck`] = deep
+  })
+
+  /* Затемнение под окном и вуаль героя. */
+  out['--scrim'] = translucent(deck.stage, SCRIM[mode])
+  const scrim = scrimOf(deck)
+  out['--scrim-near'] = translucent(deck.stage, scrim.near)
+  out['--scrim-far'] = translucent(deck.stage, scrim.far)
+  check('scrim', 'текст героя читается на любом снимке', scrim.got, NEED.text)
+
+  /* Кнопка. Громкая — `--pop` / `--on-pop` (ступень 9 марки и знак на ней;
+     на палубе — обратная пара), их роли уже есть. Под рукой на палубе —
+     знак палубы на шаг заливки к её полу, как ступень 10 от 9. */
+  out['--pop-hover-deck'] = atLightness(deck.ink, deck.bg, lightness(deck.ink) - SOLID_GAP[mode])
+  check('pop-deck', 'светлая пилюля палубы под рукой читается', ratio(deck.bg, out['--pop-hover-deck']), NEED.text)
+
+  /* Хвост — ступени марки на обоих полах: заливка главной кнопки и на
+     палубе — марка (роль кнопки из каталога посчитана на корне), меняется
+     только пол, к которому хвост сходит. */
+  const paper = trailOf(a, G, mode)
+  const onDeck = trailOf(a, deck.grounds, mode)
+  out['--pop-trail-near-paper'] = paper.near
+  out['--pop-trail-far-paper'] = paper.far
+  out['--pop-trail-near-deck'] = onDeck.near
+  out['--pop-trail-far-deck'] = onDeck.far
+  check('trail', 'хвост главной кнопки виден на полу', paper.got, NEED.decorLc, 'Lc')
+  check('trail-deck', 'хвост на палубе виден', onDeck.got, NEED.decorLc, 'Lc')
+
+  /* Второй конец градиента главной (И424; элементы 06, 19): заливка,
+     сдвинутая по светлоте на два шага заливки — от надписи, а где в ту
+     сторону нет запаса, к ней, пока надпись держит 4.5 : 1. Готовой краски
+     для этого нет: нажатая краска марки и тона хвоста роняли надпись до
+     3.1–3.3 : 1 на части образцов. На палубе заливка главной — знак палубы,
+     надпись — её пол. */
+  const gradOf = (fill, onFill) => {
+    const gap = SOLID_GAP[mode] * 2
+    const L = lightness(fill)
+    const away = lightness(onFill) < L ? ['#FFFFFF', 1] : ['#000000', -1]
+    const back = away[1] > 0 ? ['#000000', -1] : ['#FFFFFF', 1]
+    const tries = [away, back].map(([to, dir]) => atLightness(fill, to, L + dir * gap))
+    const ok = tries.filter((c) => ratio(onFill, c) >= NEED.text)
+    return (ok.length ? ok : tries).sort((x, y) => Math.abs(lightness(y) - L) - Math.abs(lightness(x) - L))[0]
+  }
+  out['--pop-grad-paper'] = gradOf(a[8], inkOn(a[8]))
+  out['--pop-grad-deck'] = gradOf(deck.ink, deck.bg)
+  check('pop-grad', 'надпись главной читается на втором конце градиента', ratio(inkOn(a[8]), out['--pop-grad-paper']), NEED.text)
+  check('pop-grad-deck', 'надпись главной на палубе читается на втором конце градиента', ratio(deck.bg, out['--pop-grad-deck']), NEED.text)
+
+  /* Стекло главной (И427; элемент 66): заливка просвечивает — сквозь неё
+     видно размытое то, что под кнопкой. Краска главной раскрывается на
+     корне и одна на всех полах: на бумаге, на карточке, на палубе и поверх
+     снимка героя — стекло держит надпись над каждым из них и над любым
+     снимком (чёрное и белое — края любого), а на бумаге видно само
+     (STATE.visible). Краска — ступень марки, доля — наименьшая в коридоре
+     GLASS.tint, при которой это выполнено; при равной доле — ступень
+     ближе к заливке. Не хватает коридора ни у одной — надпись важнее
+     просвета: заливка марки целиком. Кромка — блик: светлый конец
+     нейтрали долей GLASS.rim; на светлом полу он не виден и не должен —
+     он для снимка. */
+  const glassOf = (label) => {
+    const under = [...G, ...deck.grounds, deck.stage, '#000000', '#FFFFFF']
+    const worst = (paint, s) => Math.min(...under.map((bg) => ratio(label, veil(paint, bg, seen(s)))))
+    const seenOn = (paint, s) => Math.min(...G.map((bg) => ratio(veil(paint, bg, seen(s)), bg)))
+    let best = { paint: a[8], s: 1 }
+    a.forEach((paint, i) => {
+      for (let s = GLASS.tint[0]; s < best.s || (s === best.s && Math.abs(i - 8) < Math.abs(a.indexOf(best.paint) - 8)); s = Math.round((s + 0.01) * 100) / 100) {
+        if (worst(paint, s) >= NEED.text && seenOn(paint, s) >= STATE.visible) { best = { paint, s }; break }
+      }
+    })
+    return { fill: translucent(best.paint, best.s), got: worst(best.paint, best.s), seen: seenOn(best.paint, best.s) }
+  }
+  const glass = glassOf(inkOn(a[8]))
+  out['--pop-glass'] = glass.fill
+  out['--pop-rim'] = translucent(lightness(n[0]) > lightness(n[11]) ? n[0] : n[11], GLASS.rim)
+  check('pop-glass', 'надпись главной читается на стекле над каждым полом и любым снимком', glass.got, NEED.text)
+  check('pop-glass-seen', 'стекло главной видно на всех поверхностях', glass.seen, STATE.visible)
+
+  /* Кромка выключенного органа: видна и под прозрачностью выключенного —
+     на нижнем краю коридора STATE.off; первая ступень нейтрали от пола,
+     которая это держит. Выключенное читается кромкой, не только тоном. */
+  out['--edge-off-paper'] = firstReaching(n.slice(5), G, STATE.visible, 0, offSeen)
+  out['--edge-off-deck'] = firstReaching(deck.edges, deck.grounds, STATE.visible, 0, offSeen)
+  check('edge-off', 'кромка выключенного органа видна на всех поверхностях', Math.min(...G.map((bg) => offSeen(out['--edge-off-paper'], bg))), STATE.visible)
+  check('edge-off-deck', 'кромка выключенного органа видна на палубе', Math.min(...deck.grounds.map((bg) => offSeen(out['--edge-off-deck'], bg))), STATE.visible)
+
+  return { roles: out, checks }
+}
+
+/** Замер ролей по полу для одного набора в теме — то же, что меряет
+ *  `auditPalette`, числами: его строки читает панель вида («Guaranteed»). */
+function groundChecks(rawSet, mode) {
+  const set = withSale(rawSet, mode)
+  const n = scale(set.paper, set.ink, null, mode)
+  const a = scale(set.paper, set.ink, set.accent, mode, n[1])
+  return groundRoles(n, a, mode).checks
 }
 
 /* ── Роли: что из лестницы чем работает ──────────────────────────────── */
@@ -907,6 +1235,8 @@ function roles(rawSet, mode) {
   a.forEach((hex, i) => { out[`--a-${i + 1}`] = hex })
   out['--on-a-9'] = inkOn(a[8])
   out['--a-press'] = press(a, mode)
+  out['--on-a-10'] = inkOn(a[9])
+  out['--on-a-press'] = inkOn(out['--a-press'])
 
   for (const job of STATUS) {
     if (!set[job]) continue
@@ -919,7 +1249,15 @@ function roles(rawSet, mode) {
      кольцо опознают орган управления — и потому берутся замером. */
   out['--line'] = n[5]
   out['--border'] = firstReaching(n, n[1], NEED.control, 6)
-  out['--ring'] = firstReaching(a, n[0], NEED.control, 7)
+  /* Кромка органа, который стоит на ЛЮБОМ полу (тихая кнопка с кромкой):
+     3 : 1 на фонах 1–5. `--border` подобран к полю (ступень 2) и на светлой
+     странице даёт 2,56 — поля ввода стоят на подложке и облик не меняют;
+     органы на полу берут эту роль (И252). */
+  out['--edge'] = firstReaching(n, GROUNDS(n), NEED.control, 6)
+  out['--ring'] = firstReaching(a, GROUNDS(n), NEED.control, 7)
+  /* Палуба, вуали, тени, сцена героя, хвост и кромка выключенной кнопки —
+     роли по полу (И295). */
+  Object.assign(out, groundRoles(n, a, mode).roles)
   return out
 }
 
@@ -1018,7 +1356,7 @@ function auditPalette(rawSeed, mode) {
   const n = scale(seed.paper, seed.ink, null, mode)
   const a = scale(seed.paper, seed.ink, seed.accent, mode, n[1])
   const pressed = press(a, mode)
-  const ring = firstReaching(a, n[0], NEED.control, 7)
+  const ring = firstReaching(a, GROUNDS(n), NEED.control, 7)
   const bound = firstReaching(n, n[1], NEED.control, 6)
   const hover = Math.abs(lightness(a[9]) - lightness(a[8]))
   const pushed = Math.abs(lightness(pressed) - lightness(a[8]))
@@ -1031,13 +1369,23 @@ function auditPalette(rawSeed, mode) {
   want('приглушённый текст на карточке', ratio(n[10], n[1]), NEED.text)
   want('цена фирменным на карточке', ratio(a[10], n[1]), NEED.text)
   want('знак на кнопке покупки', ratio(inkOn(a[8]), a[8]), NEED.text)
-  want('кольцо фокуса на листе', ratio(ring, n[0]), NEED.control)
+  want('текст кнопки при наведении', ratio(inkOn(a[9]), a[9]), NEED.text)
+  want('текст нажатой кнопки', ratio(inkOn(pressed), pressed), NEED.text)
+  want('кольцо фокуса на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(ring, bg))), NEED.control)
   want('граница органа управления', ratio(bound, n[1]), NEED.control)
+  const edge = firstReaching(n, GROUNDS(n), NEED.control, 6)
+  want('кромка органа на всех поверхностях', Math.min(...GROUNDS(n).map((bg) => ratio(edge, bg))), NEED.control)
+  /* Роли по полу (И295) — тем же расчётом, что их выпускает: тихая вуаль
+     на бумаге и на палубе (орган без кромки виден только ею; «Аптека» до
+     24.09.2026 выходила с тихой кнопкой 1.14 : 1 на полу страницы, И285),
+     хвост главной кнопки на обоих полах, кромка выключенной, пилюля палубы
+     под рукой и текст героя на любом снимке. */
+  for (const c of groundRoles(n, a, mode).checks) want(c.rule, c.got, c.need)
 
   /* Статусные краски: у каждой своя лестница, и каждая мерится как марка.
      Красный до 20.09.2026 не мерил никто (И190), а скидка, «мало осталось»
      и «в наличии» не существовали вовсе до 21.09.2026. */
-  const jobs = { error: 'ошибки', sale: 'скидки', warn: 'предупреждения', ok: 'наличия' }
+  const jobs = { error: 'ошибки', sale: 'скидки', warn: 'предупреждения', ok: 'наличия', info: 'информации' }
   for (const job of STATUS) {
     if (!seed[job]) continue
     const row = scale(seed.paper, seed.ink, seed[job], mode, n[1])
@@ -1080,9 +1428,138 @@ function auditPalette(rawSeed, mode) {
   return found
 }
 
+/* ── Строитель для заказчика: верен по построению (И275) ────────────────
+
+   Заказчик задаёт НАМЕРЕНИЕ, а не три краски: цвет марки (тон он хочет
+   именно этот), бумагу — тёплую, нейтральную или холодную, с лёгким тоном
+   или без, и чернила — сами или с уходом в марку. Строитель превращает
+   намерение в набор, который проходит ВЕСЬ замер набора (`auditPalette`) в
+   обеих темах, и одной строкой говорит, что он подвинул. Списка ошибок
+   заказчик не видит никогда: замер остаётся инструментом того, кто ведёт
+   набор, а инструмент заказчика гарантирует (слово заказчика 24.09.2026:
+   «не понимаю, зачем мне давать выбор цвета, а затем он не подходит и
+   ошибки в меню»).
+
+   Поиск ближайшего: тон марки держится, светлота и насыщенность перебираются
+   от заданной краски наружу по ΔE, и берётся первая, при которой замер
+   чист; тон двигается только если ни одна светлота не прошла — и тогда это
+   названо. Чернила темнеют (светлеют в тёмной теме), пока текст не сдержит
+   обещание эталона. */
+
+const PAPER_HUE = { warm: 80, cool: 250, neutral: 80 }
+const PAPER_TINT = { none: 0.003, light: 0.012 }
+const THEME = {
+  light: { paper: 0.988, ink: [0.25, 0.23, 0.21, 0.19, 0.17, 0.15, 0.13] },
+  dark: { paper: 0.18, ink: [0.94, 0.955, 0.97, 0.985] },
+}
+const hexOf = (lch) => toHex(clampChroma(lch).map((v) => v * 255))
+/** К чему относится находка замера — по её имени (замер тот же, И275). */
+const partOf = (rule) => (/разные краски/.test(rule) ? 'signals'
+  : /ошибки|скидки|предупреждения|наличия|информации/.test(rule) ? 'status'
+    : /фирменн|кнопк|кольцо фокуса|наведение|нажатие/.test(rule) ? 'brand' : 'neutral')
+
+/** Бумага и чернила темы из намерения: чернила уходят от бумаги, пока
+ *  нейтральная часть замера не станет чистой. */
+function groundOf(intent, mode) {
+  const warmth = intent.paper ?? 'warm'
+  const hue = PAPER_HUE[warmth] ?? 80
+  const tint = warmth === 'neutral' ? 0 : PAPER_TINT[intent.tint ?? 'none'] ?? 0.003
+  const paper = hexOf([THEME[mode].paper, tint, hue])
+  const [, bC, bH] = oklch(intent.brand)
+  const inkHue = intent.inkTowardBrand ? bH : hue
+  const inkC = intent.inkTowardBrand ? Math.min(0.03, bC * 0.3) : Math.max(tint, 0.004)
+  let ink = null
+  for (const L of THEME[mode].ink) {
+    ink = hexOf([L, inkC, inkHue])
+    if (!auditPalette({ paper, ink, accent: intent.brand }, mode).some((f) => partOf(f.rule) === 'neutral')) break
+  }
+  return { paper, ink }
+}
+
+/** Свои чернила темы, доведённые до замера НАИМЕНЬШИМ сдвигом: тон и
+ *  насыщенность те же, светлота уходит от бумаги шагом 0.005 OKLCH, пока
+ *  нейтральная часть замера не станет чистой. null — не дошли и за 0.2:
+ *  тогда чернила подбирает намерение (`groundOf`). Так же доводятся и
+ *  готовые наборы набора (И285): верен по построению не только строитель. */
+function deeperInk(ground, accent, mode) {
+  const [L, C, H] = oklch(ground.ink)
+  const way = mode === 'light' ? -1 : 1
+  for (let d = 0.005; d <= 0.2; d += 0.005) {
+    const ink = hexOf([L + way * d, C, H])
+    if (!auditPalette({ ...ground, ink, accent }, mode).some((f) => partOf(f.rule) === 'neutral')) return ink
+  }
+  return null
+}
+
+/** Ближайшая к `brand` краска марки, при которой замер темы чист целиком. */
+function brandFor(brand, ground, mode) {
+  const [L, C, H] = oklch(brand)
+  const clean = (accent) => auditPalette({ ...ground, accent }, mode).length === 0
+  if (clean(brand)) return { accent: brand, hue: 0 }
+  const tried = new Set()
+  for (const turn of [0, 8, -8, 16, -16, 24, -24, 32, -32]) {
+    const candidates = []
+    for (const c of [C, C * 0.8, C * 0.6, C * 0.4]) {
+      for (let d = 0; d <= 0.5; d += 0.02) for (const l of d ? [L - d, L + d] : [L]) if (l > 0.15 && l < 0.93) candidates.push(hexOf([l, c, (H + turn + 360) % 360]))
+    }
+    candidates.sort((a, b) => difference(a, brand) - difference(b, brand))
+    for (const hex of candidates) {
+      if (tried.has(hex)) continue
+      tried.add(hex)
+      if (clean(hex)) return { accent: hex, hue: turn }
+    }
+  }
+  return null
+}
+
+/** Почему краску марки пришлось подвинуть — словами для заказчика. */
+function whyMoved(from, to, ground, mode) {
+  const parts = new Set(auditPalette({ ...ground, accent: from }, mode).map((f) => partOf(f.rule)))
+  const way = lightness(to) < lightness(from) ? 'a little darker' : 'a little lighter'
+  if (parts.has('signals')) return `${way}, so it stays apart from the sale and stock colours`
+  if (parts.has('brand')) return `${way}, so the button text and the focus ring read`
+  return `${way}, so every text on it reads`
+}
+
+/** Намерение → набор, который проходит замер в обеих темах, и что
+ *  подвинуто. `intent`: { brand: '#hex', paper: 'warm'|'neutral'|'cool',
+ *  tint: 'none'|'light', inkTowardBrand: boolean }. `exact` (тонкая
+ *  настройка) — свои бумага и чернила темы: они тоже доводятся до замера. */
+function fitPalette(intent, exact = null) {
+  const out = { light: null, dark: null }
+  const notes = []
+  const used = {}
+  for (const mode of ['light', 'dark']) {
+    let ground = exact?.[mode] ? { paper: exact[mode].paper, ink: exact[mode].ink } : groundOf(intent, mode)
+    const accent = exact?.[mode]?.accent ?? intent.brand
+    const weak = exact?.[mode] ? auditPalette({ ...ground, accent }, mode).filter((f) => partOf(f.rule) === 'neutral') : []
+    if (weak.length) {
+      const ink = deeperInk(ground, accent, mode) ?? groundOf(intent, mode).ink
+      const why = weak.every((f) => /вуаль/.test(f.rule)) ? 'the ink was made a touch deeper, so quiet buttons show on the page' : 'the ink was made deeper, so body text reads'
+      notes.push({ what: 'ink', mode, from: ground.ink, to: ink, why })
+      ground = { paper: ground.paper, ink }
+    }
+    const want = exact?.[mode]?.accent ?? intent.brand
+    const found = brandFor(want, ground, mode)
+    if (!found) return { ok: false, seed: null, notes: [{ what: 'brand', mode, from: want, to: want, why: 'no tone of this colour works as a button here; try another colour' }] }
+    if (found.accent !== want) notes.push({ what: 'brand', mode, from: want, to: found.accent, why: found.hue ? `the hue was turned ${Math.abs(found.hue)}°, so it stays apart from the sale and stock colours` : whyMoved(want, found.accent, ground, mode) })
+    out[mode] = { ...ground, accent: found.accent }
+    used[mode] = found.accent
+  }
+  return { ok: true, seed: out, notes, used }
+}
+
+/** Набор → намерение, из которого строитель его повторит (для «Edit»). */
+function intentOf(set) {
+  const [, pC, pH] = oklch(set.light.paper)
+  const [, iC] = oklch(set.light.ink)
+  const paper = pC < 0.0045 ? 'neutral' : pH >= 20 && pH < 160 ? 'warm' : 'cool'
+  return { brand: set.light.accent.toUpperCase(), paper, tint: pC >= 0.007 ? 'light' : 'none', inkTowardBrand: iC >= 0.02 }
+}
+
 </script>
 <script>
-const SETS = {"Латунь на угле":{"light":{"paper":"#FCFBF9","ink":"#1F1E1C","accent":"#9A7B3F"},"dark":{"paper":"#121110","ink":"#EDEBE8","accent":"#B8955A"}},"Аптека":{"light":{"paper":"#FEFCF5","ink":"#24352B","accent":"#B79339"},"dark":{"paper":"#0C1510","ink":"#EDECE9","accent":"#B79339"}},"Олива":{"light":{"paper":"#FCFDF7","ink":"#22271A","accent":"#5F6B34"},"dark":{"paper":"#11140D","ink":"#ECECEA","accent":"#5F6B34"}},"Мек остров":{"light":{"paper":"#FFFFFF","ink":"#231F18","accent":"#0C3A46"},"dark":{"paper":"#141310","ink":"#EFECE7","accent":"#2E7C8F"}},"Тёплый лист":{"light":{"paper":"#FFFCF6","ink":"#241E17","accent":"#A34627","error":"#E5484D"},"dark":{"paper":"#15120E","ink":"#EDECEA","accent":"#A34627"}},"Ледяной шалфей":{"light":{"paper":"#FAFCFB","ink":"#1B2422","accent":"#4E8C7A"},"dark":{"paper":"#0D1211","ink":"#E9EDEC","accent":"#5FA391"}},"Аптечный синий":{"light":{"paper":"#FBFCFE","ink":"#1A1F2B","accent":"#3A6EA5"},"dark":{"paper":"#0E1116","ink":"#E8EBF0","accent":"#5B90C7"}}};
+const SETS = {"Латунь на угле":{"light":{"paper":"#FCFBF9","ink":"#1F1E1C","accent":"#9A7B3F"},"dark":{"paper":"#121110","ink":"#EDEBE8","accent":"#B8955A"}},"Аптека":{"light":{"paper":"#FEFCF5","ink":"#1E2F25","accent":"#B79339"},"dark":{"paper":"#0C1510","ink":"#EDECE9","accent":"#B79339"}},"Олива":{"light":{"paper":"#FCFDF7","ink":"#22271A","accent":"#5F6B34"},"dark":{"paper":"#11140D","ink":"#ECECEA","accent":"#5F6B34"}},"Мек остров":{"light":{"paper":"#FFFFFF","ink":"#231F18","accent":"#0C3A46"},"dark":{"paper":"#141310","ink":"#EFECE7","accent":"#2E7C8F"}},"Тёплый лист":{"light":{"paper":"#FFFCF6","ink":"#241E17","accent":"#A34627","error":"#E5484D"},"dark":{"paper":"#15120E","ink":"#EDECEA","accent":"#A34627"}},"Ледяной шалфей":{"light":{"paper":"#FAFCFB","ink":"#1B2422","accent":"#4E8C7A"},"dark":{"paper":"#0D1211","ink":"#E9EDEC","accent":"#5FA391"}},"Аптечный синий":{"light":{"paper":"#FBFCFE","ink":"#1A1F2B","accent":"#3A6EA5"},"dark":{"paper":"#0E1116","ink":"#E8EBF0","accent":"#5B90C7"}}};
 const ORIGINAL = JSON.parse(JSON.stringify(SETS));
 const state = { name: Object.keys(SETS)[0], show: 'both' };
 const cur = () => SETS[state.name];

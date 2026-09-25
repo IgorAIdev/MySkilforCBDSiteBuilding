@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>23 · Луна и солнце в круге</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 23 — «Луна и солнце в круге». Источник — три CSS от заказчика 24.09.2026: луна и солнце, солнце с лучами, кнопка с заливкой при включении (source.css, source-2.css, source-3.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: большая тень вокруг круга; оборот знаков на 360°; задержка смены; солнце с лучами и луна, собранные из кругов и теней; синяя заливка и рамка; угол 10 и 5 пикселей при нажатии.
+  Приведено к единой форме: круг тона вместо белого — без тени белый на белом не виден; луна и солнце — из листа набора; смена — уменьшение одного и рост другого за 280 мс; вариант «включено — марка»: включённая кнопка заливается цветом марки (третий источник).
+  Наведение: тон + 5 % чернил. Нажатие: тон + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="group"><button class="el" data-shape="pill" data-icon aria-pressed="false" type="button" aria-label="Тёмная тема"><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></button><button class="el" data-shape="pill" data-icon data-on-voice="loud" aria-pressed="false" type="button" aria-label="Тёмная тема"><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-shape="pill" data-icon><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-icon data-state="hover"><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-icon data-state="press"><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-icon data-state="focus"><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-icon data-on><span class="swap"><svg data-sign="moon"></svg><svg data-sign="sun"></svg></span></span><figcaption>включено</figcaption></figure>
+  </div>
+</body>
+</html>

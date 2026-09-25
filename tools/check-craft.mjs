@@ -40,6 +40,11 @@
  *  12. Палец на планшете— цель нажатия там, где окно широкое, а указатель
  *                        грубый: ширина решает раскладку, указатель решает
  *                        размер цели.
+ *  13. Поле и телефон  — поле без подписи (семья `name`), мельче 16px на
+ *                        телефоне (`fieldZoom`), поле оформления без
+ *                        `autocomplete` (`autofill`, личные страницы).
+ *  14. Главный заголовок— не длиннее трёх строк (`h1Lines`). Ошибку скрипта
+ *                        при загрузке ловит `check:detect` (`scriptError`).
  *
  * Работает храповиком, как и `check:css`: в `tools/craft-baseline.json`
  * записано, сколько нарушений сегодня; проверка падает, только если их
@@ -54,18 +59,18 @@
  * PLAYWRIGHT.
  */
 
-const playwright = process.env.PLAYWRIGHT
-  ? await import(process.env.PLAYWRIGHT)
-  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
-const { chromium } = playwright
+import { loadPlaywright, loadSharp, still } from './browser.mjs'
+const { chromium } = await loadPlaywright()
+const sharp = await loadSharp()
 import { readFileSync, writeFileSync } from 'node:fs'
-import { CONTRAST, TARGET, LAYOUT } from './thresholds.mjs'
-import { CRAFT_LABELS as NAMES } from './craft-families.mjs'
+import { CONTRAST, TARGET, LAYOUT, IOS_ZOOM, H1_LINES } from './thresholds.mjs'
+import { CRAFT_LABELS as NAMES, VECTOR } from './craft-families.mjs'
 import { SHEET_AR_SLACK, SHEET_SAMPLES, SHEET_SLACK } from './sheet-samples.mjs'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import sharp from 'sharp'
-import { sample, isNative } from './routes.mjs'
+import { sample, personal, isNative } from './routes.mjs'
+import { sessionOf } from './sessions.mjs'
+import { SESSIONS } from './kit-config.mjs'
 
 /** Контраст по WCAG — та же формула, что и в странице; здесь она нужна
  *  второй раз, снаружи, для дна, снятого с экрана. */
@@ -102,22 +107,32 @@ const BASE = process.env.SITE ?? 'http://localhost:8099'
  * перепроверял разовыми замерами руками, которые никуда не ложатся.
  *
  *   node tools/check-craft.mjs --page /bg/catalog     только эти адреса
+ *   node tools/check-craft.mjs --pages /bg,/bg/catalog/oils   ровно эти адреса дерева
  *   node tools/check-craft.mjs --only target,markInk  только эти семьи в отчёте
+ *   node tools/check-craft.mjs --pages … --json out.json   находки узкого прогона файлом
  *
  * Узкий прогон НИКОГДА не трогает базу и не выносит вердикт: считать долг по
  * половине дерева значит записать неправду. Он печатает найденное, а судит
- * полный. */
+ * полный — или тот, кто его позвал, по файлу `--json` (проверка выбранного
+ * вида витрины, `check:choice`, И270).
+ *
+ * `CRAFT_COOKIE="имя=значение; имя2=значение2"` — cookie во всех средах
+ * проверки, настоящие, а не заголовком: их видит и скрипт страницы. Так
+ * меряется черновик вида (черновой режим Next и его cookie). */
 const flag = (name) => {
   const i = process.argv.indexOf(name)
   return i === -1 ? null : process.argv[i + 1] ?? null
 }
 const ONLY_PAGE = flag('--page')
+const ONLY_PAGES = (flag('--pages') ?? '').split(',').map((x) => x.trim()).filter(Boolean)
 const ONLY_FAM = (flag('--only') ?? '').split(',').map((x) => x.trim()).filter(Boolean)
-const NARROW = Boolean(ONLY_PAGE)
+const JSON_OUT = flag('--json')
+const NARROW = Boolean(ONLY_PAGE || ONLY_PAGES.length)
+const ASKED = ONLY_PAGES.length ? ONLY_PAGES.join(', ') : ONLY_PAGE
 
-const PAGES = sample().filter((path) => !ONLY_PAGE || path.includes(ONLY_PAGE))
-if (!PAGES.length) {
-  console.error(`Под «${ONLY_PAGE}» не подошёл ни один адрес дерева. Список: node tools/routes.mjs`)
+const PAGES = [...sample(), ...personal()].filter((path) => ONLY_PAGES.length ? ONLY_PAGES.includes(path) : !ONLY_PAGE || path.includes(ONLY_PAGE))
+if (!PAGES.length || (ONLY_PAGES.length && PAGES.length !== ONLY_PAGES.length)) {
+  console.error(`Под «${ASKED}» не подошли адреса дерева${PAGES.length ? ` (подошли: ${PAGES.join(', ')})` : ''}. Список: node tools/routes.mjs`)
   process.exit(1)
 }
 /* 1200 и 900 добавлены не для полноты. Ровно в этой полосе двухколоночный
@@ -149,14 +164,15 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 /** Что меряется в самой странице. Одной функцией, потому что она уезжает
  *  в браузер целиком и ничего оттуда не импортирует. */
-const measure = ({ phone, catalogue, target, contrast }) => {
+const measure = ({ phone, catalogue, target, contrast, vector, iosZoom, h1Lines, autofill }) => {
   const out = { placeholder: [], measure: [], target: [], contrast: [], collision: [],
                 weight: [], jump: [], name: [], heads: [], dress: [], clip: [],
                 swipe: [], stretch: [], broken: [], spill: [], focus: [], wrap: [],
                 anchor: [], outline: [], marker: [], dark: [], ladder: [], wideCtrl: [], lopsided: [],
                 markInk: [],
                 covered: [],
-                lane: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [] }
+                lane: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [],
+                autofill: [], fieldZoom: [], h1Lines: [] }
   const seen = new Set()
 
   const lum = (c) => {
@@ -426,6 +442,17 @@ const measure = ({ phone, catalogue, target, contrast }) => {
         - parseFloat(getComputedStyle(host).paddingLeft)
         - parseFloat(getComputedStyle(host).paddingRight)
       if (hostW < 80) continue
+      /* Заголовок, который сам — колонка ряда (сторона `sidebar`: в той же
+         строке рядом стоит сосед), меряется своей дорожкой, а не рядом.
+         Мерка по родителю назвала «заголовком в треть колонки» левую колонку
+         документа «О нас» — «Batches and lab reports» в две строки, как
+         «Delivery and payment» на главной (И415). */
+      const beside = [...host.children].some((c) => {
+        if (c === el) return false
+        const r = c.getBoundingClientRect()
+        return r.width > 0 && r.top < box.bottom && r.bottom > box.top && (r.left >= box.right - 1 || r.right <= box.left + 1)
+      })
+      if (beside) continue
       const fill = box.width / hostW
       if (fill < 0.7) out.measure.push(`${name(el)} — ${Math.round(fill * 100)}% колонки, строк ${lines}`)
       continue
@@ -910,9 +937,15 @@ const measure = ({ phone, catalogue, target, contrast }) => {
   /* 5 · вес снимка. Меряется в пикселях, а не в байтах: байты зависят от
      сжатия, а пикселей отдано ровно столько, сколько решил тот, кто вставил
      картинку. Порог 2× — это уже вчетверо больше данных, чем нужно даже
-     экрану с удвоенной плотностью. */
+     экрану с удвоенной плотностью.
+
+     Вектор пикселей не везёт (И264): у SVG `naturalWidth` — размер по
+     умолчанию, а не отданный вес. Образец витрины рисует товар SVG, и
+     миниатюра строки корзины в 38px числилась «150px в 38px, ×3.9» —
+     двадцать шесть находок того, чего нет. */
+  const isVector = new RegExp(vector, 'i')
   for (const img of document.images) {
-    if (!shown(img) || !img.naturalWidth) continue
+    if (!shown(img) || !img.naturalWidth || isVector.test(img.currentSrc)) continue
     const w = img.getBoundingClientRect().width
     if (w < 24) continue
     const over = img.naturalWidth / w
@@ -961,6 +994,73 @@ const measure = ({ phone, catalogue, target, contrast }) => {
     if (!shown(img) || img.hasAttribute('alt')) continue
     const key = `a:${img.getAttribute('src')}`
     if (!seen.has(key)) { seen.add(key); out.name.push(`img ${(img.getAttribute('src') || '?').split('/').pop()} — без alt`) }
+  }
+  /* Поле — тоже орган, и его имя — подпись: `label` (по `for` или
+     обёрткой), `aria-label`, `aria-labelledby`. Подсказка внутри поля
+     (`placeholder`) именем не считается: она пропадает с первой буквой, и
+     вернувшийся к полю покупатель уже не знает, что в нём (ui-ux-pro-max,
+     ux-guidelines.csv, Forms: «Ensure inputs have paired labels»; Refero,
+     craft-details.md §2 #10, §9 #56). До 24.09.2026 семья смотрела только
+     ссылки и кнопки — безымянное поле не видел никто. */
+  const FIELDS = 'input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=image]):not([type=reset]), select, textarea'
+  const fieldOf = (el) => `поле ${el.tagName.toLowerCase()}${el.tagName === 'INPUT' ? `[type=${el.type}]` : ''}${el.getAttribute('name') ? ` name="${el.getAttribute('name')}"` : ''}`
+  const labelled = (el) => {
+    if ((el.getAttribute('aria-label') || '').trim()) return true
+    const by = el.getAttribute('aria-labelledby')
+    if (by && by.split(/\s+/).some((id) => (document.getElementById(id)?.textContent || '').trim())) return true
+    return [...(el.labels ?? [])].some((l) => (l.textContent || '').trim())
+  }
+  for (const el of document.querySelectorAll(FIELDS)) {
+    if (!shown(el) || labelled(el)) continue
+    const key = `n:f:${el.tagName}:${el.type}:${el.getAttribute('name') || ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    const hint = el.getAttribute('placeholder')
+    out.name.push(`${fieldOf(el)} — без подписи${hint ? ` (подсказка «${hint.slice(0, 24)}» — не имя)` : ''}`)
+  }
+
+  /* 7б · поле мельче 16px на телефоне: iOS Safari при фокусе увеличивает
+     страницу и назад не возвращает — покупатель оформляет заказ в
+     съехавшем окне (Эмиль Ковальский, mobile-native, исправление 4).
+     Порог — факт браузера (`IOS_ZOOM`), не вкус. */
+  if (phone) {
+    for (const el of document.querySelectorAll(FIELDS)) {
+      if (/^(checkbox|radio|range|color|file)$/.test(el.type) || !shown(el)) continue
+      const px = parseFloat(getComputedStyle(el).fontSize)
+      if (!(px < iosZoom)) continue
+      const key = `z:${el.tagName}:${el.type}:${el.getAttribute('name') || ''}`
+      if (!seen.has(key)) { seen.add(key); out.fieldZoom.push(`${fieldOf(el)} — ${+px.toFixed(2)}px при ${iosZoom}`) }
+    }
+  }
+
+  /* 7в · поле оформления без автозаполнения. Имя, телефон, почта и адрес
+     браузер подставляет сам — если поле назвало свою цель атрибутом
+     `autocomplete` (WCAG 2.2, 1.3.5 AA; Refero, craft-details.md §2 #7).
+     Без него, с `off` или с `on` (цели не названо) покупатель набирает всё
+     пальцем. Меряется на личных страницах из kit.config.json (`sessions`):
+     там стоят формы оформления с полной корзиной. */
+  if (autofill) {
+    const PURPOSE = /mail|phone|tel|name|address|street|city|town|zip|postal|postcode|county|region|country/i
+    for (const el of document.querySelectorAll('input, select, textarea')) {
+      if (/^(hidden|submit|button|image|reset|checkbox|radio|file|range|color|search|password)$/.test(el.type) || !shown(el)) continue
+      if (el.type !== 'email' && el.type !== 'tel' && !PURPOSE.test(`${el.getAttribute('name') || ''} ${el.id || ''}`)) continue
+      const ac = (el.getAttribute('autocomplete') || '').trim().toLowerCase()
+      if (ac && ac !== 'off' && ac !== 'on') continue
+      const key = `f:${el.tagName}:${el.getAttribute('name') || el.id}`
+      if (!seen.has(key)) { seen.add(key); out.autofill.push(`${fieldOf(el)} — ${ac ? `autocomplete="${ac}"` : 'без autocomplete'}`) }
+    }
+  }
+
+  /* 7г · главный заголовок не длиннее трёх строк на любой ширине: мера
+     держится ролью заголовка, а не длиной имени товара (taste-skill,
+     gpt-tasteskill; impeccable, oversized-h1). Строки — высота содержимого
+     на межстрочье; размер не меряется, со шкалой это не спорит. */
+  for (const h of document.querySelectorAll('h1')) {
+    if (!shown(h)) continue
+    const cs = getComputedStyle(h)
+    const lead = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.2
+    const lines = Math.round((h.clientHeight - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0)) / lead)
+    if (lines > h1Lines) out.h1Lines.push(`${name(h)} — строк ${lines} при пределе ${h1Lines}`)
   }
 
   /* 8 · лестница заголовков: ровно один h1 и ни одного пропущенного уровня.
@@ -1389,9 +1489,22 @@ const measure = ({ phone, catalogue, target, contrast }) => {
        Поэтому «не доехал» спрашивается только с того, что человек СЕЙЧАС
        видит: сеть уже успокоилась, анимации кончились, и пустое место в
        видимой части — это пустое место. */
+    /* «Видит» — по обеим осям и внутри каждого обрезающего предка (И410):
+       слайд ленты галереи за правым краем полосы на экране не стоит, и
+       ленивый снимок там не доехал по замыслу. Мерка по одной высоте
+       назвала «пустым местом» четвёртый слайд карты товара, когда кадр
+       встал во всю ширину окна и слайд уехал дальше порога ленивой
+       загрузки. */
     if (!img.complete) {
       const b = img.getBoundingClientRect()
-      if (!(b.top < innerHeight && b.bottom > 0 && b.width > 1)) continue
+      let [top, right, bottom, left] = [Math.max(b.top, 0), Math.min(b.right, innerWidth), Math.min(b.bottom, innerHeight), Math.max(b.left, 0)]
+      for (let el = img.parentElement; el && el !== document.documentElement; el = el.parentElement) {
+        const cs = getComputedStyle(el)
+        if (cs.overflowX === 'visible' && cs.overflowY === 'visible') continue
+        const c = el.getBoundingClientRect()
+        top = Math.max(top, c.top); right = Math.min(right, c.right); bottom = Math.min(bottom, c.bottom); left = Math.max(left, c.left)
+      }
+      if (!(bottom > top && right - left > 1)) continue
     }
     const key = `b:${img.currentSrc || src}`
     if (seen.has(key)) continue
@@ -1807,6 +1920,12 @@ const hand = await browser.newContext({ hasTouch: true, isMobile: true, deviceSc
    написали, и пропадает в соседней. */
 const deskDark = await browser.newContext({ colorScheme: 'dark' })
 const handDark = await browser.newContext({ colorScheme: 'dark', hasTouch: true, isMobile: true, deviceScaleFactor: 1 })
+/* Cookie из CRAFT_COOKIE — каждой среде проверки, включая «поменьше
+   движения» ниже (`jar`). */
+const JAR = (process.env.CRAFT_COOKIE ?? '').split(';').map((x) => x.trim()).filter(Boolean)
+  .map((pair) => ({ name: pair.slice(0, pair.indexOf('=')), value: pair.slice(pair.indexOf('=') + 1), url: BASE }))
+const jar = async (ctx) => { if (JAR.length) await ctx.addCookies(JAR); return ctx }
+for (const ctx of [desk, hand, deskDark, handDark]) await jar(ctx)
 /* ── ПОЛОСЫ: почему проверка шла двадцать минут ────────────────────────────
  *
  * Заказчик сказал прямо: «пиздец как долго… два часа гонял проверку и стоит
@@ -1865,7 +1984,8 @@ const found = { lane: [], placeholder: [], measure: [], target: [], contrast: []
                 inkDip: [], markInk: [],
                 covered: [],
                 ladder: [], wideCtrl: [], lopsided: [], sunk: [], stolen: [], field: [], alone: [], catalogueColumns: [], twoAir: [],
-                twiceLift: [], sheetSize: [] }
+                twiceLift: [], sheetSize: [],
+                autofill: [], fieldZoom: [], h1Lines: [] }
 
 /** Открыть страницу на ширине и померить.
  *
@@ -1873,32 +1993,16 @@ const found = { lane: [], placeholder: [], measure: [], target: [], contrast: []
  *  решает раскладку, указатель решает размер цели — это два разных вопроса,
  *  и задавать второй через первый нельзя.
  *  `dark` — вторая тема. */
-/** Остановить показ слайдов перед замером.
- *
- *  Заведено находкой, которая НЕ ПОВТОРИЛАСЬ: полный прогон показал контраст
- *  3.35 у подписи героя на 700, а узкий по той же странице и той же семье —
- *  ноль. Причина не в странице: кадры героя сами сменяются по таймеру, и
- *  замер иногда попадал В СЕРЕДИНУ ПЕРЕХОДА, когда на экране два снимка
- *  сразу и подпись лежит на их смеси. Все четыре снимка замерены по
- *  отдельности и держат 5.76:1 — мерилось не то, что видит покупатель.
- *
- *  Правило общее, не про этот слайдер: ЗАМЕР ИДЁТ ПО НЕПОДВИЖНОЙ СТРАНИЦЕ.
- *  Ожидание конца анимаций этого не даёт — таймер заводит следующую, и
- *  страница не бывает неподвижной никогда. Останавливаем тем же органом,
- *  которым останавливает человек: кнопкой паузы. Путь, который проверка
- *  проходит, — тот самый, что у покупателя.
- *
- *  Кнопки нет — ничего и не делаем: страниц без слайдера большинство. */
-async function still(page) {
-  await page.evaluate(() => {
-    const b = document.querySelector('[data-ctl="run"]')
-    if (!b) return
-    const before = b.getAttribute('aria-label')
-    b.click()
-    /* Нажатие не сработало (кнопка уже на паузе) — второго не делаем: оно
-       снова запустило бы показ. */
-    if (b.getAttribute('aria-label') === before) b.click()
-  }).catch(() => {})
+/* Показ слайдов останавливается перед замером — `still` в `browser.mjs`:
+   общий у этой проверки и у детектора impeccable (`check:detect`). */
+
+/** Открыть адрес проверки. Сессию личной страницы несёт заголовок
+ *  `Cookie` — страницы берутся из общей стопки, поэтому заголовок ставится
+ *  каждый раз, и у страницы без сессии он пустой (И263). */
+async function openAt(page, path, options) {
+  const { path: clean, cookie } = sessionOf(path, SESSIONS.cookie)
+  await page.setExtraHTTPHeaders(cookie ? { cookie } : {})
+  return page.goto(BASE + clean, options)
 }
 
 async function visit(path, w, { finger, dark = false }) {
@@ -1923,7 +2027,7 @@ async function visit(path, w, { finger, dark = false }) {
        Сторож «это вообще страница сайта?» у проверки был, а сторожа «сервер
        жив?» не было. */
     try {
-      await page.goto(BASE + path, { waitUntil: 'networkidle' })
+      await openAt(page, path, { waitUntil: 'networkidle' })
     } catch (e) {
       /* Говорит об этом ПЕРВАЯ полоса и только она: страниц открыто
          несколько, и упавший сервер уронил бы их все — четыре одинаковых
@@ -1981,6 +2085,12 @@ async function visit(path, w, { finger, dark = false }) {
       catalogue: LAYOUT.catalogue,
       target: TARGET,
       contrast: CONTRAST,
+      vector: VECTOR.source,
+      iosZoom: IOS_ZOOM,
+      h1Lines: H1_LINES,
+      /* Личная страница (`#as=` — сессия из kit.config.json) — форма
+         оформления с полной корзиной: там меряется автозаполнение. */
+      autofill: path.includes('#as='),
     })
 
     /* ── приклеенное — в НИЗКОМ окне ───────────────────────────────────────
@@ -2008,8 +2118,12 @@ async function visit(path, w, { finger, dark = false }) {
           const b = el.getBoundingClientRect()
           if (!b.height || cs.display === 'none') continue
           const top = parseFloat(cs.top) || 0
-          if (top + b.height > innerHeight + 1) {
-            out.push(`${name(el)} — ${Math.round(b.height)}px при верхе ${Math.round(top)}: в окне ${innerHeight} приклеенное не помещается`)
+          /* Потолок коробки (`pinned`) не прячет того, что из неё вылезло:
+             галерея выше своего потолка переливалась вниз при коробке ровно
+             в окно (И278). Прокручиваемое внутри — не перелив: его досмотрят. */
+          const h = Math.max(b.height, cs.overflowY === 'visible' ? el.scrollHeight : 0)
+          if (top + h > innerHeight + 1) {
+            out.push(`${name(el)} — ${Math.round(h)}px при верхе ${Math.round(top)}: в окне ${innerHeight} приклеенное не помещается`)
           }
         }
         return out
@@ -2083,11 +2197,25 @@ async function visit(path, w, { finger, dark = false }) {
              остаться ровно то, на чём он лежит */
           window.__was = el.style.color
           el.style.color = 'transparent'
+          /* Снимаются ЧУЖИЕ плавающие слои, а не тот, в котором текст лежит
+             сам: кнопка «Apply filters» в приклеенной колонке фильтров
+             пряталась вместе с колонкой, и под «её» буквами снимался пол
+             страницы — белое по бежевому, 1.31 : 1, при кнопке, залитой
+             маркой (замер 24.09.2026, глаз с ним не сошёлся). */
           window.__hid = [...document.querySelectorAll('*')]
-            .filter((e) => { const p = getComputedStyle(e).position; return p === 'fixed' || p === 'sticky' })
+            .filter((e) => { const p = getComputedStyle(e).position; return (p === 'fixed' || p === 'sticky') && !e.contains(el) })
           window.__hidWas = window.__hid.map((e) => e.style.visibility)
           window.__hid.forEach((e) => { e.style.visibility = 'hidden' })
-          const b = el.getBoundingClientRect()
+          /* Дно снимается под БУКВАМИ, а не под всей коробкой элемента: у
+             главной кнопки с остриём и хвостом в коробку входят шевроны и
+             срезанный угол с полом страницы, и средний цвет коробки уходил
+             от заливки, на которой надпись лежит на самом деле («See the
+             products» на Латуни с хвостом — 4.08 : 1 при заливке 4.93, И297).
+             Коробка букв — диапазон содержимого; пустой — коробка элемента. */
+          const range = document.createRange()
+          range.selectNodeContents(el)
+          const rb = range.getBoundingClientRect()
+          const b = rb.width >= 2 && rb.height >= 2 ? rb : el.getBoundingClientRect()
           return { x: b.left, y: b.top, w: b.width, h: b.height,
                    vw: innerWidth, vh: innerHeight, dpr: devicePixelRatio }
         }, { i: d.i })
@@ -2159,6 +2287,9 @@ async function visit(path, w, { finger, dark = false }) {
  *  Заполнили реквизит — счётчик упал ровно на единицу, на скольких бы
  *  страницах он ни стоял. */
 const holders = new Map()
+/* Семьи, которые от ширины не зависят: цель поля — факт страницы, а не
+   окна. Семь ширин не делают из одного поля семь. */
+const PER_PAGE = new Set(['autofill'])
 
 /** Разложить находки по семьям. */
 const keep = (path, w, r) => {
@@ -2168,6 +2299,11 @@ const keep = (path, w, r) => {
         const where = holders.get(line) ?? new Set()
         where.add(path)
         holders.set(line, where)
+        continue
+      }
+      if (PER_PAGE.has(k)) {
+        const at = `${path}  ${line}`
+        if (!found[k].includes(at)) found[k].push(at)
         continue
       }
       /* Остальные семьи от ширины зависят, и там повтор законен: контраст и
@@ -2230,13 +2366,13 @@ await lanes(
  *
  * Одна ширина и родные страницы: движение от языка не зависит, а от ширины
  * зависит редко — и там, где зависит, это тот же самый сброс. */
-const calm = await browser.newContext({ reducedMotion: 'reduce' })
+const calm = await jar(await browser.newContext({ reducedMotion: 'reduce' }))
 await lanes(native, async (path) => {
   {
     const page = await take(calm)
     try {
     await page.setViewportSize({ width: 1200, height: 900 })
-    await page.goto(BASE + path, { waitUntil: 'networkidle' })
+    await openAt(page, path, { waitUntil: 'networkidle' })
     const lines = await page.evaluate(() => {
       const out = []
       const name = (el) => {
@@ -2323,7 +2459,7 @@ await lanes(
     const page = await take(ctx)
     try {
     await page.setViewportSize({ width: DIP_W, height: 900 })
-    try { await page.goto(BASE + path, { waitUntil: 'networkidle' }) } catch { return }
+    try { await openAt(page, path, { waitUntil: 'networkidle' }) } catch { return }
     await still(page)
     await page.evaluate(() => Promise.all(
       document.getAnimations().map((a) => a.finished.catch(() => {})))).catch(() => {})
@@ -2507,7 +2643,7 @@ const sheetSpot = async (ctx, win, at, pick, nth, text, tab) => {
   const page = await take(ctx)
   try {
     await page.setViewportSize({ width: win, height: 1000 })
-    try { await page.goto(BASE + at, { waitUntil: 'networkidle' }) } catch { return null }
+    try { await openAt(page, at, { waitUntil: 'networkidle' }) } catch { return null }
     await still(page)
     if (tab) {
       /* Образцы лежат по вкладкам, и закрытая вкладка не отрисована вовсе. */
@@ -2535,7 +2671,7 @@ const sheetSpot = async (ctx, win, at, pick, nth, text, tab) => {
 /* В узком прогоне сверка идёт, только если спрошен сам лист: она открывает
    ЧУЖИЕ адреса, и считать её по одной странице дерева нечестно. */
 const SHEET_AT = '/bg/design'
-if (!NARROW || SHEET_AT.includes(ONLY_PAGE)) {
+if (!NARROW || (ONLY_PAGE && SHEET_AT.includes(ONLY_PAGE))) {
   const WORD = { w: 'ширина', h: 'рост', fs: 'кегль', ar: 'складка' }
   await lanes(SHEET_SAMPLES, async (row) => {
     const shop = await sheetSpot(desk, row.win, row.shop.at, row.shop.pick, row.shop.nth, row.shop.text, null)
@@ -2608,7 +2744,8 @@ if (process.argv.includes('--list')) {
 
 if (NARROW) {
   const keys = Object.keys(NAMES).filter((k) => !ONLY_FAM.length || ONLY_FAM.includes(k))
-  console.log(`\nУзкий прогон: ${PAGES.length} адрес(ов) под «${ONLY_PAGE}»` +
+  if (JSON_OUT) writeFileSync(JSON_OUT, JSON.stringify({ pages: PAGES, names: Object.fromEntries(keys.map((k) => [k, NAMES[k]])), found: Object.fromEntries(keys.map((k) => [k, found[k]])) }, null, 2) + '\n')
+  console.log(`\nУзкий прогон: ${PAGES.length} адрес(ов) под «${ASKED}»` +
     `${ONLY_FAM.length ? `, семьи: ${ONLY_FAM.join(', ')}` : ''}. База не тронута, вердикт за полным прогоном.\n`)
   for (const key of keys) {
     console.log(`${found[key].length ? '·' : '✓'} ${NAMES[key]}: ${found[key].length}`)

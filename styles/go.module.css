@@ -1,0 +1,64 @@
+/* ═══ «КУДА ВЕДЁТ» — ссылка со стрелкой и стрелки листания ═══════════════
+ *
+ *  Заведено по дефекту 22.09.2026 (И251). Правило 10 `CLAUDE.md` и craft
+ *  `references/icons.md` («Указующие знаки: пять систем в семи местах»)
+ *  называли этот модуль каноническим домом всего, что ведёт, а `check:css`
+ *  отсылал сюда за движением стрелки («оно одно, и оно в go.module.css») —
+ *  файла в наборе не было, он остался в прошлом магазине.
+ *
+ *  Контрол собран из независимых вещей, а не из одежд списком:
+ *    data-around  (нет) | quiet | edge   что нарисовано вокруг
+ *    data-to      (next) | back          куда ведёт — в какую сторону ответ
+ *  Рисунок стрелки — из листа знаков (`styles/icons.svg`, `arrow-right`,
+ *  `chevron-left` …), вес штриха — base.css. Здесь — устройство и ответ.
+ *
+ *  Нажатие не повторяет наведение (craft, controls.md): наведение сдвигает
+ *  стрелку, нажатие даёт тон под знаком — на телефоне, где наведения нет,
+ *  ответ всё равно есть. Стрелки листания полки под пальцем прячет блок:
+ *  полку там листают свайпом (И133).
+ */
+
+.go{
+  display:inline-flex;align-items:center;gap:.35em;
+  /* Голая ссылка — тоже цель: под пальцем 44, под мышью 24 (роль). Без этой
+     строки «Назад к продуктам» под пальцем была 23 пикселя (свип, И243). */
+  min-block-size:var(--ctrl-target);
+  color:inherit;font:inherit;text-decoration:none;cursor:pointer;
+  background:none;border:0;padding:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:color var(--hover-t) var(--ease)
+}
+/* Знак соизмерим со строкой рядом, а не своим числом (И-разбор стрелки 38 → 28). */
+.go svg{inline-size:1.15em;block-size:1.15em;flex:none;transition:translate var(--hover-t) var(--ease)}
+
+/* Сдвиг — только там, где есть наведение и движение не просили убрать. */
+/* Краска под рукой — роль вида `--go-hover` (И397): умолчание — своя
+   краска ссылки; марка для текста — у элемента 11 набора. */
+@media (hover:hover){ .go:hover{color:var(--go-hover, currentColor)} }
+@media (hover:hover) and (prefers-reduced-motion:no-preference){
+  .go:hover svg{translate:var(--nudge) 0}
+  .go[data-to='back']:hover svg{translate:calc(var(--nudge) * -1) 0}
+}
+
+/* Вокруг — тихая плашка или кромка: органом становится вся площадь, от
+   высоты органа считается всё остальное (правило 2). */
+.go:is([data-around='quiet'], [data-around='edge']){
+  justify-content:center;
+  min-block-size:var(--ctrl-h-sm);min-inline-size:var(--ctrl-h-sm);
+  padding-inline:calc(var(--ctrl-h-sm) * .3);
+  border-radius:var(--r-ctrl);
+  font-size:var(--ctrl-fs-sm);font-weight:600;
+  transition:background-color var(--hover-t) var(--ease)
+}
+.go[data-around='quiet']{background:var(--quiet)}
+.go[data-around='edge']{background:var(--surface);box-shadow:inset 0 0 0 var(--line-w) var(--border)}
+.go:is([data-around='quiet'], [data-around='edge']) svg{inline-size:calc(var(--ctrl-h-sm) * .5);block-size:calc(var(--ctrl-h-sm) * .5)}
+
+/* Нажатие — тон под знаком, сразу, без задержки (И229). */
+.go:active{color:var(--ink)}
+.go:is([data-around='quiet'], [data-around='edge']):active{background:var(--quiet-on)}
+
+.go:focus-visible{outline:var(--ring-w) solid var(--ring);outline-offset:var(--ring-off);border-radius:var(--r-ctrl)}
+.go:disabled,.go[aria-disabled='true']{opacity:var(--state-off);cursor:not-allowed}
+
+@media (prefers-reduced-motion:reduce){ .go svg{transition:none} }

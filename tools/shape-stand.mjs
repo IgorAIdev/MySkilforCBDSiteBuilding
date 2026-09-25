@@ -59,7 +59,8 @@ if (!names.length) {
   process.exit(1)
 }
 const paletteCss = read('styles/palette.css')
-const tokensCss = read('styles/tokens.css')
+/* Основа и вид сайта рядом: шрифт и тени — в styles/look.css (И385). */
+const tokensCss = read('styles/tokens.css') + '\n' + read('styles/look.css')
 const baseCss = read('styles/base.css')
 
 /* `composes` — единственное, чем модуль отличается от простого CSS: он

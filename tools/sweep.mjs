@@ -14,26 +14,35 @@
  * между соседними ширинами.
  *
  *   npm run build:site && npm run serve            (или next dev)
- *   node tools/sweep.mjs                            вся страница целиком
- *   node tools/sweep.mjs /bg/product/zelenika-15 --fold            только первый экран
+ *   node tools/sweep.mjs                            главная основного языка целиком
+ *   node tools/sweep.mjs /ro/product/<id> --fold    только первый экран
+ *   node tools/sweep.mjs /ro/nu-exista --miss       страницу «не найдено» — нарочно
+ *   node tools/sweep.mjs '/ro/cart#as=sample-cart'   личную страницу — полной (сессия из kit.config.json)
  *
  * Set PLAYWRIGHT= to point at a Playwright install if it is not global.
  */
 
-const playwright = process.env.PLAYWRIGHT
-  ? await import(process.env.PLAYWRIGHT)
-  : await import('playwright').catch(() => import('/opt/node22/lib/node_modules/playwright/index.mjs'))
-const { chromium } = playwright
+import { loadPlaywright } from './browser.mjs'
+const { chromium } = await loadPlaywright()
 import { mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { LAYOUT } from './thresholds.mjs'
-import { SEAMS } from './kit-config.mjs'
+import { SEAMS, SESSIONS } from './kit-config.mjs'
 import { sweepWidths } from './seams.mjs'
+import { homePath } from './routes.mjs'
+import { sessionOf } from './sessions.mjs'
 
 const args = process.argv.slice(2)
-/* Умолчание — болгарская главная: у корня своего содержимого нет, он
-   перенаправляет, а свипу нужна страница. */
-const path = args.find((a) => a.startsWith('/')) ?? '/bg'
+/* Умолчание — главная основного языка сайта, из дерева маршрутов: у корня
+   своего содержимого нет, он перенаправляет, а свипу нужна страница.
+
+   Стояло `/bg` — главная магазина, из которого набор приехал. На витрине
+   ro · en · hu это адрес, которого нет, и свип без аргумента снимал 41
+   ширину страницы «не найдено» и докладывал «всё чисто» (И257): свип
+   промаха — тишина, а не зелёный. Та же главная, что у `check:open`
+   (`homePath`): `[lang]` — `/<основной>`, доменная витрина (`[locale]`) и
+   сайт без языка в адресе — корень. */
+const path = args.find((a) => a.startsWith('/')) ?? homePath()
 const fold = args.includes('--fold')
 const base = process.env.SITE ?? 'http://localhost:8099'
 
@@ -66,9 +75,22 @@ const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE
 const page = await browser.newPage()
 const rows = []
 
+/* Хвост `#as=…` личной страницы (И263) несёт заголовок `Cookie`, а не адрес:
+   на сервер уходит только то, что до `#`. */
+const { path: clean, cookie } = sessionOf(path, SESSIONS.cookie)
+if (cookie) await page.setExtraHTTPHeaders({ cookie })
+
 for (const w of WIDTHS) {
   await page.setViewportSize({ width: w, height: HEIGHT })
-  await page.goto(base + path, { waitUntil: 'networkidle' })
+  const res = await page.goto(base + clean, { waitUntil: 'networkidle' })
+  /* Промах — не страница: 41 снимок «не найдено» вместо заказанной
+     страницы ничего не говорит о её вёрстке, а сводка вышла бы зелёной
+     (И257). Саму страницу «не найдено» снимают нарочно — ключом `--miss`. */
+  if (!res || (res.status() >= 400 && !(res.status() === 404 && args.includes('--miss')))) {
+    console.error(`\n✗ ${path} отвечает ${res?.status() ?? 'ничем'} — свип промаха не проверяет ничего. Дайте адрес страницы (страницу «не найдено» — с ключом --miss).`)
+    await browser.close()
+    process.exit(1)
+  }
   /* Ширина читается после верстания, а не сразу после goto: шрифты меняют
      метрики, и до их загрузки высота — чужая. */
   await page.evaluate(() => document.fonts.ready)
@@ -217,7 +239,7 @@ for (let i = 1; i < rows.length; i++) {
   }
 }
 
-console.log(`\n${rows.length} ширин, ${LAYOUT.sweep[0]}…${LAYOUT.sweep[1]}px (швы ${SEAMS.map((s) => s.at).join(", ")} и пиксель над ними, сложенные экраны), снимки в .sweep/\n`)
+console.log(`\n${path}: ${rows.length} ширин, ${LAYOUT.sweep[0]}…${LAYOUT.sweep[1]}px (швы ${SEAMS.map((s) => s.at).join(", ")} и пиксель над ними, сложенные экраны), снимки в .sweep/\n`)
 
 if (overflow.length) {
   console.log('✗ Горизонтальное переполнение — страницу можно утащить вбок:')

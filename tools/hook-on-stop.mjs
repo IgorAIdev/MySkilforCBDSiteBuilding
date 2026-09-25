@@ -106,6 +106,6 @@ function where() {
   }
   return `Если да — правило приложения идёт в CLAUDE.md (в свой раздел, не в конец)
 и в 'docs/rules.md' с дефектом, который его купило; правило НАБОРА — в
-репозиторий набора (MySkilforCBDSiteBuilding), оттуда оно вернётся всем
+репозиторий набора (SiteBuildingSkill), оттуда оно вернётся всем
 через 'install.mjs --update'.`
 }

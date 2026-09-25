@@ -1,0 +1,40 @@
+/* Выпущен scripts/look-slots.mjs из опубликованного вида (lib/source/sample/look.json;
+   у Payload — global «look»). Руками не правят: шрифт, тени, отметка текущего пункта меню, вид поля ввода и галочки, ручки карты товара и полки и шрифты вида со своего адреса. */
+
+:root{
+  --face: var(--face-stack);
+  --face-head: var(--face);
+  --pdp-gallery: 50%;
+  --pdp-thumbs: below;
+  --pdp-edge: inset;
+  --seg-look: chips;
+  --head-icons: bare;
+  --say-look: line;
+  --pair-look: apart;
+  --chip-sign: none;
+  --drawer-look: rows;
+  --cart-sign: cart;
+  --cart-meta: count;
+  --shot-frame: 1 / 1;
+  --shelf-cols: 4;
+  --card-buy: full;
+  --sort-label: beside;
+}
+:root,[data-ground='deck'],[data-plate]{
+  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
+  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
+  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
+  --sh-in: inset 0 1px 2px var(--sh-inset);
+  --menu-mark-line: underline;
+  --menu-mark-fill: transparent;
+  --menu-mark-ink: var(--ink);
+  --menu-mark-r: 0;
+  --menu-mark-pad: 0;
+  --menu-mark-side: 0;
+  --ctrl-field-fill: var(--field);
+  --ctrl-field-edge: var(--tick-edge);
+  --ctrl-field-side: 1;
+  --ctrl-field-label: above;
+  --ctrl-tick-fill: var(--pop-ink);
+  --go-hover: currentcolor;
+}

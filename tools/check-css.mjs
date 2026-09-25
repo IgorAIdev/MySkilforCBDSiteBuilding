@@ -23,8 +23,8 @@ import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
 /* Где лежат стили, как названы шкалы, сколько швов — из `kit.config.json`
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
-import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING,
-  BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES } from './kit-config.mjs'
+import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING, PALETTE,
+  BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES, PRIMITIVES } from './kit-config.mjs'
 import { deadSeams } from './seams.mjs'
 
 const relative = (...args) => nativeRelative(...args).split(String.fromCharCode(92)).join('/')
@@ -1462,6 +1462,122 @@ for (const path of files) {
     }
   }
 
+  /* Цвет, рождённый вне палитры (И295; CLAUDE.md, «Делается только
+   * правильно — сразу, а не по вопросу заказчика»: «краска и её оттенок —
+   * строитель палитры → роль»).
+   *
+   * Дефект, купивший семью: тона хвоста главной кнопки смешивались прямо в
+   * её стилях (`color-mix(… 60% …)`), кромка выключенной — 20 % чернил, вуаль
+   * героя — 86 / 72 %, тени, черта и вся палуба — долями в tokens.css и
+   * base.css. Их контраст не считал никто, панель вида не могла их
+   * гарантировать, а смена палитры меняла их по чужой формуле. Проверки были
+   * зелёные — нарушение просто не мерилось.
+   *
+   * Находка — объявление, в значении которого краска родилась на месте:
+   *   · литерал — `#hex`, `rgb()`/`hsl()`/`hwb()`/`lab()`/`lch()`/`oklab()`/
+   *     `oklch()`/`color()`, имя краски (`white`, `red`…); `transparent`,
+   *     `currentColor`, `inherit` и системные краски (`Canvas`, `Highlight`)
+   *     — не краски палитры и не находка;
+   *   · `color-mix()` с долей числом или без доли вовсе (молчаливые 50 %).
+   *     Доля ролью — `var(--state-hover)` — законна: это механизм состояния
+   *     набора (И229); доля ручкой узла (`--leaf-in: 14%`) — тот же литерал,
+   *     спрятанный в переменную.
+   * Не меряются: файл палитры (`styles/palette.css` — его выпускает
+   * строитель, это единственное место, где цвет рождается); маска
+   * (`mask`, `mask-image` — берёт у краски только прозрачность); панель вида
+   * (`look-panel/`) — она вне сайта, рисует саму себя своими красками и
+   * после финала снимается целиком (PANEL.md). */
+  {
+    const NAMED = new Set(('aliceblue antiquewhite aqua aquamarine azure beige bisque black blanchedalmond blue blueviolet brown burlywood cadetblue chartreuse chocolate coral cornflowerblue cornsilk crimson cyan darkblue darkcyan darkgoldenrod darkgray darkgreen darkgrey darkkhaki darkmagenta darkolivegreen darkorange darkorchid darkred darksalmon darkseagreen darkslateblue darkslategray darkslategrey darkturquoise darkviolet deeppink deepskyblue dimgray dimgrey dodgerblue firebrick floralwhite forestgreen fuchsia gainsboro ghostwhite gold goldenrod gray green greenyellow grey honeydew hotpink indianred indigo ivory khaki lavender lavenderblush lawngreen lemonchiffon lightblue lightcoral lightcyan lightgoldenrodyellow lightgray lightgreen lightgrey lightpink lightsalmon lightseagreen lightskyblue lightslategray lightslategrey lightsteelblue lightyellow lime limegreen linen magenta maroon mediumaquamarine mediumblue mediumorchid mediumpurple mediumseagreen mediumslateblue mediumspringgreen mediumturquoise mediumvioletred midnightblue mintcream mistyrose moccasin navajowhite navy oldlace olive olivedrab orange orangered orchid palegoldenrod palegreen paleturquoise palevioletred papayawhip peachpuff peru pink plum powderblue purple rebeccapurple red rosybrown royalblue saddlebrown salmon sandybrown seagreen seashell sienna silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal thistle tomato turquoise violet wheat white whitesmoke yellow yellowgreen').split(' '))
+    /* Свойства, в значениях которых имя — не краска: гарнитура, имя
+       анимации, область сетки, имя контейнера, текст. Маска — см. выше. */
+    const NOT_PAINT = /^(?:font|animation|transition|grid-area|grid-template|grid-row|grid-column|container|content|quotes|counter-|view-transition|will-change|list-style-type|mask|-webkit-mask)/
+    /** Тело вызова `name(` с уравновешенными скобками: [начало тела, конец]. */
+    const callsOf = (text, name) => {
+      const out = []
+      const rx = new RegExp(`(?<![\\w-])${name}\\(`, 'gi')
+      for (const m of text.matchAll(rx)) {
+        let depth = 1, i = m.index + m[0].length
+        const from = i
+        while (i < text.length && depth) { if (text[i] === '(') depth++; else if (text[i] === ')') depth--; i++ }
+        out.push(text.slice(from, i - 1))
+      }
+      return out
+    }
+    /** Верхние запятые списка аргументов. */
+    const topArgs = (body) => {
+      const out = []
+      let depth = 0, from = 0
+      for (let i = 0; i < body.length; i++) {
+        if (body[i] === '(') depth++
+        else if (body[i] === ')') depth--
+        else if (body[i] === ',' && depth === 0) { out.push(body.slice(from, i).trim()); from = i + 1 }
+      }
+      out.push(body.slice(from).trim())
+      return out
+    }
+    /** Почему значение рождает краску, или null. */
+    const bornHere = (value) => {
+      const v = value.replace(/url\([^)]*\)/gi, ' ')
+      const hex = v.match(/#[0-9a-f]{3,8}(?![\w-])/i)
+      if (hex) return `литерал ${hex[0]}`
+      const fn = v.match(/(?<![\w-])(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(/i)
+      if (fn) return `литерал ${fn[1]}()`
+      for (const m of v.replace(/var\(\s*--[\w-]+/g, ' ').matchAll(/(?<![\w-])([a-z]+)(?![\w-])/gi)) {
+        if (NAMED.has(m[1].toLowerCase())) return `имя краски ${m[1]}`
+      }
+      for (const body of callsOf(v, 'color-mix')) {
+        const colours = topArgs(body).slice(1)
+        let shares = 0
+        for (const arg of colours) {
+          const plain = arg.replace(/var\([^()]*(?:\([^()]*\)[^()]*)*\)/g, (r) => r.replace(/[\d%]/g, ' '))
+          const pct = plain.match(/(\d*\.?\d+)%/)
+          if (pct) return `color-mix с долей числом ${pct[0]}`
+          const refs = [...arg.matchAll(/var\(\s*(--[\w-]+)/g)].map((r) => r[1])
+          /* Доля — вторая ссылка аргумента (`var(--ink) var(--state-hover)`)
+             или ссылка после краски-литерала. */
+          const share = refs.length > 1 ? refs[refs.length - 1] : null
+          if (!share) continue
+          shares++
+          const p = parseName(share)
+          if (!p || p.tier !== 'role') return `color-mix с долей ручкой узла ${share}`
+        }
+        if (!shares) return 'color-mix без доли — молчаливые 50 %'
+      }
+      return null
+    }
+    /** Объявления файла на любой глубине — и во вложенных правилах
+     *  (`:root{ … &:lang(bg){ … } … }`): текст между `;`, `{` и `}` вне
+     *  скобок; то, что стоит перед `{`, — селектор, не объявление. */
+    const declsOf = (css) => {
+      const out = []
+      let from = 0, depth = 0, paren = 0
+      for (let i = 0; i < css.length; i++) {
+        const c = css[i]
+        if (c === '(') paren++
+        else if (c === ')') paren = Math.max(0, paren - 1)
+        else if (paren === 0 && (c === ';' || c === '{' || c === '}')) {
+          const text = css.slice(from, i)
+          if (c !== '{' && depth > 0 && text.includes(':')) out.push({ text, at: from + (text.length - text.trimStart().length) })
+          if (c === '{') depth++
+          if (c === '}') depth = Math.max(0, depth - 1)
+          from = i + 1
+        }
+      }
+      return out
+    }
+    for (const { rel, css, at } of sheets) {
+      if (rel === PALETTE || rel.split('/').includes('look-panel')) continue
+      for (const { text, at: here } of declsOf(css)) {
+        const colon = text.indexOf(':')
+        const prop = text.slice(0, colon).trim().toLowerCase()
+        if (!prop || NOT_PAINT.test(prop)) continue
+        const why = bornHere(text.slice(colon + 1))
+        if (why) add('colorOut', `${at(here)}  ${prop} — ${why}: краску выпускает строитель палитры ролью (tools/palette.mjs), стили её читают`)
+      }
+    }
+  }
+
   /* Форма (слой 9, И228): радиус, линия и тень — роли, не числа.
    *
    * Радиус числом в узле — та же «маленькая кнопка и маленькое поле разного
@@ -1678,6 +1794,25 @@ for (const file of files) {
   for (const m of css.matchAll(/(?<![-a-z])(?:transition|animation)[a-z-]*\s*:\s*([^;}]*\bease-in\b(?!-out)[^;}]*)/g)) {
     found.motion.push(`${at(m.index)}  ease-in на интерфейсе: ${m[1].trim().slice(0, 40)}`)
   }
+  /* «Переход на всё» — `transition: all` или сокращение без свойства (тогда
+     браузер подставляет `all`): под руку едет всё, что поменялось, — и
+     раскладка, и то, что двигаться не должно, а следующая правка стиля
+     молча добавит в движение новое свойство (Refero, craft-details.md §9
+     #50). Свойства называются по одному. */
+  for (const m of css.matchAll(/(?<![-a-z])transition(-property)?\s*:\s*([^;}]+)/g)) {
+    for (const part of m[2].split(',')) {
+      const first = part.trim().split(/\s+/)[0] ?? ''
+      if (first === 'all' || (!m[1] && /^[\d.]+m?s$/.test(first))) {
+        found.motion.push(`${at(m.index)}  переход на всё: ${part.trim().slice(0, 40)} — свойства называются по одному`)
+      }
+    }
+  }
+  /* Появление из ничего — `scale(0)`: в мире ничто не возникает из точки,
+     и глаз читает это как вспышку (Эмиль Ковальский, STANDARDS.md,
+     «Physicality»: «Never scale(0)»). Появление — от 0.9…0.97 с прозрачностью. */
+  for (const m of css.matchAll(/(?<![-\w])scale(?:3d)?\(\s*0(?:\.0*)?\s*(?:,\s*0(?:\.0*)?\s*)*\)|(?<![-\w])scale\s*:\s*0(?:\.0*)?\s*[;}]/g)) {
+    found.motion.push(`${at(m.index)}  появление из scale(0): ${m[0].replace(/[;}]$/, '').trim()} — от 0.9…0.97 с прозрачностью`)
+  }
 
   /* ── фокус, убранный и не заменённый ────────────────────────────────────
    *
@@ -1713,6 +1848,23 @@ for (const file of files) {
     }
     if (!replaced) {
       for (const m of kills) found.focusGone.push(`${at(m.index)}  кольцо фокуса снято, замены в файле нет`)
+    }
+  }
+}
+
+/* Пружина с перелётом — кривая, проскакивающая цель: `cubic-bezier` с y
+   вне коридора `MOTION.overshoot` (impeccable, bounce-easing; Эмиль
+   Ковальский, STANDARDS.md, «Springs»: «avoid bounce in most UI»). Меряется
+   и в файле шкал: роль `--ease` живёт там, и пружина ролью — та же пружина. */
+for (const file of files) {
+  const rel = relative(ROOT, file)
+  if (EXEMPT.includes(rel) && rel !== TOKENS) continue
+  const css = strip(readFileSync(file, 'utf8'))
+  const at = (i) => `${rel}:${css.slice(0, i).split('\n').length}`
+  const [lo, hi] = MOTION.overshoot
+  for (const m of css.matchAll(/cubic-bezier\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)/g)) {
+    if ([Number(m[2]), Number(m[4])].some((y) => y < lo || y > hi)) {
+      found.motion.push(`${at(m.index)}  пружина с перелётом: ${m[0]} — y вне ${lo}…${hi}`)
     }
   }
 }
@@ -2161,10 +2313,15 @@ for (const path of files) {
    светлом полу — только глазом на витрине и только на палубе.
 
    ВТОРОЙ — разметка: предмет красится `--plate`, а атрибут `data-plate` ему
-   никто не поставил. Проверка грубая нарочно — она смотрит, есть ли атрибут
-   хоть где-то в разметке, которая этот модуль берёт, а не на том ли он
-   предмете. Точнее без разбора JSX не скажешь, а «совсем забыли» — как раз
-   тот случай, который и случается. */
+   никто не поставил. Проверка грубая нарочно — без разбора JSX не сказать,
+   на том ли предмете атрибут, — но привязана к КЛАССУ, а не к модулю: каждое
+   правило, красящее листом, называет свои классы, и атрибут ищется в
+   разметке, которая берёт именно этот класс. Прежде хватало атрибута хоть
+   где-то в файле, берущем модуль: `data-plate` листа лаборатории погасил
+   находку о лотке-листе примитивов, которого он не касается (И384).
+   Правило, чей селектор сам несёт `[data-plate]`, объявлено в стиле; класс,
+   которого не берёт никто, на странице не стоит — это забота `deadDress`,
+   а не щель пола. */
 {
   const basePath = BASE ? join(ROOT, BASE) : null
   if (basePath && existsSync(basePath)) {
@@ -2205,12 +2362,127 @@ for (const path of files) {
     const rel = relative(ROOT, path)
     if (!rel.endsWith('.module.css')) continue
     const css = strip(readFileSync(path, 'utf8'))
-    const m = /background:\s*var\(--plate\)/.exec(css)
-    if (!m) continue
     const takers = users.get(rel.split('/').pop()) ?? []
-    if (takers.some((code) => code.includes('data-plate'))) continue
-    const at = `${rel}:${css.slice(0, m.index).split('\n').length}`
-    found.plateGap.push(`${at}  красится листом, а полом себя не объявил (нужен data-plate)`)
+    const told = new Set()
+    for (const m of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      if (!/(?:^|;)\s*background\s*:\s*var\(--plate\)/.test(m[2])) continue
+      const sel = m[1].trim()
+      if (sel.includes('[data-plate]')) continue
+      /* Классы правила — те, что стоят перед пробелом, `>` или концом
+         составной части: `.tray[data-tray='plate'] > *` называет `tray`. */
+      const classes = [...new Set([...sel.matchAll(/\.([A-Za-z_][\w-]*)/g)].map((x) => x[1]))]
+      const users_ = takers.filter((code) => classes.some((c) => new RegExp(`\\.${c}\\b`).test(code)))
+      if (!users_.length || users_.some((code) => code.includes('data-plate'))) continue
+      const key = classes.join(' ')
+      if (told.has(key)) continue
+      told.add(key)
+      const at = `${rel}:${css.slice(0, m.index + m[0].indexOf(m[1].trim())).split('\n').length}`
+      found.plateGap.push(`${at}  ${sel.slice(0, 48)} — красится листом, а полом себя не объявил (нужен data-plate)`)
+    }
+  }
+}
+
+/* ── РУЧКА ПРИМИТИВА НА РАВНОМ ВЕСЕ (knobTie, И320, И346) ─────────────────
+ *
+ * Примитив объявляет свою ручку у себя голым классом: `.grid{--cols:…;
+ * --cell-min:…}`, `.frame{--frame:…}`. Узел, который стоит на том же
+ * элементе, что и примитив (`className={`${p.grid} ${s.ticks}`}`), и
+ * переобъявляет ту же ручку ТОЖЕ голым классом (`.ticks{--cell-min:…}`),
+ * спорит с ним равным весом (0,1,0) — и побеждает тот, чей кусок сборки
+ * встал ниже. Порядок кусков решает сборщик по тому, какая страница их
+ * затребовала первой, — между разработкой и боем он разный.
+ *
+ * Дефект: 24.09.2026, пакет B — галочки шторки фильтров стояли одной
+ * колонкой вместо двух: модуль фильтров собирался раньше примитивов, и
+ * `.grid{--cell-min:240px}` бил `.ticks{--cell-min:…}`. Правило И320
+ * записали, а сторожа к нему не было — полка каталога и кадр карточки
+ * держались на том же везении, и следующий такой узел никто бы не увидел.
+ *
+ * Признак, видимый без браузера: в одном `className` стоят класс
+ * примитива и класс узла; у примитива ручка объявлена голым `.X`, у узла
+ * та же ручка — голым `.Y`. Сила места — атрибут на том же узле
+ * (`.shelf[data-catalog-grid]`) или предок (`.values .ticks`) — спора не
+ * создаёт, и находкой не считается. `:where()` у примитива — вес ноль,
+ * тоже не спор.
+ */
+{
+  const bare = (text) => {
+    const out = []
+    for (const rule of text.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+      const names = rule[1].split(',').map((part) => part.trim()).filter((part) => /^\.[A-Za-z_][\w-]*$/.test(part)).map((part) => part.slice(1))
+      if (!names.length) continue
+      const knobs = [...rule[2].matchAll(/(?:^|;)\s*(--[\w-]+)\s*:/g)].map((d) => d[1])
+      if (knobs.length) out.push({ names, knobs, at: rule.index + rule[0].indexOf('{') })
+    }
+    return out
+  }
+  const primFile = PRIMITIVES ? join(ROOT, PRIMITIVES) : null
+  const knobsOf = new Map()
+  if (primFile && existsSync(primFile)) {
+    for (const r of bare(strip(readFileSync(primFile, 'utf8')))) {
+      for (const n of r.names) {
+        if (!knobsOf.has(n)) knobsOf.set(n, new Set())
+        for (const k of r.knobs) knobsOf.get(n).add(k)
+      }
+    }
+  }
+  /* Голые правила узлов — один раз на файл модуля. */
+  const nodeRules = new Map()
+  const rulesOf = (file) => {
+    if (!nodeRules.has(file)) {
+      const css = strip(readFileSync(file, 'utf8'))
+      const line = (i) => `${relative(ROOT, file)}:${css.slice(0, i).split('\n').length}`
+      nodeRules.set(file, bare(css).map((r) => ({ ...r, where: line(r.at) })))
+    }
+    return nodeRules.get(file)
+  }
+  /* Одно правило узла против одного примитива — одна находка: чинится одной
+     правкой, сколько бы ручек в нём ни стояло. */
+  const ties = new Map()
+  if (knobsOf.size) {
+    for (const path of CODE) {
+      const rel = relative(ROOT, path)
+      if (rel.includes('studio')) continue
+      const code = strip(readFileSync(path, 'utf8').replace(/\/\/[^\n]*/g, (m) => ' '.repeat(m.length)))
+      const mods = new Map()
+      for (const m of code.matchAll(/import\s+(\w+)\s+from\s+'([^']+\.module\.css)'/g)) {
+        const file = m[2].startsWith('@/') ? join(ROOT, m[2].slice(2)) : join(dirname(path), m[2])
+        if (existsSync(file)) mods.set(m[1], file)
+      }
+      const prims = [...mods].filter(([, file]) => file === primFile).map(([local]) => local)
+      if (!prims.length) continue
+      /* Выражение `className={…}` целиком: скобки считаются, внутри шаблонной
+         строки стоят свои `${…}`. */
+      for (const m of code.matchAll(/className=\{/g)) {
+        let depth = 1
+        let i = m.index + m[0].length
+        while (i < code.length && depth) {
+          if (code[i] === '{') depth++
+          else if (code[i] === '}') depth--
+          i++
+        }
+        const expr = code.slice(m.index + m[0].length, i - 1)
+        const refs = [...expr.matchAll(/\b(\w+)\.([A-Za-z_]\w*)\b/g)].filter((r) => mods.has(r[1]))
+        const onPrim = refs.filter((r) => prims.includes(r[1]) && knobsOf.has(r[2])).map((r) => r[2])
+        if (!onPrim.length) continue
+        for (const r of refs) {
+          if (prims.includes(r[1])) continue
+          for (const rule of rulesOf(mods.get(r[1]))) {
+            if (!rule.names.includes(r[2])) continue
+            for (const prim of onPrim) {
+              const both = rule.knobs.filter((knob) => knobsOf.get(prim).has(knob))
+              if (!both.length) continue
+              const key = `${rule.where}|${r[2]}|${prim}`
+              if (!ties.has(key)) ties.set(key, { where: rule.where, node: r[2], prim, knobs: new Set(), on: `${rel}:${code.slice(0, m.index).split('\n').length}` })
+              for (const knob of both) ties.get(key).knobs.add(knob)
+            }
+          }
+        }
+      }
+    }
+  }
+  for (const t of ties.values()) {
+    found.knobTie.push(`${t.where}  .${t.node} и примитив .${t.prim} на одном узле (${t.on}): оба задают ${[...t.knobs].join(', ')} голым классом — победит порядок кусков сборки; ручку примитива — под :where(), узлу — силой места`)
   }
 }
 

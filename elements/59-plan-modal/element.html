@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>59 · Окно тарифа</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 59 — «Окно тарифа». Источник — CSS от заказчика 24.09.2026, переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: зелёная дымка сверху и пустая полоса-баннер; тень окна в пять слоёв; переезд плашки под рукой — плашка встаёт на выбранное; зелёные краски — краска марки палитры; знак доллара над числом — валюта магазина из данных, по языку у числа.
+  Приведено к единой форме: лист окна, как 32: шапка с именем, тело, подвал с ценой и действием; срок — сегменты в подложке, как 50; преимущества — список с галкой из листа набора краской марки; цена — ролью h2, срок мельче краской подписи; меняется с выбранным сроком; кнопка — главная набора.
+  Наведение: кнопка: марка + 5 % краски надписи; сегмент — подложка 5 %. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="sheet" data-fit><header><p class="title">Monthly CBD box</p></header><div class="body"><p>Three hand-picked products every month, delivered to your door.</p><div class="tabs" role="radiogroup" aria-label="Billing period"><label class="el"><input type="radio" name="period" checked>Monthly</label><label class="el"><input type="radio" name="period">Yearly</label></div><ul class="ticks"><li><svg data-sign="check"></svg>Three products each month</li><li><svg data-sign="check"></svg>Free delivery</li><li><svg data-sign="check"></svg>Pause or cancel any time</li></ul></div><footer><p class="cost"><span>24,90 €<small>/ month</small></span><span>249 €<small>/ year</small></span></p><button class="el" data-voice="loud" type="button">Subscribe</button></footer></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="sheet" data-fit><header><p class="title">Monthly CBD box</p></header><div class="body"><p>Three hand-picked products every month, delivered to your door.</p><div class="tabs"><span class="el" data-on>Monthly</span><span class="el">Yearly</span></div><ul class="ticks"><li><svg data-sign="check"></svg>Three products each month</li><li><svg data-sign="check"></svg>Free delivery</li><li><svg data-sign="check"></svg>Pause or cancel any time</li></ul></div><footer><p class="cost"><span>24,90 €<small>/ month</small></span><span>249 €<small>/ year</small></span></p><span class="el" data-voice="loud">Subscribe</span></footer></div><figcaption>покой</figcaption></figure>
+    <figure><div class="sheet" data-fit><header><p class="title">Monthly CBD box</p></header><div class="body"><p>Three hand-picked products every month, delivered to your door.</p><div class="tabs"><span class="el" data-on>Monthly</span><span class="el">Yearly</span></div><ul class="ticks"><li><svg data-sign="check"></svg>Three products each month</li><li><svg data-sign="check"></svg>Free delivery</li><li><svg data-sign="check"></svg>Pause or cancel any time</li></ul></div><footer><p class="cost"><span>24,90 €<small>/ month</small></span><span>249 €<small>/ year</small></span></p><span class="el" data-voice="loud" data-state="hover">Subscribe</span></footer></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="sheet" data-fit><header><p class="title">Monthly CBD box</p></header><div class="body"><p>Three hand-picked products every month, delivered to your door.</p><div class="tabs"><span class="el" data-on>Monthly</span><span class="el">Yearly</span></div><ul class="ticks"><li><svg data-sign="check"></svg>Three products each month</li><li><svg data-sign="check"></svg>Free delivery</li><li><svg data-sign="check"></svg>Pause or cancel any time</li></ul></div><footer><p class="cost"><span>24,90 €<small>/ month</small></span><span>249 €<small>/ year</small></span></p><span class="el" data-voice="loud" data-state="press">Subscribe</span></footer></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="sheet" data-fit><header><p class="title">Monthly CBD box</p></header><div class="body"><p>Three hand-picked products every month, delivered to your door.</p><div class="tabs"><span class="el" data-on>Monthly</span><span class="el">Yearly</span></div><ul class="ticks"><li><svg data-sign="check"></svg>Three products each month</li><li><svg data-sign="check"></svg>Free delivery</li><li><svg data-sign="check"></svg>Pause or cancel any time</li></ul></div><footer><p class="cost"><span>24,90 €<small>/ month</small></span><span>249 €<small>/ year</small></span></p><span class="el" data-voice="loud" data-state="focus">Subscribe</span></footer></div><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

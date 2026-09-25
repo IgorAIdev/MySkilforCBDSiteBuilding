@@ -17,6 +17,8 @@
 `npm run check:css`, `npm run check:code`, `npm run check:port`,
 `npm run check:scale`, `npm run check:palette`, `npm run pro:check`.
 Также `npm run check:skill`: целостность выбранных ресурсов, лицензии и ссылки.
+Для переносимого ядра: `npm run studio:check`, `selftest/studio.test.mjs` и полный
+цикл `selftest/studio-pilot`; инструкция — `references/studio-runtime.md` внутри скилла.
 Выбранные UI-исходники: в `selftest/component-preview` выполнить `npm ci`,
 `npm run typecheck`, `npm run build`, `npm run verify`, `npm run lighthouse`.
 Стенд не устанавливается в сайт. Результаты CI и ограничения локального транспорта

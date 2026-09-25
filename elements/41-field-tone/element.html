@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>41 · Поле тоном</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 41 — «Поле тоном». Источник — три CSS от заказчика 24.09.2026: светлое поле с кольцом, тёмный поиск и светлый поиск со значком — после разбора одно (source.css, source-2.css, source-3.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: ореол фокуса 7 px и 5 px полупрозрачной краской; сжатие 0.95 при нажатии — поле не нажимается; тени; свои краски: синий, индиго, тёмные серые — тёмное приходит темой палитры; шрифт Montserrat — шрифт решает сайт; плавность 0.5 s.
+  Приведено к единой форме: тон набора, рост 40, угол органа; лупа — из листа набора, у начала поля; вписанное — тело не меньше 16 px: иначе телефон увеличивает страницу; фокус — кольцо набора с отступом вместо ореола, кромка краской кольца; знак — краской марки.
+  Наведение: тон + 5 % чернил. Нажатия нет — поле; фокус: кольцо набора; пол страницы, кромка краской кольца, лупа — краской марки.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="column"><label class="field"><input type="email" placeholder="Email" aria-label="Email"></label><label class="field"><svg data-sign="search"></svg><input type="search" placeholder="Search products" aria-label="Search products"></label></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="field"><svg data-sign="search"></svg><input type="search" placeholder="Search products" tabindex="-1" readonly></span><figcaption>покой</figcaption></figure>
+    <figure><span class="field" data-state="hover"><svg data-sign="search"></svg><input type="search" placeholder="Search products" tabindex="-1" readonly></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="field" data-state="focus"><svg data-sign="search"></svg><input type="search" placeholder="Search products" tabindex="-1" readonly></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="field"><svg data-sign="search"></svg><input type="search" placeholder="Search products" tabindex="-1" readonly value="hemp oil"></span><figcaption>заполнено</figcaption></figure>
+  </div>
+</body>
+</html>

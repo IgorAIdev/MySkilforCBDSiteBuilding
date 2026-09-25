@@ -37,9 +37,11 @@
 import { fileURLToPath } from 'node:url'
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import { join, dirname, relative } from 'node:path'
-import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS } from './kit-config.mjs'
+import { LIB, TOKENS, PRIMITIVES, PREFIX, BREAKPOINTS, SEAMS, LADDER, STYLE_DIRS, CONTROLS, PRODUCT_DOC, DESIGN_DOC } from './kit-config.mjs'
 import { seamsIn, auditSeamsShape, deadSeams } from './seams.mjs'
 import { LAYOUT } from './thresholds.mjs'
+import { auditWords } from './words.mjs'
+import { DESIGN } from './checks.mjs'
 
 export const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -203,6 +205,8 @@ const seams = () => {
    docs/gate.md. Заведено 20.09.2026 по слову заказчика: «эти шаги понять,
    прописать, чтоб понять, какие шаги последующие и предыдущие». */
 const tokensSrc = () => src(TOKENS ?? 'styles/tokens.css')
+/* Вид сайта — шрифт и тени (И385): рядом с основой, в styles/look.css. */
+const lookSrc = () => src('styles/look.css')
 const primitivesSrc = () => src(PRIMITIVES ?? 'styles/primitives.module.css')
 const scaleJson = () => json(LADDER?.replace(/\.css$/, '.json') ?? 'styles/scale.json') ?? json('styles/scale.json')
 /* Слой считается СДЕЛАННЫМ не тогда, когда файлы на месте, а когда он
@@ -290,6 +294,14 @@ export const STAGES = [
           if (!/--ctrl-h-sm\s*:/.test(l) || !/--ctrl-h-lg\s*:/.test(l)) return 'трёх размеров органа нет (--ctrl-h-sm / --ctrl-h / --ctrl-h-lg в styles/scale.css)'
           if (!/pointer\s*:\s*coarse[^{]*\{[^}]*--ctrl-h/.test(l)) return 'под пальцем высоты не растут (@media (pointer: coarse) в styles/scale.css)'
           if (!/\.tap\b/.test(primitivesSrc())) return 'запаса под палец нет (.tap)'
+          /* Правило об органе без самого органа (И242): примитивы брали поле
+             из form.module.css, писали «кнопка переехала в btn.module.css»,
+             а файлов не было — ворота смотрели на шкалы и молчали. */
+          const base = dirname(PRIMITIVES ?? 'styles/primitives.module.css')
+          const lost = [...new Set([...primitivesSrc().matchAll(/composes\s*:[^;]*?from\s*['"]\.\/([^'"]+)['"]/g)]
+            .map((m) => join(base, m[1]).replace(/\\/g, '/')))].filter((p) => !has(p))
+          if (lost.length) return `органы взяты из файлов, которых нет: ${lost.join(', ')} — правило без реализации`
+          if (!/--ctrl-h/.test(CONTROLS.filter(has).map(src).join('\n'))) return `ни один дом контролов (${CONTROLS.join(', ')}) не строит орган от --ctrl-h — кнопки и поля нет`
           return null
         }, undefined,
         { reviewed: '20.09.2026', rule: 'И226: три размера из порогов, под пальцем ступень выше, орган считает от высоты', show: 'https://claude.ai/artifact/Cs5sbn6y5H6jdbSTfmsLYm — стенд размеров органов, три размера на одной карточке' }),
@@ -314,13 +326,15 @@ export const STAGES = [
           for (const name of ['--r-ctrl', '--r-card', '--r-sheet', '--r-pop', '--line-w', '--ring-w']) {
             if (!new RegExp(`${name}\\s*:`).test(l)) return `строитель не выпускает ${name} (styles/scale.css)`
           }
+          /* Роли тени — вид сайта: объявлены один раз в styles/look.css
+             (И385), ингредиенты — в tokens.css. */
           for (const name of ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in']) {
-            if (!new RegExp(`${name}\\s*:`).test(tokensSrc())) return `тени без роли по работе: нет ${name} (styles/tokens.css)`
+            if (!new RegExp(`${name}\\s*:`).test(lookSrc())) return `тени без роли по работе: нет ${name} (styles/look.css)`
           }
           const bare = (tokensSrc() + primitivesSrc()).replace(/\/\*[\s\S]*?\*\//g, '')
           if (/--r-pill|--round\b|--sh-[123]\b/.test(bare)) return 'старые имена формы (--r-pill, --round, --sh-1…3) ещё читаются'
           return null
-        }, undefined,
+        }, 'кнопка решена заказчиком словами в панели вида: нажатие одно, угол из Shape, буквы «Как в предложении» (И273)',
         { reviewed: '20.09.2026', rule: 'И228: радиус, линия и тень — роли со смыслом; полный круг — только главное действие; линия не течёт; глубина в тёмной — светлотой', show: 'https://claude.ai/artifact/LdEFzep2Lv19yydG8nPnUK — стенд формы: радиусы четырёх наборов, «круг или угол», четыре роли тени, линия и кольцо' }),
       step(10, 'Состояния и движение', 'три длительности и две кривые по работе; вуаль наведения и нажатия долей чернил, выключенное ролью; фокус кольцом 3 : 1; нажимаемое без задержки; reduced-motion', 'craft',
         () => {
@@ -337,9 +351,17 @@ export const STAGES = [
         }, undefined,
         { reviewed: '20.09.2026', rule: 'И229: три длительности и две кривые по работе, вуали состояния долей чернил в коридоре, выключенное ролью, нажимаемое отвечает сразу' }),
       step(11, 'Знаки и картинки', 'один лист знаков, одна толщина штриха в пикселях экрана, имя у безмолвного; снимки — механизм нарезки, сами снимки от заказчика', 'craft',
-        () => has('components/Icons.tsx') || has('components/icons') || has('styles/icons.css') ? null : 'листа знаков нет (components/Icons.tsx) — заводится в проекте, знаки не рисуются по месту'),
+        () => has('styles/icons.svg') || has('components/Icons.tsx') || has('components/icons') || has('styles/icons.css') ? null : 'листа знаков нет (styles/icons.svg, npm run icons) — знаки не рисуются по месту',
+        undefined,
+        { reviewed: '22.09.2026', rule: 'И249: один лист знаков из Lucide с закреплённым SHA; штрих в пикселях экрана атрибутом на каждой фигуре — `<use>` не пускает селекторы страницы; толщина одна на 16 / 24 / 48' }),
       step(12, 'Слова', 'голос, словарь терминов на языках рынка, глагол на кнопке, ошибка у поля с шагом, пустой экран с шагом', 'shop',
-        () => has('docs/words.md') ? null : 'словаря слов нет (docs/words.md) — заводится в проекте вместе с первым текстом'),
+        () => {
+          if (!has('docs/words.md')) return 'словаря слов нет (docs/words.md) — образец: templates/project-words.md'
+          const found = auditWords(src('docs/words.md'))
+          return found.length ? `словарь слов: ${found[0]}${found.length > 1 ? ` (и ещё ${found.length - 1})` : ''}` : null
+        },
+        undefined,
+        { reviewed: '22.09.2026', rule: 'И250: словарь — голос, глоссарий, глагол на кнопке, ошибка и пустой экран с шагом; меряется устройство и румынские ș ț, формулировки утверждает заказчик' }),
       step(13, 'Утилиты и исключения', 'ярлык на одну работу берёт роль; исключение — пометка атрибутом на том же предмете, не второй класс и не клон; слоёв каскада нет — решает вес', 'craft',
         () => {
           const pr = primitivesSrc()
@@ -424,8 +446,8 @@ export const STAGES = [
       },
     },
     parked: [
-      { name: 'ui-ux-pro-max --design-system', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill',
-        take: 'только на НОВОМ сайте, где системы ещё нет: режим выбора стиля и палитры в день первый. В проекте с tokens.css не ставится — второй набор чисел.' },
+      { name: 'ui-ux-pro-max — products.csv и typography.csv (только новый сайт)', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/main/.claude/skills/ui-ux-pro-max/data',
+        take: 'на НОВОМ сайте, где системы ещё нет: строки «Pharmacy/Drug Store», «Beauty/Spa/Wellness Service», «E-commerce Luxury» — отправная идея стиля; пары шрифтов — кандидаты в face-stand (он сам проверит кириллицу и latin-ext). Коды цветов не берутся: краски — строителем из трёх красок заказчика. Скрипты на Python не ставятся; --design-system в проекте с tokens.css — второй набор чисел.' },
       { name: 'minimalist · brutalist · soft (taste-skill)', url: '.claude/skills/',
         take: 'за идеей стиля, не за числами: идея переводится в свои токены.' },
       /* Разбор — docs/skills.md, «cbdshop.bg». Обе записи — про то, как
@@ -486,7 +508,9 @@ export const STAGES = [
   {
     n: 2, name: 'Вёрстка',
     builds: 'блоки и страницы, отзывчивость по ширинам, обе темы, вкус и движение. Компонент меряет контейнер, а не окно; число колонок вычисляется.',
-    skills: ['craft', 'scale', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'impeccable', 'improve-animations', 'redesign-skill', 'stages'],
+    /* Дизайнерские скиллы — первыми: правка вида начинается с них, а не
+       с CSS (CLAUDE.md, «Дизайн делается дизайнерскими скиллами»; И271). */
+    skills: ['impeccable', 'redesign-skill', 'craft', 'scale', 'shop', 'code', 'taste-skill', 'emil-design-eng', 'improve-animations', 'review-animations', 'stages'],
     steps: [
       step(14, 'Узлы', 'атомы → молекулы → организмы: кнопка, поле → карточка, счётчик, поиск → шапка, сетка, полоса покупки; без сырых значений, все состояния, оба указателя, обе темы', 'craft',
         () => has('components') ? null : 'нет components/ — узлов ещё нет'),
@@ -495,7 +519,7 @@ export const STAGES = [
       step(16, 'Обе темы и все ширины', 'свип 320…1600 без переполнения; всё, что открывается, снято открытым в обеих темах', 'craft',
         () => script('sweep') || has('tools/sweep.mjs') ? null : 'свипа нет (tools/sweep.mjs)'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'check:detect', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => script('check:craft') && has('tools/craft-baseline.json') ? null : 'храповика по отрисованной странице нет (check:craft + tools/craft-baseline.json)',
@@ -504,6 +528,12 @@ export const STAGES = [
           const bad = clean('tools/css-baseline.json', ['fontPx', 'spacingPx', 'breakpoint', 'ratioNoCap'])
           return bad === null ? 'базы check:css не прочитать' : bad.length ? `четыре запрета вёрстки не на нуле: ${bad.join(', ')}` : null
         },
+        /* Шаг 1 порядка дизайна читает контекст файлами (И300): правду о
+           продукте по схеме impeccable и описание вида ролями. Без них
+           работа над видом начиналась без цели — так и было до 24.09.2026. */
+        () => PRODUCT_DOC && has(PRODUCT_DOC) && /impeccable:product-schema/.test(src(PRODUCT_DOC)) && DESIGN_DOC && has(DESIGN_DOC)
+          ? null
+          : `нет ${PRODUCT_DOC ?? 'PRODUCT.md'} (со схемой impeccable) или ${DESIGN_DOC ?? 'DESIGN.md'} — шаг 1 порядка дизайна читает их (CLAUDE.md, «Дизайн делается дизайнерскими скиллами»)`,
       ],
       human: {
         /* смотрю я: токены, структура, поведение — по CLAUDE.md это
@@ -511,6 +541,7 @@ export const STAGES = [
            перекладывать свою работу (И206). */
         mine: [
           'вычитан живой список Vercel по изменённым файлам (шаг 4 порядка работы craft)',
+          'проверено на настоящем телефоне по локальной сети: клавиатура открыта, альбомная ориентация, прилипшее наведение (mobile-native, Эмиль Ковальский)',
         ],
         /* решает заказчик: как выглядит витрина, что на ней написано,
            чьи снимки и реквизиты. Только это и печатается ему. */
@@ -521,6 +552,12 @@ export const STAGES = [
       },
     },
     parked: [
+      { name: 'ui-ux-pro-max quick-reference.md — вычитывать перед сдачей вёрстки', url: 'https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/main/.claude/skills/ui-ux-pro-max/references/quick-reference.md',
+        take: 'живой список (265+ правил, десять разделов с приоритетом) — как список Vercel: читать по адресу, не копировать. Меряемое уже в check:craft и check:css; вычитка ищет то, что не меряется.' },
+      { name: 'find-animation-opportunities · animation-vocabulary (Эмиль Ковальский)', url: 'https://github.com/emilkowalski/skills',
+        take: 'в день прохода по движению: фильтр частоты — то, что нажимают сотню раз в день (количество, фильтры, «в корзину» на полке), не анимируется; словарь — чтобы переводить слова заказчика («дёргается», «плывёт») в роли --press-t / --hover-t / --open-t и --ease. Длительности и кривые автора не берутся — коридоры MOTION.' },
+      { name: 'awesome-design-md — DESIGN.md Shopify, Nike, Apple, Airbnb, Starbucks', url: 'https://github.com/VoltAgent/awesome-design-md',
+        take: 'вход шага «референсы»: как у них названы роли и что запрещено. Вид марки и числа — чужие; в проект файл целиком не кладётся.' },
       { name: 'Живой список Vercel — вычитывать перед сдачей вёрстки', url: 'https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md',
         take: 'список меняется у авторов; копировать его к себе нельзя — устареет. Читается целиком по изменённым файлам. Последняя вычитка: сентябрь, нашла три дефекта (фокус под шапкой при ходьбе табом, задержка нажатия на телефоне, цифры не равной ширины в столбцах) — все починены слоем, а не местом.' },
     ],
@@ -534,7 +571,7 @@ export const STAGES = [
         () => script('test') ? null : 'тестов нет (test) — красный тест писать нечем'),
       step(17, 'Склады памяти браузера', 'localStorage и cookie — через один склад, компонент помнит одно', 'code'),
     ],
-    checks: ['typecheck', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:craft', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => {
@@ -566,6 +603,8 @@ export const STAGES = [
     parked: [
       { name: 'React Doctor в сборку', url: 'https://ui-skills.com',
         take: 'ставить в CI с порогом «не хуже, чем сегодня», когда находок уровня «ошибка» ноль.' },
+      { name: 'ux-guidelines.csv (ui-ux-pro-max) · craft-details.md §2, §7 (Refero)', url: 'https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/main/.claude/skills/ui-ux-pro-max/data/ux-guidelines.csv',
+        take: 'сверочный лист для оформления, поиска и состояний: ошибка у поля с aria-describedby, двойная отправка, «ничего не нашлось» с предложением, вставка не запрещена, фильтры в адресе. Меряемое уже в семьях name и autofill; остальное прочитать один раз.' },
     ],
   },
   {
@@ -581,7 +620,7 @@ export const STAGES = [
           return off.length ? `флаги не в true: ${off.map((f) => f.name).join(', ')}` : null
         }),
     ],
-    checks: ['test', 'check:tokens', 'check:port', 'build:site', 'check:craft', 'check:seo', 'check:rules', 'check:stage'],
+    checks: ['test', 'check:tokens', 'check:port', 'check:design', 'build:site', 'check:craft', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => {
@@ -616,6 +655,8 @@ export const STAGES = [
     parked: [
       { name: 'seo-content (claude-seo) — E-E-A-T и чистка ИИ-фраз', url: 'https://github.com/AgriciDaniel/claude-seo',
         take: 'тексты — работа заказчика; но перед тем как принять текст на витрину, его можно прогнать: «читается ли как написанное человеком, есть ли кто за ним стоит». Совет, не проверка.' },
+      { name: 'Словесные правила детектора impeccable · copywriting.md (Refero)', url: 'https://github.com/referodesign/refero_skill/blob/master/skills/refero-design/references/copywriting.md',
+        take: 'тексты — работа заказчика: перед приёмом текста на витрину прогнать как совет рядом с seo-content (тире через слово, модные слова, «театр», афоризмы подряд); находки — строкой в docs/open.md, не храповик.' },
     ],
   },
   {
@@ -627,7 +668,7 @@ export const STAGES = [
       step(18, 'Вес, скорость, доступность', 'бюджет веса, Core Web Vitals, доступность в check:craft на нуле, PageSpeed и Rich Results глазом', 'craft'),
       step(18, 'Перенос', 'переносимый слой встаёт на другой движок: Shopify, WordPress, Medusa; поломки переносимости на нуле', 'craft'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'sweep', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:craft', 'check:detect', 'sweep', 'check:rules', 'check:stage'],
     gate: {
       machine: [
         () => has('out') ? null : 'сайт не собран — npm run build:site',
@@ -694,7 +735,7 @@ export const STAGES = [
     steps: [
       step(19, 'Жизнь', 'Search Console, замер после каждого выката, слежение за адресами и разметкой, новые тексты по спросу; версия у слепка, переименование псевдонимом со сроком', 'stages'),
     ],
-    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:rules', 'check:stage'],
+    checks: ['typecheck', 'check:css', 'check:code', 'check:lint', 'check:design', 'check:tokens', 'check:port', 'test', 'check:open', 'build:site', 'check:urls', 'check:seo', 'check:rules', 'check:stage'],
     gate: {
       machine: [],
       human: {
@@ -763,11 +804,23 @@ export const PLATFORM = [
     awake: () => /payload/i.test(src('package.json')),
     take: 'сервис — свой, и пишет он в НАШЕЙ форме, а не мы в его: переходников с WordPress и Shopify не нужно. В день Payload: (1) заказчик правит форму статьи (`Post` в lib/blog.ts — он сказал, что хочет; до этого форму не записывать как договор); (2) форма становится коллекцией статей в Payload — те же поля, обе языковые половины, — и её API есть описание для сервиса; (3) на входе стоит проверка, которая не пускает статью без второго языка, с обещанием действия (lib/claims.ts), со ссылкой на несуществующую статью или товар, без источников, — сервис это программа, а отвечает по закону витрина; (4) тексты статьи — наполнение, не моя работа: проверяется устройство, не слова.',
   },
+  {
+    name: 'Refero MCP или Mobbin MCP — библиотека живых экранов для шага «референсы»',
+    url: 'https://doc.refero.design/mcp/getting-started',
+    sleeps: 'пока в .mcp.json нет ни refero, ни mobbin — подписка и ключ заказчика (Refero: Pro, Team или Lifetime)',
+    awake: () => /refero|mobbin/i.test(src('.mcp.json')),
+    take: 'шаг «референсы и замок» берёт экраны и потоки из библиотеки вместо ручной съёмки; метод тот же: у главного — черты, у вторых — по детали, числа — в роли; снимки в репозиторий не кладутся.',
+  },
 ]
 
-/** Скиллы, которые работают на любом этапе: процесс, а не предмет. */
+/** Скиллы, которые работают на любом этапе: процесс, а не предмет.
+ *  Дизайн — тоже на любом: правка вида идёт дизайнерскими скиллами по
+ *  порядку, где бы проект ни стоял (И271). Порядок — из реестра слов
+ *  (`DESIGN` в tools/checks.mjs), его же печатает хук на слова заказчика. */
 export const ALWAYS = [
-  'stages', 'craft (при любой правке CSS)', 'palette (при любой правке красок, ролей цвета и строителя палитры)', 'scale (при любой правке кеглей, ритма, полей, воздуха и строителя шкал)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
+  'stages',
+  `дизайн (любая правка вида, на любом этапе): ${DESIGN.order.join(' → ')}; разбор готовой страницы — ${DESIGN.audit}; рядом ${DESIGN.alongside} — ${DESIGN.rule}`,
+  'craft (при любой правке CSS)', 'palette (при любой правке красок, ролей цвета и строителя палитры)', 'scale (при любой правке кеглей, ритма, полей, воздуха и строителя шкал)', 'code (при любой правке TypeScript)', 'shop (при любой правке товара, полки, корзины, страниц магазина)',
   'Superpowers: brainstorming · writing-plans · systematic-debugging · verification-before-completion · finishing-a-development-branch',
 ]
 

@@ -1,0 +1,3055 @@
+{
+  "checked": "2026-09-23",
+  "status": "draft",
+  "about": "Черновой список служб доставки по странам — варианты на выбор, не готовое решение: каждый магазин выбирает и перепроверяет свои службы сам. Факт — где нашёлся у источника; не найденное — null. Перепроверять перед запуском магазина: службы сливаются и закрываются.",
+  "services": {
+    "door": "курьер до адреса — вид способа address",
+    "office": "отделение или партнёрская точка выдачи — вид pickup, тип точки office или partner",
+    "locker": "постамат — вид pickup, тип точки locker"
+  },
+  "countries": [
+    {
+      "code": "BG",
+      "name": "Bulgaria",
+      "expect": "Locker and staffed-office pickup (Econt, Speedy, BOX NOW) sit alongside door delivery as normal checkout choices; cash-on-delivery is very common in Bulgarian/Balkan e-commerce (reported 60-80% of orders), though BOX NOW itself is card/link-payment only.",
+      "expectSource": "https://xlog.bg/nalozhen-platezh-za-onlayn-magazini/",
+      "carriers": [
+        {
+          "id": "econt",
+          "name": "Econt",
+          "website": "https://www.econt.com/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://www.econt.com/e-econt/doc_templates/XML_manual_engl.pdf",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Cash-on-delivery ('наложен платеж') confirmed via econt.com/services/cash-on-delivery-payment-via-postal-money-transfer and app.econt.com/cash-on-delivery. Network size NOT independently confirmed from econt.com itself this session (site returned near-empty content to the fetcher); secondary sources (news, mid-2026) report roughly 550+ offices and only ~38 Econtomat lockers nationwide -- treat that number as unverified. A 2017-dated general-terms PDF reportedly bans narcotic/psychotropic/poisonous substances, but the PDF could not be decoded to text this session, so no verbatim quote is given (restrictions left null rather than guessed).",
+          "sources": [
+            "https://www.econt.com/",
+            "https://www.econt.com/services/cash-on-delivery-payment-via-postal-money-transfer",
+            "https://www.econt.com/e-econt/doc_templates/XML_manual_engl.pdf",
+            "https://www.weship.com/en/carriers/ekont-econt",
+            "https://mobilebulgaria.com/news/avtomatite-prenarezhdat-kurierskiya-pazar-a-ekont-ostava-nazad"
+          ]
+        },
+        {
+          "id": "speedy",
+          "name": "Speedy",
+          "website": "https://www.speedy.bg/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://api.speedy.bg/web-api.html",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "Забранени: наркотични, упойващи, психотропни и отровни вещества (international shipments)",
+          "notes": "speedy.bg blocked direct automated fetch (HTTP 403) for every page tried this session, including the prohibited-items page and about-company page, so the restriction quote and network-size figure ('600+ locations/lockers, 100% territory coverage') come from third-party search snippets describing that page rather than a direct read -- treat as high-likelihood but not independently re-verified. Cash-on-delivery ('наложен платеж') confirmed via speedy.bg/bg/cash-on-delivery (page existence + description in secondary sources); legacy SOAP API (EPS) was fully decommissioned in 2025, current integration is the REST Web API.",
+          "sources": [
+            "https://www.speedy.bg/bg/prohibited-substances-and-items",
+            "https://api.speedy.bg/web-api.html",
+            "https://www.speedy.bg/bg/cash-on-delivery",
+            "https://www.speedy.bg/bg/automats-information"
+          ]
+        },
+        {
+          "id": "box-now",
+          "name": "BOX NOW",
+          "website": "https://boxnow.bg/",
+          "services": [
+            "locker"
+          ],
+          "cod": false,
+          "network": null,
+          "api": {
+            "docs": "https://boxnow.bg/en/partner-api",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "Наркотични, упойващи, психотропни и отровни вещества.",
+          "notes": "BOX NOW delivers ONLY to its own locker network in Bulgaria (no door or staffed-office option for consumers). No cash accepted at all -- FAQ states payment is only via a card/Apple Pay/Google Pay link sent by email/SMS/Viber after the parcel arrives, so this is not a COD carrier even though a 'наложен платеж'-style link-payment exists. Locker size tiers stated in FAQ, e.g. Large: H36 x W45 x L60 cm, up to 20 kg. Exact current locker count not stated by BOX NOW itself on the pages fetched; a 2024-era news article cited ~700+ lockers expanding toward 320 towns/villages by end of 2026 -- not carrier-confirmed for today, so left out of 'network'.",
+          "sources": [
+            "https://boxnow.bg/en/faq",
+            "https://boxnow.bg/list-of-prohibited-items",
+            "https://boxnow.bg/en/partner-api",
+            "https://dbr.bg/box-now-investira-oste-6-mln-u-nas-razshirava-mrezata-si-do-320-naseleni-mesta~22596.html"
+          ]
+        },
+        {
+          "id": "sameday-bg",
+          "name": "Sameday",
+          "website": "https://sameday.bg/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "близо 1000 easybox шкафчета / ~1,500-1,600 delivery points total (sameday.bg, self-stated)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Site states cash-on-delivery ('наложен платеж') is temporarily restricted to PUDO/pickup points ('Временно ограничение при доставка с наложен платеж до PUDO точки') -- i.e. COD may not be available to every delivery type at all times. No public API/developer documentation link found on the homepage; no cannabis/narcotics restriction text found on the pages checked (absence of a found rule is not proof no rule exists).",
+          "sources": [
+            "https://sameday.bg/"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "Econt / Econt Express",
+            "shops": 3
+          },
+          {
+            "name": "Speedy",
+            "shops": 2
+          }
+        ],
+        "cod": "common",
+        "sources": [
+          "https://cbdissimo.bg/info/доставка/",
+          "https://mycbd.bg/доставка/",
+          "https://conopol.com/policies/shipping-policy",
+          "https://hempico.bg/dostavka-i-plashtane/",
+          "https://www.hempstore.bg/плащане-и-доставка/"
+        ]
+      }
+    },
+    {
+      "code": "RO",
+      "name": "Romania",
+      "expect": "Parcel-locker pickup (mainly Sameday easybox and FAN Courier FANbox) has become the dominant checkout choice for many urban shoppers alongside door delivery, and cash-on-delivery (ramburs) remains widely offered by every major carrier.",
+      "expectSource": "https://www.mobilissimo.ro/stiri-diverse/sameday-monteaza-un-easybox-la-1-596-m-altitudine-la-cabana-dichiu-reteaua-trece-de-5-100-de-lockere-si-acopera-peste-700-de-localitati",
+      "carriers": [
+        {
+          "id": "fan-courier",
+          "name": "FAN Courier",
+          "website": "https://www.fancourier.ro/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "3,000 FANbox lockers installed nationwide, as of 15 June 2026 (fancourier.ro press release)",
+          "api": {
+            "docs": "https://www.fancourier.ro/wp-content/uploads/2025/09/EN_FANCourier_API_130825-1.pdf",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "goods whose transport is prohibited by legal provisions... ammunition, drugs, explosive/toxic/flammable materials",
+          "notes": "FANbox lockers accept parcels/envelopes up to 30 kg, monitored 24/7 (fancourier.ro). Requires a signed contract for the selfAWB API. COD ('ramburs') is not explicitly quoted from a FAN Courier page in this session but is confirmed indirectly via multiple third-party integration guides (WooCommerce/Magento modules) that document a ramburs field for FAN Courier -- treat as high-confidence, not a first-party quote.",
+          "sources": [
+            "https://www.fancourier.ro/en/general-conditions-regarding-the-provision-of-postal-services/",
+            "https://www.fancourier.ro/en/fan-courier-reaches-3000-fanbox-lockers-and-accelerates-out-of-home-delivery-expansion/",
+            "https://www.fancourier.ro/wp-content/uploads/2025/09/EN_FANCourier_API_130825-1.pdf",
+            "https://github.com/FAN-Courier/API-Docs"
+          ]
+        },
+        {
+          "id": "sameday",
+          "name": "Sameday",
+          "website": "https://sameday.ro/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "sameday.ro blocked automated fetch (HTTP 403) on every URL tried this session (homepage, news pages, restrictions page), so figures below are from third-party sources, not a direct read: press (mobilissimo.ro, financiarul.ro) reports the easybox network passed 5,100+ lockers covering 700+ localities in 2026, with some reports citing 6,000-7,700+ units when combined with Bulgaria -- none of this is a first-party quote, so 'network' is left null. Ramburs/COD and API integration (AWB generation, easybox listing, tracking) are confirmed only via third-party integrator write-ups (webecom.ro, depozio.ro) and an official open-source PHP SDK at github.com/sameday-courier/php-sdk -- no official public API-docs URL was located, so 'api.docs' is null. Note: as of Jan-June 2026 Sameday's SEPARATE Hungarian subsidiary was sold/then wound down after the sale to Austrian Post's Express One Hungary failed FDI clearance -- Sameday no longer operates as a Hungary checkout option (see HU section notes); this does not affect the Romania/Bulgaria business.",
+          "sources": [
+            "https://www.mobilissimo.ro/stiri-diverse/sameday-monteaza-un-easybox-la-1-596-m-altitudine-la-cabana-dichiu-reteaua-trece-de-5-100-de-lockere-si-acopera-peste-700-de-localitati",
+            "https://financiarul.ro/companii/sameday-extinde-reteaua-de-easyboxuri-la-peste-6-000-de-locatii-in-romania/",
+            "https://www.webecom.ro/blog/integrare-curier-sameday-api-sync-acum-poti-emite-mai-rapid-documente-awb-si-chiar-sa-livrezi-la-easybox/",
+            "https://github.com/sameday-courier/php-sdk"
+          ]
+        },
+        {
+          "id": "cargus",
+          "name": "Cargus",
+          "website": "https://www.cargus.ro/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "3,000 Ship&Go locations (cargus.ro, self-stated)",
+          "api": {
+            "docs": "https://www.cargus.ro/wp-content/uploads/DocumentatieAPIV3-2.0-EN.pdf",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "Пересказ: запрещены наркотики, галлюциногенные и этноботанические растения, психотропные вещества и их прекурсоры",
+          "notes": "Restriction wording is a paraphrase surfaced via search of Cargus's packaging/restrictions PDF (CG-modalitati-de-ambalare-si-restrictii-la-transport.pdf) and terms-and-conditions (edition dated 1 Sept 2026); the PDF itself was not opened to confirm the exact original-language sentence, so treat as close paraphrase rather than a verbatim quote. COD ('ramburs', cash or 'cont colector') confirmed via the API documentation summary.",
+          "sources": [
+            "https://www.cargus.ro/en/entrepreneurs/tools-and-solutions/",
+            "https://www.cargus.ro/wp-content/uploads/DocumentatieAPIV3-2.0-EN.pdf",
+            "https://www.cargus.ro/wp-content/uploads/CG-modalitati-de-ambalare-si-restrictii-la-transport.pdf"
+          ]
+        },
+        {
+          "id": "dpd-romania",
+          "name": "DPD",
+          "website": "https://www.dpd.com/ro/ro/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://api.dpd.ro/web-api.html",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "Пересказ: DPD не принимает посылки с наркотиками (ступефианте/наркотики)",
+          "notes": "Restriction phrasing is paraphrased from dpd.com/ro/ro/suport-dpd/tips-tricks/bunuri-interzise/, which was located but not opened directly to pull a verbatim original-language sentence. No carrier-stated pickup-point/locker count found; a secondary source mentioned '100 points in Bucharest, 81 elsewhere' but that reads like a partial/outdated figure, so left null. REST API replaces a legacy SOAP interface; free modules exist for Magento/OpenCart/PrestaShop/WooCommerce.",
+          "sources": [
+            "https://www.dpd.com/ro/ro/e-commerce/",
+            "https://api.dpd.ro/web-api.html",
+            "https://www.dpd.com/ro/ro/suport-dpd/tips-tricks/bunuri-interzise/",
+            "https://github.com/DPDromania"
+          ]
+        },
+        {
+          "id": "gls-romania",
+          "name": "GLS",
+          "website": "https://gls-group.com/RO/ro/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "Пересказ: перевозка того, что запрещена законом, — взрывчатые, ядовитые, горючие, психотропные вещества, наркотики, оружие",
+          "notes": "gls-group.com returned a TLS certificate-verification error to the fetch tool on every attempt this session (RO and HU alike), so nothing on this GLS entry was independently re-confirmed by direct page read -- all fields are reconstructed from search snippets. 'CashService' (GLS's named COD product) and a 'Parcel Shop' network reported at 2,000+ points in Romania are third-party-described, not carrier-quoted. No locker product was found for GLS Romania (only Parcel Shop = staffed/partner office pickup), so 'locker' is excluded from services. No public API-docs URL confirmed (a third-party PrestaShop 'GLS Parcelshop Selector' module claims API support across RO/HU/SK/CZ/SI/HR, which is the only evidence an API exists at all).",
+          "sources": [
+            "https://www.turnulsfatului.ro/2023/07/12/gls-romania-lanseaza-livrarea-la-parcel-shop-uri-o-noua-optiune-flexibila-si-convenabila-pentru-expeditorii-si-destinatarii-sai-204322",
+            "https://gls-group.com/RO/ro/gtc/",
+            "https://store.pws-server.net/downloads/prestashop-modules/gls-parcelshop-selector-order-export-api-transmit-for-prestashop/"
+          ]
+        },
+        {
+          "id": "posta-romana",
+          "name": "Poșta Română",
+          "website": "https://www.posta-romana.ro/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": "over 600 post offices integrated into the PostCollect VPN network (posta-romana.ro, self-stated)",
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": null
+          },
+          "restrictions": "Пересказ: почтовые отправления со ступефиантами и психотропными веществами запрещены",
+          "notes": "PostCollect (the e-commerce product) requires a contract and a minimum of ~1,000 parcels/month; no self-service API docs URL is published -- integration is arranged by contacting cnpr.vanzari@ropost.ro. Restriction wording is paraphrased from posta-romana.ro's FAQ page on prohibited/dangerous goods, not opened directly for a verbatim original sentence. No locker/parcel-machine product found for Poșta Română itself, so 'locker' excluded.",
+          "sources": [
+            "https://www.posta-romana.ro/a301/solutii-business/solutii-ecommerce/pentru-magazine-online/postcollect.html",
+            "https://www.posta-romana.ro/a256/servicii-expeditori/colete/in-romania/colete-interne-contra-ramburs.html",
+            "https://www.posta-romana.ro/a645/ajutor/intrebari-frecvente/care-sunt-marfurile-periculoase-si-obiectele-interzise-la-transportul-pe-cale-potal.html"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "GLS",
+            "shops": 2
+          },
+          {
+            "name": "Cargus",
+            "shops": 1
+          },
+          {
+            "name": "Colissimo",
+            "shops": 1
+          },
+          {
+            "name": "Chronopost",
+            "shops": 1
+          },
+          {
+            "name": "Packeta",
+            "shops": 1
+          },
+          {
+            "name": "DPD",
+            "shops": 1
+          },
+          {
+            "name": "EasyBox Romania",
+            "shops": 1
+          }
+        ],
+        "cod": "mixed",
+        "sources": [
+          "https://ulei-cbd.ro/cum-se-livreaza/",
+          "https://mamakana.ro/pages/livrare",
+          "https://www.hemphealth.ro/shop_contact.php?tab=shipping",
+          "https://naturway.ro/livrare-si-plata/"
+        ]
+      }
+    },
+    {
+      "code": "HU",
+      "name": "Hungary",
+      "expect": "GLS and Foxpost together dominate B2C parcel delivery, with Foxpost's locker network and GLS's ParcelShops as the main non-door checkout options, and Magyar Posta remaining the fallback carrier for rural addresses; COD ('utánvét') is a standard checkout option with most carriers.",
+      "expectSource": "https://www.zunapro.com/hungary/en/blog/shipping-hungary-gls-foxpost-magyar-posta",
+      "carriers": [
+        {
+          "id": "magyar-posta",
+          "name": "Magyar Posta",
+          "website": "https://www.posta.hu/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "ORSZÁGSZERTE TÖBB SZÁZ AUTOMATÁT TELEPÍTETTÜNK (\"we have installed several hundred [parcel] automats nationwide\") -- posta.hu, self-stated",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "COD is inferred from posta.hu referencing 'Árufizetés' (goods payment) / 'Címzett fizet' (recipient pays) as delivery add-ons; the specific term 'utánvét' was not seen in the pages fetched, so treat COD as likely-but-not-explicitly-quoted. Several posta.hu URLs guessed this session returned 404 (business/webshop-integration page, e.g. a page meant to cover MPL webshop services), so no API/developer documentation link could be found, and no restrictions text could be pulled even though a page titled 'nemzetkozi postai forgalombol kizart targyak kore' (items excluded from international postal traffic) is linked from posta.hu -- its content was not retrievable this session.",
+          "sources": [
+            "https://www.posta.hu/csomagautomata",
+            "https://www.posta.hu/webaruhazaknak",
+            "https://www.posta.hu/uzleti_ugyfeleknek"
+          ]
+        },
+        {
+          "id": "gls-hungary",
+          "name": "GLS",
+          "website": "https://gls-group.com/HU/hu/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "gls-group.com gave a TLS certificate-verification error to the fetch tool on every attempt (multiple URL paths tried, both /HU/hu/ and /HU/en/, plus IT-solutions and ParcelShop subpages) -- nothing here was independently confirmed by direct page read this session. A third-party logistics blog (zunapro.com) claims GLS Hungary holds '30%+' of the B2C parcel market with '~1,500+ ParcelShops', but that is explicitly the blog's own estimate, not a GLS statement, so it is intentionally left out of 'network'. COD and API details are unverified and left null rather than assumed from GLS's known behavior in other countries (e.g. Romania's CashService).",
+          "sources": [
+            "https://www.zunapro.com/hungary/en/blog/shipping-hungary-gls-foxpost-magyar-posta"
+          ]
+        },
+        {
+          "id": "foxpost",
+          "name": "FOXPOST",
+          "website": "https://foxpost.hu/",
+          "services": [
+            "locker",
+            "door"
+          ],
+          "cod": null,
+          "network": "Több mint 120 000 rekesz áll rendelkezésedre, közel 500 településen (\"more than 120,000 compartments available, in nearly 500 settlements\") -- foxpost.hu, self-stated",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "kábítószer, narkotikum, tudatmódosítók;",
+          "notes": "restrictions quote (\"narcotics, drugs, consciousness-altering substances\") is verbatim from foxpost.hu's general terms page. The business-partner page references an integration guide ('/uzleti-partnereknek/integracios-segedlet') for the major webshop platforms, but no public API-docs URL or explicit COD ('utánvét') statement was found on the pages fetched this session. Foxpost is reportedly absorbing Packeta Hungary's Z-BOX locker network (see country-level notes) -- its footprint may be understated here if that merger has since completed.",
+          "sources": [
+            "https://foxpost.hu/",
+            "https://foxpost.hu/uzleti-partnereknek",
+            "https://foxpost.hu/altalanos-szerzodesi-feltetelek"
+          ]
+        },
+        {
+          "id": "dpd-hungary",
+          "name": "DPD",
+          "website": "https://www.dpd.com/hu/hu/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://nst-preprod.dpsin.dpdgroup.com/api/docs/#nst-shipment-api",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD confirmed: the integration page repeatedly references 'utánvétes csomagja' (cash-on-delivery parcel) across Shopify/PrestaShop/WooCommerce integrations. Locker service is inferred from a 'Bárhonnan bárhova' (from anywhere to anywhere) product line plus a general DPD-group pattern of Pickup/locker points; it was not explicitly confirmed as a distinct locker (vs. staffed pickup point) product on the pages read, so treat with modest caution. No carrier-stated network size found; no HU-specific prohibited-goods text found (DPD Romania's equivalent page bans 'drugs', but that is a different country site and not assumed to apply verbatim to Hungary).",
+          "sources": [
+            "https://www.dpd.com/hu/hu/",
+            "https://www.dpd.com/hu/hu/segitseg/integracio/",
+            "https://www.dpd.com/hu/hu/pickup-csomagpont/csomagpont-kereso/"
+          ]
+        },
+        {
+          "id": "packeta-hungary",
+          "name": "Packeta",
+          "website": "https://www.packeta.hu/",
+          "services": [
+            "locker",
+            "office",
+            "door"
+          ],
+          "cod": null,
+          "network": "1,366 pickup points in Hungary (packeta.hu, self-stated); part of a wider claimed 209,311 partner pickup locations across Europe and 9,642 Z-BOX lockers shared across Czech Republic/Slovakia/Hungary",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "packeta.hu's own page states it works with '70+ futárszolgálat' (70+ courier services) for door delivery in Hungary. A merchant portal exists at client.packeta.com/hu/sign/in but no public API-documentation URL was found. No COD or restrictions text found on the page fetched. Most important caveat: per hvg.hu (Jan 2026), Foxpost and Packeta Hungary are reported to be merging, with Packeta's Z-BOX lockers being converted to FOXPOST Z-BOX -- meaning 'Packeta' as a separately-branded Hungarian checkout option may already be phasing out; this needs a fresh check before relying on it for a build.",
+          "sources": [
+            "https://www.packeta.hu/",
+            "https://hvg.hu/kkv/20250103_csomagautomata-csomagpont-packeta-gls-atrendezodes-konszolidacio-ebx"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "GLS",
+            "shops": 4
+          },
+          {
+            "name": "MPL",
+            "shops": 3
+          },
+          {
+            "name": "FoxPost",
+            "shops": 2
+          },
+          {
+            "name": "Packeta",
+            "shops": 1
+          },
+          {
+            "name": "Magyar Posta",
+            "shops": 1
+          },
+          {
+            "name": "DPD",
+            "shops": 1
+          }
+        ],
+        "cod": "common",
+        "sources": [
+          "https://cbdrendeles.com/szallitasi-feltetelek/",
+          "https://www.hempcsepp.hu/shop_contact.php?tab=shipping",
+          "https://usamedical.hu/szallitasi-informaciok/",
+          "https://hemp4life.hu/szallitasi-opciok/",
+          "https://cbdoazis.hu/aszf/"
+        ]
+      }
+    },
+    {
+      "code": "UA",
+      "name": "Ukraine",
+      "expect": "Self-service pickup (branch or parcel-locker) is the norm rather than the exception, Nova Post is the dominant network shoppers expect at checkout, and cash-on-delivery (накладений платіж) is a standard, widely used payment option.",
+      "expectSource": null,
+      "carriers": [
+        {
+          "id": "nova-post",
+          "name": "Nova Post",
+          "website": "https://novaposhta.ua/en/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "36,755 parcel lockers (poshtomats) nationwide, per own Q1 2026 results report dated 7 Apr 2026",
+          "api": {
+            "docs": "https://developers.novaposhta.ua/documentation",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "що містять тетрагідроканнабіноли (ТГК), похідні та інші види конопель також заборонені до пересилання",
+          "notes": "Domestically the legal/brand name is 'Нова пошта' / 'Nova Poshta'; its own English-language site (novaposhta.ua/en/) uses 'Nova Post' throughout as the international brand name. Separately, the parent holding group (6 companies) renamed itself from 'Nova Poshta Group' to 'NOVA' in Jan 2024 — that rename is at the corporate-group level, not the courier brand, and is unrelated to the English 'Nova Post' name.",
+          "sources": [
+            "https://novaposhta.ua/en/",
+            "https://novaposhta.ua/news/nova-poshta-pidsumky-1-kvartalu-poshtomaty/",
+            "https://developers.novaposhta.ua/documentation",
+            "https://novaposhta.ua/uploads/misc/doc/forbidden_goods_uk.pdf",
+            "https://novaposhta.ua/forbidden-items/",
+            "https://nova.global/news/nova-poshta-group-changes-its-name-to-nova/"
+          ]
+        },
+        {
+          "id": "ukrposhta",
+          "name": "Ukrposhta",
+          "website": "https://www.ukrposhta.ua/ua",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://dev.ukrposhta.ua/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": "Наркотичні засоби, психотропні речовини та прекурсори, включені до переліку, затвердженого постановою Кабінету Міністрів",
+          "notes": "Street parcel-locker rollout (1,000 units planned) announced Aug 2026 per Forbes.ua; the locker network is newer/smaller than Nova Post's and no self-stated total count was found. Cash-on-delivery (накладений платіж) fee widely reported as ~2% + 10 UAH by secondary sources, not independently re-confirmed on ukrposhta.ua itself this session.",
+          "sources": [
+            "https://www.ukrposhta.ua/ua/zaboroneni-predmety",
+            "https://www.ukrposhta.ua/en",
+            "https://dev.ukrposhta.ua/",
+            "https://forbes.ua/news/ukrposhta-ta-modern-expo-vstanovlyat-1000-vulichnikh-poshtomativ-u-velikikh-mistakh-13082026-41192",
+            "https://oplatezhah.com/nakladenyy-platizh-ukrposhty/"
+          ]
+        },
+        {
+          "id": "meest",
+          "name": "Meest",
+          "website": "https://ua.meest.com/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": "https://wiki.meest-group.com/api/ua/v3.0/openAPI",
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "конопляні продукти, такі як косметика, одяг, продукти харчування тощо, що містять тетрагідроканнабіноли (ТГК)",
+          "notes": "API docs link found in ua.meest.com footer (Meest openAPI v3.0) but its contents (whether it lists pickup points and creates shipments) could not be verified this session. Press (varianty.lviv.ua, focus.ua) reports roughly ~4,000 branches and ~1,500-3,000 lockers, but these are third-party estimates, not Meest's own stated figures, so network size is left null. Cash-on-delivery is standard practice among the big three UA carriers per general press coverage, but was not independently confirmed on Meest's own site this session, so left null rather than assumed.",
+          "sources": [
+            "https://www.meestpost.com/uk/prohibited-goods",
+            "https://ua.meest.com/",
+            "https://wiki.meest-group.com/api/ua/v3.0/openAPI",
+            "https://varianty.lviv.ua/publikatsiyi/meest-express-stav-vlasnykom-naibilshoi-merezhi-poshtomativ-v-ukraini"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "Nova Poshta",
+            "shops": 5
+          },
+          {
+            "name": "Ukrposhta",
+            "shops": 1
+          },
+          {
+            "name": "Mist Express",
+            "shops": 1
+          }
+        ],
+        "cod": "common",
+        "sources": [
+          "https://noobar.com.ua/dostavka-i-oplata",
+          "https://100cbd.com.ua/oplata-i-dostavka",
+          "https://www.cbd-premium-shop.com/delivery/",
+          "https://cbd.org.ua/dostavka",
+          "https://pephemp.com.ua/gid-pokupatelya/dostavka"
+        ]
+      }
+    },
+    {
+      "code": "MD",
+      "name": "Moldova",
+      "expect": "Office and parcel-locker (Post-Terminal) pickup plus Nova Post courier delivery are the two backbone options; e-commerce logistics is modernizing quickly and reliance on cash-on-delivery is reported to be declining as digital payment adoption grows.",
+      "expectSource": "https://www.bursa.ro/piata-comertului-electronic-din-republica-moldova-a-accelerat-in-2025-64138758",
+      "carriers": [
+        {
+          "id": "posta-moldovei",
+          "name": "Poșta Moldovei",
+          "website": "https://www.posta.md/ro",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "~35+ Post-Terminal (parcel locker) locations across Moldova, incl. multiple sites in Chișinău, Bălți, Cahul (pt.md network listing, fetched Sep 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "stupefiante și substanțe psihotrope, astfel cum sunt definite de către Organul Internațional de Control",
+          "notes": "Door delivery is branded 'Curier Rapid' (a Poșta Moldovei service, not a separate company); locker pickup is branded 'Post-Terminal' (pt.md). No public API/developer documentation was found for merchant integration.",
+          "sources": [
+            "https://posta.md/ro/p/obiecte_interzise_si_admise_conditionat_spre_expediere",
+            "https://posta.md/ro/p/curier-rapid-ro",
+            "https://www.pt.md/",
+            "https://www.posta.md/ro"
+          ]
+        },
+        {
+          "id": "nova-post-moldova",
+          "name": "Nova Post",
+          "website": "https://novapost.com/ro-md/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://api-portal.novapost.com/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Same brand/network as Nova Post Ukraine, operated in Moldova as 'New Post International MLD SRL'. Its own rules document (Section 5.1) states the prohibited-items list is published separately on its website rather than in the rules PDF itself, so no verbatim cannabis/narcotics clause could be located for the .md operation specifically this session (Ukraine's Nova Post entry has one). Press (protv.md/newsmaker.md, citing the local CEO) reported plans for ~60 partner mini-offices and ~150 lockers by end of 2026 — a stated growth plan, not a current self-reported total, so network size is left null.",
+          "sources": [
+            "https://novapost.com/ro-md/",
+            "https://novapost.com/ro-md/more/rules-on-the-provision-of-postal-and-courier-services/",
+            "https://novapost.com/ro-md/additional-services/ramburs/",
+            "https://api-portal.novapost.com/",
+            "https://protv.md/articol-comercial/nova-post-isi-extinde-reteaua-in-moldova-si-invita-la-parteneriat---2767801.html"
+          ]
+        },
+        {
+          "id": "evs-courier",
+          "name": "EVS Courier",
+          "website": "https://evs.md/",
+          "services": [
+            "door"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Private Moldovan courier/fulfillment company (self-described as 'a company IT în domeniul logisticii') offering same-day Chișinău and next-day nationwide door-to-door delivery plus warehousing/fulfillment. Its own services page did not explicitly mention cash-on-delivery or an API on direct fetch this session, although a separate search summary had suggested COD and 24/7 API order registration exist — left null pending firmer confirmation rather than asserted.",
+          "sources": [
+            "https://evs.md/servicii/",
+            "https://evs.md/"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "GR",
+      "name": "Greece",
+      "expect": "Parcel-locker pickup (BoxNow, and Skroutz Point for marketplace sellers) has become mainstream alongside traditional courier home delivery; cash-on-delivery is widely offered by the major couriers.",
+      "expectSource": "https://moneybuzz.gr/box-now-doubles-revenue-2025-smart-locker-growth-greece/",
+      "carriers": [
+        {
+          "id": "elta-courier",
+          "name": "ELTA Courier",
+          "website": "https://www.elta-courier.gr/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "κάνναβη, φαρμακευτική και μη, προϊόντα κάνναβης και υποπροϊόντα αυτής",
+          "notes": "ELTA Courier is the courier arm of Hellenic Post (ELTA, elta.gr), the state postal operator. The quoted cannabis clause is from its international Express Mail Service (EMS) prohibited-items page; the domestic door-to-door ('porta-porta') service page confirms COD via cash or IBAN transfer but its own prohibited-items list was not separately checked this session, so this restriction may apply mainly to the international/EMS lane.",
+          "sources": [
+            "https://www.elta-courier.gr/portaporta",
+            "https://www.elta-courier.gr/apagoreuseis_ems?lang=el",
+            "https://www.elta.gr/"
+          ]
+        },
+        {
+          "id": "acs-courier",
+          "name": "ACS Courier",
+          "website": "https://www.acscourier.net/en/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "300 local ACS Stores nationwide, plus a separate ACS Smartpoint Locker network (acscourier.net, fetched Sep 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "Κάθε Παράνομη Ιδιοκτησία Απαγορευμένη από Νόμο / Διάταξη",
+          "notes": "ACS's own prohibited-items page lists 'Ναρκωτικά' (narcotics) as its own separate line item alongside the quoted clause on illegal possessions generally; no CBD/hemp-specific carve-out or clarification was found, so it is unclear whether legally-sold CBD/hemp products would be affected. ACS offers an 'ACS Points Plugin' for e-shops to surface Smartpoint Lockers at checkout, implying some merchant-facing integration exists, but no public developer/API documentation URL was located this session (only third-party integrators such as a community WooCommerce plugin on GitHub and paid aggregators like AfterShip/TrackingMore/aftersalespro).",
+          "sources": [
+            "https://www.acscourier.net/en/",
+            "https://www.acscourier.net/el/plirofories/xrisimes-plirofories/apagorevmena-eidi/",
+            "https://www.acscourier.net/el/ypiresies/taxymetafores-eswterikoy/acs-smartpoint-lockers/"
+          ]
+        },
+        {
+          "id": "speedex",
+          "name": "Speedex",
+          "website": "https://www.speedex.gr/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "COD (αντικαταβολή) confirmed via Speedex's own Mastercard-partnership announcement page (card payment at the door, plus a stated surcharge of 4.54 EUR on top of normal courier prices). Its dedicated prohibited-items page (speedex.gr/content.asp?id=40) could not be reached this session (connection refused on repeated attempts), so no verbatim narcotics/cannabis quote is recorded — a search-engine summary indicated it excludes 'ναρκωτικών ουσιών' (narcotic substances) among generic prohibited/dangerous goods, but this is not confirmed verbatim and is left as restrictions: null rather than guessed.",
+          "sources": [
+            "https://www.speedex.gr/content.asp?id=193&lang=eng",
+            "https://www.speedex.gr/"
+          ]
+        },
+        {
+          "id": "geniki-taxydromiki",
+          "name": "Geniki Taxydromiki",
+          "website": "https://taxydromiki.com/en/home/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "264 service points nationwide, incl. 45 company-owned branches and 7 sorting centres, and more than 136 transportation routes (taxydromiki.com Consumer Obligations Charter, fetched Sep 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Locker pickup is via a partnership with BOX NOW rather than Geniki's own locker hardware. Its own Consumer Obligations Charter lists prohibited items (cash, precious metals/gems, antiques, lottery tickets, personal correspondence, human/animal ashes) but does not itemize narcotics or cannabis specifically, only a general reference to 'applicable national or EU legislation' — so restrictions is left null rather than inferred. No maximum COD amount is stated in the charter itself (a third-party source separately cited a €2,000 cap, not independently re-confirmed here). No public API/developer documentation page was found; third-party integrators (aftersalespro.gr, module vendors) exist instead.",
+          "sources": [
+            "https://taxydromiki.com/en/consumer-obligations-charter/",
+            "https://taxydromiki.com/en/home/"
+          ]
+        },
+        {
+          "id": "boxnow",
+          "name": "BOX NOW",
+          "website": "https://boxnow.gr/en",
+          "services": [
+            "locker"
+          ],
+          "cod": true,
+          "network": "240,000+ locker compartments nationwide (boxnow.gr, fetched Sep 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Functions as a shared locker network layered on top of partner couriers' last-mile delivery (ACS, ELTA, Speedex, Geniki Taxydromiki and others feed parcels into BOX NOW lockers) rather than running its own door courier fleet for e-shops directly. Its 'BOX NOW Cash-on-Delivery' / 'Pay on the Go' service lets shoppers pay by card at the locker only after the parcel arrives, and per earlier press coverage was live with 50+ partner e-shops (PUBLIC, BSB, CosmosSport, Tommy Hilfiger, Mothercare among them). The dedicated courier-partners and about-us pages returned 403/blocked on direct fetch this session, so no locker-count-by-location breakdown or API/developer documentation could be confirmed beyond the compartments figure.",
+          "sources": [
+            "https://boxnow.gr/en",
+            "https://track.boxnow.gr/en/locker-info",
+            "https://moneybuzz.gr/box-now-doubles-revenue-2025-smart-locker-growth-greece/"
+          ]
+        },
+        {
+          "id": "skroutz-last-mile",
+          "name": "Skroutz Last Mile",
+          "website": "https://www.skroutzlastmile.gr/",
+          "services": [
+            "door",
+            "locker"
+          ],
+          "cod": null,
+          "network": "1,962 Skroutz Points in Greece and Cyprus, with pickup from ACS branches & Shell stations (Skroutz corporate/help-center pages, per search results)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Built by Skroutz from its acquisition of courier SendX; door delivery currently covers Athens/Thessaloniki, with nationwide reach via Skroutz Point lockers hosted at ACS branches and Shell stations. IMPORTANT CAVEAT: this session could not confirm whether an independent online shop (e.g. a standalone CBD shop not selling through the Skroutz marketplace) can offer Skroutz Last Mile at its own checkout, or whether it is only available to merchants listed on Skroutz — treat this entry as uncertain for general e-commerce applicability until verified directly with Skroutz. Direct fetch of skroutzlastmile.gr returned only a page title (no body content) this session; the network-size figure and service description come from search-engine summaries of corporate.skroutz.gr and help.skroutz.gr, not a page this session fetched and read in full.",
+          "sources": [
+            "https://www.skroutzlastmile.gr/",
+            "https://corporate.skroutz.gr/en/topic/last-mile/",
+            "https://help.skroutz.gr/hc/en-us/articles/4420052989457-Skroutz-Point-Delivery"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "Colissimo",
+            "shops": 2
+          },
+          {
+            "name": "GLS",
+            "shops": 1
+          },
+          {
+            "name": "Chronopost",
+            "shops": 1
+          },
+          {
+            "name": "Mondial Relay",
+            "shops": 1
+          },
+          {
+            "name": "ACS Courier",
+            "shops": 1
+          }
+        ],
+        "cod": "mixed",
+        "sources": [
+          "https://mamakana.gr/pages/delivery",
+          "https://www.thehempshop.gr/tropoi-apostolis",
+          "https://cbdoilshop.gr/tropoi-apostolis",
+          "https://cbdsol.shop/pages/cbd-delivery"
+        ]
+      }
+    },
+    {
+      "code": "RS",
+      "name": "Serbia",
+      "expect": "Locker (paketomat) and parcel-shop pickup have become very common alongside door delivery, and cash-on-delivery (pouzeće/otkup) is a standard, widely expected payment option at checkout for domestic e-commerce.",
+      "expectSource": null,
+      "carriers": [
+        {
+          "id": "posta-srbije-postexpress",
+          "name": "Pošta Srbije (Post Express)",
+          "website": "https://www.posta.rs/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "20+ own parcel-locker locations (Belgrade, Novi Sad, Niš, Kraljevo, Novi Pazar, Pančevo) plus 1,100+ post offices (posta.rs / postexpress.rs, 2026)",
+          "api": {
+            "docs": "https://www.posta.rs/wsp-help/pocetna.aspx",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": "\"opojne droge i psihotropne supstance\" prohibited unless sender/recipient are authorized (Law on Postal Services)",
+          "notes": "COD referenced via PostPak regional service; max shipment weight 50 kg (15 kg for same-day).",
+          "sources": [
+            "https://www.posta.rs/lat/info/vest-detaljnije.aspx?ID=12078",
+            "https://explicit.rs/article/api-integracija-internet-prodavnice-sa-postom-srbije-postexpress",
+            "https://www.posta.rs/lat/stanovnistvo/usluga.aspx?usluga=postanske-usluge%2Fekspres-usluge-srbija%2Fpost-ekspres-post-express",
+            "https://www.posta.rs/wsp-help/pocetna.aspx"
+          ]
+        },
+        {
+          "id": "d-express",
+          "name": "Dexpress",
+          "website": "https://www.dexpress.rs/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "300 paketomat addresses across 80 cities, 45 paket shops (dexpress.rs, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "\"narkotike\" (narcotics) listed among prohibited shipment contents",
+          "notes": "Being acquired by Austrian Post and merged with City Express, deal expected to close late 2026 (bizlife.rs, Sep 2026) — still a separate checkout option today.",
+          "sources": [
+            "https://www.dexpress.rs/rs/paketomat",
+            "https://www.dexpress.rs/rs/sadrzaj-posiljke",
+            "https://www.dexpress.rs/rs/proizvodi/10-otkupnina",
+            "https://bizlife.rs/d-express-i-city-express-postaju-jedna-kompanija-i-jedna-od-najvecih-mreza-za-dostavu-paketa-u-srbiji/"
+          ]
+        },
+        {
+          "id": "bex-express",
+          "name": "BEX",
+          "website": "https://bexexpress.rs/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://bexexpress.rs/DevDocumentation/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Locker payment shown as card-based on the paketomati page; own-site figures for exact locker count were not found (a search-engine summary claimed 150+, but this could not be confirmed on bexexpress.rs itself, so left null).",
+          "sources": [
+            "https://bexexpress.rs/usluge/paketomati/",
+            "https://bexexpress.rs/DevDocumentation/",
+            "https://bexexpress.rs/paket-shopovi-i-poslovnice/"
+          ]
+        },
+        {
+          "id": "aks-express-kurir",
+          "name": "AKS Express Kurir",
+          "website": "https://www.aks.rs/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "20 regional centers with warehouses (aks.rs, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": "\"narkotike i psihotropne supstance, osim kada su pošiljalac i primalac ovlašćeni za njihov promet\"",
+          "notes": "API integration offered to regular/contract clients, but no public developer-docs URL found.",
+          "sources": [
+            "https://www.aks.rs/opsti-uslovi/",
+            "https://www.aks.rs/najcesca-pitanja/"
+          ]
+        },
+        {
+          "id": "city-express-rs",
+          "name": "City Express",
+          "website": "https://www.cityexpress.rs/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "200 paketomat locations, 19 operational centers (cityexpress.rs, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Prohibited-content list is only referenced as living in City Express's separate General Terms document, whose text could not be retrieved to quote verbatim. Being merged with D Express under Austrian Post ownership (see D Express notes).",
+          "sources": [
+            "https://www.cityexpress.rs/paketomat",
+            "https://www.cityexpress.rs/najcesca-pitanja/"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "HR",
+      "name": "Croatia",
+      "expect": "Parcel lockers (BOX NOW, Hrvatska pošta paketomati) and courier home delivery dominate checkout choices; cash-on-delivery (pouzeće) is offered but increasingly supplemented by card-on-pickup/online payment at lockers.",
+      "expectSource": null,
+      "carriers": [
+        {
+          "id": "hrvatska-posta",
+          "name": "Hrvatska pošta",
+          "website": "https://www.posta.hr/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "150+ paketomat locations (posta.hr, via own Paket24 ordering page, 2026)",
+          "api": {
+            "docs": "https://www.posta.hr/hp-shipping-service-api-tehnicka-dokumentacija",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "Пересказ: наркотики к перевозке не принимаются, кроме случаев, когда отправитель и получатель уполномочены законом",
+          "notes": "Individual (non-business) senders currently cannot attach COD when sending via a locker; only door/counter submissions or recipient-side COD payment at the locker are supported.",
+          "sources": [
+            "https://www.posta.hr/paketomati-9743",
+            "https://www.posta.hr/posiljke-sa-zabranjenom-robom/1398",
+            "https://www.posta.hr/hp-shipping-service-api-tehnicka-dokumentacija",
+            "https://www.posta.hr/automatizirajte-dostavu-narudzba-u-svojem-web-shopu/9601"
+          ]
+        },
+        {
+          "id": "gls-croatia",
+          "name": "GLS Croatia",
+          "website": "https://gls-group.com/HR/hr/home/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "230+ ParcelShop partner locations (gls-group.com, 2026)",
+          "api": {
+            "docs": "https://dev-portal.gls-group.net/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": "Пересказ: наркотики исключены из перевозки, кроме случаев, когда отправитель и получатель уполномочены законом на оборот или использование",
+          "notes": null,
+          "sources": [
+            "https://gls-group.com/HR/hr/privatni-korisnici/paketomat/",
+            "https://gls-group.com/HR/hr/privatni-korisnici/primanje-paketa/",
+            "https://gls-group.eu/HR/media/downloads/OUP__HRV_kolovoz_2023.pdf"
+          ]
+        },
+        {
+          "id": "dpd-croatia",
+          "name": "DPD",
+          "website": "https://www.dpd.com/hr/hr/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "1,800+ Pickup locations, 19 depots (dpd.com, 2026)",
+          "api": {
+            "docs": "https://www.dpd.com/hr/hr/it-povezivanje/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD (otkupnina) collectable via courier card terminal (\"Tap on Mobile\") or at partner locations (e.g. Eurom); locker pickup window is 72 hours.",
+          "sources": [
+            "https://www.dpd.com/hr/hr/primanje-paketa/",
+            "https://www.dpd.com/hr/hr/it-povezivanje/"
+          ]
+        },
+        {
+          "id": "overseas-express",
+          "name": "Overseas Express",
+          "website": "https://overseas.hr/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": "850+ Overseas Express Shops, 590+ Tisak kiosk pickup locations (overseas.hr, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "Пересказ: запрещённое содержимое включает наркотики, кроме случаев, когда отправитель и получатель уполномочены законом",
+          "notes": "Member of the Austrian Post Group since 2003; integrates with web shops via platform partners (e.g. Shape Core) rather than a publicly documented own API.",
+          "sources": [
+            "https://overseas.hr/hr/privatni-korisnici/parcel-shops",
+            "https://overseas.hr/hr/pravne-informacije/opci-uvjeti-poslovanja"
+          ]
+        },
+        {
+          "id": "box-now-croatia",
+          "name": "BOX NOW",
+          "website": "https://boxnow.hr/",
+          "services": [
+            "locker"
+          ],
+          "cod": true,
+          "network": "≈ 900 lockers / 90,000+ compartments (\"90.000+ Pretinaca\") across Croatia (boxnow.hr, 2026; corroborated by zgportal.com industry report, 2026)",
+          "api": {
+            "docs": "https://boxnow.hr/partner-api",
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Max parcel weight 20 kg; three box sizes (S/M/L up to 36×45×60 cm).",
+          "sources": [
+            "https://boxnow.hr/",
+            "https://www.zgportal.com/business/box-now-u-hrvatskoj-posluje-profitabilno-900-paketomata-80-000-pretinaca-i-vise-od-10-milijuna-isporucenih-paketa-godisnje/"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "SI",
+      "name": "Slovenia",
+      "expect": "National post lockers (PS Paketomat) and courier home delivery are the standard checkout options; cash-on-delivery (odkupnina/povzetje) is commonly supported, increasingly settled by card/online PayByLink at lockers rather than physical cash.",
+      "expectSource": null,
+      "carriers": [
+        {
+          "id": "posta-slovenije",
+          "name": "Pošta Slovenije",
+          "website": "https://www.posta.si/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "300+ PS Paketomat locations (\"V Sloveniji se nahaja več kot 300 PS Paketomatov\") (posta.si, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD/marked-value parcels up to 500 EUR can be collected at a PS Paketomat, paid via PayByLink (card/Flik/Valu); a separate partner locker network, \"Paketnik Direct4me\", is also offered alongside Pošta Slovenije's own paketomat. Could not verify the exact narcotics/drugs prohibition clause text on posta.si (page not found) — general Croatian/Serbian-style postal-law wording likely applies but is unconfirmed for Slovenia specifically.",
+          "sources": [
+            "https://www.posta.si/",
+            "https://www.posta.si/paketomat"
+          ]
+        },
+        {
+          "id": "gls-slovenia",
+          "name": "GLS",
+          "website": "https://gls-group.com/SI/sl/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://storitve.gls-slovenia.com/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "storitve.gls-slovenia.com references \"GLS API integracije\" documentation for e-commerce integration, but exact operations (points listing vs. shipment creation) could not be confirmed from the page text alone.",
+          "sources": [
+            "https://storitve.gls-slovenia.com/"
+          ]
+        },
+        {
+          "id": "dpd-slovenia",
+          "name": "DPD",
+          "website": "https://www.dpd.com/si/sl/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "800+ Pickup points including ≈200 DPD paketomats, 10 depots (\"več kot 800 Pickup točkam\") (dpd.com, 2026)",
+          "api": {
+            "docs": "https://www.dpd.com/si/sl/it-link-up-2/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD (povzetje) payable by card at delivery. General terms page (prevozni-pogoji) lists live animals, weapons, precious metals/jewels as excluded goods; no explicit narcotics/CBD clause was found in the fetched text, so left null rather than assumed.",
+          "sources": [
+            "https://www.dpd.com/si/sl/",
+            "https://www.dpd.com/si/sl/podpora/prevozni-pogoji/",
+            "https://www.dpd.com/si/sl/it-link-up-2/"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "PL",
+      "name": "Poland",
+      "expect": "InPost dominates parcel-locker delivery with the largest network (Paczkomat + PaczkoPunkt, ~28,000 points combined); DPD is second (~15,000 points); Poczta Polska remains often the only option in towns under 5,000 residents.",
+      "expectSource": "https://www.przelewy24.pl/blog/najpopularniejsze-firmy-kurierskie-w-polsce",
+      "carriers": [
+        {
+          "id": "inpost",
+          "name": "InPost",
+          "website": "https://inpost.pl",
+          "services": [
+            "locker",
+            "office",
+            "door"
+          ],
+          "cod": true,
+          "network": "≈ 20,000 Paczkomat lockers + ≈ 8,000 PaczkoPunkt partner points, ≈ 28,000 total (secondary aggregator, 2026)",
+          "api": {
+            "docs": "https://docs.inpost24.com/display/PL/API+ShipX",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "\"produktów konopnych, pochodnych konopi oraz innych konopi niż włókniste (w tym marihuanę leczniczą)\" — banned",
+          "notes": "InPost is the only PL carrier found with an explicit, named ban on hemp/CBD/medical-marijuana products (not just generic 'narcotics'); direct WebFetch of the current regulamin PDF returned 403, so the quote is confirmed via a secondary article that names and links the same official regulamin document.",
+          "sources": [
+            "https://inpost.pl/en/integration",
+            "https://www.przelewy24.pl/blog/najpopularniejsze-firmy-kurierskie-w-polsce",
+            "https://weednews.pl/inpost-od-wrzesnia-zakazuje-wysylki-legalnych-produktow-konopnych/",
+            "https://www.znajdzkuriera.pl/poradnik/towary-zakazane-inpost-i-paczkomat-2026-co-wolno-a-czego-nie-wolno-wyslac,301",
+            "https://inpost.pl/sites/default/files/docs/regulaminy/regulamin-swiadczenia-uslug-pocztowych-i-przewozowych-przez-inpost-sp-z-oo-obowiazujacy-od-24072025.pdf"
+          ]
+        },
+        {
+          "id": "poczta-polska-pocztex",
+          "name": "Poczta Polska (Pocztex)",
+          "website": "https://odbiorwpunkcie.poczta-polska.pl",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://odbiorwpunkcie.poczta-polska.pl/en/integracja-sklepu/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Free public widget (map of post offices/partner points/Pocztex lockers) plus e-nadawca system for label/shipment creation. Pobranie (COD) max amount ≈ 20,000 PLN per secondary source (apaczka.pl); not independently confirmed on poczta-polska.pl this session.",
+          "sources": [
+            "https://odbiorwpunkcie.poczta-polska.pl/en/integracja-sklepu/",
+            "https://www.apaczka.pl/oferta/wysylka-za-pobraniem/poczta-polska-za-pobraniem/"
+          ]
+        },
+        {
+          "id": "dpd-polska",
+          "name": "DPD",
+          "website": "https://www.dpd.com/pl/pl/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "≈ 24,000–27,000 Pickup points and lockers (figures vary by aggregator, 2026)",
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "API access requires a signed contract and a request to DPD customer service for credentials (Client ID/Secret, Master FID); no single public docs URL found this session. COD ('za pobraniem') max ≈ 15,000 PLN per secondary sources (fastpost.pl, tania-paczka.net).",
+          "sources": [
+            "https://www.sote.pl/docs/dpd-pickup",
+            "https://www.znajdzkuriera.pl/poradnik/dpd-polska-profil-uslugi-punkty-nadania,309",
+            "https://www.fastpost.pl/baza-wiedzy/firmy-kurierskie/kurier-dpd-przesylka-za-pobraniem"
+          ]
+        },
+        {
+          "id": "orlen-paczka",
+          "name": "ORLEN Paczka",
+          "website": "https://www.orlenpaczka.pl",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": false,
+          "network": "≈ 7,900 parcel machines nationwide (secondary source, 2026); official integration page does not state a figure",
+          "api": {
+            "docs": "https://www.orlenpaczka.pl/wp-content/uploads/2024/10/API_ORLENPaczka_v_1_24_001_PL.pdf",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "ORLEN Paczka's own integration page (orlenpaczka.pl) makes no mention of cash-on-delivery, and a secondary source (idosell.com) states ORLEN Paczka is withdrawing the COD payment option for e-shops — treat as cod:false pending direct reconfirmation before go-live.",
+          "sources": [
+            "https://www.orlenpaczka.pl/integracja-z-orlen-paczka/",
+            "https://www.idosell.com/pl/blog/orlen-paczka-wycofuje-dostawy-z-opcja-zaplaty-za-pobraniem-1235328337",
+            "https://alipaczka.pl/automaty-paczkowe/artykuly/orlen-paczka-poradnik"
+          ]
+        },
+        {
+          "id": "gls-poland",
+          "name": "GLS",
+          "website": "https://gls-group.eu/PL/pl/home/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://developer.gls-poland.com/en/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "ParcelShop point count is inconsistent across secondary sources (≈1,700 pre-2024 vs 18,000+ after an ORLEN Paczka partnership) and was not confirmed directly on gls-group.eu this session; treat network size as unverified.",
+          "sources": [
+            "https://developer.gls-poland.com/en/",
+            "https://www.jakimkurierem.pl/dokumentacja-api-kuriera-gls/"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "InPost",
+            "shops": 4
+          },
+          {
+            "name": "DHL",
+            "shops": 1
+          },
+          {
+            "name": "Orlen Paczka",
+            "shops": 1
+          }
+        ],
+        "cod": "common",
+        "sources": [
+          "https://www.cbdking.pl/formy-dostawy/",
+          "https://konopne24.pl/Czas-i-koszty-dostawy",
+          "https://www.konopnymarket.pl/pl/i/Dostawa/2",
+          "https://liroyal.pl/dostawa-i-zwroty"
+        ]
+      }
+    },
+    {
+      "code": "CZ",
+      "name": "Czechia",
+      "expect": "Zásilkovna/Packeta's network exceeds 10,000 pickup points and Z-BOXes and is close to a default checkout option for Czech e-shops, alongside Balíkovna (Česká pošta) as the low-cost alternative.",
+      "expectSource": "https://www.zasilkovna.cz/blog/v-cesku-uz-mame-vice-nez-10-000-vydejnich-mist-a-z-boxu",
+      "carriers": [
+        {
+          "id": "zasilkovna-packeta",
+          "name": "Zásilkovna (Packeta)",
+          "website": "https://www.zasilkovna.cz",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": true,
+          "network": "over 10,000 pickup points and Z-BOXes, incl. 6,000+ Z-BOXes (zasilkovna.cz blog, 2026)",
+          "api": {
+            "docs": "https://docs.packeta.com/guides/introduction",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD (dobírka) confirmed on the carrier's own site: payable in-app, via online link, or cash/card at pickup points; Z-BOXes only accept app/online payment. A general web search surfaced cannabis/CBD-specific banned-goods wording, but that text traced back to a different carrier (Meest), not Zásilkovna — not used here.",
+          "sources": [
+            "https://www.zasilkovna.cz/dobirka",
+            "https://www.zasilkovna.cz/blog/v-cesku-uz-mame-vice-nez-10-000-vydejnich-mist-a-z-boxu",
+            "https://docs.packeta.com/guides/introduction"
+          ]
+        },
+        {
+          "id": "balikovna",
+          "name": "Balíkovna",
+          "website": "https://www.balikovna.cz",
+          "services": [
+            "office",
+            "locker",
+            "door"
+          ],
+          "cod": true,
+          "network": "≈ 6,700 pickup points incl. post offices, partner branches and self-service boxes (secondary source; balikovna.cz itself states only \"one of the widest networks\" without a number)",
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Operated by Česká pošta. E-shops must contact podporaobchodu@cpost.cz to onboard; COD funds transferred to merchants within three days per balikovna.cz. No public self-serve API docs URL found this session.",
+          "sources": [
+            "https://www.balikovna.cz/en/partners/e-shops",
+            "https://www.biztools.cz/articles/jak-nastavit-balikovna-pro-e-shop"
+          ]
+        },
+        {
+          "id": "dpd-cz",
+          "name": "DPD",
+          "website": "https://www.dpd.com/cz/en/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "1,300+ Pickup shops in Czechia; 17,000+ pickup shops/boxes and 160,000+ across Europe (pickup.dpd.cz-derived secondary figures, 2026)",
+          "api": {
+            "docs": "https://pickup.dpd.cz/integrace/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Full CSV/XML point export available (pickup.dpd.cz/Export/csv, /Export/xml); widget for embeddable pickup-point picker.",
+          "sources": [
+            "https://pickup.dpd.cz/integrace/",
+            "https://pickup.dpd.cz/"
+          ]
+        },
+        {
+          "id": "ppl-cz",
+          "name": "PPL",
+          "website": "https://www.ppl.cz",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "4,000–6,000+ ParcelShop points (figures vary by source; not confirmed on ppl.cz itself this session)",
+          "api": {
+            "docs": "https://www.ppl.cz/en/integrators",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Free map-widget API key issued via klient.ppl.cz/widgetadmin; \"Business API\" for contracted e-shop integration.",
+          "sources": [
+            "https://www.ppl.cz/en/implementation-to-eshop",
+            "https://www.ppl.cz/en/integrators",
+            "https://www.sofishop.cz/ppl-vydejni-mista-parcelshop"
+          ]
+        },
+        {
+          "id": "gls-cz",
+          "name": "GLS",
+          "website": "https://gls-group.com/CZ/cs/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "part of GLS's 40,000+ pickup/drop-off points across Europe; no CZ-specific figure confirmed",
+          "api": {
+            "docs": "https://gls-group.com/CZ/en/senders/client-zone/customer-solution/psd/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD payable by card at Parcel Box/ParcelShop, cash at ParcelShop, or online via GoPay (incl. AlzaBox) per GLS CZ implementation guide.",
+          "sources": [
+            "https://gls-group.com/CZ/en/senders/client-zone/customer-solution/psd/",
+            "https://gls-group.com/CZ/media/cs/downloads/Implementace_PSD_4.11.2025.pdf"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "Zásilkovna/Packeta",
+            "shops": 5
+          },
+          {
+            "name": "PPL",
+            "shops": 4
+          },
+          {
+            "name": "DPD",
+            "shops": 2
+          },
+          {
+            "name": "Balíkovna",
+            "shops": 2
+          },
+          {
+            "name": "GLS",
+            "shops": 1
+          }
+        ],
+        "cod": "common",
+        "sources": [
+          "https://www.cbdzraje.cz/doprava-a-platby/",
+          "https://www.silakonopi.cz/doprava-a-moznosti-platby/",
+          "https://www.cbweed.cz/doprava-a-platby/",
+          "https://www.cbdshop.cz/zpusob-platby-a-dodani",
+          "https://medicann.cz/doprava-a-platba/"
+        ]
+      }
+    },
+    {
+      "code": "SK",
+      "name": "Slovakia",
+      "expect": "Slovak e-shops typically offer a choice between Packeta/Zásielkovňa lockers, Slovenská pošta (branches/BalíkoBOX), and DPD or GLS courier delivery.",
+      "expectSource": "https://www.posielanie-balikov.sk/srovnani/",
+      "carriers": [
+        {
+          "id": "packeta-sk",
+          "name": "Packeta",
+          "website": "https://www.packeta.sk",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": true,
+          "network": "3,000+ pickup points (\"Posielajte cez 3000 výdajných miest\", packeta.sk homepage)",
+          "api": {
+            "docs": "https://docs.packeta.com/guides/introduction",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Same Packeta Group API/docs as the Czech Zásilkovna brand. COD (dobierka) assumed available group-wide as in CZ; not separately reconfirmed for SK this session.",
+          "sources": [
+            "https://www.packeta.sk/odoslanie",
+            "https://www.packeta.sk/"
+          ]
+        },
+        {
+          "id": "slovenska-posta",
+          "name": "Slovenská pošta",
+          "website": "https://www.posta.sk",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "1,500+ post offices; 100+ BalíkoBOXy (secondary aggregator figure derived from posta.sk network)",
+          "api": {
+            "docs": "https://www.posta.sk/podpora/dokumentacia-pre-vyvojarov",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Offers an HTTP/JSON \"podací hárok\" (consignment note) interface plus static XML files of post offices/PoštaPOINT/BalíkoBOX locations for self-built pickup-point widgets. Automatic parcel insurance up to €332 standard, declared value up to €3,319 (posielanie-balikov.sk).",
+          "sources": [
+            "https://www.posta.sk/podpora/dokumentacia-pre-vyvojarov",
+            "https://www.posielanie-balikov.sk/srovnani/packeta-vs-slovenska-posta/"
+          ]
+        },
+        {
+          "id": "dpd-sk",
+          "name": "DPD",
+          "website": "https://www.dpd.com/sk/sk/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": "https://www.dpd.com/sk/en/developers/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "SK-specific pickup-point count not found this session; only the group-wide Geopost figure (150,000+ points worldwide) surfaced.",
+          "sources": [
+            "https://www.dpd.com/sk/en/developers/"
+          ]
+        },
+        {
+          "id": "gls-sk",
+          "name": "GLS",
+          "website": "https://gls-group.com/SK/sk/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": "550+ ParcelShop pickup points (glskurier.sk, official)",
+          "api": {
+            "docs": "https://gls-group.com/SK/sk/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "GLS API supports SOAP (XML) and REST (JSON/XML); requires signed contract and API key. No single public developer-docs URL confirmed for SK specifically (redirected to the general GLS SK site).",
+          "sources": [
+            "https://www.glskurier.sk/parcelshop",
+            "https://www.biznisweb.sk/a/951/napojenie-na-dopravcu-gls"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "LT",
+      "name": "Lithuania",
+      "expect": "Parcel lockers are the dominant delivery channel in Lithuania — cited at 68.3% of all parcels in Q3 2025 — with the market split mainly between DPD, Omniva, LP Express and Venipak.",
+      "expectSource": "https://www.shopspy.lt/kurjeriu-palyginimas-dpd-omniva-lp-express-venipak/",
+      "carriers": [
+        {
+          "id": "lp-express",
+          "name": "LP EXPRESS",
+          "website": "https://lpexpress.lt",
+          "services": [
+            "locker",
+            "office",
+            "door"
+          ],
+          "cod": null,
+          "network": "439 parcel lockers in 112 towns in Lithuania; part of a combined ≈1,500-locker LP Express network across LT/LV/EE (post.lt-derived secondary figure, 2026)",
+          "api": {
+            "docs": "https://www.post.lt/api-verslui",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Operated by Lietuvos paštas. COD not independently verified this session.",
+          "sources": [
+            "https://www.post.lt/api-verslui",
+            "https://www.post.lt/lt/integracijos-verslui",
+            "https://www.lithuanianpost.lt/lt/lp-express-pastomatai-verslui"
+          ]
+        },
+        {
+          "id": "omniva-lt",
+          "name": "Omniva",
+          "website": "https://www.omniva.lt",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": null,
+          "network": "420 parcel lockers in Lithuania as of mid-2023 (Omniva-derived figure; dated, not reconfirmed for 2026)",
+          "api": {
+            "docs": "https://www.omniva.lt/en/business/api/documentation/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "narcotic and psychotropic substances (and medicinal products containing them) are prohibited",
+          "notes": "Restriction quote verified on Omniva's own prohibited-items page (omniva.ee) which is a group-wide policy; it does not name cannabis/CBD specifically. Estonian-origin operator, strong Baltic-wide network.",
+          "sources": [
+            "https://www.omniva.lt/en/business/api/documentation/",
+            "https://www.omniva.ee/en/prohibited-items/",
+            "https://www.pistik.net/uudis/5926/omniva-pakiautomaatide-arv-kasvab-sel-aastal-eestis-ligi-370-ni"
+          ]
+        },
+        {
+          "id": "dpd-lt",
+          "name": "DPD",
+          "website": "https://www.dpd.com/lt/lt/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "One of the four main LT carriers per market-comparison aggregators; LT-specific facts (network size, API docs URL, COD) not verified this session.",
+          "sources": [
+            "https://www.dpd.com/lt/lt/",
+            "https://www.eshoprent.com/lt/el-parduotuves-moduliai/dpd-kurjeriai-siuntu-taskai-lp-express-kurjeriai-ir-pastomatai-venipak-omniva-lietuvos-pastas/"
+          ]
+        },
+        {
+          "id": "venipak-lt",
+          "name": "Venipak",
+          "website": "https://venipak.com",
+          "services": [
+            "locker",
+            "office",
+            "door"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": "https://documenter.getpostman.com/view/12497207/TVYCC1o1",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Official prohibited-items page (fast.venipak.com/draudziami-siusti-daiktai) references a UN hazardous-substances list without naming cannabis/CBD explicitly in the content actually retrieved; a web-search summary separately claimed an explicit CBD/THC ban, but this could not be confirmed on the primary page and is deliberately not included. API docs are hosted on Postman, not venipak.com itself.",
+          "sources": [
+            "https://fast.venipak.com/draudziami-siusti-daiktai",
+            "https://documenter.getpostman.com/view/12497207/TVYCC1o1"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "LV",
+      "name": "Latvia",
+      "expect": "Latvia has over 2,000 parcel-locker locations across 224 cities, spread across multiple competing networks (Omniva, DPD, Venipak, Latvijas Pasts, Unisend, uDrop).",
+      "expectSource": "https://www.swotzy.com/lv/piegades-risinajumi/pakomati",
+      "carriers": [
+        {
+          "id": "omniva-lv",
+          "name": "Omniva",
+          "website": "https://www.omniva.lv",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": null,
+          "network": "367 parcel lockers in Latvia as of mid-2023 (Omniva-derived figure; dated)",
+          "api": {
+            "docs": "https://developer.omniva.ee/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "narcotic and psychotropic substances (and medicinal products containing them) are prohibited",
+          "notes": "Same OMX API/developer portal used group-wide across EE/LV/LT.",
+          "sources": [
+            "https://developer.omniva.ee/",
+            "https://www.omniva.ee/en/prohibited-items/",
+            "https://www.pistik.net/uudis/5926/omniva-pakiautomaatide-arv-kasvab-sel-aastal-eestis-ligi-370-ni"
+          ]
+        },
+        {
+          "id": "dpd-lv",
+          "name": "DPD",
+          "website": "https://www.dpd.com/lv/lv/",
+          "services": [
+            "door",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Named as one of the main LV delivery networks by a local aggregator; no LV-specific facts independently verified this session.",
+          "sources": [
+            "https://www.dpd.com/lv/lv/",
+            "https://shopi.lv/piegade/"
+          ]
+        },
+        {
+          "id": "venipak-lv",
+          "name": "Venipak",
+          "website": "https://venipak.com",
+          "services": [
+            "locker",
+            "office",
+            "door"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": "https://documenter.getpostman.com/view/12497207/TVYCC1o1",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Operates an outdoor parcel-locker network across the Baltics per local aggregator description; LV-specific figures not verified.",
+          "sources": [
+            "https://shopi.lv/piegade/",
+            "https://documenter.getpostman.com/view/12497207/TVYCC1o1"
+          ]
+        },
+        {
+          "id": "latvijas-pasts",
+          "name": "Latvijas Pasts",
+          "website": "https://pasts.lv",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "420+ parcel machines (pakomāti) installed by early 2025, network still expanding (Wikipedia/local-news secondary sources)",
+          "api": {
+            "docs": "https://pasts.lv/en/services/integrations/api-integrations",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Described as Latvia's most popular/recognizable postal operator with the largest branch network; recently partnered with the Unisend locker network to extend pickup options. COD not verified this session.",
+          "sources": [
+            "https://pasts.lv/en/services/integrations/api-integrations",
+            "https://en.wikipedia.org/wiki/Latvijas_Pasts",
+            "https://www.talsunovads.lv/lv/jaunums/latvijas-pasts-paplasina-pakomatu-tiklu-talsu-novada"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "EE",
+      "name": "Estonia",
+      "expect": "Among Estonian shoppers, DPD courier is used by 41% of survey respondents, ahead of Omniva courier (29%), Itella/SmartPost courier (14%) and Venipak (12%); for parcel lockers specifically, Omniva carries over 50% of all locker parcels.",
+      "expectSource": "https://www.e-kaubanduseliit.ee/uudised/omnivat-kasutab-pea-80-eestlastest-dpd-teeb-suurimat-kasvu",
+      "carriers": [
+        {
+          "id": "omniva-ee",
+          "name": "Omniva",
+          "website": "https://www.omniva.ee",
+          "services": [
+            "locker",
+            "office",
+            "door"
+          ],
+          "cod": null,
+          "network": "carries over 50% of all Estonian parcel-locker volume; ≈38% overall parcel-market share (Eesti E-kaubanduse Liit survey, 2026)",
+          "api": {
+            "docs": "https://www.omniva.ee/en/business/api/",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": "Narcotic drugs and other psychotropic substances and medicinal products containing them are prohibited",
+          "notes": "Restriction quote verified directly on omniva.ee/en/prohibited-items/; page does not name cannabis/hemp/CBD specifically, only the general narcotics/psychotropics category.",
+          "sources": [
+            "https://www.omniva.ee/en/prohibited-items/",
+            "https://www.omniva.ee/en/business/api/",
+            "https://www.e-kaubanduseliit.ee/uudised/omnivat-kasutab-pea-80-eestlastest-dpd-teeb-suurimat-kasvu"
+          ]
+        },
+        {
+          "id": "itella-smartpost",
+          "name": "SmartPosti (Itella)",
+          "website": "https://www.smartposti.ee",
+          "services": [
+            "locker",
+            "door"
+          ],
+          "cod": null,
+          "network": "1,000+ parcel lockers/points across the Baltics (smartposti.ee-derived secondary aggregator figure); ≈26% of the Estonian parcel-service market (Eesti E-kaubanduse Liit)",
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "API key is issued through the my.smartpost.ee self-service portal (Services → API KEY); no separate public developer-docs page was found this session.",
+          "sources": [
+            "https://www.smartposti.ee/teeninduspunktid",
+            "https://www.e-kaubanduseliit.ee/uudised/omnivat-kasutab-pea-80-eestlastest-dpd-teeb-suurimat-kasvu"
+          ]
+        },
+        {
+          "id": "dpd-ee",
+          "name": "DPD",
+          "website": "https://www.dpd.com/ee/et/",
+          "services": [
+            "door",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Most-used courier among surveyed Estonian shoppers (41%) and the fastest-growing parcel-locker network per Eesti E-kaubanduse Liit; no EE-specific API docs URL or network-size figure verified this session.",
+          "sources": [
+            "https://www.e-kaubanduseliit.ee/uudised/omnivat-kasutab-pea-80-eestlastest-dpd-teeb-suurimat-kasvu"
+          ]
+        },
+        {
+          "id": "venipak-ee",
+          "name": "Venipak",
+          "website": "https://venipak.com",
+          "services": [
+            "locker",
+            "door"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": "https://documenter.getpostman.com/view/12497207/TVYCC1o1",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Used by ≈12% of surveyed Estonian shoppers (Eesti E-kaubanduse Liit, 2026).",
+          "sources": [
+            "https://www.e-kaubanduseliit.ee/uudised/omnivat-kasutab-pea-80-eestlastest-dpd-teeb-suurimat-kasvu",
+            "https://documenter.getpostman.com/view/12497207/TVYCC1o1"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "DE",
+      "name": "Germany",
+      "expect": "DHL, Amazon Logistics, DPD, Hermes, UPS and GLS together handle about 98% of all German parcel deliveries, with DHL alone at roughly 48% market share.",
+      "expectSource": "https://blog.getbyrd.com/en/top-5-delivery-companies-in-germany",
+      "carriers": [
+        {
+          "id": "dhl-paket",
+          "name": "DHL",
+          "website": "https://www.dhl.de",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "≈29,000 access points incl. Packstationen, Filialen and Paketshops (aggregator figure, blog.getbyrd.com/fulfillment-box.com, 2026; not independently confirmed on dhl.de this session)",
+          "api": {
+            "docs": "https://developer.dhl.com/api-catalog",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Confirmed directly via developer.dhl.com/api-catalog: includes a \"Location Finder - Unified API\" (parcel lockers and other locations, with services/opening hours) and \"DHL Parcel DE Private Shipping\"/\"Parcel DE Pickup\" shipment and pickup APIs. DHL's own Nachnahme (COD) page and prohibited-items page could not be located/fetched this session (repeated 404s; WebSearch quota was exhausted) — both are marked null pending direct verification.",
+          "sources": [
+            "https://developer.dhl.com/api-catalog",
+            "https://blog.getbyrd.com/en/top-5-delivery-companies-in-germany",
+            "https://fulfillment-box.com/top-courier-services-in-germany/"
+          ]
+        },
+        {
+          "id": "dpd-de",
+          "name": "DPD",
+          "website": "https://www.dpd.com/de/de/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "≈10,300 Pickup-Paketshops (dpd.com, verified via direct fetch, 2026)",
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "dpd.com/de states seamless checkout integration, plugins and IT-interface/API support but no single public developer-docs URL was confirmed this session. ≈10% German market share per blog.getbyrd.com aggregator estimate.",
+          "sources": [
+            "https://www.dpd.com/de/de/",
+            "https://blog.getbyrd.com/en/top-5-delivery-companies-in-germany"
+          ]
+        },
+        {
+          "id": "hermes-de",
+          "name": "Hermes",
+          "website": "https://www.myhermes.de",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "17,000+ Hermes PaketShops (myhermes.de business page, verified via direct fetch, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "≈15% German market share per blog.getbyrd.com aggregator estimate. No API/developer documentation link found on the fetched merchant page; not confirmed whether Hermes offers a public shipping API to e-shops.",
+          "sources": [
+            "https://www.myhermes.de/geschaeftskunden/",
+            "https://blog.getbyrd.com/en/top-5-delivery-companies-in-germany"
+          ]
+        },
+        {
+          "id": "gls-de",
+          "name": "GLS",
+          "website": "https://gls-group.com/DE/de/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "≈5,500 Pickup points (blog.getbyrd.com aggregator estimate, 2026); could not be independently confirmed — direct fetch of gls-group.com/DE failed (certificate/redirect errors) this session",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "≈7–8% German market share per blog.getbyrd.com aggregator estimate. GLS operates country-specific developer portals elsewhere (e.g. developer.gls-poland.com); an equivalent for Germany was not confirmed this session.",
+          "sources": [
+            "https://blog.getbyrd.com/en/top-5-delivery-companies-in-germany"
+          ]
+        },
+        {
+          "id": "ups-de",
+          "name": "UPS",
+          "website": "https://www.ups.com/de/de/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "≈12% German market share per blog.getbyrd.com aggregator estimate; not independently verified on ups.com this session (offers \"UPS Access Point\" network generally, size unconfirmed for DE).",
+          "sources": [
+            "https://blog.getbyrd.com/en/top-5-delivery-companies-in-germany"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "DHL",
+            "shops": 2
+          },
+          {
+            "name": "DPD",
+            "shops": 1
+          },
+          {
+            "name": "UPS",
+            "shops": 1
+          }
+        ],
+        "cod": "rare",
+        "sources": [
+          "https://www.nordicoil.de/policies/shipping-policy",
+          "https://hempamed.de/policies/shipping-policy",
+          "https://vaay.com/policies/shipping-policy"
+        ]
+      }
+    },
+    {
+      "code": "AT",
+      "name": "Austria",
+      "expect": "Austrian Post (Österreichische Post) has the densest branch and parcel-locker/Abholstation network in the country; DPD and GLS are particularly well represented in urban areas and often faster there.",
+      "expectSource": "https://www.paketcheck.at/anbieter",
+      "carriers": [
+        {
+          "id": "osterreichische-post",
+          "name": "Österreichische Post",
+          "website": "https://www.post.at",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "post.at's business/commercial-parcel page (post.at/g/c/paket-geschaeftlich) is mainly a contact-your-sales-rep gateway; it references an \"ELLA Business Portal\" (ella.post.at) for commercial integration but no public API documentation page was found. Neither COD nor network-size figures were confirmed on the carrier's own site this session.",
+          "sources": [
+            "https://www.post.at/",
+            "https://www.post.at/g/c/paket-geschaeftlich",
+            "https://www.paketcheck.at/anbieter"
+          ]
+        },
+        {
+          "id": "dpd-at",
+          "name": "DPD",
+          "website": "https://www.dpd.com/at/de/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "≈3,300 Pickup-Paketshop locations across Austria (dpd.com/at, verified via direct fetch, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Site references the myDPD platform and \"maßgeschneiderte Lösungen\" (custom integration) for merchants but no public developer-docs URL was confirmed this session. Offers 4 size classes (S/M/L/XL) per paketcheck.at.",
+          "sources": [
+            "https://www.dpd.com/at/de/",
+            "https://www.paketcheck.at/anbieter"
+          ]
+        },
+        {
+          "id": "gls-at",
+          "name": "GLS",
+          "website": "https://gls-group.eu/AT/de/home/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "900+ GLS-PaketShops and 1,200+ PaketBoxen; 11 depots plus HQ in Ansfelden, serving 6,900+ customers (gls-group.eu, verified via direct fetch, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Offers \"FlexDeliveryService\" letting recipients redirect shipments. COD and API/developer integration were not mentioned on the fetched homepage and are unverified.",
+          "sources": [
+            "https://gls-group.eu/AT/de/home/",
+            "https://www.paketcheck.at/anbieter"
+          ]
+        },
+        {
+          "id": "hermes-at",
+          "name": "Hermes",
+          "website": "https://www.myhermes.at",
+          "services": [
+            "office"
+          ],
+          "cod": null,
+          "network": "1,300+ PaketShops across Austria (myhermes.at, verified via direct fetch, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Page emphasizes drop-off/pickup at PaketShops (online label creation, up to 10% online discount) over door-to-door as the primary consumer model; no API/developer info found on the fetched page. Offers 3 size classes (S/M/L) per paketcheck.at.",
+          "sources": [
+            "https://www.myhermes.at/",
+            "https://www.paketcheck.at/anbieter"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "DHL",
+            "shops": 1
+          },
+          {
+            "name": "Österreichische Post AG",
+            "shops": 1
+          },
+          {
+            "name": "UPS",
+            "shops": 1
+          }
+        ],
+        "cod": "rare",
+        "sources": [
+          "https://www.hanfgarten.at/versandkosten",
+          "https://vaay.com/policies/shipping-policy",
+          "https://www.cbdaustria.at/shop/agb/",
+          "https://www.cibdol.com/de/shipping-information"
+        ]
+      }
+    },
+    {
+      "code": "IT",
+      "name": "Italy",
+      "expect": "Shoppers increasingly expect a pickup-point or locker choice (BRT Fermopoint, Punto Poste, GLS ShopDelivery, InPost) shown alongside home delivery at checkout.",
+      "expectSource": "https://tissquad.com/it/blog/migliori-corrieri-ecommerce-italia/",
+      "carriers": [
+        {
+          "id": "poste-italiane",
+          "name": "Poste Italiane",
+          "website": "https://business.poste.it",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "\"over 30,000 points of proximity\" (post offices, Punto Poste, lockers) (business.poste.it, 2026)",
+          "api": {
+            "docs": null,
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "COD (\"contrassegno\") documented at poste.it/tariffe-invii-in-contrassegno. Business integration (MyPosteDeliveryBusiness) offers API/SFTP but only via a business account portal, not a fully public self-serve developer site, so api.docs left null.",
+          "sources": [
+            "https://business.poste.it/professionisti-imprese/prodotti/rete-punto-poste.html",
+            "https://business.poste.it/professionisti-imprese/faq-poste-delivery-web.html",
+            "https://www.poste.it/tariffe-invii-in-contrassegno"
+          ]
+        },
+        {
+          "id": "brt",
+          "name": "BRT",
+          "website": "https://www.brt.it",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "brt.it confirms BRT-fermopoint (pickup points) and a locker service exist, but the site did not expose network size or contrassegno terms to a direct fetch this session; COD confirmed only via secondary sources (delivery.it, spediamopro.com), not brt.it itself. Treat cod as lower-confidence.",
+          "sources": [
+            "https://www.brt.it/it/",
+            "https://delivery.it/brt-contrassegno/",
+            "https://www.spediamopro.com/spedire-con-brt-tutte-le-opzioni/"
+          ]
+        },
+        {
+          "id": "gls-italia",
+          "name": "GLS",
+          "website": "https://gls-group.com/IT/it/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "COD (\"contrassegno\"/COD) service confirmed on GLS Italia's own COD page. ShopDelivery pickup-point network size (~9,000 quoted by secondary blogs) was not independently confirmed by direct fetch this session (gls-group.com rendered as JS-only content).",
+          "sources": [
+            "https://gls-group.com/IT/it/spedire-ricevere/servizio-per-te/servizi-accessori/cod/"
+          ]
+        },
+        {
+          "id": "inpost-italia",
+          "name": "InPost",
+          "website": "https://inpost.it",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": false,
+          "network": "\"over 9,000 points\" — 4,000 lockers + 5,000+ InPost Point locations (InPost Italia, via logisticamente.it, Sept 2025)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "No home/address delivery — locker + partner-point pickup only. COD not offered per a courier-support source describing InPost Italia policy (customers needing COD are pointed to Poste Italiane, SDA or UPS instead); inpost.it itself blocked direct fetch (403) this session.",
+          "sources": [
+            "https://www.logisticamente.it/DirettamenteAziende/inpost-italia-4-000-locker-attivi-e-nuovo-servizio-direct-per-privati/",
+            "https://support.spedire.com/it/articles/9196327-inpost-posso-spedire-in-contrassegno"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "GLS",
+            "shops": 1
+          }
+        ],
+        "cod": "rare",
+        "sources": [
+          "https://www.enecta.it/pages/metodi-spedizione-pagamento",
+          "https://cbweed.com/spedizioni-e-resi/",
+          "https://cibdol.com/it/informazioni-sulla-spedizione"
+        ]
+      }
+    },
+    {
+      "code": "ES",
+      "name": "Spain",
+      "expect": "Correos and SEUR together are reported to appear in around 41% of branded retailer checkouts, and shoppers commonly expect a CityPaq/locker or pickup-point alternative to home delivery.",
+      "expectSource": "https://www.zunapro.com/spain/en/blog/ecommerce-logistics-spain-carriers",
+      "carriers": [
+        {
+          "id": "correos",
+          "name": "Correos",
+          "website": "https://www.correos.es",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "CityPaq locker network described as \"over 2,000 lockers\" active in all Spanish provinces incl. islands (secondary source citing Correos data; exact current figure not independently confirmed on correos.es this session)",
+          "api": {
+            "docs": "https://www.correos.es/es/es/empresas/ecommerce/refuerza-la-logistica-de-tu-ecommerce/integracion-api",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": "\"drogas, sustancias controladas y cualquier otro tipo de narcótico como el opio, la marihuana\"",
+          "notes": "Correos' own e-commerce API page (fetched) confirms Labels and Pre-registration modules for creating shipments; it did not detail a pickup-point/locker lookup API, so api.points is left null. COD (\"reembolso\"/cash on delivery) is widely known to be offered but was not confirmed with a URL this session, so left null rather than assumed.",
+          "sources": [
+            "https://www.correos.es/es/es/empresas/ecommerce/refuerza-la-logistica-de-tu-ecommerce/integracion-api",
+            "https://www.correos.es/es/es/actualidad/2024/objetos-prohibidos-en-correos-idescubre-que-articulos-no-puedes-",
+            "https://www.correos.es/es/es/particulares/recibir/nuestros-puntos-de-entrega-y-recogida/citypaq"
+          ]
+        },
+        {
+          "id": "seur",
+          "name": "SEUR",
+          "website": "https://www.seur.com",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "\"over 10,000 active Pickup points\", including 2,000 smart lockers (SEUR/Geopost data via trade press, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "SEUR is the Spanish brand of Geopost/DPDgroup. Network figures and the statement that SEUR added cash-on-delivery at out-of-home points come from Spanish logistics trade press, not a direct fetch of seur.com this session.",
+          "sources": [
+            "https://www.logisticaprofesional.com/texto-diario/mostrar/5466533/seur-avanza-desarrollo-red-pickup-espana-10000-puntos-activos",
+            "https://www.alimarket.es/logistica/noticia/415182/seur-llega-a-los-10-000-puntos--pickup--e-incorpora-mejoras-en-ellos"
+          ]
+        },
+        {
+          "id": "mrw",
+          "name": "MRW",
+          "website": "https://www.mrw.es",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": "~2,000+ MRW Punto locations (secondary aggregate source; not independently confirmed on mrw.es this session)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": "Пересказ: услуга не покрывает приём и доставку отправлений с содержимым, противоречащим закону, или предметом незаконного оборота",
+          "notes": "Restriction wording is from MRW's own \"Condiciones generales de prestación del servicio\" page; it is a general illicit-goods/public-morals clause, not CBD-specific. Direct fetch of mrw.es was blocked (403) this session, so this quote relies on a search-engine rendering of that official page.",
+          "sources": [
+            "https://www.mrw.es/uso_MRW_mensajeria/condiciones_venta/"
+          ]
+        },
+        {
+          "id": "gls-espana",
+          "name": "GLS",
+          "website": "https://gls-group.com/ES/es/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": "\"más de 6.300 puntos\" (over 6,300 ParcelShop points) for sending/receiving in Spain (gls-group.com/ES, via search)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "GLS Spain's own FAQ states that ParcelShop partner points do not accept cash or card for COD collection (they only act as custody points) — COD must be settled at an official GLS branch or paid online in advance. So GLS does offer a COD service, but not collectible at every pickup point.",
+          "sources": [
+            "https://gls-group.com/ES/es/faq/parcel-shops/",
+            "https://gls-group.com/ES/es/parcel-shops/"
+          ]
+        },
+        {
+          "id": "inpost-espana",
+          "name": "InPost",
+          "website": "https://www.inpost.es",
+          "services": [
+            "locker",
+            "office"
+          ],
+          "cod": null,
+          "network": "\"más de 12.000 puntos en Iberia\" (over 12,000 points, Spain+Portugal combined) (inpost.es, via search)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "The 12,000-point figure covers Iberia (Spain and Portugal together) per InPost's own site, not Spain alone. InPost Italy explicitly excludes COD; the same is plausible for Spain but was not independently confirmed this session, so left null.",
+          "sources": [
+            "https://www.inpost.es/preguntas-frecuentes/",
+            "https://www.inpost.es/buscar-el-punto-pack-mas-cercano/"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [],
+        "cod": "mixed",
+        "sources": [
+          "https://cannactiva.com/politica-de-envio",
+          "https://www.naturecan.es/pages/delivery-options",
+          "https://cibdol.com/es/informacion-de-envio",
+          "https://www.justbob.es/faq"
+        ]
+      }
+    },
+    {
+      "code": "PT",
+      "name": "Portugal",
+      "expect": "CTT handles over half of Portugal's parcel volume, and offering CTT Pickup at checkout is reported to lift conversion by 4-7% versus home delivery only.",
+      "expectSource": "https://www.zunapro.com/portugal/en/blog/ctt-ecommerce-logistics-portugal",
+      "carriers": [
+        {
+          "id": "ctt",
+          "name": "CTT",
+          "website": "https://www.ctt.pt",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "Locky by CTT: \"more than 600 lockers\", public and private, across Portugal incl. Madeira (ctt.pt group news); CTT Pickup network reported at 4,000+ points by a secondary source, not independently confirmed this session",
+          "api": {
+            "docs": "https://developer.ctt.pt/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": "\"Estupefacientes e substâncias psicotrópicas são proibidos, exceto quando se destinem à investigação científica\"",
+          "notes": "Cash-on-delivery (\"contra-reembolso\") confirmed via CTT's own help pages for Encomendas Expresso, payable up to €2,500. CTT also runs a dedicated e-commerce API at enviosecommerceapi.ctt.pt/v3/.",
+          "sources": [
+            "https://www.ctt.pt/ajuda/particulares/enviar/regras-cuidados-envios/proibicoes-restricoes",
+            "https://www.ctt.pt/ajuda/empresas/criar-lojas-online/pagamentos/metodo-de-pagamento-cobranca",
+            "https://www.ctt.pt/grupo-ctt/media/noticias/locky-lanca-o-envio-e-devolucao-de-encomendas-atraves-de-cacifos-inteligentes",
+            "https://developer.ctt.pt/",
+            "https://enviosecommerceapi.ctt.pt/v3/"
+          ]
+        },
+        {
+          "id": "dpd-portugal",
+          "name": "DPD",
+          "website": "https://www.dpd.com/pt/pt/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": true,
+          "network": "Pickup Point network in Portugal; secondary sources give conflicting counts (\"approximately 2,300\" vs \"650\" points) — not independently confirmed on dpd.com/pt this session",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "DPD Portugal's own help page confirms cash-on-delivery exists only when the shipper has specifically contracted a collection-on-delivery service, paid to the driver at the time of delivery.",
+          "sources": [
+            "https://www.dpd.com/pt/pt/ajuda/",
+            "https://blog.eurosender.com/pt-pt/rede-pickup/"
+          ]
+        },
+        {
+          "id": "gls-portugal",
+          "name": "GLS",
+          "website": "https://gls-group.com/PT/pt/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "\"mais de 80 agências, 3 depots e mais de 2000 GLS Points\" (secondary aggregator citing GLS Portugal figures; not independently confirmed on gls-group.com this session)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "gls-group.com/PT rendered as JS-only content on direct fetch this session, so services/COD could not be independently confirmed beyond the ParcelShop-style network being reported by a phone-directory aggregator site.",
+          "sources": [
+            "https://telefone-numero.com/gls-atendimento-cliente"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "FR",
+      "name": "France",
+      "expect": "Relay-point delivery is the delivery option preferred by 34% of French online shoppers, per a Sendcloud consumer study; the common checkout pattern is a cheap relay option (Mondial Relay/Colissimo Point Retrait), a standard home-delivery option (Colissimo Domicile), and an express option (Chronopost).",
+      "expectSource": "https://www.sendcloud.com/fr/blog/colissimo-chronopost-mondial-relay-quels-transporteurs-choisir-pour-son-site-e-commerce/",
+      "carriers": [
+        {
+          "id": "colissimo",
+          "name": "Colissimo",
+          "website": "https://www.colissimo.fr",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "\"more than 24,000 pickup points\" (post offices, Pickup relay, Pickup Station lockers) across France (colissimo.entreprise.laposte.fr, via search)",
+          "api": {
+            "docs": "https://developer.laposte.fr/catalog-apis/colissimo@1",
+            "points": true,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "Colissimo (La Poste group) publishes a public API catalog (developer.laposte.fr) including a pickup-point widget/API and a shipping/labelling webservice; a \"Contre Remboursement\" (COD) option is documented in Colissimo's own national COD terms PDF.",
+          "sources": [
+            "https://www.colissimo.entreprise.laposte.fr/",
+            "https://developer.laposte.fr/catalog-apis/colissimo@1",
+            "https://www.colissimo.fr/media/CGV_CSV/att00003006/CGVCRBTnational.pdf"
+          ]
+        },
+        {
+          "id": "chronopost",
+          "name": "Chronopost",
+          "website": "https://www.chronopost.fr",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "Shares the \"Pickup\" relay/locker network with Colissimo and DPD France: \"17,000 relay points\" and \"6,500 lockers\" in France (pickup.fr / universcolis.fr, secondary sources; not independently confirmed on chronopost.fr, which blocked direct fetch with a 403 this session)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "A Chronopost management representative is quoted in trade press as confirming Chronopost is authorized to transport CBD in France; this is a positive carriage confirmation, not an official published restriction, and was not verified directly on chronopost.fr (site returned 403 to direct fetch).",
+          "sources": [
+            "https://www.pickup.fr/",
+            "https://www.universcolis.fr/actualites/deposer-colis-consigne-pickup-chronopost-2026",
+            "https://lepointchanvre.fr/blog/21_chronopost-livre-des-produits-au-cbd-.html"
+          ]
+        },
+        {
+          "id": "mondial-relay",
+          "name": "Mondial Relay",
+          "website": "https://www.mondialrelay.fr",
+          "services": [
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "\"17,000 proximity points\" in France — 10,000 Lockers + 7,000 Points Relais® — and \"more than 94,500 proximity points\" across Europe (mondialrelay.fr / ecommercemag.fr, 2026)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "mondialrelay.fr blocked direct fetch (403) this session, so services/COD/API details rely on secondary sources and could not be independently verified beyond the point/locker counts.",
+          "sources": [
+            "https://www.ecommercemag.fr/logistique-1222/mondial-relay-franchit-le-cap-des-10-000-lockers-en-france-55859"
+          ]
+        },
+        {
+          "id": "dpd-france",
+          "name": "DPD",
+          "website": "https://www.dpd.com/fr/fr/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "DPD relies on the shared \"Pickup\" network: \"more than 8,500 points relais\" in France (secondary trade-press source, dawap.fr)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": null,
+          "sources": [
+            "https://dawap.fr/actualites-developpement/integration-api-dpd-logistique-shipping"
+          ]
+        },
+        {
+          "id": "relais-colis",
+          "name": "Relais Colis",
+          "website": "https://www.relaiscolis.com",
+          "services": [
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Secondary sources give inconsistent 2026 counts for the Relais Colis network (figures ranging from ~4,500 to ~10,000 points in France depending on the source), so no network figure is asserted here; none was independently confirmed on relaiscolis.com this session.",
+          "sources": [
+            "https://relaiscolis.com/",
+            "https://pointdecollection.fr/e-commerce/point-relais-pickup/"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "Mondial Relay",
+            "shops": 2
+          },
+          {
+            "name": "Chronopost",
+            "shops": 1
+          },
+          {
+            "name": "Colissimo",
+            "shops": 1
+          },
+          {
+            "name": "Colis Privé",
+            "shops": 1
+          }
+        ],
+        "cod": "unknown",
+        "sources": [
+          "https://www.naturecan.fr/pages/delivery-options",
+          "https://www.monplancbd.fr/conditions-generales-de-vente-cbd/",
+          "https://cibdol.com/fr/informations-de-livraison"
+        ]
+      }
+    },
+    {
+      "code": "BE",
+      "name": "Belgium",
+      "expect": "Since 31 March 2024, Belgian law requires every online seller delivering to Belgium to offer at least two delivery options at checkout, one of which must be a more sustainable alternative.",
+      "expectSource": "https://www.zineps.com/blog/verzenden-naar-belgie-webshop-gids-2026",
+      "carriers": [
+        {
+          "id": "bpost",
+          "name": "bpost",
+          "website": "https://www.bpost.be",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": true,
+          "network": "Bbox lockers: \"+2,500 locations\" in Belgium and growing (bpost.be/en/bbox, fetched directly)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "bpost's own homepage (fetched) confirms cash-on-delivery availability; a public bpost developer/API portal was not found this session (developer.bpost.be does not resolve), and the prohibited-items help page returned 404.",
+          "sources": [
+            "https://www.bpost.be/en",
+            "https://www.bpost.be/en/bbox"
+          ]
+        },
+        {
+          "id": "dpd-belgium",
+          "name": "DPD",
+          "website": "https://www.dpd.com/be/en/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "DPD Belgium's homepage (fetched directly) confirms a \"DPD Pickup Shop\" network and myDPD delivery-management app, but did not state network size, COD, or API documentation.",
+          "sources": [
+            "https://www.dpd.com/be/en/"
+          ]
+        },
+        {
+          "id": "mondial-relay-be",
+          "name": "Mondial Relay",
+          "website": "https://www.mondialrelay.be",
+          "services": [
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Described by an industry comparison source as the fastest-growing out-of-home delivery network in Belgium, shipping BE→NL/LU/FR/IT/ES; mondialrelay.be blocked direct fetch (403) this session so no figures could be independently confirmed.",
+          "sources": [
+            "https://www.sendcloud.com/be/bpost-dpd-dhl-welke-vervoerder-past-bij-jouw-webshop/"
+          ]
+        },
+        {
+          "id": "gls-belgium",
+          "name": "GLS",
+          "website": "https://gls-group.com/BE/en/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "gls-group.com/BE rendered as JS-only content on direct fetch this session (a ParcelShop locator was referenced but no size figure). Included as a known Belgian checkout carrier per an industry comparison source.",
+          "sources": [
+            "https://www.sendcloud.com/be/bpost-dpd-dhl-welke-vervoerder-past-bij-jouw-webshop/"
+          ]
+        }
+      ],
+      "cbd": null
+    },
+    {
+      "code": "NL",
+      "name": "Netherlands",
+      "expect": "PostNL, with the largest Dutch parcel-point network, is described as the default first choice for most Dutch webshops, with DHL/UPS favoured for international shipments and DPD/GLS for European or B2B traffic.",
+      "expectSource": "https://www.zunapro.com/netherlands/en/blog/ecommerce-logistics-netherlands-shipping-fulfillment",
+      "carriers": [
+        {
+          "id": "postnl",
+          "name": "PostNL",
+          "website": "https://www.postnl.nl",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": "https://developer.postnl.nl/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "developer.postnl.nl is confirmed (direct fetch) as a public developer portal listing Shipment V4, Return V4, Track & Trace, Addresses, Mail and Supplier APIs. Repeated attempts to fetch postnl.nl business pages for network size, COD, and a locations/pickup-point API timed out this session, so those fields are left null rather than guessed.",
+          "sources": [
+            "https://developer.postnl.nl/"
+          ]
+        },
+        {
+          "id": "dhl-parcel-nl",
+          "name": "DHL",
+          "website": "https://www.dhlparcel.nl",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "Could not be independently verified this session: dhl.com pages returned connection errors/timeouts on every attempt. Included because multiple industry comparison sources (Sendcloud, ecommercenews.nl) consistently list DHL alongside PostNL/DPD/GLS as a standard Dutch webshop checkout carrier, favoured for international shipments.",
+          "sources": [
+            "https://www.sendcloud.com/nl/dhl-ups-postnl-en-meer-welke-vervoerder-past-bij-jouw-webshop/"
+          ]
+        },
+        {
+          "id": "dpd-nederland",
+          "name": "DPD",
+          "website": "https://www.dpd.com/nl/nl/",
+          "services": [
+            "door",
+            "office",
+            "locker"
+          ],
+          "cod": null,
+          "network": "DPD's homepage (fetched) states \"over 150,000 parcelshops throughout Europe\" — a pan-European figure, not Netherlands-specific",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "dpd.com/nl/nl (fetched directly) confirms home delivery with a 1-hour delivery window and \"DPD Pakketautomaat\" lockers, but no NL-specific network count, COD, or API documentation was found.",
+          "sources": [
+            "https://www.dpd.com/nl/nl/"
+          ]
+        },
+        {
+          "id": "gls-netherlands",
+          "name": "GLS",
+          "website": "https://gls-group.com/NL/nl/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": "https://api-portal.gls.nl/",
+            "points": null,
+            "shipments": true
+          },
+          "restrictions": null,
+          "notes": "api-portal.gls.nl is confirmed (direct fetch) as a public GLS Netherlands developer portal documenting a Label API (automated shipment/label creation) and a Track & Trace API/webhook. No parcel-shop locator API was found on that portal, so api.points is left null; gls-group.com/NL itself rendered as JS-only content.",
+          "sources": [
+            "https://api-portal.gls.nl/"
+          ]
+        }
+      ],
+      "cbd": {
+        "carriers": [
+          {
+            "name": "PostNL",
+            "shops": 2
+          },
+          {
+            "name": "DHL",
+            "shops": 1
+          },
+          {
+            "name": "DPD",
+            "shops": 1
+          },
+          {
+            "name": "UPS",
+            "shops": 1
+          }
+        ],
+        "cod": "unknown",
+        "sources": [
+          "https://cbdolie.nl/verzending/",
+          "https://www.cbdshop.nl/service/shipping-returns/",
+          "https://hempshopper.com/ordering-shipping/",
+          "https://puurenkracht.nl/bezorging"
+        ]
+      }
+    },
+    {
+      "code": "IE",
+      "name": "Ireland",
+      "expect": "Fastway Couriers Ireland entered receivership on 30 October 2025, suspending collections, deliveries and tracking nationwide — shops must stop offering it at checkout; DPD, An Post and GLS are the main remaining options.",
+      "expectSource": "https://www.parcel2go.com/content-hub/fastway-courier-alternatives-ireland",
+      "carriers": [
+        {
+          "id": "an-post",
+          "name": "An Post",
+          "website": "https://www.anpost.com",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": null,
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "An Post's business parcel pages (fetched directly) list eCommerce Hub, Click & Collect, and International Retailer solutions, but no network-size figures, COD terms, developer API, or prohibited-items page (404) were found this session.",
+          "sources": [
+            "https://www.anpost.com/Business"
+          ]
+        },
+        {
+          "id": "dpd-ireland",
+          "name": "DPD",
+          "website": "https://www.dpd.ie",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "\"38 depots across the island of Ireland\", handling \"in excess of 40 million parcels every year\" (dpd.ie/about-us, fetched directly)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "DPD Ireland is the largest dedicated parcel carrier in the country. Cash-on-delivery and API/developer documentation were not mentioned on the fetched pages.",
+          "sources": [
+            "https://www.dpd.ie/about-us/",
+            "https://www.dpd.ie/send-a-parcel-courier-service/"
+          ]
+        },
+        {
+          "id": "gls-ireland",
+          "name": "GLS",
+          "website": "https://gls-group.com/IE/en/",
+          "services": [
+            "door",
+            "office"
+          ],
+          "cod": null,
+          "network": "\"120 national and regional hubs\" and \"more than 1,600 parcel shops\" (secondary aggregator, ensun.io; not independently confirmed on gls-group.com this session)",
+          "api": {
+            "docs": null,
+            "points": null,
+            "shipments": null
+          },
+          "restrictions": null,
+          "notes": "gls-group.com/IE rendered as JS-only content on two direct-fetch attempts this session, so this network figure is from a third-party business-directory aggregator only.",
+          "sources": [
+            "https://ensun.io/search/delivery/ireland"
+          ]
+        }
+      ],
+      "cbd": null
+    }
+  ],
+  "crossBorder": {
+    "carriers": [
+      {
+        "name": "DHL",
+        "shops": 3
+      },
+      {
+        "name": "DPD",
+        "shops": 2
+      },
+      {
+        "name": "Royal Mail / Royal Mail Tracked",
+        "shops": 2
+      },
+      {
+        "name": "PostNL",
+        "shops": 1
+      },
+      {
+        "name": "UPS",
+        "shops": 1
+      },
+      {
+        "name": "Evri",
+        "shops": 1
+      }
+    ],
+    "cod": "rare",
+    "sources": [
+      "https://cbdsense.com/shipment/",
+      "https://www.nordicoil.eu/policies/shipping-policy",
+      "https://www.cbdnol.com/pages/versandinformationen",
+      "https://www.provacan.co.uk/policies/shipping-policy",
+      "https://www.justbob.shop/faq/",
+      "https://www.cibdol.com/shipping-information",
+      "https://formulaswiss.com/pages/shipping-information",
+      "https://www.alpinols.com/pages/zahlungsmethoden",
+      "https://www.cannadorra.com/shopping-information-2/"
+    ]
+  },
+  "policies": [
+    {
+      "carrier": "DHL Express",
+      "scope": "UK / international, consumer shipping",
+      "statement": "Illegal narcotics and cannabis-derived products, including CBD",
+      "url": "https://uk.express.dhl.com/what-you-can-and-cant-send/"
+    },
+    {
+      "carrier": "DHL Express",
+      "scope": "Germany, official prohibited-goods list",
+      "statement": "Cannabis & Folgeprodukte (z.B. Medizinal-Cannabis)",
+      "url": "https://www.dhl.de/dam/jcr:4cd71995-71f4-4a90-bb7a-3a15b49bb6e8/dhl-express-regelung-verbotene-gueter-de.pdf"
+    },
+    {
+      "carrier": "DHL Express",
+      "scope": "Canada, restricted commodities",
+      "statement": "Cannabis or its derivatives",
+      "url": "https://www.dhl.com/discover/en-ca/ship-with-dhl/start-shipping/restricted-commodities"
+    },
+    {
+      "carrier": "DHL eCommerce",
+      "scope": "Belgium",
+      "statement": "products containing CBD (Cannabidiol) and/or THC (TetraHydroCannabinol), both natural and synthetic",
+      "url": "https://www.dhlecommerce.be/en/business/support/sending/prohibited-goods"
+    },
+    {
+      "carrier": "DHL eCommerce",
+      "scope": "US domestic vs. international network",
+      "statement": "Hemp... more than 0.3% THC... all Hemp and Hemp based products in our international network",
+      "url": "https://www.dhl.com/us-en/home/ecommerce/business-help-center/hazardous-goods-and-unacceptable-shipments.html"
+    },
+    {
+      "carrier": "DHL Paket / Deutsche Post",
+      "scope": "Germany domestic",
+      "statement": "Пересказ: список называет только общие классы опасности ADR/RID, каннабис и CBD не упомянуты",
+      "url": "https://www.deutschepost.com/dam/jcr:e09eb7b7-caa3-4ea6-93bf-d9d59f4f46d1/dpag-agb-gefahrgut-teil2-dhl-paket-und-briefaehnliche-sendungen-national.pdf"
+    },
+    {
+      "carrier": "UPS",
+      "scope": "US (policy text reproduced by a third party; ups.com blocked automated access)",
+      "statement": "UPS will not accept shipments containing Hemp products from any location that sells Marijuana",
+      "url": "https://www.bigcommerce.com/articles/selling-cbd-online/shipping-cbd/"
+    },
+    {
+      "carrier": "FedEx",
+      "scope": "Brazil (fedex.com/en-br)",
+      "statement": "Marijuana... and cannabidiol (\"CBD\"), any product that contains any amount of tetrahydrocannabinol",
+      "url": "https://www.fedex.com/en-br/shipping/prohibited-items.html"
+    },
+    {
+      "carrier": "FedEx",
+      "scope": "US, official Commodity Restrictions Guide",
+      "statement": "Any product with a delta-9 tetrahydrocannabinol (\"THC\") concentration of more than 0.3 percent",
+      "url": "https://www.fedex.com/content/dam/fedex/us-united-states/FedEx-Office/images/2025/Commodity_Restrictions_Guide_OTS.pdf"
+    },
+    {
+      "carrier": "DPD",
+      "scope": "UK, official prohibited items list",
+      "statement": "6. Cannabidiol products",
+      "url": "https://send.dpd.co.uk/products-and-services/prohibited-items"
+    },
+    {
+      "carrier": "DPD",
+      "scope": "UK (corroborating source, UK Post Office FOI response)",
+      "statement": "Cannabidiol products - gummies, vape liquids with CBD, chewing gum",
+      "url": "https://corporate.postoffice.co.uk/media/ugca2xjc/foia-response_foi2025_00179_appendix-f_dpd-prohibited-items.pdf"
+    },
+    {
+      "carrier": "InPost",
+      "scope": "Poland, 2020 ban (reported by industry press; inpost.pl itself CAPTCHA-blocked)",
+      "statement": "produktów konopnych, pochodnych konopi oraz innych konopi niż włókniste (ban from 1 Sept 2020)",
+      "url": "https://gazetakonopna.com/inpost-zakazuje-wysylki-produktow-z-konopi-na-paczkomaty/"
+    },
+    {
+      "carrier": "InPost",
+      "scope": "Poland, subsequent partial reversal",
+      "statement": "przewóz konopi włóknistych i produktów z nich pochodzących, pod warunkiem stężenia THC poniżej 0,20%",
+      "url": "https://faktykonopne.pl/inpost-jednak-zezwoli-na-wysylke-produktow-z-konopi-warunek-jest-jeden-stezenie-thc-ponizej-020/"
+    },
+    {
+      "carrier": "Nova Poshta",
+      "scope": "Ukraine domestic, official forbidden-goods PDF",
+      "statement": "канабіс для будь-яких цілей у будь-якій формі (cannabis for any purpose, any form)",
+      "url": "https://static.novaposhta.ua/sitecard/misc/doc/forbidden_goods_uk_05.01.pdf"
+    },
+    {
+      "carrier": "PostNL",
+      "scope": "International shipment conditions, official",
+      "statement": "soft drugs (e.g. cannabis, CBD oil and qat)",
+      "url": "https://www.postnl.nl/en/customer-service/shipment-conditions/"
+    },
+    {
+      "carrier": "Correos",
+      "scope": "Spain, official",
+      "statement": "drogas... como el opio, la marihuana o productos psicotrópicos",
+      "url": "https://www.correos.es/es/es/actualidad/2024/objetos-prohibidos-en-correos-idescubre-que-articulos-no-puedes-"
+    },
+    {
+      "carrier": "Magyar Posta",
+      "scope": "Hungary international, official Annex 1 PDF",
+      "statement": "növényi vagy szintetikus kannabinoid vegyületek (pl.: tetrahidrokannabinol vagy kannabidiol)",
+      "url": "https://www.posta.hu/static/internet/download/PASZF_ASZF03_1_es_fuggelek.pdf"
+    },
+    {
+      "carrier": "ELTA / Hellenic Post (ELTA Courier)",
+      "scope": "Greece, EMS international service, official",
+      "statement": "κάνναβη, φαρμακευτική και μη, προϊόντα κάνναβης (cannabis, medical and non-medical, and its products)",
+      "url": "https://www.elta-courier.gr/apagoreuseis_ems?lang=el"
+    }
+  ]
+}

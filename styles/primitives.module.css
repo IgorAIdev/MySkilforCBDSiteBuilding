@@ -38,8 +38,13 @@
  *  вовсе: заголовок героя, вопросы и лента Instagram встали вплотную к краю
  *  собственного пола. В файле это выглядело безупречно: числа не набраны,
  *  токен назван. Видно только на отрисованной странице. */
+/* Край у окна — не уже выреза устройства (`--edge-x`, tokens.css): окно во
+   весь экран (`viewport-fit=cover`) в альбомной ориентации кладёт страницу
+   под вырез камеры, и край страницы его обходит сам (И301). Ширина — роль
+   `--page-box` (tokens.css): по ней же равняется всё, что стоит поверх
+   страницы шириной коробки, и формула у них одна (И382). */
 .wrap{
-  inline-size:min(calc(var(--wrap) - var(--gut) * 2), calc(100% - var(--gut) * 2));
+  inline-size:var(--page-box);
   margin-inline:auto;
   padding-inline:var(--page-line);
   /* Сколько пересекает полоса, чтобы дотянуться до СВОЕГО края — не всегда
@@ -219,8 +224,10 @@
   gap:var(--switch-gap-stack, var(--switch-gap, var(--air-block))) var(--switch-gap, var(--air-block));
 }
 .switcher > *{flex-grow:1;flex-basis:calc((var(--switch-at, 640px) - 100%) * 999)}
-/* Доля, если колонки неравные: `--bias` кратен единице второй колонки. */
-.switcher > .bias{flex-grow:var(--bias, 2)}
+/* Доля, если колонки неравные: `--switch-bias` кратен единице второй
+   колонки. Имя — ручка примитива (`--switch-*`, tools/names.mjs): голое
+   `--bias` реестр имён не узнаёт, и первый же узел, взявший долю, краснел. */
+.switcher > .bias{flex-grow:var(--switch-bias, 2)}
 
 /* Lede — вводная пара «текст и кадр», шестой примитив.
 
@@ -318,7 +325,7 @@
 }
 .ledeText h1 em{font-style:normal;color:var(--pop-ink)}
 .ledeText p{
-  font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);
+  font-size:var(--lede-intro, var(--intro-size));line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);
   max-inline-size:var(--measure-lede);text-wrap:pretty
 }
 
@@ -343,8 +350,14 @@
      столбике заголовок выше своего. */
   .ledeText{
     --hero-fold:min(var(--hero-max),
-      calc(var(--hero-slope) / 100 * (var(--lede-at) - var(--lede-gap))
-           * var(--lede-bias) / (var(--lede-bias) + 1)))
+      calc(var(--hero-base) + var(--hero-slope) / 100 * (var(--lede-at) - var(--lede-gap))
+           * var(--lede-bias) / (var(--lede-bias) + 1)));
+    /* Вводный абзац — та же починка, что у заголовка (И243): в столбике он
+       стоит размером, который получит в миг расхождения колонок. Без неё
+       страница-доказательство сняла 21 → 17,5 px при росте окна 680 → 920. */
+    --lede-intro:clamp(var(--intro-min),
+      calc(var(--intro-base) + var(--intro-slope) / 100 * (var(--lede-at) - var(--lede-gap))
+           * var(--lede-bias) / (var(--lede-bias) + 1)), var(--intro-max))
   }
   /* Шов между текстом и кадром в сложенном виде. Полем, а не `row-gap`:
      см. выше — у столбика швы разной величины. */
@@ -414,8 +427,15 @@
    `--grid-gap` (просвет; он же участвует в расчёте доли — оттого и ручкой,
    а не числом на месте: два места для одной величины и есть тот дефект,
    из-за которого просвет считался по шестнадцати, а расставлялся по
-   четырнадцати). */
-.grid{
+   четырнадцати).
+
+   Умолчания ручек — под `:where()`, с весом ноль (И346): узел, стоящий на
+   том же элементе (`${p.grid} ${s.tiles}`), настраивает ручку голым классом
+   и побеждает всегда. На равном весе (0,1,0) побеждал тот, чей кусок сборки
+   встал ниже, — у галочек шторки фильтров победил примитив, и они встали
+   одной колонкой вместо двух (И320); ещё восемь узлов держались на порядке
+   сборки (`check:css`, `knobTie`). */
+:where(.grid){
   --grid-gap:var(--gap-grid);
   --cols:3;
   --cell-min:240px;
@@ -429,7 +449,9 @@
      Блоку, которому одна колонка ВЕРНА (длинный текст в ячейке), достаточно
      написать --cols-min:1 — и это будет решение, объявленное вслух, а не
      медиазапрос, переписывающий дорожку примитива за его спиной. */
-  --cols-min:2;
+  --cols-min:2
+}
+.grid{
   display:grid;
   gap:var(--grid-gap);
   /* Дорожка берёт БОЛЬШЕЕ из пола ячейки и доли ряда на --n, но не больше
@@ -458,9 +480,11 @@
  *  Layout, «The Frame»: ратио и обрезка — свойство рамки, не картинки.
  *  Ручки: `--frame` (пропорция), `--frame-cap` (потолок), `--frame-focus`
  *  (точка, которую кадрирование бережёт). Пропорцию от ВЫСОТЫ (кружок в
- *  строке) кадр не описывает — там высоту уже назначили. */
+ *  строке) кадр не описывает — там высоту уже назначили. Умолчание
+ *  пропорции — под `:where()`: узел на том же элементе (`.thumb`,
+ *  `.tileShot`) задаёт её голым классом и побеждает всегда (И346). */
+:where(.frame){--frame:4 / 3}
 .frame{
-  --frame:4 / 3;
   aspect-ratio:var(--frame);
   max-block-size:var(--frame-cap, 60svh);
   overflow:hidden;
@@ -492,10 +516,11 @@
    и внутри колонки (правило 6).
 
    Ручки: `--side-w` (ширина узкой колонки, пока она рядом), `--side-at`
-   (доля, ниже которой гибкая колонка уходит вниз), `--side-gap` (просвет).
-   Какая из двух узкая — решает класс `aside` на ней самой, а не порядок:
-   в подвале она вторая, в вопросах первая, и переставлять разметку под
-   раскладку нельзя. */
+   (доля, ниже которой гибкая колонка уходит вниз), `--side-gap` (просвет;
+   двумя значениями — «сложенным» и «рядом»: строка переноса у флекса и есть
+   «сложилось», отдельного шва не нужно). Какая из двух узкая — решает класс
+   `aside` на ней самой, а не порядок: в подвале она вторая, в вопросах
+   первая, и переставлять разметку под раскладку нельзя. */
 .sidebar{
   display:flex;flex-wrap:wrap;align-items:var(--side-align, flex-start);
   gap:var(--side-gap, var(--air-band));
@@ -564,6 +589,16 @@
 
 .muted{color:var(--ink-soft)}
 
+/* Сноска — справка при предмете: счёт товаров, вторая строка способа
+   доставки, наличие на карточке. Роль `note` целиком и тихая краска.
+   Заведена по счёту разбора (X1): внутри карточки всё стояло одним кеглем
+   тела, и имя, цена и «В наличии» различались только весом; справка под
+   именем страницы шла кеглем лида. */
+.note{
+  font-size:var(--note-size);line-height:var(--note-lead);font-weight:var(--note-weight);
+  letter-spacing:var(--note-track);color:var(--ink-soft)
+}
+
 /* A group label — sentence case, not capitals with tracking. */
 .eyebrow{
   font-size:var(--fs-eyebrow, var(--eyebrow-size));font-weight:var(--eyebrow-weight);
@@ -621,9 +656,12 @@
    Бюджет высоты — `--pin-fit` — считается здесь и читается блоком: галерея
    делит его на 1.25 и берёт себе ШИРИНУ, у сводки заказа прокручивается
    список товаров, у панели фильтров — вся панель. Что сжимать внутри
-   потолка, решает блок; что потолок есть, решает примитив. */
+   потолка, решает блок; что потолок есть, решает примитив.
+   Окно — без нижней полосы: её резерв (`--dock`, И268) тоже вычитается, и
+   низ колонки — итог корзины, кнопка оформления — встаёт над полосой, а не
+   под неё (И354). Полосы нет — резерв ноль, и не меняется ничего. */
 .pinned{
-  --pin-fit:calc(100dvh - var(--pin-top, var(--anchor-top)) - var(--pin-air, var(--air-block)));
+  --pin-fit:calc(100dvh - var(--pin-top, var(--anchor-top)) - var(--pin-air, var(--air-block)) - var(--dock));
   position:var(--pin-pos, sticky);
   top:var(--pin-top, var(--anchor-top));
   max-block-size:var(--pin-max, var(--pin-fit))
@@ -666,12 +704,15 @@
   display:inline-flex;align-items:center;gap:2px;min-width:0;flex-wrap:wrap;
   min-block-size:var(--tray-h);padding:var(--tray-pad);
   background:var(--ctrl);border-radius:var(--r-ctrl);
-  /* Чем отвечает под рукой выключенная половина — вуаль в 12% чернил.
-     Выбор заказчика на живой странице из трёх ответов: молчит, вуаль,
-     чернила. Переключатель, которым он выбирал, вместе с выбором и ушёл. */
-  --tray-off-bg:color-mix(in oklab, var(--ctrl), var(--ink) 12%);
+  /* Чем отвечает под рукой выключенная половина — вуаль чернил поверх
+     жёлоба (`--ctrl-hand`, 12 %). Выбор заказчика на живой странице из трёх
+     ответов: молчит, вуаль, чернила. Переключатель, которым он выбирал,
+     вместе с выбором и ушёл. Вуаль — роль палитры (И295): доля и краска у
+     строителя, здесь только выбор роли. Действие («Изчисти») под рукой —
+     тихий голос на шаг глубже, `--quiet-on`, как у всякой тихой кнопки. */
+  --tray-off-bg:var(--ctrl-hand);
   --tray-off-fg:var(--ink);
-  --tray-act-bg:color-mix(in oklab, var(--quiet-on), var(--ink) 12%);
+  --tray-act-bg:var(--quiet-on);
   --tray-act-fg:var(--ink)
 }
 .tray > *{
@@ -739,12 +780,11 @@
    хватало. Вдавленность он выбрал из трёх показанных ответов.
 
    Доля 14% чернил — на ступень выше ответа на руку (12%): открытое обязано
-   быть заметнее наведения, иначе рука спорит с состоянием. */
+   быть заметнее наведения, иначе рука спорит с состоянием. Обе глубины —
+   роли палитры (`--ctrl-in`, `--ctrl-in-hand`; И295): вуаль чернил поверх
+   жёлоба, на котором створка лежит. */
 .tray > [aria-expanded='true']{
-  /* Глубина названа один раз: покой и ответ руки — две ступени одной шкалы,
-     и расходиться им не на чем. */
-  --leaf-in:14%; --leaf-in-hand:20%;
-  background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in));
+  background:var(--ctrl-in);
   color:var(--ink);font-weight:600;
   box-shadow:var(--sh-in)
 }
@@ -752,7 +792,7 @@
    пальца «до» нет — он ставит оба состояния разом, — и без этой строки
    створка на телефоне молчала бы под рукой (семья `noPress`). */
 .tray > [aria-expanded='true']:not(:disabled):active{
-  background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in-hand))
+  background:var(--ctrl-in-hand)
 }
 .tray > [data-act]:not(:disabled){background:var(--quiet);color:var(--ink);font-weight:600}
 .tray > [data-act]:not(:disabled):active{background:var(--quiet-on)}
@@ -794,7 +834,7 @@
      ОСВЕТЛИЛ — вуаль в 12% мельче её собственных 14, — и наведение читалось
      бы как «закрывается». */
   .tray > [aria-expanded='true']:not(:disabled):hover{
-    background:color-mix(in oklab, var(--ctrl), var(--ink) var(--leaf-in-hand))
+    background:var(--ctrl-in-hand)
   }
   .tray > [data-act]:not(:disabled):hover{
     background:var(--tray-act-bg, var(--quiet-on));color:var(--tray-act-fg, var(--ink))
@@ -886,10 +926,11 @@
    пары на витрине стоял список, ничем не говорящий, что он раскрывается. */
 .pick{composes:pick from './form.module.css'}
 
-/* ── the counter — the one thing that is always a pill ────────────────── */
-/* Счётчик — то единственное, что всегда пилюля. Рисуется на трёх размерах:
-   54 в покупке и в корзине, --btn-h на карточке. Всё внутри идёт за --qty-h,
-   поэтому размер — одна ручка, а не четыре числа, которые держат в уме. */
+/* ── the counter ──────────────────────────────────────────────────────── */
+/* Счётчик — жёлоб с углом органа (`--r-ctrl`) и две кнопки в нём. Рисуется на
+   трёх размерах: 54 в покупке и в корзине, --btn-h на карточке. Всё внутри
+   идёт за --qty-h, поэтому размер — одна ручка, а не четыре числа, которые
+   держат в уме. */
 .qty{
   /* Поле жёлоба и его краска — ручки, а не намертво. Умолчания прежние, и
      там, где их не трогают, не меняется ничего.
@@ -909,8 +950,14 @@
   padding:var(--qty-pad, calc(var(--qty-h, var(--ctrl-h-lg)) * .074));
   background:var(--qty-bg,var(--ctrl));border-radius:var(--r-ctrl)
 }
+/* Кнопка «−» / «+» — форма жёлоба, а не круг: угол жёлоба минус его поле
+   (концентрически; у набора с углом меньше поля браузер держит радиус не
+   ниже нуля). Круг в прямоугольном жёлобе читался чужой вещью под рукой —
+   слово заказчика 25.09.2026: «в прямоугольном фоне круглые кнопки — это
+   херня». */
 .qty button{
-  height:100%;aspect-ratio:1;width:auto;border-radius:50%;
+  height:100%;aspect-ratio:1;width:auto;
+  border-radius:calc(var(--r-ctrl) - var(--qty-pad, calc(var(--qty-h, var(--ctrl-h-lg)) * .074)));
   display:grid;place-items:center;color:var(--ink-soft);
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),box-shadow var(--hover-t) var(--ease),transform var(--press-t) var(--ease)
 }
@@ -988,15 +1035,75 @@
 .qty b{display:grid;place-items:center;min-width:calc(var(--qty-h, var(--ctrl-h-lg)) * .7)}
 
 /* ── a segmented control ──────────────────────────────────────────────── */
+/* Кнопка или ссылка — рисунок один: выбор на месте — кнопка с aria-pressed,
+   выбор, который несёт адрес (вариант товара), — ссылка с aria-current.
+
+   Кромка — роль тихого органа `--edge` (3 : 1 на полах 1–5, И252), а не
+   только заливка: тихая плашка `--plate-quiet` — ступень пола, и на полу
+   страницы она давала 1.14 при норме 1.15, на белом листе ещё меньше.
+   Пилюли вариантов на карте товара стояли словами в воздухе (check:craft,
+   `sunk`; И258). Выбранной кромка не нужна: её держит заливка `--pop`. */
+/* Рост сегмента — ручка `--seg-h` (умолчание — малый орган): выбор, без
+   которого не купить (опции варианта), берёт рост кнопки. Поле по бокам —
+   доля роста (правило 2). */
 .seg{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
-.seg button{
-  height:var(--ctrl-h-sm);padding:0 calc(var(--ctrl-h-sm) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
-  font-size:var(--ctrl-fs-sm);color:var(--ink-soft);
+.seg :is(button, a){
+  display:inline-flex;align-items:center;
+  height:var(--seg-h, var(--ctrl-h-sm));padding:0 calc(var(--seg-h, var(--ctrl-h-sm)) * .4);border-radius:var(--r-ctrl);background:var(--plate-quiet);
+  box-shadow:inset 0 0 0 var(--line-w) var(--edge);
+  font-size:var(--ctrl-fs-sm);color:var(--ink-soft);text-decoration:none;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease)
 }
-@media (hover:hover){ .seg button:hover{background:var(--hover-ctrl);color:var(--ink)} }
-.seg button:active{background:var(--press-ctrl);color:var(--ink)}
-.seg button[aria-pressed="true"]{background:var(--pop);color:var(--on-pop);font-weight:600}
+/* Ответ на руку — только у невыбранного, и выбранный исключён ЯВНО, а не
+   весом селектора. Стояло `:is(button, a[href])`: `:is()` берёт вес самого
+   тяжёлого из своих, `a[href]`, и наведение весило (0,3,1) против (0,2,0) у
+   выбранного, — выбранная пилюля под рукой теряла заливку `--pop` и
+   читалась обычной. Так же устроен лоток выше: `:where()` без веса и
+   `:not()` на выбор. */
+@media (hover:hover){
+  .seg :where(button, a[href]):not([aria-pressed="true"], [aria-current="true"]):hover{background:var(--hover-ctrl);color:var(--ink)}
+}
+.seg :where(button, a[href]):not([aria-pressed="true"], [aria-current="true"]):active{background:var(--press-ctrl);color:var(--ink)}
+.seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600;box-shadow:none}
+.seg [aria-disabled="true"]{opacity:var(--state-off);cursor:not-allowed}
+/* Вид сегментов — роль вида `--seg-look` (И396): `chips` (умолчание,
+   выше), `joined` — встык в волоске края, угол у крайних, выбранный — тон
+   марки, кромка и слово краской марки (элемент 49); `tray` — в подложке
+   тона, выбранный — плашка пола, полужирное слово (элемент 50). Встык
+   соседи заходят друг на друга волоском — линия между ними одна; выбранный
+   поверх соседей. Подложка растёт полем вокруг сегментов: цель остаётся
+   ростом сегмента. Где запрос стиля не поддержан — пилюли. */
+@container style(--seg-look: joined){
+  .seg{gap:0}
+  .seg :is(button, a){position:relative;border-radius:0;margin-inline-start:calc(-1 * var(--line-w))}
+  .seg :is(button, a):first-child{margin-inline-start:0;border-start-start-radius:var(--r-ctrl);border-end-start-radius:var(--r-ctrl)}
+  .seg :is(button, a):last-child{border-start-end-radius:var(--r-ctrl);border-end-end-radius:var(--r-ctrl)}
+  .seg :is([aria-pressed="true"], [aria-current="true"]){z-index:1;background:var(--pop-tint);color:var(--pop-ink);box-shadow:inset 0 0 0 var(--line-w) var(--pop-ink)}
+}
+@container style(--seg-look: tray){
+  .seg{
+    --seg-pad:calc(var(--seg-h, var(--ctrl-h-sm)) * .08);
+    gap:0;inline-size:fit-content;max-inline-size:100%;padding:var(--seg-pad);
+    border-radius:calc(var(--r-ctrl) + var(--seg-pad));background:var(--plate-quiet)
+  }
+  .seg :is(button, a){background:transparent;box-shadow:none}
+  .seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--surface);color:var(--ink);box-shadow:var(--sh-raised)}
+}
+/* Принудительные цвета стирают заливку и тень: у ссылки-сегмента не
+   остаётся ни плашки, ни кромки. Обводка — та же, что у кнопки в
+   styles/base.css; записана здесь, а не там: имя класса модуля хешируется,
+   и `.seg a` в общем файле не совпал бы ни с чем.
+
+   Выбранный без заливки неотличим от соседей: остаётся одна жирность. Ему —
+   системная пара `Highlight` / `HighlightText`, и только с
+   `forced-color-adjust:none`. Без него режим подкладывает под текст
+   подложку цвета `Canvas`, и `HighlightText` на ней пропадает: замер в
+   Chromium с принудительными цветами — белая плашка без слова. Цвета здесь
+   только системные, палитра пользователя не нарушена (base.css). */
+@media (forced-colors:active){
+  .seg a{border:var(--line-w) solid CanvasText}
+  .seg :is([aria-pressed="true"], [aria-current="true"]){forced-color-adjust:none;background:Highlight;color:HighlightText}
+}
 
 /* ── sections ─────────────────────────────────────────────────────────── */
 /* Воздух между разделами — верхняя ступень шкалы, и течёт он вместе с ней:
@@ -1015,6 +1122,11 @@
 /* Плотная секция — не второй класс, а ПОМЕТКА на той же секции: у неё уже
    есть ручка `--section-air`, и атрибут её переобъявляет (И230). */
 .section[data-air='band']{--section-air:var(--air-band)}
+/* Первый раздел страницы под шапкой — там, где страница начинается своим
+   заголовком (каталог, поиск, корзина, оформление), — встаёт на воздух
+   группы, как герой главной: воздух между разделами над первым из них
+   давал около сотни пикселей пустоты между шапкой и h1. */
+.section[data-air='head']{--section-air:var(--air-group)}
 /* Заголовок и пояснение стоят ОДИН ПОД ДРУГИМ по левой линии.
    Прежде их разносило по краям (`justify-content:space-between`), и на
    широком экране между ними оставалось полэкрана пустоты: пояснение висело
@@ -1032,40 +1144,40 @@
   display:flex;flex-direction:column;align-items:flex-start;
   gap:var(--sp-2);margin-bottom:var(--air-head)
 }
+/* Отбивка — до содержимого раздела, и только до него. У раздела из одной
+   шапки (блок «лаборатория» на главной: заголовок и лид, больше ничего)
+   нижнее поле схлопывалось сквозь конец раздела и ложилось на шов со
+   следующим: 132px против 88 у остальных швов. Семья `twoAir` такого не
+   видит — блок ниже её порога в 120px. Собственное внешнее поле примитива
+   кончается у края его коробки (И259). */
+.sectionHead:last-child{margin-bottom:0}
+/* Строкой — только когда рядом с заголовком стоит ответ на ДРУГОЙ вопрос:
+   выход «ко всему» (`data-row`). Он у правого края; не помещается — уходит
+   под заголовок переносом, а заголовок сжимается и переносит слова, а не
+   вылезает за строку. */
+.sectionHead[data-row]{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-between;column-gap:var(--gap-row)}
+.sectionHead[data-row] h2{flex:0 1 auto;min-inline-size:0}
 /* every heading on the page reads one size and one leading */
 /* Заголовок держит свою строку и не ужимается: в ряду он ужимался ради
    строки рядом, и короткое имя раздела ломалось надвое при пустом месте
    справа — «Поле ввода» занимало 19% колонки и стояло в две строки
    (отрисованная проверка, семья `measure`). В столбике ужиматься не от
    чего, но правило остаётся: оно про заголовок, а не про раскладку. */
-.sectionHead h2{
-  font-size:var(--h2-size);font-weight:var(--h2-weight);
-  letter-spacing:var(--h2-track);line-height:var(--h2-lead);
-  flex:none
-}
+/* Размер, вес и межстрочье — у элемента, роль h2 (base.css, «Лестница
+   заголовков»): второй записью здесь на вопрос «где решается заголовок
+   раздела» стало бы два ответа. */
+.sectionHead h2{flex:none}
 .sectionHead p{
   color:var(--ink-soft);max-width:var(--measure-lede);
   font-size:var(--lede-size);line-height:var(--lede-lead);font-weight:var(--lede-weight);letter-spacing:var(--lede-track);
   min-inline-size:0
 }
 
-/* the "more" link — the arrow sits in its own circle, not bare beside text */
-/* Тень и подъём сняты (И114 в docs/rules.md): кнопка отвечает только
-   краской — фон делает шаг к чернилам, тот же приём (16%), что уже
-   выверен у тихой кнопки (`--quiet-on`, styles/tokens.css) и держит порог
-   видимости на обеих темах. */
-.more{
-  display:inline-flex;align-items:center;gap:calc(var(--ctrl-h) * .25);flex:none;
-  block-size:var(--ctrl-h);padding:0 calc(var(--ctrl-h) * .125) 0 calc(var(--ctrl-h) * .4);border-radius:var(--r-ctrl);
-  background:var(--surface);
-  font-size:var(--more-fs,var(--ctrl-fs-sm));font-weight:600;color:var(--pop-ink-hover);
-  transition:background var(--hover-t) var(--ease)
-}
-@media (hover:hover){ .more:hover{background:color-mix(in oklab, var(--surface), var(--ink) 16%)} }
-.more:active{background:color-mix(in oklab, var(--surface), var(--ink) 16%)}
-.more svg{width:calc(var(--ctrl-h) * .7);height:calc(var(--ctrl-h) * .7);padding:calc(var(--ctrl-h) * .175);border-radius:50%;background:var(--pop-tint);fill:none;stroke:var(--pop-ink);transition:transform var(--hover-t) var(--ease)}
-@media (hover:hover){ .more:hover svg{transform:translateX(var(--nudge))} }
-.more:active svg{transform:translateX(var(--nudge))}
+/* Выход «ко всему» у шапки блока — не здесь: всё, что ведёт, живёт в
+   `styles/go.module.css` (`data-around='quiet'` — стрелка в тихой плашке).
+   Здесь стоял `.more` — вторая копия того же органа со своим движением
+   стрелки, без единого потребителя (`twiceDrawn` 2); снят, а не отложен
+   «до потребителя»: мёртвое удаляется (И383). */
 
 /* Строка навигации над содержимым страницы. Расстояние до этого содержимого
    объявлено ЗДЕСЬ и только здесь — на всех пяти страницах, где крошки стоят.
@@ -1085,18 +1197,21 @@
 /* Коробка объявлена, потому что заголовок внутри берёт ступень `--fs-page`,
    а та меряет `cqi` — свою коробку, а не окно (см. tokens.css). Без этой
    строки ступень молча вернулась бы к ширине окна. */
+/* Имя страницы набирает сам элемент — роль h1 в base.css («Лестница
+   заголовков»); примитив даёт ему коробку, которую мерит `cqi`. */
 .pagehead{padding-bottom:var(--air-head);container-type:inline-size}
-.pagehead h1{
-  font-size:var(--pagehead-size);line-height:var(--pagehead-lead);
-  font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track)
-}
 /* Строка под именем страницы — тот же лид, что у первого экрана и у
    документов, и кегль у неё тот же: `--intro-size`. Стоял основной текст, то
    есть роль была набрана размером соседней роли. */
-.pagehead p{
+.pagehead p:not(.note){
   color:var(--ink-soft);margin-top:var(--sp-2);
   font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);max-width:var(--measure)
 }
+/* СПРАВКА под именем страницы — счёт, число, срок — место сноски, а не лида.
+   «12 товаров» стояло кеглем ввода (21px, `.pagehead p` бил класс строки
+   весом 0,1,1 против 0,1,0) и читалось вторым лидом. Роль строки даёт
+   `.note`; здесь только её место — строкой ниже лида. */
+.pagehead .note{margin-top:var(--air-row)}
 
 /* Осталась одна вещь, которая здесь и должна остаться: шапка раздела
    меняет СМЫСЛ раскладки — имя и кнопка выхода перестают быть строкой и
@@ -1138,8 +1253,10 @@
   /* Кромка, а не только заливка. Пилюля стоит на ПОЛУ СТРАНИЦЫ, а ступень
      `--ctrl` над ним — 1.10 при норме 1.15: заливка одна не отделяет орган
      от того, на чём он лежит (семья `sunk` в отрисованной проверке). Та же
-     причина, по которой кромку носят плитки галереи товара. */
-  box-shadow:inset 0 0 0 var(--line-w) color-mix(in srgb, var(--ink) 10%, transparent);
+     причина, по которой кромку носят плитки галереи товара. Кромка — черта
+     (`--rule`, роль палитры по полу): до 24.09.2026 здесь стояли 10 %
+     чернил числом (И295). */
+  box-shadow:inset 0 0 0 var(--line-w) var(--rule);
   font-size:var(--ctrl-fs-sm);font-weight:500;
   transition:background var(--hover-t) var(--ease),color var(--hover-t) var(--ease),
              transform var(--press-t) var(--ease)
@@ -1178,6 +1295,13 @@
   background:var(--sale-fill);color:var(--on-sale);
   font-size:var(--ctrl-fs-xs);font-weight:800;font-variant-numeric:tabular-nums
 }
+/* Наличие на кадре полки — та же метка, одетая иначе: атрибут на том же
+   узле, а не второй класс (И230). Только исключение: «мало» — внимание,
+   «нет» — потеряно сейчас; краски — плашки палитры, заведённые ровно для
+   них (tokens.css, «плашки: скидка, «мало осталось», заливки к ошибке»).
+   Слово, а не число, — вес ступенью тише, чем у цифры скидки. */
+.cut[data-cut='low']{background:var(--warn-fill);color:var(--on-warn);font-weight:600}
+.cut[data-cut='out']{background:var(--bad-fill);color:var(--on-bad);font-weight:600}
 
 /* Вид и место — врозь. На карте товара сердце стоит дважды: на снимке и в
    строке под заголовком. Это одно действие, одно состояние и один вид —

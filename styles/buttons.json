@@ -1,0 +1,283 @@
+{
+  "letters": {
+    "имя": "Буквы",
+    "name": "Letters",
+    "что": "как набраны надписи на кнопках",
+    "варианты": {
+      "sentence": {
+        "имя": "Как в предложении",
+        "name": "Sentence case",
+        "line": "First letter capital, the rest as written",
+        "что": "первая буква заглавная, дальше — как написано; регистр не переписывается",
+        "роли": {
+          "--ctrl-btn-case": "none",
+          "--ctrl-btn-weight": "600",
+          "--ctrl-btn-track": "normal"
+        }
+      },
+      "caps": {
+        "имя": "Заглавные",
+        "name": "CAPITALS",
+        "line": "All capitals, with the kit letter-spacing",
+        "что": "все буквы заглавные, с разрядкой набора и полужирные",
+        "роли": {
+          "--ctrl-btn-case": "uppercase",
+          "--ctrl-btn-weight": "600",
+          "--ctrl-btn-track": "0.04em"
+        }
+      }
+    }
+  },
+  "loud": {
+    "имя": "Главная",
+    "name": "Main button",
+    "что": "чем главное действие экрана отличается от остального",
+    "варианты": {
+      "fill": {
+        "имя": "Заливка",
+        "name": "Fill",
+        "line": "Brand fill, label in its ink",
+        "что": "заливка марки, надпись краской на ней",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--pop)",
+          "--ctrl-btn-ink-pop": "var(--on-pop)",
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "transparent",
+          "--ctrl-btn-frost-pop": "0",
+          "--ctrl-btn-rim-pop": "transparent"
+        }
+      },
+      "ink": {
+        "имя": "Чернила",
+        "name": "Ink",
+        "line": "Dark ink fill, light label",
+        "что": "заливка чернилами, надпись краской пола (элементы 08, 17)",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--ink)",
+          "--ctrl-btn-ink-pop": "var(--surface)",
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "transparent",
+          "--ctrl-btn-frost-pop": "0",
+          "--ctrl-btn-rim-pop": "transparent"
+        }
+      },
+      "gradient": {
+        "имя": "Градиент",
+        "name": "Gradient",
+        "line": "The brand fill with a gradient to a second brand tone",
+        "что": "заливка марки и градиент ко второму концу — краске строителя палитры, на которой надпись держит 4.5 : 1 (элементы 06, 19)",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--pop)",
+          "--ctrl-btn-ink-pop": "var(--on-pop)",
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "var(--pop-grad)",
+          "--ctrl-btn-frost-pop": "0",
+          "--ctrl-btn-rim-pop": "transparent"
+        }
+      },
+      "glass": {
+        "имя": "Стекло",
+        "name": "Glass",
+        "line": "Translucent brand glass: what lies beneath shows through, blurred",
+        "что": "стекло марки: заливка краской строителя палитры --pop-glass долей, под ней размыто то, что лежит под кнопкой; блик кромки --pop-rim (элемент 66)",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--pop-glass)",
+          "--ctrl-btn-ink-pop": "var(--on-pop)",
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "transparent",
+          "--ctrl-btn-frost-pop": "1",
+          "--ctrl-btn-rim-pop": "var(--pop-rim)"
+        }
+      }
+    }
+  },
+  "quiet": {
+    "имя": "Тихая",
+    "name": "Quiet button",
+    "что": "чем тихая кнопка видна на полу",
+    "варианты": {
+      "veil": {
+        "имя": "Вуаль",
+        "name": "Veil",
+        "line": "A veil of ink on the floor",
+        "что": "вуаль чернил на полу, надпись чернилами",
+        "роли": {
+          "--ctrl-btn-fill": "var(--quiet)",
+          "--ctrl-btn-ink": "var(--ink)",
+          "--ctrl-btn-edge": "transparent"
+        }
+      },
+      "outline": {
+        "имя": "Контур",
+        "name": "Outline",
+        "line": "No fill, a hairline edge, ink label",
+        "что": "без заливки: кромка краской края, надпись чернилами (элементы 07, 43)",
+        "роли": {
+          "--ctrl-btn-fill": "transparent",
+          "--ctrl-btn-ink": "var(--ink)",
+          "--ctrl-btn-edge": "var(--edge)"
+        }
+      }
+    }
+  },
+  "shape": {
+    "имя": "Форма главной",
+    "name": "Main button shape",
+    "что": "контур главного действия; тихие кнопки и знаки — всегда прямоугольник с углом из Shape",
+    "варианты": {
+      "standard": {
+        "имя": "Обычная",
+        "name": "Standard",
+        "line": "Corners from Shape, like every control",
+        "что": "углы из Shape, как у всех органов",
+        "роли": {
+          "--ctrl-btn-tip": "0",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "pill": {
+        "имя": "Пилюля",
+        "name": "Pill",
+        "line": "The main button fully rounded, the action of the page",
+        "что": "полный круг у главного действия — пилюля без знака (элемент 16; пилюля элементов 06 и 19)",
+        "роли": {
+          "--ctrl-btn-tip": "0",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "1",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "arrow-end": {
+        "имя": "Стрелка у конца",
+        "name": "Arrow end",
+        "line": "The main button with an arrow after its word",
+        "что": "угол из Shape, у конца — стрелка из листа знаков краской надписи (элемент 03)",
+        "роли": {
+          "--ctrl-btn-tip": "0",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "1"
+        }
+      },
+      "arrow": {
+        "имя": "Стрелка",
+        "name": "Arrow",
+        "line": "The right end is pointed like an arrow tip",
+        "что": "правый конец — остриё стрелки",
+        "роли": {
+          "--ctrl-btn-tip": "0.5",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "chevron": {
+        "имя": "Шеврон",
+        "name": "Chevron",
+        "line": "Pointed right end, notched left end, like a step",
+        "что": "остриё справа и выемка слева, как ступень",
+        "роли": {
+          "--ctrl-btn-tip": "0.5",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0.35",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "double": {
+        "имя": "Двойной шеврон",
+        "name": "Double chevron",
+        "line": "An arrow with one chevron echoing behind it",
+        "что": "стрелка и за ней шеврон тоном марки, эхом",
+        "роли": {
+          "--ctrl-btn-tip": "0.8",
+          "--ctrl-btn-tip-at": "0.47",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "block",
+          "--ctrl-btn-trail-1": "0.17",
+          "--ctrl-btn-trail-2": "0.17",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "trail-spaced": {
+        "имя": "Тоновый след, врозь",
+        "name": "Tonal trail · spaced",
+        "line": "Two chevrons behind the arrow, each a step lighter, spaced",
+        "что": "за стрелкой два шеврона, каждый на ступень светлее, с просветом",
+        "роли": {
+          "--ctrl-btn-tip": "1.17",
+          "--ctrl-btn-tip-at": "0.84",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "block",
+          "--ctrl-btn-trail-1": "0.17",
+          "--ctrl-btn-trail-2": "0.54",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "trail-overlap": {
+        "имя": "Тоновый след, внахлёст",
+        "name": "Tonal trail · overlapping",
+        "line": "Two chevrons a step lighter each, tucked under the tip",
+        "что": "два шеврона, каждый на ступень светлее, заходят под остриё",
+        "роли": {
+          "--ctrl-btn-tip": "0.79",
+          "--ctrl-btn-tip-at": "0.46",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "block",
+          "--ctrl-btn-trail-1": "-0.12",
+          "--ctrl-btn-trail-2": "0.16",
+          "--ctrl-btn-mark": "0",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      },
+      "circle": {
+        "имя": "Кружок со стрелкой",
+        "name": "Circle arrow",
+        "line": "A full-round pill with a circle and an arrow at the end",
+        "что": "пилюля, у конца — кружок краской надписи, в нём стрелка из листа знаков краской заливки (элемент 02, «Shop now»)",
+        "роли": {
+          "--ctrl-btn-tip": "0",
+          "--ctrl-btn-tip-at": "0",
+          "--ctrl-btn-notch": "0",
+          "--ctrl-btn-echo": "none",
+          "--ctrl-btn-trail-1": "0",
+          "--ctrl-btn-trail-2": "0",
+          "--ctrl-btn-mark": "1",
+          "--ctrl-btn-pill": "0",
+          "--ctrl-btn-glyph": "0"
+        }
+      }
+    }
+  }
+}

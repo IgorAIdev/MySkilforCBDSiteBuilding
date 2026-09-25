@@ -57,3 +57,21 @@ test('mutation failure unlocks lane, overlapping writes are rejected, no automat
   assert.equal(lane.pending, false)
   assert.equal(await lane.run(() => 0), 0)
 })
+test('hanging write frees the lane with outcome unknown and aborts the request; renderers are notified', async () => {
+  const lane = createMutationLane({ timeoutMs: 20 })
+  const seen = []
+  const off = lane.subscribe(() => seen.push(lane.pending))
+  let aborted = false
+  const hang = lane.run((signal) => new Promise(() => { signal.addEventListener('abort', () => { aborted = true }) }))
+  await assert.rejects(hang, (error) => error.name === 'MutationTimeout' && error.outcome === 'unknown')
+  assert.equal(aborted, true)
+  assert.equal(lane.pending, false)
+  assert.deepEqual(seen, [true, false])
+  off()
+  await lane.run(() => 1)
+  assert.deepEqual(seen, [true, false])
+  assert.throws(() => createMutationLane({ timeoutMs: 0 }), /timeoutMs/)
+})
+test('unawaited Next searchParams fail loudly instead of reading as no filters', () => {
+  assert.throws(() => parseOptionValueIds(Promise.resolve({ optionValueIds: 'a' })), /Await/)
+})

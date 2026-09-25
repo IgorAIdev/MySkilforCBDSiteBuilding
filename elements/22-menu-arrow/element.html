@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>22 · Полоски меню → стрелка</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 22 — «Полоски меню → стрелка». Источник — два CSS от заказчика 24.09.2026: стрелка вправо и стрелка вниз (source.css, source-2.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: чёрная и белая краска полосок; толщина полосок 3–6 пикселей.
+  Приведено к единой форме: полоски — толщиной штриха значков, краской надписи; стрелка вниз — тот же рисунок, повёрнутый при открытии: второй источник совпал после разбора; раскрытие за 280 мс.
+  Наведение: подложка 5 % чернил. Нажатие: подложка 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="group"><button class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow" aria-expanded="false" type="button" aria-label="Меню"><span class="bars"><i></i><i></i><i></i></span></button><button class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow" data-dir="down" aria-expanded="false" type="button" aria-label="Меню"><span class="bars"><i></i><i></i><i></i></span></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow"><span class="bars"><i></i><i></i><i></i></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow" data-state="hover"><span class="bars"><i></i><i></i><i></i></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow" data-state="press"><span class="bars"><i></i><i></i><i></i></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow" data-state="focus"><span class="bars"><i></i><i></i><i></i></span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="el" data-voice="ghost" data-shape="pill" data-icon data-bars="even" data-morph="arrow" data-open><span class="bars"><i></i><i></i><i></i></span></span><figcaption>открыто</figcaption></figure>
+  </div>
+</body>
+</html>

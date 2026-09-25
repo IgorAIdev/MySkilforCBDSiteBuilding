@@ -22,6 +22,8 @@ import { emptyCodeBaseline } from './code-families.mjs'
 import { emptyCssBaseline } from './css-families.mjs'
 import { emptyPortBaseline } from './port-families.mjs'
 import { emptyCraftBaseline } from './craft-families.mjs'
+import { emptyDesignBaseline } from './design-families.mjs'
+import { emptyDetectBaseline } from './detect-families.mjs'
 import { toCss } from './palette.mjs'
 import { toCss as scaleCss } from './scale.mjs'
 
@@ -66,6 +68,23 @@ const FILES = [
      проверки и проверка без конфига одинаково бесполезны. */
   'tools/check-lint.mjs',
   '.oxlintrc.json',
+  /* Храповик по дизайну (И271): механическая половина impeccable по файлу —
+     его запреты и рефлексы семьями; правило — «Дизайн делается
+     дизайнерскими скиллами». Семьи — в своём файле, как у вёрстки. */
+  'tools/check-design.mjs',
+  'tools/design-families.mjs',
+  /* Детектор impeccable по отрисованной странице (И310): страничная
+     сборка движка вендорена без сети и запускателя и закреплена хешем;
+     едет со списком правил, лицензией, уведомлением автора и записью —
+     откуда, какой коммит, каким хешем. Судьбы правил — в своём файле. */
+  'tools/check-detect.mjs',
+  'tools/detect-families.mjs',
+  'tools/vendor/impeccable/detect-antipatterns-browser.js',
+  'tools/vendor/impeccable/antipatterns.json',
+  'tools/vendor/impeccable/VENDOR.json',
+  'tools/vendor/impeccable/SOURCE.md',
+  'tools/vendor/impeccable/LICENSE',
+  'tools/vendor/impeccable/NOTICE.md',
   /* Прогон тестов и тест-образец. Едут парой и по одной причине: `node
      --test` на папке без тестов отвечает «0 тестов, 0 упало» и выходит с
      нулём, то есть новый проект получал бы зелёную команду, не проверяющую
@@ -74,6 +93,13 @@ const FILES = [
   'tools/check-test.mjs',
   'tests/kit.test.ts',
   'tools/check-craft.mjs',
+  /* Общие части отрисованных проверок: запуск браузера (`check:craft`,
+     `sweep`, `shade`) и личные страницы по сессии (И263; `check:craft`,
+     `sweep`, `routes`). Без них каждая из этих проверок падала на первом
+     же ввозе — ввоз в инструмент сам в этот список не попадает, поэтому
+     полноту списка меряет `selftest/kit-self.test.mjs` по собранному. */
+  'tools/browser.mjs',
+  'tools/sessions.mjs',
   /* Свой статический сервер. Едет с проверками, а не ставится из npm:
      чужой `serve` уводит `/bg` на `/bg/index.html`, которого у статического
      экспорта нет, а `python3 -m http.server` отдаёт листинг каталога — и
@@ -88,7 +114,12 @@ const FILES = [
      `lib/` для него значит «динамических сегментов ещё нет». */
   'tools/routes.mjs',
   'tools/check-open.mjs',
+  /* Пробы «не найдено» — `check:open` без них не запускается (И257). */
+  'tools/not-found.mjs',
   'tools/check-urls.mjs',
+  /* Какие страницы собраны и где их брать — по `out/` или по серверу
+     (И174): общая часть `check:urls` и `check:seo`. */
+  'tools/pages.mjs',
   /* Разметка для поиска по собранному — измеримая половина чужих
      СЕО-скиллов. Едет с первого дня, а не «к сдаче»: то, что на этапе 2
      поймано семьёй, на этапе 5 не становится долгом. */
@@ -97,6 +128,9 @@ const FILES = [
      финалу» — забывает сессия, а не человек, и помнит за неё файл. */
   'tools/stages.mjs',
   'tools/stage.mjs',
+  /* Разбор словаря витрины (`docs/words.md`): его читают ворота слоя 12
+     в реестре этапов. */
+  'tools/words.mjs',
   /* Проверка, которая запускается сама после правки файла, и хуки, которые
      её зовут. Заведено по слову заказчика: «команд я не знаю, это должно
      происходить автоматически». */
@@ -124,6 +158,8 @@ const FILES = [
      `balance` короткому) жили в нём и в новый проект не уезжали. */
   'styles/base.css',
   'styles/tokens.css',
+  /* Вид основы — шрифт и тени, одно место на свойство (И385). */
+  'styles/look.css',
   'styles/primitives.module.css',
   /* Палитра: математика, слепок эталона, выпуск и замер.
      Не ехала вовсе, а команда `check:palette` в реестре стояла — то есть в
@@ -133,6 +169,9 @@ const FILES = [
      работает» (И192). */
   'tools/palette.mjs',
   'tools/palette-profile.json',
+  /* Замер стилей кнопки на палитре сайта: его ввозит ставщик — выпускает
+     styles/buttons.css из красок нового сайта (И270). */
+  'tools/buttons.mjs',
   'tools/palette-css.mjs',
   'tools/check-palette.mjs',
   /* Шкалы: строитель, выпуск, замер и стенд. Без них новый сайт получает
@@ -238,6 +277,12 @@ writeFileSync(join(OUT, 'tools/seo-baseline.json'),
                    og: 0, ld: 0, alt: 0, sample: 0, robots: 0 }, null, 2) + '\n')
 writeFileSync(join(OUT, 'tools/craft-baseline.json'),
   JSON.stringify(emptyCraftBaseline(), null, 2) + '\n')
+writeFileSync(join(OUT, 'tools/design-baseline.json'),
+  JSON.stringify(emptyDesignBaseline(), null, 2) + '\n')
+/* База детектора — по страницам; у нового проекта страниц в ней нет, и
+   каждая его находка — рост. */
+writeFileSync(join(OUT, 'tools/detect-baseline.json'),
+  JSON.stringify(emptyDetectBaseline(), null, 2) + '\n')
 
 /* Краски — данные ПРОЕКТА, а не набора: у нового сайта своя марка. Поэтому
    набор кладёт их один раз и больше не трогает, а `styles/palette.css`
@@ -288,6 +333,9 @@ export const SHEET_SAMPLES = []
 
 /** Насколько можно разойтись, прежде чем это дефект. */
 export const SHEET_SLACK = 2
+
+/** Допуск складки height / width. */
+export const SHEET_AR_SLACK = 0.05
 `)
 
 /* README пишется только туда, где его нет. Источник набора с 19.09.2026 —
@@ -305,11 +353,11 @@ if (!existsSync(join(OUT, 'README.md'))) writeFileSync(join(OUT, 'README.md'), `
 Из папки проекта, одной строкой:
 
 \`\`\`
-git clone --depth 1 https://github.com/IgorAIdev/MySkilforCBDSiteBuilding.git /tmp/kit && node /tmp/kit/install.mjs . && rm -rf /tmp/kit
+git clone --depth 1 https://github.com/IgorAIdev/SiteBuildingSkill.git /tmp/kit && node /tmp/kit/install.mjs . && rm -rf /tmp/kit
 \`\`\`
 
 Агенту достаточно сказать словами: «установи набор из
-https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонирует и
+https://github.com/IgorAIdev/SiteBuildingSkill» — он склонирует и
 разложит сам. Помнить надо адрес, а не команду.
 
 **Клонировать этот репозиторий как папку нового сайта нельзя.**
@@ -329,11 +377,12 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
 | \`.claude/skills/palette/\` | цвет: семь семей смысла, шкала из двенадцати ступеней на каждую, роли по элементам витрины, порядок построения новой палитры, формулы; строитель и замер — \`tools/palette*.mjs\` |
 | \`.claude/skills/code/\` | код: одно и то же в одном месте, чистое обновление состояния, файл читается целиком, склад браузера |
 | \`.claude/skills/shop/\` | магазин: товар, вариант, цена, полка, корзина, отзывы, обязательные страницы, язык рынка, разметка о товаре; отдельно — CBD (фасет силы, что нельзя писать) |
-| \`.claude/skills/\` — остальное | вкус (\`taste-skill\`, \`emil-design-eng\`), движение (\`improve-animations\`), стиль (\`minimalist\`, \`brutalist\`, \`soft\`), придирчивый разбор (\`impeccable\`), \`redesign\`, \`brandkit\`, \`output\` — с лицензиями |
+| \`.claude/skills/\` — остальное | вкус (\`taste-skill\`, \`emil-design-eng\`), движение (\`improve-animations\`, \`review-animations\`), стиль (\`minimalist\`, \`brutalist\`, \`soft\`), придирчивый разбор (\`impeccable\`), \`redesign\`, \`brandkit\`, \`output\` — с лицензиями |
 | \`CLAUDE.md\` | те же правила словами — читаются раньше кода каждой сессией |
 | \`install.mjs\` | раскладывает набор в проект и дописывает скрипты |
 | \`styles/base.css\` | сброс, земля страницы, режимы переноса, кольцо фокуса |
 | \`styles/tokens.css\` | шкала размеров, шкала ритма, роли цвета, резервы под полосы |
+| \`styles/look.css\` | вид основы: шрифт и роли тени — одно место на свойство; у витрины выпускается из опубликованного вида |
 | \`styles/primitives.module.css\` | двенадцать примитивов раскладки плюс общие контролы |
 | \`tools/check-lint.mjs\` + \`.oxlintrc.json\` | храповик по линтеру: oxlint с правилами React, хуков, Next и доступности |
 | \`tools/check-test.mjs\` + \`tests/kit.test.ts\` | прогон тестов, падающий на нуле тестов, и тест-образец: шкалы, примитивы, имена слоёв на месте |
@@ -376,7 +425,7 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
   (MIT) — половина проверок ремесла, но только измеримое.
 
 У чужих скиллов в \`.claude/skills/\` лицензии лежат рядом файлами
-\`LICENSE.*\`.
+\`LICENSE.*\`, отметки Apache 2.0 — файлами \`NOTICE.*\`.
 
 **Чего в этих источниках нет.** Четыре запрета из десяти заведены дефектом
 живого сайта: три брейкпоинта, потолок у \`aspect-ratio\`, потолок у
@@ -392,7 +441,7 @@ https://github.com/IgorAIdev/MySkilforCBDSiteBuilding» — он склонир�
 накопленный долг проекта окажется «прощён»:
 
 \`\`\`
-git checkout tools/css-baseline.json tools/code-baseline.json tools/lint-baseline.json tools/craft-baseline.json tools/seo-baseline.json
+git checkout tools/css-baseline.json tools/code-baseline.json tools/lint-baseline.json tools/craft-baseline.json tools/seo-baseline.json tools/design-baseline.json tools/detect-baseline.json
 \`\`\`
 
 ## Где источник

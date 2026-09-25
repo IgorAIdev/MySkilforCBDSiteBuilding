@@ -1,0 +1,26 @@
+/* Вертикаль закрыта: одна ось auto делает вторую такой же, и коробка
+   начинает ездить вверх-вниз, стоит подписи или отступу перерасти ячейку
+   (check:css, семья railY). Прокрутка вбок не передаётся странице — как у
+   примитива `rail`: докрутив таблицу до края, палец не уводит назад всю
+   страницу жестом «назад» браузера. */
+.scroll{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;max-inline-size:100%}
+.table{border-collapse:collapse;min-inline-size:100%}
+/* Черта между строками — волосок `--rule`, линия, которая ОТДЕЛЯЕТ. Стояла
+   `--edge` — контур органа: строки таблицы читались жирными чёрными
+   линиями, тяжелее текста в них (разбор 24.09.2026, K3). */
+.table :is(th, td){padding:var(--gap-row);text-align:start;border-block-end:var(--line-w) solid var(--rule)}
+/* Край таблицы вровень с текстом страницы, не отступом внутрь: только
+   крайние ячейки строки теряют своё внешнее поле, зазоры между колонками
+   остаются — на 360 это и есть та ширина, которой не хватало «Ingyenes». */
+.table :is(th, td):first-child{padding-inline-start:0}
+.table :is(th, td):last-child{padding-inline-end:0}
+/* Подписи колонок — справка, а не строка данных: роль сноски, полужирная.
+   Стояли кеглем тела тем же весом, что и имена способов под ними. */
+.table thead th{
+  font-size:var(--note-size);line-height:var(--note-lead);letter-spacing:var(--note-track);
+  font-weight:600;color:var(--ink-soft);vertical-align:bottom
+}
+/* Имя способа — шапка строки; вес тот же, что у имени товара на карточке,
+   а не браузерный 700 — заголовок раздела над таблицей весит 600. */
+.table tbody th{font-weight:600}
+.price{white-space:nowrap;text-align:end;font-variant-numeric:tabular-nums}

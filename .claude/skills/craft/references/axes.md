@@ -30,12 +30,12 @@ changing».
 <!-- families:axes -->
 | Ось | Чем включается | Что меняется по ней в стилях набора | Что не меняется |
 | --- | --- | --- | --- |
-| тема: свет / тьма | `color-scheme: light dark` на корне; `[data-theme]` из cookie ставит ТОЛЬКО `color-scheme`; цвет объявлен один раз функцией `light-dark()`; тёмная полоса — `color-scheme: dark` на ней самой; `<meta name="color-scheme">` раньше стилей | 115 объявлений через light-dark(); блоков 2 | ритм, размер, скругление, толщина линии — «с темой меняется только цвет» (next_theming, правило 2) |
-| указатель: палец / курсор | `@media (pointer: coarse)` — цель 44 и зазор 16; `:hover` только внутри `@media (hover: hover)`; ответ на касание — `:active`, сразу | блоков 17; имена: `--gap-targets`, `--ctrl-h-sm`, `--ctrl-h`, `--ctrl-h-lg`, `--ctrl-target`; свойства: content, position, left, top, translate, width | раскладка и содержимое: по указателю «не прячут содержимое и не переключают раскладку» — это эвристика, не факт (next_responsive, правило 17) |
+| тема: свет / тьма | `color-scheme: light dark` на корне; `[data-theme]` из cookie ставит ТОЛЬКО `color-scheme`; цвет объявлен один раз функцией `light-dark()`; тёмная полоса — `color-scheme: dark` на ней самой; `<meta name="color-scheme">` раньше стилей | 203 объявлений через light-dark(); блоков 2 | ритм, размер, скругление, толщина линии — «с темой меняется только цвет» (next_theming, правило 2) |
+| указатель: палец / курсор | `@media (pointer: coarse)` — цель 44 и зазор 16; `:hover` только внутри `@media (hover: hover)`; ответ на касание — `:active`, сразу | блоков 15; имена: `--gap-targets`, `--ctrl-h-sm`, `--ctrl-h`, `--ctrl-h-lg`, `--ctrl-target`; свойства: content, position, left, top, translate, width | раскладка и содержимое: по указателю «не прячут содержимое и не переключают раскладку» — это эвристика, не факт (next_responsive, правило 17) |
 | ширина: телефон … макет | рампы `clamp()` между двумя названными ширинами (строитель шкал); три шва раскладки; компонент меряет контейнер (`@container`) | блоков 3; имена: `--page-gut`, `--head-pad`, `--dock` | геометрия органа (правило 2 CLAUDE.md), оптика не выше пола |
 | язык страницы | `<html lang>` из адреса; мера строки по языку (`:lang()`); `quotes: auto`; `hyphens: auto` только как улучшение поверх `overflow-wrap: anywhere` и `<wbr>` — у Chromium нет словаря переноса для румынского | блоков 1; имена: `--measure`, `--measure-lede`, `--measure-note` | словарь токенов: «Spectrum tokens are not localized» — локаль меняет раскладку и содержание, а не имена |
 | движение: просьба «меньше анимации» | `@media (prefers-reduced-motion: reduce)` — длительности в 0.01ms, `scroll-behavior: auto`; смысл не держится на движении | блоков 2; свойства: interpolate-size, animation-duration, animation-iteration-count, transition-duration, scroll-behavior | всё остальное |
-| контраст: усиленный и принудительные цвета | `@media (prefers-contrast: more)` усиливает роли (волосок — сплошной, приглушённые чернила — непрозрачные), а не рисует вторую тему; `@media (forced-colors: active)` — обводки вместо теней, `outline` у фокуса, системные цвета; `forced-color-adjust: none` только для образца цвета | блоков 2; имена: `--rule`, `--ink-soft`, `--border`, `--quiet`, `--quiet-on`; свойства: border, forced-color-adjust, fill, outline | раскладка, размеры |
+| контраст: усиленный и принудительные цвета | `@media (prefers-contrast: more)` усиливает роли (волосок — сплошной, приглушённые чернила — непрозрачные), а не рисует вторую тему; `@media (forced-colors: active)` — обводки вместо теней, `outline` у фокуса, системные цвета; `forced-color-adjust: none` только для образца цвета и выбранного в системной паре `Highlight` / `HighlightText` | блоков 3; имена: `--rule`, `--ink-soft`, `--border`, `--quiet`, `--quiet-on`; свойства: border, forced-color-adjust, fill, outline, background, color | раскладка, размеры |
 | признаки вне реестра | — | нет | — |
 <!-- /families:axes -->
 
@@ -97,7 +97,9 @@ based on the screen size … acceptable at page breakpoints to jump a step».
   свыше 70 — 130 % (W3C / IBM).
 - Числа и валюта — два независимых параметра `Intl`, не одна строка
   локали; у итальянской локали группировка тысяч с пяти знаков — это CLDR,
-  не ошибка.
+  не ошибка. Запись числа — по ЯЗЫКУ страницы, а не по тегу рынка: `en-RO`
+  у `Intl` пишет дробь по-румынски («2,5»), а цену по-английски
+  («€1,234.50»). Одна функция на витрину — `lib/format.ts` (И347).
 - Словарь токенов не переводится: «Spectrum tokens are not localized».
 
 ## Движение
@@ -117,7 +119,9 @@ purposeful? responsive? meticulous? unobtrusive?».
   тени и градиенты стираются, выживают обводки и `outline`. Поэтому у листа
   и органа — обводка, у знака — `currentColor`, у фокуса — `outline`
   системным `Highlight`; `forced-color-adjust: none` — только для образца
-  цвета, никогда для текста и кнопок.
+  цвета и для выбранного, закрашенного системной парой `Highlight` /
+  `HighlightText` (без него режим подкладывает под текст `Canvas`, и слово
+  выбранного пропадает); никогда для текста и кнопок с красками автора.
 
 ## Что нашёл замер 20.09.2026
 

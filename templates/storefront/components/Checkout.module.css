@@ -1,0 +1,157 @@
+/* Оформление. Раскладку дают примитивы (sidebar, stack, pinned, frame,
+   switcher); здесь — коридор, шаги, выбор карточками, сводка с товарами,
+   сверка и «спасибо».
+
+   Ритм коридора: между частями шага (выбор способа и адрес) — воздух
+   блока; внутри части (заголовок, поля, кнопка) — воздух группы; между
+   полями — воздух строки. Над заголовком части воздуха больше, чем под
+   ним: заголовок принадлежит тому, что ниже. */
+
+/* Рамка поля сброшена по бокам, а не целиком: `margin:0` стоял бы позже
+   `stack` той же силы и гасил его ритм (снимок приёмки плана 1). */
+.plain{border:0;padding:0;margin-inline:0;min-inline-size:0}
+
+/* ── КОРИДОР ──────────────────────────────────────────────────────────────
+   Коробка страницы оформления — контейнер: сводка решает, колонкой ей
+   стоять или раскрывашкой, по ширине коридора (шов 820), а не окна. */
+.corridor{container-type:inline-size}
+/* Шаги и имя шага — над рядом, одной группой: сводка справа встаёт вровень
+   с началом формы на каждом шаге. Коробка объявлена — имя страницы мерит её
+   (`cqi`), как у примитива `pagehead`. */
+.lead{display:flex;flex-direction:column;gap:var(--air-row);padding-block-end:var(--air-head);container-type:inline-size}
+/* Ряд шага и сводки: колонки рядом, пока коридор шире шва 820 (форме
+   остаётся не меньше 40 % ряда), — сгиб по содержимому раньше шва не
+   наступает. Уже шва колонки сводки нет вовсе (ниже). */
+.frame{--side-at:40%}
+.step{--stack:var(--air-block)}
+/* Поле не шире ожидаемого ввода: форма — мерой строки, а не колонкой в
+   девятьсот пикселей (разбор 24.09.2026, O4). Меру держат ДЕТИ колонки, а
+   не сама колонка: колонка с потолком отдала бы остаток ряда сводке, и
+   сводка разъезжалась на полэкрана. */
+.measure > *{max-inline-size:var(--measure)}
+.form{display:flex;flex-direction:column;align-items:flex-start;gap:var(--air-group)}
+.form > :not(button){align-self:stretch}
+/* Кнопка шага — своей ширины, пока рядом есть место; на узкой коробке (шов
+   560) — во всю строку, под большой палец (разбор 24.09.2026, O5). Кнопка
+   во всю меру на столе была шире шестисот пикселей — полоса, а не орган
+   (check:craft, семья measure). */
+@container (max-width:559px){
+  .form > button{align-self:stretch}
+}
+
+/* Сводка рядом — лист, что едет с прокруткой; товаров много — лист упирается
+   в потолок окна (`pinned`), и прокручивается список товаров, а не лист:
+   итог остаётся на виду (правило 9). */
+.pin{display:flex;flex-direction:column;gap:var(--air-group)}
+.pin > .items{flex:0 1 auto;min-block-size:0;overflow:auto}
+
+/* Сводка на телефоне — раскрывашка над шагами, итог в её строке: сумма
+   видна до кнопки, которой шаг продолжают (Baymard; Shopify «Show order
+   summary»). На широкой коробке её нет — там колонка. */
+.peek{display:none;border-block:var(--line-w) solid var(--rule);margin-block-end:var(--air-group)}
+.peek > summary{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);min-block-size:var(--ctrl-h);list-style:none;font-weight:600}
+.peek > summary::-webkit-details-marker{display:none}
+.peek > summary b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.peekName{display:inline-flex;align-items:center;gap:var(--gap-targets);color:var(--ink)}
+.peekName svg{inline-size:1.15em;block-size:1.15em;flex:none;transition:rotate var(--open-t) var(--ease)}
+.peek[open] .peekName svg{rotate:180deg}
+.peekBody{display:flex;flex-direction:column;gap:var(--air-group);padding-block:var(--air-row) var(--air-group)}
+/* Шов 820 («телефон»): коридор перестаёт держать две колонки — сводка
+   уходит из ряда в раскрывашку сверху. Меняется устройство, а не величина. */
+@container (max-width:819px){
+  .peek{display:block}
+  .side{display:none}
+}
+
+/* ── ШАГИ ─────────────────────────────────────────────────────────────────
+   Кружки, связанные чертой: пройденные — ссылкой с галочкой, текущий —
+   краской выбранного (--pop), будущие — кольцом тихой краски. */
+.stepsNav{container-type:inline-size}
+.steps{display:flex;align-items:center;gap:var(--gap-targets);list-style:none;padding:0;margin:0}
+.stepItem{display:flex;align-items:center;gap:var(--gap-targets);color:var(--ink-soft)}
+.stepItem + .stepItem::before{content:'';inline-size:var(--air-group);border-block-start:var(--line-w) solid var(--rule)}
+.stepItem[aria-current='step']{color:var(--ink);font-weight:600}
+.stepItem[data-done]{color:var(--ink)}
+.stepItem a,.stepHere{display:inline-flex;align-items:center;gap:var(--gap-targets);min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);color:inherit}
+.stepNo{display:inline-grid;place-items:center;flex:none;inline-size:1.9em;block-size:1.9em;border-radius:50%;box-shadow:inset 0 0 0 var(--line-w) var(--edge);font-variant-numeric:tabular-nums}
+.stepNo svg{inline-size:1.1em;block-size:1.1em}
+.stepItem[aria-current='step'] .stepNo{background:var(--pop);color:var(--on-pop);box-shadow:none}
+/* Шов 560 («узкий телефон»): имена шагов сняты с глаз и остаются для
+   чтения вслух — строка кружков не переносится на два этажа, а имя текущего
+   шага стоит под ней заголовком страницы (разбор 24.09.2026, O6). */
+@container (max-width:559px){
+  .stepName{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+
+/* ── ВЫБОР КАРТОЧКАМИ ─────────────────────────────────────────────────────
+   Карточка — подпись радио, нажимается целиком. Кромка — роль `--edge`
+   (И258); прозрачный контур проявляется в высоком контрасте, где тени нет.
+   Выбранная — кольцом краски выбранного. Кружок радио — от высоты органа,
+   как галочка формы, и стоит по середине первой строки имени (O7). */
+.options{display:grid;gap:var(--gap-row)}
+.option{
+  display:flex;gap:var(--gap-row);align-items:flex-start;padding:var(--pad-inner) var(--pad-card);cursor:pointer;
+  border-radius:var(--r-card);box-shadow:inset 0 0 0 var(--line-w) var(--edge);
+  outline:var(--line-w) solid transparent;outline-offset:calc(var(--line-w) * -1)
+}
+/* Выбранный способ — кольцо той же краской, что отмеченная точка радио
+   (`--ctrl-tick-fill`, И392): одно «выбрано» на всю кассу, и оно держит
+   3 : 1 к полу, а заливка марки на пяти образцах из семи — нет. */
+.option:has(input:checked){box-shadow:inset 0 0 0 var(--ring-w) var(--ctrl-tick-fill, var(--pop-ink))}
+.option:has(input:disabled){cursor:not-allowed}
+.option:has(input:disabled) .optionName{opacity:var(--state-off)}
+.option input{
+  flex:none;margin:0;inline-size:calc(var(--ctrl-h) * .45);block-size:calc(var(--ctrl-h) * .45);
+  margin-block-start:calc((1lh - var(--ctrl-h) * .45) / 2)
+}
+.optionBody{display:grid;gap:var(--sp-1);min-inline-size:0;flex:1}
+.optionHead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--gap-row)}
+.optionName{font-weight:600;color:var(--ink)}
+.optionText{color:var(--ink-soft)}
+.price{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Причина недопустимости читается полностью: выключено — имя, а не довод. */
+.reason{color:var(--ink)}
+
+/* Выбор способа доставки: громкая кнопка на экране одна (O5). Записанный
+   способ отмечен — кнопка «выбрать» не нужна, вперёд ведут его подробности;
+   отмечен другой — подробности прежнего прячутся, кнопка появляется. Без
+   `:has` видно обе — как прежде. */
+.step:has([data-saved]:checked) [data-choose]{display:none}
+.step:has(input[name='method']:checked:not([data-saved])) [data-details]{display:none}
+
+.search{display:flex;flex-wrap:wrap;align-items:end;gap:var(--gap-row)}
+.search > label{flex:1 1 12rem}
+.country{margin:0;display:flex;flex-direction:column;gap:calc(var(--ctrl-h) * .15)}
+
+/* ── ТОВАРЫ, СВЕРКА ───────────────────────────────────────────────────────
+   Товар сводки — снимок в колодце (ростом с крупный орган), имя и факты,
+   сумма у правого края. */
+.items{list-style:none;padding:0;margin:0;display:grid;gap:var(--air-row)}
+.item{display:grid;grid-template-columns:calc(var(--ctrl-h-lg) * 1.1) minmax(0, 1fr) auto;column-gap:var(--gap-row);align-items:start}
+.shot{--frame:1 / 1;border-radius:var(--r-ctrl);background:var(--plate-2)}
+.itemWhat{min-inline-size:0}
+.itemName{font-weight:600;overflow-wrap:anywhere}
+.itemSum{font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* Сверка: группы разделены воздухом группы, внутри группы заголовок и его
+   запись вплотную — строки адреса одной записью (И292). */
+.review{display:flex;flex-direction:column;gap:var(--air-group)}
+.recap{display:grid;row-gap:var(--sp-1)}
+.recapHead{display:flex;justify-content:space-between;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-target)}
+.recapHead a{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);text-decoration-line:underline;text-underline-offset:.2em}
+.recapTitle{font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:var(--body-track)}
+.recapBody{white-space:pre-line;color:var(--ink-soft)}
+.terms{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
+
+/* ── «СПАСИБО» ────────────────────────────────────────────────────────────
+   Знак успеха краской события, заголовок, номер заказа своим блоком —
+   крупно, числом (кегль итога), справка при нём — сноской. */
+.doneHead{display:flex;flex-direction:column;align-items:flex-start;gap:var(--air-row);padding-block-end:var(--air-head);container-type:inline-size}
+.ok{display:grid;color:var(--ok)}
+.ok svg{inline-size:calc(var(--ctrl-h-lg) * .9);block-size:calc(var(--ctrl-h-lg) * .9)}
+.code{display:flex;flex-direction:column}
+.code strong{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track);color:var(--ink);font-variant-numeric:tabular-nums}
+.done{display:flex;flex-direction:column;gap:var(--air-block)}
+/* Что дальше — по порядку, кружком номера, как шаги оформления. */
+.next{list-style:none;padding:0;margin:0;display:grid;gap:var(--air-row)}
+.nextStep{display:grid;grid-template-columns:auto minmax(0, 1fr);column-gap:var(--gap-row);align-items:baseline}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Заглавные, под рукой — марка</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 05 — «Заглавные, под рукой — марка». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: разрядка растёт при наведении; большое свечение под рукой; тень в покое; нажатие на 10 пикселей вниз.
+  Приведено к единой форме: в покое тон вместо белой — без тени белая на белом не видна; под рукой — марка палитры и надпись на ней, сразу, без середины; разрядка заглавных .05em.
+  Наведение: пилюля встаёт в марку, надпись светлеет — сразу, без середины. Нажатие: марка + нажатая краска, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-shape="pill" data-case="caps" data-hover="loud" data-size="lg" type="button">Shop now</button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-shape="pill" data-case="caps" data-hover="loud" data-size="lg">Shop now</span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-case="caps" data-hover="loud" data-size="lg" data-state="hover">Shop now</span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-case="caps" data-hover="loud" data-size="lg" data-state="press">Shop now</span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-shape="pill" data-case="caps" data-hover="loud" data-size="lg" data-state="focus">Shop now</span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

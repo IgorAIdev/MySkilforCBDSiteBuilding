@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>44 · Поиск-пилюля с очисткой</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 44 — «Поиск-пилюля с очисткой». Источник — CSS от заказчика 24.09.2026 («поиск как в Twitter»), переслан из сессии «Кнопки и дизайн» (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: тёмно-синие краски — тёмное приходит темой палитры; тень подложки; подложка отдельным слоем с z-index −1; обход автозаполнения задержкой 9999 s.
+  Приведено к единой форме: пилюля тона, лупа из листа набора у начала; фокус: кольцо набора, пол страницы, кромка краской кольца, лупа — краской марки; «очистить» — круг марки со знаком «×», появляется, когда вписано; рост 24 — порог цели WCAG 2.5.8, под пальцем больше; вписанное — тело не меньше 16 px.
+  Наведение: тон + 5 % чернил. Нажатие: «очистить»: марка + 9 %, 0.97 и на пиксель ниже; вписанное стирается.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="field" data-shape="pill"><svg data-sign="search"></svg><input type="search" placeholder="Search" aria-label="Search"><button class="el" data-voice="loud" data-shape="pill" data-icon data-clear type="button" aria-label="Clear"><svg data-sign="x"></svg></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="field" data-shape="pill"><svg data-sign="search"></svg><input type="search" placeholder="Search" tabindex="-1" readonly><span class="el" data-voice="loud" data-shape="pill" data-icon data-clear><svg data-sign="x"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="field" data-shape="pill" data-state="hover"><svg data-sign="search"></svg><input type="search" placeholder="Search" tabindex="-1" readonly><span class="el" data-voice="loud" data-shape="pill" data-icon data-clear><svg data-sign="x"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="field" data-shape="pill" data-state="focus"><svg data-sign="search"></svg><input type="search" placeholder="Search" tabindex="-1" readonly><span class="el" data-voice="loud" data-shape="pill" data-icon data-clear><svg data-sign="x"></svg></span></span><figcaption>фокус</figcaption></figure>
+    <figure><span class="field" data-shape="pill"><svg data-sign="search"></svg><input type="search" placeholder="Search" tabindex="-1" readonly value="hemp oil"><span class="el" data-voice="loud" data-shape="pill" data-icon data-clear><svg data-sign="x"></svg></span></span><figcaption>заполнено</figcaption></figure>
+    <figure><span class="field" data-shape="pill"><svg data-sign="search"></svg><input type="search" placeholder="Search" tabindex="-1" readonly value="hemp oil"><span class="el" data-voice="loud" data-shape="pill" data-icon data-clear data-state="press"><svg data-sign="x"></svg></span></span><figcaption>нажато «очистить»</figcaption></figure>
+  </div>
+</body>
+</html>

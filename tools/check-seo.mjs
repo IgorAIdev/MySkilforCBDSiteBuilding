@@ -16,8 +16,10 @@
  *   description  — описание есть и не повторяет чужое
  *   canonical    — страница для поиска ссылается на себя, а не на соседа
  *   hreflang     — сетка языков полная: на себя, x-default, и обратно
- *   viewport     — мета окна с width=device-width
- *   og           — заголовок и описание для предпросмотра ссылки
+ *   viewport     — мета окна с width=device-width; увеличение не запрещено
+ *                  (WCAG 1.4.4); стили, читающие вырез экрана
+ *                  (env(safe-area-inset-*)), получают его: viewport-fit=cover
+ *   og          — заголовок и описание для предпросмотра ссылки
  *                  (мессенджеры — канал заказа, ссылка без карточки
  *                  теряет покупателя до того, как он её открыл)
  *   ld           — JSON-LD разбирается и знает свой @type
@@ -183,6 +185,10 @@ for (const [url, html] of [...pages].sort()) {
       .map((l) => ({ code: l.hreflang, to: local(l.href), href: l.href })),
     og: { title: prop('og:title') ?? '', description: prop('og:description') ?? '' },
     lds: [...html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)].map((m) => m[1]),
+    /* Стили, которые страница отдаёт: свои таблицы (адрес от корня сайта)
+       и вписанные `<style>`. Чужой хост — шрифты — выреза экрана не читает. */
+    sheets: links.filter((l) => /\bstylesheet\b/i.test(l.rel ?? '') && /^\/(?!\/)/.test(l.href ?? '')).map((l) => decode(l.href)),
+    inline: [...html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n'),
     imgs: tags(html, 'img'),
     /* Сколько вопросов НАРИСОВАНО. Сравнивается с числом вопросов в
        разметке: расхождение значит, что кто-то вернул `.slice()` в компонент
@@ -197,6 +203,23 @@ for (const [url, html] of [...pages].sort()) {
   })
 }
 
+/* ── вырез экрана: какие отданные таблицы стилей его читают ────────────────
+ *
+ * `env(safe-area-inset-*)` отдаёт браузер только окну, которое на весь экран
+ * ПОПРОСИЛО: `viewport-fit=cover` в мете окна. Без неё значение на iPhone —
+ * ноль, и роль, построенная на вырезе (`--edge-b` → `--dock` в
+ * styles/tokens.css), молча мертва ровно там, ради чего заведена
+ * (Эмиль Ковальский, mobile-native, исправление 7). Меряется ОТДАННОЕ:
+ * таблицы, которые страница просит, и вписанные стили. */
+const CUTOUT = /env\(\s*safe-area-inset-/
+const cutoutSheets = new Set()
+await Promise.all([...new Set([...info.values()].flatMap((p) => p.sheets))].map(async (href) => {
+  if (CUTOUT.test(await site.asset(href))) cutoutSheets.add(href)
+}))
+/** Мета окна по ключам: `width=device-width, initial-scale=1` → { width, initial-scale }. */
+const viewportKeys = (content) => Object.fromEntries(String(content).split(/[,;]/)
+  .map((part) => part.split('=').map((s) => s.trim().toLowerCase())).filter(([k]) => k))
+
 /* ── второй проход: проверки ───────────────────────────────────────────── */
 const dupTitle = new Map(), dupDesc = new Map()
 for (const [url, p] of info) {
@@ -208,6 +231,15 @@ for (const [url, p] of info) {
   if (!p.title) found.title.push(`${url} — нет <title>`)
   if (!p.description) found.description.push(`${url} — нет meta description`)
   if (!/width=device-width/i.test(p.viewport)) found.viewport.push(`${url} — нет meta viewport с width=device-width`)
+  /* Увеличение страницы — право читающего, а не решение сайта: запрет
+     зума ломает WCAG 1.4.4 (текст до 200 %). Refero, craft-details.md §9 #48. */
+  const vp = viewportKeys(p.viewport)
+  if (/^(no|0)$/.test(vp['user-scalable'] ?? '') || Number(vp['maximum-scale'] ?? Infinity) < 2) {
+    found.viewport.push(`${url} — увеличение запрещено (${p.viewport}): WCAG 1.4.4 — текст до 200 %`)
+  }
+  if (vp['viewport-fit'] !== 'cover' && (CUTOUT.test(p.inline) || p.sheets.some((h) => cutoutSheets.has(h)))) {
+    found.viewport.push(`${url} — стили читают вырез экрана (env(safe-area-inset-*)), а окно его не отдаёт: без viewport-fit=cover на iPhone это ноль`)
+  }
 
   /* Повторы считаются среди страниц ДЛЯ ПОИСКА одного языка: два одинаковых
      заголовка на bg и en — это перевод, а не двойник. */
@@ -333,7 +365,7 @@ const NAMES = {
   description: 'meta description: нет или повторяет чужое',
   canonical: 'canonical: нет или указывает не на себя',
   hreflang: 'hreflang: не на себя, без x-default, без обратной ссылки или с кривым кодом',
-  viewport: 'meta viewport без width=device-width',
+  viewport: 'meta viewport: нет width=device-width, увеличение запрещено или вырез экрана не отдан стилям (нет viewport-fit=cover)',
   og: 'og:title / og:description — нет предпросмотра ссылки',
   ld: 'JSON-LD не разбирается или без @type / @context',
   alt: '<img> без alt (пустой alt — это тоже ответ)',

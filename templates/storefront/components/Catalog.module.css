@@ -1,0 +1,94 @@
+/* ── Полка ─────────────────────────────────────────────────────────────────
+   Полная полка без панели сбоку: четыре или пять колонок на широком —
+   выбирает вид («Admin → Card → Shelf density», `--shelf-cols`, И400): на
+   холсте 1440 это карточка 323px или 254px (shop, «Каталог и полка»: 4–5 по
+   260–325, максимум 340). Ручка — только у полной полки каталога и поиска:
+   у ходовых главной, похожих и полки пустой корзины товаров столько, сколько
+   встаёт в ряд, и пятая колонка стояла бы у них пустой. Стояло
+   три на панели фильтров, а у поиска, где панели нет, — те же три по 437px:
+   поиск показывал вдвое меньше товаров на экран, чем норма (разбор, Q1).
+   Колонки считает примитив `grid` из `--cols` и пола ячейки: на 1080
+   окна — три, на телефоне — две; медиазапроса нет.
+
+   Ряды разведены шире колонок: у карточки текст стоит ПОД снимком, и при
+   равном шаге подпись одного ряда стояла от снимка следующего так же
+   близко, как от своего, — у карточки без рамки ряды слипались. Воздух
+   группы между рядами, зазор сетки между колонками. Ручки и шаг рядов —
+   атрибутом на том же узле (0,2,0 против `.grid` 0,1,0), а не порядком
+   кусков сборки: на равном весе ручку примитива переписывал бы тот кусок,
+   что собран позже. */
+.shelf{list-style:none;padding:0;margin:0}
+.shelf[data-catalog-grid]{--cols:var(--shelf-cols);--cell-min:220px;row-gap:var(--air-group)}
+
+/* Поле поиска — в шапке страницы, под именем: воздух группы от заголовка,
+   а до полосы органов — нижнее поле шапки (`pagehead`, воздух шапки). */
+.search{margin-block-start:var(--air-group)}
+
+/* Столбик под шапкой: органы полки, полка, листание — воздухом группы. */
+.area{--stack:var(--air-group)}
+/* Полка «куда дальше» у пустого поиска — отдельный раздел: воздух полосы. */
+.area > .more{margin-block-start:var(--air-band)}
+
+/* ── Органы полки ──────────────────────────────────────────────────────────
+   Две строки одной группы: органы (грани, порядок) и состояние (счёт,
+   выбранное пилюлями, сброс). Коробка объявлена: шов 820 — «панель фильтров
+   становится шторкой» (kit.config.json, `seams`) — мерит ЕЁ ширину, а не
+   окно (правило 6). */
+.tools{--stack:var(--air-row);container-type:inline-size}
+.bar{justify-content:space-between;--cluster:var(--gap-targets)}
+.state{--cluster:var(--gap-targets) var(--gap-row)}
+
+/* Порядок: подпись и кнопка раскрытия строкой, у правого края полосы. */
+.sort{display:flex;align-items:center;gap:var(--gap-row);margin-inline-start:auto}
+.sortLabel{font-size:var(--ctrl-fs-sm);color:var(--ink-soft);white-space:nowrap}
+/* Строки порядка — пункты меню: цель ростом пальца, надпись органа;
+   текущий — вуалью «вы здесь», как у списка языков в шапке. */
+.sortList{list-style:none}
+.sortList a{
+  display:flex;align-items:center;min-block-size:var(--ctrl-target);padding-inline:var(--pad-inner);
+  border-radius:var(--r-ctrl);font-size:var(--ctrl-fs-sm);color:var(--ink);white-space:nowrap
+}
+@media (hover:hover){ .sortList a:hover{background:var(--hover-row)} }
+.sortList a:active{background:var(--press-row)}
+.sortList a[aria-current='true']{font-weight:600;background:var(--quiet)}
+/* Подпись порядка — снаружи кнопки (умолчание) или внутри, со знаком
+   порядка, и галка у выбранного (`--sort-label: inside`, элемент 63, И395). */
+.byLine,.sortList a svg{display:none}
+.byLine{align-items:center;gap:calc(var(--btn-h, var(--ctrl-h)) * .2)}
+/* «Sort by:» — краской надписи кнопки, отличие весом: краска подписи на
+   вуали тихой кнопки — 3.90 : 1 (check:craft, 25.09.2026). */
+.byWord{font-weight:var(--body-weight)}
+.sortList a svg{flex:none;margin-inline-start:auto;inline-size:1.1em;block-size:1.1em;color:var(--pop-ink)}
+@container style(--sort-label: inside){
+  .sortLabel{display:none}
+  .byLine{display:inline-flex}
+  .sortList a{gap:var(--gap-row)}
+  .sortList a svg{display:block}
+}
+
+/* Узкая коробка: полоса — «Фильтры» слева, порядок справа, каждая кнопка
+   шириной своей надписи. Равными половинами надпись порядка («Cele mai
+   vândute») складывалась в две строки. Подпись «Sort by» уходит: кнопка
+   названа для чтения вслух (`aria-label`). Форма граней на узком закрыта в
+   шторку и в строке места не занимает. */
+@container (max-width:819px){
+  .sortLabel,.byWord{display:none}
+}
+.sort > button{white-space:nowrap}
+
+/* Листание: назад — номера — вперёд одной строкой. Номер — цель нажатия
+   ростом органа, надписью тела: это навигация, а она не мельче тела
+   (impeccable, typeset.md:46; `check:design`, `navSmall`); текущий —
+   отметкой вида, как «вы здесь» в шапке. */
+.pages{justify-content:space-between}
+.numbers{--cluster:var(--gap-targets);list-style:none;padding:0;margin:0}
+.numbers :is(a, [aria-current]){
+  display:inline-grid;place-items:center;min-inline-size:var(--ctrl-h);block-size:var(--ctrl-h);
+  border-radius:var(--r-ctrl);font-size:var(--body-size);color:var(--ink);font-variant-numeric:tabular-nums
+}
+@media (hover:hover){ .numbers a:hover{background:var(--hover-row)} }
+.numbers a:active{background:var(--press-row)}
+.numbers [aria-current]{
+  font-weight:600;background:var(--menu-mark-fill);color:var(--menu-mark-ink);
+  text-decoration-line:var(--menu-mark-line);text-decoration-thickness:var(--ring-w);text-decoration-color:var(--pop);text-underline-offset:.45em
+}

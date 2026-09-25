@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>17 · Тёмная, под рукой — стрелка</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 17 — «Тёмная, под рукой — стрелка». Источник — CSS от заказчика 24.09.2026 (source.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: ширина 130 пикселей.
+  Приведено к единой форме: заливка — чернила палитры вместо сине-серого, надпись — пол; шеврон листа набора вместо знака «»»; угол из Shape вместо 4; движение за 0.2 с вместо 0.5.
+  Наведение: чернила + 5 % светлого; слово отходит, справа проявляется стрелка. Нажатие: чернила + 9 %, кнопка 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="ink" type="button">Continue<svg class="appear" data-sign="chevron-right"></svg></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="ink">Continue<svg class="appear" data-sign="chevron-right"></svg></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="ink" data-state="hover">Continue<svg class="appear" data-sign="chevron-right"></svg></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="ink" data-state="press">Continue<svg class="appear" data-sign="chevron-right"></svg></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="ink" data-state="focus">Continue<svg class="appear" data-sign="chevron-right"></svg></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

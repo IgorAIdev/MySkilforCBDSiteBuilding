@@ -46,8 +46,8 @@ export const CONCEPTS = {
   rhythm: ['pad', 'air', 'gap'],
   text: ['hero', 'pagehead', 'h2', 'h3', 'intro', 'lede', 'body', 'note', 'eyebrow', 'measure', 'face', 'fs', 'page'],
   shape: ['r'],
-  depth: ['sh'],
-  motion: ['ease', 'rise', 'nudge', 'open'],
+  depth: ['sh', 'frost'],
+  motion: ['ease', 'rise', 'nudge', 'creep', 'open'],
   state: ['state'],
   layer: ['layer'],
   control: ['ctrl', 'chan', 'chip', 'tab', 'dock', 'edge'],
@@ -60,16 +60,36 @@ export const MODIFIERS = new Set([
   't', 'edge', 'head', 'inset', 'gut', 'stuck', 'look', 'fold', 'btn', 'top', 'mark', 'stack', 'targets', 'row',
   'grid', 'band', 'block', 'group', 'lede', 'note', 'cell', 'in', 'off', 'act', 'fit', 'side', 'above', 'at', 'bias',
   'uri', 'lift', 'select', 'search', 'plate', 'bleed', 'hand', 'cap', 'slope', 'md', 'lg', 'target',
-  'ctrl', 'pop', 'raised', 'overlay', 'strong', 'exit',
+  'ctrl', 'pop', 'raised', 'overlay', 'strong', 'exit', 'case', 'r', 'sh', 'intro', 'pos',
+  /* форма главной кнопки (И276): вырез, остриё, выемка, эхо-шеврон */
+  'clip', 'tip', 'notch', 'echo', 'trail', 'stop',
+  /* выравнивание колонок `sidebar` (`--side-align`): ручку примитив читал
+     давно, а объявить её было нечем — первым объявил документ, чтобы строки
+     заголовка и текста стояли на одной линии шрифта (разбор 24.09.2026, D3) */
+  'align',
+  /* нахлёст: на сколько лист покупки наезжает на снимок во всю ширину
+     (`--gallery-lap`, карта товара, бриф docs/design/карта-товара.md) */
+  'lap',
+  /* место подписи поля (`--ctrl-field-label`: над полем или на его кромке,
+     элемент 47 набора, И394) */
+  'label',
+  /* стрелка у конца главной кнопки без кружка (`--ctrl-btn-glyph`) и вырез
+     знака в заливке, общий кружку и стрелке (`--btn-cut`; элемент 03, И423) */
+  'glyph', 'cut',
+  /* второй конец градиента главной кнопки (`--pop-grad`, И424) */
+  'grad',
+  /* стекло главной кнопки: краска долей, блик кромки, размытие под ней
+     (`--pop-glass`, `--pop-rim`, `--frost-*`, `--ctrl-btn-frost-pop`; И427) */
+  'glass', 'rim', 'frost', 'blur', 'sat',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',
-  'pin', 'tray', 'leaf', 'chip', 'qty', 'more', 'chan', 'side', 'prose', 'pinned', 'sidebar', 'frame']
+  'pin', 'tray', 'leaf', 'chip', 'qty', 'chan', 'side', 'prose', 'pinned', 'sidebar', 'frame', 'btn', 'seg', 'gallery']
 
 const VALUE = [
   { rx: new RegExp(`^--${FAMS(COLOUR_FAMILIES)}-\\d{1,2}$`), family: 'ступень цвета', by: 'tools/palette.mjs' },
   { rx: new RegExp(`^--on-${FAMS(COLOUR_FAMILIES)}-\\d{1,2}$`), family: 'знак на ступени', by: 'tools/palette.mjs' },
-  { rx: /^--a-press$/, family: 'ступень нажатия', by: 'tools/palette.mjs' },
+  { rx: /^--(?:on-)?a-press$/, family: 'ступень нажатия и знак на ней', by: 'tools/palette.mjs' },
   { rx: /^--sp-\d{1,2}$/, family: 'ступень ритма', by: 'tools/scale.mjs' },
   { rx: /^--fs-(xs|sm|base|h[1-3]|2?xl|2?xs)$/, family: 'ступень размера', by: 'tools/scale.mjs' },
 ]
@@ -78,12 +98,31 @@ const ROLE = [
   { rx: /^--ctrl-fs-[a-z0-9]+$/, family: 'надпись органа', by: 'tools/scale.mjs' },
   { rx: /^--(hero|pagehead|h2|h3|intro|lede|body|note|eyebrow)-(size|lead|weight|track|measure)$/, family: 'роль текста', by: 'tools/scale.mjs' },
   { rx: /^--(r-[a-z]+|round)$/, family: 'скругление', by: 'styles/tokens.css' },
-  { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/tokens.css' },
-  { rx: /^--(ease|hover-t|rise|nudge)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
+  { rx: /^--sh-[a-z0-9-]+$/, family: 'тень', by: 'styles/look.css (роли), styles/tokens.css (ингредиенты)' },
+  { rx: /^--(ease|hover-t|rise|nudge|creep)$/, family: 'движение и ответ на руку', by: 'styles/tokens.css' },
   { rx: /^--layer-[a-z]+$/, family: 'слой', by: 'styles/tokens.css' },
-  { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-b)$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
-  { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css' },
-  { rx: /^--(wrap|gut(-base)?|page-(line|gut)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
+  { rx: /^--(ctrl-(h(-sm|-lg)?|target|fs)|chan-(h|mark|gap)|tab-h|dock|edge-[bx])$/, family: 'размер и геометрия органа', by: 'tools/scale.mjs, styles/tokens.css' },
+  { rx: /^--(measure(-[a-z]+)?|face(-[a-z]+)?|hero-(max|slope|size)|pagehead-(base|slope))$/, family: 'текст: кривая, мера, гарнитура', by: 'styles/tokens.css, гарнитура — styles/look.css' },
+  /* Коробка страницы (И382): `--page-edge` — край у окна не уже выреза,
+     `--page-box` — ширина коробки; читают `.wrap` и всё, что стоит поверх
+     страницы шириной коробки. */
+  { rx: /^--(wrap|gut(-base)?|page-(line|gut|edge|box)|head-(pad|inset)|anchor-top|float|chrome-stuck|tile-look)$/, family: 'раскладка', by: 'styles/tokens.css' },
+  /* Карта товара — ручки вида галереи (И278): доля ряда, место миниатюр,
+     край снимка. Роли, а не узлы: их ставит вид сайта на корне (панель
+     «Look»), читает узел `gallery` карты. Список закрытый — по имени. */
+  { rx: /^--pdp-(gallery|thumbs|edge)$/, family: 'карта товара: вид галереи', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  /* Товар на полке и карте (И400): пропорция снимка — одна на полку и
+     карту, снимки у товара одни; плотность — сколько карточек в ряд на
+     полке каталога; место кнопки «в корзину» на карточке. Роли вида («Admin → Card»), читают узлы карточки,
+     галереи и полки. */
+  { rx: /^--(drawer-look|cart-sign|cart-meta)$/, family: 'шапка: меню телефона, знак корзины, сумма у корзины', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--chip-sign$/, family: 'знак полки на фишке', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--pair-look$/, family: 'вид пары «поле и кнопка»', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--say-look$/, family: 'вид сообщения формы', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--head-icons$/, family: 'вид знаков шапки', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--go-hover$/, family: 'краска ссылки «куда ведёт» под рукой', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--seg-look$/, family: 'вид сегментов выбора', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--(shot-frame|shelf-cols|card-buy|sort-label)$/, family: 'товар: кадр снимка, плотность полки, кнопка карточки, подпись порядка полки', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
 ]
 const ALL_CONCEPTS = [...new Set(Object.values(CONCEPTS).flat())]
 const concept = new RegExp(`^--${FAMS(ALL_CONCEPTS)}(-[a-z0-9]+)*$`)
@@ -112,10 +151,14 @@ export const REQUIRED = {
   '--warn': 'текст сигнала «внимание»', '--warn-fill': 'плашка «осталось 2»', '--on-warn': 'знак на плашке', '--warn-tint': 'тихая полоса',
   '--sale': 'текст скидки', '--sale-fill': 'плашка «−20 %»', '--on-sale': 'знак на плашке', '--sale-tint': 'тихая полоса скидки',
   '--pop-press': 'кнопка покупки под пальцем (roles.md, «Заливки»)',
+  '--pop-ink-hover': 'марочный текст под курсором (roles.md, «Текст и знаки») — читал его `.more`, снятый как вторая копия органа «ко всему» (И383)',
   '--r-pop': 'полный круг главного действия — кнопка покупки, придёт с магазином (shape.md; Spectrum)',
   '--ease-exit': 'кривая ухода всплывающего (ease-in) — шторка и меню придут с магазином (states.md; Atlassian)',
   '--plate-2': 'утопленное: кадр снимка, подвал карточки, жёлоб лотка (roles.md, «Поверхности»)',
   '--rule': 'разделитель — волосок между строками (roles.md, «Линии»)', '--field': 'поле ввода: почта, промокод, поиск (roles.md, «Поверхности»)', '--scrim': 'затемнение под окном и шторкой (roles.md, «Подъём и постоянные»)',
+  '--scrim-deck': 'вуаль под текстом на снимке — герой витрины, текст поверх кадра (templates/storefront, blocks.module.css)',
+  '--creep': 'наплыв снимка под рукой — карточка товара на полке (templates/storefront, ProductCard.module.css; controls.md, «рама стоит, движется снимок»)',
+  '--on-ink': 'надпись на плашке чернил — пол своего пола (отметка текущего пункта «Ink pill», вид витрины; И426)',
   '--layer-helper': 'слой кружка помощника (FLOATING)', '--layer-toast': 'слой всплывающего сообщения (FLOATING)',
 }
 

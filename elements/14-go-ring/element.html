@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14 · Знак «куда ведёт»: обводка</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 14 — «Знак «куда ведёт»: обводка». Источник — дизайн-система cbdin.bg (страница /bg/design, styles/go.module.css) (../cbdin-sources/design-signs.png, ../cbdin-sources/go.module.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Приведено к единой форме: контур — волосок краской края палитры (3 : 1), 1 пиксель вместо 1.5; стрелка — из листа набора.
+  Наведение: кольцо заливается маркой, знак светлеет — сразу, без середины; знак едет вперёд. Нажатие: нажатая краска марки, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <button class="el" data-voice="line" data-shape="pill" data-icon data-motion="slide" type="button" aria-label="Вперёд"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="line" data-shape="pill" data-icon data-motion="slide"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="line" data-shape="pill" data-icon data-motion="slide" data-state="hover"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="line" data-shape="pill" data-icon data-motion="slide" data-state="press"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="line" data-shape="pill" data-icon data-motion="slide" data-state="focus"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

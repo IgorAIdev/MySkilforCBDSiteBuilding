@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>63 · Сортировка и вид полки</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 63 — «Сортировка и вид полки». Источник — скриншот от заказчика 24.09.2026 («сортировка»), переслан из сессии «Кнопки и дизайн» (source.png).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Снято: бирюзовый знак выбранного вида — краска марки палитры; доллар и слова вариантов — данные магазина.
+  Приведено к единой форме: полоса над полкой: вид слева, сортировка справа, волосок под ней; вид полки — сегменты в подложке тона знаками «списком» и «сеткой»; выбранный — плашка пола и знак краской марки; сортировка — кнопка контуром: знак сортировки, «Sort by:» краской подписи, выбранное чернилами; раскрывает меню вариантов под собой (на сайте — popover, запрет 8), у выбранного — галка маркой; знаки «списком», «сеткой» и «сортировка» добавлены в лист набора из Lucide; варианты сортировки и их слова — данные магазина.
+  Наведение: кнопка: кромка встаёт в голос марки; вид — подложка 5 %. Нажатие: + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="toolbar"><div class="tabs" data-pick="pop" role="radiogroup" aria-label="Shelf view"><label class="el" data-icon data-size="sm"><input type="radio" name="view" aria-label="List view"><svg data-sign="list"></svg></label><label class="el" data-icon data-size="sm"><input type="radio" name="view" checked aria-label="Grid view"><svg data-sign="layout-grid"></svg></label></div><div class="sort"><button class="el" data-voice="line" data-size="sm" aria-expanded="false" aria-haspopup="listbox" type="button"><svg data-sign="list-filter"></svg><span class="muted">Sort by:</span>Popular</button><div class="menu" role="listbox" aria-label="Sort by"><button class="el" data-voice="ghost" data-row data-size="sm" type="button" role="option" aria-selected="true">Popular<svg class="end" data-sign="check"></svg></button><button class="el" data-voice="ghost" data-row data-size="sm" type="button" role="option" aria-selected="false">Price: low to high</button><button class="el" data-voice="ghost" data-row data-size="sm" type="button" role="option" aria-selected="false">Price: high to low</button><button class="el" data-voice="ghost" data-row data-size="sm" type="button" role="option" aria-selected="false">Newest</button></div></div></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><div class="toolbar"><div class="tabs" data-pick="pop"><span class="el" data-icon data-size="sm"><svg data-sign="list"></svg></span><span class="el" data-icon data-size="sm" data-on><svg data-sign="layout-grid"></svg></span></div><div class="sort"><span class="el" data-voice="line" data-size="sm"><svg data-sign="list-filter"></svg><span class="muted">Sort by:</span>Popular</span></div></div><figcaption>покой</figcaption></figure>
+    <figure><div class="toolbar"><div class="tabs" data-pick="pop"><span class="el" data-icon data-size="sm"><svg data-sign="list"></svg></span><span class="el" data-icon data-size="sm" data-on><svg data-sign="layout-grid"></svg></span></div><div class="sort"><span class="el" data-voice="line" data-size="sm" data-state="hover"><svg data-sign="list-filter"></svg><span class="muted">Sort by:</span>Popular</span></div></div><figcaption>наведение</figcaption></figure>
+    <figure><div class="toolbar"><div class="tabs" data-pick="pop"><span class="el" data-icon data-size="sm"><svg data-sign="list"></svg></span><span class="el" data-icon data-size="sm" data-on><svg data-sign="layout-grid"></svg></span></div><div class="sort"><span class="el" data-voice="line" data-size="sm" data-state="press"><svg data-sign="list-filter"></svg><span class="muted">Sort by:</span>Popular</span></div></div><figcaption>нажатие</figcaption></figure>
+    <figure><div class="toolbar"><div class="tabs" data-pick="pop"><span class="el" data-icon data-size="sm"><svg data-sign="list"></svg></span><span class="el" data-icon data-size="sm" data-on><svg data-sign="layout-grid"></svg></span></div><div class="sort"><span class="el" data-voice="line" data-size="sm" data-state="focus"><svg data-sign="list-filter"></svg><span class="muted">Sort by:</span>Popular</span></div></div><figcaption>фокус</figcaption></figure>
+    <figure><div class="toolbar"><div class="tabs" data-pick="pop"><span class="el" data-icon data-size="sm"><svg data-sign="list"></svg></span><span class="el" data-icon data-size="sm" data-on><svg data-sign="layout-grid"></svg></span></div><div class="sort" data-open><span class="el" data-voice="line" data-size="sm"><svg data-sign="list-filter"></svg><span class="muted">Sort by:</span>Popular</span><div class="menu"><span class="el" data-voice="ghost" data-row data-size="sm">Popular<svg class="end" data-sign="check"></svg></span><span class="el" data-voice="ghost" data-row data-size="sm">Price: low to high</span><span class="el" data-voice="ghost" data-row data-size="sm">Price: high to low</span><span class="el" data-voice="ghost" data-row data-size="sm">Newest</span></div></div></div><figcaption>открыто</figcaption></figure>
+  </div>
+</body>
+</html>

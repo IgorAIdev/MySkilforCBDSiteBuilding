@@ -1,0 +1,456 @@
+/* Панель вида — свои стили, отдельно от стилей сайта (look-panel/ui/look.js).
+   С сайта берутся только роли, которые он и так объявил: краски марки, пол,
+   углы и тени (`--pop`, `--page`, `--r-ctrl`, `--sh-*`) — чтобы образец
+   встал таким, каким встанет на странице. Остальное своё и тихое: системный
+   шрифт, простые органы, свои краски обеих тем — панель не надевает
+   экспериментальный вид сайта, который она же и меняет.
+
+   Высота — от экрана, никогда от содержимого (слово заказчика 24.09.2026:
+   «панель не меняет размер от содержания, но может менять размер, чтоб под
+   высоту экрана подстроиться»). Верх (заголовок, разделы, подразделы) и низ
+   (действия) стоят, прокручивается середина. На макете — 360 в ширину и вся
+   высота от шапки сайта до полосы «Look» у низа окна; на телефоне — шторка
+   на 85 % окна, стоящая на этой полосе.
+   Развёрнутая («Expand», помнится за зрителем) — до 1120 в ширину, варианты
+   крупными образцами; на телефоне — шторка во всю высоту (ниже,
+   «Развёрнутая панель»).
+
+   Иерархия (слово заказчика: «подменю тоже подчёркиваниями выделяй»):
+   раздел — крупнее и сильнее, подчёркивание 2 px; подраздел — мельче и тише,
+   подчёркивание 1 px, ряд уходит вбок с растворённым краем; выбор внутри
+   группы — пилюля (залита — выбрана), чтобы вкладку не спутать с выбором.
+
+   Числа — только здесь, токенами: шаги поля, углы, кегли, краски обеих тем. */
+.lp{
+  /* поле: шаг 4 */
+  --lp-s1:4px;--lp-s2:6px;--lp-s3:8px;--lp-s4:12px;--lp-s5:16px;--lp-s6:20px;
+  /* углы */
+  --lp-r1:6px;--lp-r2:10px;--lp-r3:14px;--lp-pill:999px;
+  /* кегли: подпись, мелкий, основной, раздел, заголовок */
+  --lp-t1:11px;--lp-t2:12px;--lp-t3:13px;--lp-t4:14px;--lp-t5:15px;
+  /* цель под рукой: мышь / палец */
+  --lp-target:28px;--lp-target-lg:32px;
+  --lp-w:360px;--lp-edge:16px;--lp-sheet:85dvh;
+  /* движение: отклик органа */
+  --lp-quick:.15s;
+  /* краски обеих тем */
+  --lp-ink:light-dark(#1b1b1b, #ececec);--lp-soft:light-dark(#5b5b5b, #a9a9a9);--lp-faint:light-dark(#8a8a8a, #7d7d7d);
+  --lp-bg:light-dark(#fff, #1c1c1c);--lp-well:light-dark(#f5f5f4, #242424);
+  --lp-line:light-dark(rgb(0 0 0 / .12), rgb(255 255 255 / .14));--lp-chip:light-dark(rgb(0 0 0 / .045), rgb(255 255 255 / .07));
+  --lp-on:light-dark(#1b1b1b, #ececec);--lp-on-ink:light-dark(#fff, #111);
+  --lp-ok:light-dark(#1d6b3f, #6fd39a);--lp-bad:light-dark(#b3261e, #ff8a80);--lp-bad-bg:light-dark(#fdecea, #3a1715);
+  --lp-focus:light-dark(#1a5fd6, #8ab4ff);
+  /* отступ сверху — шапка сайта: поиск и корзина в углу остаются открытыми */
+  --anchor-top:8.5rem;
+  font:400 var(--lp-t3)/1.4 ui-sans-serif, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;color-scheme:light dark
+}
+.lp *{box-sizing:border-box}
+.lp button,.lp input{font:inherit;color:inherit}
+.lp button{cursor:pointer}
+.lp [hidden]{display:none !important}
+.lp svg{flex:none}
+.lp :focus-visible{outline:2px solid var(--lp-focus);outline-offset:2px}
+.lp ::selection{background:color-mix(in srgb, var(--lp-focus) 28%, transparent)}
+
+/* ── Полоса «Look» — нижняя полоса страницы со своим местом (И354) ───────
+   Вход в панель — тонкая полоса у нижнего края окна: видна с любого места
+   любой страницы, и место под неё страница держит сама. Полоса объявлена
+   нижней полосой набора (И268): резерв `--dock` включён здесь, рядом с ней,
+   и считается от её роста на любой ширине; его читают отступ тела
+   (styles/base.css — конец страницы встаёт над полосой), прокрутка к фокусу
+   и потолок приклеенной колонки (сводка корзины, галерея товара встают над
+   ней). Сайт о полосе не знает: снята панель — снят и резерв.
+
+   Прежде вход дважды мешал: пилюля в углу окна легла на итог корзины (375),
+   полоса после подвала заставляла докручивать страницу до конца, чтобы
+   открыть панель снова (И344). В полосе — одна тихая цель у её конца, под
+   панелью: знак, «Look», выбор словами, «Open»; открыта панель — полоса
+   остаётся её низом, и та же цель её закрывает. Слой — нижней полосы сайта (`--layer-tabbar`):
+   всё, что открыто поверх страницы, ложится и поверх неё. */
+:root{
+  --lp-band-h:36px;
+  /* рост цели, черта сверху и вырез устройства */
+  --lp-band:calc(var(--lp-band-h) + 1px + env(safe-area-inset-bottom, 0px));
+  --dock-on:1;
+  --dock:calc(var(--lp-band) * var(--dock-on, 0))
+}
+@media (pointer:coarse){ :root{--lp-band-h:44px} }
+/* Полоса — место во всю ширину окна; цель в ней — одна кнопка по своему
+   содержимому у конца полосы, под открытой панелью: кнопка во всю ширину
+   макета шире меры строки (`check:craft`, орган в полэкрана). */
+.lp .lp-band{
+  position:fixed;inset-inline:0;inset-block-end:0;z-index:var(--layer-tabbar);
+  display:flex;align-items:flex-start;justify-content:flex-end;
+  block-size:var(--lp-band);
+  padding:0 max(var(--lp-s4), env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(var(--lp-s4), env(safe-area-inset-left, 0px));
+  border-block-start:1px solid var(--lp-line);background:var(--lp-well);color:var(--lp-soft);
+  container-type:inline-size
+}
+.lp .lp-band-btn{
+  display:flex;align-items:center;gap:var(--lp-s3);min-inline-size:0;max-inline-size:100%;
+  block-size:var(--lp-band-h);padding:0 var(--lp-s3);
+  border:0;border-radius:var(--lp-r1);background:none;color:var(--lp-soft);font-size:var(--lp-t2);text-align:start
+}
+.lp .lp-band-btn:hover{background:var(--lp-chip);color:var(--lp-ink)}
+.lp .lp-band-btn:focus-visible{outline-offset:-2px}
+.lp-band-name{flex:none;color:var(--lp-ink);font-weight:700;font-size:var(--lp-t3)}
+.lp-band-words{flex:0 1 auto;min-inline-size:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* На узкой полосе слова вида не помещаются рядом с «Draft» и кнопкой — и
+   срезались многоточием: `check:choice` на телефоне 390 валил любой
+   черновик находкой «текст срезан своим блоком», у опубликованного — ноль
+   (25.09.2026). Слова — пересказ того, что панель называет сама; на узкой
+   полосе их нет, остаются имя, «Draft» и кнопка. */
+@container (max-width:30rem){ .lp-band-words{display:none} }
+.lp-band-draft{flex:none;padding:1px var(--lp-s2);border:1px solid var(--lp-line);border-radius:var(--lp-pill);color:var(--lp-ink);font-size:var(--lp-t1);font-weight:600}
+.lp-band-act{flex:none;display:inline-flex;align-items:center;gap:var(--lp-s1);margin-inline-start:var(--lp-s3);color:var(--lp-ink);font-weight:600}
+.lp-band-act svg{transition:transform var(--lp-quick) ease}
+.lp-band-btn[aria-expanded='true'] .lp-band-act svg{transform:rotate(180deg)}
+.lp-panel{
+  position:fixed;inset:auto;margin:0;
+  inset-block:var(--anchor-top) calc(var(--lp-band) + var(--lp-edge));inset-inline-end:var(--lp-edge);
+  inline-size:min(var(--lp-w), 100% - 2 * var(--lp-edge));block-size:auto;max-block-size:none;
+  padding:0;overflow:hidden;
+  border:1px solid var(--lp-line);border-radius:var(--lp-r3);background:var(--lp-bg);color:var(--lp-ink);
+  box-shadow:0 4px 8px rgb(0 0 0 / .08), 0 36px 80px -28px rgb(0 0 0 / .5)
+}
+.lp-panel:popover-open{display:flex;flex-direction:column}
+/* Низкое окно: шапки сайта над панелью нет места ждать. */
+@media (max-height:560px){ .lp-panel{inset-block-start:var(--lp-edge)} }
+/* Телефон: шторка снизу во всю ширину — страница над ней видна, изменения
+   видно сразу; окно меняется с поворотом и с панелью браузера — шторка тоже.
+   Шторка стоит на полосе «Look», а не на краю окна: полоса — её низ, и
+   закрывают её тем же местом под большим пальцем, где открыли. */
+@media (max-width:560px){
+  .lp-panel{inset-inline:0;inset-block:auto var(--lp-band);inline-size:100%;block-size:85vh;block-size:min(var(--lp-sheet), 100dvh - var(--lp-band) - var(--lp-edge));
+    border-radius:var(--lp-r3) var(--lp-r3) 0 0;border-block-end:0}
+}
+
+/* ── верх: заголовок и разделы, подразделы ─────────────────────────── */
+.lp-top{flex:none;display:flex;flex-direction:column;padding:var(--lp-s2) var(--lp-s4) 0;border-block-end:1px solid var(--lp-line)}
+.lp-head{display:flex;align-items:center;gap:var(--lp-s4)}
+.lp-title{margin:0;font-size:var(--lp-t5);font-weight:700;letter-spacing:-.01em}
+.lp-tabs{display:flex;gap:var(--lp-s5);margin-inline-end:auto;align-self:stretch}
+.lp-tab{display:inline-flex;align-items:center;min-block-size:36px;padding:0 1px;border:0;border-block-end:2px solid transparent;background:none;
+  color:var(--lp-soft);font-size:var(--lp-t4);font-weight:600}
+.lp-tab[aria-selected='true']{color:var(--lp-ink);border-block-end-color:currentColor}
+.lp-tab:hover{color:var(--lp-ink)}
+.lp-x{display:grid;place-items:center;inline-size:var(--lp-target);block-size:var(--lp-target);border:0;border-radius:var(--lp-r1);background:none;color:var(--lp-soft)}
+.lp-x:hover{background:var(--lp-chip);color:var(--lp-ink)}
+/* Подраздел — тише раздела: мельче, тоньше черта; ряд уходит вбок,
+   недоступный край растворён (атрибуты ставит look.js по прокрутке). */
+.lp-subs{--fade:24px;display:flex;gap:var(--lp-s4);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;
+  margin-inline:calc(-1 * var(--lp-s4));padding-inline:var(--lp-s4)}
+.lp-subs::-webkit-scrollbar{display:none}
+.lp-subs[data-more='end']{mask-image:linear-gradient(to right, #000 calc(100% - var(--fade)), transparent)}
+.lp-subs[data-more='start']{mask-image:linear-gradient(to left, #000 calc(100% - var(--fade)), transparent)}
+.lp-subs[data-more='both']{mask-image:linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent)}
+.lp-sub{flex:none;display:inline-flex;align-items:center;min-block-size:30px;padding:0 1px;border:0;border-block-end:1px solid transparent;background:none;
+  color:var(--lp-faint);font-size:var(--lp-t2);font-weight:500;white-space:nowrap}
+.lp-sub[aria-selected='true']{color:var(--lp-ink);border-block-end-color:currentColor}
+.lp-sub:hover{color:var(--lp-ink)}
+
+/* ── середина: группы выбора ────────────────────────────────────────── */
+.lp-body{flex:1 1 auto;min-block-size:0;overflow:auto;overscroll-behavior:contain;padding:var(--lp-s4) var(--lp-s4) var(--lp-s5);scrollbar-width:thin}
+.lp-pane{display:flex;flex-direction:column;gap:var(--lp-s6)}
+.lp-hint{margin:0;color:var(--lp-soft);font-size:var(--lp-t2)}
+.lp-group{display:flex;flex-direction:column;gap:var(--lp-s3)}
+.lp-row{display:flex;align-items:center;justify-content:space-between;gap:var(--lp-s3)}
+.lp-legend{margin:0;font-size:var(--lp-t1);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--lp-soft)}
+.lp-chips{display:flex;flex-wrap:wrap;gap:var(--lp-s2)}
+.lp-chip{display:inline-flex;align-items:center;gap:var(--lp-s2);min-block-size:var(--lp-target-lg);padding:0 var(--lp-s4);
+  border:1px solid var(--lp-line);border-radius:var(--lp-pill);background:var(--lp-chip);white-space:nowrap;font-weight:500}
+.lp-chip:hover{border-color:color-mix(in srgb, var(--lp-ink) 30%, transparent)}
+.lp-chip[aria-pressed='true']{background:var(--lp-on);border-color:var(--lp-on);color:var(--lp-on-ink)}
+.lp-chip[aria-disabled='true']{opacity:.45;cursor:not-allowed;text-decoration:line-through;text-decoration-thickness:1px}
+.lp-why{margin:0;color:var(--lp-soft);font-size:var(--lp-t2);overflow-wrap:anywhere}
+.lp-why:empty{display:none}
+/* Образцы на фишках. */
+.lp-dots{display:inline-flex}
+.lp-dot{display:block;inline-size:10px;block-size:10px;border-radius:50%;box-shadow:0 0 0 1px var(--lp-line)}
+.lp-dot + .lp-dot{margin-inline-start:-3px}
+.lp-shape{display:block;inline-size:14px;block-size:14px;border:1.5px solid currentColor;border-block-end:0;border-inline-start-width:1.5px;opacity:.8}
+.lp-lit{border:0;background:light-dark(#fff, #2a2a2a);opacity:1}
+/* Образец оси кнопки — роли варианта строкой на самом образце, поверх пола
+   страницы (вуаль тихой видна такой, какой встанет на сайте); угол — Shape. */
+.lp-btn{display:inline-grid;place-items:center;min-inline-size:24px;block-size:18px;padding:0 var(--lp-s1);font-size:10.5px;line-height:1;
+  border:1px solid transparent;border-radius:min(var(--r-ctrl, 8px), 9px);box-shadow:0 0 0 1px var(--lp-line)}
+/* Образец вида поля: полоска поля ввода, кромка вокруг или чертой снизу. */
+.lp-field{display:block;inline-size:36px;block-size:16px;border:1px solid;border-radius:min(var(--r-ctrl, 8px), 6px)}
+.lp-field[data-side='0']{border-width:0 0 1px;border-end-start-radius:0;border-end-end-radius:0}
+/* Образец места подписи: черта подписи над полоской поля или на её кромке. */
+.lp-label{display:grid;gap:2px;inline-size:36px}
+.lp-label b{display:block;inline-size:16px;block-size:3px;border-radius:2px;background:currentColor;opacity:.7}
+.lp-label[data-at='edge']{position:relative}
+.lp-label[data-at='edge'] b{position:absolute;inset-block-start:-1px;inset-inline-start:5px;box-shadow:0 0 0 2px var(--lp-well)}
+/* Образец знака на фишке: пилюля с кругом у начала или без. */
+.lp-chipsign{display:inline-flex;align-items:center;gap:2px;padding:2px 5px 2px 2px;border-radius:4px;background:var(--lp-chip)}
+.lp-chipsign i{display:none;inline-size:8px;block-size:8px;border-radius:50%;background:var(--lp-well)}
+.lp-chipsign b{display:block;inline-size:14px;block-size:3px;border-radius:1px;background:currentColor;opacity:.7}
+.lp-chipsign[data-at='show'] i{display:block}
+/* Образец пары «поле и кнопка»: рамка поля и плашка кнопки. */
+.lp-pair{display:inline-flex;gap:3px}
+.lp-pair i{display:block;inline-size:20px;block-size:11px;border:1px solid currentColor;border-radius:3px;opacity:.7}
+.lp-pair b{display:block;inline-size:10px;block-size:13px;border-radius:3px;background:currentColor;opacity:.8}
+.lp-pair[data-at='joined']{gap:0}
+.lp-pair[data-at='joined'] i{border-start-end-radius:0;border-end-end-radius:0}
+.lp-pair[data-at='joined'] b{border-start-start-radius:0;border-end-start-radius:0}
+/* Образец сообщения: строка — черта; заметка — плашка с точкой знака. */
+.lp-say{display:inline-flex;align-items:center;gap:3px;padding:3px 4px;border-radius:3px}
+.lp-say i{display:none;inline-size:6px;block-size:6px;border-radius:50%;background:currentColor}
+.lp-say b{display:block;inline-size:20px;block-size:3px;border-radius:1px;background:currentColor;opacity:.6}
+.lp-say[data-at='note']{background:var(--lp-chip)}
+.lp-say[data-at='note'] i{display:block}
+/* Образец меню телефона: две строки полок и, у пилюль, две пилюли. */
+.lp-drawer{display:inline-grid;grid-template-columns:repeat(2, 9px);gap:2px}
+.lp-drawer i{grid-column:1 / -1;display:block;block-size:3px;border-radius:1px;background:currentColor;opacity:.6}
+.lp-drawer b{display:none;block-size:5px;border-radius:3px;background:currentColor;opacity:.8}
+.lp-drawer[data-at='pills'] b{display:block}
+/* Образец знаков шапки: три знака — голые, тоном или в лотке. */
+.lp-heads{display:inline-flex;gap:3px}
+.lp-heads i{display:block;inline-size:9px;block-size:9px;border-radius:3px;box-shadow:inset 0 0 0 3px transparent;background:radial-gradient(circle, currentColor 2px, transparent 2.5px)}
+.lp-heads[data-at='toned'] i{background-color:var(--lp-chip)}
+.lp-heads[data-at='tray']{gap:0;padding:2px;border-radius:4px;background:var(--lp-chip)}
+/* Образец ссылки под рукой: стрелка краской варианта. */
+.lp-go{font-weight:700;line-height:1}
+/* Образец галочки: отмеченный квадрат краской варианта. */
+.lp-tick{display:block;inline-size:14px;block-size:14px;border-radius:3px}
+/* Образец формы главной кнопки: заливка марки, вырез той же формулой. */
+.lp-shape-sample{position:relative;display:inline-block;inline-size:44px;block-size:18px}
+.lp-shaped,.lp-echo{position:absolute;inset:0}
+.lp-shaped{background:var(--pop, #9a7b3f);border-radius:min(var(--r-ctrl, 8px), 5px)}
+/* Образцы карты товара: доля ряда — полоса, где залита доля галереи;
+   пропорция — кадр той пропорции; миниатюры — кадр с рядом под ним, полосой
+   сбоку или точками. Рисуются чернилами фишки (`currentColor`). */
+.lp-row-split{display:block;inline-size:28px;block-size:12px;border-radius:2px;box-shadow:inset 0 0 0 1px currentColor;opacity:.8}
+.lp-row-split i{display:block;block-size:100%;border-radius:2px 0 0 2px;background:currentColor}
+.lp-pic{display:block;block-size:16px;inline-size:auto;aspect-ratio:1;border-radius:2px;box-shadow:inset 0 0 0 1.5px currentColor;opacity:.8}
+.lp-thumbs{display:inline-grid;grid-template-columns:repeat(3, 4px);grid-template-rows:12px 4px;gap:1px;opacity:.8}
+.lp-thumbs .lp-pic{grid-column:1 / -1;block-size:12px;inline-size:auto;opacity:1}
+.lp-thumbs b{display:block;background:currentColor;border-radius:1px}
+.lp-thumbs[data-at='side']{grid-template-columns:4px 14px;grid-template-rows:repeat(3, 4px)}
+.lp-thumbs[data-at='side'] .lp-pic{grid-column:2;grid-row:1 / -1;block-size:auto}
+.lp-thumbs[data-at='side'] b{grid-column:1}
+.lp-thumbs[data-at='dots'] b{border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:center}
+.lp-edge{display:inline-grid;inline-size:20px;block-size:20px;padding:2px;border-radius:3px;box-shadow:inset 0 0 0 1px currentColor;opacity:.85}
+.lp-edge .lp-pic{grid-area:1 / 1;block-size:12px;inline-size:auto;border-radius:2px}
+.lp-edge b{grid-area:1 / 1;align-self:end;block-size:6px;background:currentColor;opacity:.35;border-radius:1px}
+.lp-edge[data-at='bleed']{padding:0}
+.lp-edge[data-at='bleed'] .lp-pic{block-size:14px;border-radius:3px 3px 0 0}
+.lp-edge[data-at='bleed'] b{block-size:8px;border-radius:3px 3px 0 0}
+.lp-buy{display:inline-grid;grid-template-columns:10px;grid-template-rows:4px 5px;gap:2px;opacity:.8}
+.lp-buy i{display:block;inline-size:8px;background:currentColor;opacity:.5;border-radius:1px}
+.lp-buy b{display:block;background:currentColor;border-radius:3px}
+.lp-buy[data-at='beside']{grid-template-columns:8px 8px;grid-template-rows:5px;align-items:center}
+.lp-buy[data-at='beside'] i{inline-size:auto;block-size:3px}
+/* Образец выбора варианта: три сегмента, выбранный — первый. */
+.lp-seg{display:inline-flex;gap:2px}
+.lp-seg > *{display:block;inline-size:9px;block-size:9px;border:1px solid currentColor;border-radius:2px;opacity:.6}
+.lp-seg b{background:currentColor;opacity:.9}
+.lp-seg[data-at='joined']{gap:0}
+.lp-seg[data-at='joined'] > * + *{margin-inline-start:-1px}
+.lp-seg[data-at='tray']{padding:2px;border-radius:3px;background:var(--lp-chip)}
+.lp-seg[data-at='tray'] > *{border-color:transparent}
+.lp-seg[data-at='tray'] b{background:var(--lp-well);border-color:currentColor}
+/* Образец подписи порядка: черта подписи перед рамкой кнопки или в ней. */
+.lp-sort{display:inline-flex;align-items:center;gap:3px}
+.lp-sort > i,.lp-sort b i{display:block;inline-size:8px;block-size:3px;border-radius:1px;background:currentColor;opacity:.5}
+.lp-sort b{display:inline-flex;align-items:center;inline-size:22px;block-size:11px;padding-inline:3px;border:1px solid currentColor;border-radius:3px;opacity:.8}
+.lp-sort b i{display:none}
+.lp-sort[data-at='inside'] > i{display:none}
+.lp-sort[data-at='inside'] b i{display:block}
+.lp-cols{display:inline-flex;gap:1px;opacity:.8}
+.lp-cols i{display:block;inline-size:3px;block-size:12px;border-radius:1px;background:currentColor}
+.lp-thumbs[data-at='over']{grid-template-rows:12px}
+.lp-thumbs[data-at='over'] .lp-pic{grid-row:1}
+.lp-thumbs[data-at='over'] b{grid-row:1;border-radius:50%;inline-size:3px;block-size:3px;justify-self:center;align-self:end;margin-block-end:2px;background:var(--lp-bg)}
+/* Главная схемой: страница-рамка и полосы первого экрана сверху вниз.
+   Клетки — элементами, не узором градиента: стили панели грузятся в
+   страницу, и детектор судит их вместе с ней (И362). */
+.lp-plan{display:grid;align-content:start;gap:2px;inline-size:30px;block-size:24px;padding:2px;border-radius:3px;box-shadow:inset 0 0 0 1px currentColor;opacity:.85}
+.lp-plan i{display:block;block-size:4px;border-radius:1px;background:currentColor;opacity:.4}
+.lp-plan i:is([data-k='title'],[data-k='headline'],[data-k='calm']){opacity:.95}
+.lp-plan i[data-k='scene']{block-size:9px;opacity:.95}
+.lp-plan i[data-k='title']{inline-size:70%}
+.lp-plan i[data-k='headline']{block-size:6px}
+.lp-plan i[data-k='calm']{inline-size:60%;justify-self:center}
+.lp-plan i:has(b){display:flex;gap:1px;background:none;opacity:1}
+.lp-plan i b{flex:1;border-radius:1px;background:currentColor;opacity:.45}
+.lp-plan i[data-k='chips']{block-size:2px;inline-size:80%}
+.lp-plan i:is([data-k='row'],[data-k='tiles']){block-size:6px}
+.lp-plan i[data-k='drawers']{block-size:7px}
+.lp-plan i:is([data-k='sheet'],[data-k='photo']){block-size:7px;opacity:.6}
+.lp-plan i[data-k='index']{flex-direction:column;justify-content:space-between;block-size:6px}
+.lp-plan i[data-k='index'] b{flex:none;block-size:1px}
+/* Снимок с вырезом: нижний левый угол — пол страницы. Строка полок — по
+   середине, узкими клетками. */
+.lp-plan i[data-k='notch']{block-size:9px;opacity:.95;clip-path:polygon(0 0,100% 0,100% 100%,40% 100%,40% 55%,0 55%)}
+.lp-plan i[data-k='words']{inline-size:70%;block-size:3px;justify-self:center}
+.lp-plan i[data-k='poster']{block-size:10px;opacity:.95;margin-inline:-2px;border-radius:0}
+.lp-plan i[data-k='tall']{block-size:8px}
+.lp-link{padding:0 2px;border:0;background:none;color:var(--lp-ink);font-size:var(--lp-t2);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-block-size:24px}
+
+/* Строитель палитры из намерения (И275): марка, бумага, чернила; тонкая
+   настройка и шкала — под раскрытием. Строка — подпись слева, орган справа. */
+.lp-builder{display:flex;flex-direction:column;gap:var(--lp-s4);padding:var(--lp-s4);border-radius:var(--lp-r2);background:var(--lp-well)}
+.lp-name{inline-size:100%;min-inline-size:0;block-size:var(--lp-target-lg);padding:0 var(--lp-s3);border:1px solid var(--lp-line);border-radius:var(--lp-r1);background:var(--lp-bg)}
+.lp-brow{display:grid;grid-template-columns:3.4rem 1fr;gap:var(--lp-s3);align-items:start}
+.lp-blabel{padding-block-start:var(--lp-s2);font-weight:600}
+.lp-bctl{display:flex;flex-direction:column;gap:var(--lp-s2);min-inline-size:0}
+.lp-bhint{margin:0;color:var(--lp-soft);font-size:var(--lp-t1)}
+.lp-brand{display:flex;align-items:center;gap:var(--lp-s2)}
+.lp-swatch{position:relative;flex:none;inline-size:var(--lp-target-lg);block-size:var(--lp-target-lg);border-radius:var(--lp-r1);overflow:hidden;box-shadow:0 0 0 1px var(--lp-line)}
+.lp-pick{position:absolute;inset:-6px;inline-size:calc(100% + 12px);block-size:calc(100% + 12px);padding:0;border:0;cursor:pointer}
+.lp-hex{inline-size:7.5em;block-size:var(--lp-target-lg);padding:0 var(--lp-s2);border:1px solid var(--lp-line);border-radius:var(--lp-r1);background:var(--lp-bg);
+  font:var(--lp-t2)/1 ui-monospace, SFMono-Regular, Consolas, monospace;text-transform:uppercase;font-variant-numeric:tabular-nums}
+.lp-hex[aria-invalid='true']{border-color:var(--lp-bad)}
+/* Тон — ползунок по кругу тонов; сам цвет доводит строитель. */
+.lp-hue{inline-size:100%;block-size:var(--lp-s4);margin:0;appearance:none;border-radius:var(--lp-pill);cursor:pointer;
+  background:linear-gradient(to right, #e5484d, #f76b15, #ffc53d, #46a758, #12a594, #0090ff, #6e56cf, #d6409f, #e5484d)}
+.lp-hue::-webkit-slider-thumb{appearance:none;inline-size:18px;block-size:18px;border-radius:50%;background:var(--lp-bg);box-shadow:0 0 0 2px var(--lp-ink)}
+.lp-hue::-moz-range-thumb{inline-size:18px;block-size:18px;border:0;border-radius:50%;background:var(--lp-bg);box-shadow:0 0 0 2px var(--lp-ink)}
+/* Что строитель подвинул: «ваш цвет → для кнопок» и одна строка почему. */
+.lp-adjust{display:flex;align-items:center;gap:var(--lp-s3);padding:var(--lp-s2) var(--lp-s3);border-radius:var(--lp-r1);background:var(--lp-bg)}
+.lp-pair{display:inline-flex;align-items:center;gap:var(--lp-s1);flex:none;color:var(--lp-soft)}
+.lp-sw{display:block;inline-size:18px;block-size:18px;border-radius:var(--lp-r1);box-shadow:0 0 0 1px var(--lp-line)}
+.lp-adjust-line{margin:0;font-size:var(--lp-t2);color:var(--lp-ink)}
+.lp-seg{display:inline-flex;align-self:flex-start;border:1px solid var(--lp-line);border-radius:var(--lp-pill);padding:2px;background:var(--lp-bg)}
+.lp-seg[data-off]{opacity:.45;pointer-events:none}
+.lp-segb{min-block-size:24px;padding:0 var(--lp-s3);border:0;border-radius:var(--lp-pill);background:none;font-size:var(--lp-t2);font-weight:600;color:var(--lp-soft)}
+.lp-segb[aria-pressed='true']{background:var(--lp-on);color:var(--lp-on-ink)}
+.lp-toggle{display:inline-flex;align-items:center;gap:var(--lp-s2);min-block-size:var(--lp-target);cursor:pointer}
+.lp-check{inline-size:16px;block-size:16px;margin:0;accent-color:var(--lp-on)}
+.lp-pname{font-weight:600}
+.lp-more summary{cursor:pointer;min-block-size:var(--lp-target);display:flex;align-items:center;gap:var(--lp-s3);font-size:var(--lp-t2);font-weight:600;color:var(--lp-soft);list-style:none}
+.lp-more summary::-webkit-details-marker{display:none}
+/* Знак раскрытия — уголок линией, поворачивается при раскрытии. */
+.lp-more summary::before{content:'';inline-size:6px;block-size:6px;border-inline-end:1.5px solid currentColor;border-block-end:1.5px solid currentColor;transform:rotate(-45deg);transition:transform var(--lp-quick) ease}
+.lp-more[open] > summary::before{transform:rotate(45deg)}
+.lp-more summary:hover{color:var(--lp-ink)}
+.lp-more[open]{display:flex;flex-direction:column;gap:var(--lp-s2)}
+.lp-fine{display:flex;flex-direction:column;gap:var(--lp-s1)}
+.lp-fine-row{display:flex;align-items:center;justify-content:space-between;gap:var(--lp-s3)}
+.lp-grid{display:grid;grid-template-columns:4.2rem repeat(12, 1fr);gap:2px;align-items:center}
+.lp-fam{font-size:var(--lp-t1);color:var(--lp-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lp-cell{display:block;block-size:14px;border-radius:2px}
+
+/* Обещания палитры: спокойный список с галочками; числа — под раскрытием. */
+.lp-promises{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--lp-s1)}
+.lp-promises li{display:flex;align-items:flex-start;gap:var(--lp-s2)}
+.lp-promises svg{margin-block-start:2px}
+.lp-promises .lp-ok svg{color:var(--lp-ok)}
+.lp-promises .lp-bad{color:var(--lp-bad)}
+.lp-numbers{display:flex;flex-direction:column;gap:var(--lp-s1);font-size:var(--lp-t1);color:var(--lp-soft);font-variant-numeric:tabular-nums}
+.lp-numbers p{margin:0}
+.lp-numbers b{color:var(--lp-ink);font-weight:600}
+
+/* ── низ: действия ──────────────────────────────────────────────────── */
+.lp-foot{flex:none;display:flex;flex-direction:column;gap:var(--lp-s2);padding:var(--lp-s3) var(--lp-s4) var(--lp-s4);border-block-start:1px solid var(--lp-line);background:var(--lp-bg)}
+.lp-acts{display:flex;flex-wrap:wrap;align-items:center;gap:var(--lp-s2)}
+.lp-act{min-block-size:var(--lp-target-lg);padding:0 var(--lp-s4);border:1px solid var(--lp-line);border-radius:var(--lp-r1);background:none;font-weight:600}
+.lp-act:hover{background:var(--lp-chip)}
+.lp .lp-main{background:var(--lp-on);border-color:var(--lp-on);color:var(--lp-on-ink)}
+.lp .lp-main:hover{background:color-mix(in srgb, var(--lp-on) 88%, var(--lp-bg))}
+.lp-quiet{border-color:transparent;color:var(--lp-soft)}
+.lp-act:disabled{opacity:.45;cursor:not-allowed}
+.lp-note,.lp-status{margin:0;color:var(--lp-soft);font-size:var(--lp-t1);overflow-wrap:anywhere}
+.lp-status:empty{display:none}
+
+/* ── Развёрнутая панель ────────────────────────────────────────────────
+   Слово заказчика 24.09.2026: «панель меню делай расширяемой, например чтоб
+   все кнопки показать». Тезис: панель та же — верх и низ стоят, середина
+   прокручивается, страница слева живая (панель немодальна), — но середина
+   становится витриной вариантов: каждый вариант — плитка с крупным образцом
+   на том, на чём он встанет, и подписью под ним. Выбранная плитка — кольцо
+   чернил панели и галочка, а не заливка: заливка перекрыла бы образец, а
+   образец и есть то, что выбирают. Кнопка — настоящая кнопка сайта на полу
+   страницы и на тёмной полосе; палитра — карточка товара её красками;
+   одежда карточки — карточка. Колонок столько, сколько влезает (auto-fill);
+   на телефоне развёрнутая — шторка во всю высоту. */
+.lp{--lp-w-wide:1120px;--lp-tile:212px}
+.lp-widen{display:inline-flex;align-items:center;gap:var(--lp-s2);min-block-size:var(--lp-target);padding:0 var(--lp-s3);
+  border:1px solid var(--lp-line);border-radius:var(--lp-pill);background:none;color:var(--lp-soft);font-size:var(--lp-t2);font-weight:600}
+.lp-widen:hover{color:var(--lp-ink);background:var(--lp-chip)}
+.lp-panel[data-wide] .lp-widen{color:var(--lp-ink)}
+.lp-big{display:none}
+.lp-panel[data-wide] .lp-big{display:block}
+.lp-panel[data-wide]{inline-size:min(var(--lp-w-wide), 100% - 2 * var(--lp-edge))}
+.lp-cap,.lp-panel[data-wide] .lp-mini,.lp-panel[data-wide] .lp-label{display:none}
+.lp-panel[data-wide] .lp-body{padding:var(--lp-s5) var(--lp-s6) var(--lp-s6)}
+.lp-panel[data-wide] .lp-pane{gap:calc(var(--lp-s6) + var(--lp-s2))}
+.lp-panel[data-wide] .lp-chips{display:grid;grid-template-columns:repeat(auto-fill, minmax(var(--lp-tile), 1fr));gap:var(--lp-s4)}
+.lp-panel[data-wide] .lp-group[data-field='palette'] .lp-chips{--lp-tile:236px}
+/* Кнопка крупного роста с остриём и хвостом просит ширину: плитка не уже
+   надписи «в корзину» в одну строку. */
+.lp-panel[data-wide] .lp-group[data-field^='btn-'] .lp-chips{--lp-tile:236px}
+.lp-panel[data-wide] .lp-chip{display:flex;flex-direction:column;align-items:stretch;gap:0;min-block-size:0;padding:0;overflow:hidden;
+  border-radius:var(--lp-r3);background:var(--lp-bg);white-space:normal;text-align:start;font-weight:400}
+.lp-panel[data-wide] .lp-chip:hover{border-color:color-mix(in srgb, var(--lp-ink) 35%, transparent)}
+.lp-panel[data-wide] .lp-chip[aria-pressed='true']{background:var(--lp-bg);color:var(--lp-ink);border-color:var(--lp-on);box-shadow:0 0 0 1px var(--lp-on)}
+.lp-panel[data-wide] .lp-chip[aria-disabled='true']{text-decoration:none}
+.lp-panel[data-wide] .lp-cap{display:flex;flex-direction:column;gap:2px;padding:var(--lp-s3) var(--lp-s4) var(--lp-s4)}
+.lp-cap-name{display:flex;align-items:center;gap:var(--lp-s2);font-weight:600;font-size:var(--lp-t4)}
+.lp-cap-name svg{display:none;color:var(--lp-ok)}
+.lp-chip[aria-pressed='true'] .lp-cap-name svg{display:block}
+.lp-line{color:var(--lp-soft);font-size:var(--lp-t2);line-height:1.35}
+.lp-chip[aria-disabled='true'] .lp-cap-name span{text-decoration:line-through;text-decoration-thickness:1px}
+
+/* Образцы. Пол образца — пол сайта (`--page`, тёмная полоса — палуба
+   `--page-deck` с её ролями), шрифт — шрифт сайта: кнопка в образце та
+   же, что встанет на странице. */
+.lp-stage{display:grid;grid-template-rows:1fr 1fr;font-family:var(--face, inherit)}
+.lp-ground{display:grid;place-items:center;min-block-size:88px;padding:var(--lp-s5) var(--lp-s4);background:var(--page)}
+.lp-ground-deck{background:var(--page-deck)}
+.lp-zoom{display:inline-block;transform:scale(2);transform-origin:center}
+.lp-big-well{display:grid;place-items:center;gap:var(--lp-s2);min-block-size:132px;padding:var(--lp-s5);background:var(--page, var(--lp-well));color:var(--ink, var(--lp-ink))}
+.lp-big-name{font-size:var(--lp-t5)}
+.lp-face b{font-size:30px;font-weight:600;line-height:1}
+.lp-face span{font-size:var(--lp-t4)}
+.lp-radii{grid-template-columns:repeat(3, auto);align-items:end;gap:var(--lp-s4)}
+.lp-radii i{display:block;inline-size:48px;block-size:36px;background:var(--plate, var(--lp-bg));box-shadow:inset 0 0 0 1.5px currentColor}
+.lp-radii i:nth-child(2){inline-size:64px;block-size:52px}
+.lp-radii i:nth-child(3){inline-size:80px;block-size:64px}
+.lp-lift{display:block;inline-size:60%;block-size:64px;border-radius:var(--r-card, 12px);background:var(--plate, var(--lp-bg))}
+/* Палитра — карточка товара её красками (роли строителя, обе темы). */
+.lp-shop{display:grid;place-items:center;padding:var(--lp-s5) var(--lp-s5) var(--lp-s4);font-family:var(--face, inherit)}
+.lp-shop-site{background:var(--page, var(--lp-well));color:var(--ink, var(--lp-ink))}
+.lp-card,.lp-pcard{display:flex;flex-direction:column;gap:3px;inline-size:100%;max-inline-size:188px;padding:var(--lp-s3);border-radius:var(--r-card, 12px);font-size:var(--lp-t2);line-height:1.3}
+.lp-card-pic{position:relative;display:block;aspect-ratio:4 / 3;margin-block-end:var(--lp-s2);border-radius:calc(var(--r-card, 12px) - 4px)}
+.lp-sale{position:absolute;inset-block-start:6px;inset-inline-start:6px;padding:1px 6px;border-radius:var(--r-xs, 4px);font-size:var(--lp-t1);font-weight:700}
+.lp-card-name{font-size:var(--lp-t3);font-weight:600}
+.lp-card-row{display:flex;align-items:center;justify-content:space-between;gap:var(--lp-s2);margin-block-start:var(--lp-s2)}
+.lp-card-buy{padding:5px 10px;border-radius:var(--r-ctrl, 8px);font-size:var(--lp-t1);font-weight:600;white-space:nowrap}
+/* Одежда карточки — те же роли, что у карточки сайта. */
+.lp-pcard .lp-card-pic{background:var(--plate-2, var(--lp-well))}
+.lp-pcard small{color:var(--ink-soft, var(--lp-soft))}
+.lp-pcard[data-card='framed']{background:var(--plate, var(--lp-bg));box-shadow:var(--sh-raised)}
+.lp-pcard[data-card='bare']{padding:0}
+.lp-pcard[data-card='outlined']{box-shadow:inset 0 0 0 1px var(--rule, var(--lp-line))}
+/* Toned — снимок до краёв, под ним поле тоном; снимок — ступенью темнее
+   поля, иначе он слился бы с полем образца. */
+.lp-pcard[data-card='toned']{padding:0 0 var(--lp-s3);background:var(--plate-2, var(--lp-well))}
+.lp-pcard[data-card='toned'] .lp-card-pic{border-radius:var(--r-card, 12px) var(--r-card, 12px) 0 0;background:var(--plate-3, var(--lp-line))}
+.lp-pcard[data-card='toned'] > :not(.lp-card-pic){margin-inline:var(--lp-s3)}
+.lp-pcard[data-card='toned'] .lp-card-name{font-weight:400}
+/* Tinted — вся карточка тоном марки, угол листа; снимок до краёв. */
+.lp-pcard[data-card='tinted']{padding:0 0 var(--lp-s3);background:var(--pop-tint, var(--lp-well));border-radius:var(--r-sheet, 16px)}
+.lp-pcard[data-card='tinted'] .lp-card-pic{border-radius:var(--r-sheet, 16px) var(--r-sheet, 16px) 0 0}
+.lp-pcard[data-card='tinted'] > :not(.lp-card-pic){margin-inline:var(--lp-s3)}
+
+/* Цвет развёрнутый: наборы во всю ширину, строитель и обещания — рядом. */
+.lp-panel[data-wide] #lp-pane-color{display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));align-items:start;column-gap:var(--lp-s6)}
+.lp-panel[data-wide] #lp-pane-color > .lp-hint,
+.lp-panel[data-wide] #lp-pane-color > .lp-group[data-field='palette']{grid-column:1 / -1}
+
+@media (pointer:coarse){
+  .lp{--lp-target:44px;--lp-target-lg:44px}
+  .lp-tab,.lp-sub,.lp-segb{min-block-size:44px}
+}
+/* Телефон: развёрнутая — шторка во всю высоту окна, плитки в две колонки. */
+@media (max-width:560px){
+  .lp-panel[data-wide]{inset:0;inline-size:100%;block-size:100dvh;border:0;border-radius:0;padding-block-end:env(safe-area-inset-bottom)}
+  .lp-panel[data-wide] .lp-chips,.lp-panel[data-wide] .lp-group[data-field='palette'] .lp-chips{--lp-tile:148px;gap:var(--lp-s3)}
+  .lp-panel[data-wide] .lp-group[data-field^='btn-'] .lp-chips{--lp-tile:100%}
+  .lp-panel[data-wide] .lp-body{padding:var(--lp-s4)}
+  .lp-panel[data-wide] #lp-pane-color{grid-template-columns:1fr}
+  .lp-widen span{display:none}
+}

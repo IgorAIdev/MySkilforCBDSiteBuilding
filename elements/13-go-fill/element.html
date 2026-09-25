@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13 · Знак «куда ведёт»: заливка</title>
+<link rel="stylesheet" href="../palettes.css">
+<link rel="stylesheet" href="../../styles/scale.css">
+<link rel="stylesheet" href="../../styles/tokens.css">
+<link rel="stylesheet" href="../base.css">
+<script src="../stage.js"></script>
+<!--
+  Элемент 13 — «Знак «куда ведёт»: заливка». Источник — дизайн-система cbdin.bg (страница /bg/design, styles/go.module.css) (../cbdin-sources/design-signs.png, ../cbdin-sources/go.module.css).
+  В сайт не встроен. Всё, кроме атрибутов, — из основы (../base.css); краски —
+  роли палитры набора, поэтому элемент перекрашивается выбранной палитрой.
+  Приведено к единой форме: стрелка — из листа набора; наведение — 5 % краски надписи поверх марки вместо отдельной краски наведения; четыре направления — один рисунок под четырьмя углами.
+  Наведение: марка + 5 % краски знака, знак едет в свою сторону. Нажатие: марка + 9 %, 0.97 и на пиксель ниже.
+-->
+</head>
+<body>
+  <div class="live one">
+    <div class="group"><button class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" type="button" aria-label="Вперёд"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button><button class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" data-dir="back" type="button" aria-label="Назад"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button><button class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" data-dir="up" type="button" aria-label="Наверх"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button><button class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" data-dir="down" type="button" aria-label="Вниз"><span class="glyph"><svg data-sign="arrow-right"></svg></span></button></div>
+  </div>
+
+  <div class="states" aria-hidden="true">
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>покой</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" data-state="hover"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>наведение</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" data-state="press"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>нажатие</figcaption></figure>
+    <figure><span class="el" data-voice="loud" data-shape="pill" data-icon data-motion="slide" data-state="focus"><span class="glyph"><svg data-sign="arrow-right"></svg></span></span><figcaption>фокус</figcaption></figure>
+  </div>
+</body>
+</html>

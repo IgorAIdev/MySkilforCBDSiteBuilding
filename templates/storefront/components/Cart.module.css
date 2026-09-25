@@ -1,0 +1,94 @@
+/* Корзина и итоги. Раскладку дают примитивы (sidebar, stack, frame, pinned,
+   grid, cluster); здесь — строка товара, сводка, код скидки и обещания.
+   Итоги (`tally`) и обещания (`pledges`) берут и шаги оформления. */
+
+/* Поля формы выключаются одной рамкой, а раскладку она не трогает: рамка
+   `fieldset` исчезает из раскладки, ребёнок встаёт в ритм родителя. */
+.bare{display:contents}
+
+.list{list-style:none;padding:0;margin:0}
+/* СТРОКА — одна сетка на все ширины, шва нет:
+     снимок | что это          | сумма
+     снимок | счётчик, «Удалить» (до правого края)
+   Органы стоят под именем, которое меняют: на столе имя и его счётчик
+   стояли в четырёхстах пикселях друг от друга (разбор 24.09.2026, K2).
+   Снимок — колодец ростом в два крупных органа (96 под мышью, 112 под
+   пальцем): миниатюра в 38 пикселей не узнавалась (K1). Между строками —
+   воздух группы и волосок черты (`--rule`), внутри строки — воздух строки:
+   строки читаются отдельными товарами (K3; `--edge` — кромка органа, а не
+   разделитель). */
+.line{
+  position:relative;
+  display:grid;align-items:start;
+  grid-template-columns:calc(var(--ctrl-h-lg) * 2) minmax(0, 1fr) auto;
+  grid-template-areas:'thumb what sum' 'thumb act act';
+  column-gap:var(--gap-grid);row-gap:var(--air-row);
+  padding-block:var(--air-group);
+  border-block-end:var(--line-w) solid var(--rule)
+}
+.line:first-child{padding-block-start:0}
+.thumb{grid-area:thumb;--frame:1 / 1;border-radius:var(--r-ctrl);background:var(--plate-2)}
+.what{grid-area:what;display:flex;flex-direction:column;align-items:flex-start;min-inline-size:0}
+/* Имя — ссылка на вариант и цель пальца (`--ctrl-target`, И263); её
+   область растянута на всю строку (И110): строка ведёт на товар целиком. */
+.name{display:inline-flex;align-items:center;min-block-size:var(--ctrl-target);font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.name::after{content:'';position:absolute;inset:0}
+.sum{grid-area:sum;margin:0;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;line-height:var(--ctrl-target)}
+/* Органы строки подняты над растянутой ссылкой одним родителем. Счётчик в
+   строке — малый (рост `--ctrl-h-sm`, жёлоб снят): крупнее снимка он быть не
+   должен; палец получает сорок четыре запасом наружу (`data-hit`). */
+.act{
+  grid-area:act;position:relative;z-index:1;
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-row);
+  --qty-h:var(--ctrl-h-sm);--qty-pad:0px;
+  color:var(--ink-soft)
+}
+/* «Удалить» — тихая ссылка словом, а не третий серый квадрат со знаком. */
+.act [data-remove]{text-decoration-line:underline;text-underline-offset:.2em}
+
+/* СВОДКА — единственный поднятый лист страницы. Порядок решения: код скидки
+   свёрнут, итоги, кнопка, под ней обещания. Между группами — воздух группы,
+   внутри группы — воздух строки. */
+.summary{--stack:var(--air-group);background:var(--surface);border-radius:var(--r-card);padding:var(--pad-card)}
+.decide{display:flex;flex-direction:column;gap:var(--air-row)}
+
+/* Код скидки — под вопросом (`details`): открытое поле уводит искать коды
+   (Baymard). Открыт, когда о коде есть что сказать; применённый код —
+   пилюлей снятия, видной и при свёрнутом вопросе. */
+.coupon{display:flex;flex-direction:column;gap:var(--air-row)}
+/* Строка исхода пуста, пока сказать нечего, — зазора под себя не берёт. */
+.coupon > p:empty{display:none}
+.promo summary{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);font-weight:600;color:var(--ink);list-style:none}
+.promo summary::-webkit-details-marker{display:none}
+.promo summary svg{inline-size:1.15em;block-size:1.15em;flex:none;color:var(--ink-soft);transition:rotate var(--open-t) var(--ease)}
+.promo[open] summary svg{rotate:180deg}
+.code{display:flex;align-items:flex-end;gap:var(--gap-targets);margin-block-start:var(--gap-targets)}
+.code > label{flex:1 1 auto}
+/* Поле и кнопка купона — порознь (умолчание) или встык одной коробкой:
+   зазора нет, угол — только у внешних краёв пары (роль вида
+   `--pair-look: joined`, И421; элемент 42 набора). Голос кнопки прежний. */
+@container style(--pair-look: joined){
+  .code{gap:0}
+  .code input{border-start-end-radius:0;border-end-end-radius:0}
+  .code > button{border-start-start-radius:0;border-end-start-radius:0}
+}
+
+/* ИТОГИ — одни на корзину, оформление и «спасибо». Свой шаг, а не ручка
+   `stack`: ручка наследуется, и сводка раздавала бы итогам свой воздух. */
+.tally{display:flex;flex-direction:column;gap:var(--air-row)}
+.totals{display:grid;gap:var(--gap-row);margin:0}
+.row{display:flex;justify-content:space-between;gap:var(--gap-row)}
+.row dd{margin:0;text-align:end;font-variant-numeric:tabular-nums}
+.grand{padding-block-start:var(--gap-row);border-block-start:var(--line-w) solid var(--rule);font-weight:600;align-items:baseline}
+.grand dd{font-size:var(--h3-size);font-weight:var(--h3-weight);white-space:nowrap}
+
+/* ОБЕЩАНИЯ у кнопки — справка при ней: роль сноски, знак из листа. */
+.pledges{
+  list-style:none;padding:0;margin:0;display:grid;gap:var(--gap-targets);
+  font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)
+}
+.pledges li{display:flex;align-items:flex-start;gap:var(--gap-row)}
+.pledges svg{inline-size:1.35em;block-size:1.35em;flex:none}
+
+/* Полка пустой корзины — та же плотность, что полка главной. */
+.shelf{list-style:none;padding:0;margin:0;--cols:4;--cell-min:200px}

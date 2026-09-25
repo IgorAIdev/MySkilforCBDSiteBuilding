@@ -76,8 +76,11 @@ html{scroll-behavior:smooth}
    страницу сам, и подкручивает ровно настолько, чтобы орган оказался у
    края. У верхнего края стоит шапка, и человек, идущий назад по табу,
    упирается в кольцо фокуса, наполовину скрытое шапкой. `scroll-margin`
-   этого не лечит: он про цель ссылки, а тут прокрутку затевает браузер. */
-html{scroll-padding-top:var(--anchor-top)}
+   этого не лечит: он про цель ссылки, а тут прокрутку затевает браузер.
+   У нижнего края — то же с нижней полосой: таб вперёд доводит орган до низа
+   окна, а низ занят полосой; отступ снизу — её резерв (`--dock`, И268, И354),
+   полосы нет — ноль. */
+html{scroll-padding-top:var(--anchor-top);scroll-padding-bottom:var(--dock)}
 
 /* Полусекундная задержка на нажатии, которой никто не заказывал.
    Браузер на телефоне ждёт, не будет ли второго касания (двойной тап —
@@ -143,7 +146,31 @@ body{
 /* Место под нижнюю полосу — из резерва, а не числом: см. --dock. */
 body{padding-bottom:var(--dock)}
 
+/* ── РАМА СТРАНИЦЫ: подвал — пол, а не плита посреди экрана ───────────────
+ *
+ *  Страница — три полосы: шапка, содержимое, подвал. Содержимое растёт до
+ *  высоты окна, и подвал стоит на нижнем крае на любой короткой странице.
+ *  Заведено по дефекту: на «не найдено», пустой корзине, пустом поиске и
+ *  «О нас» подвал кончался на 639-м пикселе из 900, а под ним лежала голая
+ *  подложка — страница выглядела оборванной (разбор 24.09.2026, X6).
+ *
+ *  Правило одно, на документе, а не у каждой страницы: высота у тела — от
+ *  МАЛОГО окна (`svh`: адресная строка телефона не двигает подвал при
+ *  прокрутке), растёт `main` — единственное содержимое, которое кладёт
+ *  каждая страница. Ссылка «к содержимому» вынута из потока, стили вида
+ *  поднимаются в `<head>`: полосами они не становятся. Поле тела под нижнюю
+ *  полосу (`--dock`) входит в высоту — подвал встаёт над полосой, а не под
+ *  неё. */
+body{display:flex;flex-direction:column;min-block-size:100svh}
+body > main{flex-grow:1}
+
 a{color:inherit;text-decoration:none;text-underline-offset:3px}
+/* Ссылка В ТЕКСТЕ подчёркнута: в абзаце её выдавал только цвет, а чаще — не
+   выдавало ничто («Условия» в строке оплаты стояли той же краской, что и
+   фраза вокруг; WCAG 1.4.1 — смысл не держится на одном цвете). Ссылка с
+   классом — орган со своим видом (кнопка, «куда ведёт»), её не трогаем; в
+   списке ссылка — пункт меню, её выдаёт место. */
+:where(p, dd, blockquote, figcaption) a:not([class]){text-decoration-line:underline}
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 input,select,textarea{font:inherit;color:inherit}
@@ -161,6 +188,24 @@ input,select,textarea{font:inherit;color:inherit}
    тот же разрыв на всех трёх ширинах. */
 h1{text-wrap:pretty}
 h1,h2,h3{font-family:var(--face-head,var(--face))}
+/* ── ЛЕСТНИЦА ЗАГОЛОВКОВ: уровень берёт роль сам ─────────────────────────
+ *
+ *  Одна лестница, на которую заголовок встаёт ПО УМОЛЧАНИЮ ЭЛЕМЕНТА: h1 —
+ *  роль имени страницы, h2 — раздела, h3 — подраздела (роли выпускает
+ *  строитель шкал, `styles/scale.json` → `текст`). Сила нулевая (`:where`):
+ *  любой класс блока перебивает её без спора — но перебивает ВЕСОМ или
+ *  краской, а не размером соседнего уровня (check:design, `headRole`).
+ *
+ *  Заведено по счёту разбора 24.09.2026 (X1): h2 стоял в четырёх видах, h1 —
+ *  в трёх. Заголовок документа без класса падал на умолчание браузера
+ *  (1.5em, 700, 25.5px — роли у него не было вовсе), а «Страница не
+ *  найдена» набиралась ролью h2 при уровне h1. Роль, которую надо помнить у
+ *  каждого заголовка, не работает; роль, объявленная элементу, работает
+ *  сама. Имя страницы меряет свою коробку (`cqi`) — у примитива `pagehead`
+ *  и у экрана состояния она объявлена. */
+:where(h1){font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track)}
+:where(h2){font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
+:where(h3){font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track)}
 /* `pretty`, а не `balance`, и это замер, а не вкус.
    `balance` делит заголовок на строки поровну — и на узкой колонке
    двухстрочный заголовок встаёт двумя короткими обрывками в половину
@@ -192,6 +237,10 @@ p{text-wrap:pretty}
 /* Обратная половина правила про цифры: в тексте они пропорциональные. */
 p,blockquote,figcaption{font-variant-numeric:normal}
 small,figcaption,button,summary{text-wrap:balance}
+/* Заголовок раскрывашки — цель нажатия, как кнопка: под пальцем 44, под
+   мышью 24 (роль --ctrl-target). Без этой строки вопрос в FAQ под пальцем
+   был 23 пикселя в высоту — замер страницы-доказательства (И243). */
+summary{min-block-size:var(--ctrl-target);align-content:center;cursor:pointer}
 
 /* The browser's own surfaces — selection, caret, focus ring, scrollbar,
    underline offset. By default they belong to no design system at all; here
@@ -246,14 +295,19 @@ html{scrollbar-width:thin;scrollbar-gutter:stable}
 input,textarea,select{caret-color:var(--pop-ink)}
 /* Галочка и радио остаются браузерными нарочно (клавиатура, чтец,
    промежуточное состояние — разбор у `.tick` в `styles/form.module.css`), и
-   красит их сайт только цветом: `accent-color` в четырёх местах
-   (`.check`/`.sortRow` в каталоге, `.radio` на кассе, `.tick` в форме) даёт
-   цвет ОТМЕЧЕННОМУ квадрату, а неотмеченный красит браузер сам — своей
-   темой, не токеном сайта. На части устройств эта рамка почти не видна:
-   заказчик прислал снимок кассы, где ряд квадратиков читался пустым рядом
-   без единого квадрата. Рамка одна, здесь, а не в каждом из четырёх мест:
-   у всех четырёх один и тот же квадрат, только своего размера. */
-input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick-edge)}
+   красит их сайт только цветом: `accent-color` даёт цвет ОТМЕЧЕННОМУ
+   квадрату, а неотмеченный красит браузер сам — своей темой, не токеном
+   сайта. На части устройств эта рамка почти не видна: заказчик прислал
+   снимок кассы, где ряд квадратиков читался пустым рядом без единого
+   квадрата. Рамка и краска отмеченного — одни, здесь, а не в каждом месте:
+   у всех один и тот же квадрат, только своего размера. Краска — роль
+   `--ctrl-tick-fill` (И392): её даёт вид сайта (панель «System → Fields»),
+   без него — краска марки для текста `--pop-ink`: отмеченный квадрат
+   опознаётся только своей заливкой, и она держит 3 : 1 к полу (заливка
+   марки `--pop` на пяти образцах из семи — до 2.21 : 1). До 25.09.2026 `accent-color` стоял в каждом месте
+   (`.tick` в форме, `.option` на кассе) — выбрать его одним движением было
+   нельзя. */
+input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick-edge);accent-color:var(--ctrl-tick-fill, var(--pop-ink))}
 
 /* Движение по просьбе человека, а не по решению вёрстки.
    Разбор трёх уровней и вторая половина правила (`behavior:'smooth'`,
@@ -286,17 +340,22 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
    — заливкой органа. Это цветовые роли, light-dark() внутри них продолжает
    работать. MDN: «User has requested an interface with higher contrast
    levels»; Baseline high 2024-11-30. */
+/* Селектор удвоен нарочно: вид витрины приходит значениями блоком
+   `<style id="look">` ПОСЛЕ стилей сайта (И270) и объявляет `--border`
+   палитры на `:root` — равная сила и позднее место перебили бы усиление. */
 @media (prefers-contrast:more){
-  :root{ --rule:var(--ink); --ink-soft:var(--ink); --border:var(--ink); --quiet:var(--ctrl); --quiet-on:var(--ctrl) }
+  :root:root{ --rule:var(--ink); --ink-soft:var(--ink); --border:var(--ink); --quiet:var(--ctrl); --quiet-on:var(--ctrl) }
 }
 /* Принудительные цвета (Windows High Contrast): тени, заливки и градиенты
    стираются, выживают обводки и outline; единственные имена цвета —
    системные (Canvas, CanvasText, ButtonText, LinkText, Highlight).
    Поэтому у листа и органа — обводка вместо тени, у знака — currentColor.
-   `forced-color-adjust: none` — только для образца цвета, никогда для
-   текста и кнопок. css-color-adjust §3.1; Edge: «If authors wish to use
-   non-system color values in forced color modes, they will need to supply
-   forced-colors-adjust: none». */
+   `forced-color-adjust: none` — только для образца цвета и для выбранного,
+   закрашенного системной парой `Highlight` / `HighlightText` (у выбранного
+   без него под текст ложится подложка `Canvas` и слово пропадает); никогда
+   для текста и кнопок с красками автора. css-color-adjust §3.1; Edge: «If
+   authors wish to use non-system color values in forced color modes, they
+   will need to supply forced-colors-adjust: none». */
 @media (forced-colors:active){
   [data-plate],dialog,[popover],button,input,select,textarea{border:var(--line-w) solid CanvasText}
   button,[role='button']{forced-color-adjust:auto}
@@ -347,8 +406,11 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      смени и то, на чём знак стоит, иначе половина пары осталась от другого
      фона. Заказчик нашёл это глазом на витрине. */
   --surface:var(--chrome-hover);
-  --hover-ctrl:color-mix(in srgb, var(--chrome-fg) 18%, transparent);
-  --press-ctrl:color-mix(in srgb, var(--chrome-fg) 30%, transparent);
+  --on-ink:var(--page-deck);
+  /* Краски палубы — строителя палитры (`-deck`, И295): здесь только
+     переназначение ролей, доли и краски в стилях не рождаются. */
+  --hover-ctrl:var(--hover-ctrl-deck);
+  --press-ctrl:var(--press-ctrl-deck);
 
   /* И ещё четыре роли, которые СОСТАВЛЕНЫ из чернил на корне и потому сами
      за полом не пойдут: `var()` внутри объявления своей переменной
@@ -360,11 +422,14 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      Отсюда правило: полоса, переопределяющая чернила, обязана переопределить
      и всё, что из чернил составлено. Сторожит семья `rootRole` в check:css —
      она и нашла эти четыре. */
-  --rule:color-mix(in srgb, var(--chrome-fg) 14%, transparent);
-  --quiet:color-mix(in srgb, var(--chrome-fg) 12%, transparent);
-  --quiet-on:color-mix(in srgb, var(--chrome-fg) 22%, transparent);
-  --hover-row:color-mix(in srgb, var(--chrome-fg) 8%, transparent);
-  --press-row:color-mix(in srgb, var(--chrome-fg) 14%, transparent);
+  --rule:var(--rule-deck);
+  --quiet:var(--quiet-deck);
+  --quiet-on:var(--quiet-on-deck);
+  --hover-row:var(--hover-row-deck);
+  --press-row:var(--press-row-deck);
+  --ctrl-hand:var(--ctrl-hand-deck);
+  --ctrl-in:var(--ctrl-in-deck);
+  --ctrl-in-hand:var(--ctrl-in-hand-deck);
 
   /* Пятая роль той же породы — тень (`--sh-raised`/`--sh-lift`/`--sh-overlay`), и она не
      просто светлая по тёмному, а НЕВИДИМАЯ: в светлой теме её кольцо и слои
@@ -378,28 +443,27 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      Правка не подбирает новый цвет, а берёт готовый: слои теней и так были
      рассчитаны для тёмного пола — это ровно та половина `light-dark()`,
      которую несёт тёмная тема (И100, `docs/rules.md`). */
-  --sh-ring:rgba(255,255,255,.05);
-  --sh-near:rgba(0,0,0,.50);
-  --sh-far-1:rgba(0,0,0,.60);
-  --sh-far-2:rgba(0,0,0,.68);
-  --sh-far-3:rgba(0,0,0,.75);
+  --sh-ring:var(--sh-ring-deck);
+  --sh-near:var(--sh-near-deck);
+  --sh-far-1:var(--sh-far-1-deck);
+  --sh-far-2:var(--sh-far-2-deck);
+  --sh-far-3:var(--sh-far-3-deck);
+  --sh-inset:var(--sh-inset-deck);
 
-  /* И96/И100 переопределяли ингредиенты, а не саму тень — и `--sh-1`/
-     `--sh-lift`/`--sh-overlay` эти четыре строки выше не трогали вовсе. `var()`
-     внутри `--sh-1` (styles/tokens.css) раскрывается ТАМ, ГДЕ `--sh-raised`
-     ОБЪЯВЛЕНА, — на корне, — и вниз наследуется уже готовая, замешанная на
-     корневых ингредиентах строка. Переопределить `--sh-ring` на палубе не
-     значит переопределить `--sh-1`: она как была посчитана из корневых
-     ингредиентов, так и остаётся с ними навсегда, сколько бы ролей ниже ни
-     сменилось. Заказчик спросил про тень на пилюлях героя, и замер
+  /* И96/И100 переопределяли ингредиенты, а не саму тень — и `--sh-raised`/
+     `--sh-lift`/`--sh-overlay` пять строк выше не трогали вовсе. `var()`
+     внутри роли тени раскрывается ТАМ, ГДЕ РОЛЬ ОБЪЯВЛЕНА, — на корне, — и
+     вниз наследуется уже готовая, замешанная на корневых ингредиентах
+     строка. Заказчик спросил про тень на пилюлях героя, и замер
      (`getComputedStyle`, не чтение файла) показал: `--sh-ring` на самой
      пилюле — уже поправленный, а `box-shadow` — всё ещё старый, слитый с
-     полом. Держит эту же тень и `[data-plate]` ниже — тем же приёмом и по
-     той же причине. */
-  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
-  --sh-in:inset 0 1px 2px color-mix(in oklab, var(--chrome-fg) 18%, transparent);
+     полом.
+
+     Поэтому роль тени объявляется и на этом полу, и на листе ниже, — но не
+     копией здесь: геометрия — вид сайта, и объявлена она один раз в
+     `styles/look.css` на всём списке полов (`:root`, палуба, лист). Здесь
+     она стояла копией набора, и вид витрины («Flat», «Lifted») до палубы и
+     листа не доходил: там оставалась тень набора (И385). */
 
   /* Та же пара, но для СОСТОЯНИЯ, и это второй раз, когда роль оказалась
      переопределена наполовину. Покой пилюли починили выше — под указателем
@@ -411,7 +475,16 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      пол — знаком. Так был собран подвал, теперь это одна пара на весь сайт. */
   --pop:var(--chrome-active-bg);
   --on-pop:var(--chrome-active-fg);
-  --pop-hover:color-mix(in oklab, var(--chrome-active-bg), var(--chrome-active-fg) 8%);
+  --pop-hover:var(--pop-hover-deck);
+
+  /* Кнопка на палубе (И295): хвост главной — ступени марки, видные на
+     тёмном полу палубы, кромка выключенной — ступень нейтрали, видная на
+     нём же. Обе краски строителя; до 24.09.2026 хвост смешивался со светлым
+     полом страницы и на тёмном герое светлой темы выходил светлым. */
+  --pop-trail-near:var(--pop-trail-near-deck);
+  --pop-trail-far:var(--pop-trail-far-deck);
+  --edge-off:var(--edge-off-deck);
+  --pop-grad:var(--pop-grad-deck);
 
   /* ── и ЖИВАЯ ЛЕСТНИЦА целиком, а не только серая ──────────────────────
      Третий раз одна и та же порода, и третий раз её нашёл заказчик глазом:
@@ -474,16 +547,22 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --ink:var(--on-plate);
   --ink-soft:var(--on-plate-2);
   --surface:var(--plate);
+  --on-ink:var(--plate);
   --ctrl:var(--plate-3);
 
   /* Составленные из чернил — заново, и по той же причине, по какой их
      пишет палуба: `var()` внутри объявления своей переменной раскрывается
      ТАМ, ГДЕ ПЕРЕМЕННАЯ ОБЪЯВЛЕНА. На корне они посчитаны от чернил корня,
      на палубе — от чернил палубы; на листе их некому посчитать, кроме
-     листа. Формула одна и та же, входы разные. */
-  --rule:color-mix(in oklab, var(--on-plate) 16%, transparent);
-  --quiet:color-mix(in srgb, var(--on-plate) 8%, transparent);
-  --quiet-on:color-mix(in srgb, var(--on-plate) 16%, transparent);
+     листа. Формула одна и та же, входы разные. Вуали и черта — краски
+     строителя палитры (И295): лист возвращает их значения бумаги; вуали
+     состояния — формулой доли состояния (И229). */
+  --rule:var(--rule-paper);
+  --quiet:var(--quiet-paper);
+  --quiet-on:var(--quiet-on-paper);
+  --ctrl-hand:var(--ctrl-hand-paper);
+  --ctrl-in:var(--ctrl-in-paper);
+  --ctrl-in-hand:var(--ctrl-in-hand-paper);
   --hover-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-hover));
   --hover-ctrl:color-mix(in oklab, var(--plate-3), var(--on-plate) var(--state-hover));
   --press-row:color-mix(in oklab, var(--plate), var(--on-plate) var(--state-press));
@@ -495,27 +574,28 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --pop:var(--accent-solid);
   --on-pop:var(--on-accent);
   --pop-hover:var(--hover-solid);
+  --pop-trail-near:var(--pop-trail-near-paper);
+  --pop-trail-far:var(--pop-trail-far-paper);
+  --edge-off:var(--edge-off-paper);
+  --pop-grad:var(--pop-grad-paper);
 
   /* Живая лестница — к своим значениям (см. `--live-*` в tokens.css). */
 
-  /* Тень — к своим значениям (И100): формула та же, что у `--sh-ring` /
-     `--sh-near` / `--sh-far-*` в styles/tokens.css, набранная заново, потому
-     что `var()` раскрывается там, где объявлена переменная. Лист светел
-     всегда, поэтому тень у него всегда светлого пола — ровно то, что несёт
-     `light-dark()` при текущей теме, а не тень палубы, на которой он может
-     стоять. */
-  --sh-ring:light-dark(color-mix(in srgb, var(--accent-solid) 18%, transparent), rgba(255,255,255,.05));
-  --sh-near:light-dark(color-mix(in srgb, var(--accent-solid) 18%, transparent), rgba(0,0,0,.50));
-  --sh-far-1:light-dark(color-mix(in srgb, var(--accent-solid) 40%, transparent), rgba(0,0,0,.60));
-  --sh-far-2:light-dark(color-mix(in srgb, var(--accent-solid) 55%, transparent), rgba(0,0,0,.68));
-  --sh-far-3:light-dark(color-mix(in srgb, var(--accent-solid) 70%, transparent), rgba(0,0,0,.75));
+  /* Тень — к своим значениям (И100): краски слоёв бумаги (`--sh-*-paper`
+     строителя палитры, И295), а не тень палубы, на которой лист может
+     стоять. Лист светел всегда, поэтому тень у него всегда светлого пола;
+     вдавленная — та же, что на корне (до 24.09.2026 лист держал её своей
+     долей, 14 % против 18 % корня, — без причины). */
+  --sh-ring:var(--sh-ring-paper);
+  --sh-near:var(--sh-near-paper);
+  --sh-far-1:var(--sh-far-1-paper);
+  --sh-far-2:var(--sh-far-2-paper);
+  --sh-far-3:var(--sh-far-3-paper);
+  --sh-inset:var(--sh-inset-paper);
 
-  /* Та же вторая половина, что и на палубе выше: `--sh-raised`/`--sh-lift`/`--sh-overlay`
-     сами по себе не листовые и не палубные — они замешаны из ингредиентов
-     ТАМ, ГДЕ ОБЪЯВЛЕНЫ, и лист обязан пересчитать и их, а не только четыре
-     ингредиента над ними. */
-  --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
-  --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
-  --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
-  --sh-in:inset 0 1px 2px color-mix(in oklab, var(--on-plate) 14%, transparent);
+  /* Та же вторая половина, что и на палубе выше: роли тени замешаны из
+     ингредиентов ТАМ, ГДЕ ОБЪЯВЛЕНЫ, и лист обязан пересчитать и их. Лист
+     стоит в списке полов роли тени (`styles/look.css`), и геометрия
+     пересчитывается на нём из ингредиентов выше — одной записью вида, а не
+     копией здесь (И385). */
 }
