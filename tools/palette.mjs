@@ -473,6 +473,13 @@ export const SHADE = {
  *  обеих темах тёмное (из чернил вышла бы белая вуаль в тёмной), в тёмной
  *  гуще: у тёмной страницы меньше своего контраста. */
 export const SCRIM = { light: 0.55, dark: 0.72 }
+/** Стекло главной кнопки (И427): доля краски стекла — от 0.6 (Fluent
+ *  Acrylic: «tint opacity» 0.6…0.8 у светлой и тёмной темы; ниже стекло
+ *  читается пустым местом) и выше, пока надпись не держит 4.5 : 1 над
+ *  каждым полом и любым снимком; кромка-
+ *  блик — светлая краска долей 0.4 (Apple Materials: светлый волосок по
+ *  краю стекла отделяет его от фона). */
+export const GLASS = { tint: [0.6, 1], rim: 0.4 }
 
 const lcApart = (a, b) => Math.abs(apca(a, b))
 const offSeen = (edge, bg) => ratio(veil(edge, bg, STATE.off[0]), bg)
@@ -599,6 +606,35 @@ export function groundRoles(n, a, mode) {
   out['--pop-grad-deck'] = gradOf(deck.ink, deck.bg)
   check('pop-grad', 'надпись главной читается на втором конце градиента', ratio(inkOn(a[8]), out['--pop-grad-paper']), NEED.text)
   check('pop-grad-deck', 'надпись главной на палубе читается на втором конце градиента', ratio(deck.bg, out['--pop-grad-deck']), NEED.text)
+
+  /* Стекло главной (И427; элемент 66): заливка просвечивает — сквозь неё
+     видно размытое то, что под кнопкой. Краска главной раскрывается на
+     корне и одна на всех полах: на бумаге, на карточке, на палубе и поверх
+     снимка героя — стекло держит надпись над каждым из них и над любым
+     снимком (чёрное и белое — края любого), а на бумаге видно само
+     (STATE.visible). Краска — ступень марки, доля — наименьшая в коридоре
+     GLASS.tint, при которой это выполнено; при равной доле — ступень
+     ближе к заливке. Не хватает коридора ни у одной — надпись важнее
+     просвета: заливка марки целиком. Кромка — блик: светлый конец
+     нейтрали долей GLASS.rim; на светлом полу он не виден и не должен —
+     он для снимка. */
+  const glassOf = (label) => {
+    const under = [...G, ...deck.grounds, deck.stage, '#000000', '#FFFFFF']
+    const worst = (paint, s) => Math.min(...under.map((bg) => ratio(label, veil(paint, bg, seen(s)))))
+    const seenOn = (paint, s) => Math.min(...G.map((bg) => ratio(veil(paint, bg, seen(s)), bg)))
+    let best = { paint: a[8], s: 1 }
+    a.forEach((paint, i) => {
+      for (let s = GLASS.tint[0]; s < best.s || (s === best.s && Math.abs(i - 8) < Math.abs(a.indexOf(best.paint) - 8)); s = Math.round((s + 0.01) * 100) / 100) {
+        if (worst(paint, s) >= NEED.text && seenOn(paint, s) >= STATE.visible) { best = { paint, s }; break }
+      }
+    })
+    return { fill: translucent(best.paint, best.s), got: worst(best.paint, best.s), seen: seenOn(best.paint, best.s) }
+  }
+  const glass = glassOf(inkOn(a[8]))
+  out['--pop-glass'] = glass.fill
+  out['--pop-rim'] = translucent(lightness(n[0]) > lightness(n[11]) ? n[0] : n[11], GLASS.rim)
+  check('pop-glass', 'надпись главной читается на стекле над каждым полом и любым снимком', glass.got, NEED.text)
+  check('pop-glass-seen', 'стекло главной видно на всех поверхностях', glass.seen, STATE.visible)
 
   /* Кромка выключенного органа: видна и под прозрачностью выключенного —
      на нижнем краю коридора STATE.off; первая ступень нейтрали от пола,

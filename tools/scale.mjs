@@ -319,6 +319,8 @@ const block = (sets, name, indent = '  ') => {
   put('--line-w', `${num(SHAPE.line.hair)}px`, 'линия: поле, разделитель, тег — не течёт')
   put('--ring-w', `${num(SHAPE.ring.width)}px`, 'кольцо фокуса (WCAG 2.4.13)')
   put('--ring-off', `${num(SHAPE.ring.offset)}px`, 'отступ кольца от органа')
+  put('--frost-blur', `${num(SHAPE.frost.blur)}px`, 'стекло: размытие того, что под органом — не течёт')
+  put('--frost-sat', num(SHAPE.frost.saturate), 'стекло: насыщенность размытого')
   const roles = roleBlock(sets, name, indent)
   return roles ? `${lines.join('\n')}
 
@@ -663,7 +665,7 @@ export const builtNames = (sets) => {
     if (r.холст !== undefined) names.add('--wrap')
     if (r.край) names.add('--gut')
     if (r.радиус) { for (const role of Object.keys(r.радиус)) names.add(`--r-${role}`); names.add('--r-pop') }
-    for (const name of ['--line-w', '--ring-w', '--ring-off']) names.add(name)
+    for (const name of ['--line-w', '--ring-w', '--ring-off', '--frost-blur', '--frost-sat']) names.add(name)
   }
   for (const setName of Object.keys(sets)) {
     for (const [role, r] of Object.entries(rolesOf(sets, setName))) {

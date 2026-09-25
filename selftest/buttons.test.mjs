@@ -33,7 +33,7 @@ test('the catalog is independent axes of data; the defaults pass on the site pal
   assert.deepEqual(structure, [])
   assert.deepEqual(off, {})
   for (const a of axesOf(catalog)) assert.ok(on.includes(`${a.id}/${a.options[0].id}`), `${a.id}: вариант по умолчанию проходит`)
-  assert.deepEqual(buttonRoles(catalog), { '--ctrl-btn-case': 'none', '--ctrl-btn-weight': '600', '--ctrl-btn-track': 'normal', '--ctrl-btn-fill-pop': 'var(--pop)', '--ctrl-btn-ink-pop': 'var(--on-pop)', '--ctrl-btn-edge-pop': 'transparent', '--ctrl-btn-tint-pop': 'transparent', '--ctrl-btn-fill': 'var(--quiet)', '--ctrl-btn-ink': 'var(--ink)', '--ctrl-btn-edge': 'transparent', '--ctrl-btn-tip': '0', '--ctrl-btn-tip-at': '0', '--ctrl-btn-notch': '0', '--ctrl-btn-echo': 'none', '--ctrl-btn-trail-1': '0', '--ctrl-btn-trail-2': '0', '--ctrl-btn-mark': '0', '--ctrl-btn-pill': '0', '--ctrl-btn-glyph': '0' })
+  assert.deepEqual(buttonRoles(catalog), { '--ctrl-btn-case': 'none', '--ctrl-btn-weight': '600', '--ctrl-btn-track': 'normal', '--ctrl-btn-fill-pop': 'var(--pop)', '--ctrl-btn-ink-pop': 'var(--on-pop)', '--ctrl-btn-edge-pop': 'transparent', '--ctrl-btn-tint-pop': 'transparent', '--ctrl-btn-frost-pop': '0', '--ctrl-btn-rim-pop': 'transparent', '--ctrl-btn-fill': 'var(--quiet)', '--ctrl-btn-ink': 'var(--ink)', '--ctrl-btn-edge': 'transparent', '--ctrl-btn-tip': '0', '--ctrl-btn-tip-at': '0', '--ctrl-btn-notch': '0', '--ctrl-btn-echo': 'none', '--ctrl-btn-trail-1': '0', '--ctrl-btn-trail-2': '0', '--ctrl-btn-mark': '0', '--ctrl-btn-pill': '0', '--ctrl-btn-glyph': '0' })
 })
 
 test('the button reads every role the catalog may declare, each with a fallback; corners come from Shape; press is one', () => {
@@ -77,7 +77,7 @@ test('the audit runs on every sample palette and names option, palette and theme
    выпуск подхватывают его без правки кода. */
 test('a new option is data: the audit measures it and the emitter writes it', () => {
   const grown = structuredClone(catalog)
-  grown.loud.варианты.tone = { имя: 'Тон', name: 'Tone', что: 'тон марки, тёмная надпись', роли: { '--ctrl-btn-fill-pop': 'var(--a-4)', '--ctrl-btn-ink-pop': 'var(--a-11)', '--ctrl-btn-edge-pop': 'transparent', '--ctrl-btn-tint-pop': 'transparent' } }
+  grown.loud.варианты.tone = { имя: 'Тон', name: 'Tone', что: 'тон марки, тёмная надпись', роли: { '--ctrl-btn-fill-pop': 'var(--a-4)', '--ctrl-btn-ink-pop': 'var(--a-11)', '--ctrl-btn-edge-pop': 'transparent', '--ctrl-btn-tint-pop': 'transparent', '--ctrl-btn-frost-pop': '0', '--ctrl-btn-rim-pop': 'transparent' } }
   grown.quiet.варианты.edge = { имя: 'Кромка', name: 'Edge', что: 'без вуали, кромка органа', роли: { '--ctrl-btn-fill': 'transparent', '--ctrl-btn-ink': 'var(--ink)', '--ctrl-btn-edge': 'var(--edge)' } }
   assert.deepEqual(auditButtons(grown, {}), [])
   const { clash, off, on } = availability(grown, { ...samples, ...pale })

@@ -217,4 +217,8 @@ export const SHAPE = {
   line: { hair: 1, strong: 2 },
   ring: { width: STATE.ring, offset: 3 },
   shadows: ['raised', 'lift', 'overlay', 'in'],
+  /* Стекло (И427): размытие того, что под органом, и насыщенность —
+     apple.com, полоса навигации: `saturate(180%) blur(20px)`; Fluent
+     Acrylic — размытие 30. Не течёт: это устройство материала, не ритм. */
+  frost: { blur: 20, saturate: 1.8 },
 }

@@ -22,6 +22,9 @@
  *                                       без фона — краска под рукой, контур
  *    data-hover  loud                   под рукой встаёт в голос марки (переворот — сразу)
  *    data-fill   gradient               градиент марки: от нажатой краски к обычной
+ *                glass                  стекло марки: краска долей (--pop-glass), под ней размыто то, что
+ *                                       под органом (--frost-*), блик кромки волоском (--pop-rim)
+ *    .backdrop                          снимок под органом на стенде: показать, что стекло просвечивает
  *    data-frame                         тонкая рамка марки вокруг
  *    data-case   caps                   заглавные с разрядкой
  *    data-size   sm | lg                рост; без него — средний
@@ -118,6 +121,10 @@ svg{stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 /* Слово у начала, знак у конца — пилюля во всю ширину листа. */
 .el[data-spread]{justify-content:space-between}
 .el[data-fill='gradient']{--img:linear-gradient(30deg, var(--pop-press), var(--pop))}
+/* Стекло (элемент 66, И427): заливка — краска строителя палитры долей, на
+   которой надпись держит 4.5 : 1 на каждом полу; размыто то, что под
+   органом, а не он сам; блик — волосок внутри, снаружи он лёг бы на кольцо. */
+.el[data-fill='glass']{--bg:var(--pop-glass);-webkit-backdrop-filter:blur(var(--frost-blur)) saturate(var(--frost-sat));backdrop-filter:blur(var(--frost-blur)) saturate(var(--frost-sat));box-shadow:inset 0 0 0 var(--line) var(--pop-rim)}
 .el[data-frame]{box-shadow:0 0 0 var(--frame-w) var(--pop-tint)}
 .el[data-case='caps']{text-transform:uppercase;letter-spacing:var(--caps)}
 .el[data-size='sm']{--h:var(--h-sm)}
@@ -735,6 +742,12 @@ body{margin:0;min-block-size:100vh;display:flex;flex-direction:column;align-item
 .states{display:flex;flex-wrap:wrap;justify-content:center;gap:24px}
 .states figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:10px}
 .states figcaption{font-size:.8125rem;color:var(--ink-soft)}
+/* Снимок под органом — стекло видно только над чем-то. Кадр с потолком от
+   малого окна (запрет 4); снимок кадрируется внутри. */
+.backdrop{position:relative;display:grid;place-items:center;place-content:center;inline-size:min(360px, 100% - 32px);aspect-ratio:4 / 3;max-block-size:60svh;border-radius:var(--r-card, 16px);overflow:hidden}
+.backdrop > img{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:cover;object-position:50% 20%}
+.backdrop > .el{position:relative}
+.states .backdrop{inline-size:220px;aspect-ratio:3 / 2}
 .states figure:has(.tip){padding-block-start:2.5rem}
 .set{display:grid;grid-template-columns:repeat(auto-fill, minmax(104px, 1fr));gap:8px;inline-size:min(980px, 100% - 32px)}
 .set figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:var(--r-card, 12px);box-shadow:inset 0 0 0 var(--line) var(--rule)}

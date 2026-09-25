@@ -150,9 +150,12 @@ export function lookSlots({ palette, buttons, scale, tokens, storefront, look, s
   /* Роли, на которых правило мерит кнопку, отметку и поле: замыкание ссылок от
      полов и ролей кнопки до ступеней палитры (они — свойства вида). Роли
      вариантов панели, которых нет в умолчаниях, — списком: подпись и тихая
-     плашка (кромка и заливка поля, И390). */
+     плашка (кромка и заливка поля, И390); второй конец градиента главной
+     (И424, И427) — без него правило не видело второй конец и не мерило
+     градиент вовсе. Стекло и блик (`--pop-glass`, `--pop-rim`) — свойства
+     палитры, правило видит их и так. */
   const refs = (v) => [...String(v).matchAll(/var\((--[\w-]+)\)/g)].map((m) => m[1])
-  const queue = ['--page', '--plate', '--surface', '--ink', '--ink-soft', '--plate-quiet', '--quiet', '--pop', '--on-pop', '--pop-ink', '--rule',
+  const queue = ['--page', '--plate', '--surface', '--ink', '--ink-soft', '--plate-quiet', '--quiet', '--pop', '--on-pop', '--pop-ink', '--rule', '--pop-grad',
     ...Object.values(slots).filter((s) => ['button', 'marker', 'field', 'tick', 'shadow'].includes(s.group)).flatMap((s) => refs(s.value))]
   const roles = {}
   while (queue.length) {

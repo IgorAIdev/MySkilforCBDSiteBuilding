@@ -1,7 +1,7 @@
 /* Собран tools/buttons.mjs из styles/buttons.json. Руками не правят.
    Роли одной кнопки основы (styles/btn.module.css) по осям каталога. На
    корне — первый вариант каждой оси; другой — [data-button-<ось>="вариант"].
-   Оси: letters — sentence · caps; loud — fill · ink · gradient; quiet — veil · outline; shape — standard · pill · arrow-end · arrow · chevron · double · trail-spaced · trail-overlap · circle. */
+   Оси: letters — sentence · caps; loud — fill · ink · gradient · glass; quiet — veil · outline; shape — standard · pill · arrow-end · arrow · chevron · double · trail-spaced · trail-overlap · circle. */
 
 :root{
   --ctrl-btn-case: none;
@@ -11,6 +11,8 @@
   --ctrl-btn-ink-pop: var(--on-pop);
   --ctrl-btn-edge-pop: transparent;
   --ctrl-btn-tint-pop: transparent;
+  --ctrl-btn-frost-pop: 0;
+  --ctrl-btn-rim-pop: transparent;
   --ctrl-btn-fill: var(--quiet);
   --ctrl-btn-ink: var(--ink);
   --ctrl-btn-edge: transparent;
@@ -42,6 +44,8 @@
   --ctrl-btn-ink-pop: var(--on-pop);
   --ctrl-btn-edge-pop: transparent;
   --ctrl-btn-tint-pop: transparent;
+  --ctrl-btn-frost-pop: 0;
+  --ctrl-btn-rim-pop: transparent;
 }
 
 [data-button-loud="ink"]{
@@ -49,6 +53,8 @@
   --ctrl-btn-ink-pop: var(--surface);
   --ctrl-btn-edge-pop: transparent;
   --ctrl-btn-tint-pop: transparent;
+  --ctrl-btn-frost-pop: 0;
+  --ctrl-btn-rim-pop: transparent;
 }
 
 [data-button-loud="gradient"]{
@@ -56,6 +62,17 @@
   --ctrl-btn-ink-pop: var(--on-pop);
   --ctrl-btn-edge-pop: transparent;
   --ctrl-btn-tint-pop: var(--pop-grad);
+  --ctrl-btn-frost-pop: 0;
+  --ctrl-btn-rim-pop: transparent;
+}
+
+[data-button-loud="glass"]{
+  --ctrl-btn-fill-pop: var(--pop-glass);
+  --ctrl-btn-ink-pop: var(--on-pop);
+  --ctrl-btn-edge-pop: transparent;
+  --ctrl-btn-tint-pop: transparent;
+  --ctrl-btn-frost-pop: 1;
+  --ctrl-btn-rim-pop: var(--pop-rim);
 }
 
 [data-button-quiet="veil"]{

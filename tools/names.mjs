@@ -46,7 +46,7 @@ export const CONCEPTS = {
   rhythm: ['pad', 'air', 'gap'],
   text: ['hero', 'pagehead', 'h2', 'h3', 'intro', 'lede', 'body', 'note', 'eyebrow', 'measure', 'face', 'fs', 'page'],
   shape: ['r'],
-  depth: ['sh'],
+  depth: ['sh', 'frost'],
   motion: ['ease', 'rise', 'nudge', 'creep', 'open'],
   state: ['state'],
   layer: ['layer'],
@@ -78,6 +78,9 @@ export const MODIFIERS = new Set([
   'glyph', 'cut',
   /* второй конец градиента главной кнопки (`--pop-grad`, И424) */
   'grad',
+  /* стекло главной кнопки: краска долей, блик кромки, размытие под ней
+     (`--pop-glass`, `--pop-rim`, `--frost-*`, `--ctrl-btn-frost-pop`; И427) */
+  'glass', 'rim', 'frost', 'blur', 'sat',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',

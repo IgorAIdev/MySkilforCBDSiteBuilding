@@ -476,6 +476,16 @@
       "group": "palette",
       "value": "light-dark(#E4E3E1, #CECCC9)"
     },
+    "--pop-glass": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#CCB896AB, #F5ECDF99)"
+    },
+    "--pop-rim": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#FCFBF966, #EDEBE866)"
+    },
     "--edge-off-paper": {
       "type": "colour",
       "group": "palette",
@@ -517,6 +527,16 @@
       "value": "transparent"
     },
     "--ctrl-btn-tint-pop": {
+      "type": "colour",
+      "group": "button",
+      "value": "transparent"
+    },
+    "--ctrl-btn-frost-pop": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
+    "--ctrl-btn-rim-pop": {
       "type": "colour",
       "group": "button",
       "value": "transparent"
@@ -845,6 +865,16 @@
       "type": "length",
       "group": "scale",
       "value": "3px"
+    },
+    "--frost-blur": {
+      "type": "length",
+      "group": "scale",
+      "value": "20px"
+    },
+    "--frost-sat": {
+      "type": "number",
+      "group": "scale",
+      "value": "1.8"
     },
     "--hero-lead": {
       "type": "number",
@@ -1190,6 +1220,7 @@
       "--on-pop": "var(--on-accent)",
       "--pop-ink": "var(--a-11)",
       "--rule": "var(--rule-paper)",
+      "--pop-grad": "var(--pop-grad-paper)",
       "--sh-ring": "var(--sh-ring-paper)",
       "--sh-near": "var(--sh-near-paper)",
       "--sh-far-1": "var(--sh-far-1-paper)",

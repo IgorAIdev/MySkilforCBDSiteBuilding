@@ -427,7 +427,11 @@ for (const [file, sheet] of css) {
     const last = r.parts.at(-1)
     for (const [prop, value] of r.decl) {
       if (prop.endsWith('background-clip') && /\btext\b/.test(value)) add('gradientText', at, `${r.sel} — ${prop}: ${value}`)
-      if (/^(-webkit-)?backdrop-filter$/.test(prop) && /blur\(/.test(value)) add('glassBlur', at, `${r.sel} — ${prop}: ${value}`)
+      /* «Glass and blur as decoration rather than as a specific effect»: особый
+         эффект — стекло главной (И427), порог формы `--frost-blur`, умноженный
+         на выключатель варианта (0 по умолчанию, 1 — выбран в панели). Иное
+         размытие — украшение. */
+      if (/^(-webkit-)?backdrop-filter$/.test(prop) && /blur\(/.test(value) && !/^blur\(calc\(var\(--frost-blur\) \* var\(--[\w-]+\)\)\)/.test(value)) add('glassBlur', at, `${r.sel} — ${prop}: ${value}`)
       if (/^border-(left|right|inline-start|inline-end)(-width)?$/.test(prop)) {
         const widths = [...value.matchAll(/var\([^()]*\)|-?[\d.]+px/g)].map((m) => range(m[0])).filter(Boolean)
         if (widths.some((w) => w[1] > 1)) add('sideStripe', at, `${r.sel} — ${prop}: ${value}`)

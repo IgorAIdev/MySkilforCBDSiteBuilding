@@ -121,6 +121,11 @@ test('button and hero roles come from the builder with their guarantees, on ever
       for (const k of ['--pop-trail-near-paper', '--pop-trail-far-paper', '--edge-off-paper', '--edge-off-deck', '--pop-hover-deck', '--pop-grad-paper', '--pop-grad-deck']) assert.match(r[k], /^#[0-9A-F]{6}$/, `${at}: ${k}`)
       /* Второй конец градиента главной (И424): надпись держит 4.5 : 1 и на нём. */
       assert.ok(ratio(r['--on-a-9'], r['--pop-grad-paper']) >= NEED.text, `${at}: надпись главной на втором конце градиента`)
+      /* Стекло главной (И427): краска долей, не сплошная; надпись держит
+         4.5 : 1 над каждым полом и любым снимком, а на бумаге стекло видно —
+         это меряет groundChecks ниже. */
+      for (const k of ['--pop-glass', '--pop-rim']) assert.match(r[k], /^#[0-9A-F]{8}$/, `${at}: ${k} — стекло строителя #RRGGBBAA`)
+      assert.ok(parseInt(r['--pop-glass'].slice(7), 16) < 255, `${at}: стекло просвечивает`)
       /* замер ролей по полу — весь чистый */
       const failed = groundChecks(paints, mode).filter((c) => c.got < c.need)
       assert.deepEqual(failed, [], at)

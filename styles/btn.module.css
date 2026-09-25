@@ -110,6 +110,10 @@
      надписи: стрелка встаёт краской надписи прямо на заливке. Угол — Shape. */
   --btn-glyph:var(--ctrl-btn-glyph, 0);
   --btn-cut:max(var(--btn-mark), var(--btn-glyph));
+  /* Стекло (`--ctrl-btn-frost-pop`, 0 или 1; элемент 66, И427): заливка —
+     краска палитры долей (`--pop-glass`), под ней размыто то, что лежит под
+     кнопкой; размытие и насыщенность — пороги формы (`--frost-*`), не текут. */
+  --btn-frost:var(--ctrl-btn-frost-pop, 0);
   position:relative;isolation:isolate;background-color:transparent;
   /* Под вырезом стрелки — кружок краской заливки: стрелка того же цвета, что
      пилюля, как у «Shop now»; у стрелки без кружка — квадрат краской надписи. */
@@ -142,6 +146,13 @@
   -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat, linear-gradient(var(--ink), var(--ink));
   -webkit-mask-composite:xor;
   mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat exclude, linear-gradient(var(--ink), var(--ink));
+  /* Размывается фон под заливкой, а не сама кнопка; вырез острия и маска
+     режут размытое вместе с заливкой. Блик кромки (`--ctrl-btn-rim-pop`,
+     краска палитры `--pop-rim`) — волосок внутри заливки: снаружи он лёг бы
+     на кольцо фокуса. */
+  -webkit-backdrop-filter:blur(calc(var(--frost-blur) * var(--btn-frost))) saturate(calc(1 + (var(--frost-sat) - 1) * var(--btn-frost)));
+  backdrop-filter:blur(calc(var(--frost-blur) * var(--btn-frost))) saturate(calc(1 + (var(--frost-sat) - 1) * var(--btn-frost)));
+  outline:var(--line-w) solid var(--ctrl-btn-rim-pop, transparent);outline-offset:calc(-1 * var(--line-w));
   transition:background-color var(--hover-t) var(--ease);
 }
 /* Хвост за остриём (И276): шевроны, каждый на тон ближе к полу. Тоны —

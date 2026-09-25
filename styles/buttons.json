@@ -42,7 +42,9 @@
           "--ctrl-btn-fill-pop": "var(--pop)",
           "--ctrl-btn-ink-pop": "var(--on-pop)",
           "--ctrl-btn-edge-pop": "transparent",
-          "--ctrl-btn-tint-pop": "transparent"
+          "--ctrl-btn-tint-pop": "transparent",
+          "--ctrl-btn-frost-pop": "0",
+          "--ctrl-btn-rim-pop": "transparent"
         }
       },
       "ink": {
@@ -54,7 +56,9 @@
           "--ctrl-btn-fill-pop": "var(--ink)",
           "--ctrl-btn-ink-pop": "var(--surface)",
           "--ctrl-btn-edge-pop": "transparent",
-          "--ctrl-btn-tint-pop": "transparent"
+          "--ctrl-btn-tint-pop": "transparent",
+          "--ctrl-btn-frost-pop": "0",
+          "--ctrl-btn-rim-pop": "transparent"
         }
       },
       "gradient": {
@@ -66,7 +70,23 @@
           "--ctrl-btn-fill-pop": "var(--pop)",
           "--ctrl-btn-ink-pop": "var(--on-pop)",
           "--ctrl-btn-edge-pop": "transparent",
-          "--ctrl-btn-tint-pop": "var(--pop-grad)"
+          "--ctrl-btn-tint-pop": "var(--pop-grad)",
+          "--ctrl-btn-frost-pop": "0",
+          "--ctrl-btn-rim-pop": "transparent"
+        }
+      },
+      "glass": {
+        "имя": "Стекло",
+        "name": "Glass",
+        "line": "Translucent brand glass: what lies beneath shows through, blurred",
+        "что": "стекло марки: заливка краской строителя палитры --pop-glass долей, под ней размыто то, что лежит под кнопкой; блик кромки --pop-rim (элемент 66)",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--pop-glass)",
+          "--ctrl-btn-ink-pop": "var(--on-pop)",
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "transparent",
+          "--ctrl-btn-frost-pop": "1",
+          "--ctrl-btn-rim-pop": "var(--pop-rim)"
         }
       }
     }
