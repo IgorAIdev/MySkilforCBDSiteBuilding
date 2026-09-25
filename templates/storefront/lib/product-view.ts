@@ -8,7 +8,9 @@ import { percent } from './format.ts'
 import { pickState, optionLinks, type OptionGroupLinks } from './variant.ts'
 import { saleOf, shelfCard, stockText, type ShelfCard, type WasView } from './view.ts'
 import { QTY_MAX } from './cart-view.ts'
-import { packFacts, type FactsView } from './facts.ts'
+import { factsLine, packFacts, type FactsView } from './facts.ts'
+import { MESSENGERS, type Messenger } from './contacts.ts'
+import { MARKET } from './market.ts'
 
 /** Протокол готовыми строками. `batch` — номер партии отдельно от заголовка:
  *  код партии не рвётся посередине (`RO-` / `2409-05`), его держит разметка.
@@ -19,9 +21,9 @@ import { packFacts, type FactsView } from './facts.ts'
 /** `batch` — номер партии словами («Batch RO-2409-10»), `code` — сам номер,
  *  как на этикетке: его сверяют глазом с флаконом. */
 export type LabView = { title: string; batch: string; code: string; rows: [string, string][]; open: { label: string; href: string } | null }
-/** `add` — надпись кнопки: с ценой выбранного варианта («Add to cart ·
- *  €39.90») — цена за штуку, количество её не пересчитывает (как у Shopify);
- *  без варианта — одно действие. `ask` — варианта ещё не выбрали: кнопка
+/** `add` — надпись кнопки, одно действие без цены: цена стоит под именем,
+ *  второй раз на кнопке она не нужна (слово заказчика 25.09.2026: «цену два
+ *  раза указывать не нужно, с кнопки убирай цену», И441). `ask` — варианта ещё не выбрали: кнопка
  *  НЕ выключена (Baymard: выключенная кнопка прячет, почему нельзя), нажатие
  *  ведёт на адрес карты с `choose=1` — путь формы и поля, разобранные из
  *  `hrefFor`, а не склеенные второй раз. Без скрипта это обычный переход,
@@ -30,7 +32,19 @@ export type LabView = { title: string; batch: string; code: string; rows: [strin
 export type AskView = { action: string; keep: [string, string][] }
 /** `quantity`, `less`, `more` — подпись счётчика и имена его «−» и «+»:
  *  счётчик один на сайт (QuantityStepper), корзина и карта берут его. */
-export type BuyView = { variant: string | null; ask: AskView | null; add: string; quantity: string; less: string; more: string; max: number; view: { label: string; href: string }; timeout: string; failed: string }
+export type BuyView = { variant: string | null; ask: AskView | null; add: string; quantity: string; less: string; more: string; max: number; timeout: string; failed: string; quick: QuickView }
+/** Быстрый заказ — окно со строками мессенджеров (слово заказчика
+ *  25.09.2026, И442). `what` — что заказывают, строкой окна и сообщения:
+ *  марка, имя и упаковка выбранного варианта; количество окно берёт из
+ *  счётчика в миг открытия. Строки — мессенджеры магазина из данных
+ *  (lib/contacts.ts), подпись уже набрана; адрес ссылки окно считает само:
+ *  в текст сообщения входят количество и телефон, а их знает только окно. */
+export type QuickView = {
+  open: string; title: string; lead: string; close: string; what: string
+  greet: string; qty: string; myPhone: string
+  rows: { key: Messenger; label: string; value: string }[]
+  phone: { label: string; hint: string }; call: string
+}
 /** Снимок галереи: `id` — якорь слайда (ссылка миниатюры ведёт на него и
  *  без скрипта), `show` — имя ссылки миниатюры («Image 2 of 4»). */
 export type Slide = Image & { id: string; show: string }
@@ -45,7 +59,7 @@ export type { WasView }
  *  `message` — строка под кнопкой, когда купить нельзя: сочетания нет. */
 export type ProductPageView = {
   crumbs: { name: string; href?: string }[]; crumbLabel: string
-  name: string; price: string; was: WasView | null; stock: string | null; message: string | null; choose: string | null
+  brand: string | null; name: string; price: string; was: WasView | null; stock: string | null; message: string | null; choose: string | null
   gallery: GalleryView; groups: OptionGroupLinks[]; facts: FactsView | null; description: string
   related: ShelfCard[]; relatedTitle: string
   buy: BuyView
@@ -87,6 +101,20 @@ function askOf(lang: Lang, product: Product, selected: Record<string, string>): 
   return { action: url.pathname, keep: [...url.searchParams] }
 }
 
+/** Окно быстрого заказа готовыми строками. Упаковка — выбранного варианта
+ *  (у товара с одним вариантом он выбран сам); без выбора — одно имя. */
+function quickView(lang: Lang, product: Product, variant: Product['variants'][number] | null): QuickView {
+  const pack = variant?.pack ? factsLine(lang, { strength: product.strength, packs: [variant.pack] }) : null
+  const name = [product.brand, product.name].filter(Boolean).join(' ')
+  return {
+    open: t(lang, 'quick.open'), title: t(lang, 'quick.open'), lead: t(lang, 'quick.lead'), close: t(lang, 'quick.close'),
+    what: pack ? `${name} · ${pack}` : name,
+    greet: t(lang, 'quick.greet'), qty: t(lang, 'quick.qty'), myPhone: t(lang, 'quick.myPhone'),
+    rows: MESSENGERS.map((m) => ({ key: m.key, label: t(lang, 'quick.via', { name: m.label }), value: m.value })),
+    phone: { label: t(lang, 'quick.phone'), hint: MARKET.phone.example }, call: t(lang, 'quick.call'),
+  }
+}
+
 /** Страница товара готовыми строками. Цена — выбранного варианта; пока
  *  выбора нет — «de la» самой низкой, если цены разные. Поле основных
  *  параметров — упаковки выбранного варианта (у товара с одним вариантом он
@@ -123,6 +151,7 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
       { name: product.name },
     ],
     crumbLabel: t(lang, 'crumb.label'),
+    brand: product.brand,
     name: product.name,
     price, was: sale?.was ?? null,
     stock: chosen ? stockText(lang, chosen.stock) : null,
@@ -137,11 +166,11 @@ export function productView(lang: Lang, product: Product, selected: Record<strin
     buy: {
       variant: sellable?.id ?? null,
       ask,
-      add: sellable ? t(lang, 'cart.addPrice', { price: money(sellable.price, lang) }) : t(lang, 'cart.add'),
+      add: t(lang, 'cart.add'),
       quantity: t(lang, 'cart.quantity'),
       less: t(lang, 'cart.less', { name: product.name }), more: t(lang, 'cart.more', { name: product.name }), max: QTY_MAX,
-      view: { label: t(lang, 'cart.view'), href: hrefFor(lang, { cart: true }) },
       timeout: t(lang, 'cart.error.timeout'), failed: t(lang, 'cart.error.unavailable'),
+      quick: quickView(lang, product, buyable),
     },
   }
 }

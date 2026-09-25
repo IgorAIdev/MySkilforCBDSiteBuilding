@@ -1,16 +1,20 @@
 import Form from 'next/form'
 import b from '@/styles/btn.module.css'
-import go from '@/styles/go.module.css'
 import s from './ProductView.module.css'
 import type { BuyView } from '@/lib/product-view.ts'
 import type { Outcome } from '@/lib/cart-ops.ts'
 import { CartForm } from './CartForm.tsx'
 import { QuantityStepper } from './QuantityStepper.tsx'
-import { Icon } from './Icon.tsx'
+import { QuickOrder } from './QuickOrder.tsx'
 
-/* Покупка на карте товара — одна строка: количество и кнопка ростом крупного
-   органа, кнопка забирает остаток строки и называет цену выбранного варианта
-   («Add to cart · €39.90», строку собирает вид).
+/* Покупка на карте товара — одна строка: количество, «в корзину» и рядом
+   «быстрый заказ» (слово заказчика 25.09.2026, И441, И442), ростом крупного
+   органа; кнопки делят остаток строки, не помещаются — переносятся. Цены на
+   кнопке нет: она стоит под именем, второй раз не нужна.
+
+   Удачная запись строки под кнопкой не занимает и «View cart» не ставит:
+   «положено» говорит корзина в шапке (CartLink, И441), форма тихая
+   (`quiet`) — исход читается вслух, ошибка видна строкой.
 
    Варианта ещё не выбрали — кнопка НЕ выключена (Baymard: выключенная
    кнопка прячет, почему нельзя): строка — форма перехода на адрес карты с
@@ -29,6 +33,7 @@ export function AddToCart({ lang, buy, hint, submit, call }: { lang: string; buy
     <>
       <QuantityStepper field={{ label: buy.quantity, name: buy.variant ? 'quantity' : undefined, min: 1, max: buy.max, less: buy.less, more: buy.more }} />
       <button className={`${b.btn} ${s.add}`} data-voice="loud" data-size="lg" type="submit" disabled={!buy.variant && !buy.ask} aria-describedby={hint ? 'buy-hint' : undefined}>{buy.add}</button>
+      <QuickOrder view={buy.quick} />
       {hint ? <p className={s.hint} id="buy-hint" role="status">{hint}</p> : null}
     </>
   )
@@ -42,9 +47,8 @@ export function AddToCart({ lang, buy, hint, submit, call }: { lang: string; buy
   }
   return (
     <CartForm
-      lang={lang} className={s.buy} refresh={false} submit={submit} call={call}
+      lang={lang} className={s.buy} refresh={false} quiet submit={submit} call={call}
       initial={null} timeout={buy.timeout} failed={buy.failed}
-      after={<a className={go.go} href={buy.view.href}>{buy.view.label}<Icon id="arrow-right" /></a>}
     >
       <input type="hidden" name="op" value="add" />
       <input type="hidden" name="variant" value={buy.variant ?? ''} />

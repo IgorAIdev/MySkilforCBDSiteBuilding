@@ -22,6 +22,8 @@ import type { Lang } from './locale.ts'
 export const MARKET = {
   country: 'RO', currency: 'EUR', precision: 2, display: 'narrowSymbol',
   postal: { pattern: '^\\d{6}$', example: '010011' },
+  /* Запись номера рынка — образец поля телефона (окно быстрого заказа). */
+  phone: { example: '+40 712 345 678' },
   regions: [
     'Alba', 'Arad', 'Argeș', 'Bacău', 'Bihor', 'Bistrița-Năsăud', 'Botoșani', 'Brașov', 'Brăila', 'București',
     'Buzău', 'Caraș-Severin', 'Călărași', 'Cluj', 'Constanța', 'Covasna', 'Dâmbovița', 'Dolj', 'Galați', 'Giurgiu',

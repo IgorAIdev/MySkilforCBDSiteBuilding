@@ -1,0 +1,47 @@
+/* Окно быстрого заказа (QuickOrder.tsx, И442). Образец — окно cbdin.bg,
+   присланное заказчиком снимком; числа не взяты, взяты роли: лист окна —
+   поверхность и угол листа, поле — поле карточки, строки мессенджеров —
+   кнопки сайта (тихий голос, рост крупного органа), «Call me back» — главное
+   действие окна. Тени нет: лист стоит над затемнением `::backdrop`, край
+   читается и без неё.
+
+   Три группы через `--air-group`: что это (заголовок, пояснение, что
+   заказывают); куда написать (строки); иначе — телефон. Внутри группы —
+   строкой `--air-row`, строки мессенджеров — зазором соседних целей.
+
+   Окно помещается в экран (правило 9): не выше малого окна за вычетом края
+   страницы, лишнее прокручивается внутри листа. Ширина — мера строки: окно
+   шириной в абзац, а не в полстраницы. */
+.dialog{
+  inline-size:min(calc(100% - var(--gut) * 2), var(--measure));
+  max-block-size:calc(100dvh - var(--gut) * 2);
+  overflow:auto;overscroll-behavior:contain;
+  margin:auto;padding:var(--pad-card);
+  border:0;border-radius:var(--r-sheet);
+  background:var(--surface);color:var(--ink)
+}
+.dialog::backdrop{background:var(--scrim)}
+.dialog[open]{display:grid;gap:var(--air-group)}
+
+/* Заголовок и крестик — одной строкой; крестик — кнопка сайта ростом
+   цели, квадратная, знак из листа. */
+.intro{display:grid;gap:var(--air-row)}
+.head{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row)}
+.title{margin:0;font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)}
+.close{--btn-h:var(--ctrl-target);inline-size:var(--btn-h);padding:0}
+.close svg{inline-size:1.25em;block-size:1.25em}
+.lead{margin:0;font-size:var(--body-size);line-height:var(--body-lead);color:var(--ink-soft)}
+/* Что заказывают — плашкой тона, как вписанное поле: это строка, которую
+   уносит сообщение, а не абзац пояснения. */
+.what{margin:0;padding:var(--pad-inner);border-radius:var(--r-ctrl);background:var(--quiet);font-size:var(--body-size);line-height:var(--body-lead);font-variant-numeric:tabular-nums}
+
+.rows{display:grid;gap:var(--gap-targets);list-style:none;margin:0;padding:0}
+.row{inline-size:100%;justify-content:flex-start}
+.row svg{inline-size:1.4em;block-size:1.4em;flex:none}
+
+.phone{display:grid;gap:var(--air-row);justify-items:start}
+.phone > :first-child{justify-self:stretch}
+
+/* Кнопка, открывающая окно, — рядом с «в корзину» (AddToCart): тихий
+   голос, растёт вместе с ней. */
+.trigger{flex:1 1 auto}

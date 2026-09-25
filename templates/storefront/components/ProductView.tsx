@@ -9,12 +9,16 @@ import { VariantPicker } from './VariantPicker.tsx'
 import { KeyFacts } from './KeyFacts.tsx'
 import { AddToCart } from './AddToCart.tsx'
 
-/* Карта товара. Колонка покупки — четыре группы, и воздух между группами
-   крупнее воздуха внутри (И278): кто это и сколько стоит; выбор варианта;
-   покупка; сведения. Порядок разметки — порядок чтения и на телефоне:
-   галерея, имя и цена, выбор, покупка, сведения. Надписи над именем нет:
-   раздел называют крошки над картой, а надпись над заголовком — запрет
-   impeccable (`check:design`, семья `eyebrow`). */
+/* Карта товара. Колонка покупки — пять групп, и воздух между группами
+   крупнее воздуха внутри (И278). Порядок — слово заказчика 25.09.2026
+   (И441): марка и имя, цена; описание; выбор варианта; покупка —
+   количество, «в корзину», «быстрый заказ»; поле основных параметров.
+   Порядок разметки — порядок чтения и на телефоне.
+
+   Марка — первая строка ЗАГОЛОВКА, а не надпись над ним: полное имя товара
+   «Câmpia Full-spectrum CBD oil» читается одним заголовком и вслух, и
+   поиском; надпись над заголовком — запрет impeccable (`check:design`,
+   семья `eyebrow`). */
 export function ProductView({ view, lang, submit, call }: { view: ProductPageView; lang: string; submit: (form: FormData) => Promise<void>; call: (form: FormData) => Promise<Outcome> }) {
   return (
     <>
@@ -27,19 +31,17 @@ export function ProductView({ view, lang, submit, call }: { view: ProductPageVie
         </div>
         <div className={`${p.stack} ${s.offer}`}>
           <div className={s.identity}>
-            <h1 className={s.name}>{view.name}</h1>
+            <h1 className={s.name}>{view.brand ? <span className={s.brand} translate="no">{view.brand} </span> : null}{view.name}</h1>
             <p className={s.price}>
               <span className={s.now}>{view.price}</span>
               {view.was ? <><s className={s.was} aria-hidden="true">{view.was.text}</s><span className={p.said}>{view.was.said}</span></> : null}
               {view.stock ? <span className={s.stock}>{view.stock}</span> : null}
             </p>
           </div>
+          <div className={p.prose}><p>{view.description}</p></div>
           {view.groups.length ? <div className={s.choice}><VariantPicker groups={view.groups} error={view.choose} /></div> : null}
           <AddToCart lang={lang} buy={view.buy} hint={view.message} submit={submit} call={call} />
-          <div className={s.info}>
-            <div className={p.prose}><p>{view.description}</p></div>
-            {view.facts ? <KeyFacts facts={view.facts} /> : null}
-          </div>
+          {view.facts ? <KeyFacts facts={view.facts} /> : null}
         </div>
       </section>
       {view.related.length ? (

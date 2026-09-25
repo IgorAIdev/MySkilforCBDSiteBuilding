@@ -65,27 +65,28 @@ test('a single product has its own price and no choice to make', async () => {
   assert.deepEqual(v.facts?.rows.map((x) => x.label), ['CBD összesen', 'CBD egy darabban', '1 mg CBD ára'])
 })
 
-/* Цена в кнопке — выбранного варианта, за штуку: строку собирает вид, а не
-   компонент; количество её не пересчитывает (как у Shopify). */
-test('buying: only a chosen variant in stock goes to the cart, and the button names its price', async () => {
+/* Цены в кнопке нет: она стоит под именем (слово заказчика 25.09.2026,
+   И441). Окно быстрого заказа называет марку, имя и упаковку варианта. */
+test('buying: only a chosen variant in stock goes to the cart; the button carries no price', async () => {
   const oil = await sample.product('en', 'ulei-cbd-full-spectrum')
   assert.ok(oil.ok)
   assert.equal(productView('en', oil.value, {}, none).buy.variant, null)
   const chosen = productView('en', oil.value, { putere: '20', volum: '10' }, none).buy
   assert.equal(chosen.variant, 'uf-20-10')
-  assert.equal(chosen.add, 'Add to cart · €64.90')
+  assert.equal(chosen.add, 'Add to cart')
+  assert.match(chosen.quick.what, /^Câmpia Full-spectrum CBD oil · 20/)
   const out = productView('en', oil.value, { putere: '30', volum: '10' }, none).buy
   assert.equal(out.variant, null)
   assert.equal(out.ask, null, 'распродано — выбирать нечего, кнопка выключена')
   assert.equal(productView('en', oil.value, { putere: '5', volum: '30' }, none).buy.ask, null, 'сочетания нет — кнопка выключена, почему — message')
-  assert.equal(out.add, 'Add to cart', 'нет в наличии — цены в кнопке нет')
+  assert.equal(out.add, 'Add to cart')
   const cream = await sample.product('ro', 'crema-cbd')
   assert.ok(cream.ok)
   const buy = productView('ro', cream.value, {}, none).buy
   assert.equal(buy.variant, 'cr-50')
   assert.equal(buy.ask, null, 'один вариант выбран сам')
-  assert.equal(buy.add, 'Adaugă în coș · 24,90 €')
-  assert.equal(buy.view.href, '/ro/cart')
+  assert.equal(buy.add, 'Adaugă în coș')
+  assert.match(buy.quick.what, /^Floare Verde /)
 })
 
 /* Галерея: снимки по порядку, первый — главный; у каждого якорь и имя

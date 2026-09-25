@@ -124,6 +124,10 @@
    строка колонки стоит на верхнем крае кадра. */
 .offer{--stack:var(--air-group)}
 .identity{display:grid;gap:var(--sp-2)}
+/* Марка — первая строка заголовка (ProductView.tsx, И441): ростом и
+   межстрочьем тела, краской подписи — имя остаётся главным, марка читается
+   раньше него. */
+.brand{display:block;font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:normal;color:var(--ink-soft)}
 .name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:balance;overflow-wrap:anywhere}
 /* Цена у имени (Baymard): сейчас — крупно, прежняя — зачёркнута рядом,
    наличие — тихо в той же строке, по базовой линии. */
@@ -144,16 +148,14 @@
    над ними. */
 .choose{margin-block:var(--sp-2) 0}
 
-/* Покупка: количество и кнопка в одну строку ростом крупного органа, кнопка
-   забирает остаток; подсказка, исход записи и «View cart» — строками под
-   ней. Счётчик — общий орган сайта (QuantityStepper, пилюля `qty`), его рост
+/* Покупка: количество, «в корзину» и «быстрый заказ» в одну строку ростом
+   крупного органа, кнопки делят остаток; подсказка и ошибка записи —
+   строками под ней. Счётчик — общий орган сайта (QuantityStepper, пилюля `qty`), его рост
    по умолчанию — крупный орган, ровно под кнопку. */
 .buy{display:flex;flex-wrap:wrap;align-items:stretch;gap:var(--sp-2) var(--gap-row)}
-.buy > :is(p, a){flex-basis:100%}
+.buy > p{flex-basis:100%}
 .buy > p:empty{display:none}
 .add{flex:1 1 auto;font-variant-numeric:tabular-nums}
 .hint{flex-basis:100%;margin:0;font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
 
-/* Сведения: абзац и протокол партии (плоский — LabReport.module.css). */
-.info{display:grid;gap:var(--air-row)}
 .related{--cols:4;--cell-min:200px;list-style:none;padding:0;margin:0}
