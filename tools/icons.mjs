@@ -41,8 +41,29 @@ if (!found) {
 const FROM = path.resolve(found)
 
 const SHAPES = /<(path|circle|rect|line|polyline|polygon|ellipse)\b([^>]*?)\s*\/?>/g
-const names = readdirSync(FROM).filter((n) => n.endsWith('.svg')).sort()
+const lucide = readdirSync(FROM).filter((n) => n.endsWith('.svg')).sort()
+/* Чужие марки (`brands/` рядом с `lucide/`, Simple Icons, CC0): мессенджеры
+   окна быстрого заказа (И442). Силуэт, а не штрих: марку узнают по форме
+   пятна, перерисованная контуром она перестаёт быть собой; поэтому знак
+   залит, без штриха и без `vector-effect`. Краску назначает место, как у
+   всех знаков листа. Имя знака — в одном месте из двух. */
+const BRANDS = path.join(path.dirname(FROM), 'brands')
+const brands = existsSync(BRANDS) ? readdirSync(BRANDS).filter((n) => n.endsWith('.svg')).sort() : []
+const clash = brands.filter((n) => lucide.includes(n))
+if (clash.length) {
+  console.error(`✗ Имя знака и в lucide/, и в brands/: ${clash.join(', ')} — у знака одно место.`)
+  process.exit(1)
+}
+const names = [...lucide, ...brands]
+const brand = (file) => {
+  const id = file.replace(/\.svg$/, '')
+  const svg = readFileSync(path.join(BRANDS, file), 'utf8').replace(/\r\n/g, '\n')
+  const shapes = [...svg.matchAll(SHAPES)].map((m) => `<${m[1]}${m[2]}/>`)
+  if (!shapes.length) throw new Error(`${file}: в знаке нет фигур`)
+  return `  <symbol id="${id}" viewBox="0 0 24 24" fill="currentColor" stroke="none">${shapes.join('')}</symbol>`
+}
 const symbols = names.map((file) => {
+  if (brands.includes(file)) return brand(file)
   const id = file.replace(/\.svg$/, '')
   const svg = readFileSync(path.join(FROM, file), 'utf8').replace(/\r\n/g, '\n')
   const body = svg.replace(/^[\s\S]*?<svg\b[^>]*>/, '').replace(/<\/svg>\s*$/, '')
@@ -64,7 +85,7 @@ const views = names.map((file, i) => {
 /* Краска и концы штриха — на КАЖДОМ знаке: `<use>` наследует от места
    вызова, а не от корня листа, и атрибуты корня до знака не доходят. */
 const sheet = `<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <!-- Собран tools/icons.mjs из skills/site-building/assets/icons/lucide (Lucide, ISC; см. LICENSE там же).
+  <!-- Собран tools/icons.mjs из skills/site-building/assets/icons/lucide (Lucide, ISC) и icons/brands (Simple Icons, CC0); см. LICENSE там же.
        Руками не правят: первый же выпуск сотрёт правку. Знаков: ${names.length}. -->
 ${symbols.join('\n')}
 ${views.join('\n')}
