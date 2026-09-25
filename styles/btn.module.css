@@ -135,7 +135,10 @@
      `currentColor` гаснет вместе с надписью — проверка контраста снимает дно
      под буквами, покрасив их в прозрачное, и заливка пропадала вместе с
      ними: 1.00…1.31 : 1 при кнопке, на глаз верной (находка 25.09.2026). */
-  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-ink) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark)));
+  /* Под кружком — градиент ко второму концу (`--ctrl-btn-tint-pop`, краска
+     строителя палитры `--pop-grad`; элементы 06, 19, И424): поверх заливки,
+     прозрачный к её концу; наведение темнит заливку под ним. */
+  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-ink) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark))), linear-gradient(30deg, var(--ctrl-btn-tint-pop, transparent), transparent);
   -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat, linear-gradient(var(--ink), var(--ink));
   -webkit-mask-composite:xor;
   mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat exclude, linear-gradient(var(--ink), var(--ink));

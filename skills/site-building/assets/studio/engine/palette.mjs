@@ -580,6 +580,26 @@ export function groundRoles(n, a, mode) {
   check('trail', 'хвост главной кнопки виден на полу', paper.got, NEED.decorLc, 'Lc')
   check('trail-deck', 'хвост на палубе виден', onDeck.got, NEED.decorLc, 'Lc')
 
+  /* Второй конец градиента главной (И424; элементы 06, 19): заливка,
+     сдвинутая по светлоте на два шага заливки — от надписи, а где в ту
+     сторону нет запаса, к ней, пока надпись держит 4.5 : 1. Готовой краски
+     для этого нет: нажатая краска марки и тона хвоста роняли надпись до
+     3.1–3.3 : 1 на части образцов. На палубе заливка главной — знак палубы,
+     надпись — её пол. */
+  const gradOf = (fill, onFill) => {
+    const gap = SOLID_GAP[mode] * 2
+    const L = lightness(fill)
+    const away = lightness(onFill) < L ? ['#FFFFFF', 1] : ['#000000', -1]
+    const back = away[1] > 0 ? ['#000000', -1] : ['#FFFFFF', 1]
+    const tries = [away, back].map(([to, dir]) => atLightness(fill, to, L + dir * gap))
+    const ok = tries.filter((c) => ratio(onFill, c) >= NEED.text)
+    return (ok.length ? ok : tries).sort((x, y) => Math.abs(lightness(y) - L) - Math.abs(lightness(x) - L))[0]
+  }
+  out['--pop-grad-paper'] = gradOf(a[8], inkOn(a[8]))
+  out['--pop-grad-deck'] = gradOf(deck.ink, deck.bg)
+  check('pop-grad', 'надпись главной читается на втором конце градиента', ratio(inkOn(a[8]), out['--pop-grad-paper']), NEED.text)
+  check('pop-grad-deck', 'надпись главной на палубе читается на втором конце градиента', ratio(deck.bg, out['--pop-grad-deck']), NEED.text)
+
   /* Кромка выключенного органа: видна и под прозрачностью выключенного —
      на нижнем краю коридора STATE.off; первая ступень нейтрали от пола,
      которая это держит. Выключенное читается кромкой, не только тоном. */

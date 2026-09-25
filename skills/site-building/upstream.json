@@ -717,7 +717,7 @@
     },
     {
       "local": "assets/studio/engine/palette.mjs",
-      "sha256": "1cd36b444ade9a4a03a46dec212a15e0fc9e2f39404b99bb11d46f8efa34d72e",
+      "sha256": "25c4c7e1746b9f56c04bed1de7df73c4676549680578c3d6e4c15ee57e1a9de8",
       "origin": "Generated from the canonical SiteBuildingSkill tools; Node I/O replaced for browser portability. Not imported from a commerce repository."
     },
     {

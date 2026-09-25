@@ -41,7 +41,8 @@
         "роли": {
           "--ctrl-btn-fill-pop": "var(--pop)",
           "--ctrl-btn-ink-pop": "var(--on-pop)",
-          "--ctrl-btn-edge-pop": "transparent"
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "transparent"
         }
       },
       "ink": {
@@ -52,7 +53,20 @@
         "роли": {
           "--ctrl-btn-fill-pop": "var(--ink)",
           "--ctrl-btn-ink-pop": "var(--surface)",
-          "--ctrl-btn-edge-pop": "transparent"
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "transparent"
+        }
+      },
+      "gradient": {
+        "имя": "Градиент",
+        "name": "Gradient",
+        "line": "The brand fill with a gradient to a second brand tone",
+        "что": "заливка марки и градиент ко второму концу — краске строителя палитры, на которой надпись держит 4.5 : 1 (элементы 06, 19)",
+        "роли": {
+          "--ctrl-btn-fill-pop": "var(--pop)",
+          "--ctrl-btn-ink-pop": "var(--on-pop)",
+          "--ctrl-btn-edge-pop": "transparent",
+          "--ctrl-btn-tint-pop": "var(--pop-grad)"
         }
       }
     }

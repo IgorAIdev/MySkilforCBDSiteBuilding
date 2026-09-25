@@ -93,7 +93,7 @@
 | System | Shape | Corners | `--r-xs`, `--r-ctrl`, `--r-card`, `--r-sheet`; вложенность «орган ≤ карточка ≤ лист» держит каждый набор | Standard 8/8/24/28, Round 8/8/28/32, Crisp 4/4/12/16 |
 | System | Shape | Shadows | роли тени `--sh-raised`, `--sh-lift`, `--sh-overlay`, `--sh-in` | Soft (роли набора), Flat (линия, тень — только у всплывающего), Lifted (на ступень выше) |
 | System | Buttons | Letters | `--ctrl-btn-case`, `-weight`, `-track` | Sentence case (умолчание), CAPITALS |
-| System | Buttons | Main button | заливка главной `--ctrl-btn-fill-pop`, `-ink-pop`, `-edge-pop` | Fill, Ink |
+| System | Buttons | Main button | заливка главной `--ctrl-btn-fill-pop`, `-ink-pop`, `-edge-pop` | Fill, Ink, Gradient (градиент ко второму концу краской строителя палитры `--pop-grad` — элементы 06, 19) |
 | System | Buttons | Quiet button | вуаль тихой `--ctrl-btn-fill`, `-ink`, `-edge` | Veil, Outline |
 | System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Pill (полный круг главного действия — элемент 16), Arrow end (стрелка у конца краской надписи — элемент 03), Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping, Circle arrow (пилюля и кружок со стрелкой у конца, элемент 02) |
 | System | Fields | Field | вид поля ввода `--ctrl-field-fill`, `-edge`, `-side` — одно поле на весь сайт: поиск, почта, касса; кромка — у каждого вида (И390) | Framed (умолчание), Outline (светлая поверхность, кромка краской подписи — элемент 43), Tone (тихая плашка, черта снизу — элемент 41) |

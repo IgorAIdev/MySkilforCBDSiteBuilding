@@ -466,6 +466,16 @@
       "group": "palette",
       "value": "light-dark(#795F29, #C2A573)"
     },
+    "--pop-grad-paper": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#AB9260, #967A49)"
+    },
+    "--pop-grad-deck": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#E4E3E1, #CECCC9)"
+    },
     "--edge-off-paper": {
       "type": "colour",
       "group": "palette",
@@ -502,6 +512,11 @@
       "value": "var(--on-pop)"
     },
     "--ctrl-btn-edge-pop": {
+      "type": "colour",
+      "group": "button",
+      "value": "transparent"
+    },
+    "--ctrl-btn-tint-pop": {
       "type": "colour",
       "group": "button",
       "value": "transparent"

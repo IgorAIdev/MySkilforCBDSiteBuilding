@@ -139,6 +139,13 @@ export function problems(vars: Readonly<Record<string, string>>, fonts: readonly
           const t = contrast(over(ink, under), under)
           if (t < need.text) add('button', 'palette', `the ${voice} button's label is too faint on the ${where}: ${say(t, need.text)}`, [inkRole, fillRole])
         }
+        /* Градиент главной (И424): надпись и на втором конце. */
+        const tint = voice === 'loud' ? get('--ctrl-btn-tint-pop') : null
+        if (ink && tint && tint[3] > 0) {
+          const end = over(tint, floor)
+          const t = contrast(over(ink, end), end)
+          if (t < need.text) add('button', 'palette', `the main button's label is too faint on the gradient end on the ${where}: ${say(t, need.text)}`, ['--ctrl-btn-tint-pop'])
+        }
       }
     }
     const plate = get('--plate')

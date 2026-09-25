@@ -69,7 +69,7 @@ description: Формирование палитры интернет-магаз
 | --- | --- | --- |
 | краски, которые называет заказчик, на тему | 3: paper, ink, accent; по желанию — error, sale, warn, ok, info | `templates/palette-starter.json`, `tools/palette.mjs` |
 | семей смысла | 7: нейтраль, марка, красный «нет в наличии», плашка скидки, оранжевый «мало осталось», зелёный «в наличии», синий «просто сведение» | `tools/palette.mjs`, STATUS |
-| переменных выпускается на тему | 95 | `roles()` в `tools/palette.mjs` |
+| переменных выпускается на тему | 97 | `roles()` в `tools/palette.mjs` |
 | наборов-образцов | 7: Аптека · Олива · Мек остров · Тёплый лист · Ледяной шалфей · Аптечный синий · Латунь на угле | `templates/palette.json` |
 | на сайте сейчас | Латунь на угле | `styles/palette.json` |
 | команды | `palette` · `check:palette` · `palette:stand` · `palette:sheet` · `palette:builder` | `scripts.mjs` |

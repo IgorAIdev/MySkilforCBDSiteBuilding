@@ -55,6 +55,7 @@ export const ROLES = {
   '--ctrl-btn-mark': 'number',
   '--ctrl-btn-pill': 'number',
   '--ctrl-btn-glyph': 'number',
+  '--ctrl-btn-tint-pop': 'colour',
 }
 const CASES = ['none', 'uppercase']
 /** Разрядка заглавных — коридор набора (craft: заглавные без воздуха слипаются). */
@@ -197,6 +198,9 @@ export function auditButtons(catalog, palettes, tokens = null) {
                 const t = over(r[ink], under)
                 if (t) want(`${part}-ink`, at, `надпись: ${voice} (${where})`, ratio(t, under), CONTRAST.text)
               }
+              /* Градиент главной (И424): надпись и на втором конце. */
+              const tint = part === 'loud' && r['--ctrl-btn-tint-pop'] ? over(r['--ctrl-btn-tint-pop'], floor) : null
+              if (tint && ink in r) { const t = over(r[ink], tint); if (t) want('loud-tint', at, `надпись главной на втором конце градиента (${where})`, ratio(t, tint), CONTRAST.text) }
             }
           }
         }
