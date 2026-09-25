@@ -32,7 +32,7 @@ export const SECTIONS = [
        встаёт сюда сама (И273). */
     { id: 'buttons', name: 'Buttons', hint: 'Press is the same for every button: the colour deepens, the button gets a touch smaller and moves 1 px down. Corners come from Shape.', fields: [], axes: true },
     /* Поле ввода (И390): одно на весь сайт — поиск, почта, касса. */
-    { id: 'fields', name: 'Fields', hint: 'One look for every field: the search in the header, email, checkout — one colour for every ticked box and radio, and how a form says «done» or «error». Corners come from Shape.', fields: [['field', 'Field'], ['field-label', 'Label'], ['tick', 'Ticked boxes'], ['say-look', 'Messages']] },
+    { id: 'fields', name: 'Fields', hint: 'One look for every field: the search in the header, email, checkout — one colour for every ticked box and radio, and how a form says «done» or «error». Corners come from Shape.', fields: [['field', 'Field'], ['field-label', 'Label'], ['tick', 'Ticked boxes'], ['pair-look', 'Field and button'], ['say-look', 'Messages']] },
     /* Ссылки «куда ведёт» (И397): «смотреть всё →», крошки, «назад». */
     { id: 'links', name: 'Links', hint: 'Links that lead somewhere: «View all →», breadcrumbs, «Back to the shop».', fields: [['go-hover', 'Under the hand']] },
   ] },

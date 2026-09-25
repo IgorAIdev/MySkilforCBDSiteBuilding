@@ -1126,6 +1126,11 @@
       "group": "say-look",
       "value": "line"
     },
+    "--pair-look": {
+      "type": "keyword",
+      "group": "pair-look",
+      "value": "apart"
+    },
     "--shot-frame": {
       "type": "number",
       "group": "shot-frame",

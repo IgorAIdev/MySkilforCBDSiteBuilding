@@ -22,7 +22,7 @@ export type SlotType = 'colour' | 'length' | 'number' | 'keyword' | 'shadow' | '
  *  товара — доля ряда под галерею, место миниатюр, край снимка (И278); ручки
  *  товара на полке и карте — пропорция снимка, плотность полки и место
  *  кнопки «в корзину» на карточке (И400). */
-export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker' | 'field' | 'field-label' | 'tick' | 'pdp-gallery' | 'pdp-thumbs' | 'pdp-edge' | 'seg-look' | 'go-hover' | 'head-icons' | 'say-look' | 'shot-frame' | 'shelf-cols' | 'card-buy' | 'sort-label'
+export type Group = 'palette' | 'scale' | 'width' | 'corners' | 'shadow' | 'face' | 'button' | 'marker' | 'field' | 'field-label' | 'tick' | 'pdp-gallery' | 'pdp-thumbs' | 'pdp-edge' | 'seg-look' | 'go-hover' | 'head-icons' | 'say-look' | 'pair-look' | 'shot-frame' | 'shelf-cols' | 'card-buy' | 'sort-label'
 /** Свойство вида: род значения, группа и умолчание стилей сайта. */
 export type Slot = { type: SlotType; group: Group; value: string }
 export type Slots = Readonly<Record<string, Slot>>
@@ -42,7 +42,7 @@ const WORDS: Readonly<Record<SlotType, readonly string[]>> = {
   colour: ['transparent', 'currentcolor', 'in', 'srgb', 'oklab', 'oklch'],
   length: ['normal'],
   number: [],
-  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block', 'below', 'side', 'dots', 'over', 'inset', 'bleed', 'full', 'beside', 'above', 'edge', 'inside', 'chips', 'joined', 'tray', 'bare', 'toned', 'line', 'note'],
+  keyword: ['none', 'uppercase', 'lowercase', 'capitalize', 'normal', 'underline', 'block', 'below', 'side', 'dots', 'over', 'inset', 'bleed', 'full', 'beside', 'above', 'edge', 'inside', 'chips', 'joined', 'tray', 'bare', 'toned', 'line', 'note', 'apart', 'joined'],
   shadow: ['none', 'inset', 'transparent', 'in', 'srgb', 'oklab'],
   transform: ['none'],
   font: [],
@@ -106,7 +106,7 @@ const FONT_URL = /^\/fonts\/[a-z0-9-]{1,80}\.woff2$/
 const WEIGHT = /^[1-9]00( [1-9]00)?$/
 const RANGE = /^U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?(, ?U\+[0-9A-Fa-f?]{1,6}(-[0-9A-Fa-f]{1,6})?)*$/
 const LABEL = /^[\p{L}\p{N} .+-]{1,60}$/u
-const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'field', 'field-label', 'tick', 'header', 'card', 'home', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'seg-look', 'go-hover', 'head-icons', 'say-look', 'shot-frame', 'shelf-cols', 'card-buy', 'sort-label'])
+const FIELDS = new Set(['palette', 'face', 'scale', 'width', 'corners', 'shadow', 'marker', 'field', 'field-label', 'tick', 'header', 'card', 'home', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'seg-look', 'go-hover', 'head-icons', 'say-look', 'pair-look', 'shot-frame', 'shelf-cols', 'card-buy', 'sort-label'])
 /** Оси кнопки — поля `btn-<ось>`: каталог кнопки растёт осями данными (И273). */
 const AXIS = /^btn-[a-z0-9-]{1,30}$/
 

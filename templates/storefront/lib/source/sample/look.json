@@ -228,6 +228,7 @@
     "--go-hover": "currentcolor",
     "--head-icons": "bare",
     "--say-look": "line",
+    "--pair-look": "apart",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -248,6 +249,7 @@
     "field-label": "above",
     "tick": "brand",
     "say-look": "line",
+    "pair-look": "apart",
     "go-hover": "plain",
     "header": "classic",
     "marker": "underline",

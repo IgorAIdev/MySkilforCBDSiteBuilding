@@ -131,6 +131,12 @@ export const FIELD_LABELS = [
   { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
   { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
 ]
+/** Пара «поле и кнопка» (И421): порознь или встык одной коробкой —
+ *  элемент 42; на витрине — купон корзины. */
+export const PAIR_LOOKS = [
+  { id: 'apart', name: 'Apart', line: 'The field and its button side by side with a gap', vars: { '--pair-look': 'apart' } },
+  { id: 'joined', name: 'Joined', line: 'The field and its button as one box, corners only outside (element 42)', vars: { '--pair-look': 'joined' } },
+]
 /** Сообщение формы (И420): строкой или заметкой тона сигнала со знаком
  *  (элементы 29, 31); строка под полем остаётся строкой. */
 export const SAY_LOOKS = [
@@ -330,6 +336,7 @@ export async function buildCatalog({ site, kit }) {
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
+    'pair-look': siteFirst(PAIR_LOOKS.map((o) => ({ ...o, vars: check('pair-look', o.id, o.vars) }))),
     'say-look': siteFirst(SAY_LOOKS.map((o) => ({ ...o, vars: check('say-look', o.id, o.vars) }))),
     'head-icons': siteFirst(HEAD_ICONS.map((o) => ({ ...o, vars: check('head-icons', o.id, o.vars) }))),
     'go-hover': siteFirst(GO_HOVER.map((o) => ({ ...o, vars: check('go-hover', o.id, o.vars) }))),
