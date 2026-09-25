@@ -63,6 +63,9 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   /* Главная — разметка вида (lib/homes.ts): варианты каталога — все главные
      сайта, по порядку; первая, нынешняя, — умолчание. */
   assert.deepEqual(catalog.groups.home.map((o) => o.id), [...HOMES])
+  /* Знак полки на фишке (И422): словом по умолчанию, знаком — элемент 65. */
+  assert.deepEqual(SECTIONS[1].subs.find((s) => s.id === 'home')!.fields.map((f) => f[0]), ['home', 'chip-sign'])
+  assert.deepEqual(catalog.groups['chip-sign'].map((o) => o.id), ['none', 'show'])
   assert.equal(catalog.defaults.home, HOMES[0])
   for (const o of catalog.groups.home) assert.ok(o.name && o.line && o.plan?.length, `${o.id}: имя, строка и схема первого экрана`)
   /* Карта товара (И278): доля ряда, край снимка, миниатюры — значения

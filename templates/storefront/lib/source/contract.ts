@@ -42,7 +42,9 @@ export type Card = { id: string; category: string; name: string; image: Image; p
  *  той же грани, и выбрать «масло ИЛИ капсулы» было нечем. */
 export type Facet = { code: string; name: string; values: { code: string; name: string; count: number; selected: boolean }[] }
 /** Полка. `image` — кадр полки на главной (4 : 3); у полки без снимка — null. */
-export type Collection = { slug: string; name: string; description: string; image: Image | null }
+/** Полка. `sign` — знак полки: имя знака из листа (`styles/icons.svg`), данные
+ *  магазина; нет знака — `null`, фишка стоит словом (И422). */
+export type Collection = { slug: string; name: string; description: string; image: Image | null; sign: string | null }
 export type SortKey = 'popular' | 'price-asc' | 'price-desc'
 export type ListingQuery = { category?: string; q?: string; facets: Record<string, string[]>; sort: SortKey; page: string | null }
 export type Listing = { items: Card[]; total: number; page: number; pages: number; facets: Facet[]; invalid: string[] }

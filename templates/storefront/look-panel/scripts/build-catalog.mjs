@@ -131,6 +131,12 @@ export const FIELD_LABELS = [
   { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
   { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
 ]
+/** Знак полки на фишке (И422): словом или знаком и словом (элемент 65);
+ *  сам знак — данные полки, у полки без знака фишка стоит словом. */
+export const CHIP_SIGNS = [
+  { id: 'none', name: 'Word', line: 'Shelf chips as words', vars: { '--chip-sign': 'none' } },
+  { id: 'show', name: 'Sign and word', line: 'A round sign of the shelf before its name, where the shelf has one (element 65)', vars: { '--chip-sign': 'show' } },
+]
 /** Пара «поле и кнопка» (И421): порознь или встык одной коробкой —
  *  элемент 42; на витрине — купон корзины. */
 export const PAIR_LOOKS = [
@@ -336,6 +342,7 @@ export async function buildCatalog({ site, kit }) {
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
+    'chip-sign': siteFirst(CHIP_SIGNS.map((o) => ({ ...o, vars: check('chip-sign', o.id, o.vars) }))),
     'pair-look': siteFirst(PAIR_LOOKS.map((o) => ({ ...o, vars: check('pair-look', o.id, o.vars) }))),
     'say-look': siteFirst(SAY_LOOKS.map((o) => ({ ...o, vars: check('say-look', o.id, o.vars) }))),
     'head-icons': siteFirst(HEAD_ICONS.map((o) => ({ ...o, vars: check('head-icons', o.id, o.vars) }))),

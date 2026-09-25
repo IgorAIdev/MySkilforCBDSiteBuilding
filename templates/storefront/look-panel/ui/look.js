@@ -204,6 +204,8 @@
       }
       /* Место подписи (И394): полоска поля и черта подписи над ним или на кромке. */
       if (field === 'field-label') return el('span', { class: 'lp-label', 'data-at': o.vars['--ctrl-field-label'], 'aria-hidden': 'true' }, [el('b'), el('i', { class: 'lp-field' })])
+      /* Знак полки на фишке (И422): фишка словом или с кругом знака. */
+      if (field === 'chip-sign') return el('span', { class: 'lp-chipsign', 'data-at': o.vars['--chip-sign'], 'aria-hidden': 'true' }, [el('i'), el('b')])
       /* Пара «поле и кнопка» (И421): две коробки с зазором или одна. */
       if (field === 'pair-look') return el('span', { class: 'lp-pair', 'data-at': o.vars['--pair-look'], 'aria-hidden': 'true' }, [el('i'), el('b')])
       /* Сообщение формы (И420): строка или заметка с точкой знака. */

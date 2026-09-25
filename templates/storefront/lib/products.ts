@@ -6,7 +6,7 @@ type T = Record<Lang, string>
 /** Одна строка на каждый язык страницы — числом, которое пишет запись языка
  *  (lib/format.ts, И347), а не набранным рукой по-румынски на всех трёх. */
 const each = (write: (lang: Lang) => string): T => Object.fromEntries(LOCALES.map((l) => [l, write(l)])) as T
-export type SampleCategory = { slug: string; name: T; description: T }
+export type SampleCategory = { slug: string; name: T; description: T; sign: string }
 /** `price` — в минорных единицах валюты рынка (у образца — евроцентах);
  *  `was` — цена до скидки, если вариант продаётся со скидкой; `pack` — CBD
  *  в упаковке и её мера (contract.ts, `Pack`). */
@@ -24,10 +24,10 @@ export type SampleProduct = {
 }
 
 export const CATEGORIES: SampleCategory[] = [
-  { slug: 'uleiuri', name: { ro: 'Uleiuri CBD', en: 'CBD oils', hu: 'CBD olajok' }, description: { ro: 'Uleiuri cu CBD în mai multe concentrații.', en: 'CBD oils in several strengths.', hu: 'CBD olajok több erősségben.' } },
-  { slug: 'capsule', name: { ro: 'Capsule', en: 'Capsules', hu: 'Kapszulák' }, description: { ro: 'Doză fixă în fiecare capsulă.', en: 'A fixed dose in every capsule.', hu: 'Minden kapszulában azonos adag.' } },
-  { slug: 'cosmetice', name: { ro: 'Cosmetice', en: 'Cosmetics', hu: 'Kozmetikumok' }, description: { ro: 'Creme și balsamuri cu CBD.', en: 'Creams and balms with CBD.', hu: 'CBD-s krémek és balzsamok.' } },
-  { slug: 'animale', name: { ro: 'Pentru animale', en: 'For pets', hu: 'Háziállatoknak' }, description: { ro: 'Uleiuri pentru câini și pisici.', en: 'Oils for dogs and cats.', hu: 'Olajok kutyáknak és macskáknak.' } },
+  { slug: 'uleiuri', name: { ro: 'Uleiuri CBD', en: 'CBD oils', hu: 'CBD olajok' }, description: { ro: 'Uleiuri cu CBD în mai multe concentrații.', en: 'CBD oils in several strengths.', hu: 'CBD olajok több erősségben.' }, sign: 'pipette' },
+  { slug: 'capsule', name: { ro: 'Capsule', en: 'Capsules', hu: 'Kapszulák' }, description: { ro: 'Doză fixă în fiecare capsulă.', en: 'A fixed dose in every capsule.', hu: 'Minden kapszulában azonos adag.' }, sign: 'pill' },
+  { slug: 'cosmetice', name: { ro: 'Cosmetice', en: 'Cosmetics', hu: 'Kozmetikumok' }, description: { ro: 'Creme și balsamuri cu CBD.', en: 'Creams and balms with CBD.', hu: 'CBD-s krémek és balzsamok.' }, sign: 'soap-dispenser-droplet' },
+  { slug: 'animale', name: { ro: 'Pentru animale', en: 'For pets', hu: 'Háziállatoknak' }, description: { ro: 'Uleiuri pentru câini și pisici.', en: 'Oils for dogs and cats.', hu: 'Olajok kutyáknak és macskáknak.' }, sign: 'paw-print' },
 ]
 
 export const FACETS: { code: string; name: T; values: { code: string; name: T }[] }[] = [

@@ -1131,6 +1131,11 @@
       "group": "pair-look",
       "value": "apart"
     },
+    "--chip-sign": {
+      "type": "keyword",
+      "group": "chip-sign",
+      "value": "none"
+    },
     "--shot-frame": {
       "type": "number",
       "group": "shot-frame",

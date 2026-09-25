@@ -73,7 +73,7 @@ const ORDER: Record<SortKey, (a: SampleProduct, b: SampleProduct) => number> = {
 
 const collection = (c: (typeof CATEGORIES)[number], lang: Lang): Collection => ({
   slug: c.slug, name: c.name[lang], description: c.description[lang],
-  image: { src: categoryArt(c.slug), alt: c.name[lang], width: 800, height: 600 },
+  image: { src: categoryArt(c.slug), alt: c.name[lang], width: 800, height: 600 }, sign: c.sign,
 })
 
 type Filtered = { filters: Filter[]; invalid: string[] }

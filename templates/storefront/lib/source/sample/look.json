@@ -229,6 +229,7 @@
     "--head-icons": "bare",
     "--say-look": "line",
     "--pair-look": "apart",
+    "--chip-sign": "none",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -250,6 +251,7 @@
     "tick": "brand",
     "say-look": "line",
     "pair-look": "apart",
+    "chip-sign": "none",
     "go-hover": "plain",
     "header": "classic",
     "marker": "underline",

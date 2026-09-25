@@ -168,6 +168,18 @@
 /* Полки фишками — строка, которая переносится; просвет — зазор между
    целями (под пальцем шире). */
 .chips{--cluster:var(--gap-targets);list-style:none;padding:0;margin:0}
+/* Знак полки у начала фишки — круг поверхности со знаком чернилами (вид
+   `--chip-sign: show`, элемент 65, И422); без вида и без знака в данных —
+   фишка словом. Круг — от кегля фишки, а не своим числом. */
+.chipSign{display:none}
+@container style(--chip-sign: show){
+  .chipSign{
+    display:inline-grid;place-items:center;flex:none;
+    inline-size:1.7em;block-size:1.7em;margin-inline-start:-.35em;margin-inline-end:.4em;
+    border-radius:50%;background:var(--surface);color:var(--ink)
+  }
+  .chipSign svg{inline-size:1em;block-size:1em}
+}
 /* look-home:counter:end */
 
 /* look-home:proof:start */

@@ -64,6 +64,7 @@ export const PRODUCT = {
   '--head-icons': { type: 'keyword', value: 'bare' },
   '--say-look': { type: 'keyword', value: 'line' },
   '--pair-look': { type: 'keyword', value: 'apart' },
+  '--chip-sign': { type: 'keyword', value: 'none' },
   '--shot-frame': { type: 'number', value: '1 / 1' },
   '--shelf-cols': { type: 'number', value: '4' },
   '--card-buy': { type: 'keyword', value: 'full' },

@@ -44,7 +44,7 @@ export const SECTIONS = [
     { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf. The picture shape is the same on the product page: the photos are the same.', fields: [['card', 'Product card'], ['shot-frame', 'Picture'], ['card-buy', 'Cart button'], ['shelf-cols', 'Shelf density'], ['sort-label', 'Sort button']] },
     /* Главная (lib/homes.ts): порядок и раскладка блоков; слова и снимки —
        данные страницы, одни на все варианты. */
-    { id: 'home', name: 'Home', hint: 'How the home page is composed: what comes first and how each part is laid out. Your texts and pictures stay the same.', fields: [['home', 'Layout']] },
+    { id: 'home', name: 'Home', hint: 'How the home page is composed: what comes first and how each part is laid out. Your texts and pictures stay the same.', fields: [['home', 'Layout'], ['chip-sign', 'Shelf chips']] },
     /* Карта товара (И278): доля ряда под галерею, край снимка, место
        миниатюр — значения `--pdp-*`; галерея при любом выборе помещается в
        экран. Пропорция снимка — в Card: она одна с полкой (И400). */

@@ -168,6 +168,8 @@ export function vendureSource(env: VendureEnv, fetchImpl: typeof fetch = globalT
   const collectionOf = (c: Channel, x: VCollection): Collection => ({
     slug: nativeSlug(c, x), name: x.name, description: x.description.replace(/<[^>]*>/g, '').trim(),
     image: image(x.featuredAsset, x.name),
+    /* Знак полки — поле коллекции в движке; у Vendure его пока нет (И422). */
+    sign: null,
   })
 
   const SORT: Record<SortKey, Record<string, 'ASC' | 'DESC'> | undefined> = { popular: undefined, 'price-asc': { price: 'ASC' }, 'price-desc': { price: 'DESC' } }
