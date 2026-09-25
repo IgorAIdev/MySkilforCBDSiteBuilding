@@ -27,7 +27,7 @@ type Props = { lang: Lang; nav: NavLink[]; variant: HeaderVariant }
    уходят в шторку по `popovertarget`, без скрипта. */
 
 const logo = (lang: Lang) => <a className={s.logo} href={hrefFor(lang, { home: true })} translate="no">CBD</a>
-const cart = (lang: Lang, labelled: boolean) => <CartLink href={hrefFor(lang, { cart: true })} label={t(lang, 'nav.cart')} countUrl="/api/cart" labelled={labelled} />
+const cart = (lang: Lang, labelled: boolean) => <CartLink href={hrefFor(lang, { cart: true })} label={t(lang, 'nav.cart')} added={t(lang, 'cart.added')} countUrl="/api/cart" labelled={labelled} />
 /* look-header:classic,boutique,tray,nested,step:start */
 const find = (lang: Lang) => <a className={s.glyph} href={hrefFor(lang, { search: '' })} aria-label={t(lang, 'nav.search')}><Icon id="search" /></a>
 /* look-header:classic,boutique,tray,nested,step:end */

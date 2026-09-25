@@ -128,7 +128,7 @@ export function sampleSource(pageSize = PAGE): Source {
       if (!p) return { ok: false, reason: 'not-found' }
       const batches = [...new Set(p.variants.map((v) => v.batch))].filter((b) => LAB_REPORTS[b])
       const product: Product = {
-        id: p.id, category: p.cat, name: p.name[lang], summary: p.summary[lang], description: p.description[lang],
+        id: p.id, category: p.cat, brand: p.brand, name: p.name[lang], summary: p.summary[lang], description: p.description[lang],
         images: images(p, lang),
         optionGroups: p.groups.map((g) => ({ code: g.code, name: g.name[lang], options: g.options.map((o) => ({ code: o.code, name: o.name[lang] })) })),
         variants: p.variants.map((v) => ({ id: v.id, sku: v.sku, name: p.name[lang], price: money(v.price), was: v.was ? money(v.was) : null, stock: v.stock, options: v.options, batch: v.batch, pack: v.pack })),

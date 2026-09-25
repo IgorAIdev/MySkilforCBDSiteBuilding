@@ -18,6 +18,7 @@ export const faqLd = (items: { q: string; a: string }[]) => ({
  *  это сериализация в lib/, не вёрстка. */
 export function productLd(product: Product, variant: Variant | null): Record<string, unknown> {
   const ld: Record<string, unknown> = { '@context': 'https://schema.org', '@type': 'Product', name: product.name, description: product.summary }
+  if (product.brand) ld.brand = { '@type': 'Brand', name: product.brand }
   if (variant) ld.sku = variant.sku
   if (PRICES_ARE_REAL && variant) {
     ld.offers = {

@@ -18,8 +18,11 @@ export type Variant = { id: string; sku: string; name: string; price: Money; was
 export type LabReport = { batch: string; lab: string; date: string; cbdPercent: number; thcPercent: number; url: string }
 /** `images` — снимки товара, первый — главный (у Vendure `featuredAsset`,
  *  за ним `assets` без него; план 4). */
-/** `strength` — чем товар продаётся (`Strength` ниже), как у его карточки. */
-export type Product = { id: string; category: string; name: string; summary: string; description: string; images: Image[]; optionGroups: OptionGroup[]; variants: Variant[]; labReports: LabReport[]; strength: Strength }
+/** `strength` — чем товар продаётся (`Strength` ниже), как у его карточки.
+ *  `brand` — марка производителя; карта печатает её первой строкой имени
+ *  (слово заказчика 25.09.2026: «вверху должен быть бренд указан»);
+ *  `null` — марка не заявлена. У Vendure — поле товара `brand`. */
+export type Product = { id: string; category: string; brand: string | null; name: string; summary: string; description: string; images: Image[]; optionGroups: OptionGroup[]; variants: Variant[]; labReports: LabReport[]; strength: Strength }
 export type Price = { kind: 'single'; value: Money } | { kind: 'range'; min: Money; max: Money }
 /** Упаковка варианта — то, что покупатель CBD сравнивает на полке (shop,
  *  «Сила — две шкалы, проценты и миллиграммы»): CBD во всей упаковке, мг, и

@@ -54,6 +54,24 @@
 .cart:has(.cartLabel){padding-inline:calc(var(--ctrl-target) * .25)}
 .shop{padding-inline:calc(var(--ctrl-target) * .25)} /* look-header:boutique */
 
+/* «Положено» — строка под знаком корзины (CartLink, `cart:added`), краской
+   того же «выбранного», что число: ответ корзины одним голосом. Всплывает
+   поверх страницы и места в шапке не занимает; вынос и поле — доли роста
+   цели (правило 2), тень — роль того, что всплывает. Гаснет прозрачностью и
+   сдвигом, а `visibility` снимается в конце перехода — в покое строки нет ни
+   для глаза, ни для указателя. */
+.cartBox{position:relative;display:inline-flex}
+.told{
+  position:absolute;z-index:1;inset-block-start:calc(100% + var(--sp-1));inset-inline-end:0;
+  display:inline-flex;align-items:center;gap:calc(var(--ctrl-target) * .15);
+  padding:calc(var(--ctrl-target) * .15) calc(var(--ctrl-target) * .3);
+  border-radius:var(--r-ctrl);background:var(--pop);color:var(--on-pop);box-shadow:var(--sh-overlay);
+  font-size:var(--ctrl-fs-xs);font-weight:600;white-space:nowrap;pointer-events:none;
+  transition:opacity var(--open-t) var(--ease),translate var(--open-t) var(--ease),visibility var(--open-t)
+}
+.told svg{inline-size:1.2em;block-size:1.2em;flex:none}
+.told[data-shown='false']{opacity:0;visibility:hidden;translate:0 calc(var(--sp-1) * -1)}
+
 /* Число в корзине — маленькой пилюлей краски «выбранного» на углу знака,
    только когда оно больше нуля. Вынос — доля роста цели (правило 2);
    место под число не занимается — шапка от него не прыгает. */

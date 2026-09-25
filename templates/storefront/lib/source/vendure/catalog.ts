@@ -263,7 +263,7 @@ export function vendureSource(env: VendureEnv, fetchImpl: typeof fetch = globalT
          карточки полки (`packs` выше). */
       const pack = packOf(p.customFields?.volume, p.customFields?.strength)
       const product: Product = {
-        id: nativeSlug(c, p), category: p.collections[0] ? nativeSlug(c, p.collections[0]) : '', name: p.name,
+        id: nativeSlug(c, p), category: p.collections[0] ? nativeSlug(c, p.collections[0]) : '', brand: p.customFields?.brand?.trim() || null, name: p.name,
         summary: p.customFields?.seoDescription?.trim() || text.split(/(?<=[.!?])\s/)[0] || '',
         description: text,
         images: [p.featuredAsset, ...p.assets.filter((a) => a.preview !== p.featuredAsset?.preview)].flatMap((a) => (a ? [image(a, p.name)!] : [])),
