@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react'
 import p from '@/styles/primitives.module.css'
-import b from '@/styles/btn.module.css' // look-home:scene,proof,journal,cabinet
+import b from '@/styles/btn.module.css' // look-home:scene,proof,journal,cabinet,showroom
+import go from '@/styles/go.module.css' // look-home:showroom
 import s from './blocks.module.css'
 import type { Block } from '@/lib/source/contract.ts'
 import type { HomeVariant } from '@/lib/homes.ts'
-import { hrefFor } from '@/lib/href.ts' // look-home:scene,proof,journal,cabinet
+import { hrefFor } from '@/lib/href.ts' // look-home:scene,proof,journal,cabinet,showroom
+import { t } from '@/lib/i18n/index.ts' // look-home:showroom
+import { Icon } from '../Icon.tsx' // look-home:showroom
 import { Pledges } from '../Pledges.tsx' // look-home:counter
 import type { BlockCtx, Place } from './types.ts'
 
@@ -16,11 +19,11 @@ type Props = { block: Extract<Block, { type: 'hero' }>; ctx: BlockCtx; place: Pl
    look-home:* `npm run look:remove` оставляет выбранный.
    Кнопка героя — одна громкая на экран: главное действие первого экрана. */
 
-/* look-home:scene,proof,journal,cabinet:start */
+/* look-home:scene,proof,journal,cabinet,showroom:start */
 const cta = (block: Props['block'], ctx: BlockCtx) => (
   <a className={b.btn} data-voice="loud" data-size="lg" href={hrefFor(ctx.lang, { catalog: true })}>{block.cta}</a>
 )
-/* look-home:scene,proof,journal,cabinet:end */
+/* look-home:scene,proof,journal,cabinet,showroom:end */
 
 /* look-home:scene:start */
 /* scene — единственное место, где снимок бывает большим, и одна тёмная
@@ -131,12 +134,61 @@ export function Still({ block, place }: Props) {
 }
 /* look-home:cabinet:end */
 
+/* look-home:showroom:start */
+/* showroom — витрина салона (docs/design/home.md, «Витрина салона»):
+   снимок со скруглением в полях страницы, заголовок лежит на нём сверху
+   слева; товар первого экрана (первый из ходовых, `ctx.spotlight`) лежит
+   на снимке карточкой справа снизу; абзац и кнопка — в вырезе нижнего
+   левого угла, на полу страницы, и край снимка обходит вырез одной линией.
+   Заголовок, карточка и вырез стоят каждый в своей строке общей сетки
+   (снимок — её подсеткой), поэтому длинный текст растит снимок, а не
+   налезает на соседа. Устройство решает ширина СЦЕНЫ (`.showroom`), шов
+   820: в узкой абзац и кнопка стоят на полу под снимком. */
+const showroom = ({ block, ctx }: Props) => {
+  const spot = ctx.spotlight
+  return (
+    <section className={`${p.wrap} ${s.showBand}`}>
+      <div className={s.showroom}>
+        <div className={s.show}>
+          <div className={s.showPhoto}>
+            <img className={s.showShot} src={block.image.src} alt={block.image.alt} width={block.image.width} height={block.image.height} fetchPriority="high" />
+            <div className={s.showTitle} data-ground="deck"><h1>{block.title}</h1></div>
+            {spot ? (
+              <div className={s.showCard} data-plate>
+                <div className={`${p.frame} ${s.showCardShot}`}>
+                  <img src={spot.image.src} alt="" width={spot.image.width} height={spot.image.height} decoding="async" />
+                </div>
+                <div className={s.showCardText}>
+                  <p className={s.showCardName}>{spot.name}</p>
+                  <p className={s.showCardPrice}>
+                    {spot.was ? <><s aria-hidden="true">{spot.was.text}</s><span className={p.said}>{spot.was.said}</span></> : null}
+                    <span>{spot.price}</span>
+                  </p>
+                  <a className={`${go.go} ${s.showCardGo}`} href={spot.href} aria-label={t(ctx.lang, 'shelf.viewName', { name: spot.name })}>
+                    {t(ctx.lang, 'home.spotlight')}<Icon id="arrow-right" />
+                  </a>
+                </div>
+              </div>
+            ) : null}
+          </div>
+          <div className={`${p.stack} ${s.showNotch}`}>
+            <p>{block.lede}</p>
+            <div className={p.cluster}>{cta(block, ctx)}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+/* look-home:showroom:end */
+
 const HEROES: Record<HomeVariant, (props: Props) => ReactNode> = {
   scene, // look-home:scene
   counter, // look-home:counter
   proof, // look-home:proof
   journal, // look-home:journal
   cabinet, // look-home:cabinet
+  showroom, // look-home:showroom
 }
 
 export function Hero(props: Props) {

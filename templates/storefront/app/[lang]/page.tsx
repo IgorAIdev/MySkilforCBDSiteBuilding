@@ -44,8 +44,10 @@ export default async function Home({ params }: Props) {
      получении главная не обещает: её допустимость зависит от суммы корзины,
      а корзины у главной нет. */
   const pledges = pledgesView(lang, { payments: null, methods: methods.ok ? methods.value : null, returnDays: facts.ok ? facts.value.returnDays : null })
+  const shelf: BlockCtx['cards'] = Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)]))
   const ctx: BlockCtx = {
-    lang, home: look.home, collections: cols.value, pledges, cart: { submit: cartSubmit, call: cartCall }, cards: Object.fromEntries(cards.value.map((c) => [c.id, shelfCard(lang, c)])),
+    lang, home: look.home, collections: cols.value, pledges, cart: { submit: cartSubmit, call: cartCall }, cards: shelf,
+    spotlight: ids.map((id) => shelf[id]).find(Boolean) ?? null,
     delivery: {
       methods: methods.ok ? deliveryView(lang, { methods: methods.value, delivery: null, pickup: null }).methods : [],
       terms: terms ? hrefFor(lang, { doc: terms.slug }) : null,

@@ -85,12 +85,36 @@ const index = ({ block, ctx, place }: Props) => (
 )
 /* look-home:journal:end */
 
+/* look-home:showroom:start */
+/* Строка — все полки одной фразой по середине страницы, ролью заголовка
+   раздела: имя и рядом маленький снимок полки прямо в строке, как слово с
+   картинкой. Вся строка — ссылки; заголовок раздела есть для чтения вслух,
+   глазу строку объясняет сама крупность. Снимок меряется строкой (`em`),
+   а не своим числом: крупнее кегль — крупнее снимок. */
+const words = ({ block, ctx, place }: Props) => (
+  <section className={`${p.wrap} ${p.section}`} data-air={place.air ?? undefined}>
+    <h2 className={p.said}>{block.title}</h2>
+    <ul className={s.words}>
+      {ctx.collections.map((c) => (
+        <li key={c.slug}>
+          <a href={hrefFor(ctx.lang, { category: c.slug })}>
+            {c.image ? <img className={s.wordShot} src={c.image.src} alt="" width={c.image.width} height={c.image.height} loading="lazy" decoding="async" /> : null}
+            {c.name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)
+/* look-home:showroom:end */
+
 const SHELVES: Record<HomeVariant, (props: Props) => ReactNode> = {
   scene: (props) => tiles(props), // look-home:scene
   counter: chips, // look-home:counter
   proof: (props) => tiles(props), // look-home:proof
   journal: index, // look-home:journal
   cabinet: (props) => tiles(props, 'drawers'), // look-home:cabinet
+  showroom: words, // look-home:showroom
 }
 
 export function Categories(props: Props) {

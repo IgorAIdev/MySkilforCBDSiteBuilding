@@ -20,7 +20,7 @@ type Props = { block: Extract<Block, { type: 'lab' }>; ctx: BlockCtx; place: Pla
    `--surface` и пол (`data-plate`), не тон марки — тон в тёмной теме
    становился ржавым и читался тревогой. */
 
-/* look-home:scene,counter:start */
+/* look-home:scene,counter,showroom:start */
 /* Лист: слова слева, протокол справа; в узкой коробке колонка одна
    (`switcher`). */
 const sheet = ({ block, ctx, place }: Props) => (
@@ -31,7 +31,7 @@ const sheet = ({ block, ctx, place }: Props) => (
     </div>
   </section>
 )
-/* look-home:scene,counter:end */
+/* look-home:scene,counter,showroom:end */
 
 /* look-home:proof:start */
 /* Протокол сразу: тот же лист, но протокол — главное в нём: колонка
@@ -82,6 +82,7 @@ const LABS: Record<HomeVariant, (props: Props) => ReactNode> = {
   proof: certificate, // look-home:proof
   journal: ruled, // look-home:journal
   cabinet: label, // look-home:cabinet
+  showroom: sheet, // look-home:showroom
 }
 
 export function Lab(props: Props) {

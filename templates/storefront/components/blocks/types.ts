@@ -13,8 +13,11 @@ export type DeliveryCtx = { methods: MethodView[]; terms: string | null }
 /** `home` — вариант главной из вида (lib/homes.ts): блок раскладывается по
  *  нему. `pledges` — обещания покупки из данных магазина (lib/pledges.ts);
  *  их ставит вариант, которому они нужны у первого экрана. `cart` — запись
- *  в корзину для кнопки карточки полки; действия передаёт страница. */
-export type BlockCtx = { lang: Lang; home: HomeVariant; collections: Collection[]; cards: Record<string, ShelfCard>; delivery: DeliveryCtx; pledges: PledgesView; cart: CartActions }
+ *  в корзину для кнопки карточки полки; действия передаёт страница.
+ *  `spotlight` — товар первого экрана: первый из ходовых страницы; его
+ *  кладёт на снимок вариант, у которого герой показывает товар; ходовых
+ *  нет — null. */
+export type BlockCtx = { lang: Lang; home: HomeVariant; collections: Collection[]; cards: Record<string, ShelfCard>; spotlight: ShelfCard | null; delivery: DeliveryCtx; pledges: PledgesView; cart: CartActions }
 /** Место блока на главной: воздух над ним — роль примитива `section`
  *  (`data-air`); null — воздух раздела. */
 export type Place = { air: Air | null }

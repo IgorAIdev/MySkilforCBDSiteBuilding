@@ -93,7 +93,7 @@
 }
 /* look-home:scene:end */
 
-/* look-home:scene,counter,proof:start */
+/* look-home:scene,counter,proof,showroom:start */
 /* ЛАБОРАТОРИЯ — единственный лист страницы: `--surface` и пол
    (`data-plate`), а не тон марки — тон в тёмной теме становился ржавым и
    читался тревогой. Слова стоят по середине высоты протокола; протокол
@@ -104,10 +104,10 @@
    легла бы вторым просветом поверх просвета колонок: снимается силой
    места, а не порядком файлов. */
 .labBand .labText{margin-block-end:0}
-/* look-home:scene,counter,proof:end */
-/* look-home:scene,counter:start */
+/* look-home:scene,counter,proof,showroom:end */
+/* look-home:scene,counter,showroom:start */
 .labDoc{max-inline-size:30rem}
-/* look-home:scene,counter:end */
+/* look-home:scene,counter,showroom:end */
 
 /* СПРАВОЧНЫЕ РАЗДЕЛЫ — доставка и вопросы: заголовок своей колонкой слева,
    строки справа через волосок (`sidebar`); в узкой коробке — столбиком, и
@@ -235,3 +235,98 @@
 .label{--stack:var(--air-block);max-inline-size:var(--measure);margin-inline:auto;text-align:center}
 .label > :first-child{align-items:center;margin-block-end:0}
 /* look-home:cabinet:end */
+
+/* look-home:showroom:start */
+/* ВИТРИНА САЛОНА (docs/design/home.md, «Витрина салона»). Раскладка — одна
+   сетка `.show`: строка заголовка, гибкая строка воздуха снимка, строка
+   низа. Снимок (`.showPhoto`) — её подсетка во все строки снимка: так
+   заголовок и карточка стоят в строках общей сетки, и длинный заголовок,
+   абзац или имя товара растят снимок, а не налезают друг на друга (И401).
+   Высота снимка — нижняя граница от окна и от своей ширины, а не
+   пропорция: снимок заполняет коробку (`cover`), какой бы высоты ни
+   сделал её текст. `overflow:clip`, а не `hidden`: коробка режет углы и
+   вуаль, но не становится прокруткой.
+
+   Вуаль — одна, у заголовка, и меряется его коробкой: пятно из угла,
+   плотное под словами (`--scrim-near` → `--scrim-far` там, где кончается
+   последняя строка) и сходящее на нет дальше. Краски — ступени строителя
+   палитры, те же, что у сцены (И295): тихая строка держит 4.5 : 1 на белом
+   снимке под дальней, заголовок — тем более. Коробка снимка режет вуаль по
+   своему краю, на пол она не выходит.
+
+   Узкая сцена: снимок, под ним на полу абзац и кнопка. Широкая: абзац и
+   кнопка — в вырезе нижнего левого угла снимка (`--page`, поле листа);
+   верхний правый угол выреза скруглён наружу, а два угла снимка рядом с
+   ним — внутрь, и край снимка обходит вырез одной линией. Угол внутрь —
+   квадрат со стороной радиуса листа, закрашенный полом вне круга из
+   дальнего угла. Угол снимка под вырезом не скругляется: скругление
+   резало бы сам вырез, и по краю проступала бы тонкая дуга снимка. */
+.showBand{padding-block-start:var(--air-group)}
+.showroom{container-type:inline-size;--hero-w:36rem}
+.show{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto}
+.showPhoto{
+  grid-row:1 / 4;grid-column:1 / -1;display:grid;grid-template-rows:subgrid;grid-template-columns:subgrid;
+  position:relative;overflow:clip;
+  border-radius:var(--r-sheet);background:var(--scrim-deck)
+}
+/* Нижняя граница высоты снимка — распоркой в его строках: у подсетки своя
+   высота в размер строк не идёт, а её вещь — идёт. */
+.showPhoto::before{content:'';grid-row:1 / -1;grid-column:1 / -1;min-block-size:min(150cqi, 80svh)}
+.showShot{position:absolute;inset:0;inline-size:100%;block-size:100%;object-fit:cover;object-position:60% 50%}
+.showTitle{grid-row:1;grid-column:1 / -1;justify-self:start;position:relative;isolation:isolate;padding:var(--pad-sheet)}
+.showTitle::before{
+  content:'';position:absolute;z-index:-1;inset:0 -60% -100% 0;
+  background:radial-gradient(farthest-side at 0 0, var(--scrim-near), var(--scrim-far) 70%, transparent)
+}
+.showTitle h1{max-inline-size:var(--hero-w);font-size:var(--hero-size);line-height:var(--hero-lead);font-weight:var(--hero-weight);letter-spacing:var(--hero-track);text-wrap:balance}
+.showNotch{--stack:var(--air-group);grid-row:4;grid-column:1 / -1;position:relative;padding-block-start:var(--air-group)}
+.showNotch > p{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:var(--intro-weight);letter-spacing:var(--intro-track);color:var(--ink-soft);max-inline-size:var(--measure-lede);text-wrap:pretty}
+
+/* Карточка товара на снимке — всплывает над ним, поэтому у неё тень роли
+   (`--sh-lift`) и лист пола (`data-plate`). Ссылка одна — «подробнее»; её
+   область растянута на всю карточку. */
+.showCard{
+  grid-row:3;grid-column:1 / -1;justify-self:end;align-self:end;
+  position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:var(--gap-row);
+  inline-size:min(100% - var(--pad-card) * 2, 24rem);margin:var(--pad-card);padding:var(--pad-card);
+  border-radius:var(--r-card);background:var(--surface);box-shadow:var(--sh-lift)
+}
+.showCardShot{--frame:1 / 1;inline-size:calc(var(--ctrl-h-lg) * 1.75);border-radius:var(--r-xs)}
+.showCardText{display:grid;justify-items:start}
+.showCardName{font-weight:600;text-wrap:pretty}
+.showCardPrice{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--gap-row);font-variant-numeric:tabular-nums}
+.showCardPrice s{color:var(--ink-soft)}
+.showCardGo{color:var(--ink-soft)}
+.showCardGo::after{content:'';position:absolute;inset:0;border-radius:inherit}
+@media (hover:hover){ .showCard:hover .showCardGo{color:var(--ink);text-decoration-line:underline} }
+.showCard:active .showCardGo{color:var(--ink)}
+
+/* Широкая сцена: низ — пара «вырез | карточка» по долям 2 : 3. */
+@container (min-width:820px){
+  .show{grid-template-columns:minmax(0,2fr) minmax(0,3fr);grid-template-rows:auto minmax(0,1fr) auto}
+  .showPhoto{border-end-start-radius:0}
+  .showPhoto::before{min-block-size:min(56cqi, 80svh)}
+  .showCard{grid-column:2;margin:var(--pad-sheet);inline-size:min(100% - var(--pad-sheet) * 2, 24rem)}
+  .showNotch{grid-row:3;grid-column:1;align-self:end;padding:var(--pad-sheet);border-start-end-radius:var(--r-sheet);background:var(--page)}
+  .showNotch::before,.showNotch::after{
+    content:'';position:absolute;inline-size:var(--r-sheet);block-size:var(--r-sheet);
+    background:radial-gradient(circle at 100% 0, transparent var(--r-sheet), var(--page) var(--r-sheet))
+  }
+  .showNotch::before{inset-block-end:100%;inset-inline-start:0}
+  .showNotch::after{inset-block-end:0;inset-inline-start:100%}
+}
+
+/* ПОЛКИ СТРОКОЙ — все полки одной фразой по середине, ролью заголовка
+   раздела; снимок полки стоит в строке рядом с именем и меряется строкой
+   (`em`): крупнее кегль — крупнее снимок. */
+.words{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:var(--gap-row) var(--air-group);
+  max-inline-size:var(--measure);margin:0 auto;padding:0;list-style:none;text-align:center;
+  font-size:var(--h2-size);line-height:var(--h2-lead);font-weight:var(--h2-weight);letter-spacing:var(--h2-track)
+}
+.words a{display:inline-flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-target);color:inherit;text-decoration:none}
+.wordShot{inline-size:1.6em;block-size:1em;object-fit:cover;border-radius:var(--r-xs);transition:scale var(--hover-t) var(--ease)}
+@media (hover:hover){ .words a:hover{text-decoration-line:underline;text-decoration-thickness:var(--line-w)} }
+@media (hover:hover) and (prefers-reduced-motion:no-preference){ .words a:hover .wordShot{scale:1.06} }
+.words a:active{color:var(--ink-soft)}
+/* look-home:showroom:end */

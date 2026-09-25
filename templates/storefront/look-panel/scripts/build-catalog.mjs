@@ -203,6 +203,7 @@ const HOME_LINES = {
   proof: { name: 'Lab report first', line: 'The batch report opens the page: the batch number is the largest thing on it', plan: ['title', 'sheet', 'row'] },
   journal: { name: 'Headline first', line: 'The promise set large across the page, a wide photo under it, shelves as an index', plan: ['headline', 'photo', 'index'] },
   cabinet: { name: 'Cabinet', line: 'A calm centred heading, shelves as apothecary drawers, a photo as a pause', plan: ['calm', 'drawers', 'row'] },
+  showroom: { name: 'Showroom', line: 'A rounded photo with the heading on it, the button in a cut-out corner, a product card lying on the photo, shelves as one large line', plan: ['notch', 'words', 'row'] },
 }
 /** Шапки: id — HEADERS в lib/headers.ts. */
 const HEADER_LINES = {

@@ -214,6 +214,7 @@ export const RO = {
   'done.more': 'Continuați cumpărăturile',
   'lab.open': 'Deschideți buletinul de analiză',
   'home.delivery.terms': 'Toate condițiile de livrare și plată',
+  'home.spotlight': 'Vezi detalii',
   'shelf.remove': 'Elimină filtrul {name}',
   'shelf.popular': 'Cele mai vândute',
   'shelf.pcs': 'buc.',

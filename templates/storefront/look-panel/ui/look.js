@@ -225,10 +225,10 @@
       if (field === 'shadow') return el('i', { class: 'lp-shape lp-lit', style: 'box-shadow:' + o.vars['--sh-raised'], 'aria-hidden': 'true' })
       /* Главная: первый экран схемой — из чего он сложен сверху вниз
          (catalog.json, `plan`): сцена, заголовок, фишки полок, ряд товара,
-         лист, ящики, снимок, оглавление. */
+         лист, ящики, снимок, оглавление, снимок с вырезом, строка полок. */
       if (field === 'home') {
         /* Ряд, фишки, плитки и ящики — клетками; оглавление — строками. */
-        var cells = { row: 4, tiles: 4, drawers: 4, chips: 4, index: 3 }
+        var cells = { row: 4, tiles: 4, drawers: 4, chips: 4, index: 3, words: 3 }
         return el('span', { class: 'lp-plan', 'aria-hidden': 'true' }, (o.plan || []).map(function (k) {
           return el('i', { 'data-k': k }, Array.from({ length: cells[k] || 0 }, function () { return el('b') }))
         }))
