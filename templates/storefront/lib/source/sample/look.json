@@ -222,6 +222,7 @@
     "--shot-frame": "1 / 1",
     "--shelf-cols": "4",
     "--card-buy": "full",
+    "--sort-label": "beside",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -246,6 +247,7 @@
     "card": "framed",
     "shot-frame": "square",
     "card-buy": "full",
+    "sort-label": "beside",
     "shelf-cols": "4",
     "pdp-gallery": "50",
     "pdp-thumbs": "below",

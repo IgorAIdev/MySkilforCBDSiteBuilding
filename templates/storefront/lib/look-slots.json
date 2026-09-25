@@ -1115,6 +1115,11 @@
       "type": "keyword",
       "group": "card-buy",
       "value": "full"
+    },
+    "--sort-label": {
+      "type": "keyword",
+      "group": "sort-label",
+      "value": "beside"
     }
   },
   "facts": {

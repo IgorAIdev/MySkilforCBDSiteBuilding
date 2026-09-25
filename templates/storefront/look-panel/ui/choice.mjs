@@ -39,7 +39,7 @@ export const SECTIONS = [
     /* Полка (И400): одежда карточки, пропорция снимка — одна с картой
        товара, — место кнопки «в корзину» и сколько карточек в ряд на полке
        каталога. */
-    { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf. The picture shape is the same on the product page: the photos are the same.', fields: [['card', 'Product card'], ['shot-frame', 'Picture'], ['card-buy', 'Cart button'], ['shelf-cols', 'Shelf density']] },
+    { id: 'card', name: 'Card', hint: 'How a product card sits on the shelf. The picture shape is the same on the product page: the photos are the same.', fields: [['card', 'Product card'], ['shot-frame', 'Picture'], ['card-buy', 'Cart button'], ['shelf-cols', 'Shelf density'], ['sort-label', 'Sort button']] },
     /* Главная (lib/homes.ts): порядок и раскладка блоков; слова и снимки —
        данные страницы, одни на все варианты. */
     { id: 'home', name: 'Home', hint: 'How the home page is composed: what comes first and how each part is laid out. Your texts and pictures stay the same.', fields: [['home', 'Layout']] },

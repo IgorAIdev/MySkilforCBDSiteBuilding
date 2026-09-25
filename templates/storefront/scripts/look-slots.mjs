@@ -62,6 +62,7 @@ export const PRODUCT = {
   '--shot-frame': { type: 'number', value: '1 / 1' },
   '--shelf-cols': { type: 'number', value: '4' },
   '--card-buy': { type: 'keyword', value: 'full' },
+  '--sort-label': { type: 'keyword', value: 'beside' },
 }
 /* Роли тени — по работе (И228): предмет в покое, подъём под рукой,
    всплывающее, вдавленное. Объявлены ОДИН раз — в styles/look.css, на

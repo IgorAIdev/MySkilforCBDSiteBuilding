@@ -37,9 +37,11 @@
    стрелка смотрит вверх (craft, controls.md, «Лоток»: у створки «включено»
    значит «открыто»). Цвет — ручкой кнопки (`--press-bg`), а не своей
    краской: ответ на руку у кнопки один (styles/btn.module.css). */
-.trigger svg{transition:rotate var(--open-t) var(--ease)}
+/* Поворачивается стрелка раскрытия — прямой потомок кнопки; знак порядка
+   внутри подписи (SortMenu, И395) стоит на месте. */
+.trigger > svg{transition:rotate var(--open-t) var(--ease)}
 .facet:has(.drop:popover-open) .trigger{--press-bg:var(--quiet-on)}
-.facet:has(.drop:popover-open) .trigger svg{rotate:.5turn}
+.facet:has(.drop:popover-open) .trigger > svg{rotate:.5turn}
 
 /* Раскрытие — бумага всплывающего (`menu`) под своей кнопкой; одно на
    грани и на порядок полки (SortMenu.tsx). Неявная привязка поповера к

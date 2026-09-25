@@ -169,6 +169,12 @@ export const SHELF = {
     { id: 'full', name: 'Full width', line: 'The cart button under the price, the whole width of the card', vars: { '--card-buy': 'full' } },
     { id: 'beside', name: 'Beside the price', line: 'A smaller cart button at the end of the price row; it moves under the price when the card is narrow', vars: { '--card-buy': 'beside' } },
   ],
+  /* Подпись порядка полки (элемент 63, И395): снаружи кнопки или внутри,
+     со знаком порядка, и галка у выбранного в списке. */
+  'sort-label': [
+    { id: 'beside', name: 'Label beside', line: '«Sort by» before the button; the button shows the order', vars: { '--sort-label': 'beside' } },
+    { id: 'inside', name: 'Label inside', line: 'A sort sign and «Sort by:» inside the button; a tick at the chosen order (element 63)', vars: { '--sort-label': 'inside' } },
+  ],
   'shelf-cols': [
     { id: '4', name: '4 in a row', line: 'Four cards in a row on a wide screen: larger pictures', vars: { '--shelf-cols': '4' } },
     { id: '5', name: '5 in a row', line: 'Five cards in a row on a wide screen: more products at a glance', vars: { '--shelf-cols': '5' } },

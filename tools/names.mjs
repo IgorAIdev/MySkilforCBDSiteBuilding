@@ -107,7 +107,7 @@ const ROLE = [
      карту, снимки у товара одни; плотность — сколько карточек в ряд на
      полке каталога; место кнопки «в корзину» на карточке. Роли вида («Admin → Card»), читают узлы карточки,
      галереи и полки. */
-  { rx: /^--(shot-frame|shelf-cols|card-buy)$/, family: 'товар: кадр снимка, плотность полки, кнопка карточки', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
+  { rx: /^--(shot-frame|shelf-cols|card-buy|sort-label)$/, family: 'товар: кадр снимка, плотность полки, кнопка карточки, подпись порядка полки', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
 ]
 const ALL_CONCEPTS = [...new Set(Object.values(CONCEPTS).flat())]
 const concept = new RegExp(`^--${FAMS(ALL_CONCEPTS)}(-[a-z0-9]+)*$`)

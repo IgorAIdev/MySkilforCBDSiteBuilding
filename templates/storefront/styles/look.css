@@ -21,6 +21,7 @@
   --shot-frame: 1 / 1;
   --shelf-cols: 4;
   --card-buy: full;
+  --sort-label: beside;
 }
 :root,[data-ground='deck'],[data-plate]{
   --sh-raised: 0 0 0 1px var(--sh-ring), 0 1px 2px var(--sh-near), 0 8px 20px -10px var(--sh-far-1);
