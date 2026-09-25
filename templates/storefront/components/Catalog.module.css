@@ -53,15 +53,15 @@
 .sortList a[aria-current='true']{font-weight:600;background:var(--quiet)}
 /* Подпись порядка — снаружи кнопки (умолчание) или внутри, со знаком
    порядка, и галка у выбранного (`--sort-label: inside`, элемент 63, И395). */
-.sortIn,.sortList a svg{display:none}
-.sortIn{align-items:center;gap:calc(var(--btn-h, var(--ctrl-h)) * .2)}
+.byLine,.sortList a svg{display:none}
+.byLine{align-items:center;gap:calc(var(--btn-h, var(--ctrl-h)) * .2)}
 /* «Sort by:» — краской надписи кнопки, отличие весом: краска подписи на
    вуали тихой кнопки — 3.90 : 1 (check:craft, 25.09.2026). */
-.sortWord{font-weight:var(--body-weight)}
+.byWord{font-weight:var(--body-weight)}
 .sortList a svg{flex:none;margin-inline-start:auto;inline-size:1.1em;block-size:1.1em;color:var(--pop-ink)}
 @container style(--sort-label: inside){
   .sortLabel{display:none}
-  .sortIn{display:inline-flex}
+  .byLine{display:inline-flex}
   .sortList a{gap:var(--gap-row)}
   .sortList a svg{display:block}
 }
@@ -72,7 +72,7 @@
    названа для чтения вслух (`aria-label`). Форма граней на узком закрыта в
    шторку и в строке места не занимает. */
 @container (max-width:819px){
-  .sortLabel,.sortWord{display:none}
+  .sortLabel,.byWord{display:none}
 }
 .sort > button{white-space:nowrap}
 

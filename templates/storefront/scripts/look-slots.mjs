@@ -61,6 +61,7 @@ export const PRODUCT = {
   '--pdp-edge': { type: 'keyword', value: 'inset' },
   '--seg-look': { type: 'keyword', value: 'chips' },
   '--go-hover': { type: 'colour', value: 'currentcolor' },
+  '--head-icons': { type: 'keyword', value: 'bare' },
   '--shot-frame': { type: 'number', value: '1 / 1' },
   '--shelf-cols': { type: 'number', value: '4' },
   '--card-buy': { type: 'keyword', value: 'full' },

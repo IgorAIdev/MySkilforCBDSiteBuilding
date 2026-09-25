@@ -36,6 +36,20 @@
   font:inherit;font-size:var(--ctrl-fs-xs);font-weight:500
 }
 .glyph svg{inline-size:1.43em;block-size:1.43em;flex:none}
+/* Знаки шапки — вид `--head-icons` (И398): `bare` — без заливки
+   (умолчание, выше); `toned` — тон под каждым знаком в покое (элемент 01;
+   угол — из Shape: полный круг — только у главного действия); `tray` — ряд
+   действий в одном лотке тона, поле лотка — доля роста цели (элементы 09,
+   39). У шапки кассы в ряду не знаки, а ссылка «назад» — лотка у неё нет. */
+@container style(--head-icons: toned){
+  .actions .glyph{--press-bg:var(--quiet)}
+}
+@container style(--head-icons: tray){
+  .head:not([data-variant='checkout']) .actions{
+    gap:0;padding:calc(var(--ctrl-target) * .08);
+    border-radius:calc(var(--r-ctrl) + var(--ctrl-target) * .08);background:var(--quiet)
+  }
+}
 /* Со словом («Shop», «Cart») — поле по бокам шире: слово не липнет к краю вуали. */
 .cart:has(.cartLabel){padding-inline:calc(var(--ctrl-target) * .25)}
 .shop{padding-inline:calc(var(--ctrl-target) * .25)} /* look-header:boutique */

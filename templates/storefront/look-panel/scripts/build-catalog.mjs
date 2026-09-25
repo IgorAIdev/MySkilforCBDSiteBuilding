@@ -131,6 +131,13 @@ export const FIELD_LABELS = [
   { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
   { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
 ]
+/** Знаки шапки (И398): без заливки, тоном под каждым (элемент 01) или рядом
+ *  в одном лотке (элементы 09, 39). */
+export const HEAD_ICONS = [
+  { id: 'bare', name: 'Bare', line: 'Icons with no fill; a veil under the hand', vars: { '--head-icons': 'bare' } },
+  { id: 'toned', name: 'Toned', line: 'A tone under each icon at rest (element 01)', vars: { '--head-icons': 'toned' } },
+  { id: 'tray', name: 'Tray', line: 'The header actions in one tone tray (elements 09, 39)', vars: { '--head-icons': 'tray' } },
+]
 /** Краска ссылки «куда ведёт» под рукой (И397): своя (стрелка едет, краска
  *  та же) или марка для текста — элемент 11. */
 export const GO_HOVER = [
@@ -317,6 +324,7 @@ export async function buildCatalog({ site, kit }) {
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
+    'head-icons': siteFirst(HEAD_ICONS.map((o) => ({ ...o, vars: check('head-icons', o.id, o.vars) }))),
     'go-hover': siteFirst(GO_HOVER.map((o) => ({ ...o, vars: check('go-hover', o.id, o.vars) }))),
     ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),

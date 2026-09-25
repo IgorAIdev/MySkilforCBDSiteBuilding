@@ -226,6 +226,7 @@
     "--sort-label": "beside",
     "--seg-look": "chips",
     "--go-hover": "currentcolor",
+    "--head-icons": "bare",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -248,6 +249,7 @@
     "go-hover": "plain",
     "header": "classic",
     "marker": "underline",
+    "head-icons": "bare",
     "card": "framed",
     "shot-frame": "square",
     "card-buy": "full",

@@ -1116,6 +1116,11 @@
       "group": "go-hover",
       "value": "currentcolor"
     },
+    "--head-icons": {
+      "type": "keyword",
+      "group": "head-icons",
+      "value": "bare"
+    },
     "--shot-frame": {
       "type": "number",
       "group": "shot-frame",

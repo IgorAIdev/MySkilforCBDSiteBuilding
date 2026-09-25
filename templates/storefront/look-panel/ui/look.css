@@ -182,6 +182,11 @@
 .lp-label b{display:block;inline-size:16px;block-size:3px;border-radius:2px;background:currentColor;opacity:.7}
 .lp-label[data-at='edge']{position:relative}
 .lp-label[data-at='edge'] b{position:absolute;inset-block-start:-1px;inset-inline-start:5px;box-shadow:0 0 0 2px var(--lp-well)}
+/* Образец знаков шапки: три знака — голые, тоном или в лотке. */
+.lp-heads{display:inline-flex;gap:3px}
+.lp-heads i{display:block;inline-size:9px;block-size:9px;border-radius:3px;box-shadow:inset 0 0 0 3px transparent;background:radial-gradient(circle, currentColor 2px, transparent 2.5px)}
+.lp-heads[data-at='toned'] i{background-color:var(--lp-chip)}
+.lp-heads[data-at='tray']{gap:0;padding:2px;border-radius:4px;background:var(--lp-chip)}
 /* Образец ссылки под рукой: стрелка краской варианта. */
 .lp-go{font-weight:700;line-height:1}
 /* Образец галочки: отмеченный квадрат краской варианта. */

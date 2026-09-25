@@ -57,7 +57,7 @@ test('look: the site stylesheets are emitted, never a second set; the property l
   assert.ok(!read('components/Shell.tsx').includes('next/font'), 'next/font в сайте нет')
   assert.equal(read('lib/look-slots.json').replace(/\r\n/g, '\n'), render(lookSlots(readSite(ROOT))))
   const groups = new Set(Object.values(SLOTS.slots).map((s) => s.group))
-  assert.deepEqual([...groups].sort(), ['button', 'card-buy', 'corners', 'face', 'field', 'field-label', 'go-hover', 'marker', 'palette', 'pdp-edge', 'pdp-gallery', 'pdp-thumbs', 'scale', 'seg-look', 'shadow', 'shelf-cols', 'shot-frame', 'sort-label', 'tick', 'width'])
+  assert.deepEqual([...groups].sort(), ['button', 'card-buy', 'corners', 'face', 'field', 'field-label', 'go-hover', 'head-icons', 'marker', 'palette', 'pdp-edge', 'pdp-gallery', 'pdp-thumbs', 'scale', 'seg-look', 'shadow', 'shelf-cols', 'shot-frame', 'sort-label', 'tick', 'width'])
   for (const role of ['--page', '--plate', '--quiet', '--pop', '--on-pop']) assert.ok(SLOTS.facts.roles[role], role)
 })
 
