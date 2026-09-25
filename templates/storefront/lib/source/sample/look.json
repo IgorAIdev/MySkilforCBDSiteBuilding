@@ -224,6 +224,7 @@
     "--shelf-cols": "4",
     "--card-buy": "full",
     "--sort-label": "beside",
+    "--seg-look": "chips",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -249,6 +250,7 @@
     "shot-frame": "square",
     "card-buy": "full",
     "sort-label": "beside",
+    "seg-look": "chips",
     "shelf-cols": "4",
     "pdp-gallery": "50",
     "pdp-thumbs": "below",

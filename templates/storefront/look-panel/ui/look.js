@@ -216,6 +216,8 @@
       if (field === 'card-buy') return el('span', { class: 'lp-buy', 'data-at': o.vars['--card-buy'], 'aria-hidden': 'true' }, [el('i'), el('b')])
       /* Подпись порядка (И395): черта подписи перед кнопкой или внутри неё. */
       if (field === 'sort-label') return el('span', { class: 'lp-sort', 'data-at': o.vars['--sort-label'], 'aria-hidden': 'true' }, [el('i'), el('b', {}, [el('i')])])
+      /* Выбор варианта (И396): три сегмента — отдельно, встык или в подложке. */
+      if (field === 'seg-look') return el('span', { class: 'lp-seg', 'data-at': o.vars['--seg-look'], 'aria-hidden': 'true' }, [el('b'), el('i'), el('i')])
       if (field === 'shelf-cols') return el('span', { class: 'lp-cols', 'aria-hidden': 'true' }, Array.from({ length: Number(o.vars['--shelf-cols']) || 4 }, function () { return el('i') }))
       if (field === 'pdp-thumbs') {
         var at = o.vars['--pdp-thumbs']

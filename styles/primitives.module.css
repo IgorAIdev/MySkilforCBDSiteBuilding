@@ -1066,6 +1066,29 @@
 .seg :where(button, a[href]):not([aria-pressed="true"], [aria-current="true"]):active{background:var(--press-ctrl);color:var(--ink)}
 .seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--pop);color:var(--on-pop);font-weight:600;box-shadow:none}
 .seg [aria-disabled="true"]{opacity:var(--state-off);cursor:not-allowed}
+/* Вид сегментов — роль вида `--seg-look` (И396): `chips` (умолчание,
+   выше), `joined` — встык в волоске края, угол у крайних, выбранный — тон
+   марки, кромка и слово краской марки (элемент 49); `tray` — в подложке
+   тона, выбранный — плашка пола, полужирное слово (элемент 50). Встык
+   соседи заходят друг на друга волоском — линия между ними одна; выбранный
+   поверх соседей. Подложка растёт полем вокруг сегментов: цель остаётся
+   ростом сегмента. Где запрос стиля не поддержан — пилюли. */
+@container style(--seg-look: joined){
+  .seg{gap:0}
+  .seg :is(button, a){position:relative;border-radius:0;margin-inline-start:calc(-1 * var(--line-w))}
+  .seg :is(button, a):first-child{margin-inline-start:0;border-start-start-radius:var(--r-ctrl);border-end-start-radius:var(--r-ctrl)}
+  .seg :is(button, a):last-child{border-start-end-radius:var(--r-ctrl);border-end-end-radius:var(--r-ctrl)}
+  .seg :is([aria-pressed="true"], [aria-current="true"]){z-index:1;background:var(--pop-tint);color:var(--pop-ink);box-shadow:inset 0 0 0 var(--line-w) var(--pop-ink)}
+}
+@container style(--seg-look: tray){
+  .seg{
+    --seg-pad:calc(var(--seg-h, var(--ctrl-h-sm)) * .08);
+    gap:0;inline-size:fit-content;max-inline-size:100%;padding:var(--seg-pad);
+    border-radius:calc(var(--r-ctrl) + var(--seg-pad));background:var(--plate-quiet)
+  }
+  .seg :is(button, a){background:transparent;box-shadow:none}
+  .seg :is([aria-pressed="true"], [aria-current="true"]){background:var(--surface);color:var(--ink);box-shadow:var(--sh-raised)}
+}
 /* Принудительные цвета стирают заливку и тень: у ссылки-сегмента не
    остаётся ни плашки, ни кромки. Обводка — та же, что у кнопки в
    styles/base.css; записана здесь, а не там: имя класса модуля хешируется,

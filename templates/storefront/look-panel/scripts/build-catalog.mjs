@@ -198,6 +198,12 @@ export const PRODUCT_PAGE = {
     { id: 'inset', name: 'Within the margins', line: 'The picture keeps the page margins and rounded corners', vars: { '--pdp-edge': 'inset' } },
     { id: 'bleed', name: 'Full width', line: 'On phones the picture runs edge to edge; with dots on the picture the details slide over it', vars: { '--pdp-edge': 'bleed' } },
   ],
+  /* Выбор варианта (И396): пилюли, встык (элемент 49) или в подложке (50). */
+  'seg-look': [
+    { id: 'chips', name: 'Chips', line: 'Separate chips; the chosen one in the brand colour', vars: { '--seg-look': 'chips' } },
+    { id: 'joined', name: 'Joined', line: 'Segments side by side; the chosen one in a brand tint with a brand edge (element 49)', vars: { '--seg-look': 'joined' } },
+    { id: 'tray', name: 'Tray', line: 'Segments on a tone tray; the chosen one lifted on the page colour (element 50)', vars: { '--seg-look': 'tray' } },
+  ],
 }
 /** Главные: id — HOMES в lib/homes.ts (docs/design/home.md). `plan` —
  *  первый экран схемой для образца панели, сверху вниз: из чего он сложен

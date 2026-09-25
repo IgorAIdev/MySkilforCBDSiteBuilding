@@ -212,6 +212,15 @@
 .lp-buy b{display:block;background:currentColor;border-radius:3px}
 .lp-buy[data-at='beside']{grid-template-columns:8px 8px;grid-template-rows:5px;align-items:center}
 .lp-buy[data-at='beside'] i{inline-size:auto;block-size:3px}
+/* Образец выбора варианта: три сегмента, выбранный — первый. */
+.lp-seg{display:inline-flex;gap:2px}
+.lp-seg > *{display:block;inline-size:9px;block-size:9px;border:1px solid currentColor;border-radius:2px;opacity:.6}
+.lp-seg b{background:currentColor;opacity:.9}
+.lp-seg[data-at='joined']{gap:0}
+.lp-seg[data-at='joined'] > * + *{margin-inline-start:-1px}
+.lp-seg[data-at='tray']{padding:2px;border-radius:3px;background:var(--lp-chip)}
+.lp-seg[data-at='tray'] > *{border-color:transparent}
+.lp-seg[data-at='tray'] b{background:var(--lp-well);border-color:currentColor}
 /* Образец подписи порядка: черта подписи перед рамкой кнопки или в ней. */
 .lp-sort{display:inline-flex;align-items:center;gap:3px}
 .lp-sort > i,.lp-sort b i{display:block;inline-size:8px;block-size:3px;border-radius:1px;background:currentColor;opacity:.5}

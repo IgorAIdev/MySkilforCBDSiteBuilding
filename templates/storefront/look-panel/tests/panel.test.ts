@@ -61,7 +61,8 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
      `--pdp-*`, умолчание — то, что стоит у сайта. Полка (И400): одежда,
      пропорция снимка — одна на полку и карту — и плотность полки. */
   const product = SECTIONS[1].subs.find((s) => s.id === 'product')!
-  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Picture edge', 'Thumbnails'])
+  assert.deepEqual(product.fields.map((f) => f[1]), ['Gallery width', 'Picture edge', 'Thumbnails', 'Options'])
+  assert.deepEqual(catalog.groups['seg-look'].map((o) => o.id), ['chips', 'joined', 'tray'], 'выбор варианта — пилюли по умолчанию (И396)')
   const card = SECTIONS[1].subs.find((s) => s.id === 'card')!
   assert.deepEqual(card.fields.map((f) => f[1]), ['Product card', 'Picture', 'Cart button', 'Shelf density', 'Sort button'])
   assert.deepEqual(catalog.groups['pdp-gallery'].map((o) => o.id).sort(), ['40', '50', '60'])
@@ -71,7 +72,7 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   assert.deepEqual(catalog.groups['card-buy'].map((o) => o.id), ['full', 'beside'], 'кнопка карточки — во всю ширину по умолчанию')
   assert.deepEqual(catalog.groups['pdp-thumbs'].map((o) => o.name).sort(), ['Below', 'Dots', 'On the picture', 'Side'])
   assert.deepEqual(catalog.groups['sort-label'].map((o) => o.id), ['beside', 'inside'], 'подпись порядка — снаружи кнопки по умолчанию (И395)')
-  for (const f of ['pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy', 'sort-label']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
+  for (const f of ['pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'shot-frame', 'shelf-cols', 'card-buy', 'sort-label', 'seg-look']) assert.equal(catalog.groups[f][0].vars![`--${f}`], slots[`--${f}`].value, `${f}: умолчание — значение сайта`)
   const buttons = SECTIONS[0].subs.find((s) => s.id === 'buttons')!
   assert.deepEqual(buttons.fields.map((f) => f[0]), catalog.axes.map((a) => a.field), 'Buttons — оси каталога кнопки')
   assert.deepEqual(catalog.axes.map((a) => a.name), ['Letters', 'Main button', 'Quiet button', 'Main button shape'])

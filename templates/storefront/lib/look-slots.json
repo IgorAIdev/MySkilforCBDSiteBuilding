@@ -556,6 +556,11 @@
       "group": "button",
       "value": "0"
     },
+    "--ctrl-btn-pill": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
     "--fs-xs": {
       "type": "length",
       "group": "scale",
@@ -1100,6 +1105,11 @@
       "type": "keyword",
       "group": "pdp-edge",
       "value": "inset"
+    },
+    "--seg-look": {
+      "type": "keyword",
+      "group": "seg-look",
+      "value": "chips"
     },
     "--shot-frame": {
       "type": "number",
