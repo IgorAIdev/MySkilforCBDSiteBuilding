@@ -204,6 +204,8 @@
       }
       /* Место подписи (И394): полоска поля и черта подписи над ним или на кромке. */
       if (field === 'field-label') return el('span', { class: 'lp-label', 'data-at': o.vars['--ctrl-field-label'], 'aria-hidden': 'true' }, [el('b'), el('i', { class: 'lp-field' })])
+      /* Сообщение формы (И420): строка или заметка с точкой знака. */
+      if (field === 'say-look') return el('span', { class: 'lp-say', 'data-at': o.vars['--say-look'], 'aria-hidden': 'true' }, [el('i'), el('b')])
       /* Знаки шапки (И398): три знака — без заливки, тоном или в лотке. */
       if (field === 'head-icons') return el('span', { class: 'lp-heads', 'data-at': o.vars['--head-icons'], 'aria-hidden': 'true' }, [el('i'), el('i'), el('i')])
       /* Ссылка под рукой (И397): стрелка краской варианта. */

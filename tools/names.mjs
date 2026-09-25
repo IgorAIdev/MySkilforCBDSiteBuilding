@@ -107,6 +107,7 @@ const ROLE = [
      карту, снимки у товара одни; плотность — сколько карточек в ряд на
      полке каталога; место кнопки «в корзину» на карточке. Роли вида («Admin → Card»), читают узлы карточки,
      галереи и полки. */
+  { rx: /^--say-look$/, family: 'вид сообщения формы', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
   { rx: /^--head-icons$/, family: 'вид знаков шапки', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
   { rx: /^--go-hover$/, family: 'краска ссылки «куда ведёт» под рукой', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },
   { rx: /^--seg-look$/, family: 'вид сегментов выбора', by: 'templates/storefront/scripts/look-slots.mjs (styles/look.css)' },

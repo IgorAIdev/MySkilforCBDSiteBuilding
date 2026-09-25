@@ -1121,6 +1121,11 @@
       "group": "head-icons",
       "value": "bare"
     },
+    "--say-look": {
+      "type": "keyword",
+      "group": "say-look",
+      "value": "line"
+    },
     "--shot-frame": {
       "type": "number",
       "group": "shot-frame",

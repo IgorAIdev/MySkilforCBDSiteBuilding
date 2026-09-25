@@ -131,6 +131,12 @@ export const FIELD_LABELS = [
   { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
   { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
 ]
+/** Сообщение формы (И420): строкой или заметкой тона сигнала со знаком
+ *  (элементы 29, 31); строка под полем остаётся строкой. */
+export const SAY_LOOKS = [
+  { id: 'line', name: 'Line', line: 'A line of text under the form, in the signal colour', vars: { '--say-look': 'line' } },
+  { id: 'note', name: 'Note', line: 'A tinted note with a sign: green when done, red on an error (elements 29, 31)', vars: { '--say-look': 'note' } },
+]
 /** Знаки шапки (И398): без заливки, тоном под каждым (элемент 01) или рядом
  *  в одном лотке (элементы 09, 39). */
 export const HEAD_ICONS = [
@@ -324,6 +330,7 @@ export async function buildCatalog({ site, kit }) {
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
+    'say-look': siteFirst(SAY_LOOKS.map((o) => ({ ...o, vars: check('say-look', o.id, o.vars) }))),
     'head-icons': siteFirst(HEAD_ICONS.map((o) => ({ ...o, vars: check('head-icons', o.id, o.vars) }))),
     'go-hover': siteFirst(GO_HOVER.map((o) => ({ ...o, vars: check('go-hover', o.id, o.vars) }))),
     ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),

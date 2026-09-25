@@ -121,6 +121,30 @@ textarea.box{padding-block:calc(var(--ctrl-h) * .25);min-block-size:calc(var(--c
 /* Строка под полем: подсказка или ошибка с шагом. */
 .say{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
 .say[data-state='error']{color:var(--bad)}
+/* Сообщение формы — строкой (умолчание) или заметкой: тон сигнала, знак из
+   листа у начала (роль вида `--say-look: note`, И420; элементы 29 и 31
+   набора). Заметкой становится только сообщение всей формы — у него есть
+   роль (`status`, `alert`); строка под полем остаётся строкой. Пустое
+   сообщение не рисуется: строка состояния корзины стоит на странице всегда,
+   слово в неё приходит потом. Знак — маской по виду знака из листа, краской
+   сигнала. */
+@container style(--say-look: note){
+  .say:is([role='status'], [role='alert']):not(:empty){
+    display:flex;align-items:flex-start;gap:var(--gap-row);
+    padding:var(--pad-inner);border-radius:var(--r-ctrl);
+    background:var(--ok-tint);color:var(--ink)
+  }
+  .say:is([role='status'], [role='alert']):not(:empty)::before{
+    content:'';flex:none;inline-size:1.25em;block-size:1.25em;background:var(--ok);
+    -webkit-mask:url('/icons.svg#circle-check-view') center / contain no-repeat;
+    mask:url('/icons.svg#circle-check-view') center / contain no-repeat
+  }
+  .say[data-state='error']:is([role='status'], [role='alert']):not(:empty){background:var(--bad-tint);color:var(--bad)}
+  .say[data-state='error']:is([role='status'], [role='alert']):not(:empty)::before{
+    background:var(--bad);
+    -webkit-mask-image:url('/icons.svg#triangle-alert-view');mask-image:url('/icons.svg#triangle-alert-view')
+  }
+}
 
 /* Галочка и радио — браузерные нарочно: клавиатура, чтец, промежуточное
    состояние. Сайт даёт им цвет отмеченного и рамку (`base.css`, одна

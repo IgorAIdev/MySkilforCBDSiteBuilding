@@ -227,6 +227,7 @@
     "--seg-look": "chips",
     "--go-hover": "currentcolor",
     "--head-icons": "bare",
+    "--say-look": "line",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -246,6 +247,7 @@
     "field": "framed",
     "field-label": "above",
     "tick": "brand",
+    "say-look": "line",
     "go-hover": "plain",
     "header": "classic",
     "marker": "underline",
