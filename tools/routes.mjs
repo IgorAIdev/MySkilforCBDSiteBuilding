@@ -81,6 +81,35 @@ export const DOCS = JSON.parse(src('lib/docs.json') || '[]')
  *  кода (`lib/blog.json`). */
 export const POSTS = JSON.parse(src('lib/blog.json') || '[]')
 
+/** Источник данных витрины (И414): образец в файлах (`SOURCE` пуст или
+ *  `sample`) или внешний движок (`SOURCE=vendure` в окружении или в `.env`
+ *  сайта). У внешнего полок и товаров в файлах нет — адреса знает сам сайт,
+ *  его карта (`/sitemap.xml`). Тогда адреса с полкой и товаром берутся из
+ *  карты поднятого сайта (`SITE=`), по языку ровно те, что сайт публикует:
+ *  подставлять образцовые имена значило стучаться в «не найдено» (дефект
+ *  25.09.2026: 48 из 96 адресов `check:open` — полки и товары образца на
+ *  витрине с каталогом cbdin). */
+const dotenv = Object.fromEntries(src('.env').split(/\r?\n/).map((l) => l.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/)).filter(Boolean).map((m) => [m[1], m[2]]))
+/* Пустая переменная окружения — «не задано»: иначе `SOURCE=` в оболочке
+   молча перебивал источник из `.env` сайта. */
+export const SOURCE = (process.env.SOURCE || dotenv.SOURCE || '').trim() || 'sample'
+export const EXTERNAL = SOURCE !== 'sample'
+/** Значение настройки сайта: окружение, затем `.env` сайта. */
+export const siteEnv = (key) => process.env[key] || dotenv[key]
+
+/** Пути из карты поднятого сайта. */
+export async function livePaths(base) {
+  const res = await fetch(`${base.replace(/\/+$/, '')}/sitemap.xml`)
+  if (!res.ok) throw new Error(`${base}/sitemap.xml — ${res.status}`)
+  return [...(await res.text()).matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => new URL(m[1]).pathname.replace(/\/+$/, '') || '/')
+}
+let LIVE = EXTERNAL && process.env.SITE ? await livePaths(process.env.SITE) : null
+/** Карта сайта для внешнего источника, когда сайт подняли после загрузки
+ *  этого модуля (`check:open` поднимает `next dev` сам). */
+export async function useLive(base) {
+  if (EXTERNAL) LIVE = await livePaths(base)
+}
+
 /** Полки. Порядок тот же, что в данных: он по спросу, и первая полка — самая
  *  полная. */
 export const CATEGORIES = [...catalogue.matchAll(/\{\s*slug:\s*'([a-z-]+)'/g)]
@@ -281,6 +310,7 @@ function asked(fill) {
 /** Каждый адрес, который публикует сайт. Для дешёвых проверок: открывается
  *  ли страница, обещана ли она картой сайта. */
 export function all() {
+  if (EXTERNAL) return liveList((list) => list)
   assertData()
   return [...new Set([...shapes().flatMap(expand(FILL)), ...queried(), ...asked(FILL)])].sort()
 }
@@ -288,8 +318,42 @@ export function all() {
 /** По одному адресу на форму маршрута и язык. Для дорогих проверок —
  *  отрисованных, где каждая страница стоит шести открытий. */
 export function sample() {
+  if (EXTERNAL) return liveList((list) => [...new Set([list[0], list[list.length - 1]])])
   assertData()
   return [...new Set([...shapes().flatMap(expand(SAMPLE)), ...queried(), ...asked(SAMPLE)])].sort()
+}
+
+/** Внешний источник (И414): формы без полки и товара — из дерева, как
+ *  всегда (язык, документы, корзина, поиск, касса); формы с сегментом,
+ *  которого в файлах нет, — адресами из карты сайта, по форме и языку;
+ *  `pick` выбирает из них все (`all`) или два конца (`sample`). Карты нет —
+ *  адресов не выдумывают: проверка останавливается и говорит, чего ей
+ *  нужно. Части адреса в дереве — слова (`catalog`, `product`): группы
+ *  `(x)` в адрес не входят, поэтому в образце карты они стоят как есть. */
+const LOCAL = new Set(['[lang]', '[locale]', '[doc]', '[slug]'])
+const dynamic = (seg) => seg.startsWith('[') && seg.endsWith(']')
+function liveList(pick) {
+  if (!LIVE) {
+    console.error(`\n✗ tools/routes.mjs: источник витрины — ${SOURCE}; адреса полок и товаров знает сам сайт.`)
+    console.error('  Поднимите сайт и передайте его адрес: SITE=http://localhost:3020 …')
+    process.exit(1)
+  }
+  const out = []
+  for (const shape of shapes()) {
+    const segs = shape.split('/').filter(Boolean)
+    if (segs.every((seg) => !dynamic(seg) || LOCAL.has(seg))) { out.push(...expand(FILL)(shape)); continue }
+    const byLang = new Map()
+    for (const path of LIVE) {
+      const parts = path.split('/').filter(Boolean)
+      if (parts.length !== segs.length || !segs.every((seg, i) => dynamic(seg) || seg === parts[i])) continue
+      const lang = segs[0] === '[lang]' || segs[0] === '[locale]' ? parts[0] : ''
+      byLang.set(lang, [...(byLang.get(lang) ?? []), path])
+    }
+    for (const list of byLang.values()) out.push(...pick(list))
+  }
+  /* Страницы с запросом (`queries`, И345) — у тех форм, что уже в списке. */
+  const queries = asked(FILL).filter((u) => out.includes(u.split('?')[0]))
+  return [...new Set([...out, ...queries])].sort()
 }
 
 /** Личные страницы полными — для дорогих проверок (И263): формы из

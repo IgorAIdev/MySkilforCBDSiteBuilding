@@ -26,7 +26,7 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createServer } from 'node:net'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
-import { all, sample, shapes, langSegment, LOCALES, DEFAULT_LANG } from './routes.mjs'
+import { all, sample, shapes, langSegment, LOCALES, DEFAULT_LANG, useLive } from './routes.mjs'
 import { whyNotOwn, whyNotQuiet, missKind } from './not-found.mjs'
 import { PROBES } from './kit-config.mjs'
 
@@ -55,7 +55,9 @@ const freePort = () => new Promise((done, fail) => {
 const PORT = Number(process.env.PORT ?? await freePort())
 const BASE = process.env.SITE ?? `http://127.0.0.1:${PORT}`
 const built = process.argv.includes('--built')
-const urls = all()
+/* Список адресов — после того, как сайт поднят: у внешнего источника
+   (SOURCE=vendure) адреса полок и товаров знает сам сайт, его карта (И414). */
+let urls = []
 
 let dev = null
 
@@ -111,6 +113,9 @@ if (!built) {
   }
 }
 
+
+await useLive(BASE)
+urls = all()
 
 const bad = []
 

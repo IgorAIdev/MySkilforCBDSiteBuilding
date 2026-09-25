@@ -70,7 +70,7 @@ import {
   VENDOR, DETECTOR, REGISTRY, DETECT_RULES, DETECT_FAMILIES, DETECT_LABELS, DETECT_MAP, DETECT_OFF, DETECT_ADVISORY,
   HIDDEN_AT_REST,
 } from './detect-families.mjs'
-import { sample, personal } from './routes.mjs'
+import { sample, personal, EXTERNAL, siteEnv } from './routes.mjs'
 import { sessionOf } from './sessions.mjs'
 import { SESSIONS } from './kit-config.mjs'
 
@@ -146,10 +146,16 @@ const started = Date.now()
    вставлен детектор — ничего. Фаза страницы — здесь. */
 const phase = new WeakMap()
 const shut = { load: new Set(), detect: new Set(), leak: new Set() }
+/* Снимки товара у внешнего источника (SOURCE=vendure) живут на сервере
+   движка — это часть сайта, а не чужой адрес: без них замер шёл по
+   страницам с пустыми кадрами, а клон, заново попросивший их при закрытой
+   сети, читался утечкой детектора (И414). Пускаются только снимки. */
+const ENGINE = (() => { if (!EXTERNAL) return null; try { return new URL(siteEnv('VENDURE_SHOP_API_URL') ?? '').origin } catch { return null } })()
+const ownUrl = (url, req) => url.startsWith(`${ORIGIN}/`) || (ENGINE !== null && url.startsWith(`${ENGINE}/`) && req.resourceType() === 'image')
 const guard = (route) => {
   const req = route.request()
   const url = req.url()
-  const own = url.startsWith(`${ORIGIN}/`)
+  const own = ownUrl(url, req)
   let page = null
   try { page = req.frame().page() } catch { /* запрос без кадра (служебный воркер) — ничей */ }
   const detecting = page && phase.get(page) === 'detect'
@@ -332,7 +338,7 @@ const list = (set) => [...set].sort()
    знаков у `<use href>`). Чужое при загрузке — закрыто, и замер шёл без
    него. Чужое при вставленном детекторе — находка, и проверка красная. */
 const printNet = () => {
-  if (shut.detect.size) console.log(`\n· сеть закрыта на время замера; клон страницы снова просил свои файлы (${shut.detect.size}): ${list(shut.detect).slice(0, 4).map((u) => u.slice(ORIGIN.length)).join(', ')}`)
+  if (shut.detect.size) console.log(`\n· сеть закрыта на время замера; клон страницы снова просил свои файлы (${shut.detect.size}): ${list(shut.detect).slice(0, 4).map((u) => (u.startsWith(ORIGIN) ? u.slice(ORIGIN.length) : u)).join(', ')}`)
   if (shut.load.size) {
     console.log(`\n· чужие адреса закрыты с первого запроса — страница мерилась без них (${shut.load.size}):`)
     for (const u of list(shut.load).slice(0, 6)) console.log(`    ${u}`)

@@ -71,8 +71,10 @@
   display:flex;align-items:center;min-inline-size:0
 }
 .links{display:flex;flex-wrap:wrap;align-items:center;column-gap:var(--air-row);list-style:none;padding:0;margin:0}
+/* Цель полки — не уже пальца и по ширине: короткое имя («oil» каталога
+   cbdin) под пальцем на планшете стояло 35 × 44 (check:craft, 25.09.2026). */
 .links a{
-  display:inline-flex;align-items:center;gap:var(--gap-row);min-block-size:var(--ctrl-target);
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--gap-row);min-block-size:var(--ctrl-target);min-inline-size:var(--ctrl-target);
   padding-inline:var(--menu-mark-pad);border-radius:var(--menu-mark-r);
   font-size:var(--body-size);font-weight:500;color:var(--ink);
   text-underline-offset:.45em;text-decoration-thickness:var(--line-w)
