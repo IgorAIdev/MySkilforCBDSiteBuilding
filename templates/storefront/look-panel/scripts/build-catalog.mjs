@@ -104,7 +104,7 @@ export const MARKERS = [
   { id: 'pill', name: 'Pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--quiet)', '--menu-mark-ink': 'var(--ink)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)', '--menu-mark-side': '0' } },
   /* Плашка чернил, слово краской пола — выбранная вкладка элементов 51 и 65
      (elements/, И356). Обе роли правило сочетаний мерит. */
-  { id: 'ink', name: 'Ink pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--ink)', '--menu-mark-ink': 'var(--surface)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)', '--menu-mark-side': '0' } },
+  { id: 'ink', name: 'Ink pill', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--ink)', '--menu-mark-ink': 'var(--on-ink)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)', '--menu-mark-side': '0' } },
   /* Тон и черта марки у начала строки — текущий пункт меню кабинета,
      элемент 52 (И393); черта краской марки для текста: 3 : 1 к тону. */
   { id: 'side', name: 'Side bar', vars: { '--menu-mark-line': 'none', '--menu-mark-fill': 'var(--quiet)', '--menu-mark-ink': 'var(--ink)', '--menu-mark-r': 'var(--r-ctrl)', '--menu-mark-pad': 'var(--sp-2)', '--menu-mark-side': '1' } },
@@ -254,6 +254,10 @@ const HEADER_LINES = {
   classic: { name: 'Classic', line: 'Categories beside the logo' },
   search: { name: 'Search first', line: 'Promise bar, wide search, categories below' },
   boutique: { name: 'Boutique', line: 'Centred logo, the shelves in a row under it' },
+  /* Сборки шапки cbdin.bg (И425): светлая полоса и тёмная рабочая строка. */
+  tray: { name: 'Tray', line: 'cbdin.bg: the promise on a light sheet, the dark row lying across its edge' },
+  nested: { name: 'Nested', line: 'cbdin.bg: one light sheet holds the promise and the dark row, a field all round' },
+  step: { name: 'Step', line: 'cbdin.bg: a tone sheet, the dark row seated in it with its own shoulders' },
 }
 
 const faceVars = (f) => ({

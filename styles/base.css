@@ -406,6 +406,7 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
      смени и то, на чём знак стоит, иначе половина пары осталась от другого
      фона. Заказчик нашёл это глазом на витрине. */
   --surface:var(--chrome-hover);
+  --on-ink:var(--page-deck);
   /* Краски палубы — строителя палитры (`-deck`, И295): здесь только
      переназначение ролей, доли и краски в стилях не рождаются. */
   --hover-ctrl:var(--hover-ctrl-deck);
@@ -546,6 +547,7 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --ink:var(--on-plate);
   --ink-soft:var(--on-plate-2);
   --surface:var(--plate);
+  --on-ink:var(--plate);
   --ctrl:var(--plate-3);
 
   /* Составленные из чернил — заново, и по той же причине, по какой их

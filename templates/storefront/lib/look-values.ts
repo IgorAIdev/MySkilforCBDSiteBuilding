@@ -169,14 +169,22 @@ export function acceptValues(raw: unknown, slots: Slots, known: Structure = STRU
 export const SHADOWS = ['--sh-raised', '--sh-lift', '--sh-overlay', '--sh-in'] as const
 export const FLOORS = ":root,[data-ground='deck'],[data-plate]"
 const isShadow = (name: string): boolean => (SHADOWS as readonly string[]).includes(name)
+/** Роли вида, чьи значения ссылаются на краски пола (`var(--ink)`,
+ *  `var(--quiet)`, `var(--pop-ink)` …): отметка текущего пункта, вид поля,
+ *  галочка, ссылка под рукой (И426). `var()` раскрывается там, где роль
+ *  объявлена: объявленные на корне, они несли краски бумаги и на палубу —
+ *  слово текущей полки в тёмной строке шапки стояло тёмным на тёмном. Поэтому
+ *  они объявляются на каждом полу, как роли тени. */
+export const FLOOR_ROLES = /^--(menu-mark|ctrl-field|ctrl-tick|go-hover)(-|$)/
+const onFloors = (name: string): boolean => isShadow(name) || FLOOR_ROLES.test(name)
 
 /** Проверенный вид → текст блока `<style href="look">`: свойства на корне
  *  (краски — `light-dark()`, как в styles/palette.css, тема решается
  *  `color-scheme`), роли тени — на списке полов, шрифты со своих адресов. */
 export function lookCss(look: Look): string {
   const decl = (keep: (name: string) => boolean) => Object.entries(look.vars).filter(([k]) => keep(k)).map(([k, v]) => `${k}:${v}`).join(';')
-  const vars = decl((k) => !isShadow(k))
-  const shadows = decl(isShadow)
+  const vars = decl((k) => !onFloors(k))
+  const shadows = decl(onFloors)
   const faces = look.fonts.flatMap((f) => f.files.map((x) =>
     `@font-face{font-family:'${f.family}';src:url(${x.url}) format('woff2');font-weight:${x.weight};font-style:normal;font-display:swap;unicode-range:${x.range}}`))
   return [vars ? `:root{${vars}}` : '', shadows ? `${FLOORS}{${shadows}}` : '', ...faces].filter(Boolean).join('\n')

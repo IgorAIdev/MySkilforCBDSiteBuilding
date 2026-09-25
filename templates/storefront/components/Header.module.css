@@ -20,7 +20,7 @@
 /* Действия — одна группа у правого края; просвет между целями — роль
    зазора целей (под пальцем вдвое шире). */
 .actions{display:flex;align-items:center;gap:var(--gap-targets);margin-inline-start:auto}
-.lang{display:flex} /* look-header:classic,search,boutique */
+.lang{display:flex} /* look-header:classic,search,boutique,tray,nested,step */
 
 /* Знак шапки — тихий глиф ростом с цель (`--ctrl-target`: 24 под мышью, 44
    под пальцем), без заливки: не кнопка действия, и оси кнопки сайта его не
@@ -132,9 +132,10 @@
 /* ── search: полоса обещания, широкий поиск, полки второй строкой ─────── */
 .strip{--sheet-pad:var(--page-line);--sheet-air:0px;background:var(--page-deck);font-size:var(--ctrl-fs-xs)}
 .stripRow{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);min-block-size:calc(var(--ctrl-target) + var(--sp-1) * 2)}
-.promise{color:var(--ink-soft)}
 .field{display:flex;align-items:center;gap:var(--sp-2);flex:1 1 auto;min-inline-size:0;margin-inline:var(--air-block)}
 /* look-header:search:end */
+/* Обещание магазина — в полосе «search» и в светлой полосе сборок cbdin. */
+.promise{color:var(--ink-soft)} /* look-header:search,tray,nested,step */
 /* Строка полок второй строкой шапки — у «search» и у «boutique». */
 .shelfRow{border-block-start:var(--line-w) solid var(--rule);padding-block:var(--sp-1)} /* look-header:search,boutique */
 
@@ -153,14 +154,56 @@
 .head[data-variant='boutique'] .nav:not(:popover-open){justify-content:center}
 /* look-header:boutique:end */
 
+/* look-header:tray,nested,step:start */
+/* ── tray, nested, step: сборки шапки cbdin.bg (И425) ────────────────────
+   Лист шапки лежит на полу страницы в её полях (`wrap`), а не полосой во
+   всю ширину окна: волоска и своей поверхности у коробки шапки нет. Лист —
+   светлая полоса и тёмная рабочая строка; строка — на полу палубы
+   (`data-ground="deck"`: краски знаков, полок и отметки текущей полки —
+   роли палубы). Поле полосы сбоку — то же, что у строки: слова полосы и
+   строки стоят на одной вертикали. Шторка полок открывается из строки и
+   берёт пол палубы: поверхность палубы — вуаль, шторке нужен сплошной пол. */
+.head:is([data-variant='tray'], [data-variant='nested'], [data-variant='step']){background:none;border-block-end:0;padding-block:var(--sp-2)}
+.board{display:flex;flex-direction:column}
+.util{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--gap-row);
+  padding:var(--sp-1) var(--pad-card);font-size:var(--ctrl-fs-xs)
+}
+.row{padding-inline:var(--pad-card) var(--sp-2);border-radius:var(--r-sheet);background:var(--page-deck)}
+.row .nav:popover-open{background:var(--page-deck)}
+/* look-header:tray,nested,step:end */
+/* look-header:tray:start */
+/* tray — полоса на белом листе одной строкой; тёмная строка ложится на его
+   нижний край: нахлёст равен нижнему полю полосы. */
+.head[data-variant='tray'] .util{background:var(--surface);border-start-start-radius:var(--r-sheet);border-start-end-radius:var(--r-sheet);padding-block-end:calc(var(--sp-1) + var(--pad-inner))}
+.head[data-variant='tray'] .row{margin-block-start:calc(-1 * var(--pad-inner));box-shadow:var(--sh-raised)}
+/* look-header:tray:end */
+/* look-header:nested:start */
+/* nested — один белый лист держит полосу и строку, поле листа — со всех
+   сторон своё (полоса может уйти, поле остаётся); угол строки концентричен
+   углу листа. */
+.head[data-variant='nested'] .board{padding:var(--pad-inner);border-radius:var(--r-sheet);background:var(--surface);box-shadow:var(--sh-raised)}
+.head[data-variant='nested'] .util{padding-block:0 var(--pad-inner)}
+.head[data-variant='nested'] .row{border-radius:calc(var(--r-sheet) - var(--pad-inner))}
+/* look-header:nested:end */
+/* look-header:step:start */
+/* step — лист тихой плашкой, строка прижата к его бокам и сидит в нём
+   своими плечами: верхний угол строки меньше угла листа, стык скруглён. */
+.head[data-variant='step'] .board{border-radius:var(--r-sheet);background:var(--plate-quiet);box-shadow:var(--sh-raised)}
+.head[data-variant='step'] .util{padding-block:var(--sp-2)}
+.head[data-variant='step'] .row{border-radius:calc(var(--r-sheet) - var(--pad-inner)) calc(var(--r-sheet) - var(--pad-inner)) var(--r-sheet) var(--r-sheet)}
+/* look-header:step:end */
+
 /* Кнопка меню — только там, где полок в строке нет: на узкой коробке. */
-.menu{display:none} /* look-header:classic,search */
+.menu{display:none} /* look-header:classic,search,tray,nested,step */
 
 /* ── Узкая коробка: одна строка — знак, поиск, корзина, меню ──────────── */
 @container (max-width:819px){
   .nav:not(:popover-open),.cartLabel{display:none}
-  .lang{display:none} /* look-header:classic,search,boutique */
-  .menu{display:inline-flex} /* look-header:classic,search */
+  .lang{display:none} /* look-header:classic,search,boutique,tray,nested,step */
+  .menu{display:inline-flex} /* look-header:classic,search,tray,nested,step */
+  .util{display:none} /* look-header:tray,nested,step */
+  .head[data-variant='tray'] .row{margin-block-start:0} /* look-header:tray */
   .shop{display:inline-flex} /* look-header:boutique */
   .shelfRow{border:0;padding:0} /* look-header:search,boutique */
   /* look-header:search:start */

@@ -4,22 +4,10 @@
 :root{
   --face: var(--face-stack);
   --face-head: var(--face);
-  --menu-mark-line: underline;
-  --menu-mark-fill: transparent;
-  --menu-mark-ink: var(--ink);
-  --menu-mark-r: 0;
-  --menu-mark-pad: 0;
-  --menu-mark-side: 0;
-  --ctrl-field-fill: var(--field);
-  --ctrl-field-edge: var(--tick-edge);
-  --ctrl-field-side: 1;
-  --ctrl-field-label: above;
-  --ctrl-tick-fill: var(--pop-ink);
   --pdp-gallery: 50%;
   --pdp-thumbs: below;
   --pdp-edge: inset;
   --seg-look: chips;
-  --go-hover: currentcolor;
   --head-icons: bare;
   --say-look: line;
   --pair-look: apart;
@@ -34,4 +22,16 @@
   --sh-lift: 0 0 0 1px var(--sh-ring), 0 2px 4px var(--sh-near), 0 20px 44px -18px var(--sh-far-2);
   --sh-overlay: 0 0 0 1px var(--sh-ring), 0 4px 8px var(--sh-near), 0 36px 80px -28px var(--sh-far-3);
   --sh-in: inset 0 1px 2px var(--sh-inset);
+  --menu-mark-line: underline;
+  --menu-mark-fill: transparent;
+  --menu-mark-ink: var(--ink);
+  --menu-mark-r: 0;
+  --menu-mark-pad: 0;
+  --menu-mark-side: 0;
+  --ctrl-field-fill: var(--field);
+  --ctrl-field-edge: var(--tick-edge);
+  --ctrl-field-side: 1;
+  --ctrl-field-label: above;
+  --ctrl-tick-fill: var(--pop-ink);
+  --go-hover: currentcolor;
 }

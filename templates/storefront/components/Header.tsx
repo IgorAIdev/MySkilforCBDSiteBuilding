@@ -28,12 +28,12 @@ type Props = { lang: Lang; nav: NavLink[]; variant: HeaderVariant }
 
 const logo = (lang: Lang) => <a className={s.logo} href={hrefFor(lang, { home: true })} translate="no">CBD</a>
 const cart = (lang: Lang, labelled: boolean) => <CartLink href={hrefFor(lang, { cart: true })} label={t(lang, 'nav.cart')} countUrl="/api/cart" labelled={labelled} />
-/* look-header:classic,boutique:start */
+/* look-header:classic,boutique,tray,nested,step:start */
 const find = (lang: Lang) => <a className={s.glyph} href={hrefFor(lang, { search: '' })} aria-label={t(lang, 'nav.search')}><Icon id="search" /></a>
-/* look-header:classic,boutique:end */
-/* look-header:classic,search:start */
+/* look-header:classic,boutique,tray,nested,step:end */
+/* look-header:classic,search,tray,nested,step:start */
 const menu = (lang: Lang) => <button className={`${s.glyph} ${s.menu}`} type="button" popoverTarget="site-menu" aria-label={t(lang, 'nav.menu')}><Icon id="menu" /></button>
-/* look-header:classic,search:end */
+/* look-header:classic,search,tray,nested,step:end */
 const shelves = (lang: Lang, nav: NavLink[], title: string) => (
   <nav id="site-menu" popover="auto" className={s.nav} aria-label={t(lang, 'nav.categories')}>
     <div className={s.sheetHead}>
@@ -104,10 +104,49 @@ const boutique = (lang: Lang, nav: NavLink[]) => (
 )
 /* look-header:boutique:end */
 
+/* look-header:tray,nested,step:start */
+/* tray, nested, step — сборки шапки cbdin.bg (слово заказчика 25.09.2026:
+   «шапки из cbdin.bg — в панель»; И425). Разметка одна: светлая полоса —
+   обещание магазина и язык; под ней тёмная рабочая строка на полу палубы —
+   меню (на узкой коробке), знак, полки, поиск, корзина. Сборки различает
+   только то, как пара лежит на листе (Header.module.css): tray — полоса на
+   белом листе, строка ложится на его нижний край; nested — один лист держит
+   обе с полем вокруг; step — лист тоном, у строки свои плечи. Шторка полок
+   открывается из тёмной строки и остаётся в её краске. */
+const board = (lang: Lang, nav: NavLink[]) => (
+  <div className={p.wrap}>
+    <div className={s.board}>
+      <div className={s.util}>
+        <p className={s.promise}>{t(lang, 'header.promise')}</p>
+        <div className={s.lang}><LangMenu lang={lang} label={t(lang, 'nav.lang')} id="lang-util" /></div>
+      </div>
+      <div className={`${s.bar} ${s.row}`} data-ground="deck">
+        {menu(lang)}
+        {logo(lang)}
+        {shelves(lang, nav, t(lang, 'nav.menu'))}
+        <div className={s.actions}>{find(lang)}{cart(lang, false)}</div>
+      </div>
+    </div>
+  </div>
+)
+/* look-header:tray,nested,step:end */
+/* look-header:tray:start */
+const tray = (lang: Lang, nav: NavLink[]) => <header className={s.head} data-variant="tray">{board(lang, nav)}</header>
+/* look-header:tray:end */
+/* look-header:nested:start */
+const nested = (lang: Lang, nav: NavLink[]) => <header className={s.head} data-variant="nested">{board(lang, nav)}</header>
+/* look-header:nested:end */
+/* look-header:step:start */
+const step = (lang: Lang, nav: NavLink[]) => <header className={s.head} data-variant="step">{board(lang, nav)}</header>
+/* look-header:step:end */
+
 const DRAW: Record<HeaderVariant, (lang: Lang, nav: NavLink[]) => ReactNode> = {
   classic, // look-header:classic
   search, // look-header:search
   boutique, // look-header:boutique
+  tray, // look-header:tray
+  nested, // look-header:nested
+  step, // look-header:step
 }
 
 export function Header({ lang, nav, variant }: Props) {

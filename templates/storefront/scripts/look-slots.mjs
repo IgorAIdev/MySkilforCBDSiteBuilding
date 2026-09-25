@@ -34,7 +34,7 @@ import { fileURLToPath } from 'node:url'
 import { ROLES as BUTTON, tokenMap } from '../tools/buttons.mjs'
 import { rolesOf } from '../tools/scale.mjs'
 import { CONTRAST, STATE } from '../tools/thresholds.mjs'
-import { acceptValues, lookCss, SHADOWS, FLOORS } from '../lib/look-values.ts'
+import { acceptValues, lookCss, SHADOWS, FLOORS, FLOOR_ROLES } from '../lib/look-values.ts'
 import { settle } from '../lib/look-rule.ts'
 
 const TO = 'lib/look-slots.json'
@@ -200,9 +200,12 @@ export function lookStyles(site, raw) {
     buttons: `${HEAD('роли одной кнопки основы (styles/btn.module.css)')}:root{\n${decls('button')}\n}\n`,
     scale: HEAD('ступени кегля и ритма, поле, воздух, зазор, холст и углы; под пальцем — свои высоты органов') + substitute(ownPart(site.scale, 'scale'), values),
     /* Роли тени — своим блоком на списке полов (И385): на палубе и листе
-       геометрия вида пересчитывается из их ингредиентов. */
-    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, вид поля ввода и галочки, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', 'marker', 'field', 'field-label', 'tick', ...Object.keys(PRODUCT).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
-      `${FLOORS}{\n${decls('shadow')}\n}\n` +
+       геометрия вида пересчитывается из их ингредиентов. Там же роли,
+       ссылающиеся на краски пола (И426): отметка текущего пункта, вид поля,
+       галочка, ссылка под рукой — на палубе и листе они раскрываются от
+       красок своего пола. */
+    look: `${HEAD('шрифт, тени, отметка текущего пункта меню, вид поля ввода и галочки, ручки карты товара и полки и шрифты вида со своего адреса')}:root{\n${['face', ...Object.keys(PRODUCT).filter((k) => !FLOOR_ROLES.test(k)).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
+      `${FLOORS}{\n${['shadow', 'marker', 'field', 'field-label', 'tick', ...Object.keys(PRODUCT).filter((k) => FLOOR_ROLES.test(k)).map((k) => k.slice(2))].map(decls).join('\n')}\n}\n` +
       (kept.fonts.length ? `\n${lookCss({ header: look.header, vars: {}, fonts: kept.fonts, names: {} })}\n` : ''),
   }
   const after = lookSlots({ ...site, ...out })

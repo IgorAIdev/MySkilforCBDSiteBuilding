@@ -7,6 +7,9 @@ export const HEADERS = [
   'classic', // look-header:classic
   'search', // look-header:search
   'boutique', // look-header:boutique
+  'tray', // look-header:tray
+  'nested', // look-header:nested
+  'step', // look-header:step
 ] as const
 
 export type HeaderVariant = (typeof HEADERS)[number]
