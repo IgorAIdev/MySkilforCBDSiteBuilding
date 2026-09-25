@@ -13,13 +13,21 @@ import { fileURLToPath } from 'node:url'
 
 const KIT = fileURLToPath(new URL('..', import.meta.url))
 const LUCIDE = join(KIT, 'skills/site-building/assets/icons/lucide')
+/* Чужие марки — силуэты рядом с Lucide (И442): залиты, без штриха. */
+const BRANDS = join(KIT, 'skills/site-building/assets/icons/brands')
+const brandIds = readdirSync(BRANDS).filter((n) => n.endsWith('.svg')).map((n) => n.replace('.svg', ''))
 const sheet = readFileSync(join(KIT, 'styles/icons.svg'), 'utf8')
 
 test('every icon of the kit is in the sheet exactly once, painted and with screen-pixel stroke', () => {
   const names = readdirSync(LUCIDE).filter((n) => n.endsWith('.svg')).map((n) => n.replace('.svg', ''))
   assert.ok(names.length >= 30)
-  for (const id of names) assert.equal(sheet.split(`<symbol id="${id}"`).length - 1, 1, id)
+  for (const id of [...names, ...brandIds]) assert.equal(sheet.split(`<symbol id="${id}"`).length - 1, 1, id)
   for (const symbol of sheet.match(/<symbol[\s\S]*?<\/symbol>/g)) {
+    const id = symbol.match(/<symbol id="([^"]+)"/)[1]
+    if (brandIds.includes(id)) {
+      assert.match(symbol, /fill="currentColor" stroke="none"/, `${id}: марка — силуэт краской места`)
+      continue
+    }
     assert.match(symbol, /fill="none" stroke="currentColor"/)
     const shapes = symbol.match(/<(?:path|circle|rect|line|polyline|polygon|ellipse)\b[^>]*>/g)
     assert.ok(shapes.every((s) => s.includes('vector-effect="non-scaling-stroke"')), symbol.slice(0, 60))
@@ -32,6 +40,7 @@ test('check fails when an icon is added to the kit and the sheet is not re-emitt
   try {
     cpSync(join(KIT, 'tools'), join(dir, 'tools'), { recursive: true })
     cpSync(LUCIDE, join(dir, 'skills/site-building/assets/icons/lucide'), { recursive: true })
+    cpSync(BRANDS, join(dir, 'skills/site-building/assets/icons/brands'), { recursive: true })
     mkdirSync(join(dir, 'styles'))
     writeFileSync(join(dir, 'styles/icons.svg'), sheet)
     const run = (...a) => spawnSync(process.execPath, [join(dir, 'tools/icons.mjs'), ...a], { cwd: dir, encoding: 'utf8' })
@@ -52,6 +61,7 @@ test('check finds the kit icons where an installed site keeps the skill', () => 
   try {
     cpSync(join(KIT, 'tools'), join(dir, 'tools'), { recursive: true })
     cpSync(LUCIDE, join(dir, '.agents/skills/site-building/assets/icons/lucide'), { recursive: true })
+    cpSync(BRANDS, join(dir, '.agents/skills/site-building/assets/icons/brands'), { recursive: true })
     mkdirSync(join(dir, 'styles'))
     writeFileSync(join(dir, 'styles/icons.svg'), sheet)
     const run = (...a) => spawnSync(process.execPath, [join(dir, 'tools/icons.mjs'), ...a], { cwd: dir, encoding: 'utf8' })
