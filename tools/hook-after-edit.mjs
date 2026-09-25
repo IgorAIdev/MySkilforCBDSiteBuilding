@@ -47,6 +47,15 @@ if (!file) process.exit(0)
 const rel = (isAbsolute(file) ? relative(ROOT, file) : file).split('\\').join('/')
 if (rel.startsWith('..')) process.exit(0)
 
+/* Витрина `.storefront/` — копия шаблона (`npm run storefront`, И432):
+   правка в ней никуда не попадёт и сотрётся следующей постановкой. Правят
+   шаблон — `templates/storefront/` тем же путём; витрина подхватит сама. */
+if (rel.startsWith('.storefront/')) {
+  const to = `templates/storefront/${rel.slice('.storefront/'.length)}`
+  console.error(`✗ ${rel} — копия шаблона: правка в ней не попадёт ни в шаблон, ни в скилл и сотрётся следующей постановкой.\n  Правьте ${existsSync(join(ROOT, to)) ? to : 'шаблон — templates/storefront/'}: npm run storefront положит правку в витрину сам.`)
+  process.exit(2)
+}
+
 const has = (p) => existsSync(join(ROOT, p))
 const scripts = (() => { try { return JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).scripts ?? {} } catch { return {} } })()
 

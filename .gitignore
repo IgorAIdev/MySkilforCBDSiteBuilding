@@ -13,3 +13,5 @@ dist/
 /palette-stand.html
 # Снимки чужих магазинов для брифа поверхности (docs/design/): в репозиторий не идут (И300)
 .refs/
+# Витрина из шаблона для правки шаблона (npm run storefront, И432): копия, правят templates/storefront
+/.storefront/
