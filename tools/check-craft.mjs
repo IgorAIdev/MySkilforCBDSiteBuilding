@@ -442,6 +442,17 @@ const measure = ({ phone, catalogue, target, contrast, vector, iosZoom, h1Lines,
         - parseFloat(getComputedStyle(host).paddingLeft)
         - parseFloat(getComputedStyle(host).paddingRight)
       if (hostW < 80) continue
+      /* Заголовок, который сам — колонка ряда (сторона `sidebar`: в той же
+         строке рядом стоит сосед), меряется своей дорожкой, а не рядом.
+         Мерка по родителю назвала «заголовком в треть колонки» левую колонку
+         документа «О нас» — «Batches and lab reports» в две строки, как
+         «Delivery and payment» на главной (И415). */
+      const beside = [...host.children].some((c) => {
+        if (c === el) return false
+        const r = c.getBoundingClientRect()
+        return r.width > 0 && r.top < box.bottom && r.bottom > box.top && (r.left >= box.right - 1 || r.right <= box.left + 1)
+      })
+      if (beside) continue
       const fill = box.width / hostW
       if (fill < 0.7) out.measure.push(`${name(el)} — ${Math.round(fill * 100)}% колонки, строк ${lines}`)
       continue

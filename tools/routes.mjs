@@ -310,7 +310,7 @@ function asked(fill) {
 /** Каждый адрес, который публикует сайт. Для дешёвых проверок: открывается
  *  ли страница, обещана ли она картой сайта. */
 export function all() {
-  if (EXTERNAL) return liveList((list) => list)
+  if (EXTERNAL) return liveList(FILL, (list) => list)
   assertData()
   return [...new Set([...shapes().flatMap(expand(FILL)), ...queried(), ...asked(FILL)])].sort()
 }
@@ -318,7 +318,7 @@ export function all() {
 /** По одному адресу на форму маршрута и язык. Для дорогих проверок —
  *  отрисованных, где каждая страница стоит шести открытий. */
 export function sample() {
-  if (EXTERNAL) return liveList((list) => [...new Set([list[0], list[list.length - 1]])])
+  if (EXTERNAL) return liveList(SAMPLE, (list) => [...new Set([list[0], list[list.length - 1]])])
   assertData()
   return [...new Set([...shapes().flatMap(expand(SAMPLE)), ...queried(), ...asked(SAMPLE)])].sort()
 }
@@ -326,13 +326,15 @@ export function sample() {
 /** Внешний источник (И414): формы без полки и товара — из дерева, как
  *  всегда (язык, документы, корзина, поиск, касса); формы с сегментом,
  *  которого в файлах нет, — адресами из карты сайта, по форме и языку;
- *  `pick` выбирает из них все (`all`) или два конца (`sample`). Карты нет —
+ *  `pick` выбирает из них все (`all`) или два конца (`sample`); формы из
+ *  дерева заполняются тем же, чем без внешнего источника (`fill`: все
+ *  документы или два конца). Карты нет —
  *  адресов не выдумывают: проверка останавливается и говорит, чего ей
  *  нужно. Части адреса в дереве — слова (`catalog`, `product`): группы
  *  `(x)` в адрес не входят, поэтому в образце карты они стоят как есть. */
 const LOCAL = new Set(['[lang]', '[locale]', '[doc]', '[slug]'])
 const dynamic = (seg) => seg.startsWith('[') && seg.endsWith(']')
-function liveList(pick) {
+function liveList(fill, pick) {
   if (!LIVE) {
     console.error(`\n✗ tools/routes.mjs: источник витрины — ${SOURCE}; адреса полок и товаров знает сам сайт.`)
     console.error('  Поднимите сайт и передайте его адрес: SITE=http://localhost:3020 …')
@@ -341,7 +343,7 @@ function liveList(pick) {
   const out = []
   for (const shape of shapes()) {
     const segs = shape.split('/').filter(Boolean)
-    if (segs.every((seg) => !dynamic(seg) || LOCAL.has(seg))) { out.push(...expand(FILL)(shape)); continue }
+    if (segs.every((seg) => !dynamic(seg) || LOCAL.has(seg))) { out.push(...expand(fill)(shape)); continue }
     const byLang = new Map()
     for (const path of LIVE) {
       const parts = path.split('/').filter(Boolean)
@@ -352,7 +354,7 @@ function liveList(pick) {
     for (const list of byLang.values()) out.push(...pick(list))
   }
   /* Страницы с запросом (`queries`, И345) — у тех форм, что уже в списке. */
-  const queries = asked(FILL).filter((u) => out.includes(u.split('?')[0]))
+  const queries = asked(fill).filter((u) => out.includes(u.split('?')[0]))
   return [...new Set([...out, ...queries])].sort()
 }
 
