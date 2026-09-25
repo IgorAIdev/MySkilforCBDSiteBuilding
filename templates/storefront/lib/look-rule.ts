@@ -31,7 +31,7 @@ export type Fell = { group: Group; why: string }
 /** Старшинство: уступает младшая группа — ручки полки и карты товара раньше
  *  стиля кнопок, стиль кнопок раньше краски галочки, галочка раньше
  *  вида поля, вид поля раньше отметки пункта меню, шрифта, теней, углов, ширины, ритма и цвета. */
-export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'field', 'field-label', 'tick', 'button', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'seg-look', 'shot-frame', 'shelf-cols', 'card-buy', 'sort-label']
+export const ORDER: readonly Group[] = ['palette', 'scale', 'width', 'corners', 'shadow', 'face', 'marker', 'field', 'field-label', 'tick', 'button', 'pdp-gallery', 'pdp-thumbs', 'pdp-edge', 'seg-look', 'go-hover', 'shot-frame', 'shelf-cols', 'card-buy', 'sort-label']
 
 type Rgba = readonly [number, number, number, number]
 const THEMES = ['light', 'dark'] as const
@@ -174,6 +174,13 @@ export function problems(vars: Readonly<Record<string, string>>, fonts: readonly
         if (!ink) continue
         const t = contrast(over(ink, under), under)
         if (t < need.text) add('field', 'palette', `the field's ${what} is too faint on its fill on the ${where}: ${say(t, need.text)}`, ['--ctrl-field-fill'])
+      }
+      /* Ссылка «куда ведёт» под рукой (И397): её краска — текст, 4.5 : 1 к
+         полу, на котором ссылка стоит. */
+      const go = get('--go-hover')
+      if (go && go[3] > 0) {
+        const t = contrast(over(go, floor), floor)
+        if (t < need.text) add('go-hover', 'palette', `a link under the hand is too faint on the ${where}: ${say(t, need.text)}`, ['--go-hover'])
       }
       /* Отмеченная галочка и радио (И392): заливка отмеченного — 3 : 1 к
          полу (WCAG 1.4.11); галку на ней браузер красит сам под контраст. */

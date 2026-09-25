@@ -25,12 +25,16 @@
   min-block-size:var(--ctrl-target);
   color:inherit;font:inherit;text-decoration:none;cursor:pointer;
   background:none;border:0;padding:0;
-  -webkit-tap-highlight-color:transparent
+  -webkit-tap-highlight-color:transparent;
+  transition:color var(--hover-t) var(--ease)
 }
 /* Знак соизмерим со строкой рядом, а не своим числом (И-разбор стрелки 38 → 28). */
 .go svg{inline-size:1.15em;block-size:1.15em;flex:none;transition:translate var(--hover-t) var(--ease)}
 
 /* Сдвиг — только там, где есть наведение и движение не просили убрать. */
+/* Краска под рукой — роль вида `--go-hover` (И397): умолчание — своя
+   краска ссылки; марка для текста — у элемента 11 набора. */
+@media (hover:hover){ .go:hover{color:var(--go-hover, currentColor)} }
 @media (hover:hover) and (prefers-reduced-motion:no-preference){
   .go:hover svg{translate:var(--nudge) 0}
   .go[data-to='back']:hover svg{translate:calc(var(--nudge) * -1) 0}

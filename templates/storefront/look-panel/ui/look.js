@@ -204,6 +204,8 @@
       }
       /* Место подписи (И394): полоска поля и черта подписи над ним или на кромке. */
       if (field === 'field-label') return el('span', { class: 'lp-label', 'data-at': o.vars['--ctrl-field-label'], 'aria-hidden': 'true' }, [el('b'), el('i', { class: 'lp-field' })])
+      /* Ссылка под рукой (И397): стрелка краской варианта. */
+      if (field === 'go-hover') return el('span', { class: 'lp-go', style: o.vars['--go-hover'] === 'currentcolor' ? '' : 'color:' + o.vars['--go-hover'], 'aria-hidden': 'true', text: '→' })
       /* Галочка (И392): отмеченный квадрат краской варианта. */
       if (field === 'tick') return el('i', { class: 'lp-tick', style: 'background:' + o.vars['--ctrl-tick-fill'], 'aria-hidden': 'true' })
       if (field === 'corners') { var r = Math.round(parseFloat(o.vars['--r-card']) / 3) + 'px'; return el('i', { class: 'lp-shape', style: 'border-radius:' + r + ' ' + r + ' 0 0', 'aria-hidden': 'true' }) }

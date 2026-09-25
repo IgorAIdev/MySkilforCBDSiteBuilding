@@ -131,6 +131,12 @@ export const FIELD_LABELS = [
   { id: 'above', name: 'Above', line: 'The label above the field', vars: { '--ctrl-field-label': 'above' } },
   { id: 'edge', name: 'On the edge', line: 'Inside while empty, on the top edge once you type (element 47)', vars: { '--ctrl-field-label': 'edge' } },
 ]
+/** Краска ссылки «куда ведёт» под рукой (И397): своя (стрелка едет, краска
+ *  та же) или марка для текста — элемент 11. */
+export const GO_HOVER = [
+  { id: 'plain', name: 'Plain', line: 'The arrow moves under the hand; the colour stays', vars: { '--go-hover': 'currentcolor' } },
+  { id: 'brand', name: 'Brand', line: 'Under the hand the link takes the brand colour and the arrow moves (element 11)', vars: { '--go-hover': 'var(--pop-ink)' } },
+]
 /** Краска отмеченной галочки и радио (И392): одна на весь сайт — фильтры
  *  полки, касса, формы (styles/base.css, `accent-color`). Сами органы
  *  браузерные; галку на заливке браузер красит под контраст. Марка — краской
@@ -311,6 +317,7 @@ export async function buildCatalog({ site, kit }) {
     field: siteFirst(FIELD_LOOKS.map((o) => ({ ...o, vars: check('field', o.id, o.vars) }))),
     'field-label': siteFirst(FIELD_LABELS.map((o) => ({ ...o, vars: check('field-label', o.id, o.vars) }))),
     tick: siteFirst(TICKS.map((o) => ({ ...o, vars: check('tick', o.id, o.vars) }))),
+    'go-hover': siteFirst(GO_HOVER.map((o) => ({ ...o, vars: check('go-hover', o.id, o.vars) }))),
     ...Object.fromEntries(Object.entries({ ...SHELF, ...PRODUCT_PAGE }).map(([field, list]) => [field, siteFirst(list.map((o) => ({ ...o, vars: check(field, o.id, o.vars) })))])),
     header: headers.map((id) => ({ id, ...(HEADER_LINES[id] ?? { name: id, line: '' }) })),
     card: cards.map((id) => ({ id, ...(CARD_LINES[id] ?? { name: id, line: '' }) })),

@@ -41,7 +41,9 @@ test('panel sections: every field sits in exactly one sub-tab; System is colour,
   const placed = SECTIONS.flatMap((s) => s.subs.flatMap((sub) => sub.fields.map((f) => f[0])))
   assert.deepEqual([...placed].sort(), [...FIELDS].sort())
   assert.equal(new Set(placed).size, placed.length)
-  assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons', 'Fields'])
+  assert.deepEqual(SECTIONS[0].subs.map((s) => s.name), ['Color', 'Type', 'Spacing', 'Layout', 'Shape', 'Buttons', 'Fields', 'Links'])
+  /* Ссылка под рукой (И397): своя краска по умолчанию, марка — элемент 11. */
+  assert.deepEqual(catalog.groups['go-hover'].map((o) => o.id), ['plain', 'brand'])
   /* Поле ввода (И390): один вид на сайт; кромка есть у каждого — вокруг
      или чертой снизу (WCAG 1.4.11); умолчание — то, что стоит у сайта. */
   assert.deepEqual(catalog.groups.field.map((o) => o.id), ['framed', 'outline', 'tone'])

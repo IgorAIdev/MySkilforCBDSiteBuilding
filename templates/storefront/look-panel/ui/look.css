@@ -182,6 +182,8 @@
 .lp-label b{display:block;inline-size:16px;block-size:3px;border-radius:2px;background:currentColor;opacity:.7}
 .lp-label[data-at='edge']{position:relative}
 .lp-label[data-at='edge'] b{position:absolute;inset-block-start:-1px;inset-inline-start:5px;box-shadow:0 0 0 2px var(--lp-well)}
+/* Образец ссылки под рукой: стрелка краской варианта. */
+.lp-go{font-weight:700;line-height:1}
 /* Образец галочки: отмеченный квадрат краской варианта. */
 .lp-tick{display:block;inline-size:14px;block-size:14px;border-radius:3px}
 /* Образец формы главной кнопки: заливка марки, вырез той же формулой. */

@@ -225,6 +225,7 @@
     "--card-buy": "full",
     "--sort-label": "beside",
     "--seg-look": "chips",
+    "--go-hover": "currentcolor",
     "--pdp-gallery": "50%",
     "--pdp-thumbs": "below",
     "--pdp-edge": "inset"
@@ -244,6 +245,7 @@
     "field": "framed",
     "field-label": "above",
     "tick": "brand",
+    "go-hover": "plain",
     "header": "classic",
     "marker": "underline",
     "card": "framed",

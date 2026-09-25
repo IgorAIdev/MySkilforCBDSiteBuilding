@@ -1111,6 +1111,11 @@
       "group": "seg-look",
       "value": "chips"
     },
+    "--go-hover": {
+      "type": "colour",
+      "group": "go-hover",
+      "value": "currentcolor"
+    },
     "--shot-frame": {
       "type": "number",
       "group": "shot-frame",
