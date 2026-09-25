@@ -561,6 +561,11 @@
       "group": "button",
       "value": "0"
     },
+    "--ctrl-btn-glyph": {
+      "type": "number",
+      "group": "button",
+      "value": "0"
+    },
     "--fs-xs": {
       "type": "length",
       "group": "scale",

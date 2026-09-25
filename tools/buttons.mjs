@@ -54,6 +54,7 @@ export const ROLES = {
      их контраст — контраст надписи на заливке, его замер уже держит. */
   '--ctrl-btn-mark': 'number',
   '--ctrl-btn-pill': 'number',
+  '--ctrl-btn-glyph': 'number',
 }
 const CASES = ['none', 'uppercase']
 /** Разрядка заглавных — коридор набора (craft: заглавные без воздуха слипаются). */
@@ -164,6 +165,8 @@ export function auditButtons(catalog, palettes, tokens = null) {
       if ('--ctrl-btn-mark' in r && !['0', '1'].includes(r['--ctrl-btn-mark'])) bad(style, 'кружок у конца — 0 или 1', r['--ctrl-btn-mark'], '0, 1')
       if ('--ctrl-btn-pill' in r && !['0', '1'].includes(r['--ctrl-btn-pill'])) bad(style, 'пилюля — 0 или 1', r['--ctrl-btn-pill'], '0, 1')
       if (r['--ctrl-btn-pill'] === '1' && (Number(r['--ctrl-btn-tip'] ?? 0) > 0 || Number(r['--ctrl-btn-notch'] ?? 0) > 0 || r['--ctrl-btn-echo'] === 'block')) bad(style, 'пилюля не носится с остриём, выемкой и хвостом', 'pill 1', 'tip 0, notch 0, echo none')
+      if ('--ctrl-btn-glyph' in r && !['0', '1'].includes(r['--ctrl-btn-glyph'])) bad(style, 'стрелка у конца — 0 или 1', r['--ctrl-btn-glyph'], '0, 1')
+      if (r['--ctrl-btn-glyph'] === '1' && (Number(r['--ctrl-btn-tip'] ?? 0) > 0 || Number(r['--ctrl-btn-notch'] ?? 0) > 0 || r['--ctrl-btn-echo'] === 'block' || r['--ctrl-btn-mark'] === '1')) bad(style, 'стрелка у конца не носится с остриём, выемкой, хвостом и кружком', 'glyph 1', 'tip 0, notch 0, echo none, mark 0')
       if (r['--ctrl-btn-mark'] === '1' && (Number(r['--ctrl-btn-tip'] ?? 0) > 0 || Number(r['--ctrl-btn-notch'] ?? 0) > 0 || r['--ctrl-btn-echo'] === 'block')) bad(style, 'кружок у конца не носится с остриём, выемкой и хвостом', 'mark 1', 'tip 0, notch 0, echo none')
       for (const [fill, , edge, voice] of VOICES) {
         if (fill in r && r[fill] === 'transparent' && (r[edge] ?? 'transparent') === 'transparent') bad(style, `${voice}: без заливки и кромки кнопка не видна как орган`, 'transparent', 'заливка, вуаль или кромка')

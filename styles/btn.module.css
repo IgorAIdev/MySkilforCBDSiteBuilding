@@ -105,12 +105,20 @@
      действия без знака; кружок у конца пилюлю включает сам. */
   --btn-pill:max(var(--btn-mark), var(--ctrl-btn-pill, 0));
   --btn-r:calc(var(--r-ctrl) * (1 - var(--btn-pill)) + var(--r-pop) * var(--btn-pill));
+  /* Стрелка у конца без кружка (`--ctrl-btn-glyph`, 0 или 1; элемент 03,
+     И423): тот же вырез знака из листа в заливке, под ним — квадрат краской
+     надписи: стрелка встаёт краской надписи прямо на заливке. Угол — Shape. */
+  --btn-glyph:var(--ctrl-btn-glyph, 0);
+  --btn-cut:max(var(--btn-mark), var(--btn-glyph));
   position:relative;isolation:isolate;background-color:transparent;
   /* Под вырезом стрелки — кружок краской заливки: стрелка того же цвета, что
-     пилюля, как у «Shop now». */
-  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-fill, var(--press-bg)) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark)));
+     пилюля, как у «Shop now»; у стрелки без кружка — квадрат краской надписи. */
+  background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-fill, var(--press-bg)) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark))), linear-gradient(var(--press-ink), var(--press-ink));
+  background-repeat:no-repeat;
+  background-position:0 0, calc(100% - var(--btn-h) * .29) 50%;
+  background-size:100% 100%, calc(var(--btn-h) * .42 * var(--btn-glyph)) calc(var(--btn-h) * .42 * var(--btn-glyph));
   padding-inline-start:calc(var(--btn-h) * .45 + var(--btn-notch));
-  padding-inline-end:calc(var(--btn-h) * .45 + var(--btn-tip) * .7 + var(--btn-h) * .8 * var(--btn-mark));
+  padding-inline-end:calc(var(--btn-h) * .45 + var(--btn-tip) * .7 + var(--btn-h) * .8 * var(--btn-mark) + var(--btn-h) * .45 * var(--btn-glyph));
 }
 .btn[data-voice='loud']::before,
 .btn[data-voice='loud']::after{content:'';position:absolute;inset:calc(-1 * var(--line-w))}
@@ -128,9 +136,9 @@
      под буквами, покрасив их в прозрачное, и заливка пропадала вместе с
      ними: 1.00…1.31 : 1 при кнопке, на глаз верной (находка 25.09.2026). */
   background-image:radial-gradient(circle at calc(100% - var(--btn-h) * .5) 50%, var(--press-ink) calc(var(--btn-h) * .375 * var(--btn-mark)), transparent calc((var(--btn-h) * .375 + .5px) * var(--btn-mark)));
-  -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat, linear-gradient(var(--ink), var(--ink));
+  -webkit-mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat, linear-gradient(var(--ink), var(--ink));
   -webkit-mask-composite:xor;
-  mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-mark)) no-repeat exclude, linear-gradient(var(--ink), var(--ink));
+  mask:url('/icons.svg#arrow-right-view') calc(100% - var(--btn-h) * .29) 50% / calc(var(--btn-h) * .42 * var(--btn-cut)) no-repeat exclude, linear-gradient(var(--ink), var(--ink));
   transition:background-color var(--hover-t) var(--ease);
 }
 /* Хвост за остриём (И276): шевроны, каждый на тон ближе к полу. Тоны —

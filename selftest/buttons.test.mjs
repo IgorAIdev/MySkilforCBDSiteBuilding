@@ -26,14 +26,14 @@ const btn = readFileSync(join(KIT, 'styles/btn.module.css'), 'utf8')
 
 test('the catalog is independent axes of data; the defaults pass on the site palette', () => {
   assert.deepEqual(axesOf(catalog).map((a) => a.id), ['letters', 'loud', 'quiet', 'shape'])
-  assert.deepEqual(axesOf(catalog)[3].options.map((o) => o.name), ['Standard', 'Pill', 'Arrow', 'Chevron', 'Double chevron', 'Tonal trail · spaced', 'Tonal trail · overlapping', 'Circle arrow'], 'форма главной — обычная по умолчанию')
+  assert.deepEqual(axesOf(catalog)[3].options.map((o) => o.name), ['Standard', 'Pill', 'Arrow end', 'Arrow', 'Chevron', 'Double chevron', 'Tonal trail · spaced', 'Tonal trail · overlapping', 'Circle arrow'], 'форма главной — обычная по умолчанию')
   assert.deepEqual(axesOf(catalog)[0].options.map((o) => o.name), ['Sentence case', 'CAPITALS'], 'как в предложении — первым, по умолчанию')
   assert.deepEqual(auditButtons(catalog, {}), [], 'каталог устроен')
   const { structure, off, on } = availability(catalog, sitePalette)
   assert.deepEqual(structure, [])
   assert.deepEqual(off, {})
   for (const a of axesOf(catalog)) assert.ok(on.includes(`${a.id}/${a.options[0].id}`), `${a.id}: вариант по умолчанию проходит`)
-  assert.deepEqual(buttonRoles(catalog), { '--ctrl-btn-case': 'none', '--ctrl-btn-weight': '600', '--ctrl-btn-track': 'normal', '--ctrl-btn-fill-pop': 'var(--pop)', '--ctrl-btn-ink-pop': 'var(--on-pop)', '--ctrl-btn-edge-pop': 'transparent', '--ctrl-btn-fill': 'var(--quiet)', '--ctrl-btn-ink': 'var(--ink)', '--ctrl-btn-edge': 'transparent', '--ctrl-btn-tip': '0', '--ctrl-btn-tip-at': '0', '--ctrl-btn-notch': '0', '--ctrl-btn-echo': 'none', '--ctrl-btn-trail-1': '0', '--ctrl-btn-trail-2': '0', '--ctrl-btn-mark': '0', '--ctrl-btn-pill': '0' })
+  assert.deepEqual(buttonRoles(catalog), { '--ctrl-btn-case': 'none', '--ctrl-btn-weight': '600', '--ctrl-btn-track': 'normal', '--ctrl-btn-fill-pop': 'var(--pop)', '--ctrl-btn-ink-pop': 'var(--on-pop)', '--ctrl-btn-edge-pop': 'transparent', '--ctrl-btn-fill': 'var(--quiet)', '--ctrl-btn-ink': 'var(--ink)', '--ctrl-btn-edge': 'transparent', '--ctrl-btn-tip': '0', '--ctrl-btn-tip-at': '0', '--ctrl-btn-notch': '0', '--ctrl-btn-echo': 'none', '--ctrl-btn-trail-1': '0', '--ctrl-btn-trail-2': '0', '--ctrl-btn-mark': '0', '--ctrl-btn-pill': '0', '--ctrl-btn-glyph': '0' })
 })
 
 test('the button reads every role the catalog may declare, each with a fallback; corners come from Shape; press is one', () => {
@@ -48,7 +48,7 @@ test('the button reads every role the catalog may declare, each with a fallback;
      конца (форма «Кружок со стрелкой», 25.09.2026). */
   assert.match(btn, /\.btn\[data-voice='loud'\]::before\{[^}]*clip-path:polygon\(0 0, calc\(100% - var\(--btn-tip\)\) 0/)
   assert.match(btn, /--btn-tip:calc\(var\(--btn-h\) \* var\(--ctrl-btn-tip, 0\)\)/, 'контур — от высоты самой кнопки')
-  assert.match(btn, /padding-inline-end:calc\(var\(--btn-h\) \* \.45 \+ var\(--btn-tip\) \* \.7 \+ var\(--btn-h\) \* \.8 \* var\(--btn-mark\)\)/, 'надпись не заходит в остриё и в кружок у конца')
+  assert.match(btn, /padding-inline-end:calc\(var\(--btn-h\) \* \.45 \+ var\(--btn-tip\) \* \.7 \+ var\(--btn-h\) \* \.8 \* var\(--btn-mark\) \+ var\(--btn-h\) \* \.45 \* var\(--btn-glyph\)\)/, 'надпись не заходит в остриё, в кружок и в стрелку у конца')
   /* Стрелка в кружке — знак из листа (вид `#arrow-right-view`), не свой рисунок. */
   assert.match(btn, /url\('\/icons\.svg#arrow-right-view'\)/, 'стрелка кружка — из листа знаков')
   /* Маска заливки не держится за краску надписи: проверка контраста красит

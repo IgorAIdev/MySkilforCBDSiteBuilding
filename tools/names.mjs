@@ -73,6 +73,9 @@ export const MODIFIERS = new Set([
   /* место подписи поля (`--ctrl-field-label`: над полем или на его кромке,
      элемент 47 набора, И394) */
   'label',
+  /* стрелка у конца главной кнопки без кружка (`--ctrl-btn-glyph`) и вырез
+     знака в заливке, общий кружку и стрелке (`--btn-cut`; элемент 03, И423) */
+  'glyph', 'cut',
 ])
 /** Ручки примитивов — узлы. Объявляются на примитиве, не на корне. */
 export const HOOKS = ['stack', 'cluster', 'switch', 'rail', 'section', 'sheet', 'lede', 'hero', 'grid', 'cols', 'cell',

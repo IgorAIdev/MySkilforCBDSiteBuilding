@@ -95,7 +95,7 @@
 | System | Buttons | Letters | `--ctrl-btn-case`, `-weight`, `-track` | Sentence case (умолчание), CAPITALS |
 | System | Buttons | Main button | заливка главной `--ctrl-btn-fill-pop`, `-ink-pop`, `-edge-pop` | Fill, Ink |
 | System | Buttons | Quiet button | вуаль тихой `--ctrl-btn-fill`, `-ink`, `-edge` | Veil, Outline |
-| System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Pill (полный круг главного действия — элемент 16), Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping, Circle arrow (пилюля и кружок со стрелкой у конца, элемент 02) |
+| System | Buttons | Main button shape | форма главной — доли её высоты (И276) | Standard, Pill (полный круг главного действия — элемент 16), Arrow end (стрелка у конца краской надписи — элемент 03), Arrow, Chevron, Double chevron, Tonal trail · spaced, Tonal trail · overlapping, Circle arrow (пилюля и кружок со стрелкой у конца, элемент 02) |
 | System | Fields | Field | вид поля ввода `--ctrl-field-fill`, `-edge`, `-side` — одно поле на весь сайт: поиск, почта, касса; кромка — у каждого вида (И390) | Framed (умолчание), Outline (светлая поверхность, кромка краской подписи — элемент 43), Tone (тихая плашка, черта снизу — элемент 41) |
 | System | Fields | Label | место подписи поля `--ctrl-field-label` — над полем или на кромке: пока пусто — внутри, как подсказка; пишут — на верхней кромке, фокус — кромкой краски кольца (И394) | Above (умолчание), On the edge (элемент 47) |
 | System | Fields | Field and button | пара «поле и кнопка» `--pair-look` — порознь или встык одной коробкой; на витрине — купон корзины (И421) | Apart (умолчание), Joined (элемент 42) |
