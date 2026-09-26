@@ -476,6 +476,14 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --pop:var(--chrome-active-bg);
   --on-pop:var(--chrome-active-fg);
   --pop-hover:var(--pop-hover-deck);
+  /* Под пальцем, тихая плашка на пилюле (счётчик) и кольцо фокуса — тоже
+     краски палубы (И444, И446): нажатая пилюля брала нажатие марки с корня,
+     кольцо — ступень марки, подобранную к бумаге; на палубе марки оно
+     сливалось с полом. */
+  --pop-press:var(--pop-press-deck);
+  --quiet-pop:var(--quiet-pop-deck);
+  --on-quiet-pop:var(--on-quiet-pop-deck);
+  --ring:var(--ring-deck);
 
   /* Кнопка на палубе (И295): хвост главной — ступени марки, видные на
      тёмном полу палубы, кромка выключенной — ступень нейтрали, видная на
@@ -573,6 +581,10 @@ input[type='checkbox'],input[type='radio']{border:var(--line-w) solid var(--tick
   --pop:var(--accent-solid);
   --on-pop:var(--on-accent);
   --pop-hover:var(--hover-solid);
+  --pop-press:var(--press-solid);
+  --quiet-pop:var(--quiet-pop-paper);
+  --on-quiet-pop:var(--on-quiet-pop-paper);
+  --ring:var(--ring-paper);
   --pop-trail-near:var(--pop-trail-near-paper);
   --pop-trail-far:var(--pop-trail-far-paper);
   --edge-off:var(--edge-off-paper);

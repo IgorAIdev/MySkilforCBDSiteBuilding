@@ -146,3 +146,95 @@ test('a bright brand keeps its colour: the trail steps away from the ground inst
   assert.ok(lightness(r['--pop-trail-far-paper']) < lightness(r['--a-9']), 'хвост темнее заливки — со стороны чернил')
   assert.ok(Math.min(...[1, 2, 3, 4, 5].map((i) => Math.abs(apca(r['--pop-trail-far-paper'], r[`--n-${i}`])))) >= NEED.decorLc)
 })
+
+/* Палуба марки (И444). Дефект: у cbdin шапка, подвал и нижняя полоса —
+   фирменный петроль, а строитель знал палубу только обратной парой
+   нейтрали. Тринадцать красок палубы набирались в стилях руками, и тихое
+   слово шапки при доле 78 % в тёмной теме давало 3.1 : 1 при норме 4.5. */
+const CBDIN = {
+  light: { paper: '#FFFFFF', ink: '#231F18', accent: '#0C3A46', sale: '#FABC34', deck: 'brand' },
+  dark: { paper: '#141310', ink: '#EEEDEA', accent: '#2E7C8F', sale: '#FABC34', deck: 'brand' },
+}
+const over = (top, floor) => {
+  const ch = (h) => [1, 3, 5].map((i) => Number.parseInt(h.slice(i, i + 2), 16))
+  const share = top.length === 9 ? Number.parseInt(top.slice(7), 16) / 255 : 1
+  const [t, f] = [ch(top), ch(floor)]
+  return `#${t.map((v, i) => Math.round(v * share + f[i] * (1 - share)).toString(16).padStart(2, '0')).join('')}`.toUpperCase()
+}
+
+test('the brand deck: chrome roles stand on the brand fill and hold their norms there (И444)', () => {
+  for (const [mode, paints] of themes(CBDIN)) {
+    const r = roles(paints, mode)
+    const at = `cbdin · ${mode}`
+    const deck = r['--chrome-bg']
+    assert.equal(deck, r['--a-9'], `${at}: пол палубы — заливка марки`)
+    assert.equal(r['--chrome-fg'], r['--on-a-9'], `${at}: знак палубы — знак на заливке`)
+    assert.ok(ratio(over(r['--chrome-fg-2'], deck), deck) >= NEED.text, `${at}: тихое слово палубы`)
+    for (const k of ['--chrome-hover', '--chrome-plate']) {
+      const plate = over(r[k], deck)
+      assert.ok(ratio(plate, deck) >= 1.15, `${at}: ${k} не видна на палубе`)
+      assert.ok(ratio(r['--chrome-fg'], plate) >= NEED.text, `${at}: знак палубы на ${k}`)
+    }
+    assert.ok(ratio(r['--ring-deck'], deck) >= NEED.control, `${at}: кольцо фокуса на палубе`)
+    for (const k of ['--pop-hover-deck', '--pop-press-deck']) assert.ok(ratio(deck, r[k]) >= NEED.text, `${at}: надпись пилюли на ${k}`)
+    assert.deepEqual(auditPalette(paints, mode), [], at)
+  }
+  /* Обратный ход: прежняя доля 78 % на палубе марки тёмной темы — та самая
+     находка; строитель её поднял, а не выпустил. */
+  const dark = roles(CBDIN.dark, 'dark')
+  const old = `${dark['--chrome-fg']}C7`
+  assert.ok(ratio(over(old, dark['--chrome-bg']), dark['--chrome-bg']) < NEED.text, '78 % на марке держали 4.5 — дефект не воспроизведён')
+  assert.notEqual(dark['--chrome-fg-2'], old)
+  /* Нейтральная палуба не сдвинулась: 78 % там держат с запасом. */
+  for (const [name, set] of Object.entries(shipped)) {
+    for (const [mode, paints] of themes(set)) assert.match(roles(paints, mode)['--chrome-fg-2'], /C7$/, `${name} · ${mode}`)
+  }
+  assert.throws(() => roles({ ...CBDIN.light, deck: 'петроль' }, 'light'), /палуба/i)
+})
+
+/* Тень под подписью на снимке (И445). Дефект: краска слоёв стояла у cbdin
+   в стилях — чёрный долями силы 40, подобранной заказчиком глазом, — и
+   ближайшая роль строителя была в 1.7–2.5 раза гуще. */
+test('the caption shadow: strength is the set\'s, the builder raises it until the caption reads (И445)', () => {
+  const edge = (r) => over(r['--sh-caption-near'], over(r['--sh-caption-far'], '#FFFFFF'))
+  const light = roles(CBDIN.light, 'light')
+  assert.equal(light['--sh-caption-near'], '#0000004D', 'сила 40: ближний слой 30 %')
+  assert.equal(light['--sh-caption-far'], '#00000033', 'сила 40: дальний слой 20 %')
+  for (const [name, set] of Object.entries({ ...shipped, cbdin: CBDIN })) {
+    for (const [mode, paints] of themes(set)) {
+      const r = roles(paints, mode)
+      const hero = mode === 'light' ? r['--n-1'] : r['--n-12']
+      assert.ok(ratio(hero, edge(r)) >= NEED.control, `${name} · ${mode}: подпись у края буквы`)
+    }
+  }
+  /* Обратный ход: слабая сила набора не проходит молча — строитель её
+     поднимает; сила вне 1…100 — отказ по имени. */
+  const weak = roles({ ...CBDIN.light, caption: 10 }, 'light')
+  assert.ok(Number.parseInt(weak['--sh-caption-near'].slice(7), 16) > Math.ceil(0.075 * 255), 'сила 10 выпущена как есть')
+  assert.ok(ratio('#FFFFFF', over('#00000013', over('#0000000D', '#FFFFFF'))) < NEED.control, 'сила 10 держала подпись — проверка ничего не меряет')
+  for (const bad of [0, 150, '40']) assert.throws(() => roles({ ...CBDIN.light, caption: bad }, 'light'), /сила тени/)
+})
+
+/* Тихая плашка на заливке (И446). Дефект: счётчик на кнопке покупки cbdin —
+   `color-mix(знак кнопки 22 %, transparent)` в стилях: строитель выпускал
+   вуали только из чернил пола. На белой пилюле палубы марки (тёмная тема)
+   такая плашка роняла надпись до 3.6 : 1. */
+test('the quiet plate on a fill: visible on the button, its number reads — inverted where no veil can (И446)', () => {
+  for (const [name, set] of Object.entries({ ...shipped, cbdin: CBDIN })) {
+    for (const [mode, paints] of themes(set)) {
+      const r = roles(paints, mode)
+      const at = `${name} · ${mode}`
+      for (const [fill, floor] of [['--quiet-pop-paper', r['--a-9']], ['--quiet-pop-deck', r['--chrome-fg']]]) {
+        const plate = over(r[fill], floor)
+        const on = r[fill.replace('--', '--on-')]
+        assert.ok(ratio(plate, floor) >= 1.15, `${at}: ${fill} не видна на заливке`)
+        assert.ok(ratio(on, plate) >= NEED.text, `${at}: число на ${fill}`)
+      }
+    }
+  }
+  const dark = roles(CBDIN.dark, 'dark')
+  const veil22 = over(`${dark['--chrome-bg']}38`, dark['--chrome-fg'])
+  assert.ok(ratio(dark['--chrome-bg'], veil22) < NEED.text, 'вуаль 22 % на белой пилюле держала надпись — дефект не воспроизведён')
+  assert.equal(dark['--quiet-pop-deck'], `${dark['--chrome-bg']}FF`, 'плашка вывернута: заливка — знак пилюли')
+  assert.equal(dark['--on-quiet-pop-deck'], dark['--chrome-fg'], 'надпись вывернутой плашки — пол пилюли')
+})

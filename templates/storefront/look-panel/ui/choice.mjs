@@ -150,6 +150,13 @@ const GROUND_LABELS = {
   trail: "Main button's trail chevrons on the page and cards", 'trail-deck': "Main button's trail chevrons on the dark band",
   'edge-off': "Disabled button's edge on the page and cards", 'edge-off-deck': "Disabled button's edge on the dark band",
   'pop-deck': 'Main button on the dark band, under the hand', scrim: 'Hero text over a white photo',
+  /* Палуба на своём полу, счётчик на кнопке, подпись на снимке (И444–И446). */
+  'chrome-fg-2': 'Quiet words on the band', 'chrome-hover': 'A control at rest on the band', 'chrome-hover-text': 'Words on a control at rest on the band',
+  'chrome-plate': 'A plate on the band', 'chrome-plate-text': 'Words on a plate on the band', 'ring-deck': 'Focus ring on the band',
+  'pop-press-deck': 'Main button on the band, pressed',
+  'quiet-pop': 'Counter on the buy button', 'quiet-pop-text': 'Number on the buy button counter',
+  'quiet-pop-deck': 'Counter on the buy button on the band', 'quiet-pop-deck-text': 'Number on the counter on the band',
+  caption: 'Caption over a white photo, at the letter edge',
 }
 
 /** Обещания палитры для заказчика — спокойным списком: что гарантировано и
@@ -166,7 +173,10 @@ export function guarantees(paints, steps) {
     { id: 'edge-off', label: 'A disabled button keeps a visible edge', rows: of(['edge-off', 'edge-off-deck']) },
     { id: 'hero', label: 'Hero text reads over any photo', rows: of(['scrim']) },
     { id: 'apart', label: 'The brand stands apart from sale and stock colours', rows: of(['apart']) },
-    { id: 'ring', label: 'The focus ring shows on every surface', rows: of(['ring']) },
+    { id: 'ring', label: 'The focus ring shows on every surface', rows: of(['ring', 'ring-deck']) },
+    { id: 'band', label: 'Words, controls and plates read on the band', rows: of(['chrome-fg-2', 'chrome-hover', 'chrome-hover-text', 'chrome-plate', 'chrome-plate-text', 'pop-press-deck']) },
+    { id: 'counter', label: 'The counter on the buy button shows and its number reads', rows: of(['quiet-pop', 'quiet-pop-text', 'quiet-pop-deck', 'quiet-pop-deck-text']) },
+    { id: 'caption', label: 'Captions over photos read without a veil', rows: of(['caption']) },
   ].map((g) => ({ ...g, ok: g.rows.every((r) => r.pass) && (g.id !== 'text' || !m.extra.length) }))
 }
 

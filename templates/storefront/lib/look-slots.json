@@ -281,6 +281,21 @@
       "group": "palette",
       "value": "light-dark(#FCFBF91A, #EDEBE81A)"
     },
+    "--chrome-plate": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#3E3D3B, #645F55)"
+    },
+    "--ring-paper": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#9A7B3F, #B8955A)"
+    },
+    "--ring-deck": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#CCB896, #B8955A)"
+    },
     "--scrim-deck": {
       "type": "colour",
       "group": "palette",
@@ -441,10 +456,45 @@
       "group": "palette",
       "value": "light-dark(#1F1E1CB6, #121110B6)"
     },
+    "--sh-caption-near": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#0000004D, #00000053)"
+    },
+    "--sh-caption-far": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#00000033, #00000037)"
+    },
     "--pop-hover-deck": {
       "type": "colour",
       "group": "palette",
       "value": "light-dark(#EFEEEC, #DEDCD8)"
+    },
+    "--pop-press-deck": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#E3E2E0, #CFCCC7)"
+    },
+    "--quiet-pop-paper": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#FFFFFF17, #11111136)"
+    },
+    "--quiet-pop-deck": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#1F1E1C39, #4E483D39)"
+    },
+    "--on-quiet-pop-paper": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#111111, #111111)"
+    },
+    "--on-quiet-pop-deck": {
+      "type": "colour",
+      "group": "palette",
+      "value": "light-dark(#1F1E1C, #4E483D)"
     },
     "--pop-trail-near-paper": {
       "type": "colour",
