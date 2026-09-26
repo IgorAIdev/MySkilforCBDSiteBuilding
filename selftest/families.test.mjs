@@ -297,3 +297,23 @@ test('varMissing: имя, объявленное кодом проекта из 
     for (const name of ['--face-latin', '--meter-fill', '--knob-at']) assert.match(back, new RegExp(`${name} — читается, не объявлен`))
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+/* И456: знак стал ролью `--ink` / `--ink-soft`, и пара «знак + поверхность»
+   сторожится по роли, а не только по прежнему оттенку `--sage-12`. */
+test('halfRole: пара, сломанная ролью --ink, — находка, как и оттенком --sage-12 (И456)', () => {
+  const dir = project({
+    'components/Deck.module.css': [
+      '.deck { --ink: var(--n-1) }',
+      '.whole { --ink-soft: var(--n-2); --surface: var(--n-12) }',
+      '.arrow { background: #fff; color: var(--ink) }',
+      '.old { --sage-12: var(--n-1) }',
+    ].join('\n') + '\n',
+  })
+  try {
+    const out = spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'halfRole'], { cwd: dir, encoding: 'utf8' }).stdout
+    assert.match(out, /Deck\.module\.css:1 {2}\.deck — знак переопределён, поверхность нет/)
+    assert.match(out, /Deck\.module\.css:3 {2}\.arrow — фон литералом, краска токеном --ink\b/)
+    assert.match(out, /Deck\.module\.css:4 {2}\.old — знак переопределён, поверхность нет/)
+    assert.doesNotMatch(out, /\.whole/, 'знак вместе с поверхностью — пара целиком, не находка')
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

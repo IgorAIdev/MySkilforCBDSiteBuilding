@@ -326,8 +326,13 @@ for (const path of files) {
 
      Отрисованной проверкой это не ловится: она открывает витрину в одном
      состоянии настроек, а палуба — одно из многих. Признак виден в файле,
-     значит место ему здесь. */
-  for (const m of css.matchAll(/(?:^|[;{])\s*--sage-1[12]\s*:/g)) {
+     значит место ему здесь.
+
+     Знак — роль `--ink` / `--ink-soft` (И456); оттенки `--sage-12` /
+     `--sage-11` — прежние имена той же пары, проект мог их ещё не снять.
+     Проверка, знавшая только оттенки, ослепла молча, как только знак стал
+     ролью: нарушение то же, а находок ноль. */
+  for (const m of css.matchAll(/(?:^|[;{])\s*--(?:ink|ink-soft|sage-1[12])\s*:/g)) {
     const open = css.lastIndexOf('{', m.index)
     const close = css.indexOf('}', m.index)
     if (open < 0 || close < open) continue
@@ -351,7 +356,7 @@ for (const path of files) {
     const close = css.indexOf('}', m.index)
     if (open < 0 || close < open) continue
     const block = css.slice(open, close)
-    const ink = block.match(/(?:^|[;{])\s*color\s*:\s*var\(--(sage-1[12]|chrome-fg[a-z0-9-]*)\)/)
+    const ink = block.match(/(?:^|[;{])\s*color\s*:\s*var\(--(ink-soft|ink|sage-1[12]|chrome-fg[a-z0-9-]*)\)/)
     if (!ink) continue
     const head = css.slice(Math.max(0, css.lastIndexOf('}', open) + 1), open)
     add('halfRole', `${at(m.index)}  ${head.trim().slice(0, 40)} — фон литералом, краска токеном --${ink[1]}`)
