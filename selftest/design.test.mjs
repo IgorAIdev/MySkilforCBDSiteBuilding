@@ -208,6 +208,17 @@ test('check:design · меню мельче тела; крошки — не ме
     `.go{font:inherit}\n.go:is([data-around='quiet'], [data-around='edge']){font-size:var(--ctrl-fs-xs)}`)
   only(measure(marked('')), null, 0)
   only(measure(marked(' data-around="quiet"')), 'navSmall')
+  /* Орган в меню: голое правило органа мельче тела, но каждая ссылка меню
+     несёт одежду того же органа с ролью тела — одежда (0,2,0) бьёт голое
+     правило (0,1,0), и меню набрано телом (И445). Ссылка без одежды, одежда
+     мельче тела и одежда без размера — находка. */
+  const organ = (dress, links) => component(`export const A = () => <nav className={s.menu}>${links}</nav>`,
+    `.pill{font-size:var(--ctrl-fs-xs)}\n.pill[data-pill='nav']{${dress}}`)
+  const dressed = '<a className={s.pill} data-pill="nav" href="/a">A</a>'
+  only(measure(organ('font-size:var(--body-size)', dressed + dressed)), null, 0)
+  only(measure(organ('font-size:var(--body-size)', dressed + '<a className={s.pill} href="/b">B</a>')), 'navSmall')
+  only(measure(organ('font-size:var(--ctrl-fs-xs)', dressed)), 'navSmall')
+  only(measure(organ('font-weight:600', dressed)), 'navSmall')
 })
 
 test('check:design · ритм группы и карточки «значок + заголовок + текст»', () => {

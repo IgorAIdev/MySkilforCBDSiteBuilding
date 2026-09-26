@@ -39,7 +39,8 @@ const menu = (lang: Lang) => <button className={`${s.glyph} ${s.menu}`} type="bu
 /* Группы шторки — пилюлями под полками, когда вид держит меню телефона
    пилюлями (`--drawer-look: pills`, меню телефона cbdin.bg, И430): там
    выбирают поводом, а не местом. Без этого вида групп не видно; разметка
-   одна на оба вида. */
+   одна на оба вида. Пилюля — фишка набора в одежде пути (`data-chip="nav"`):
+   меню не мельче тела (И286, И445). */
 const shelves = (lang: Lang, nav: Menu, title: string) => (
   <nav id="site-menu" popover="auto" className={s.nav} aria-label={t(lang, 'nav.categories')}>
     <div className={s.sheetHead}>
@@ -53,7 +54,7 @@ const shelves = (lang: Lang, nav: Menu, title: string) => (
           <div key={g.name} className={s.sheetGroup}>
             <p className={s.groupName} id={`menu-group-${i}`}>{g.name}</p>
             <ul className={`${p.cluster} ${s.pills}`} aria-labelledby={`menu-group-${i}`}>
-              {g.links.map((l) => <li key={l.href}><a className={p.chip} href={l.href}><span className={s.pillName}>{l.label}</span></a></li>)}
+              {g.links.map((l) => <li key={l.href}><a className={p.chip} data-chip="nav" href={l.href}><span className={s.pillName}>{l.label}</span></a></li>)}
             </ul>
           </div>
         ))}

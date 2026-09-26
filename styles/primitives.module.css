@@ -1287,6 +1287,13 @@
   box-shadow:none;font-size:var(--ctrl-fs-xs);font-weight:600
 }
 .chip[data-chip='lab'] svg{color:inherit}
+/* ПУТЬ — та же пилюля в меню: не «сними меня», а «иди туда» (группы «по
+   поводу» в шторке шапки, полки фишками на главной). Меню не мельче тела
+   (И286, impeccable typeset.md:46 — «Use 1rem / 16px as the ordinary web
+   body floor»), поэтому надпись — роль тела, а не ступень органа, какой бы
+   набор ритма ни стоял. Устройство остаётся от `--ctrl-h-sm`: под пальцем
+   фишка сама становится целью (И445). */
+.chip[data-chip='nav']{font-size:var(--body-size)}
 
 .cut{
   position:absolute;top:10px;left:10px;z-index:2;

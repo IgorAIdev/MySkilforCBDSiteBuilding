@@ -47,7 +47,8 @@ const tiles = ({ block, ctx, place }: Props, shelf?: 'drawers') => (
 /* look-home:counter:start */
 /* Фишки — все полки одной строкой, сразу под обещанием: на телефоне это
    первый экран, и весь охват магазина виден без меню. Фишка — контрол
-   набора (`chip`), не своя кнопка. Заголовок раздела есть для чтения
+   набора (`chip`) в одежде пути — надпись ростом тела, как у меню (И445),
+   не своя кнопка. Заголовок раздела есть для чтения
    вслух: глазу строку объясняет само соседство с обещанием. Знак полки
    (данные) у начала фишки — вид `--chip-sign` (элемент 65, И422). */
 const chips = ({ block, ctx, place }: Props) => (
@@ -55,7 +56,7 @@ const chips = ({ block, ctx, place }: Props) => (
     <h2 className={p.said}>{block.title}</h2>
     <ul className={`${p.cluster} ${s.chips}`}>
       {ctx.collections.map((c) => (
-        <li key={c.slug}><a className={p.chip} href={hrefFor(ctx.lang, { category: c.slug })}>{c.sign ? <span className={s.chipSign}><Icon id={c.sign} /></span> : null}{c.name}</a></li>
+        <li key={c.slug}><a className={p.chip} data-chip="nav" href={hrefFor(ctx.lang, { category: c.slug })}>{c.sign ? <span className={s.chipSign}><Icon id={c.sign} /></span> : null}{c.name}</a></li>
       ))}
     </ul>
   </section>
