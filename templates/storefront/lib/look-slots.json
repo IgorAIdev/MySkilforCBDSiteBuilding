@@ -821,6 +821,11 @@
       "group": "scale",
       "value": "var(--sp-4)"
     },
+    "--air-set": {
+      "type": "length",
+      "group": "scale",
+      "value": "var(--sp-3)"
+    },
     "--gap-row": {
       "type": "length",
       "group": "scale",

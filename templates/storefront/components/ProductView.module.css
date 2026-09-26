@@ -143,10 +143,11 @@
 .was{font-size:var(--body-size);color:var(--ink-soft);font-variant-numeric:tabular-nums;text-decoration-thickness:var(--line-w)}
 .stock{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
 
-/* Выбор: группа — подпись и опции вплотную, между группами — ступенью
-   «между строк группы» (`--sp-3`): выбор — одна группа с покупкой под ним,
-   и строки внутри него теснее, чем выбор от строки покупки (flatRhythm). */
-.choice{display:grid;gap:var(--sp-3)}
+/* Выбор: группа — подпись и опции вплотную, между группами — воздухом
+   `--air-set` (ступенью ниже `--air-row`): выбор — одна строка части
+   покупки, и группы внутри него теснее, чем выбор от строки покупки
+   (flatRhythm). Ступень `--sp-3` напрямую узел не читает (stepDirect, И448). */
+.choice{display:grid;gap:var(--air-set)}
 /* Опции варианта — органы ростом с кнопку (`--seg-h` сегмента: `--ctrl-h`,
    40 под мышью, 48 под пальцем), а не малые фишки: это выбор, без которого
    не купить. */
