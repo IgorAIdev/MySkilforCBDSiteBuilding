@@ -115,11 +115,6 @@ export async function useLive(base) {
 export const CATEGORIES = [...catalogue.matchAll(/\{\s*slug:\s*'([a-z-]+)'/g)]
   .map((m) => m[1])
 
-/** Марки. У каждой своя страница со всеми её товарами. Нужны оба поля:
- *  адрес — чтобы построить его, имя — чтобы сосчитать товары марки. */
-export const BRANDS = [...brands.matchAll(/\{ slug: '([a-z0-9-]+)', name: '([^']+)' \}/g)]
-  .map((m) => ({ slug: m[1], name: m[2] }))
-
 /** Товары. Нужны три поля: адрес, полка и семья вариантов — по ним
  *  выбираются образцы для дорогих проверок. */
 export const PRODUCTS = [...catalogue.matchAll(/^ *\{ id:'([^']+)'(.*)$/gm)]
@@ -129,6 +124,31 @@ export const PRODUCTS = [...catalogue.matchAll(/^ *\{ id:'([^']+)'(.*)$/gm)]
     brand: m[2].match(/brand:'([^']+)'/)?.[1] ?? '',
     family: m[2].match(/family:'([^']+)'/)?.[1] ?? '',
   }))
+
+/** Марки. У каждой своя страница со всеми её товарами. Нужны оба поля:
+ *  адрес — чтобы построить его, имя — чтобы сосчитать товары марки.
+ *
+ *  Реестр бывает двух видов. Список `{ slug, name }` в `lib/brands.ts` — или
+ *  счёт из каталога, когда марка — грань движка: адрес — ключ из имени
+ *  (`brandKeyOf`: строчные, всё, что не буква и не цифра, — дефис) или
+ *  поле `brandKey` товара, если оно есть. У второго вида списка в файле нет,
+ *  и разбор давал пусто — `assertData` честно ронял обход дерева, а проект
+ *  чинил это своей копией разбора (И455). Признак второго вида — сам файл
+ *  зовёт `brandKeyOf`: без него пустой список по-прежнему сломанный разбор. */
+const listedBrands = [...brands.matchAll(/\{ slug: '([a-z0-9-]+)', name: '([^']+)' \}/g)]
+  .map((m) => ({ slug: m[1], name: m[2] }))
+const brandKeyOf = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+const countedBrands = () => {
+  const seen = new Map()
+  for (const m of catalogue.matchAll(/^ *\{ id:'[^']+'(.*)$/gm)) {
+    const name = m[1].match(/brand:'([^']+)'/)?.[1]
+    if (!name) continue
+    const slug = m[1].match(/brandKey:'([a-z0-9-]+)'/)?.[1] ?? brandKeyOf(name)
+    if (!seen.has(slug)) seen.set(slug, { slug, name })
+  }
+  return [...seen.values()]
+}
+export const BRANDS = listedBrands.length || !/\bbrandKeyOf\b/.test(brands) ? listedBrands : countedBrands()
 
 /** Есть файл, а данных из него не вышло — это сломанный разбор, а не пустой
  *  магазин. Молчаливо неполный замер выглядит как результат: ровно так три

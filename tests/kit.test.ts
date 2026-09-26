@@ -1044,6 +1044,17 @@ test('большая проверка запускает npm переносим�
   assert.match(source, /\^\[\\w:-\]\+\$/)
 })
 
+/* И453: проверка после правки зовёт `npm test` тем же ходом, что большая
+   проверка, и называет ошибку запуска, а не молчит. */
+test('проверка после правки запускает npm переносимо', () => {
+  const source = read('tools/hook-after-edit.mjs')
+  assert.match(source, /cmd === 'npm' && process\.platform === 'win32'/)
+  assert.match(source, /process\.env\.ComSpec \?\? 'cmd\.exe'/)
+  assert.match(source, /`npm\.cmd \$\{args\.join\(' '\)\}`/)
+  assert.doesNotMatch(source, /shell:\s*true/)
+  assert.match(source, /r\.error\?\.message/)
+})
+
 test('обход знает доменную витрину и серверную сборку', () => {
   const routes = read('tools/routes.mjs')
   const open = read('tools/check-open.mjs')
