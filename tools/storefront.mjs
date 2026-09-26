@@ -24,6 +24,12 @@
  *   npm run storefront -- --sample     новая постановка без вида витрины —
  *                                      вид шаблона по умолчанию
  *   npm run storefront -- --save-look  опубликованный в панели вид — в showcase/
+ *   npm run storefront -- --port 3030  свой порт (или PORT=3030)
+ *   npm run storefront -- --prepare    только поставить (витрина, вид, зависимости),
+ *                                      не запускать
+ *   … --dir <папка>                    ставить не в `.storefront/`, а в папку —
+ *                                      так витрину собирает Vercel
+ *                                      (deploy/vercel/vercel.json, И433)
  *
  * Вид витрины шаблона, выбранный заказчиком в панели (палитра, шрифт,
  * ритм …), лежит в `showcase/` набора: `look.json` — опубликованный вид,
@@ -38,16 +44,17 @@
  */
 
 import { existsSync, rmSync, watch, mkdirSync, copyFileSync, statSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, dirname, relative, sep } from 'node:path'
+import { join, dirname, relative, resolve, sep } from 'node:path'
 import { spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
+const args = process.argv.slice(2)
+const opt = (flag) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined }
 const KIT = fileURLToPath(new URL('..', import.meta.url))
-const SITE = join(KIT, '.storefront')
+const SITE = opt('--dir') ? resolve(opt('--dir')) : join(KIT, '.storefront')
 const TEMPLATE = join(KIT, 'templates', 'storefront')
 const SHOWCASE = join(KIT, 'showcase')
 const PUBLISHED = join(SITE, 'lib', 'source', 'sample', 'look.json')
-const args = process.argv.slice(2)
 const WIN = process.platform === 'win32'
 const say = (line) => console.log(`[storefront] ${line}`)
 
@@ -91,23 +98,33 @@ if (args.includes('--fresh') && existsSync(SITE)) {
   say('сношу .storefront/ и ставлю заново')
   rmSync(SITE, { recursive: true, force: true })
 }
-if (!existsSync(join(SITE, 'package.json'))) {
-  say('ставлю витрину из шаблона в .storefront/')
-  install(false)
+/* Поставлена — значит, есть запись ставщика: один `package.json` витриной
+   не делает (у Vercel в папке сборки он лежит заранее — по нему узнаётся
+   Next). Папка не пуста, а витрины в ней нет — ставится поверх. */
+if (!existsSync(join(SITE, '.site-kit-install.json'))) {
+  say(`ставлю витрину из шаблона в ${relative(process.cwd(), SITE) || '.'}`)
+  install(existsSync(SITE) && readdirSync(SITE).length > 0)
   if (!args.includes('--sample')) applyShowcase()
 }
 if (!existsSync(join(SITE, 'node_modules', 'next'))) {
   say('ставлю зависимости витрины (npm install)')
   run('npm', ['install', '--no-audit', '--no-fund'], SITE)
 }
+if (args.includes('--prepare')) {
+  say('витрина поставлена')
+  process.exit(0)
+}
 
-/* То же, что `npm run dev` витрины, но порт — из PORT (по умолчанию 3020,
-   как у витрины): на машине, где 3020 занят другой витриной, — свой. */
-const PORT = process.env.PORT ?? '3020'
+/* То же, что `npm run dev` витрины, но порт — из `--port` или PORT (по
+   умолчанию 3020, как у витрины): где 3020 занят другой витриной — свой. */
+const PORT = opt('--port') ?? process.env.PORT ?? '3020'
 run(process.execPath, [join(SITE, 'scripts', 'copy-icons.mjs')], SITE, true)
 run(process.execPath, [join(SITE, 'scripts', 'look-slots.mjs')], SITE, true)
 say(`запускаю: http://localhost:${PORT} (панель вида — полоса «Look» внизу)`)
-const dev = spawn('npx', ['next', 'dev', '--port', PORT], { cwd: SITE, stdio: 'inherit', shell: WIN, env: { ...process.env, LOOK_PICKER: process.env.LOOK_PICKER ?? 'on' } })
+/* Next — прямо этим же node, без оболочки: через `npx` в оболочке Windows
+   остановка команды убивала оболочку, а сервер оставался сиротой — держал
+   порт и файлы `.storefront/`, и следующая постановка падала с EPERM. */
+const dev = spawn(process.execPath, [join(SITE, 'node_modules', 'next', 'dist', 'bin', 'next'), 'dev', '--port', PORT], { cwd: SITE, stdio: 'inherit', env: { ...process.env, LOOK_PICKER: process.env.LOOK_PICKER ?? 'on' } })
 dev.on('exit', (code) => process.exit(code ?? 0))
 for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { dev.kill(sig); process.exit(0) })
 
