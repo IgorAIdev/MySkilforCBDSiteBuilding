@@ -7,10 +7,14 @@
    Строка — предложение: число ступенью вводного абзаца, полужирно и
    чернилами, подпись — телом, тихой краской; по базовой линии. Пояснение
    строки («≈ 200 drops in the bottle») — строкой заметки ниже, с новой
-   строки: в одну с подписью оно рвалось бы посередине на узкой колонке. */
+   строки: в одну с подписью оно рвалось бы посередине на узкой колонке.
+
+   Верхний отступ поле не объявляет: его платит стопка колонки (`stack`,
+   воздух группы). Стоял `margin:0` — равный вес с правилом стопки, и по
+   порядку кусков сборки поле прилипало к строке покупки (И444). */
 .facts{
   display:grid;gap:var(--sp-2);
-  margin:0;padding:var(--pad-card);list-style:none;
+  margin-inline:0;margin-block-end:0;padding:var(--pad-card);list-style:none;
   background:var(--pop-tint);border-radius:var(--r-card)
 }
 .fact{font-size:var(--body-size);line-height:var(--body-lead);color:var(--ink-soft)}
