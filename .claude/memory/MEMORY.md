@@ -1,0 +1,16 @@
+- [Kit goal](skill-goal.md) — build and audit CBD storefronts on Next.js over Payload + Vendure; owner non-technical
+- [Storefront template RO](storefront-template-ro.md) — reference storefront = Romanian market template (ro/en/hu); run with npm run storefront, on the server as skill-storefront
+- [Take the recommended option](take-recommended.md) — don't ask the owner to pick between options I recommend; take the recommended one and go
+- [Draft per-shop choices](draft-per-shop-choices.md) — carriers and similar vendors: rough draft options, verified per shop at launch
+- [Rendered checks: changed pages only](rendered-checks-changed-pages.md) — fix rounds: touched pages, main language only; full craft/sweep, all languages, once before handover
+- [GitHub flow](work-locally.md) — claude/* branch → PR → merge on green (merge commit); 26.09.2026 owner moves to another laptop, memory lives in the repo (.claude/memory)
+- [Look panel architecture](look-panel-architecture.md) — panel holds the variant catalog, site holds one look as values; no rebuild; removable in one command
+- [Only correct architecture](only-correct-architecture.md) — name the owning layer before deciding or briefing; no wrong-layer shortcuts ever
+- [Design through skills](design-with-skills.md) — storefront design goes through impeccable/redesign-skill inside kit rules; owner: «дизайн говно везде, переделай скилами»
+- [Known norms: answer directly](known-norms-answer-directly.md) — common web norms: knowledge + one search, no custom measurement round
+- [Elements: draw, don't embed](elements-draw-not-embed.md) — sent buttons/controls → kit elements/ with tags, base only, hover/press shown at once
+- [Element choices](element-choices.md) — owner's take/edit/skip per element → elements/choices.json via selection page :4181
+- [One writer in the shared tree](one-writer-shared-tree.md) — elements/ has one owning session; others check for repeats and forward, never write
+- [Scope: skill, not shop](skill-scope-not-shop.md) — asked about the skill → stay in the kit and upstream repos, not their CBD shop projects
+- [Shared working tree](shared-working-tree.md) — several sessions write in one tree/branch; git add own paths only, message before committing; never switch its branch — own worktree
+- [PDP typography pending](pdp-typography-pending.md) — owner's font-ratio/spacing review of product page not done yet; start there

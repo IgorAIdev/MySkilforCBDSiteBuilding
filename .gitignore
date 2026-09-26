@@ -15,3 +15,5 @@ dist/
 .refs/
 # Витрина из шаблона для правки шаблона (npm run storefront, И432): копия, правят templates/storefront
 /.storefront/
+# Настройки одной машины: путь к памяти в репозитории и прочее (.claude/rules/memory.md)
+.claude/settings.local.json
