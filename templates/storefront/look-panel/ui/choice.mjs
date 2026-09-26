@@ -150,7 +150,7 @@ const GROUND_LABELS = {
   trail: "Main button's trail chevrons on the page and cards", 'trail-deck': "Main button's trail chevrons on the dark band",
   'edge-off': "Disabled button's edge on the page and cards", 'edge-off-deck': "Disabled button's edge on the dark band",
   'pop-deck': 'Main button on the dark band, under the hand', scrim: 'Hero text over a white photo',
-  /* Палуба на своём полу, счётчик на кнопке, подпись на снимке (И444–И446). */
+  /* Палуба на своём полу, счётчик на кнопке, подпись на снимке (И450–И452). */
   'chrome-fg-2': 'Quiet words on the band', 'chrome-hover': 'A control at rest on the band', 'chrome-hover-text': 'Words on a control at rest on the band',
   'chrome-plate': 'A plate on the band', 'chrome-plate-text': 'Words on a plate on the band', 'ring-deck': 'Focus ring on the band',
   'pop-press-deck': 'Main button on the band, pressed',

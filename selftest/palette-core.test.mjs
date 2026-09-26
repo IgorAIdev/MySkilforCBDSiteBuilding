@@ -147,7 +147,7 @@ test('a bright brand keeps its colour: the trail steps away from the ground inst
   assert.ok(Math.min(...[1, 2, 3, 4, 5].map((i) => Math.abs(apca(r['--pop-trail-far-paper'], r[`--n-${i}`])))) >= NEED.decorLc)
 })
 
-/* Палуба марки (И444). Дефект: у cbdin шапка, подвал и нижняя полоса —
+/* Палуба марки (И450). Дефект: у cbdin шапка, подвал и нижняя полоса —
    фирменный петроль, а строитель знал палубу только обратной парой
    нейтрали. Тринадцать красок палубы набирались в стилях руками, и тихое
    слово шапки при доле 78 % в тёмной теме давало 3.1 : 1 при норме 4.5. */
@@ -162,7 +162,7 @@ const over = (top, floor) => {
   return `#${t.map((v, i) => Math.round(v * share + f[i] * (1 - share)).toString(16).padStart(2, '0')).join('')}`.toUpperCase()
 }
 
-test('the brand deck: chrome roles stand on the brand fill and hold their norms there (И444)', () => {
+test('the brand deck: chrome roles stand on the brand fill and hold their norms there (И450)', () => {
   for (const [mode, paints] of themes(CBDIN)) {
     const r = roles(paints, mode)
     const at = `cbdin · ${mode}`
@@ -192,10 +192,10 @@ test('the brand deck: chrome roles stand on the brand fill and hold their norms 
   assert.throws(() => roles({ ...CBDIN.light, deck: 'петроль' }, 'light'), /палуба/i)
 })
 
-/* Тень под подписью на снимке (И445). Дефект: краска слоёв стояла у cbdin
+/* Тень под подписью на снимке (И451). Дефект: краска слоёв стояла у cbdin
    в стилях — чёрный долями силы 40, подобранной заказчиком глазом, — и
    ближайшая роль строителя была в 1.7–2.5 раза гуще. */
-test('the caption shadow: strength is the set\'s, the builder raises it until the caption reads (И445)', () => {
+test('the caption shadow: strength is the set\'s, the builder raises it until the caption reads (И451)', () => {
   const edge = (r) => over(r['--sh-caption-near'], over(r['--sh-caption-far'], '#FFFFFF'))
   const light = roles(CBDIN.light, 'light')
   assert.equal(light['--sh-caption-near'], '#0000004D', 'сила 40: ближний слой 30 %')
@@ -215,11 +215,11 @@ test('the caption shadow: strength is the set\'s, the builder raises it until th
   for (const bad of [0, 150, '40']) assert.throws(() => roles({ ...CBDIN.light, caption: bad }, 'light'), /сила тени/)
 })
 
-/* Тихая плашка на заливке (И446). Дефект: счётчик на кнопке покупки cbdin —
+/* Тихая плашка на заливке (И452). Дефект: счётчик на кнопке покупки cbdin —
    `color-mix(знак кнопки 22 %, transparent)` в стилях: строитель выпускал
    вуали только из чернил пола. На белой пилюле палубы марки (тёмная тема)
    такая плашка роняла надпись до 3.6 : 1. */
-test('the quiet plate on a fill: visible on the button, its number reads — inverted where no veil can (И446)', () => {
+test('the quiet plate on a fill: visible on the button, its number reads — inverted where no veil can (И452)', () => {
   for (const [name, set] of Object.entries({ ...shipped, cbdin: CBDIN })) {
     for (const [mode, paints] of themes(set)) {
       const r = roles(paints, mode)
