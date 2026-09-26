@@ -159,6 +159,7 @@ export const REQUIRED = {
   '--scrim-deck': 'вуаль под текстом на снимке — герой витрины, текст поверх кадра (templates/storefront, blocks.module.css)',
   '--creep': 'наплыв снимка под рукой — карточка товара на полке (templates/storefront, ProductCard.module.css; controls.md, «рама стоит, движется снимок»)',
   '--on-ink': 'надпись на плашке чернил — пол своего пола (отметка текущего пункта «Ink pill», вид витрины; И426)',
+  '--air-set': 'воздух между группами опций выбора — карта товара, придёт с магазином (templates/storefront, ProductView.module.css; И448)',
   '--layer-helper': 'слой кружка помощника (FLOATING)', '--layer-toast': 'слой всплывающего сообщения (FLOATING)',
 }
 

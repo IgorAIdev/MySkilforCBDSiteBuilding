@@ -137,6 +137,7 @@
     "--air-head": "clamp(32px, 19.08px + 2.31vw, 44px)",
     "--air-group": "clamp(24px, 11.08px + 2.31vw, 36px)",
     "--air-row": "var(--sp-4)",
+    "--air-set": "var(--sp-3)",
     "--gap-row": "12px",
     "--gap-grid": "16px",
     "--gut": "clamp(12px, -.92px + 2.31vw, 24px)",
