@@ -95,12 +95,18 @@ function codeText() {
  *  стиля (`style={{ '--x': v }}`), `setProperty('--x', …)` и переменная
  *  шрифта Next (`next/font`, `variable: '--x'` — её объявляет класс, который
  *  выпускает сборка). Только код проекта: словари имён в инструментах набора
- *  объявлением не являются. */
+ *  объявлением не являются.
+ *
+ *  Ключ объекта стиля бывает и вычисляемым — `{ ['--x' as string]: v }`:
+ *  так TypeScript пропускает имя, которого нет в `CSSProperties`. Его первая
+ *  редакция не узнавала, и cbdin.bg получил ложную находку на `--auto`
+ *  ленты героя (И457). */
 function codeDeclared() {
   const out = new Set()
   const q = `['"\`]`
   const name = '(--[a-z][a-z0-9-]*)'
-  const rx = new RegExp(`${q}${name}${q}\\s*:|setProperty\\(\\s*${q}${name}${q}|\\bvariable\\s*:\\s*${q}${name}${q}`, 'g')
+  const key = `${q}${name}${q}(?:\\s+as\\s+[\\w.]+)?\\s*\\]?\\s*:`
+  const rx = new RegExp(`${key}|setProperty\\(\\s*${q}${name}${q}|\\bvariable\\s*:\\s*${q}${name}${q}`, 'g')
   for (const m of projectCode().matchAll(rx)) out.add(m[1] ?? m[2] ?? m[3])
   return out
 }
