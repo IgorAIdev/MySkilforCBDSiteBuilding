@@ -40,7 +40,7 @@ const menu = (lang: Lang) => <button className={`${s.glyph} ${s.menu}`} type="bu
    пилюлями (`--drawer-look: pills`, меню телефона cbdin.bg, И430): там
    выбирают поводом, а не местом. Без этого вида групп не видно; разметка
    одна на оба вида. Пилюля — фишка набора в одежде пути (`data-chip="nav"`):
-   меню не мельче тела (И286, И445). */
+   меню не мельче тела (И286, И448). */
 const shelves = (lang: Lang, nav: Menu, title: string) => (
   <nav id="site-menu" popover="auto" className={s.nav} aria-label={t(lang, 'nav.categories')}>
     <div className={s.sheetHead}>
