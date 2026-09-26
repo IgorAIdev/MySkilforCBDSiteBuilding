@@ -122,10 +122,19 @@ function start() {
     install(existsSync(SITE) && readdirSync(SITE).length > 0)
     if (!args.includes('--sample')) applyShowcase()
   }
-  /* Свой корень git: витрина лежит внутри набора, а набор прячет
-     `.storefront/` от git — линтер витрины, уважающий .gitignore, видел ноль
-     файлов и отвечал «не проверено» (И434). Нет git — не беда. */
-  if (!existsSync(join(SITE, '.git'))) spawnSync('git', ['init', '-q'], { cwd: SITE, stdio: 'ignore' })
+  /* Витрина внутри репозитория набора — свой репозиторий (И447). Набор
+     исключает `.storefront/` в `.gitignore`, а линтер (oxlint) уважает
+     `.gitignore` репозитория, в котором лежит: все файлы витрины выпадали, и
+     `check:lint` печатал «не отдал разбираемый отчёт — НЕ ПРОВЕРЕНО ничего».
+     Свой `.git` — граница: чужой `.gitignore` сквозь неё не читается. Набор
+     папку по-прежнему не видит — она у него исключена. */
+  if (!relative(KIT, SITE).startsWith('..') && !existsSync(join(SITE, '.git'))) {
+    try {
+      run('git', ['init', '-q'], SITE, true)
+    } catch {
+      say('git не найден — линтер в витрине увидит ноль файлов (check:lint)')
+    }
+  }
   if (!existsSync(join(SITE, 'node_modules', 'next'))) {
     say('ставлю зависимости витрины (npm install)')
     run('npm', ['install', '--no-audit', '--no-fund'], SITE)

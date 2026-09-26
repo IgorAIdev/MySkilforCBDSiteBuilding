@@ -119,25 +119,35 @@
 }
 
 /* ── колонка покупки ──────────────────────────────────────────────────────
-   Четыре группы через `--air-group`; внутри группы — теснее: имя и цена
-   ступенью оптики `--sp-2`, группы опций — строкой `--air-row`. Первая
-   строка колонки стоит на верхнем крае кадра. */
+   Три группы через `--air-group` (И444, бриф §7): что это — имя, цена,
+   описание; как купить — выбор и строка покупки; что внутри — поле
+   параметров. Внутри группы — строкой `--air-row`, имя и цена — ступенью
+   оптики `--sp-2`. Одним воздухом на всё колонка читалась списком: описание
+   стояло от имени так же далеко, как выбор от описания. Первая строка
+   колонки стоит на верхнем крае кадра. */
 .offer{--stack:var(--air-group)}
+.part{display:grid;gap:var(--air-row)}
 .identity{display:grid;gap:var(--sp-2)}
 /* Марка — первая строка заголовка (ProductView.tsx, И441): ростом и
    межстрочьем тела, краской подписи — имя остаётся главным, марка читается
    раньше него. */
 .brand{display:block;font-size:var(--body-size);line-height:var(--body-lead);font-weight:600;letter-spacing:normal;color:var(--ink-soft)}
 .name{font-size:var(--pagehead-size);line-height:var(--pagehead-lead);font-weight:var(--pagehead-weight);letter-spacing:var(--pagehead-track);text-wrap:balance;overflow-wrap:anywhere}
-/* Цена у имени (Baymard): сейчас — крупно, прежняя — зачёркнута рядом,
+/* Цена у имени (Baymard): сейчас — заметно, прежняя — зачёркнута рядом,
    наличие — тихо в той же строке, по базовой линии. */
 .price{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:var(--gap-row);row-gap:var(--sp-1)}
-.now{font-size:var(--h3-size);line-height:var(--h3-lead);font-weight:var(--h3-weight);letter-spacing:var(--h3-track);font-variant-numeric:tabular-nums;color:var(--ink)}
+/* Цена — роль ввода, полужирная: заметна сразу под именем, но тише его —
+   громкое слово у колонки одно (И444). Ступенью подзаголовка она спорила
+   с именем: 29 px / 600 под 42 px / 700. */
+.now{font-size:var(--intro-size);line-height:var(--intro-lead);font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
 .was{font-size:var(--body-size);color:var(--ink-soft);font-variant-numeric:tabular-nums;text-decoration-thickness:var(--line-w)}
 .stock{font-size:var(--note-size);line-height:var(--note-lead);color:var(--ink-soft)}
 
-/* Выбор: группа — подпись и опции вплотную, между группами — строка. */
-.choice{display:grid;gap:var(--air-row)}
+/* Выбор: группа — подпись и опции вплотную, между группами — воздухом
+   `--air-set` (ступенью ниже `--air-row`): выбор — одна строка части
+   покупки, и группы внутри него теснее, чем выбор от строки покупки
+   (flatRhythm). Ступень `--sp-3` напрямую узел не читает (stepDirect, И448). */
+.choice{display:grid;gap:var(--air-set)}
 /* Опции варианта — органы ростом с кнопку (`--seg-h` сегмента: `--ctrl-h`,
    40 под мышью, 48 под пальцем), а не малые фишки: это выбор, без которого
    не купить. */
