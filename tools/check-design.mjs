@@ -340,12 +340,30 @@ for (const view of views) {
         const marks = [...sel.matchAll(/\[([\w-]+)=['"]?([\w-]+)['"]?\]/g)]
         return !marks.length || links.some((l) => marks.some((m) => new RegExp(m[1] + '=[{"\'`\\s]*' + m[2] + '\\b').test(l.attrs)))
       }
+      /* Голое правило органа (`.chip` мельче тела) перебито у ссылки, если она
+         несёт одежду того же органа с размером: `.chip[data-chip='nav']`
+         (0,2,0) бьёт `.chip` (0,1,0) при любом порядке (И230). Молчит
+         правило, только когда перебито у КАЖДОЙ ссылки меню, которую метит,
+         — ссылка без одежды осталась мелкой (И448). */
+      const bears = (l, sel) => {
+        const marks = [...sel.matchAll(/\[([\w-]+)=['"]?([\w-]+)['"]?\]/g)]
+        return marks.length > 0 && marks.every((m) => new RegExp(m[1] + '=[{"\'`\\s]*' + m[2] + '\\b').test(l.attrs))
+      }
+      const shadowed = (r, rules) => {
+        const own = classesOf(r.parts[0])
+        if (r.parts.length !== 1 || own.length !== 1 || /\[/.test(r.parts[0])) return false
+        const aimed = links.filter((l) => l.classes.some((c) => c.name === own[0]))
+        return aimed.length > 0 && aimed.every((l) => rules.some((d) => d !== r && sizeOf(d.decl)
+          && classesOf(d.parts.at(-1)).includes(own[0]) && bears(l, d.parts.at(-1))))
+      }
       for (const file of new Set(refs.map((c) => c.file).filter(Boolean))) {
         const names = new Set(refs.filter((c) => c.file === file).map((c) => c.name))
-        for (const r of css.get(file)?.rules ?? []) {
+        const rules = css.get(file)?.rules ?? []
+        for (const r of rules) {
           const last = r.parts.at(-1)
           const aimsLink = (elementsOf(last).includes('a') || classesOf(last).some((c) => linkClasses.has(c))) && carried(last)
           if (!aimsLink || !r.parts.some((p) => classesOf(p).some((c) => names.has(c)))) continue
+          if (shadowed(r, rules)) continue
           const size = sizeOf(r.decl)
           const px = size && range(size)
           if (px && px[1] < 16) add('navSmall', `${rel(file)}:${r.line}`, `${r.sel} — ${size} (до ${+px[1].toFixed(1)}px) мельче тела`)
