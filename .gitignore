@@ -15,3 +15,8 @@ dist/
 .refs/
 # Витрина из шаблона для правки шаблона (npm run storefront, И432): копия, правят templates/storefront
 /.storefront/
+# Папка сборки витрины на Vercel (И433): в репозитории — только её настройки,
+# витрину в неё ставит сборка
+/deploy/vercel/*
+!/deploy/vercel/package.json
+!/deploy/vercel/vercel.json
