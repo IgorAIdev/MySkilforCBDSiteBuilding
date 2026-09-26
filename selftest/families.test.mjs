@@ -267,3 +267,33 @@ test('knobTie: ручка примитива, переобъявленная у�
     assert.match(list(dir), /— 0\n/)
   } finally { rmSync(dir, { recursive: true, force: true }) }
 })
+
+/* И454: имя объявляет код проекта — шрифт `next/font`, объект стиля,
+   `setProperty` — и лежит этот код там, где его назвал `kit.config.json`,
+   а не в раскладке набора. Такое имя объявлено; необъявленное нигде —
+   находка по-прежнему. */
+test('varMissing: имя, объявленное кодом проекта из его папок, объявлено (И454)', () => {
+  const layout = "const inter = Inter({ subsets: ['latin'], variable: '--face-latin' })\n"
+  const meter = "export const Meter = ({ p }) => <div className={s.bar} style={{ '--meter-fill': p }} />\n"
+  const knob = "export const set = (el, v) => el.style.setProperty('--knob-at', v)\n"
+  const dir = project({
+    'kit.config.json': JSON.stringify({ code: ['src/app', 'src/components', 'src/lib'], styles: ['src', 'ui/src'], lib: 'src/lib', pages: 'src/app' }),
+    'src/app/layout.tsx': layout,
+    'ui/src/Meter.tsx': meter,
+    'src/lib/knob.ts': knob,
+    'src/app/globals.css': 'html { font-family: var(--face-latin), system-ui }\n',
+    'ui/src/Meter.module.css': '.bar { inline-size: var(--meter-fill); inset-inline-start: var(--knob-at); block-size: var(--ghost-fill) }\n',
+  })
+  const list = () => spawnSync(process.execPath, [join(dir, 'tools/check-css.mjs'), '--list', 'varMissing'], { cwd: dir, encoding: 'utf8' }).stdout
+  try {
+    const out = list()
+    for (const name of ['--face-latin', '--meter-fill', '--knob-at']) assert.ok(!out.includes(`${name} — читается`), `${name} объявлен кодом — не находка:\n${out}`)
+    assert.match(out, /--ghost-fill — читается, не объявлен/, 'не объявлен нигде — находка')
+    /* Обратный ход: код больше не объявляет — находка. */
+    writeFileSync(join(dir, 'src/app/layout.tsx'), "const inter = Inter({ subsets: ['latin'] })\n")
+    writeFileSync(join(dir, 'ui/src/Meter.tsx'), 'export const Meter = () => <div className={s.bar} />\n')
+    writeFileSync(join(dir, 'src/lib/knob.ts'), 'export const set = () => {}\n')
+    const back = list()
+    for (const name of ['--face-latin', '--meter-fill', '--knob-at']) assert.match(back, new RegExp(`${name} — читается, не объявлен`))
+  } finally { rmSync(dir, { recursive: true, force: true }) }
+})

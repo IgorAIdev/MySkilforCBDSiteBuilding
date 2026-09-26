@@ -24,7 +24,7 @@ import { axisOf, POINTER_FORBIDDEN } from './axes.mjs'
    проекта, а без него — соглашения набора. Набирать это здесь рукой нельзя:
    на чужом проекте проверка тогда молчит нулём (И168). */
 import { STYLE_DIRS as DIRS, LIB, TOKENS, BASE, CONTROLS, EXEMPT, FLOATING, PALETTE,
-  BREAKPOINTS, SEAMS, COMPONENT_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES, PRIMITIVES } from './kit-config.mjs'
+  BREAKPOINTS, SEAMS, COMPONENT_DIRS, CODE_DIRS, inDirs, PREFIX, RX, ALIASES, LADDER, HUES, PRIMITIVES } from './kit-config.mjs'
 import { deadSeams } from './seams.mjs'
 
 const relative = (...args) => nativeRelative(...args).split(String.fromCharCode(92)).join('/')
@@ -54,23 +54,55 @@ const LAYER_VAR = new RegExp(`var\\(${RX.layer}`)
 const SPACING_FLOOR = RHYTHM.floor
 
 
-/** Текст всего, что может читать имя вне стилей: код проекта, инструменты,
- *  тесты, шаблоны. Считается один раз. */
-let codeCache = null
-function codeText() {
-  if (codeCache !== null) return codeCache
+/** Текст кода в папках списка (от корня проекта). Файл, попавший в две
+ *  папки — `src` и `src/app`, — читается один раз. */
+function readCode(dirs) {
+  const seen = new Set()
   const out = []
   const walkCode = (dir) => {
     if (!existsSync(dir)) return
     for (const name of readdirSync(dir)) {
       const path = join(dir, name)
       if (statSync(path).isDirectory()) { if (name !== 'node_modules') walkCode(path); continue }
-      if (/\.(tsx?|jsx?|mjs|html|json)$/.test(name)) out.push(readFileSync(path, 'utf8'))
+      if (!/\.(tsx?|jsx?|mjs|html|json)$/.test(name) || seen.has(path)) continue
+      seen.add(path)
+      out.push(readFileSync(path, 'utf8'))
     }
   }
-  for (const dir of ['app', 'components', 'lib', 'tools', 'tests', 'templates', 'selftest']) walkCode(join(ROOT, dir))
-  codeCache = out.join('\n')
+  for (const dir of dirs) walkCode(join(ROOT, dir))
+  return out.join('\n')
+}
+
+/** Код проекта — папки кода и стилей из `kit.config.json`, а не раскладка
+ *  набора (И454). У монорепозитория код лежит в `src/…`, а узлы с их
+ *  разметкой — в общем пакете этажом выше; по `app`, `components`, `lib` в
+ *  корне проверка не видела там ни строки. Считается один раз. */
+let projectCache = null
+function projectCode() {
+  if (projectCache === null) projectCache = readCode([...CODE_DIRS, ...DIRS])
+  return projectCache
+}
+
+/** Текст всего, что может читать имя вне стилей: код проекта, инструменты,
+ *  тесты, шаблоны. Считается один раз. */
+let codeCache = null
+function codeText() {
+  if (codeCache === null) codeCache = `${projectCode()}\n${readCode(['app', 'components', 'lib', 'tools', 'tests', 'templates', 'selftest'])}`
   return codeCache
+}
+
+/** Имена, которые объявляет код проекта, а не стили (И454): ключ объекта
+ *  стиля (`style={{ '--x': v }}`), `setProperty('--x', …)` и переменная
+ *  шрифта Next (`next/font`, `variable: '--x'` — её объявляет класс, который
+ *  выпускает сборка). Только код проекта: словари имён в инструментах набора
+ *  объявлением не являются. */
+function codeDeclared() {
+  const out = new Set()
+  const q = `['"\`]`
+  const name = '(--[a-z][a-z0-9-]*)'
+  const rx = new RegExp(`${q}${name}${q}\\s*:|setProperty\\(\\s*${q}${name}${q}|\\bvariable\\s*:\\s*${q}${name}${q}`, 'g')
+  for (const m of projectCode().matchAll(rx)) out.add(m[1] ?? m[2] ?? m[3])
+  return out
 }
 
 const files = []
@@ -1341,9 +1373,11 @@ for (const path of files) {
    *
    * Ручка примитива, которую ставит узел или код, объявляется не в стилях —
    * поэтому спрашивается только имя БЕЗ запасного значения: у ручки оно
-   * есть всегда (`var(--tap, var(--ctrl-target))`). */
+   * есть всегда (`var(--tap, var(--ctrl-target))`). Имя, которое объявляет
+   * код проекта (объект стиля, `setProperty`, шрифт `next/font`), —
+   * объявлено (И454). */
   {
-    const declared = new Set()
+    const declared = codeDeclared()
     for (const { css } of sheets) {
       for (const d of css.matchAll(/(?:^|[;{])\s*(--[a-z][a-z0-9-]*)\s*:/g)) declared.add(d[1])
     }
