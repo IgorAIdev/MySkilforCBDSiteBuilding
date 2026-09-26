@@ -101,12 +101,26 @@ if (has('tools/check-rules.mjs') &&
 }
 if (!runs.length) process.exit(0)
 
+/* `npm` на Windows — это `npm.cmd`, и без оболочки Node его не запускает:
+   ENOENT, пустой вывод, а тесты после правки данных не шли вовсе (И453).
+   Тот же ход, что у большой проверки (И234): системный `cmd.exe /d /s /c`,
+   оболочку самого Node не включаем. `node` оболочки не требует. */
+function run(cmd, args) {
+  const opts = { cwd: ROOT, encoding: 'utf8', timeout: 90_000 }
+  if (cmd === 'npm' && process.platform === 'win32') {
+    return spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', `npm.cmd ${args.join(' ')}`], opts)
+  }
+  return spawnSync(cmd, args, opts)
+}
+
 const failed = []
 const ok = []
 for (const [name, cmd, args] of runs) {
-  const r = spawnSync(cmd, args, { cwd: ROOT, encoding: 'utf8', timeout: 90_000 })
+  const r = run(cmd, args)
   if (r.status === 0) ok.push(name)
-  else failed.push(`✗ ${name} после правки ${rel}:\n${(r.stdout + r.stderr).trim().split('\n').slice(-25).join('\n')}`)
+  /* Не запустилось вовсе — вывода нет, есть только ошибка запуска: её и
+     называем, иначе агент видит «✗ test» без единого слова о причине. */
+  else failed.push(`✗ ${name} после правки ${rel}:\n${[r.error?.message, r.stdout, r.stderr].filter(Boolean).join('\n').trim().split('\n').slice(-25).join('\n')}`)
 }
 
 if (failed.length) {
