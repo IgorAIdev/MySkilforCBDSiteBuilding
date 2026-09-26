@@ -4,6 +4,8 @@
 
      GET    /look-panel/look.js, look.css, choice.mjs, catalog.json, engine/* — сама панель
      GET    /look-panel/state    опубликованные и черновые имена вариантов и краски палитры
+     GET    /look-panel/published  опубликованный вид целиком — его забирает в скилл
+                                 `npm run storefront -- --save-look --from <адрес>` (И434)
      POST   /look-panel/preview  включить черновой режим (видит только этот браузер)
      DELETE /look-panel/preview  выключить: снова опубликованный вид
      POST   /look-panel/guard    своя палитра → с какими вариантами она не носится
@@ -98,10 +100,16 @@ async function build(chosen: Record<string, string>, paints: Paints | null, cat:
   if (notes.length) return { error: notes.map((n) => `${n.what} ${n.why}`).join('; ') }
   return { look }
 }
-/** Та же страница, а не чужой сайт: запросы, меняющие вид, — только со своего адреса. */
+/** Та же страница, а не чужой сайт: запросы, меняющие вид, — только со своего адреса.
+ *  Свой адрес — имя, по которому браузер пришёл (`Host`, за прокси —
+ *  `X-Forwarded-Host`), а не адрес, который слушает сервер: за прокси
+ *  сервера и за пробросом порта это `localhost:3000`, и публикация с
+ *  витрины скилла на сервере отвечала «origin» (И434). */
 const sameOrigin = (request: Request) => {
   const origin = request.headers.get('origin')
-  return !origin || origin === new URL(request.url).origin
+  if (!origin) return true
+  const host = (request.headers.get('x-forwarded-host') ?? request.headers.get('host'))?.split(',')[0].trim()
+  return URL.canParse(origin) && (new URL(origin).host === host || origin === new URL(request.url).origin)
 }
 /** Проверка выбранного — `check:choice` на черновике, отдельным процессом:
  *  он ходит в этот же сервер, и ждать его надо, не занимая сервер. */
@@ -125,6 +133,9 @@ export async function handle(request: Request, path: string[]): Promise<Response
     const published = stateOf('look.json')
     const draft = existsSync(join(SAMPLE, 'look.draft.json')) ? stateOf('look.draft.json') : { names: null, paints: null }
     return json({ published: published.names, publishedPaints: published.paints, draft: draft.names, draftPaints: draft.paints, previewing })
+  }
+  if (method === 'GET' && head === 'published') {
+    return new Response(readFileSync(join(SAMPLE, 'look.json')), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } })
   }
   if (!sameOrigin(request)) return json({ ok: false, error: 'origin' }, 403)
   if (head === 'preview' && method === 'POST') { (await draftMode()).enable(); return json({ ok: true }) }

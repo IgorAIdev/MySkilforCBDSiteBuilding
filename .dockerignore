@@ -1,0 +1,10 @@
+# Сборка витрины скилла (deploy/storefront.Dockerfile, И434): ставится из
+# исходников набора, своё и собранное на машине в образ не едет.
+.git
+node_modules
+**/node_modules
+.storefront
+**/.next
+dist
+.refs
+.superpowers

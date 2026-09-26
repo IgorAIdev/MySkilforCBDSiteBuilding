@@ -26,10 +26,8 @@
  *   npm run storefront -- --save-look  опубликованный в панели вид — в showcase/
  *   npm run storefront -- --port 3030  свой порт (или PORT=3030)
  *   npm run storefront -- --prepare    только поставить (витрина, вид, зависимости),
- *                                      не запускать
- *   … --dir <папка>                    ставить не в `.storefront/`, а в папку —
- *                                      так витрину собирает Vercel
- *                                      (deploy/vercel/vercel.json, И433)
+ *                                      не запускать — так её собирает сервер
+ *                                      (deploy/storefront.Dockerfile, И434)
  *
  * Вид витрины шаблона, выбранный заказчиком в панели (палитра, шрифт,
  * ритм …), лежит в `showcase/` набора: `look.json` — опубликованный вид,
@@ -44,14 +42,14 @@
  */
 
 import { existsSync, rmSync, watch, mkdirSync, copyFileSync, statSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, dirname, relative, resolve, sep } from 'node:path'
+import { join, dirname, relative, sep } from 'node:path'
 import { spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 const args = process.argv.slice(2)
 const opt = (flag) => { const i = args.indexOf(flag); return i >= 0 ? args[i + 1] : undefined }
 const KIT = fileURLToPath(new URL('..', import.meta.url))
-const SITE = opt('--dir') ? resolve(opt('--dir')) : join(KIT, '.storefront')
+const SITE = join(KIT, '.storefront')
 const TEMPLATE = join(KIT, 'templates', 'storefront')
 const SHOWCASE = join(KIT, 'showcase')
 const PUBLISHED = join(SITE, 'lib', 'source', 'sample', 'look.json')
@@ -83,124 +81,146 @@ function applyShowcase() {
   say('вид витрины шаблона — из showcase/')
 }
 
-/* Опубликованный в панели этой витрины вид — обратно в `showcase/`, чтобы
-   его взяла следующая постановка и облачная сессия. */
-if (args.includes('--save-look')) {
-  const look = JSON.parse(readFileSync(PUBLISHED, 'utf8'))
-  mkdirSync(join(SHOWCASE, 'fonts'), { recursive: true })
-  copyFileSync(PUBLISHED, join(SHOWCASE, 'look.json'))
-  for (const url of (look.fonts ?? []).flatMap((f) => f.files.map((x) => x.url))) copyFileSync(join(SITE, 'public', url), join(SHOWCASE, 'fonts', url.split('/').pop()))
-  say('вид витрины сохранён в showcase/ — закоммитьте его')
-  process.exit(0)
-}
-
-if (args.includes('--fresh') && existsSync(SITE)) {
-  say('сношу .storefront/ и ставлю заново')
-  rmSync(SITE, { recursive: true, force: true })
-}
-/* Поставлена — значит, есть запись ставщика: один `package.json` витриной
-   не делает (у Vercel в папке сборки он лежит заранее — по нему узнаётся
-   Next). Папка не пуста, а витрины в ней нет — ставится поверх. */
-if (!existsSync(join(SITE, '.site-kit-install.json'))) {
-  say(`ставлю витрину из шаблона в ${relative(process.cwd(), SITE) || '.'}`)
-  install(existsSync(SITE) && readdirSync(SITE).length > 0)
-  if (!args.includes('--sample')) applyShowcase()
-}
-/* Витрина внутри репозитория набора — свой репозиторий (И447). Набор
-   исключает `.storefront/` в `.gitignore`, а линтер (oxlint) уважает
-   `.gitignore` репозитория, в котором лежит: все файлы витрины выпадали, и
-   `check:lint` печатал «не отдал разбираемый отчёт — НЕ ПРОВЕРЕНО ничего».
-   Свой `.git` — граница: чужой `.gitignore` сквозь неё не читается. Набор
-   папку по-прежнему не видит — она у него исключена. */
-if (!relative(KIT, SITE).startsWith('..') && !existsSync(join(SITE, '.git'))) {
-  try {
-    run('git', ['init', '-q'], SITE, true)
-  } catch {
-    say('git не найден — линтер в витрине увидит ноль файлов (check:lint)')
+/* Опубликованный в панели вид — в `showcase/`, чтобы его взяли следующая
+   постановка, сервер и облачная сессия. С `--from <адрес>` — с витрины
+   скилла на сервере (панель отдаёт его по /look-panel/published, И434), без
+   него — из `.storefront/`. Шрифты — ровно те, что называет вид: сперва всё
+   скачивается, потом пишется, прежние файлы шрифтов уходят. */
+async function saveLook() {
+  const from = opt('--from')?.replace(/\/+$/, '')
+  const get = async (path) => {
+    const res = await fetch(`${from}${path}`)
+    if (!res.ok) throw new Error(`${from}${path} — ${res.status}`)
+    return Buffer.from(await res.arrayBuffer())
   }
-}
-if (!existsSync(join(SITE, 'node_modules', 'next'))) {
-  say('ставлю зависимости витрины (npm install)')
-  run('npm', ['install', '--no-audit', '--no-fund'], SITE)
-}
-if (args.includes('--prepare')) {
-  say('витрина поставлена')
-  process.exit(0)
+  const body = from ? await get('/look-panel/published') : readFileSync(PUBLISHED)
+  const look = JSON.parse(body.toString('utf8'))
+  const urls = (look.fonts ?? []).flatMap((f) => f.files.map((x) => x.url))
+  const files = []
+  for (const url of urls) files.push([url.split('/').pop(), from ? await get(url) : readFileSync(join(SITE, 'public', url))])
+  const fonts = join(SHOWCASE, 'fonts')
+  rmSync(fonts, { recursive: true, force: true })
+  mkdirSync(fonts, { recursive: true })
+  writeFileSync(join(SHOWCASE, 'look.json'), body)
+  for (const [name, data] of files) writeFileSync(join(fonts, name), data)
+  say(`вид ${from ? `с ${from}` : 'витрины'} сохранён в showcase/ — закоммитьте его`)
 }
 
-/* То же, что `npm run dev` витрины, но порт — из `--port` или PORT (по
-   умолчанию 3020, как у витрины): где 3020 занят другой витриной — свой. */
-const PORT = opt('--port') ?? process.env.PORT ?? '3020'
-run(process.execPath, [join(SITE, 'scripts', 'copy-icons.mjs')], SITE, true)
-run(process.execPath, [join(SITE, 'scripts', 'look-slots.mjs')], SITE, true)
-say(`запускаю: http://localhost:${PORT} (панель вида — полоса «Look» внизу)`)
-/* Next — прямо этим же node, без оболочки: через `npx` в оболочке Windows
-   остановка команды убивала оболочку, а сервер оставался сиротой — держал
-   порт и файлы `.storefront/`, и следующая постановка падала с EPERM. */
-const dev = spawn(process.execPath, [join(SITE, 'node_modules', 'next', 'dist', 'bin', 'next'), 'dev', '--port', PORT], { cwd: SITE, stdio: 'inherit', env: { ...process.env, LOOK_PICKER: process.env.LOOK_PICKER ?? 'on' } })
-dev.on('exit', (code) => process.exit(code ?? 0))
-for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { dev.kill(sig); process.exit(0) })
-
-if (!args.includes('--no-watch')) {
-  /* Что кладётся прямо: файл шаблона тем же путём. Что требует переустановки:
-     каталог и правило панели, список свойств и выпуск вида (их пересчитывает
-     сборка каталога), и всё вне шаблона, что установщик раскладывает сам. */
-  const REBUILD = /^(look-panel\/|lib\/look-|scripts\/look-slots\.mjs|lib\/source\/sample\/look\.json|package\.json)/
-  const WATCHED = ['templates/storefront', 'styles', 'tools', 'skills/site-building/assets']
-  /* Временные файлы редакторов (`x.ts.tmp.123`, `x~`, `.x.swp`) живут миг:
-     их не кладут и из-за них не переставляют. */
-  const temp = (rel) => /\.tmp\.[^/]*$|~$|\.sw[a-p]$/.test(rel)
-  const skip = (rel) => /(^|\/)(node_modules|\.next)(\/|$)/.test(rel) || rel === 'tools/storefront.mjs' || temp(rel)
-  let pending = null
-  let reinstall = false
-  const direct = new Set()
-  const flush = () => {
-    pending = null
+/* Постановка, запуск и слежка. Отдельно от сохранения вида: после `fetch`
+   Node на Windows падает на `process.exit` (UV_HANDLE_CLOSING), поэтому
+   сохранение просто заканчивается, а остальное не запускается. */
+function start() {
+  if (args.includes('--fresh') && existsSync(SITE)) {
+    say('сношу .storefront/ и ставлю заново')
+    rmSync(SITE, { recursive: true, force: true })
+  }
+  /* Поставлена — значит, есть запись ставщика: `package.json` остаётся и от
+     постановки, прерванной на полпути. Папка не пуста, а витрины в ней нет —
+     ставится поверх. */
+  if (!existsSync(join(SITE, '.site-kit-install.json'))) {
+    say(`ставлю витрину из шаблона в ${relative(process.cwd(), SITE) || '.'}`)
+    install(existsSync(SITE) && readdirSync(SITE).length > 0)
+    if (!args.includes('--sample')) applyShowcase()
+  }
+  /* Витрина внутри репозитория набора — свой репозиторий (И447). Набор
+     исключает `.storefront/` в `.gitignore`, а линтер (oxlint) уважает
+     `.gitignore` репозитория, в котором лежит: все файлы витрины выпадали, и
+     `check:lint` печатал «не отдал разбираемый отчёт — НЕ ПРОВЕРЕНО ничего».
+     Свой `.git` — граница: чужой `.gitignore` сквозь неё не читается. Набор
+     папку по-прежнему не видит — она у него исключена. */
+  if (!relative(KIT, SITE).startsWith('..') && !existsSync(join(SITE, '.git'))) {
     try {
-      if (reinstall) {
-        say('правка набора — ставлю витрину поверх заново')
-        install(true)
-        say('готово')
-      } else {
-        for (const rel of direct) {
-          if (!existsSync(join(TEMPLATE, rel))) continue
-          const to = join(SITE, rel)
-          mkdirSync(dirname(to), { recursive: true })
-          /* Одной записью и ещё раз чуть погодя: на Windows сервер
-             разработки читает файл, пока его пишут, получает «файл занят»
-             (os error 32) и держит ошибку до следующей правки — повторная
-             запись её снимает. */
-          const body = readFileSync(join(TEMPLATE, rel))
-          writeFileSync(to, body)
-          setTimeout(() => { try { writeFileSync(to, body) } catch { /* следующая правка положит */ } }, 700)
-          say(`→ ${rel}`)
+      run('git', ['init', '-q'], SITE, true)
+    } catch {
+      say('git не найден — линтер в витрине увидит ноль файлов (check:lint)')
+    }
+  }
+  if (!existsSync(join(SITE, 'node_modules', 'next'))) {
+    say('ставлю зависимости витрины (npm install)')
+    run('npm', ['install', '--no-audit', '--no-fund'], SITE)
+  }
+  if (args.includes('--prepare')) {
+    say('витрина поставлена')
+    process.exit(0)
+  }
+
+  /* То же, что `npm run dev` витрины, но порт — из `--port` или PORT (по
+     умолчанию 3020, как у витрины): где 3020 занят другой витриной — свой. */
+  const PORT = opt('--port') ?? process.env.PORT ?? '3020'
+  run(process.execPath, [join(SITE, 'scripts', 'copy-icons.mjs')], SITE, true)
+  run(process.execPath, [join(SITE, 'scripts', 'look-slots.mjs')], SITE, true)
+  say(`запускаю: http://localhost:${PORT} (панель вида — полоса «Look» внизу)`)
+  /* Next — прямо этим же node, без оболочки: через `npx` в оболочке Windows
+     остановка команды убивала оболочку, а сервер оставался сиротой — держал
+     порт и файлы `.storefront/`, и следующая постановка падала с EPERM. */
+  const dev = spawn(process.execPath, [join(SITE, 'node_modules', 'next', 'dist', 'bin', 'next'), 'dev', '--port', PORT], { cwd: SITE, stdio: 'inherit', env: { ...process.env, LOOK_PICKER: process.env.LOOK_PICKER ?? 'on' } })
+  dev.on('exit', (code) => process.exit(code ?? 0))
+  for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { dev.kill(sig); process.exit(0) })
+
+  if (!args.includes('--no-watch')) {
+    /* Что кладётся прямо: файл шаблона тем же путём. Что требует переустановки:
+       каталог и правило панели, список свойств и выпуск вида (их пересчитывает
+       сборка каталога), и всё вне шаблона, что установщик раскладывает сам. */
+    const REBUILD = /^(look-panel\/|lib\/look-|scripts\/look-slots\.mjs|lib\/source\/sample\/look\.json|package\.json)/
+    const WATCHED = ['templates/storefront', 'styles', 'tools', 'skills/site-building/assets']
+    /* Временные файлы редакторов (`x.ts.tmp.123`, `x~`, `.x.swp`) живут миг:
+       их не кладут и из-за них не переставляют. */
+    const temp = (rel) => /\.tmp\.[^/]*$|~$|\.sw[a-p]$/.test(rel)
+    const skip = (rel) => /(^|\/)(node_modules|\.next)(\/|$)/.test(rel) || rel === 'tools/storefront.mjs' || temp(rel)
+    let pending = null
+    let reinstall = false
+    const direct = new Set()
+    const flush = () => {
+      pending = null
+      try {
+        if (reinstall) {
+          say('правка набора — ставлю витрину поверх заново')
+          install(true)
+          say('готово')
+        } else {
+          for (const rel of direct) {
+            if (!existsSync(join(TEMPLATE, rel))) continue
+            const to = join(SITE, rel)
+            mkdirSync(dirname(to), { recursive: true })
+            /* Одной записью и ещё раз чуть погодя: на Windows сервер
+               разработки читает файл, пока его пишут, получает «файл занят»
+               (os error 32) и держит ошибку до следующей правки — повторная
+               запись её снимает. */
+            const body = readFileSync(join(TEMPLATE, rel))
+            writeFileSync(to, body)
+            setTimeout(() => { try { writeFileSync(to, body) } catch { /* следующая правка положит */ } }, 700)
+            say(`→ ${rel}`)
+          }
         }
-      }
-    } catch (e) { say(`не вышло: ${e.message}`) }
-    reinstall = false
-    direct.clear()
+      } catch (e) { say(`не вышло: ${e.message}`) }
+      reinstall = false
+      direct.clear()
+    }
+    for (const root of WATCHED) {
+      const base = join(KIT, root)
+      if (!existsSync(base)) continue
+      watch(base, { recursive: true }, (_event, file) => {
+        if (!file) return
+        const full = join(base, file.toString())
+        const rel = relative(KIT, full).split(sep).join('/')
+        if (skip(rel)) return
+        if (rel.startsWith('templates/storefront/')) {
+          const inTemplate = rel.slice('templates/storefront/'.length)
+          const gone = !existsSync(full)
+          /* Удалён — только то, что было в витрине: редактор сохраняет через
+             временный файл рядом, и тот «исчезает» сразу после записи. */
+          if (gone && !existsSync(join(SITE, inTemplate))) return
+          if (!gone && statSync(full).isDirectory()) return
+          if (gone || REBUILD.test(inTemplate)) reinstall = true
+          else direct.add(inTemplate)
+        } else reinstall = true
+        clearTimeout(pending)
+        pending = setTimeout(flush, 400)
+      })
+    }
+    say(`слежу за ${WATCHED.join(', ')}: правьте шаблон, витрина подхватит сама`)
   }
-  for (const root of WATCHED) {
-    const base = join(KIT, root)
-    if (!existsSync(base)) continue
-    watch(base, { recursive: true }, (_event, file) => {
-      if (!file) return
-      const full = join(base, file.toString())
-      const rel = relative(KIT, full).split(sep).join('/')
-      if (skip(rel)) return
-      if (rel.startsWith('templates/storefront/')) {
-        const inTemplate = rel.slice('templates/storefront/'.length)
-        const gone = !existsSync(full)
-        /* Удалён — только то, что было в витрине: редактор сохраняет через
-           временный файл рядом, и тот «исчезает» сразу после записи. */
-        if (gone && !existsSync(join(SITE, inTemplate))) return
-        if (!gone && statSync(full).isDirectory()) return
-        if (gone || REBUILD.test(inTemplate)) reinstall = true
-        else direct.add(inTemplate)
-      } else reinstall = true
-      clearTimeout(pending)
-      pending = setTimeout(flush, 400)
-    })
-  }
-  say(`слежу за ${WATCHED.join(', ')}: правьте шаблон, витрина подхватит сама`)
 }
+
+if (args.includes('--save-look')) await saveLook()
+else start()
