@@ -106,6 +106,19 @@ if (!existsSync(join(SITE, '.site-kit-install.json'))) {
   install(existsSync(SITE) && readdirSync(SITE).length > 0)
   if (!args.includes('--sample')) applyShowcase()
 }
+/* Витрина внутри репозитория набора — свой репозиторий (И447). Набор
+   исключает `.storefront/` в `.gitignore`, а линтер (oxlint) уважает
+   `.gitignore` репозитория, в котором лежит: все файлы витрины выпадали, и
+   `check:lint` печатал «не отдал разбираемый отчёт — НЕ ПРОВЕРЕНО ничего».
+   Свой `.git` — граница: чужой `.gitignore` сквозь неё не читается. Набор
+   папку по-прежнему не видит — она у него исключена. */
+if (!relative(KIT, SITE).startsWith('..') && !existsSync(join(SITE, '.git'))) {
+  try {
+    run('git', ['init', '-q'], SITE, true)
+  } catch {
+    say('git не найден — линтер в витрине увидит ноль файлов (check:lint)')
+  }
+}
 if (!existsSync(join(SITE, 'node_modules', 'next'))) {
   say('ставлю зависимости витрины (npm install)')
   run('npm', ['install', '--no-audit', '--no-fund'], SITE)
